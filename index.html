@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header-left">
+        <div class="achievement-icon" id="achievementIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check-icon lucide-badge-check">
+                <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                <path d="m9 12 2 2 4-4"/>
+            </svg>
+            <span class="achievement-counter" id="achievementCounter">0</span>
+        </div>
+    </div>
+    
+    <div class="technique-dropdown" id="techniqueDropdown">
+        <button class="technique-title" id="techniqueTitle">
+            Pomodoro
+            <span class="dropdown-arrow">▼</span>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <div class="dropdown-item" data-technique="pomodoro">
+                <div class="item-title">Pomodoro</div>
+                <div class="item-description">25 min work, 5 min break</div>
+            </div>
+            <div class="dropdown-item" data-technique="flowtime">
+                <div class="item-title">Flowtime</div>
+                <div class="item-description">Work until natural break</div>
+            </div>
+            <div class="dropdown-item" data-technique="timeblocking">
+                <div class="item-title">Time Blocking</div>
+                <div class="item-description">Schedule specific time slots</div>
+            </div>
+            <div class="dropdown-item" data-technique="pomodoro-plus">
+                <div class="item-title">Pomodoro Plus</div>
+                <div class="item-description">45 min work, 15 min break</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="settings-panel" id="settingsPanel">
+        <button class="settings-button" id="settingsButton">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 17H5"/>
+                <path d="M19 7h-9"/>
+                <circle cx="17" cy="17" r="3"/>
+                <circle cx="7" cy="7" r="3"/>
+            </svg>
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+            <div class="settings-section">
+                <div class="settings-title">Audio</div>
+                <div class="audio-controls">
+                    <div class="audio-option active" data-audio="none">
+                        <div class="audio-icon">🔇</div>
+                        <span>Silent</span>
+                    </div>
+                    
+                    <div class="audio-category">
+                        <div class="category-title">Rain</div>
+                        <div class="audio-option" data-audio="rain-light">
+                            <div class="audio-icon">🌦️</div>
+                            <span>Light Rain</span>
+                        </div>
+                        <div class="audio-option" data-audio="rain-heavy">
+                            <div class="audio-icon">⛈️</div>
+                            <span>Heavy Rain</span>
+                        </div>
+                        <div class="audio-option" data-audio="rain-thunder">
+                            <div class="audio-icon">🌩️</div>
+                            <span>Rain & Thunder</span>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-category">
+                        <div class="category-title">Forest</div>
+                        <div class="audio-option" data-audio="forest-birds">
+                            <div class="audio-icon">🐦</div>
+                            <span>Forest Birds</span>
+                        </div>
+                        <div class="audio-option" data-audio="forest-wind">
+                            <div class="audio-icon">🍃</div>
+                            <span>Forest Wind</span>
+                        </div>
+                        <div class="audio-option" data-audio="forest-night">
+                            <div class="audio-icon">🦉</div>
+                            <span>Forest Night</span>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-category">
+                        <div class="category-title">Café</div>
+                        <div class="audio-option" data-audio="cafe-morning">
+                            <div class="audio-icon">☀️</div>
+                            <span>Morning Café</span>
+                        </div>
+                        <div class="audio-option" data-audio="cafe-busy">
+                            <div class="audio-icon">☕</div>
+                            <span>Busy Café</span>
+                        </div>
+                        <div class="audio-option" data-audio="cafe-cozy">
+                            <div class="audio-icon">🕯️</div>
+                            <span>Cozy Café</span>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-option" data-audio="lofi">
+                        <div class="audio-icon">🎵</div>
+                        <span>Lofi Music</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="timer-container">
+            <svg class="progress-ring" viewBox="0 0 100 100">
+                <!-- Liquid Glass Gradient Definition -->
+                <defs>
+                    <linearGradient id="liquidGlassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                        <stop offset="25%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:rgba(255,255,255,0.2);stop-opacity:1" />
+                        <stop offset="75%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(255,255,255,0.5);stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="liquidGlassOverlay" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+                        <stop offset="30%" style="stop-color:rgba(255,255,255,0.7);stop-opacity:1" />
+                        <stop offset="70%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(255,255,255,0.95);stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <!-- Segmented progress circle starting from 12 o'clock -->
+                <g class="progress-segments">
+                    <!-- We lay out lengths/offsets via JS so they are exact -->
+                    <!-- Section 1: 25min Work (starts at 12 o'clock) -->
+                    <circle class="progress-segment work-segment" data-section="1" data-minutes="25" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 2: 5min Break -->
+                    <circle class="progress-segment break-segment" data-section="2" data-minutes="5" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 3: 25min Work -->
+                    <circle class="progress-segment work-segment" data-section="3" data-minutes="25" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 4: 5min Break -->
+                    <circle class="progress-segment break-segment" data-section="4" data-minutes="5" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 5: 25min Work -->
+                    <circle class="progress-segment work-segment" data-section="5" data-minutes="25" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 6: 5min Break -->
+                    <circle class="progress-segment break-segment" data-section="6" data-minutes="5" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 7: 25min Work -->
+                    <circle class="progress-segment work-segment" data-section="7" data-minutes="25" cx="50" cy="50" r="45" fill="none"/>
+                    <!-- Section 8: 15min Long Break -->
+                    <circle class="progress-segment long-break-segment" data-section="8" data-minutes="15" cx="50" cy="50" r="45" fill="none"/>
+                </g>
+                <!-- Glowing per-segment overlay that fills without bridging gaps -->
+                <g class="progress-overlays">
+                    <circle class="progress-overlay" data-ol="1" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="2" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="3" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="4" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="5" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="6" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="7" cx="50" cy="50" r="45" fill="none"/>
+                    <circle class="progress-overlay" data-ol="8" cx="50" cy="50" r="45" fill="none"/>
+                </g>
+                
+                <!-- Active progress indicator -->
+                <circle class="progress-indicator" cx="50" cy="50" r="45" 
+                        stroke-width="3" fill="none"
+                        stroke-dasharray="283" stroke-dashoffset="283"/>
+            </svg>
+            
+            <div class="timer-content">
+                <div class="time" id="time">25:00</div>
+                <div class="mode" id="mode">Focus</div>
+                <div class="session-info" id="sessionInfo">Session 1 of 4</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer with Start/Pause button -->
+    <footer class="timer-footer">
+        <button id="startPause" class="start-btn">Start</button>
+    </footer>
+    
+    <!-- Hidden audio elements -->
+    <audio id="backgroundAudio" loop></audio>
+    
+    <script src="script.js"></script>
+</body>
+</html>
