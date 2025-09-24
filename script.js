@@ -131,10 +131,10 @@ class PomodoroTimer {
             
             // Listen for auth state changes where supported
             try {
-            window.Clerk.addListener('user', (user) => {
+                window.Clerk.addListener('user', (user) => {
                     console.log('Auth state changed:', user);
-                this.isAuthenticated = !!user;
-                this.user = user;
+                    this.isAuthenticated = !!user;
+                    this.user = user;
                     this.updateAuthState();
                 });
             } catch (_) {}
@@ -149,9 +149,37 @@ class PomodoroTimer {
                 });
             } catch (_) {}
             
+            // Listen for auth state changes after redirect
+            try {
+                window.Clerk.addListener('auth', (auth) => {
+                    console.log('Auth state changed:', auth);
+                    this.isAuthenticated = !!auth.user;
+                    this.user = auth.user;
+                    this.updateAuthState();
+                });
+            } catch (_) {}
+            
             this.updateAuthState();
+            
+            // Force check auth state after a short delay to catch post-redirect state
+            setTimeout(() => {
+                this.checkAuthState();
+            }, 1000);
         } catch (error) {
             console.error('Clerk initialization failed:', error);
+        }
+    }
+    
+    checkAuthState() {
+        try {
+            if (window.Clerk && window.Clerk.user) {
+                this.isAuthenticated = true;
+                this.user = window.Clerk.user;
+                this.updateAuthState();
+                console.log('Auth state verified after redirect:', this.user);
+            }
+        } catch (error) {
+            console.log('Auth state check failed:', error);
         }
     }
 
