@@ -106,18 +106,9 @@ class PomodoroTimer {
             await window.Clerk.load({
                 appearance: {
                     elements: {
-                        // Hide the development banner
-                        '::before': {
-                            content: 'none'
-                        }
+                        '::before': { content: 'none' }
                     }
                 },
-                // Force production mode
-                isSatellite: false,
-                domain: window.location.hostname,
-                isProduction: true,
-                environment: 'production',
-                // Additional production settings
                 publishableKey: 'pk_live_Y2xlcmsudHJ1ZXRlbXBvLmFwcCQ'
             });
             
