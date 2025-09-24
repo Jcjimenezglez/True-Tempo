@@ -126,14 +126,8 @@ class PomodoroTimer {
             this.user = window.Clerk.user;
             console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
 
-            // If coming from a Clerk redirect, remove query params and ensure user state settles
-            try {
-                const url = new URL(window.location.href);
-                if (url.searchParams.has('__clerk_status')) {
-                    url.searchParams.delete('__clerk_status');
-                    window.history.replaceState({}, '', url.toString());
-                }
-            } catch (_) {}
+            // If coming from a Clerk redirect, remove Clerk params from URL
+            this.stripClerkParamsFromUrl();
 
             // Poll briefly to ensure user is hydrated after redirect
             await this.waitForUserHydration(3000);
@@ -182,6 +176,25 @@ class PomodoroTimer {
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }
+    }
+
+    // Remove any Clerk-specific query params from URL to avoid sticky auth state
+    stripClerkParamsFromUrl() {
+        try {
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
+            let changed = false;
+            // Remove any param that starts with __clerk_
+            [...params.keys()].forEach((key) => {
+                if (key.startsWith('__clerk_')) {
+                    params.delete(key);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                window.history.replaceState({}, '', `${url.pathname}${params.toString() ? `?${params.toString()}` : ''}${url.hash}`);
+            }
+        } catch (_) { /* ignore */ }
     }
     
     checkAuthState() {
@@ -312,11 +325,20 @@ class PomodoroTimer {
             // Wait a moment for the fade effect
             await new Promise(resolve => setTimeout(resolve, 300));
             
-            // Optimistic UI update and redirect sign out
+            // Optimistic UI update
             this.isAuthenticated = false;
             this.user = null;
             this.updateAuthState();
-            await window.Clerk.signOut({ redirectUrl: window.location.href });
+
+            // Sign out from Clerk (all sessions) without adding extra query params
+            try {
+                await window.Clerk.signOut({ signOutAll: true });
+            } catch (_) { /* ignore */ }
+
+            // Clean Clerk params and hard reload the page without query string
+            this.stripClerkParamsFromUrl();
+            const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+            window.location.replace(cleanUrl);
         } catch (err) {
             console.error('Logout failed:', err);
             // Reset button state on error
