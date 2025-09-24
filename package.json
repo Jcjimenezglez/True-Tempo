@@ -1,0 +1,12 @@
+{
+  "name": "focus-timer-pomodoro",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@clerk/clerk-js": "^5.95.0",
+    "stripe": "^12.18.0"
+  }
+}

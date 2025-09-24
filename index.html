@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus Timer</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Clerk Auth -->
+    <script async crossorigin="anonymous" 
+            data-clerk-publishable-key="pk_test_c3RpcnJlZC1iYXJuYWNsZS02Ni5jbGVyay5hY2NvdW50cy5kZXYk" 
+            src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" 
+            type="text/javascript"></script>
 </head>
 <body>
     <div class="header-left">
-        <div class="achievement-icon" id="achievementIcon">
+        <div class="achievement-icon" id="achievementIcon" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check-icon lucide-badge-check">
                 <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
                 <path d="m9 12 2 2 4-4"/>
@@ -17,105 +22,45 @@
         </div>
     </div>
     
+    <!-- Simple Auth Button -->
+    <div class="auth-button" id="authButton">
+        <button id="signInBtn" style="display: none;">Sign In</button>
+        <button id="signUpBtn" style="display: none;">Sign Up</button>
+        <button id="signOutBtn" style="display: none;">Sign Out</button>
+    </div>
+    
     <div class="technique-dropdown" id="techniqueDropdown">
         <button class="technique-title" id="techniqueTitle">
             Pomodoro
-            <span class="dropdown-arrow">▼</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down">
+                <path d="m6 9 6 6 6-6"/>
+            </svg>
         </button>
         <div class="dropdown-menu" id="dropdownMenu">
             <div class="dropdown-item" data-technique="pomodoro">
-                <div class="item-title">Pomodoro</div>
-                <div class="item-description">25 min work, 5 min break</div>
+                <div class="item-content">
+                    <div class="item-title">Pomodoro</div>
+                    <div class="item-description">25 min work, 5 min break</div>
+                </div>
+                <div class="item-badge free">FREE</div>
             </div>
-            <div class="dropdown-item" data-technique="flowtime">
-                <div class="item-title">Flowtime</div>
-                <div class="item-description">Work until natural break</div>
+            <div class="dropdown-item requires-account" data-technique="pomodoro-plus" data-requires-account="true">
+                <div class="item-content">
+                    <div class="item-title">Pomodoro Plus</div>
+                    <div class="item-description">45 min work, 15 min break</div>
+                </div>
+                <div class="item-badge locked"><span>PRO</span></div>
             </div>
-            <div class="dropdown-item" data-technique="timeblocking">
-                <div class="item-title">Time Blocking</div>
-                <div class="item-description">Schedule specific time slots</div>
-            </div>
-            <div class="dropdown-item" data-technique="pomodoro-plus">
-                <div class="item-title">Pomodoro Plus</div>
-                <div class="item-description">45 min work, 15 min break</div>
+            <div class="dropdown-item requires-account" data-technique="ultradian-rhythm" data-requires-account="true">
+                <div class="item-content">
+                    <div class="item-title">Ultradian Rhythm</div>
+                    <div class="item-description">90 min work, 20 min break</div>
+                </div>
+                <div class="item-badge locked"><span>PRO</span></div>
             </div>
         </div>
     </div>
     
-    <div class="settings-panel" id="settingsPanel">
-        <button class="settings-button" id="settingsButton">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 17H5"/>
-                <path d="M19 7h-9"/>
-                <circle cx="17" cy="17" r="3"/>
-                <circle cx="7" cy="7" r="3"/>
-            </svg>
-        </button>
-        <div class="settings-menu" id="settingsMenu">
-            <div class="settings-section">
-                <div class="settings-title">Audio</div>
-                <div class="audio-controls">
-                    <div class="audio-option active" data-audio="none">
-                        <div class="audio-icon">🔇</div>
-                        <span>Silent</span>
-                    </div>
-                    
-                    <div class="audio-category">
-                        <div class="category-title">Rain</div>
-                        <div class="audio-option" data-audio="rain-light">
-                            <div class="audio-icon">🌦️</div>
-                            <span>Light Rain</span>
-                        </div>
-                        <div class="audio-option" data-audio="rain-heavy">
-                            <div class="audio-icon">⛈️</div>
-                            <span>Heavy Rain</span>
-                        </div>
-                        <div class="audio-option" data-audio="rain-thunder">
-                            <div class="audio-icon">🌩️</div>
-                            <span>Rain & Thunder</span>
-                        </div>
-                    </div>
-                    
-                    <div class="audio-category">
-                        <div class="category-title">Forest</div>
-                        <div class="audio-option" data-audio="forest-birds">
-                            <div class="audio-icon">🐦</div>
-                            <span>Forest Birds</span>
-                        </div>
-                        <div class="audio-option" data-audio="forest-wind">
-                            <div class="audio-icon">🍃</div>
-                            <span>Forest Wind</span>
-                        </div>
-                        <div class="audio-option" data-audio="forest-night">
-                            <div class="audio-icon">🦉</div>
-                            <span>Forest Night</span>
-                        </div>
-                    </div>
-                    
-                    <div class="audio-category">
-                        <div class="category-title">Café</div>
-                        <div class="audio-option" data-audio="cafe-morning">
-                            <div class="audio-icon">☀️</div>
-                            <span>Morning Café</span>
-                        </div>
-                        <div class="audio-option" data-audio="cafe-busy">
-                            <div class="audio-icon">☕</div>
-                            <span>Busy Café</span>
-                        </div>
-                        <div class="audio-option" data-audio="cafe-cozy">
-                            <div class="audio-icon">🕯️</div>
-                            <span>Cozy Café</span>
-                        </div>
-                    </div>
-                    
-                    <div class="audio-option" data-audio="lofi">
-                        <div class="audio-icon">🎵</div>
-                        <span>Lofi Music</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     
     <div class="container">
         <div class="timer-container">
@@ -179,16 +124,27 @@
                 <div class="mode" id="mode">Focus</div>
                 <div class="session-info" id="sessionInfo">Session 1 of 4</div>
             </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- Footer with Start/Pause button -->
+        
+    <!-- Footer with Start/Pause, Reset, and Navigation buttons -->
     <footer class="timer-footer">
+        <button id="prevSectionBtn" class="nav-btn prev-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
         <button id="startPause" class="start-btn">Start</button>
+        <button id="nextSectionBtn" class="nav-btn next-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
     </footer>
     
     <!-- Hidden audio elements -->
     <audio id="backgroundAudio" loop></audio>
+
     
     <script src="script.js"></script>
 </body>

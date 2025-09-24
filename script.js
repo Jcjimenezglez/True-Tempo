@@ -31,7 +31,8 @@ class PomodoroTimer {
         this.modeElement = document.getElementById('mode');
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.startPauseBtn = document.getElementById('startPause');
-        this.progressCircle = document.querySelector('.progress-ring-circle');
+        this.prevSectionBtn = document.getElementById('prevSectionBtn');
+        this.nextSectionBtn = document.getElementById('nextSectionBtn');
         this.progressSegments = document.querySelectorAll('.progress-segment');
         this.progressIndicator = document.querySelector('.progress-indicator');
         this.progressOverlays = document.querySelectorAll('.progress-overlay');
@@ -39,23 +40,21 @@ class PomodoroTimer {
         this.techniqueDropdown = document.getElementById('techniqueDropdown');
         this.dropdownMenu = document.getElementById('dropdownMenu');
         this.dropdownItems = document.querySelectorAll('.dropdown-item');
-        this.settingsPanel = document.getElementById('settingsPanel');
-        this.settingsButton = document.getElementById('settingsButton');
-        this.settingsMenu = document.getElementById('settingsMenu');
-        this.audioOptions = document.querySelectorAll('.audio-option');
         this.backgroundAudio = document.getElementById('backgroundAudio');
-        this.achievementIcon = document.getElementById('achievementIcon');
-        this.achievementCounter = document.getElementById('achievementCounter');
+        
+        // Auth elements
+        this.signInBtn = document.getElementById('signInBtn');
+        this.signUpBtn = document.getElementById('signUpBtn');
+        this.signOutBtn = document.getElementById('signOutBtn');
+        
+        // Auth state
+        this.isAuthenticated = false;
+        this.user = null;
         
         // Audio state
         this.currentAudio = null;
         this.audioContext = null;
         this.cassetteSounds = null;
-        
-        // Achievement state
-        this.completedCycles = 0;
-        this.totalWorkTime = 0; // Track total work time in seconds
-        this.achievementThreshold = 130 * 60; // 130 minutes in seconds (4x25min work + 3x5min break + 1x15min long break)
         
         this.init();
     }
@@ -69,14 +68,92 @@ class PomodoroTimer {
         this.bindEvents();
         this.updateTechniqueTitle();
         this.loadAudio();
-        this.loadAchievements();
         this.loadCassetteSounds();
+        this.updateNavigationButtons();
+        this.initClerk();
+    }
+
+    // Clerk Authentication Methods
+    async initClerk() {
+        try {
+            await this.waitForClerk();
+            await window.Clerk.load();
+            
+            this.isAuthenticated = !!window.Clerk.user;
+            this.user = window.Clerk.user;
+            
+            // Listen for auth state changes
+            window.Clerk.addListener('user', (user) => {
+                this.isAuthenticated = !!user;
+                this.user = user;
+                this.updateAuthState();
+            });
+            
+            this.updateAuthState();
+        } catch (error) {
+            console.error('Clerk initialization failed:', error);
+        }
+    }
+    
+    async waitForClerk() {
+        return new Promise((resolve) => {
+            if (window.Clerk) {
+                resolve();
+                return;
+            }
+            
+            const checkClerk = () => {
+                if (window.Clerk) {
+                    resolve();
+                } else {
+                    setTimeout(checkClerk, 100);
+                }
+            };
+            
+            checkClerk();
+        });
+    }
+    
+    updateAuthState() {
+        if (this.isAuthenticated) {
+            this.signInBtn.style.display = 'none';
+            this.signUpBtn.style.display = 'none';
+            this.signOutBtn.style.display = 'block';
+        } else {
+            this.signInBtn.style.display = 'block';
+            this.signUpBtn.style.display = 'block';
+            this.signOutBtn.style.display = 'none';
+        }
+    }
+    
+    async handleSignIn() {
+        try {
+            await window.Clerk.openSignIn();
+        } catch (error) {
+            console.error('Sign in failed:', error);
+        }
+    }
+    
+    async handleSignUp() {
+        try {
+            await window.Clerk.openSignUp();
+        } catch (error) {
+            console.error('Sign up failed:', error);
+        }
+    }
+    
+    async handleSignOut() {
+        try {
+            await window.Clerk.signOut();
+        } catch (error) {
+            console.error('Sign out failed:', error);
+        }
     }
 
     updateTechniqueTitle() {
         // For now, fixed Pomodoro – could be dynamic later
         if (this.techniqueTitle) {
-            this.techniqueTitle.innerHTML = 'Pomodoro<span class="dropdown-arrow">▼</span>';
+            this.techniqueTitle.innerHTML = 'Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>';
         }
     }
     
@@ -93,7 +170,7 @@ class PomodoroTimer {
         const title = item.querySelector('.item-title').textContent;
         
         // Update the button text
-        this.techniqueTitle.innerHTML = `${title}<span class="dropdown-arrow">▼</span>`;
+        this.techniqueTitle.innerHTML = `${title}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
         
         // Close dropdown
         this.closeDropdown();
@@ -108,139 +185,54 @@ class PomodoroTimer {
             case 'pomodoro':
                 this.workTime = 25 * 60;
                 this.shortBreakTime = 5 * 60;
-                this.longBreakTime = 15 * 60; // Corrected to 15 minutes
+                this.longBreakTime = 15 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
                 break;
             case 'pomodoro-plus':
                 this.workTime = 45 * 60;
                 this.shortBreakTime = 15 * 60;
                 this.longBreakTime = 30 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
                 break;
-            case 'flowtime':
-                // Flowtime doesn't have fixed intervals, but we'll use a default
-                this.workTime = 60 * 60; // 1 hour
-                this.shortBreakTime = 10 * 60;
-                this.longBreakTime = 30 * 60;
-                break;
-            case 'timeblocking':
-                this.workTime = 90 * 60; // 1.5 hours
-                this.shortBreakTime = 15 * 60;
-                this.longBreakTime = 30 * 60;
+            case 'ultradian-rhythm':
+                this.workTime = 90 * 60;
+                this.shortBreakTime = 20 * 60;
+                this.longBreakTime = 20 * 60; // Same as short break for simplicity
+                this.sessionsPerCycle = 2;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' }
+                ];
                 break;
         }
         
         // Reset timer with new configuration
-        this.resetTimer();
-    }
-    
-    toggleSettings() {
-        this.settingsPanel.classList.toggle('open');
-        // Close dropdown if open
-        this.closeDropdown();
-    }
-    
-    closeSettings() {
-        this.settingsPanel.classList.remove('open');
-    }
-    
-    selectAudio(option) {
-        const audioType = option.dataset.audio;
-        
-        // Remove active class from all options
-        this.audioOptions.forEach(opt => opt.classList.remove('active'));
-        
-        // Add active class to selected option
-        option.classList.add('active');
-        
-        // Stop current audio
-        this.stopAudio();
-        
-        // Start new audio
-        this.startAudio(audioType);
-        
-        // Store preference
-        localStorage.setItem('selectedAudio', audioType);
-        
-        // Close settings
-        this.closeSettings();
-    }
-    
-    startAudio(type) {
-        if (type === 'none') return;
-        
-        // Para Lofi, usar solo audio sin video
-        if (type === 'lofi') {
-            this.startLofiAudio();
-            return;
-        }
-        
-        // Para sonidos ambientales, usar archivos de audio
-        const audioUrls = {
-            // Rain variations
-            'rain-light': 'https://www.soundjay.com/misc/sounds/rain-light.mp3',
-            'rain-heavy': 'https://www.soundjay.com/misc/sounds/rain-heavy.mp3',
-            'rain-thunder': 'https://www.soundjay.com/misc/sounds/rain-thunder.mp3',
-            
-            // Forest variations
-            'forest-birds': 'https://www.soundjay.com/misc/sounds/forest-birds.mp3',
-            'forest-wind': 'https://www.soundjay.com/misc/sounds/forest-wind.mp3',
-            'forest-night': 'https://www.soundjay.com/misc/sounds/forest-night.mp3',
-            
-            // Café variations
-            'cafe-morning': 'https://www.soundjay.com/misc/sounds/cafe-morning.mp3',
-            'cafe-busy': 'https://www.soundjay.com/misc/sounds/cafe-busy.mp3',
-            'cafe-cozy': 'https://www.soundjay.com/misc/sounds/cafe-cozy.mp3'
-        };
-        
-        if (audioUrls[type]) {
-            this.backgroundAudio.src = audioUrls[type];
-            this.backgroundAudio.loop = true;
-            this.backgroundAudio.volume = 0.3;
-            this.backgroundAudio.play().catch(e => console.log('Audio play failed:', e));
-            this.currentAudio = this.backgroundAudio;
-        }
-    }
-    
-    startLofiAudio() {
-        // Usar solo audio de lofi sin video
-        // Crear un elemento audio para lofi
-        const lofiAudio = new Audio();
-        lofiAudio.src = 'https://www.youtube.com/watch?v=jfKfPfyJRdk&output=audio'; // Solo audio
-        lofiAudio.loop = true;
-        lofiAudio.volume = 0.3;
-        lofiAudio.play().catch(e => {
-            console.log('Lofi audio failed, using fallback');
-            // Fallback: usar un archivo de audio lofi local o de otra fuente
-            this.backgroundAudio.src = 'https://www.soundjay.com/misc/sounds/lofi-music.mp3';
-            this.backgroundAudio.loop = true;
-            this.backgroundAudio.volume = 0.3;
-            this.backgroundAudio.play().catch(e => console.log('Fallback audio failed:', e));
-            this.currentAudio = this.backgroundAudio;
-        });
-        this.currentAudio = lofiAudio;
-    }
-    
-    stopAudio() {
-        if (this.currentAudio) {
-            if (this.currentAudio.pause) {
-                this.currentAudio.pause();
-                this.currentAudio.currentTime = 0;
-            }
-            this.currentAudio = null;
-        }
-    }
-    
-    loadAudio() {
-        const savedAudio = localStorage.getItem('selectedAudio') || 'none';
-        const audioOption = document.querySelector(`[data-audio="${savedAudio}"]`);
-        if (audioOption) {
-            this.selectAudio(audioOption);
-        } else {
-            // Si no hay audio guardado, seleccionar Silent por defecto
-            const silentOption = document.querySelector('[data-audio="none"]');
-            if (silentOption) {
-                silentOption.classList.add('active');
-            }
-        }
+        this.pauseTimerSilent();
+        this.currentSection = 1;
+        this.loadCurrentSection();
+        this.updateNavigationButtons();
     }
 
     // Layout segments proportionally starting from 12 o'clock, with small gaps
@@ -249,15 +241,15 @@ class PomodoroTimer {
         // Target visible gap 2px → with round caps and width 4, use GAP ≈ 6
         const GAP = 6;
 
-        // Read minutes from DOM to support easy tweaks
-        const minutes = Array.from(this.progressSegments).map(seg => parseInt(seg.dataset.minutes, 10));
-        const totalMinutes = minutes.reduce((a, b) => a + b, 0); // should be 130 (25+5+25+5+25+5+25+15)
+        // Use cycleSections data instead of DOM
+        const minutes = this.cycleSections.map(section => section.duration / 60); // Convert seconds to minutes
+        const totalMinutes = minutes.reduce((a, b) => a + b, 0);
 
         // Compute raw lengths proportionally based on actual duration
         const lengths = minutes.map(m => (m / totalMinutes) * CIRCUMFERENCE);
 
         // Apply gaps: ensure each gap is GAP length, subtract proportionally from each segment
-        const totalGaps = GAP * this.progressSegments.length;
+        const totalGaps = GAP * this.cycleSections.length;
         const scale = (CIRCUMFERENCE - totalGaps) / CIRCUMFERENCE;
         const scaledLengths = lengths.map(len => Math.max(6, len * scale)); // min length
         this._segmentMeta = { CIRCUMFERENCE, GAP, scaledLengths };
@@ -266,15 +258,22 @@ class PomodoroTimer {
         // Because we rotate the group and indicator -90deg in CSS, here we start at 0.
         let offset = 0;
         this.progressSegments.forEach((seg, idx) => {
-            const segLen = scaledLengths[idx];
-            seg.setAttribute('stroke-dasharray', `${segLen} ${CIRCUMFERENCE}`);
-            seg.setAttribute('stroke-dashoffset', `${-offset}`);
-            offset += segLen + GAP;
+            if (idx < scaledLengths.length) {
+                const segLen = scaledLengths[idx];
+                seg.setAttribute('stroke-dasharray', `${segLen} ${CIRCUMFERENCE}`);
+                seg.setAttribute('stroke-dashoffset', `${-offset}`);
+                offset += segLen + GAP;
+            } else {
+                // Hide extra segments if current technique has fewer sections
+                seg.style.display = 'none';
+            }
         });
     }
     
     bindEvents() {
         this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+        this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
+        this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
         this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
         // Close dropdown when clicking outside
@@ -289,20 +288,21 @@ class PomodoroTimer {
             item.addEventListener('click', () => this.selectTechnique(item));
         });
         
-        // Settings panel events
-        this.settingsButton.addEventListener('click', () => this.toggleSettings());
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeydown(e));
         
-        // Close settings when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this.settingsPanel.contains(e.target)) {
-                this.closeSettings();
-            }
-        });
+        // Handle auth buttons
+        if (this.signInBtn) {
+            this.signInBtn.addEventListener('click', () => this.handleSignIn());
+        }
         
-        // Handle audio selection
-        this.audioOptions.forEach(option => {
-            option.addEventListener('click', () => this.selectAudio(option));
-        });
+        if (this.signUpBtn) {
+            this.signUpBtn.addEventListener('click', () => this.handleSignUp());
+        }
+        
+        if (this.signOutBtn) {
+            this.signOutBtn.addEventListener('click', () => this.handleSignOut());
+        }
     }
     
     toggleTimer() {
@@ -364,30 +364,78 @@ class PomodoroTimer {
         document.title = `${timeString} - ${modeText} (Paused) | Focus Timer`;
     }
     
-    resetTimer() {
-        this.pauseTimerSilent(); // Use silent pause to avoid sound
-        this.currentSection = 1;
-        this.isWorkSession = true;
-        this.isLongBreak = false;
-        this.timeLeft = this.workTime;
+    goToPreviousSection() {
+        if (this.currentSection > 1) {
+            this.pauseTimerSilent(); // Pause without sound
+            this.currentSection--;
+            this.loadCurrentSection();
+            this.updateNavigationButtons();
+        }
+    }
+    
+    goToNextSection() {
+        if (this.currentSection < this.cycleSections.length) {
+            this.pauseTimerSilent(); // Pause without sound
+            this.currentSection++;
+            this.loadCurrentSection();
+            this.updateNavigationButtons();
+        }
+    }
+    
+    loadCurrentSection() {
+        const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+        this.timeLeft = currentSectionInfo.duration;
+        
+        // Update session type flags
+        this.isWorkSession = currentSectionInfo.type === 'work';
+        this.isLongBreak = currentSectionInfo.type === 'long-break';
+        
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
         this.updateMode();
         this.updateSessionInfo();
+    }
+    
+    updateNavigationButtons() {
+        // Update previous button
+        if (this.prevSectionBtn) {
+            this.prevSectionBtn.disabled = this.currentSection <= 1;
+        }
         
-        // Update title to show reset state
-        document.title = `25:00 - Focus | Focus Timer`;
+        // Update next button
+        if (this.nextSectionBtn) {
+            this.nextSectionBtn.disabled = this.currentSection >= this.cycleSections.length;
+        }
+    }
+    
+    handleKeydown(e) {
+        // Only handle shortcuts if no input/textarea is focused
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+        
+        // Space or Enter to toggle timer
+        if (e.code === 'Space' || e.code === 'Enter') {
+            e.preventDefault(); // Prevent page scroll on space
+            this.toggleTimer();
+        }
+        
+        // A or ArrowLeft for previous section
+        if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+            e.preventDefault();
+            this.goToPreviousSection();
+        }
+        
+        // D or ArrowRight for next section
+        if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+            e.preventDefault();
+            this.goToNextSection();
+        }
     }
     
     completeSession() {
         this.pauseTimer();
-        
-        // Track work time for achievements (only count work sessions)
-        if (this.isWorkSession) {
-            const workDuration = this.cycleSections[this.currentSection - 1].duration;
-            this.trackWorkTime(workDuration);
-        }
         
         // Play notification sound
         this.playNotification();
@@ -395,8 +443,8 @@ class PomodoroTimer {
         // Move to next section in cycle
         this.currentSection++;
         
-        // If we've completed all 8 sections, restart the cycle
-        if (this.currentSection > 8) {
+        // If we've completed all sections, restart the cycle
+        if (this.currentSection > this.cycleSections.length) {
             this.currentSection = 1;
         }
         
@@ -420,7 +468,6 @@ class PomodoroTimer {
         }, 1000);
     }
     
-    
     updateDisplay() {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
@@ -439,21 +486,25 @@ class PomodoroTimer {
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         const totalTime = currentSectionInfo.duration;
         
-        // Calculate progress within current section
-        const sectionProgress = (this.timeLeft / totalTime);
+        // Elapsed within current section (in seconds)
+        const elapsedInSection = currentSectionInfo.duration - this.timeLeft;
+        const sectionProgress = Math.max(0, Math.min(1, elapsedInSection / totalTime));
         
-        // Calculate total progress through the entire 145-minute cycle
-        let totalCycleProgress = 0;
-        for (let i = 0; i < this.currentSection - 1; i++) {
-            totalCycleProgress += this.cycleSections[i].duration;
+        // Build progress distance in SVG units INCLUDING gaps so that
+        // segment starts line up perfectly with visual gaps.
+        const { GAP, scaledLengths } = this._segmentMeta;
+        let distanceWithGaps = 0;
+        // Sum fully completed previous segments (length + gap each)
+        for (let i = 0; i < this.currentSection - 1 && i < scaledLengths.length; i++) {
+            distanceWithGaps += scaledLengths[i] + GAP;
         }
-        totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
+        // Add partial length within current segment
+        const currentSegIndex = Math.min(this.currentSection - 1, scaledLengths.length - 1);
+        const currentSegLen = scaledLengths[currentSegIndex] || 0;
+        distanceWithGaps += currentSegLen * sectionProgress;
         
-        // Convert to percentage of full circle (145 minutes total)
-        const fullCycleProgress = (totalCycleProgress / (145 * 60)) * 283; // 2 * π * 45
-        
-        // Create a segmented progress indicator that respects section boundaries
-        this.updateSegmentedProgress(fullCycleProgress);
+        // Update overlays based on computed distance along whole ring (with gaps)
+        this.updateSegmentedProgress(distanceWithGaps);
     }
     
     updateSegmentedProgress(totalProgress) {
@@ -462,34 +513,40 @@ class PomodoroTimer {
         // Update each overlay to match its own segment completion
         let cursor = 0;
         this.progressOverlays.forEach((ol, i) => {
-            const segLen = scaledLengths[i];
-            let fillLen = 0;
-            
-            // Check if this segment should be visible
-            if (totalProgress > cursor) {
-                // This segment has started
-                if (totalProgress >= cursor + segLen) {
-                    // Segment is fully filled
-                    fillLen = segLen;
-                } else {
-                    // Segment is partially filled - but only show if we're past the gap
-                    const progressInSegment = totalProgress - cursor;
-                    if (progressInSegment > 0) {
-                        fillLen = Math.min(progressInSegment, segLen);
+            if (i < scaledLengths.length) {
+                const segLen = scaledLengths[i];
+                let fillLen = 0;
+                
+                // Check if this segment should be visible
+                if (totalProgress > cursor) {
+                    // This segment has started
+                    if (totalProgress >= cursor + segLen) {
+                        // Segment is fully filled
+                        fillLen = segLen;
+                    } else {
+                        // Segment is partially filled
+                        const progressInSegment = totalProgress - cursor;
+                        if (progressInSegment > 0) {
+                            fillLen = Math.min(progressInSegment, segLen);
+                        }
                     }
                 }
-            }
 
-            if (fillLen > 0) {
-                ol.style.display = 'inline';
-                ol.setAttribute('stroke-dasharray', `${fillLen} ${CIRCUMFERENCE}`);
-                ol.setAttribute('stroke-dashoffset', `${-cursor}`);
+                if (fillLen > 0) {
+                    ol.style.display = 'inline';
+                    ol.setAttribute('stroke-dasharray', `${fillLen} ${CIRCUMFERENCE}`);
+                    ol.setAttribute('stroke-dashoffset', `${-cursor}`);
+                } else {
+                    // Hide completely to avoid small round-cap dots at segment start
+                    ol.style.display = 'none';
+                }
+
+                // Move cursor to next segment position (including gap)
+                cursor += segLen + GAP;
             } else {
-                // Hide completely to avoid small round-cap dots at segment start
+                // Hide extra overlays if current technique has fewer sections
                 ol.style.display = 'none';
             }
-
-            cursor += segLen + GAP;
         });
     }
     
@@ -523,12 +580,14 @@ class PomodoroTimer {
         }
         totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
         
-        const totalCycleTime = 145 * 60; // 145 minutes in seconds
+        // Calculate total cycle time dynamically
+        const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
         const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
         
-        // Format as "Session X of 4 (Y%)"
+        // Format as "Session X of Y (Z%)"
         const sessionNumber = this.currentSection;
-        this.sessionInfoElement.textContent = `Session ${sessionNumber} of 4 (${progressPercentage}%)`;
+        const totalSessions = this.cycleSections.length;
+        this.sessionInfoElement.textContent = `Session ${sessionNumber} of ${totalSessions} (${progressPercentage}%)`;
     }
     
     playNotification() {
@@ -696,70 +755,42 @@ class PomodoroTimer {
         } catch (_) { /* no-op */ }
     }
     
-    // Achievement System Methods
-    loadAchievements() {
-        const saved = localStorage.getItem('pomodoroAchievements');
-        if (saved) {
-            const data = JSON.parse(saved);
-            this.completedCycles = data.completedCycles || 0;
-            this.totalWorkTime = data.totalWorkTime || 0;
-        }
-        this.updateAchievementDisplay();
-    }
-    
-    saveAchievements() {
-        const data = {
-            completedCycles: this.completedCycles,
-            totalWorkTime: this.totalWorkTime
-        };
-        localStorage.setItem('pomodoroAchievements', JSON.stringify(data));
-    }
-    
-    updateAchievementDisplay() {
-        if (this.achievementIcon && this.achievementCounter) {
-            if (this.completedCycles > 0) {
-                this.achievementIcon.classList.add('active');
-                this.achievementCounter.textContent = this.completedCycles;
-            } else {
-                this.achievementIcon.classList.remove('active');
-                this.achievementCounter.textContent = '0';
-            }
+    loadAudio() {
+        // Simple audio loading - no complex audio options for now
+        const savedAudio = localStorage.getItem('selectedAudio') || 'none';
+        if (savedAudio !== 'none') {
+            this.startAudio(savedAudio);
         }
     }
     
-    trackWorkTime(seconds) {
-        this.totalWorkTime += seconds;
+    startAudio(type) {
+        if (type === 'none') return;
         
-        // Check if we've completed a full cycle (130 minutes = 7800 seconds)
-        if (this.totalWorkTime >= this.achievementThreshold) {
-            this.completedCycles++;
-            this.totalWorkTime = 0; // Reset for next cycle
-            this.updateAchievementDisplay();
-            this.saveAchievements();
-            this.playAchievementSound();
+        // Simple audio implementation
+        const audioUrls = {
+            'rain-light': 'https://www.soundjay.com/misc/sounds/rain-light.mp3',
+            'rain-heavy': 'https://www.soundjay.com/misc/sounds/rain-heavy.mp3',
+            'forest-birds': 'https://www.soundjay.com/misc/sounds/forest-birds.mp3',
+            'cafe-morning': 'https://www.soundjay.com/misc/sounds/cafe-morning.mp3'
+        };
+        
+        if (audioUrls[type]) {
+            this.backgroundAudio.src = audioUrls[type];
+            this.backgroundAudio.loop = true;
+            this.backgroundAudio.volume = 0.3;
+            this.backgroundAudio.play().catch(e => console.log('Audio play failed:', e));
+            this.currentAudio = this.backgroundAudio;
         }
     }
     
-    playAchievementSound() {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            // Play a pleasant achievement sound
-            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
-            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-            
-                oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.3);
-        } catch (_) { /* no-op */ }
+    stopAudio() {
+        if (this.currentAudio) {
+            if (this.currentAudio.pause) {
+                this.currentAudio.pause();
+                this.currentAudio.currentTime = 0;
+            }
+            this.currentAudio = null;
+        }
     }
 }
 
