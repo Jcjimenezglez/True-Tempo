@@ -118,7 +118,7 @@ class PomodoroTimer {
                 isProduction: true,
                 environment: 'production',
                 // Additional production settings
-                publishableKey: 'pk_live_Y2x1cmsudHJ1ZXR1bXBvLmFwcCQ'
+                publishableKey: 'pk_live_Y2xlcmsudHJ1ZXRlbXBvLmFwcCQ'
             });
             
             // Hydrate initial auth state
