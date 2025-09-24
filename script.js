@@ -348,18 +348,10 @@ class PomodoroTimer {
                 console.log('Showing logout confirmation...');
                 this.showLogoutModal();
             } else {
-                console.log('Opening Clerk Sign In modal...');
-                if (window.Clerk?.openSignIn) {
-                    window.Clerk.openSignIn({
-                        fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                        signInFallbackRedirectUrl: window.location.origin + window.location.pathname
-                    });
-                } else {
-                    // Fallback to hosted UI redirect if modal not available
-                    window.Clerk.redirectToSignIn({
-                        fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                    });
-                }
+                console.log('Redirecting to Clerk hosted Sign In...');
+                window.Clerk.redirectToSignIn({
+                    fallbackRedirectUrl: window.location.origin + window.location.pathname,
+                });
             }
         } catch (error) {
             console.error('Login/logout failed:', error);
@@ -370,25 +362,11 @@ class PomodoroTimer {
         try {
             const hasAccount = (() => { try { return localStorage.getItem('hasAccount') === 'true'; } catch (_) { return false; }})();
             if (hasAccount) {
-                console.log('Known account on this browser. Opening Sign In modal...');
-                if (window.Clerk?.openSignIn) {
-                    window.Clerk.openSignIn({
-                        fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                        signInFallbackRedirectUrl: window.location.origin + window.location.pathname
-                    });
-                } else {
-                    window.Clerk.redirectToSignIn({ fallbackRedirectUrl: window.location.origin + window.location.pathname });
-                }
+                console.log('Redirecting to Clerk hosted Sign In...');
+                window.Clerk.redirectToSignIn({ fallbackRedirectUrl: window.location.origin + window.location.pathname });
             } else {
-                console.log('Opening Clerk Sign Up modal...');
-                if (window.Clerk?.openSignUp) {
-                    window.Clerk.openSignUp({
-                        fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                        signUpFallbackRedirectUrl: window.location.origin + window.location.pathname
-                    });
-                } else {
-                    window.Clerk.redirectToSignUp({ fallbackRedirectUrl: window.location.origin + window.location.pathname });
-                }
+                console.log('Redirecting to Clerk hosted Sign Up...');
+                window.Clerk.redirectToSignUp({ fallbackRedirectUrl: window.location.origin + window.location.pathname });
             }
         } catch (error) {
             console.error('Sign up failed:', error);
