@@ -84,6 +84,15 @@ class PomodoroTimer {
         this.loadCassetteSounds();
         this.updateNavigationButtons();
         this.initClerk();
+        
+        // Additional check when page is fully loaded
+        if (document.readyState === 'complete') {
+            setTimeout(() => this.checkAuthState(), 2000);
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(() => this.checkAuthState(), 2000);
+            });
+        }
     }
 
     // Clerk Authentication Methods
@@ -165,6 +174,11 @@ class PomodoroTimer {
             setTimeout(() => {
                 this.checkAuthState();
             }, 1000);
+            
+            // Additional check after longer delay to ensure UI updates
+            setTimeout(() => {
+                this.checkAuthState();
+            }, 3000);
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }
@@ -172,11 +186,21 @@ class PomodoroTimer {
     
     checkAuthState() {
         try {
-            if (window.Clerk && window.Clerk.user) {
-                this.isAuthenticated = true;
-                this.user = window.Clerk.user;
-                this.updateAuthState();
-                console.log('Auth state verified after redirect:', this.user);
+            if (window.Clerk) {
+                const currentUser = window.Clerk.user;
+                const currentSession = window.Clerk.session;
+                
+                if (currentUser || currentSession) {
+                    this.isAuthenticated = true;
+                    this.user = currentUser;
+                    this.updateAuthState();
+                    console.log('Auth state verified:', { user: currentUser, session: currentSession });
+                } else {
+                    this.isAuthenticated = false;
+                    this.user = null;
+                    this.updateAuthState();
+                    console.log('No authenticated user found');
+                }
             }
         } catch (error) {
             console.log('Auth state check failed:', error);
@@ -216,6 +240,13 @@ class PomodoroTimer {
     
     updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+        
+        // Force check current auth state from Clerk
+        if (window.Clerk && window.Clerk.user) {
+            this.isAuthenticated = true;
+            this.user = window.Clerk.user;
+        }
+        
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
