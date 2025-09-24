@@ -103,12 +103,13 @@ class PomodoroTimer {
                         }
                     }
                 },
-                // Additional configuration to ensure production mode
+                // Force production mode
                 isSatellite: false,
                 domain: window.location.hostname,
-                // Vercel-specific configuration
                 isProduction: true,
-                environment: 'production'
+                environment: 'production',
+                // Additional production settings
+                publishableKey: 'pk_live_Y2x1cmsudHJ1ZXR1bXBvLmFwcCQ'
             });
             
             // Hydrate initial auth state
@@ -277,7 +278,7 @@ class PomodoroTimer {
             } else {
                 console.log('Redirecting to sign in...');
                 window.Clerk.redirectToSignIn({
-                    redirectUrl: window.location.href,
+                    fallbackRedirectUrl: window.location.href,
                 });
             }
         } catch (error) {
@@ -290,10 +291,10 @@ class PomodoroTimer {
             const hasAccount = (() => { try { return localStorage.getItem('hasAccount') === 'true'; } catch (_) { return false; }})();
             if (hasAccount) {
                 console.log('Known account on this browser. Redirecting to sign in...');
-                window.Clerk.redirectToSignIn({ redirectUrl: window.location.href });
+                window.Clerk.redirectToSignIn({ fallbackRedirectUrl: window.location.href });
             } else {
                 console.log('Redirecting to sign up...');
-                window.Clerk.redirectToSignUp({ redirectUrl: window.location.href });
+                window.Clerk.redirectToSignUp({ fallbackRedirectUrl: window.location.href });
             }
         } catch (error) {
             console.error('Sign up failed:', error);
