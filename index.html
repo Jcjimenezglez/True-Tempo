@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- Clerk Auth -->
     <script async crossorigin="anonymous" 
-            data-clerk-publishable-key="pk_test_c3RpcnJlZC1iYXJuYWNsZS02Ni5jbGVyay5hY2NvdW50cy5kZXYk" 
+            data-clerk-publishable-key="pk_live_Y2x1cmsudHJ1ZXR1bXBvLmFwcCQ" 
             src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" 
             type="text/javascript"></script>
 </head>
@@ -22,11 +22,22 @@
         </div>
     </div>
     
-    <!-- Simple Auth Button -->
-    <div class="auth-button" id="authButton">
-        <button id="signInBtn" style="display: none;">Sign In</button>
-        <button id="signUpBtn" style="display: none;">Sign Up</button>
-        <button id="signOutBtn" style="display: none;">Sign Out</button>
+    <!-- Auth Buttons -->
+    <div class="auth-container" id="authContainer">
+        <button class="login-button" id="loginButton">Login</button>
+        <button class="signup-button" id="signupButton">Sign up for free</button>
+    </div>
+    
+    <!-- User Profile (shown when authenticated) -->
+    <div class="user-profile-container" id="userProfileContainer" style="display: none;">
+        <button class="user-profile-button" id="userProfileButton" aria-label="Account">
+            <img id="userAvatar" alt="User avatar" />
+        </button>
+        <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+                <button id="logoutButton" class="logout-button">Logout</button>
+            </div>
+        </div>
     </div>
     
     <div class="technique-dropdown" id="techniqueDropdown">
@@ -145,6 +156,17 @@
     <!-- Hidden audio elements -->
     <audio id="backgroundAudio" loop></audio>
 
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal-overlay" id="logoutModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <h3 class="logout-modal-title">Are you sure you want<br>to log out?</h3>
+            <p class="logout-modal-message" id="logoutModalMessage">Log out of True Tempo as user@example.com?</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmLogoutBtn">Log out</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelLogoutBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
     
     <script src="script.js"></script>
 </body>

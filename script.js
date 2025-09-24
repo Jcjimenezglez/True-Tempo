@@ -43,9 +43,22 @@ class PomodoroTimer {
         this.backgroundAudio = document.getElementById('backgroundAudio');
         
         // Auth elements
-        this.signInBtn = document.getElementById('signInBtn');
-        this.signUpBtn = document.getElementById('signUpBtn');
-        this.signOutBtn = document.getElementById('signOutBtn');
+        this.authContainer = document.getElementById('authContainer');
+        this.loginButton = document.getElementById('loginButton');
+        this.signupButton = document.getElementById('signupButton');
+        // User profile elements (shown when authenticated)
+        this.userProfileContainer = document.getElementById('userProfileContainer');
+        this.userProfileButton = document.getElementById('userProfileButton');
+        this.userProfileDropdown = document.getElementById('userProfileDropdown');
+        this.userDropdownMenu = document.getElementById('userDropdownMenu');
+        this.userAvatar = document.getElementById('userAvatar');
+        this.logoutButton = document.getElementById('logoutButton');
+        
+        // Logout modal elements
+        this.logoutModalOverlay = document.getElementById('logoutModalOverlay');
+        this.logoutModalMessage = document.getElementById('logoutModalMessage');
+        this.confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+        this.cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
         
         // Auth state
         this.isAuthenticated = false;
@@ -76,22 +89,80 @@ class PomodoroTimer {
     // Clerk Authentication Methods
     async initClerk() {
         try {
+            console.log('Initializing Clerk...');
             await this.waitForClerk();
-            await window.Clerk.load();
+            console.log('Clerk loaded, waiting for user...');
             
+            // Load Clerk with configuration to hide development banner
+            await window.Clerk.load({
+                appearance: {
+                    elements: {
+                        // Hide the development banner
+                        '::before': {
+                            content: 'none'
+                        }
+                    }
+                },
+                // Additional configuration to ensure production mode
+                isSatellite: false,
+                domain: window.location.hostname,
+                // Vercel-specific configuration
+                isProduction: true,
+                environment: 'production'
+            });
+            
+            // Hydrate initial auth state
             this.isAuthenticated = !!window.Clerk.user;
             this.user = window.Clerk.user;
+            console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+
+            // If coming from a Clerk redirect, remove query params and ensure user state settles
+            try {
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('__clerk_status')) {
+                    url.searchParams.delete('__clerk_status');
+                    window.history.replaceState({}, '', url.toString());
+                }
+            } catch (_) {}
+
+            // Poll briefly to ensure user is hydrated after redirect
+            await this.waitForUserHydration(3000);
             
-            // Listen for auth state changes
+            // Listen for auth state changes where supported
+            try {
             window.Clerk.addListener('user', (user) => {
+                    console.log('Auth state changed:', user);
                 this.isAuthenticated = !!user;
                 this.user = user;
-                this.updateAuthState();
-            });
+                    this.updateAuthState();
+                });
+            } catch (_) {}
+            
+            // Also listen for session changes
+            try {
+                window.Clerk.addListener('session', (session) => {
+                    console.log('Session changed:', session);
+                    this.isAuthenticated = !!session;
+                    this.user = window.Clerk.user;
+                    this.updateAuthState();
+                });
+            } catch (_) {}
             
             this.updateAuthState();
         } catch (error) {
             console.error('Clerk initialization failed:', error);
+        }
+    }
+
+    async waitForUserHydration(timeoutMs) {
+        const start = Date.now();
+        while (Date.now() - start < timeoutMs) {
+            if (window.Clerk && window.Clerk.user) {
+                this.user = window.Clerk.user;
+                this.isAuthenticated = true;
+                return;
+            }
+            await new Promise(r => setTimeout(r, 200));
         }
     }
     
@@ -115,40 +186,120 @@ class PomodoroTimer {
     }
     
     updateAuthState() {
-        if (this.isAuthenticated) {
-            this.signInBtn.style.display = 'none';
-            this.signUpBtn.style.display = 'none';
-            this.signOutBtn.style.display = 'block';
+        console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+        if (this.isAuthenticated && this.user) {
+            try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
+            if (this.authContainer) this.authContainer.style.display = 'none';
+            if (this.userProfileContainer) this.userProfileContainer.style.display = 'flex';
+            this.updateUserProfile();
+            console.log('User is authenticated, showing profile avatar');
         } else {
-            this.signInBtn.style.display = 'block';
-            this.signUpBtn.style.display = 'block';
-            this.signOutBtn.style.display = 'none';
+            if (this.authContainer) this.authContainer.style.display = 'flex';
+            if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
+            if (this.loginButton) this.loginButton.textContent = 'Login';
+            if (this.signupButton) this.signupButton.style.display = 'block';
+            console.log('User is not authenticated, showing login/signup buttons');
+        }
+    }
+
+    updateUserProfile() {
+        if (!this.user) return;
+        if (this.user.imageUrl && this.userAvatar) {
+            this.userAvatar.src = this.user.imageUrl;
+        } else if (this.userAvatar) {
+            const initials = this.getInitials(this.user.fullName || this.user.firstName || (this.user.emailAddresses?.[0]?.emailAddress || 'U'));
+            const svg = `
+                <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="36" height="36" fill="#555" rx="18"/>
+                    <text x="18" y="22" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">${initials}</text>
+                </svg>`;
+            this.userAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+        }
+    }
+
+    getInitials(name) {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    
+    showLogoutModal() {
+        if (this.user && this.logoutModalMessage) {
+            const userEmail = this.user.emailAddresses?.[0]?.emailAddress || 'user';
+            this.logoutModalMessage.textContent = `Log out of True Tempo as ${userEmail}?`;
+        }
+        if (this.logoutModalOverlay) {
+            this.logoutModalOverlay.style.display = 'flex';
         }
     }
     
-    async handleSignIn() {
+    hideLogoutModal() {
+        if (this.logoutModalOverlay) {
+            this.logoutModalOverlay.style.display = 'none';
+        }
+    }
+    
+    async performLogout() {
         try {
-            await window.Clerk.openSignIn();
+            // Add loading state to confirm button
+            if (this.confirmLogoutBtn) {
+                this.confirmLogoutBtn.textContent = 'Logging out...';
+                this.confirmLogoutBtn.disabled = true;
+            }
+            
+            // Add fade out effect to the entire page
+            document.body.style.transition = 'opacity 0.5s ease-out';
+            document.body.style.opacity = '0.3';
+            
+            // Wait a moment for the fade effect
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Optimistic UI update and redirect sign out
+            this.isAuthenticated = false;
+            this.user = null;
+            this.updateAuthState();
+            await window.Clerk.signOut({ redirectUrl: window.location.href });
+        } catch (err) {
+            console.error('Logout failed:', err);
+            // Reset button state on error
+            if (this.confirmLogoutBtn) {
+                this.confirmLogoutBtn.textContent = 'Log out';
+                this.confirmLogoutBtn.disabled = false;
+            }
+            // Reset page opacity
+            document.body.style.opacity = '1';
+        }
+    }
+    
+    async handleLogin() {
+        try {
+            if (this.isAuthenticated) {
+                console.log('Showing logout confirmation...');
+                this.showLogoutModal();
+            } else {
+                console.log('Redirecting to sign in...');
+                window.Clerk.redirectToSignIn({
+                    redirectUrl: window.location.href,
+                });
+            }
         } catch (error) {
-            console.error('Sign in failed:', error);
+            console.error('Login/logout failed:', error);
         }
     }
-    
-    async handleSignUp() {
+
+    async handleSignup() {
         try {
-            await window.Clerk.openSignUp();
+            const hasAccount = (() => { try { return localStorage.getItem('hasAccount') === 'true'; } catch (_) { return false; }})();
+            if (hasAccount) {
+                console.log('Known account on this browser. Redirecting to sign in...');
+                window.Clerk.redirectToSignIn({ redirectUrl: window.location.href });
+            } else {
+                console.log('Redirecting to sign up...');
+                window.Clerk.redirectToSignUp({ redirectUrl: window.location.href });
+            }
         } catch (error) {
             console.error('Sign up failed:', error);
         }
     }
-    
-    async handleSignOut() {
-        try {
-            await window.Clerk.signOut();
-        } catch (error) {
-            console.error('Sign out failed:', error);
-        }
-    }
+
 
     updateTechniqueTitle() {
         // For now, fixed Pomodoro – could be dynamic later
@@ -291,18 +442,71 @@ class PomodoroTimer {
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
         
-        // Handle auth buttons
-        if (this.signInBtn) {
-            this.signInBtn.addEventListener('click', () => this.handleSignIn());
+        // Handle login button
+        if (this.loginButton) {
+            this.loginButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            });
         }
         
-        if (this.signUpBtn) {
-            this.signUpBtn.addEventListener('click', () => this.handleSignUp());
+        // Handle signup button
+        if (this.signupButton) {
+            this.signupButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleSignup();
+            });
         }
         
-        if (this.signOutBtn) {
-            this.signOutBtn.addEventListener('click', () => this.handleSignOut());
+        // Profile dropdown toggle
+        if (this.userProfileButton) {
+            this.userProfileButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.userProfileDropdown) {
+                    const isShown = this.userProfileDropdown.style.display === 'block';
+                    this.userProfileDropdown.style.display = isShown ? 'none' : 'block';
+                }
+            });
         }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+        });
+        
+        // Logout action
+        if (this.logoutButton) {
+            this.logoutButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showLogoutModal();
+            });
+        }
+        
+        // Logout modal actions
+        if (this.confirmLogoutBtn) {
+            this.confirmLogoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                this.hideLogoutModal();
+                await this.performLogout();
+            });
+        }
+        
+        if (this.cancelLogoutBtn) {
+            this.cancelLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideLogoutModal();
+            });
+        }
+        
+        // Close modal when clicking overlay
+        if (this.logoutModalOverlay) {
+            this.logoutModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.logoutModalOverlay) {
+                    this.hideLogoutModal();
+                }
+            });
+        }
+        
     }
     
     toggleTimer() {

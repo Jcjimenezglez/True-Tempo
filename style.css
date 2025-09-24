@@ -220,6 +220,9 @@ body::after {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
     border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .dropdown-item:first-child {
@@ -288,9 +291,10 @@ body::after {
     justify-content: center;
     width: 100%;
     max-width: 600px;
-    padding: 2rem;
+    padding: 0;
     position: relative;
     z-index: 10;
+    margin-top: 2rem;
 }
 
 /* Timer Container */
@@ -333,14 +337,12 @@ body::after {
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke: url(#liquidGlassOverlay);
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
-.progress-indicator {
+.progress-indicator { 
     stroke-width: 3;
     fill: none;
     stroke: url(#liquidGlassOverlay);
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
     transition: stroke-dashoffset 0.3s ease;
 }
 
@@ -397,6 +399,7 @@ body::after {
     justify-content: center;
     gap: 1.5rem;
     margin-top: 1rem;
+    padding-bottom: 2rem;
 }
 
 .start-btn {
@@ -412,9 +415,10 @@ body::after {
     box-shadow: 
         0 4px 16px rgba(255, 255, 255, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    min-width: 120px;
+    text-transform: none;
+    letter-spacing: normal;
+    width: 120px;
+    text-align: center;
 }
 
 .start-btn:hover {
@@ -432,22 +436,21 @@ body::after {
 }
 
 .start-btn.running {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
     color: #ffffff;
-    box-shadow: 
-        0 4px 16px rgba(255, 107, 107, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+    backdrop-filter: blur(10px);
 }
 
 .start-btn.running:hover {
-    box-shadow: 
-        0 6px 20px rgba(255, 107, 107, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
 }
 
 .nav-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: none;
+    border: none;
     color: #ffffff;
     border-radius: 50%;
     width: 48px;
@@ -457,12 +460,10 @@ body::after {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
 }
 
 .nav-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
 }
 
@@ -477,8 +478,7 @@ body::after {
 }
 
 .nav-btn:disabled:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: none;
     transform: none;
 }
 
@@ -510,37 +510,442 @@ body::after {
     .technique-dropdown {
         height: 50px; /* Fixed height for mobile header */
     }
+    
+    .auth-container {
+        top: 8px;
+        right: 8px;
+        gap: 0.5rem;
+    }
+    
+    .login-button {
+        font-size: 12px;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .signup-button {
+        display: none;
+    }
 }
 
-/* Auth Button */
-.auth-button {
+/* Logout Confirmation Modal */
+.logout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.logout-modal {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    backdrop-filter: blur(20px);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+.logout-modal-title {
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.logout-modal-message {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    margin: 0 0 2.5rem 0;
+    text-align: center;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+.logout-modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.logout-modal-btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.logout-modal-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.logout-modal-btn:hover::before {
+    left: 100%;
+}
+
+.logout-modal-btn-primary {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #000000;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.logout-modal-btn-primary:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+}
+
+.logout-modal-btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.logout-modal-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Hide Clerk development banner */
+[data-clerk-banner] {
+    display: none !important;
+}
+
+/* Additional banner hiding */
+.clerk-banner,
+[data-clerk-banner],
+.clerk-development-banner,
+[data-clerk-development-banner] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Auth Container */
+.auth-container {
     position: fixed;
     top: 12px;
     right: 12px;
     z-index: 1000;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
 }
 
-.auth-button button {
+/* User Profile */
+.user-profile-container {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.user-profile-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.user-profile-button img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-profile-dropdown {
+    position: absolute;
+    top: 48px;
+    right: 0;
+}
+
+.user-dropdown-menu {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 0.5rem;
+    min-width: 140px;
+}
+
+.logout-button {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.logout-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.login-button {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    border: none;
+    color: #000000;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 
+        0 2px 8px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.login-button:hover {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 12px rgba(255, 255, 255, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.login-button:active {
+    transform: translateY(0);
+    box-shadow: 
+        0 2px 8px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.signup-button {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff;
-    border-radius: 8px;
+    border-radius: 50px;
     padding: 0.5rem 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     font-size: 14px;
     font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.auth-button button:hover {
+.signup-button:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
-.auth-button button:active {
+.signup-button:active {
     transform: translateY(0);
+}
+
+
+/* User Section */
+.user-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar-large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: #ffffff;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.user-email {
+    color: #a3a3a3;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Benefits Section */
+.benefits-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.benefits-section h3 {
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.benefit-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 8px;
+    color: #22c55e;
+    flex-shrink: 0;
+}
+
+.benefit-content {
+    flex: 1;
+}
+
+.benefit-title {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.benefit-description {
+    color: #a3a3a3;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Auth Buttons */
+.auth-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.auth-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.auth-btn:active {
+    transform: translateY(0);
+}
+
+.sign-up-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.sign-up-btn:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    border-color: rgba(34, 197, 94, 0.5);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.sign-out-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.sign-out-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ffffff;
 }
 
 /* Audio elements */
