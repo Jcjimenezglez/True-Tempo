@@ -426,7 +426,7 @@ body::after {
 }
 
 .mode.focus {
-    color: #ffffff;
+    color: #a3a3a3;
 }
 
 .mode.break {
