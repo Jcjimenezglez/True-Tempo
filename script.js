@@ -1324,7 +1324,8 @@ class PomodoroTimer {
                     'Reduces mental fatigue',
                     'Increases productivity',
                     'Helps manage time effectively'
-                ]
+                ],
+                videoId: 'IlU-zDU6aQ0'
             },
             'pomodoro-plus': {
                 title: 'Long Pomodoro',
@@ -1334,7 +1335,8 @@ class PomodoroTimer {
                     'Reduces context switching',
                     'Ideal for complex projects',
                     'Maintains focus for longer periods'
-                ]
+                ],
+                videoId: 'bmnoNm64ovI'
             },
             'ultradian-rhythm': {
                 title: 'Ultradian Rhythm',
@@ -1344,7 +1346,8 @@ class PomodoroTimer {
                     'Optimizes energy levels',
                     'Reduces mental fatigue',
                     'Enhances cognitive performance'
-                ]
+                ],
+                videoId: 'lsODSDmY4CY'
             }
         };
 
@@ -1356,6 +1359,17 @@ class PomodoroTimer {
             <div class="technique-info-modal">
                 <h3>${info.title}</h3>
                 <p class="technique-description">${info.description}</p>
+                <div class="technique-video">
+                    <iframe 
+                        width="100%" 
+                        height="200" 
+                        src="https://www.youtube.com/embed/${info.videoId}" 
+                        title="${info.title} Video"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
                 <div class="technique-benefits">
                     <h4>Benefits:</h4>
                     <ul>
