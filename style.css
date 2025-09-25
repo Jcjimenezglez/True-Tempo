@@ -371,15 +371,15 @@ body::after {
 }
 
 .work-segment {
-    stroke: rgba(16, 185, 129, 0.2);
+    stroke: rgba(55, 65, 81, 0.2);
 }
 
 .break-segment {
-    stroke: rgba(59, 130, 246, 0.2);
+    stroke: rgba(107, 114, 128, 0.2);
 }
 
 .long-break-segment {
-    stroke: rgba(139, 92, 246, 0.2);
+    stroke: rgba(156, 163, 175, 0.2);
 }
 
 .progress-overlay {
@@ -427,21 +427,21 @@ body::after {
 
 .mode.focus {
     color: #ffffff;
-    background-color: #10b981;
+    background-color: #374151;
     padding: 0.25rem 0.5rem;
     border-radius: 50px;
 }
 
 .mode.break {
     color: #ffffff;
-    background-color: #3b82f6;
+    background-color: #6b7280;
     padding: 0.25rem 0.5rem;
     border-radius: 50px;
 }
 
 .mode.long-break {
     color: #ffffff;
-    background-color: #8b5cf6;
+    background-color: #9ca3af;
     padding: 0.25rem 0.5rem;
     border-radius: 50px;
 }
