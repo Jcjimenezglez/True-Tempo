@@ -119,17 +119,11 @@ body::after {
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
     color: #ffffff;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
 }
 
 .logo-icon:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
 }
 
