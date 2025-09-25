@@ -78,3 +78,7 @@
 .authenticated-user .item-badge.locked {
     display: none;
 }
+
+.authenticated-user .item-badge.free {
+    display: none;
+}

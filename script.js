@@ -264,6 +264,9 @@ class PomodoroTimer {
             if (this.signupButton) this.signupButton.style.display = 'block';
             console.log('User is not authenticated, showing login/signup buttons');
         }
+        
+        // Update dropdown badges based on authentication state
+        this.updateDropdownState();
     }
 
     updateUserProfile() {
@@ -1080,6 +1083,18 @@ class PomodoroTimer {
                 this.currentAudio.currentTime = 0;
             }
             this.currentAudio = null;
+        }
+    }
+    
+    updateDropdownState() {
+        const body = document.body;
+        
+        if (this.isAuthenticated) {
+            // Add authenticated class to body to hide all badges
+            body.classList.add('authenticated-user');
+        } else {
+            // Remove authenticated class to show badges
+            body.classList.remove('authenticated-user');
         }
     }
 }
