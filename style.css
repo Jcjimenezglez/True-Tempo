@@ -1046,6 +1046,11 @@ audio {
     display: none;
 }
 
+/* Hide FREE badge for guest users - it's redundant */
+.item-badge.free {
+    display: none;
+}
+
 /* Selected technique indicator */
 .dropdown-item.selected::after {
     content: '✓';
