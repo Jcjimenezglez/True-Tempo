@@ -375,11 +375,11 @@ body::after {
 }
 
 .break-segment {
-    stroke: rgba(120, 219, 255, 0.2);
+    stroke: rgba(255, 255, 255, 0.15);
 }
 
 .long-break-segment {
-    stroke: rgba(255, 119, 198, 0.2);
+    stroke: rgba(255, 255, 255, 0.15);
 }
 
 .progress-overlay {
