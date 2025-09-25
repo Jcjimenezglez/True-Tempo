@@ -966,22 +966,28 @@ class PomodoroTimer {
     
     checkWelcomeModal() {
         // Only show welcome modal for guest users who have visited before
+        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+        if (!hasVisitedBefore) {
+            // First visit - mark as visited and don't show modal
+            localStorage.setItem('truetempo_has_visited', 'true');
+            return;
+        }
+        
         // Wait a bit to ensure auth state is properly checked
         setTimeout(() => {
+            // Double check auth state
+            if (window.Clerk && window.Clerk.user) {
+                this.isAuthenticated = true;
+                return; // Don't show for authenticated users
+            }
+            
             if (this.isAuthenticated) {
                 return; // Don't show for authenticated users
             }
             
-            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-            if (!hasVisitedBefore) {
-                // First visit - mark as visited and don't show modal
-                localStorage.setItem('truetempo_has_visited', 'true');
-                return;
-            }
-            
             // Returning guest user - show welcome modal
             this.showWelcomeModal();
-        }, 1000); // Wait 1 second to ensure auth state is determined
+        }, 1500); // Wait 1.5 seconds to ensure auth state is determined
     }
     
     showWelcomeModal() {
