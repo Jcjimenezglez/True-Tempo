@@ -527,6 +527,18 @@ class PomodoroTimer {
             circle.setAttribute('cy', '50');
             circle.setAttribute('r', '45');
             circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke-width', '4');
+            circle.setAttribute('stroke-linecap', 'round');
+            circle.setAttribute('stroke-linejoin', 'round');
+            
+            // Set stroke color based on section type
+            if (section.type === 'work') {
+                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+            } else if (section.type === 'break') {
+                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+            } else if (section.type === 'long-break') {
+                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+            }
             
             progressSegments.appendChild(circle);
         });
@@ -544,6 +556,10 @@ class PomodoroTimer {
                 overlay.setAttribute('cy', '50');
                 overlay.setAttribute('r', '45');
                 overlay.setAttribute('fill', 'none');
+                overlay.setAttribute('stroke-width', '4');
+                overlay.setAttribute('stroke-linecap', 'round');
+                overlay.setAttribute('stroke-linejoin', 'round');
+                overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
                 
                 progressOverlays.appendChild(overlay);
             });
