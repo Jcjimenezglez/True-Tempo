@@ -967,48 +967,34 @@ class PomodoroTimer {
     checkWelcomeModal() {
         // Wait a bit to ensure auth state is properly checked
         setTimeout(() => {
-            console.log('Checking welcome modal...', {
-                isAuthenticated: this.isAuthenticated,
-                hasClerkUser: !!(window.Clerk && window.Clerk.user),
-                hasVisitedBefore: localStorage.getItem('truetempo_has_visited'),
-                sessionStorage: sessionStorage.getItem('truetempo_session_active')
-            });
-            
             // Double check auth state
             if (window.Clerk && window.Clerk.user) {
                 this.isAuthenticated = true;
-                console.log('User is authenticated, not showing modal');
                 return; // Don't show for authenticated users
             }
-            
             if (this.isAuthenticated) {
-                console.log('User is authenticated (this.isAuthenticated), not showing modal');
                 return; // Don't show for authenticated users
             }
-            
-            // Check if this is a new session (user closed and came back)
-            const sessionActive = sessionStorage.getItem('truetempo_session_active');
-            if (!sessionActive) {
-                // New session - mark session as active
-                sessionStorage.setItem('truetempo_session_active', 'true');
-                
-                // Check if user has visited before
-                const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-                if (!hasVisitedBefore) {
-                    // First visit ever - mark as visited and don't show modal
-                    localStorage.setItem('truetempo_has_visited', 'true');
-                    console.log('First visit ever, marking as visited, not showing modal');
-                    return;
+
+            // If this navigation is a plain reload, do not show modal
+            try {
+                const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+                const isReload = nav && nav.type === 'reload';
+                if (isReload) {
+                    return; // Refresh/F5 → never show
                 }
-                
-                // Returning guest user in new session - show welcome modal
-                console.log('Returning guest user in new session, showing welcome modal');
-                this.showWelcomeModal();
-            } else {
-                // Same session (refresh) - don't show modal
-                console.log('Same session (refresh), not showing modal');
+            } catch (_) {}
+
+            // First visit? mark and skip
+            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+            if (!hasVisitedBefore) {
+                try { localStorage.setItem('truetempo_has_visited', 'true'); } catch (_) {}
+                return;
             }
-        }, 1000); // Wait 1 second to ensure auth state is determined
+
+            // Returning guest (new navigation, not reload) → show modal
+            this.showWelcomeModal();
+        }, 1000); // slight delay so Clerk can hydrate
     }
     
     showWelcomeModal() {
