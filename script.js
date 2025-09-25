@@ -261,7 +261,8 @@ class PomodoroTimer {
             if (this.authContainer) this.authContainer.style.display = 'flex';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
             if (this.loginButton) this.loginButton.textContent = 'Login';
-            if (this.signupButton) this.signupButton.style.display = 'block';
+            // Don't force display of signup button - let CSS handle mobile visibility
+            if (this.signupButton) this.signupButton.style.display = '';
             console.log('User is not authenticated, showing login/signup buttons');
         }
         
