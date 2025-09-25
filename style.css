@@ -966,6 +966,7 @@ audio {
     position: relative;
     border-radius: 0;
     gap: 0.75rem;
+    justify-content: space-between;
 }
 
 .item-content {
@@ -1042,4 +1043,21 @@ audio {
 
 .authenticated-user .item-badge.free {
     display: none;
+}
+
+/* Selected technique indicator */
+.dropdown-item.selected::after {
+    content: '✓';
+    color: #22c55e;
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+.authenticated-user .dropdown-item.selected::after {
+    content: '✓';
+    color: #22c55e;
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: auto;
 }
