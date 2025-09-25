@@ -874,15 +874,15 @@ class PomodoroTimer {
         if (this.isWorkSession) {
             this.modeElement.textContent = 'Focus';
             this.modeElement.className = 'mode focus';
-            this.progressIndicator.style.stroke = 'url(#liquidGlassOverlay)';
+            this.progressIndicator.style.stroke = 'url(#workIndicator)';
         } else if (this.isLongBreak) {
             this.modeElement.textContent = 'Long Break';
             this.modeElement.className = 'mode long-break';
-            this.progressIndicator.style.stroke = 'url(#liquidGlassOverlay)';
+            this.progressIndicator.style.stroke = 'url(#longBreakIndicator)';
         } else {
             this.modeElement.textContent = 'Break';
             this.modeElement.className = 'mode break';
-            this.progressIndicator.style.stroke = 'url(#liquidGlassOverlay)';
+            this.progressIndicator.style.stroke = 'url(#breakIndicator)';
         }
     }
     
