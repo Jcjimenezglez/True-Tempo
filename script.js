@@ -833,6 +833,22 @@ class PomodoroTimer {
             if (i < scaledLengths.length) {
                 const segLen = scaledLengths[i];
                 let fillLen = 0;
+
+                // Set overlay color based on section type
+                const section = this.cycleSections[i];
+                if (section) {
+                    switch (section.type) {
+                        case 'break':
+                            ol.style.stroke = '#78dbff';
+                            break;
+                        case 'long-break':
+                            ol.style.stroke = '#ff77c6';
+                            break;
+                        default:
+                            // work
+                            ol.style.stroke = '#ffffff';
+                    }
+                }
                 
                 // Check if this segment should be visible
                 if (totalProgress > cursor) {
