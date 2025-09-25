@@ -843,10 +843,10 @@ class PomodoroTimer {
                             ol.style.stroke = '#ffffff'; // White for work
                             break;
                         case 'break':
-                            ol.style.stroke = '#a3a3a3'; // Light gray for short breaks
+                            ol.style.stroke = '#ffffff'; // White for short breaks
                             break;
                         case 'long-break':
-                            ol.style.stroke = '#a3a3a3'; // Light gray for long breaks
+                            ol.style.stroke = '#ffffff'; // White for long breaks
                             break;
                         default:
                             ol.style.stroke = '#ffffff';
@@ -899,13 +899,13 @@ class PomodoroTimer {
         } else if (this.isLongBreak) {
             this.modeElement.textContent = 'Long Break';
             this.modeElement.className = 'mode long-break';
-            // Medium gray for long breaks
-            this.progressIndicator.style.stroke = '#a3a3a3';
+            // White for long breaks
+            this.progressIndicator.style.stroke = '#ffffff';
         } else {
             this.modeElement.textContent = 'Break';
             this.modeElement.className = 'mode break';
-            // Medium gray for short breaks
-            this.progressIndicator.style.stroke = '#a3a3a3';
+            // White for short breaks
+            this.progressIndicator.style.stroke = '#ffffff';
         }
     }
     
