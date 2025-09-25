@@ -970,7 +970,8 @@ class PomodoroTimer {
             console.log('Checking welcome modal...', {
                 isAuthenticated: this.isAuthenticated,
                 hasClerkUser: !!(window.Clerk && window.Clerk.user),
-                hasVisitedBefore: localStorage.getItem('truetempo_has_visited')
+                hasVisitedBefore: localStorage.getItem('truetempo_has_visited'),
+                sessionStorage: sessionStorage.getItem('truetempo_session_active')
             });
             
             // Double check auth state
@@ -985,18 +986,28 @@ class PomodoroTimer {
                 return; // Don't show for authenticated users
             }
             
-            // Check if user has visited before
-            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-            if (!hasVisitedBefore) {
-                // First visit - mark as visited and don't show modal
-                localStorage.setItem('truetempo_has_visited', 'true');
-                console.log('First visit, marking as visited, not showing modal');
-                return;
+            // Check if this is a new session (user closed and came back)
+            const sessionActive = sessionStorage.getItem('truetempo_session_active');
+            if (!sessionActive) {
+                // New session - mark session as active
+                sessionStorage.setItem('truetempo_session_active', 'true');
+                
+                // Check if user has visited before
+                const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+                if (!hasVisitedBefore) {
+                    // First visit ever - mark as visited and don't show modal
+                    localStorage.setItem('truetempo_has_visited', 'true');
+                    console.log('First visit ever, marking as visited, not showing modal');
+                    return;
+                }
+                
+                // Returning guest user in new session - show welcome modal
+                console.log('Returning guest user in new session, showing welcome modal');
+                this.showWelcomeModal();
+            } else {
+                // Same session (refresh) - don't show modal
+                console.log('Same session (refresh), not showing modal');
             }
-            
-            // Returning guest user - show welcome modal
-            console.log('Returning guest user, showing welcome modal');
-            this.showWelcomeModal();
         }, 1000); // Wait 1 second to ensure auth state is determined
     }
     
