@@ -498,12 +498,59 @@ class PomodoroTimer {
                 break;
         }
         
+        // Update progress ring to match new technique
+        this.updateProgressRing();
+        
         // Reset timer with new configuration
         this.pauseTimerSilent();
         this.currentSection = 1;
         this.loadCurrentSection();
         this.updateNavigationButtons();
         this.updateSessionInfo();
+    }
+
+    updateProgressRing() {
+        // Get the progress segments container
+        const progressSegments = document.querySelector('.progress-segments');
+        if (!progressSegments) return;
+        
+        // Clear existing segments
+        progressSegments.innerHTML = '';
+        
+        // Create segments based on current technique
+        this.cycleSections.forEach((section, index) => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('class', `progress-segment ${section.type}-segment`);
+            circle.setAttribute('data-section', index + 1);
+            circle.setAttribute('data-minutes', section.duration / 60);
+            circle.setAttribute('cx', '50');
+            circle.setAttribute('cy', '50');
+            circle.setAttribute('r', '45');
+            circle.setAttribute('fill', 'none');
+            
+            progressSegments.appendChild(circle);
+        });
+        
+        // Update overlays
+        const progressOverlays = document.querySelector('.progress-overlays');
+        if (progressOverlays) {
+            progressOverlays.innerHTML = '';
+            
+            this.cycleSections.forEach((section, index) => {
+                const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                overlay.setAttribute('class', 'progress-overlay');
+                overlay.setAttribute('data-ol', index + 1);
+                overlay.setAttribute('cx', '50');
+                overlay.setAttribute('cy', '50');
+                overlay.setAttribute('r', '45');
+                overlay.setAttribute('fill', 'none');
+                
+                progressOverlays.appendChild(overlay);
+            });
+        }
+        
+        // Re-layout segments with new configuration
+        this.layoutSegments();
     }
 
     // Layout segments proportionally starting from 12 o'clock, with small gaps
