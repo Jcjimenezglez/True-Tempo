@@ -615,8 +615,12 @@ class PomodoroTimer {
         this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
         this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
-        // Close dropdown when clicking outside
+        // Close dropdown when clicking outside (but ignore technique info modal)
         document.addEventListener('click', (e) => {
+            // If click is inside the technique info modal, do nothing
+            const inTechniqueInfo = e.target.closest && e.target.closest('.technique-info-overlay');
+            if (inTechniqueInfo) return;
+
             if (!this.techniqueDropdown.contains(e.target)) {
                 this.closeDropdown();
             }
@@ -1373,14 +1377,23 @@ class PomodoroTimer {
 
         // Close modal functionality
         const closeBtn = modalOverlay.querySelector('.close-technique-info');
-        closeBtn.addEventListener('click', () => {
+        closeBtn.addEventListener('click', (evt) => {
+            // Prevent this click from bubbling to document listener
+            evt.stopPropagation();
             document.body.removeChild(modalOverlay);
             // Keep dropdown open after closing modal
             this.techniqueDropdown.classList.add('open');
         });
 
         modalOverlay.addEventListener('click', (e) => {
+            // Prevent bubbling for any click inside the modal content
+            const inModal = e.target.closest && e.target.closest('.technique-info-modal');
+            if (inModal) {
+                e.stopPropagation();
+                return;
+            }
             if (e.target === modalOverlay) {
+                e.stopPropagation();
                 document.body.removeChild(modalOverlay);
                 // Keep dropdown open after closing modal
                 this.techniqueDropdown.classList.add('open');
