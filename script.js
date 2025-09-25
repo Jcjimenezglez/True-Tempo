@@ -79,6 +79,7 @@ class PomodoroTimer {
     init() {
         this.layoutSegments();
         this.updateDisplay();
+        this.updateMode();
         this.updateProgress();
         this.updateSections();
         this.updateSessionInfo();
@@ -874,15 +875,18 @@ class PomodoroTimer {
         if (this.isWorkSession) {
             this.modeElement.textContent = 'Focus';
             this.modeElement.className = 'mode focus';
-            this.progressIndicator.style.stroke = 'url(#workIndicator)';
+            // Solid white for focus/work
+            this.progressIndicator.style.stroke = '#ffffff';
         } else if (this.isLongBreak) {
             this.modeElement.textContent = 'Long Break';
             this.modeElement.className = 'mode long-break';
-            this.progressIndicator.style.stroke = 'url(#longBreakIndicator)';
+            // Pink to match .mode.long-break
+            this.progressIndicator.style.stroke = '#ff77c6';
         } else {
             this.modeElement.textContent = 'Break';
             this.modeElement.className = 'mode break';
-            this.progressIndicator.style.stroke = 'url(#breakIndicator)';
+            // Blue to match .mode.break
+            this.progressIndicator.style.stroke = '#78dbff';
         }
     }
     
