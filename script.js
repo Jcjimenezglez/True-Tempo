@@ -835,8 +835,23 @@ class PomodoroTimer {
                 let fillLen = 0;
 
                 // Set overlay color based on section type
-                // Monochrome: always white indicator per segment
-                ol.style.stroke = '#ffffff';
+                // Color-coded indicators per segment type
+                const section = this.cycleSections[i];
+                if (section) {
+                    switch (section.type) {
+                        case 'work':
+                            ol.style.stroke = '#10b981'; // Green for work
+                            break;
+                        case 'break':
+                            ol.style.stroke = '#3b82f6'; // Blue for short breaks
+                            break;
+                        case 'long-break':
+                            ol.style.stroke = '#8b5cf6'; // Purple for long breaks
+                            break;
+                        default:
+                            ol.style.stroke = '#ffffff';
+                    }
+                }
                 
                 // Check if this segment should be visible
                 if (totalProgress > cursor) {
@@ -879,18 +894,18 @@ class PomodoroTimer {
         if (this.isWorkSession) {
             this.modeElement.textContent = 'Focus';
             this.modeElement.className = 'mode focus';
-            // Solid white for focus/work
-            this.progressIndicator.style.stroke = '#ffffff';
+            // Green for focus sessions
+            this.progressIndicator.style.stroke = '#10b981';
         } else if (this.isLongBreak) {
             this.modeElement.textContent = 'Long Break';
             this.modeElement.className = 'mode long-break';
-            // Monochrome: always white indicator
-            this.progressIndicator.style.stroke = '#ffffff';
+            // Purple for long breaks
+            this.progressIndicator.style.stroke = '#8b5cf6';
         } else {
             this.modeElement.textContent = 'Break';
             this.modeElement.className = 'mode break';
-            // Monochrome: always white indicator
-            this.progressIndicator.style.stroke = '#ffffff';
+            // Blue for short breaks
+            this.progressIndicator.style.stroke = '#3b82f6';
         }
     }
     
