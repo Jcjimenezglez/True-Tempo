@@ -340,6 +340,9 @@ class PomodoroTimer {
             // Wait a moment for the fade effect
             await new Promise(resolve => setTimeout(resolve, 300));
             
+            // Mark that user just logged out to prevent welcome modal
+            try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
+            
             // Optimistic UI update
             this.isAuthenticated = false;
             this.user = null;
@@ -984,6 +987,13 @@ class PomodoroTimer {
                     return; // Refresh/F5 → never show
                 }
             } catch (_) {}
+
+            // Check if user just logged out - don't show modal after logout
+            const justLoggedOut = sessionStorage.getItem('just_logged_out');
+            if (justLoggedOut === 'true') {
+                sessionStorage.removeItem('just_logged_out');
+                return; // Don't show modal after logout
+            }
 
             // First visit? mark and skip
             const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
