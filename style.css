@@ -570,14 +570,13 @@ body::after {
     }
     
     .header-center {
-        position: relative;
-        left: auto;
-        transform: none;
-        flex: 1;
-        justify-content: center;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
         align-items: center;
+        justify-content: center;
         max-width: 200px;
-        height: 100%;
     }
     
     .header-right {
