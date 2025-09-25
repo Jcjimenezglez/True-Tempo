@@ -426,15 +426,15 @@ body::after {
 }
 
 .mode.focus {
-    color: #a3a3a3;
+    color: #ffffff;
 }
 
 .mode.break {
-    color: #a3a3a3;
+    color: #ffffff;
 }
 
 .mode.long-break {
-    color: #a3a3a3;
+    color: #ffffff;
 }
 
 .session-info {
