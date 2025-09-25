@@ -624,7 +624,15 @@ class PomodoroTimer {
         
         // Handle dropdown item selection
         this.dropdownItems.forEach(item => {
-            item.addEventListener('click', () => this.selectTechnique(item));
+            item.addEventListener('click', (e) => {
+                // Don't select technique if clicking on learn more link
+                if (e.target.classList.contains('learn-more-link')) {
+                    e.stopPropagation();
+                    this.showTechniqueInfo(e.target.dataset.technique);
+                    return;
+                }
+                this.selectTechnique(item);
+            });
         });
         
         // Set initial selected technique (Pomodoro)
@@ -1300,6 +1308,80 @@ class PomodoroTimer {
             // Remove authenticated class to show badges
             body.classList.remove('authenticated-user');
         }
+    }
+
+    showTechniqueInfo(technique) {
+        const techniqueInfo = {
+            'pomodoro': {
+                title: 'Pomodoro Technique',
+                description: 'The Pomodoro Technique is a time management method developed by Francesco Cirillo. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. After 4 pomodoros, take a longer break of 15-30 minutes.',
+                benefits: [
+                    'Improves focus and concentration',
+                    'Reduces mental fatigue',
+                    'Increases productivity',
+                    'Helps manage time effectively'
+                ]
+            },
+            'pomodoro-plus': {
+                title: 'Long Pomodoro',
+                description: 'An extended version of the Pomodoro Technique with longer work sessions. Perfect for deep work and complex tasks that require sustained attention. The 50-minute focus periods allow for deeper immersion in your work.',
+                benefits: [
+                    'Better for deep work sessions',
+                    'Reduces context switching',
+                    'Ideal for complex projects',
+                    'Maintains focus for longer periods'
+                ]
+            },
+            'ultradian-rhythm': {
+                title: 'Ultradian Rhythm',
+                description: 'Based on natural biological rhythms, the Ultradian Rhythm technique aligns with your body\'s natural energy cycles. Work for 90 minutes followed by a 20-minute break to match your natural attention span.',
+                benefits: [
+                    'Aligns with natural body rhythms',
+                    'Optimizes energy levels',
+                    'Reduces mental fatigue',
+                    'Enhances cognitive performance'
+                ]
+            }
+        };
+
+        const info = techniqueInfo[technique];
+        if (!info) return;
+
+        // Create modal content
+        const modalContent = `
+            <div class="technique-info-modal">
+                <h3>${info.title}</h3>
+                <p class="technique-description">${info.description}</p>
+                <div class="technique-benefits">
+                    <h4>Benefits:</h4>
+                    <ul>
+                        ${info.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                    </ul>
+                </div>
+                <button class="close-technique-info">Got it</button>
+            </div>
+        `;
+
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'technique-info-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+
+        // Show modal
+        modalOverlay.style.display = 'flex';
+
+        // Close modal functionality
+        const closeBtn = modalOverlay.querySelector('.close-technique-info');
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
     }
 }
 

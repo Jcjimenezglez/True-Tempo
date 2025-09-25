@@ -300,6 +300,25 @@ body::after {
     color: #d1d1d1;
     font-size: 14px;
     font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.item-link {
+    margin-top: 0.25rem;
+}
+
+.learn-more-link {
+    color: #78dbff;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.learn-more-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
 }
 
 .item-content {
@@ -1276,4 +1295,91 @@ audio {
     font-weight: bold;
     font-size: 14px;
     margin-left: auto;
+}
+
+/* Technique Info Modal */
+.technique-info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.technique-info-modal {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 90%;
+    backdrop-filter: blur(20px);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+.technique-info-modal h3 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.technique-description {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.technique-benefits h4 {
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.technique-benefits ul {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    margin: 0 0 2rem 0;
+    padding-left: 1.5rem;
+    line-height: 1.6;
+}
+
+.technique-benefits li {
+    margin-bottom: 0.5rem;
+}
+
+.close-technique-info {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.close-technique-info:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
 }
