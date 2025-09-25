@@ -109,6 +109,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-height: 40px;
 }
 
 /* Logo Icon */
@@ -119,13 +120,16 @@ body::after {
     width: 40px;
     height: 40px;
     background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     color: #ffffff;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .logo-icon:hover {
     background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
 }
 
@@ -534,7 +538,12 @@ body::after {
         min-width: 320px;
     }
     
-    .header-left,
+    .header-left {
+        top: 8px;
+        left: 8px;
+        min-height: 36px;
+    }
+    
     .technique-dropdown {
         height: 50px; /* Fixed height for mobile header */
     }
@@ -543,6 +552,23 @@ body::after {
         top: 8px;
         right: 8px;
         gap: 0.5rem;
+        min-height: 36px;
+    }
+    
+    .user-profile-container {
+        top: 8px;
+        right: 8px;
+        min-height: 36px;
+    }
+    
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .logo-icon svg {
+        width: 20px;
+        height: 20px;
     }
     
     .login-button {
@@ -705,6 +731,7 @@ body::after {
     display: flex;
     gap: 0.75rem;
     align-items: center;
+    min-height: 40px;
 }
 
 /* User Profile */
@@ -716,6 +743,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-height: 40px;
 }
 
 .user-profile-button {
