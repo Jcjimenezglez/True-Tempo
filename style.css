@@ -255,6 +255,7 @@ body::after {
 
 .item-content {
     flex: 1;
+    min-width: 0;
 }
 
 .item-badge {
@@ -964,10 +965,12 @@ audio {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
     border-radius: 0;
+    gap: 0.5rem;
 }
 
 .item-content {
     flex: 1;
+    min-width: 0;
 }
 
 .item-badge {
@@ -980,6 +983,8 @@ audio {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    flex-shrink: 0;
+    width: fit-content;
 }
 
 .item-badge.free {
