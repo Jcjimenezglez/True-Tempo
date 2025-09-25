@@ -525,7 +525,8 @@ body::after {
     }
     
     .signup-button {
-        display: none;
+        font-size: 12px;
+        padding: 0.375rem 0.75rem;
     }
 }
 
