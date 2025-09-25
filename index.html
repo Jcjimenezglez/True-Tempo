@@ -12,70 +12,74 @@
             type="text/javascript"></script>
 </head>
 <body>
-    <div class="header-left">
-        <div class="logo-icon" id="logoIcon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="lucide lucide-flame-icon lucide-flame">
-                <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
-            </svg>
-        </div>
-        <div class="achievement-icon" id="achievementIcon" style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check-icon lucide-badge-check">
-                <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
-                <path d="m9 12 2 2 4-4"/>
-            </svg>
-            <span class="achievement-counter" id="achievementCounter">0</span>
-        </div>
-    </div>
-    
-    <!-- Auth Buttons -->
-    <div class="auth-container" id="authContainer">
-        <button class="login-button" id="loginButton">Login</button>
-        <button class="signup-button" id="signupButton">Sign up for free</button>
-    </div>
-    
-    <!-- User Profile (shown when authenticated) -->
-    <div class="user-profile-container" id="userProfileContainer" style="display: none;">
-        <button class="user-profile-button" id="userProfileButton" aria-label="Account">
-            <img id="userAvatar" alt="User avatar" />
-        </button>
-        <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
-            <div class="user-dropdown-menu" id="userDropdownMenu">
-                <button id="logoutButton" class="logout-button">Logout</button>
+    <!-- Unified Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo-icon" id="logoIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="lucide lucide-flame-icon lucide-flame">
+                    <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                </svg>
+            </div>
+            <div class="achievement-icon" id="achievementIcon" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check-icon lucide-badge-check">
+                    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <span class="achievement-counter" id="achievementCounter">0</span>
             </div>
         </div>
-    </div>
-    
-    <div class="technique-dropdown" id="techniqueDropdown">
-        <button class="technique-title" id="techniqueTitle">
-            Pomodoro
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down">
-                <path d="m6 9 6 6 6-6"/>
-            </svg>
-        </button>
-        <div class="dropdown-menu" id="dropdownMenu">
-            <div class="dropdown-item" data-technique="pomodoro">
-                <div class="item-content">
-                    <div class="item-title">Pomodoro</div>
-                    <div class="item-description">25 min work, 5 min break</div>
+        
+        <div class="header-center">
+            <div class="technique-dropdown" id="techniqueDropdown">
+                <button class="technique-title" id="techniqueTitle">
+                    Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-item" data-technique="pomodoro">
+                        <div class="item-content">
+                            <div class="item-title">Pomodoro</div>
+                            <div class="item-description">25 min work, 5 min break</div>
+                        </div>
+                        <div class="item-badge free">FREE</div>
+                    </div>
+                    <div class="dropdown-item requires-account" data-technique="pomodoro-plus" data-requires-account="true">
+                        <div class="item-content">
+                            <div class="item-title">Pomodoro Plus</div>
+                            <div class="item-description">45 min work, 15 min break</div>
+                        </div>
+                        <div class="item-badge locked"><span>SIGN UP</span></div>
+                    </div>
+                    <div class="dropdown-item requires-account" data-technique="ultradian-rhythm" data-requires-account="true">
+                        <div class="item-content">
+                            <div class="item-title">Ultradian Rhythm</div>
+                            <div class="item-description">90 min work, 20 min break</div>
+                        </div>
+                        <div class="item-badge locked"><span>SIGN UP</span></div>
+                    </div>
                 </div>
-                <div class="item-badge free">FREE</div>
-            </div>
-            <div class="dropdown-item requires-account" data-technique="pomodoro-plus" data-requires-account="true">
-                <div class="item-content">
-                    <div class="item-title">Pomodoro Plus</div>
-                    <div class="item-description">45 min work, 15 min break</div>
-                </div>
-                <div class="item-badge locked"><span>SIGN UP</span></div>
-            </div>
-            <div class="dropdown-item requires-account" data-technique="ultradian-rhythm" data-requires-account="true">
-                <div class="item-content">
-                    <div class="item-title">Ultradian Rhythm</div>
-                    <div class="item-description">90 min work, 20 min break</div>
-                </div>
-                <div class="item-badge locked"><span>SIGN UP</span></div>
             </div>
         </div>
-    </div>
+        
+        <div class="header-right">
+            <!-- Auth Buttons -->
+            <div class="auth-container" id="authContainer">
+                <button class="login-button" id="loginButton">Login</button>
+                <button class="signup-button" id="signupButton">Sign up for free</button>
+            </div>
+            
+            <!-- User Profile (shown when authenticated) -->
+            <div class="user-profile-container" id="userProfileContainer" style="display: none;">
+                <button class="user-profile-button" id="userProfileButton" aria-label="Account">
+                    <img id="userAvatar" alt="User avatar" />
+                </button>
+                <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
+                    <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <button id="logoutButton" class="logout-button">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
     
     
     <div class="container">
