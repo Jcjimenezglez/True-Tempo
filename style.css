@@ -1358,16 +1358,21 @@ audio {
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
     transition: all 0.2s ease;
     z-index: 10;
+    padding: 0;
+}
+
+.close-technique-info-x svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
 }
 
 .close-technique-info-x:hover {
