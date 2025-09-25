@@ -375,11 +375,11 @@ body::after {
 }
 
 .break-segment {
-    stroke: rgba(107, 114, 128, 0.2);
+    stroke: rgba(55, 65, 81, 0.2);
 }
 
 .long-break-segment {
-    stroke: rgba(156, 163, 175, 0.2);
+    stroke: rgba(55, 65, 81, 0.2);
 }
 
 .progress-overlay {
@@ -426,8 +426,8 @@ body::after {
 }
 
 .mode.focus {
-    color: #ffffff;
-    background-color: #374151;
+    color: #000000;
+    background-color: #ffffff;
     padding: 0.25rem 0.5rem;
     border-radius: 50px;
 }
@@ -441,7 +441,7 @@ body::after {
 
 .mode.long-break {
     color: #ffffff;
-    background-color: #9ca3af;
+    background-color: #6b7280;
     padding: 0.25rem 0.5rem;
     border-radius: 50px;
 }

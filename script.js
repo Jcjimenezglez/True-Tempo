@@ -840,13 +840,13 @@ class PomodoroTimer {
                 if (section) {
                     switch (section.type) {
                         case 'work':
-                            ol.style.stroke = '#374151'; // Dark gray for work
+                            ol.style.stroke = '#ffffff'; // White for work
                             break;
                         case 'break':
                             ol.style.stroke = '#6b7280'; // Medium gray for short breaks
                             break;
                         case 'long-break':
-                            ol.style.stroke = '#9ca3af'; // Light gray for long breaks
+                            ol.style.stroke = '#6b7280'; // Medium gray for long breaks
                             break;
                         default:
                             ol.style.stroke = '#ffffff';
@@ -894,13 +894,13 @@ class PomodoroTimer {
         if (this.isWorkSession) {
             this.modeElement.textContent = 'Focus';
             this.modeElement.className = 'mode focus';
-            // Dark gray for focus sessions
-            this.progressIndicator.style.stroke = '#374151';
+            // White for focus sessions
+            this.progressIndicator.style.stroke = '#ffffff';
         } else if (this.isLongBreak) {
             this.modeElement.textContent = 'Long Break';
             this.modeElement.className = 'mode long-break';
-            // Light gray for long breaks
-            this.progressIndicator.style.stroke = '#9ca3af';
+            // Medium gray for long breaks
+            this.progressIndicator.style.stroke = '#6b7280';
         } else {
             this.modeElement.textContent = 'Break';
             this.modeElement.className = 'mode break';
