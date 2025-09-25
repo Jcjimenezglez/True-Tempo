@@ -111,9 +111,6 @@ body::after {
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     min-height: 64px;
 }
 
@@ -127,11 +124,12 @@ body::after {
 
 /* Header Center */
 .header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
-    max-width: 300px;
 }
 
 /* Header Right */
@@ -569,6 +567,11 @@ body::after {
     }
     
     .header-center {
+        position: relative;
+        left: auto;
+        transform: none;
+        flex: 1;
+        justify-content: center;
         max-width: 200px;
     }
     
