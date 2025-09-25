@@ -1375,11 +1375,15 @@ class PomodoroTimer {
         const closeBtn = modalOverlay.querySelector('.close-technique-info');
         closeBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
+            // Keep dropdown open after closing modal
+            this.techniqueDropdown.classList.add('open');
         });
 
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 document.body.removeChild(modalOverlay);
+                // Keep dropdown open after closing modal
+                this.techniqueDropdown.classList.add('open');
             }
         });
     }
