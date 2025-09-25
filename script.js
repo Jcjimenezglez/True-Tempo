@@ -46,6 +46,10 @@ class PomodoroTimer {
         this.authContainer = document.getElementById('authContainer');
         this.loginButton = document.getElementById('loginButton');
         this.signupButton = document.getElementById('signupButton');
+        
+        // Logo and achievement elements
+        this.logoIcon = document.getElementById('logoIcon');
+        this.achievementIcon = document.getElementById('achievementIcon');
         // User profile elements (shown when authenticated)
         this.userProfileContainer = document.getElementById('userProfileContainer');
         this.userProfileButton = document.getElementById('userProfileButton');
@@ -255,11 +259,17 @@ class PomodoroTimer {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'flex';
+            // Show achievement icon, hide logo
+            if (this.logoIcon) this.logoIcon.style.display = 'none';
+            if (this.achievementIcon) this.achievementIcon.style.display = 'flex';
             this.updateUserProfile();
             console.log('User is authenticated, showing profile avatar');
         } else {
             if (this.authContainer) this.authContainer.style.display = 'flex';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
+            // Show logo, hide achievement icon
+            if (this.logoIcon) this.logoIcon.style.display = 'flex';
+            if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             if (this.loginButton) this.loginButton.textContent = 'Login';
             // Don't force display of signup button - let CSS handle mobile visibility
             if (this.signupButton) this.signupButton.style.display = '';
