@@ -426,15 +426,24 @@ body::after {
 }
 
 .mode.focus {
-    color: #ffffff;
+    color: #000000;
+    background-color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
 .mode.break {
-    color: #a3a3a3;
+    color: #000000;
+    background-color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
 .mode.long-break {
-    color: #a3a3a3;
+    color: #000000;
+    background-color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
 .session-info {
