@@ -565,8 +565,13 @@ class PomodoroTimer {
             });
         }
         
-        // Re-layout segments with new configuration
+        // Refresh cached NodeLists so subsequent layout uses the new elements
+        this.progressSegments = document.querySelectorAll('.progress-segment');
+        this.progressOverlays = document.querySelectorAll('.progress-overlay');
+
+        // Re-layout segments with new configuration and update progress visuals
         this.layoutSegments();
+        this.updateProgress();
     }
 
     // Layout segments proportionally starting from 12 o'clock, with small gaps
