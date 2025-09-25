@@ -14,6 +14,12 @@ class PomodoroTimer {
         this.isLongBreak = false;
         this.interval = null;
         
+        // Welcome modal elements
+        this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
+        this.welcomeLoginBtn = document.getElementById('welcomeLoginBtn');
+        this.welcomeSignupBtn = document.getElementById('welcomeSignupBtn');
+        this.stayLoggedOutBtn = document.getElementById('stayLoggedOutBtn');
+        
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
             { type: 'work', duration: this.workTime, name: 'Work 1' },
@@ -89,6 +95,7 @@ class PomodoroTimer {
         this.loadCassetteSounds();
         this.updateNavigationButtons();
         this.initClerk();
+        this.checkWelcomeModal();
         
         // Additional check when page is fully loaded
         if (document.readyState === 'complete') {
@@ -548,6 +555,9 @@ class PomodoroTimer {
         
         // Set initial selected technique (Pomodoro)
         const pomodoroItem = document.querySelector('[data-technique="pomodoro"]');
+        
+        // Setup welcome modal events
+        this.setupWelcomeModalEvents();
         if (pomodoroItem) {
             pomodoroItem.classList.add('selected');
         }
@@ -949,6 +959,57 @@ class PomodoroTimer {
             oscillator.stop(audioContext.currentTime + 0.5);
         } catch (error) {
             console.log('Audio notification not supported');
+        }
+    }
+    
+    checkWelcomeModal() {
+        // Only show welcome modal for guest users who have visited before
+        if (this.isAuthenticated) {
+            return; // Don't show for authenticated users
+        }
+        
+        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+        if (!hasVisitedBefore) {
+            // First visit - mark as visited and don't show modal
+            localStorage.setItem('truetempo_has_visited', 'true');
+            return;
+        }
+        
+        // Returning guest user - show welcome modal
+        this.showWelcomeModal();
+    }
+    
+    showWelcomeModal() {
+        if (this.welcomeModalOverlay) {
+            this.welcomeModalOverlay.style.display = 'flex';
+        }
+    }
+    
+    hideWelcomeModal() {
+        if (this.welcomeModalOverlay) {
+            this.welcomeModalOverlay.style.display = 'none';
+        }
+    }
+    
+    setupWelcomeModalEvents() {
+        if (this.welcomeLoginBtn) {
+            this.welcomeLoginBtn.addEventListener('click', () => {
+                this.hideWelcomeModal();
+                this.handleLogin();
+            });
+        }
+        
+        if (this.welcomeSignupBtn) {
+            this.welcomeSignupBtn.addEventListener('click', () => {
+                this.hideWelcomeModal();
+                this.handleSignup();
+            });
+        }
+        
+        if (this.stayLoggedOutBtn) {
+            this.stayLoggedOutBtn.addEventListener('click', () => {
+                this.hideWelcomeModal();
+            });
         }
     }
 
