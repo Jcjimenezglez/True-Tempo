@@ -371,15 +371,15 @@ body::after {
 }
 
 .work-segment {
-    stroke: rgba(55, 65, 81, 0.2);
+    stroke: url(#liquidGlassOverlay);
 }
 
 .break-segment {
-    stroke: rgba(55, 65, 81, 0.2);
+    stroke: url(#liquidGlassOverlay);
 }
 
 .long-break-segment {
-    stroke: rgba(55, 65, 81, 0.2);
+    stroke: url(#liquidGlassOverlay);
 }
 
 .progress-overlay {
