@@ -551,6 +551,9 @@ body::after {
     .technique-title {
         min-width: 280px;
         font-size: 16px;
+        height: auto;
+        display: flex;
+        align-items: center;
     }
     
     .dropdown-menu {
@@ -572,7 +575,9 @@ body::after {
         transform: none;
         flex: 1;
         justify-content: center;
+        align-items: center;
         max-width: 200px;
+        height: 100%;
     }
     
     .header-right {
@@ -580,7 +585,9 @@ body::after {
     }
     
     .technique-dropdown {
-        height: 50px; /* Fixed height for mobile header */
+        height: auto;
+        display: flex;
+        align-items: center;
     }
     
     .auth-container {
