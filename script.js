@@ -908,10 +908,10 @@ class PomodoroTimer {
         const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
         const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
         
-        // Format as "Session X of Y (Z%)"
+        // Format as "X/Y Sessions (Z%)"
         const sessionNumber = this.currentSection;
         const totalSessions = this.cycleSections.length;
-        this.sessionInfoElement.textContent = `Session ${sessionNumber} of ${totalSessions} (${progressPercentage}%)`;
+        this.sessionInfoElement.textContent = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
     }
     
     playNotification() {
