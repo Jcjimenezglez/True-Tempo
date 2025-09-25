@@ -729,6 +729,7 @@ body::after {
 
 .welcome-modal-footer {
     margin-top: 1rem;
+    text-align: center;
 }
 
 .welcome-modal-link {

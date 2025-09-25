@@ -965,14 +965,6 @@ class PomodoroTimer {
     }
     
     checkWelcomeModal() {
-        // Only show welcome modal for guest users who have visited before
-        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-        if (!hasVisitedBefore) {
-            // First visit - mark as visited and don't show modal
-            localStorage.setItem('truetempo_has_visited', 'true');
-            return;
-        }
-        
         // Wait a bit to ensure auth state is properly checked
         setTimeout(() => {
             // Double check auth state
@@ -983,6 +975,14 @@ class PomodoroTimer {
             
             if (this.isAuthenticated) {
                 return; // Don't show for authenticated users
+            }
+            
+            // Check if user has visited before
+            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+            if (!hasVisitedBefore) {
+                // First visit - mark as visited and don't show modal
+                localStorage.setItem('truetempo_has_visited', 'true');
+                return;
             }
             
             // Returning guest user - show welcome modal
