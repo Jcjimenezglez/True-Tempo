@@ -271,6 +271,8 @@ class PomodoroTimer {
             if (this.logoIcon) this.logoIcon.style.display = 'none';
             if (this.achievementIcon) this.achievementIcon.style.display = 'flex';
             this.updateUserProfile();
+            // Hide welcome modal if user is authenticated
+            this.hideWelcomeModal();
             console.log('User is authenticated, showing profile avatar');
         } else {
             if (this.authContainer) this.authContainer.style.display = 'flex';
@@ -964,19 +966,22 @@ class PomodoroTimer {
     
     checkWelcomeModal() {
         // Only show welcome modal for guest users who have visited before
-        if (this.isAuthenticated) {
-            return; // Don't show for authenticated users
-        }
-        
-        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-        if (!hasVisitedBefore) {
-            // First visit - mark as visited and don't show modal
-            localStorage.setItem('truetempo_has_visited', 'true');
-            return;
-        }
-        
-        // Returning guest user - show welcome modal
-        this.showWelcomeModal();
+        // Wait a bit to ensure auth state is properly checked
+        setTimeout(() => {
+            if (this.isAuthenticated) {
+                return; // Don't show for authenticated users
+            }
+            
+            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+            if (!hasVisitedBefore) {
+                // First visit - mark as visited and don't show modal
+                localStorage.setItem('truetempo_has_visited', 'true');
+                return;
+            }
+            
+            // Returning guest user - show welcome modal
+            this.showWelcomeModal();
+        }, 1000); // Wait 1 second to ensure auth state is determined
     }
     
     showWelcomeModal() {
