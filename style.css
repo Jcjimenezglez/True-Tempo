@@ -429,21 +429,21 @@ body::after {
     color: #000000;
     background-color: #ffffff;
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 50px;
 }
 
 .mode.break {
     color: #000000;
     background-color: #ffffff;
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 50px;
 }
 
 .mode.long-break {
     color: #000000;
     background-color: #ffffff;
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 50px;
 }
 
 .session-info {
