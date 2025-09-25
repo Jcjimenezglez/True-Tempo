@@ -466,9 +466,9 @@ class PomodoroTimer {
                 ];
                 break;
             case 'pomodoro-plus':
-                this.workTime = 45 * 60;
-                this.shortBreakTime = 15 * 60;
-                this.longBreakTime = 30 * 60;
+                this.workTime = 50 * 60;
+                this.shortBreakTime = 10 * 60;
+                this.longBreakTime = 0; // No long break for this technique
                 this.sessionsPerCycle = 4;
                 this.cycleSections = [
                     { type: 'work', duration: this.workTime, name: 'Work 1' },
@@ -478,7 +478,7 @@ class PomodoroTimer {
                     { type: 'work', duration: this.workTime, name: 'Work 3' },
                     { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
                     { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 4' }
                 ];
                 break;
             case 'ultradian-rhythm':
