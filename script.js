@@ -503,6 +503,7 @@ class PomodoroTimer {
         this.currentSection = 1;
         this.loadCurrentSection();
         this.updateNavigationButtons();
+        this.updateSessionInfo();
     }
 
     // Layout segments proportionally starting from 12 o'clock, with small gaps
