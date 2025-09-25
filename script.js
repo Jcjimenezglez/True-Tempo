@@ -1357,6 +1357,7 @@ class PomodoroTimer {
         // Create modal content
         const modalContent = `
             <div class="technique-info-modal">
+                <button class="close-technique-info-x">×</button>
                 <h3>${info.title}</h3>
                 <p class="technique-description">${info.description}</p>
                 <div class="technique-video">
@@ -1391,7 +1392,17 @@ class PomodoroTimer {
 
         // Close modal functionality
         const closeBtn = modalOverlay.querySelector('.close-technique-info');
+        const closeBtnX = modalOverlay.querySelector('.close-technique-info-x');
+        
         closeBtn.addEventListener('click', (evt) => {
+            // Prevent this click from bubbling to document listener
+            evt.stopPropagation();
+            document.body.removeChild(modalOverlay);
+            // Keep dropdown open after closing modal
+            this.techniqueDropdown.classList.add('open');
+        });
+        
+        closeBtnX.addEventListener('click', (evt) => {
             // Prevent this click from bubbling to document listener
             evt.stopPropagation();
             document.body.removeChild(modalOverlay);
