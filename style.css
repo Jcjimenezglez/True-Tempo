@@ -421,8 +421,8 @@ body::after {
     font-size: 1.125rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    text-transform: none;
+    letter-spacing: 0.05em;
 }
 
 .mode.focus {
