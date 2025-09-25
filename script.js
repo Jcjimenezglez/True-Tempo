@@ -835,19 +835,8 @@ class PomodoroTimer {
                 let fillLen = 0;
 
                 // Set overlay color based on section type
-                const section = this.cycleSections[i];
-                if (section) {
-                    switch (section.type) {
-                        case 'break':
-                        case 'long-break':
-                            // Light gray for all breaks
-                            ol.style.stroke = '#d1d1d1';
-                            break;
-                        default:
-                            // work -> white
-                            ol.style.stroke = '#ffffff';
-                    }
-                }
+                // Monochrome: always white indicator per segment
+                ol.style.stroke = '#ffffff';
                 
                 // Check if this segment should be visible
                 if (totalProgress > cursor) {
@@ -895,13 +884,13 @@ class PomodoroTimer {
         } else if (this.isLongBreak) {
             this.modeElement.textContent = 'Long Break';
             this.modeElement.className = 'mode long-break';
-            // Light gray for breaks
-            this.progressIndicator.style.stroke = '#d1d1d1';
+            // Monochrome: always white indicator
+            this.progressIndicator.style.stroke = '#ffffff';
         } else {
             this.modeElement.textContent = 'Break';
             this.modeElement.className = 'mode break';
-            // Light gray for breaks
-            this.progressIndicator.style.stroke = '#d1d1d1';
+            // Monochrome: always white indicator
+            this.progressIndicator.style.stroke = '#ffffff';
         }
     }
     

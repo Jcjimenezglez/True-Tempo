@@ -375,11 +375,11 @@ body::after {
 }
 
 .break-segment {
-    stroke: rgba(209, 209, 209, 0.2);
+    stroke: rgba(255, 255, 255, 0.15);
 }
 
 .long-break-segment {
-    stroke: rgba(209, 209, 209, 0.2);
+    stroke: rgba(255, 255, 255, 0.15);
 }
 
 .progress-overlay {
@@ -430,11 +430,11 @@ body::after {
 }
 
 .mode.break {
-    color: #78dbff;
+    color: #a3a3a3;
 }
 
 .mode.long-break {
-    color: #ff77c6;
+    color: #a3a3a3;
 }
 
 .session-info {
