@@ -20,7 +20,9 @@ class PomodoroTimer {
         
         // Ambient sounds system
         this.ambientPlaying = false;
-        this.ambientVolume = 0.3;
+        this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
+        this.playlist = [];
+        this.currentTrackIndex = 0;
         
         // Welcome modal elements
         this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
@@ -64,6 +66,15 @@ class PomodoroTimer {
         this.saveCustomTimer = document.getElementById('saveCustomTimer');
         this.customPreview = document.getElementById('customPreview');
         this.backgroundAudio = document.getElementById('backgroundAudio');
+        if (this.backgroundAudio) {
+            this.backgroundAudio.addEventListener('ended', () => {
+                if (!this.playlist || this.playlist.length === 0) return;
+                this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+                this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
+                this.backgroundAudio.volume = this.ambientVolume;
+                this.backgroundAudio.play().catch(() => {});
+            });
+        }
         
         // Auth elements
         this.authContainer = document.getElementById('authContainer');
@@ -1247,33 +1258,25 @@ class PomodoroTimer {
     }
 
     showAmbientModal() {
+        const initialVolumePct = Math.round(this.ambientVolume * 100);
         const modalContent = `
-            <div class="focus-stats-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
+            <div class=\"focus-stats-modal\">
+                <button class=\"close-focus-stats-x\">
+                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">
+                        <path d=\"M18 6 6 18\"/>
+                        <path d=\"m6 6 12 12\"/>
                     </svg>
                 </button>
                 <h3>Ambient Sounds</h3>
-                <div class="ambient-controls">
-                    <div class="ambient-selector">
-                        <label>Select Sound:</label>
-                        <select id="ambientSoundSelect">
-                            <option value="rain">Rain</option>
-                            <option value="forest">Forest</option>
-                            <option value="coffee">Coffee Shop</option>
-                            <option value="wind">Wind</option>
-                        </select>
-                    </div>
-                    <div class="ambient-volume">
+                <div class=\"ambient-controls\">
+                    <div class=\"ambient-volume\">
                         <label>Volume:</label>
-                        <input type="range" id="ambientVolume" min="0" max="100" value="30">
-                        <span id="ambientVolumeValue">30%</span>
+                        <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">\n
+                        <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
                     </div>
-                    <div class="ambient-actions">
-                        <button id="ambientPlayBtn" class="login-btn">Play</button>
-                        <button id="ambientStopBtn" class="cancel-btn">Stop</button>
+                    <div class=\"ambient-actions\">
+                        <button id=\"ambientPlayBtn\" class=\"login-btn\">Play</button>
+                        <button id=\"ambientStopBtn\" class=\"cancel-btn\">Stop</button>
                     </div>
                 </div>
             </div>
@@ -1295,16 +1298,15 @@ class PomodoroTimer {
         
         volumeSlider.addEventListener('input', (e) => {
             volumeValue.textContent = e.target.value + '%';
-            this.ambientVolume = e.target.value / 100;
+            this.setAmbientVolume(e.target.value / 100);
         });
 
-        modalOverlay.querySelector('#ambientPlayBtn').addEventListener('click', () => {
-            const soundType = modalOverlay.querySelector('#ambientSoundSelect').value;
-            this.playAmbientSound(soundType);
+        modalOverlay.querySelector('#ambientPlayBtn').addEventListener('click', async () => {
+            await this.playPlaylist();
         });
 
         modalOverlay.querySelector('#ambientStopBtn').addEventListener('click', () => {
-            this.stopAmbientSound();
+            this.stopPlaylist();
         });
 
         modalOverlay.addEventListener('click', (e) => {
@@ -1314,21 +1316,39 @@ class PomodoroTimer {
         });
     }
 
-    playAmbientSound(soundType) {
-        this.stopAmbientSound();
-        
-        // TODO: Replace with actual MP3 files
-        console.log('Playing ambient sound:', soundType, 'Volume:', this.ambientVolume);
-        
-        // For now, just show a placeholder message
-        alert(`Playing ${soundType} at ${Math.round(this.ambientVolume * 100)}% volume\n\n(MP3 files will be added soon)`);
-        
-        this.ambientPlaying = true;
+    // Helper to set playlist after uploading files
+    setPlaylist(trackFilenames = []) {
+        if (!Array.isArray(trackFilenames)) return;
+        // Keep only .mp3 and .wav for safety
+        this.playlist = trackFilenames.filter(name => /\.(mp3|wav)$/i.test(name));
+        this.currentTrackIndex = 0;
     }
 
-    stopAmbientSound() {
-        console.log('Stopping ambient sound');
+    async playPlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.playlist || this.playlist.length === 0) {
+            alert('No background tracks available yet. Upload MP3s to /audio/lofi');
+            return;
+        }
+        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
+        this.backgroundAudio.loop = false;
+        this.backgroundAudio.volume = this.ambientVolume;
+        try { await this.backgroundAudio.play(); } catch (_) {}
+        this.ambientPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    stopPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
         this.ambientPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    setAmbientVolume(vol) {
+        this.ambientVolume = Math.max(0, Math.min(1, vol));
+        localStorage.setItem('ambientVolume', String(this.ambientVolume));
+        if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
     }
 
     updatePremiumUI() {
