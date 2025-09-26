@@ -1,6 +1,6 @@
-// Minimal Vercel serverless function to create a Stripe Checkout session
-// Expects environment variables configured in Vercel project settings:
-// STRIPE_SECRET_KEY, STRIPE_PRICE_ID, STRIPE_SUCCESS_URL, STRIPE_CANCEL_URL
+// Clean, validated Stripe Checkout session creator
+// Env vars required (Vercel -> Project Settings -> Environment Variables):
+//   STRIPE_SECRET_KEY, STRIPE_PRICE_ID, STRIPE_SUCCESS_URL, STRIPE_CANCEL_URL
 
 const Stripe = require('stripe');
 
@@ -10,29 +10,59 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  const priceId = process.env.STRIPE_PRICE_ID;
-  const successUrl = process.env.STRIPE_SUCCESS_URL || 'https://example.com?premium=1';
-  const cancelUrl = process.env.STRIPE_CANCEL_URL || 'https://example.com';
+  // Read and sanitize env vars
+  const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
+  const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
+  const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://superfocus.live?premium=1').trim();
+  const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://superfocus.live').trim();
 
-  if (!secretKey || !priceId) {
-    res.status(500).json({ error: 'Stripe not configured' });
+  // Basic validation with clear error responses
+  if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
+    res.status(500).json({ error: 'Invalid STRIPE_SECRET_KEY' });
+    return;
+  }
+  if (!priceId || !/^price_/.test(priceId)) {
+    res.status(500).json({ error: 'Invalid STRIPE_PRICE_ID' });
+    return;
+  }
+  try {
+    // Validate URLs to avoid Stripe "url_invalid"
+    // Throws if invalid
+    // eslint-disable-next-line no-new
+    new URL(successUrl);
+    // eslint-disable-next-line no-new
+    new URL(cancelUrl);
+  } catch (_) {
+    res.status(500).json({ error: 'Invalid redirect URLs for Stripe' });
     return;
   }
 
   try {
     const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      line_items: [{ price: priceId, quantity: 1 }],
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      // Pass Clerk user id if present so webhook can mark premium
+      metadata: {
+        clerk_user_id: (req.headers['x-clerk-userid'] || '').toString(),
+      },
+      allow_promotion_codes: false,
+      billing_address_collection: 'auto',
       success_url: successUrl,
       cancel_url: cancelUrl,
     });
+
     res.status(200).json({ url: session.url });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    console.error('Stripe checkout error:', err);
+    const message = (err && err.message) || 'Failed to create checkout session';
+    res.status(500).json({ error: message });
   }
 };
-
-

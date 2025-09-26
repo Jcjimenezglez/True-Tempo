@@ -34,5 +34,23 @@
       "source": "/callback",
       "destination": "/index.html"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "truetempo.app" }
+      ],
+      "destination": "https://superfocus.live/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "www.truetempo.app" }
+      ],
+      "destination": "https://superfocus.live/$1",
+      "permanent": true
+    }
   ]
 }

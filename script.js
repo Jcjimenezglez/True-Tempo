@@ -14,6 +14,15 @@ class PomodoroTimer {
         this.isLongBreak = false;
         this.interval = null;
         
+        // Anti-cheat tracking within the current cycle
+        this.completedFocusSessionsInCycle = 0; // counts naturally finished focus sessions
+        this.cheatedDuringFocusInCycle = false; // true if user used next/back while in a focus session
+        
+        // Ambient sounds system
+        this.ambientPlaying = false;
+        this.ambientVolume = 0.3;
+        this.audioContext = null;
+        
         // Welcome modal elements
         this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
         this.welcomeLoginBtn = document.getElementById('welcomeLoginBtn');
@@ -39,6 +48,8 @@ class PomodoroTimer {
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
         this.nextSectionBtn = document.getElementById('nextSectionBtn');
+        this.musicToggleBtn = document.getElementById('musicToggleBtn');
+        this.taskToggleBtn = document.getElementById('taskToggleBtn');
         this.progressSegments = document.querySelectorAll('.progress-segment');
         this.progressIndicator = document.querySelector('.progress-indicator');
         this.progressOverlays = document.querySelectorAll('.progress-overlay');
@@ -46,6 +57,13 @@ class PomodoroTimer {
         this.techniqueDropdown = document.getElementById('techniqueDropdown');
         this.dropdownMenu = document.getElementById('dropdownMenu');
         this.dropdownItems = document.querySelectorAll('.dropdown-item');
+        
+        // Custom timer modal elements
+        this.customTimerModal = document.getElementById('customTimerModal');
+        this.closeCustomTimer = document.getElementById('closeCustomTimer');
+        this.cancelCustomTimer = document.getElementById('cancelCustomTimer');
+        this.saveCustomTimer = document.getElementById('saveCustomTimer');
+        this.customPreview = document.getElementById('customPreview');
         this.backgroundAudio = document.getElementById('backgroundAudio');
         
         // Auth elements
@@ -56,6 +74,7 @@ class PomodoroTimer {
         // Logo and achievement elements
         this.logoIcon = document.getElementById('logoIcon');
         this.achievementIcon = document.getElementById('achievementIcon');
+        this.achievementCounter = document.getElementById('achievementCounter');
         // User profile elements (shown when authenticated)
         this.userProfileContainer = document.getElementById('userProfileContainer');
         this.userProfileButton = document.getElementById('userProfileButton');
@@ -63,6 +82,7 @@ class PomodoroTimer {
         this.userDropdownMenu = document.getElementById('userDropdownMenu');
         this.userAvatar = document.getElementById('userAvatar');
         this.logoutButton = document.getElementById('logoutButton');
+        this.resetStatsButton = document.getElementById('resetStatsButton');
         
         // Logout modal elements
         this.logoutModalOverlay = document.getElementById('logoutModalOverlay');
@@ -76,9 +96,12 @@ class PomodoroTimer {
         
         // Audio state
         this.currentAudio = null;
-        this.audioContext = null;
         this.cassetteSounds = null;
         
+        // Selection restore flags
+        this.hasAppliedSavedTechnique = false;
+        this.pendingSelectedTechnique = null;
+
         this.init();
     }
     
@@ -95,6 +118,13 @@ class PomodoroTimer {
         this.loadCassetteSounds();
         this.updateNavigationButtons();
         this.initClerk();
+        
+        // Load custom timer labels if it exists (do not auto-select here)
+        this.loadSavedCustomTimer();
+
+
+        // Try to apply saved technique (will re-run after auth hydrates)
+        this.applySavedTechniqueOnce();
         this.checkWelcomeModal();
         
         // Additional check when page is fully loaded
@@ -105,6 +135,9 @@ class PomodoroTimer {
                 setTimeout(() => this.checkAuthState(), 2000);
             });
         }
+
+        // Ensure badge shows current total focus time immediately
+        this.updateFocusHoursDisplay();
     }
 
     // Clerk Authentication Methods
@@ -121,7 +154,7 @@ class PomodoroTimer {
                         '::before': { content: 'none' }
                     }
                 },
-                publishableKey: 'pk_live_Y2xlcmsudHJ1ZXRlbXBvLmFwcCQ'
+                publishableKey: 'pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA'
             });
             
             // Hydrate initial auth state
@@ -166,6 +199,8 @@ class PomodoroTimer {
             } catch (_) {}
             
             this.updateAuthState();
+            // Auth may have hydrated; attempt to apply saved technique now
+            this.applySavedTechniqueOnce();
             
             // Force check auth state after a short delay to catch post-redirect state
             setTimeout(() => {
@@ -267,27 +302,126 @@ class PomodoroTimer {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'flex';
-            // Show achievement icon, hide logo
-            if (this.logoIcon) this.logoIcon.style.display = 'none';
-            if (this.achievementIcon) this.achievementIcon.style.display = 'flex';
+            // Always show logo, never show achievement icon
+            if (this.logoIcon) this.logoIcon.style.display = 'flex';
+            if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             this.updateUserProfile();
+            // Initialize cycle counter for authenticated users
+            this.initializeCycleCounter();
+            // Also update badge immediately
+            this.updateFocusHoursDisplay();
+            // Update premium UI
+            this.updatePremiumUI();
+            // Reconciliar premium desde backend
+            this.refreshPremiumFromServer().catch(() => {});
             // Hide welcome modal if user is authenticated
             this.hideWelcomeModal();
             console.log('User is authenticated, showing profile avatar');
+
+            // Ensure developer tab visibility according to current user
+            this.updateDeveloperTabVisibility();
+
+            // Apply saved technique now that auth is ready
+            this.applySavedTechniqueOnce();
         } else {
             if (this.authContainer) this.authContainer.style.display = 'flex';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
-            // Show logo, hide achievement icon
+            // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             if (this.loginButton) this.loginButton.textContent = 'Login';
             // Don't force display of signup button - let CSS handle mobile visibility
             if (this.signupButton) this.signupButton.style.display = '';
             console.log('User is not authenticated, showing login/signup buttons');
+            // Reset badge to zero time for guests
+            if (this.achievementCounter) {
+                this.achievementCounter.textContent = '00h:00m';
+            }
+            // Hide developer tab when not authenticated
+            this.updateDeveloperTabVisibility();
         }
         
         // Update dropdown badges based on authentication state
         this.updateDropdownState();
+    }
+
+    // Controls visibility of the Developer tab based on current user
+    updateDeveloperTabVisibility() {
+        const developerTab = document.querySelector('[data-tab="developer"]');
+        const developerContent = document.getElementById('developer-tab');
+        if (!developerTab || !developerContent) return;
+
+        const user = (window.Clerk && window.Clerk.user) ? window.Clerk.user : this.user;
+        let isDeveloper = false;
+        if (user) {
+            try {
+                if (user.emailAddresses && user.emailAddresses.length > 0) {
+                    isDeveloper = user.emailAddresses.some(e => e.emailAddress === 'jcjimenezglez@gmail.com');
+                } else if (user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) {
+                    isDeveloper = user.primaryEmailAddress.emailAddress === 'jcjimenezglez@gmail.com';
+                } else if (user.emailAddress) {
+                    isDeveloper = user.emailAddress === 'jcjimenezglez@gmail.com';
+                }
+            } catch (_) {}
+        }
+
+        if (isDeveloper) {
+            developerTab.style.display = '';
+            developerContent.style.display = '';
+        } else {
+            developerTab.style.display = 'none';
+            developerContent.style.display = 'none';
+        }
+    }
+
+    // Apply saved technique once, after auth/user state is hydrated
+    applySavedTechniqueOnce() {
+        if (this.hasAppliedSavedTechnique) return;
+        const saved = localStorage.getItem('selectedTechnique');
+        const savedCustom = localStorage.getItem('customTimer');
+
+        // Nothing saved → keep default until user picks one
+        if (!saved) {
+            this.hasAppliedSavedTechnique = true;
+            return;
+        }
+
+        // Custom selected
+        if (saved === 'custom') {
+            if (savedCustom) {
+                try {
+                    const config = JSON.parse(savedCustom);
+                    this.loadCustomTechnique(config);
+                    this.hasAppliedSavedTechnique = true;
+                    return;
+                } catch (_) {
+                    localStorage.removeItem('customTimer');
+                    // No valid custom → mark applied and keep default
+                    this.hasAppliedSavedTechnique = true;
+                    return;
+                }
+            }
+            // No custom saved → mark applied and keep default
+            this.hasAppliedSavedTechnique = true;
+            return;
+        }
+
+        // Built-in technique
+        const item = document.querySelector(`[data-technique="${saved}"]`);
+        if (item) {
+            const requiresAccount = item.dataset.requiresAccount === 'true';
+            if (requiresAccount && !this.isAuthenticated) {
+                // Defer until auth is ready; do NOT mark as applied yet
+                this.pendingSelectedTechnique = saved;
+                return;
+            }
+            this.selectTechnique(item);
+            this.hasAppliedSavedTechnique = true;
+            return;
+        }
+
+        // Unknown saved technique → mark applied
+        this.hasAppliedSavedTechnique = true;
     }
 
     updateUserProfile() {
@@ -387,14 +521,8 @@ class PomodoroTimer {
 
     async handleSignup() {
         try {
-            const hasAccount = (() => { try { return localStorage.getItem('hasAccount') === 'true'; } catch (_) { return false; }})();
-            if (hasAccount) {
-                console.log('Redirecting to Clerk hosted Sign In...');
-                window.Clerk.redirectToSignIn({ fallbackRedirectUrl: window.location.origin + window.location.pathname });
-            } else {
-                console.log('Redirecting to Clerk hosted Sign Up...');
-                window.Clerk.redirectToSignUp({ fallbackRedirectUrl: window.location.origin + window.location.pathname });
-            }
+            console.log('Redirecting to Clerk hosted Sign Up...');
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
@@ -402,9 +530,19 @@ class PomodoroTimer {
 
 
     updateTechniqueTitle() {
-        // For now, fixed Pomodoro – could be dynamic later
         if (this.techniqueTitle) {
-            this.techniqueTitle.innerHTML = 'Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>';
+            const saved = localStorage.getItem('selectedTechnique');
+            let label = 'Pomodoro';
+            if (saved) {
+                const map = {
+                    'pomodoro': 'Pomodoro',
+                    'pomodoro-plus': 'Long Pomodoro',
+                    'ultradian-rhythm': 'Ultradian Rhythm',
+                    'custom': (document.querySelector('[data-technique="custom"] .item-title')?.textContent || 'Custom')
+                };
+                label = map[saved] || 'Pomodoro';
+            }
+            this.techniqueTitle.innerHTML = `${label}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
         }
     }
     
@@ -417,8 +555,11 @@ class PomodoroTimer {
     }
     
     selectTechnique(item) {
-        const technique = item.dataset.technique;
-        const title = item.querySelector('.item-title').textContent;
+        if (!item) return;
+        const technique = item.dataset ? item.dataset.technique : undefined;
+        const titleEl = item.querySelector ? item.querySelector('.item-title') : null;
+        const title = titleEl ? (titleEl.textContent || '') : '';
+        if (!technique) return;
         const requiresAccount = item.dataset.requiresAccount === 'true';
         
         // Check if technique requires account and user is not authenticated
@@ -434,13 +575,21 @@ class PomodoroTimer {
         }
         
         // Update the button text
-        this.techniqueTitle.innerHTML = `${title}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        if (this.techniqueTitle) {
+            const safeTitle = title || technique || '';
+            this.techniqueTitle.innerHTML = `${safeTitle}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        }
         
         // Update selected state
-        this.dropdownItems.forEach(dropdownItem => {
-            dropdownItem.classList.remove('selected');
-        });
-        item.classList.add('selected');
+        if (this.dropdownItems && this.dropdownItems.forEach) {
+            this.dropdownItems.forEach(dropdownItem => {
+                dropdownItem.classList.remove('selected');
+            });
+        }
+        if (item.classList) item.classList.add('selected');
+        
+        // Save selected technique to localStorage
+        localStorage.setItem('selectedTechnique', technique);
         
         // Close dropdown
         this.closeDropdown();
@@ -496,6 +645,20 @@ class PomodoroTimer {
                     { type: 'break', duration: this.shortBreakTime, name: 'Break 2' }
                 ];
                 break;
+            case 'custom':
+                // Load and apply saved custom configuration
+                try {
+                    const savedCustomTimer = localStorage.getItem('customTimer');
+                    if (savedCustomTimer) {
+                        const customConfig = JSON.parse(savedCustomTimer);
+                        this.loadCustomTechnique(customConfig);
+                        return; // UI/state handled by loadCustomTechnique
+                    }
+                } catch (_) {
+                    try { localStorage.removeItem('customTimer'); } catch (_) {}
+                }
+                // No valid config; keep current technique until user configures
+                return;
         }
         
         // Update progress ring to match new technique
@@ -613,7 +776,29 @@ class PomodoroTimer {
         this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
         this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
         this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
+        this.musicToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggleMusic();
+        });
+        this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
         this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
+        
+        // Custom timer event listeners
+        this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
+        
+        // Custom timer form inputs
+        const customInputs = ['customName', 'focusTime', 'breakTime', 'longBreakTime', 'cycles'];
+        customInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('input', () => {
+                    // Optional: Add any real-time validation here
+                });
+            }
+        });
         
         // Close dropdown when clicking outside (but ignore technique info modal)
         document.addEventListener('click', (e) => {
@@ -635,18 +820,19 @@ class PomodoroTimer {
                     this.showTechniqueInfo(e.target.dataset.technique);
                     return;
                 }
+
+                const technique = item.getAttribute('data-technique');
+                if (technique === 'custom') {
+                    e.stopPropagation();
+                    this.handleCustomTechniqueClick(item);
+                    return;
+                }
                 this.selectTechnique(item);
             });
         });
         
-        // Set initial selected technique (Pomodoro)
-        const pomodoroItem = document.querySelector('[data-technique="pomodoro"]');
-        
         // Setup welcome modal events
         this.setupWelcomeModalEvents();
-        if (pomodoroItem) {
-            pomodoroItem.classList.add('selected');
-        }
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
@@ -667,7 +853,7 @@ class PomodoroTimer {
             });
         }
         
-        // Profile dropdown toggle
+        // Profile dropdown click behavior
         if (this.userProfileButton) {
             this.userProfileButton.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -675,6 +861,116 @@ class PomodoroTimer {
                 if (this.userProfileDropdown) {
                     const isShown = this.userProfileDropdown.style.display === 'block';
                     this.userProfileDropdown.style.display = isShown ? 'none' : 'block';
+                }
+            });
+        }
+
+        // Achievement badge click
+        if (this.achievementIcon) {
+            this.achievementIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showFocusStatsModal();
+            });
+        }
+
+        // Logo click - redirect to home
+        if (this.logoIcon) {
+            this.logoIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'https://superfocus.live';
+            });
+        }
+
+        // Modal close buttons
+        const closeUpgradeX = document.querySelector('.close-upgrade-x');
+        if (closeUpgradeX) {
+            closeUpgradeX.addEventListener('click', () => this.hideUpgradeModal());
+        }
+
+        const closeSettingsX = document.querySelector('.close-settings-x');
+        if (closeSettingsX) {
+            closeSettingsX.addEventListener('click', () => this.hideSettingsModal());
+        }
+
+        // Close modals when clicking overlay
+        const upgradeModal = document.getElementById('upgradeModal');
+        if (upgradeModal) {
+            upgradeModal.addEventListener('click', (e) => {
+                if (e.target === upgradeModal) {
+                    this.hideUpgradeModal();
+                }
+            });
+        }
+
+        // Settings modal tab navigation
+        this.setupSettingsTabs();
+        
+        // View mode toggle buttons
+        this.setupViewModeButtons();
+
+        // Upgrade button
+        const upgradeBtn = document.querySelector('.upgrade-btn');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', async () => {
+                try {
+                    let userId = '';
+                    let userEmail = '';
+                    try {
+                        if (window.Clerk && window.Clerk.user) {
+                            userId = window.Clerk.user.id || '';
+                            userEmail = (window.Clerk.user.primaryEmailAddress?.emailAddress || window.Clerk.user.emailAddresses?.[0]?.emailAddress || '') + '';
+                        }
+                    } catch (_) {}
+
+                    const resp = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-clerk-userid': userId,
+                            'x-clerk-user-email': userEmail,
+                        },
+                    });
+
+                    let data = null;
+                    try {
+                        data = await resp.json();
+                    } catch (_) {
+                        // non-JSON error
+                    }
+
+                    if (!resp.ok) {
+                        const errMsg = (data && data.error) ? data.error : `HTTP ${resp.status}`;
+                        console.error('Checkout session error response:', data);
+                        throw new Error(errMsg);
+                    }
+
+                    const url = data && data.url;
+                    if (url) {
+                        window.location.assign(url);
+                    } else {
+                        throw new Error('No checkout url returned');
+                    }
+                } catch (err) {
+                    console.error('Error creating checkout session:', err);
+                    alert(`Error processing payment: ${err.message || err}`);
+                }
+            });
+        }
+
+        // Upgrade modal Cancel button
+        const upgradeCancelBtn = document.getElementById('upgradeCancelBtn');
+        if (upgradeCancelBtn) {
+            upgradeCancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideUpgradeModal();
+            });
+        }
+
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal) {
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    this.hideSettingsModal();
                 }
             });
         }
@@ -690,6 +986,86 @@ class PomodoroTimer {
                 this.showLogoutModal();
             });
         }
+
+        // Reset focus stats (from settings modal)
+        const settingsResetButton = document.getElementById('settingsResetButton');
+        if (settingsResetButton) {
+            settingsResetButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.resetFocusStats();
+                this.hideSettingsModal();
+            });
+        }
+
+
+        // Manage subscription button
+        const manageSubscriptionButton = document.getElementById('manageSubscriptionButton');
+        if (manageSubscriptionButton) {
+            manageSubscriptionButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    let userEmail = '';
+                    try {
+                        if (window.Clerk && window.Clerk.user) {
+                            userEmail = (window.Clerk.user.primaryEmailAddress?.emailAddress || window.Clerk.user.emailAddresses?.[0]?.emailAddress || '') + '';
+                        }
+                    } catch (_) {}
+                    const response = await fetch('/api/customer-portal', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-clerk-userid': (window.Clerk && window.Clerk.user ? window.Clerk.user.id : ''),
+                            'x-clerk-user-email': userEmail,
+                            // Pass cached stripe customer id if Clerk has it
+                            'x-stripe-customer-id': (window.Clerk && window.Clerk.user && window.Clerk.user.publicMetadata ? (window.Clerk.user.publicMetadata.stripeCustomerId || '') : ''),
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to create customer portal session');
+                    }
+
+                    const { url } = await response.json();
+                    window.location.href = url;
+                } catch (error) {
+                    console.error('Error creating customer portal session:', error);
+                    alert('Error accessing subscription management. Please try again.');
+                }
+            });
+        }
+
+        // Mark as Premium button (for testing)
+        const markPremiumButton = document.getElementById('markPremiumButton');
+        if (markPremiumButton) {
+            markPremiumButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.setItem('isPremium', 'true');
+                localStorage.setItem('hasPaidSubscription', 'true');
+                this.updatePremiumUI();
+                alert('✅ Marked as Premium user!\n\nRefresh the page to see changes.');
+            });
+        }
+        
+        // Handle dropdown item clicks
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const text = item.querySelector('span').textContent;
+                if (text === 'Log out') {
+                    e.preventDefault();
+                    this.showLogoutModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                } else if (text === 'Upgrade to Pro') {
+                    e.preventDefault();
+                    this.showUpgradeModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                } else if (text === 'Settings') {
+                    e.preventDefault();
+                    this.showSettingsModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                }
+            });
+        });
         
         // Logout modal actions
         if (this.confirmLogoutBtn) {
@@ -717,6 +1093,316 @@ class PomodoroTimer {
         }
         
     }
+
+    resetFocusStats() {
+        try {
+            localStorage.removeItem('focusStats');
+        } catch (_) {}
+        // Update UI immediately
+        if (this.achievementCounter) {
+            this.achievementCounter.textContent = '00h:00m';
+        }
+        // Reset cycle tracking for current cycle
+        this.completedFocusSessionsInCycle = 0;
+        this.cheatedDuringFocusInCycle = false;
+    }
+
+    showUpgradeModal() {
+        const upgradeModal = document.getElementById('upgradeModal');
+        if (upgradeModal) {
+            upgradeModal.style.display = 'flex';
+        }
+    }
+
+    async handleUpgrade() {
+        try {
+            const response = await fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create checkout session');
+            }
+
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            console.error('Error creating checkout session:', error);
+            alert('Error processing payment. Please try again.');
+        }
+    }
+
+    hideUpgradeModal() {
+        const upgradeModal = document.getElementById('upgradeModal');
+        if (upgradeModal) {
+            upgradeModal.style.display = 'none';
+        }
+    }
+
+    showSettingsModal() {
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal) {
+            // Ensure developer tab visibility at open time
+            this.updateDeveloperTabVisibility();
+            settingsModal.style.display = 'flex';
+        }
+    }
+
+    hideSettingsModal() {
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    }
+
+    // Sound system methods
+    isPremiumUser() {
+        const forcedMode = localStorage.getItem('viewMode');
+        if (forcedMode === 'pro') return true;
+        if (forcedMode === 'free' || forcedMode === 'guest') return false;
+        
+        // Prefer Clerk metadata when available
+        try {
+            if (window.Clerk && window.Clerk.user) {
+                const meta = window.Clerk.user.publicMetadata || {};
+                if (meta.isPremium === true) return true;
+            }
+        } catch (_) {}
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasPremiumParam = urlParams.get('premium') === '1';
+        const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
+        const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
+        if (hasPremiumParam) {
+            localStorage.setItem('isPremium', 'true');
+            localStorage.setItem('hasPaidSubscription', 'true');
+            return true;
+        }
+        return hasPremiumStorage || hasPaidSubscription;
+    }
+
+    // Simple ambient sounds system
+    toggleMusic() {
+        if (!this.isAuthenticated || !this.user) {
+            this.showAmbientLoginModal();
+            return;
+        }
+        this.showAmbientModal();
+    }
+
+    showAmbientLoginModal() {
+        const modalContent = `
+            <div class="ambient-modal">
+                <button class="close-ambient-x">×</button>
+                <h3>Ambient Sounds</h3>
+                <p>Create a free account to access ambient sounds and enhance your focus sessions.</p>
+                <div class="ambient-login-buttons">
+                    <button class="ambient-login-btn" id="ambientLoginBtn">Login</button>
+                    <button class="ambient-cancel-btn" id="ambientCancelBtn">Cancel</button>
+                </div>
+            </div>
+        `;
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'ambient-modal-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+
+        // Event listeners
+        modalOverlay.querySelector('.close-ambient-x').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalOverlay.querySelector('#ambientLoginBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+        });
+
+        modalOverlay.querySelector('#ambientCancelBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showAmbientModal() {
+        const modalContent = `
+            <div class="ambient-modal">
+                <button class="close-ambient-x">×</button>
+                <h3>Ambient Sounds</h3>
+                <div class="ambient-controls">
+                    <div class="ambient-selector">
+                        <label>Select Sound:</label>
+                        <select id="ambientSoundSelect">
+                            <option value="rain">Rain</option>
+                            <option value="forest">Forest</option>
+                            <option value="coffee">Coffee Shop</option>
+                            <option value="wind">Wind</option>
+                        </select>
+                    </div>
+                    <div class="ambient-volume">
+                        <label>Volume:</label>
+                        <input type="range" id="ambientVolume" min="0" max="100" value="30">
+                        <span id="ambientVolumeValue">30%</span>
+                    </div>
+                    <div class="ambient-actions">
+                        <button id="ambientPlayBtn" class="ambient-btn primary">Play</button>
+                        <button id="ambientStopBtn" class="ambient-btn secondary">Stop</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'ambient-modal-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+
+        // Event listeners
+        modalOverlay.querySelector('.close-ambient-x').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        const volumeSlider = modalOverlay.querySelector('#ambientVolume');
+        const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
+        
+        volumeSlider.addEventListener('input', (e) => {
+            volumeValue.textContent = e.target.value + '%';
+            this.ambientVolume = e.target.value / 100;
+        });
+
+        modalOverlay.querySelector('#ambientPlayBtn').addEventListener('click', () => {
+            const soundType = modalOverlay.querySelector('#ambientSoundSelect').value;
+            this.playAmbientSound(soundType);
+        });
+
+        modalOverlay.querySelector('#ambientStopBtn').addEventListener('click', () => {
+            this.stopAmbientSound();
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    playAmbientSound(soundType) {
+        this.stopAmbientSound();
+        
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Simple frequencies for different sounds
+        const frequencies = {
+            rain: 200,
+            forest: 300,
+            coffee: 250,
+            wind: 150
+        };
+        
+        oscillator.frequency.value = frequencies[soundType] || 200;
+        oscillator.type = 'sine';
+        gainNode.gain.value = this.ambientVolume * 0.1;
+        
+        oscillator.start();
+        this.ambientPlaying = true;
+        
+        // Store reference for stopping
+        this.currentAmbientOscillator = oscillator;
+    }
+
+    stopAmbientSound() {
+        if (this.currentAmbientOscillator) {
+            this.currentAmbientOscillator.stop();
+            this.currentAmbientOscillator = null;
+        }
+        this.ambientPlaying = false;
+    }
+
+    updatePremiumUI() {
+        const upgradeButton = document.getElementById('upgradeToProButton');
+        const manageSubscriptionButton = document.getElementById('manageSubscriptionButton');
+        const userProBadge = document.getElementById('userProBadge');
+        
+        if (this.isPremiumUser()) {
+            // Show Manage subscription, hide Upgrade, show Pro badge
+            if (upgradeButton) upgradeButton.style.display = 'none';
+            if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
+            if (userProBadge) userProBadge.style.display = 'inline-block';
+        } else {
+            // Show Upgrade, hide Manage subscription, hide Pro badge
+            if (upgradeButton) upgradeButton.style.display = 'flex';
+            if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'none';
+            if (userProBadge) userProBadge.style.display = 'none';
+        }
+    }
+
+    async refreshPremiumFromServer() {
+        try {
+            if (!window.Clerk || !window.Clerk.user) return;
+            const userId = window.Clerk.user.id;
+            const userEmail = (window.Clerk.user.primaryEmailAddress?.emailAddress || window.Clerk.user.emailAddresses?.[0]?.emailAddress || '') + '';
+            const resp = await fetch('/api/refresh-premium', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': userId,
+                    'x-clerk-user-email': userEmail,
+                },
+            });
+            if (!resp.ok) return;
+            const data = await resp.json();
+            // Actualiza UI si cambió
+            this.updatePremiumUI();
+            return data;
+        } catch (_) {
+            // silencioso
+        }
+    }
+
+
+    toggleTaskList() {
+        // Check if user is authenticated
+        if (this.isAuthenticated && this.user) {
+            // Show focus statistics modal for authenticated users
+            this.showFocusStatsModal();
+        } else {
+            // Show login required modal for guests
+            this.showFocusStatsLoginModal();
+        }
+        
+        // Don't toggle active state - keep button in normal state
+    }
+
+    handleCustomTechniqueClick(item) {
+        // Check if user has a saved custom timer
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        
+        if (savedCustomTimer) {
+            // User has a custom timer - select it normally
+            this.selectTechnique(item);
+        } else {
+            // User doesn't have a custom timer - show the modal to create one
+            this.showCustomTimerModal();
+        }
+    }
     
     toggleTimer() {
         if (this.isRunning) {
@@ -728,7 +1414,6 @@ class PomodoroTimer {
     
     startTimer() {
         this.isRunning = true;
-        this.startPauseBtn.textContent = 'Pause';
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         
@@ -739,6 +1424,13 @@ class PomodoroTimer {
             this.updateSections();
             this.updateSessionInfo();
             
+            // Realtime tracking: focus-only for total focus time
+            if (this.currentSection % 2 === 1) {
+                this.addFocusTime(1);
+            }
+            // Realtime tracking: technique time (focus + breaks) for Most Used Technique
+            this.addTechniqueTime(1);
+            
             if (this.timeLeft <= 0) {
                 this.completeSession();
             }
@@ -747,7 +1439,6 @@ class PomodoroTimer {
     
     pauseTimer() {
         this.isRunning = false;
-        this.startPauseBtn.textContent = 'Start';
         this.startPauseBtn.classList.remove('running');
         
         clearInterval(this.interval);
@@ -758,12 +1449,11 @@ class PomodoroTimer {
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         const modeText = this.isWorkSession ? 'Focus' : (this.isLongBreak ? 'Long Break' : 'Break');
-        document.title = `${timeString} - ${modeText} (Paused) | Focus Timer`;
+        document.title = `${timeString} - ${modeText} (Paused)`;
     }
     
     pauseTimerSilent() {
         this.isRunning = false;
-        this.startPauseBtn.textContent = 'Start';
         this.startPauseBtn.classList.remove('running');
         
         clearInterval(this.interval);
@@ -774,12 +1464,17 @@ class PomodoroTimer {
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         const modeText = this.isWorkSession ? 'Focus' : (this.isLongBreak ? 'Long Break' : 'Break');
-        document.title = `${timeString} - ${modeText} (Paused) | Focus Timer`;
+        document.title = `${timeString} - ${modeText} (Paused)`;
     }
     
     goToPreviousSection() {
         if (this.currentSection > 1) {
             this.pauseTimerSilent(); // Pause without sound
+            // Reset legit focus for current cycle when jumping sections
+            // (User is navigating manually; we don't advance legit counters here)
+            if (this.currentSection % 2 === 1) { // if currently in a focus session
+                this.cheatedDuringFocusInCycle = true;
+            }
             this.currentSection--;
             this.loadCurrentSection();
             this.updateNavigationButtons();
@@ -789,6 +1484,10 @@ class PomodoroTimer {
     goToNextSection() {
         if (this.currentSection < this.cycleSections.length) {
             this.pauseTimerSilent(); // Pause without sound
+            // Manual navigation should not add focus time or increment cycle
+            if (this.currentSection % 2 === 1) { // if currently in a focus session
+                this.cheatedDuringFocusInCycle = true;
+            }
             this.currentSection++;
             this.loadCurrentSection();
             this.updateNavigationButtons();
@@ -848,37 +1547,66 @@ class PomodoroTimer {
     }
     
     completeSession() {
+        // Always stop ticking immediately
         this.pauseTimer();
         
         // Play notification sound
         this.playNotification();
         
-        // Move to next section in cycle
+        // Advance section pointer
+        const finishedWasFocus = this.isWorkSession === true;
         this.currentSection++;
         
-        // If we've completed all sections, restart the cycle
+        // Did we just finish the last section of the cycle?
+        let cycleCompleted = false;
+        let lastCycleWasLegitimate = false;
         if (this.currentSection > this.cycleSections.length) {
-            this.currentSection = 1;
+            cycleCompleted = true;
+            this.currentSection = 1; // reset to first section of next cycle
+            // Only count cycle if ALL focus sessions were completed naturally (no next/back during focus)
+            // and none were skipped; since we can't know per-session durations here, we track by
+            // counting completed focus sessions as they finish naturally in completeSession below
+            lastCycleWasLegitimate = (!this.cheatedDuringFocusInCycle && this.completedFocusSessionsInCycle >= this.sessionsPerCycle);
+            if (lastCycleWasLegitimate) {
+                this.updateCycleCounter();
+            }
+            // Reset legit focus tracker for next cycle
+            this.completedFocusSessionsInCycle = 0;
+            this.cheatedDuringFocusInCycle = false;
         }
         
-        // Get current section info
+        // Load current section data
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         this.timeLeft = currentSectionInfo.duration;
-        
-        // Update session type flags
         this.isWorkSession = currentSectionInfo.type === 'work';
         this.isLongBreak = currentSectionInfo.type === 'long-break';
         
+        // Update UI to reflect the next section
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
         this.updateMode();
         this.updateSessionInfo();
         
-        // Auto-start the next session after a short delay
+        // Count a naturally finished focus session (when not using Next/Back)
+        if (finishedWasFocus) {
+            this.completedFocusSessionsInCycle += 1;
+        }
+
+        if (cycleCompleted) {
+            // Ensure fully paused state and correct button/title
+            this.pauseTimerSilent();
+            this.startPauseBtn.classList.remove('running');
+            this.isRunning = false;
+            // Show celebration modal and exit
+            this.showCycleCompletedCelebration(lastCycleWasLegitimate);
+            return;
+        }
+        
+        // Not end of cycle → auto-start next section after brief delay
         setTimeout(() => {
             this.startTimer();
-        }, 1000);
+        }, 600);
     }
     
     updateDisplay() {
@@ -892,7 +1620,7 @@ class PomodoroTimer {
         // Update browser tab title
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         const modeText = this.isWorkSession ? 'Focus' : (this.isLongBreak ? 'Long Break' : 'Break');
-        document.title = `${timeString} - ${modeText} | Focus Timer`;
+        document.title = `${timeString} - ${modeText}`;
     }
     
     updateProgress() {
@@ -1314,7 +2042,575 @@ class PomodoroTimer {
         }
     }
 
+    showCycleCompletedCelebration(wasLegitimate) {
+        
+        // Create celebration modal with different content based on legitimacy
+        const celebrationModal = document.createElement('div');
+        celebrationModal.className = 'celebration-modal-overlay';
+        
+        let modalContent;
+        if (wasLegitimate) {
+            modalContent = `
+                <div class="celebration-modal">
+                    <div class="celebration-content">
+                        <div class="celebration-icon">🎉</div>
+                        <h2>Cycle Completed!</h2>
+                        <p>Great job! You've finished a complete focus cycle.</p>
+                        <button class="celebration-close-btn">Awesome!</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            modalContent = `
+                <div class="celebration-modal">
+                    <div class="celebration-content">
+                        <div class="celebration-icon">⚠️</div>
+                        <h2>Cycle Skipped</h2>
+                        <p>You skipped focus sessions using navigation buttons. To count this as a completed cycle, complete all focus sessions naturally without using Next/Back buttons.</p>
+                        <button class="celebration-close-btn">Try Again</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        celebrationModal.innerHTML = modalContent;
+        
+        document.body.appendChild(celebrationModal);
+        celebrationModal.style.display = 'flex';
+        
+        // Close celebration modal
+        const closeBtn = celebrationModal.querySelector('.celebration-close-btn');
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(celebrationModal);
+            // Reset button state for new cycle
+            this.startPauseBtn.classList.remove('running');
+            this.isRunning = false;
+        });
+        
+        // Don't allow closing by clicking overlay - user must click button
+        celebrationModal.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // No auto-close - user must click "Awesome!" button
+    }
+
+    updateCycleCounter() {
+        // Increment completed cycles counter without adding hours here
+        // Focus time is already tracked in real-time during sessions
+        const stats = this.getFocusStats();
+        stats.completedCycles = (stats.completedCycles || 0) + 1;
+        localStorage.setItem('focusStats', JSON.stringify(stats));
+
+        // Update achievement counter display
+        this.updateFocusHoursDisplay();
+    }
+
+    calculateFocusHoursInCycle() {
+        // Calculate total focus time in the completed cycle
+        let totalFocusSeconds = 0;
+        this.cycleSections.forEach(section => {
+            if (section.type === 'work') {
+                totalFocusSeconds += section.duration;
+            }
+        });
+        return totalFocusSeconds / 3600; // Convert to hours
+    }
+
+    addFocusTime(seconds) {
+        const hours = seconds / 3600; // Convert seconds to hours
+        const now = new Date();
+        const today = now.toDateString();
+        const stats = this.getFocusStats();
+
+        // Add to total focus time
+        stats.totalHours = (stats.totalHours || 0) + hours;
+
+        // Add to today's focus time
+        if (!stats.daily) stats.daily = {};
+        stats.daily[today] = (stats.daily[today] || 0) + hours;
+
+        // Update consecutive days on first activity of the day
+        if (stats.lastActiveDate !== today) {
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+
+            if (stats.lastActiveDate === yesterdayStr) {
+                stats.consecutiveDays = (stats.consecutiveDays || 0) + 1;
+            } else {
+                stats.consecutiveDays = 1;
+            }
+            stats.lastActiveDate = today;
+        }
+
+        // Save to localStorage
+        localStorage.setItem('focusStats', JSON.stringify(stats));
+
+        // Update display in real-time
+        this.updateFocusHoursDisplay();
+    }
+
+    addTechniqueTime(seconds) {
+        // Track total technique time (focus + breaks) for Most Used Technique
+        const hours = seconds / 3600;
+        const stats = this.getFocusStats();
+        const technique = this.getCurrentTechniqueName();
+
+        if (!stats.techniqueTime) stats.techniqueTime = {};
+        stats.techniqueTime[technique] = (stats.techniqueTime[technique] || 0) + hours;
+
+        localStorage.setItem('focusStats', JSON.stringify(stats));
+    }
+
+    addFocusHours(hours) {
+        const today = new Date().toDateString();
+        const stats = this.getFocusStats();
+        
+        // Add to total
+        stats.totalHours = (stats.totalHours || 0) + hours;
+        
+        // Add to today
+        if (!stats.daily) stats.daily = {};
+        stats.daily[today] = (stats.daily[today] || 0) + hours;
+        
+        // Track technique usage
+        const currentTechnique = this.getCurrentTechniqueName();
+        if (!stats.techniqueUsage) stats.techniqueUsage = {};
+        stats.techniqueUsage[currentTechnique] = (stats.techniqueUsage[currentTechnique] || 0) + 1;
+        
+        // Increment completed cycles (only when cycle is naturally completed)
+        stats.completedCycles = (stats.completedCycles || 0) + 1;
+        
+        // Update consecutive days
+        this.updateConsecutiveDays(stats);
+        
+        // Save back to localStorage
+        localStorage.setItem('focusStats', JSON.stringify(stats));
+    }
+
+    getFocusStats() {
+        try {
+            return JSON.parse(localStorage.getItem('focusStats') || '{}');
+        } catch {
+            return {};
+        }
+    }
+
+    updateConsecutiveDays(stats) {
+        // Kept for backward compatibility when called by legacy flows
+        const today = new Date();
+        const todayStr = today.toDateString();
+        if (!stats.daily) stats.daily = {};
+        if ((stats.daily[todayStr] || 0) > 0) {
+            if (!stats.lastActiveDate) {
+                stats.consecutiveDays = 1;
+                stats.lastActiveDate = todayStr;
+            }
+        }
+    }
+
+    updateFocusHoursDisplay() {
+        if (this.achievementIcon && this.achievementCounter) {
+            const stats = this.getFocusStats();
+            const totalMinutes = Math.round((stats.totalHours || 0) * 60); // Convert to minutes
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            const timeString = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
+            this.achievementCounter.textContent = timeString;
+            this.achievementIcon.classList.add('active');
+        }
+    }
+
+    showFocusStatsModal() {
+        const stats = this.getFocusStats();
+        // Calculate cycles completed
+        const cyclesCompleted = this.calculateCyclesCompleted(stats);
+        
+        // Get most used technique
+        const mostUsedTechnique = this.getMostUsedTechnique(stats);
+
+        // Format time strings
+        const formatTime = (hours) => {
+            const totalMinutes = Math.round(hours * 60);
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            return `${h.toString().padStart(2, '0')}h:${m.toString().padStart(2, '0')}m`;
+        };
+
+        const modalContent = `
+            <div class="focus-stats-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <h3>Focus Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">${formatTime(stats.totalHours || 0)}</div>
+                        <div class="stat-label">Total Focus Time</div>
+                    </div>
+                    <!-- Removed Today's Time and This Week for clarity -->
+                    <div class="stat-item">
+                        <div class="stat-value">${stats.consecutiveDays || 0}</div>
+                        <div class="stat-label">Consecutive Days</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${cyclesCompleted}</div>
+                        <div class="stat-label">Cycles Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${mostUsedTechnique}</div>
+                        <div class="stat-label">Most Used Technique</div>
+                    </div>
+                </div>
+                <button class="close-focus-stats">Got it</button>
+            </div>
+        `;
+
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+
+        // Show modal
+        modalOverlay.style.display = 'flex';
+
+        // Close modal functionality
+        const closeBtn = modalOverlay.querySelector('.close-focus-stats');
+        const closeBtnX = modalOverlay.querySelector('.close-focus-stats-x');
+        
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        closeBtnX.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showFocusStatsLoginModal() {
+        const modalContent = `
+            <div class="focus-stats-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="login-required-content">
+                    <div class="login-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-icon lucide-chart-no-axes-column">
+                            <path d="M5 21v-6"/>
+                            <path d="M12 21V3"/>
+                            <path d="M19 21V9"/>
+                        </svg>
+                    </div>
+                    <h3>Track Your Focus Progress</h3>
+                    <p>Create an account to access detailed focus statistics and track your productivity journey.</p>
+                    <div class="login-required-buttons">
+                        <button class="login-btn" id="focusStatsLoginBtn">Login</button>
+                        <button class="cancel-btn" id="focusStatsCancelBtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+
+        // Show modal
+        modalOverlay.style.display = 'flex';
+
+        // Close modal functionality
+        const closeBtnX = modalOverlay.querySelector('.close-focus-stats-x');
+        const loginBtn = modalOverlay.querySelector('#focusStatsLoginBtn');
+        const cancelBtn = modalOverlay.querySelector('#focusStatsCancelBtn');
+        
+        closeBtnX.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        loginBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            // Redirect to full-page Clerk sign-in
+            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+
+    setupSettingsTabs() {
+        const navItems = document.querySelectorAll('.settings-nav-item');
+        const tabs = document.querySelectorAll('.settings-tab');
+        
+        // Hide Developer tab if user is not the developer
+        const developerTab = document.querySelector('[data-tab="developer"]');
+        const developerContent = document.getElementById('developer-tab');
+        
+        if (developerTab && developerContent) {
+            // Check if user is the developer
+            let isDeveloper = false;
+            
+            if (this.user) {
+                // Try different ways to access the email
+                if (this.user.emailAddresses && this.user.emailAddresses.length > 0) {
+                    isDeveloper = this.user.emailAddresses.some(email => 
+                        email.emailAddress === 'jcjimenezglez@gmail.com'
+                    );
+                } else if (this.user.primaryEmailAddress) {
+                    isDeveloper = this.user.primaryEmailAddress.emailAddress === 'jcjimenezglez@gmail.com';
+                } else if (this.user.emailAddress) {
+                    isDeveloper = this.user.emailAddress === 'jcjimenezglez@gmail.com';
+                }
+            }
+            
+            console.log('User object:', this.user);
+            console.log('Is developer:', isDeveloper);
+            
+            if (!isDeveloper) {
+                developerTab.style.display = 'none';
+                developerContent.style.display = 'none';
+            }
+        }
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const tabName = item.getAttribute('data-tab');
+                
+                // Remove active class from all nav items and tabs
+                navItems.forEach(nav => nav.classList.remove('active'));
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                // Add active class to clicked nav item and corresponding tab
+                item.classList.add('active');
+                const targetTab = document.getElementById(`${tabName}-tab`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+            });
+        });
+    }
+
+    setupViewModeButtons() {
+        const guestModeBtn = document.getElementById('guestModeBtn');
+        const freeModeBtn = document.getElementById('freeModeBtn');
+        const proModeBtn = document.getElementById('proModeBtn');
+        const applyViewModeBtn = document.getElementById('applyViewModeBtn');
+        
+        // Store selected mode (not applied yet)
+        this.selectedViewMode = localStorage.getItem('viewMode') || 'pro';
+        
+        if (guestModeBtn) {
+            guestModeBtn.addEventListener('click', () => {
+                this.selectViewMode('guest');
+            });
+        }
+        
+        if (freeModeBtn) {
+            freeModeBtn.addEventListener('click', () => {
+                this.selectViewMode('free');
+            });
+        }
+        
+        if (proModeBtn) {
+            proModeBtn.addEventListener('click', () => {
+                this.selectViewMode('pro');
+            });
+        }
+        
+        if (applyViewModeBtn) {
+            applyViewModeBtn.addEventListener('click', () => {
+                this.applyViewMode();
+            });
+        }
+        
+        // Set initial active button based on current view mode
+        this.updateViewModeButtons();
+    }
+
+    selectViewMode(mode) {
+        // Just select the mode, don't apply yet
+        this.selectedViewMode = mode;
+        this.updateViewModeButtons();
+    }
+
+    applyViewMode() {
+        const mode = this.selectedViewMode;
+        localStorage.setItem('viewMode', mode);
+        
+        // Close settings modal
+        this.hideSettingsModal();
+        
+        // Apply the selected mode
+        if (mode === 'guest') {
+            // Simulate guest user - logout completely
+            try {
+                if (window.Clerk && window.Clerk.signOut) {
+                    window.Clerk.signOut();
+                }
+            } catch (_) {}
+            this.isAuthenticated = false;
+            this.user = null;
+            localStorage.removeItem('hasAccount');
+            localStorage.setItem('isPremium', 'false');
+            localStorage.setItem('hasPaidSubscription', 'false');
+            this.updateAuthState();
+        } else if (mode === 'free') {
+            // Simulate free user - logged in but not premium
+            this.isAuthenticated = true;
+            this.user = { emailAddresses: [{ emailAddress: 'test@example.com' }] };
+            localStorage.setItem('hasAccount', 'true');
+            localStorage.setItem('isPremium', 'false');
+            localStorage.setItem('hasPaidSubscription', 'false');
+            this.updateAuthState();
+        } else if (mode === 'pro') {
+            // Simulate pro user - logged in and premium
+            this.isAuthenticated = true;
+            this.user = { emailAddresses: [{ emailAddress: 'test@example.com' }] };
+            localStorage.setItem('hasAccount', 'true');
+            localStorage.setItem('isPremium', 'true');
+            localStorage.setItem('hasPaidSubscription', 'true');
+            this.updateAuthState();
+        }
+    }
+
+    updateViewModeButtons() {
+        const currentMode = this.selectedViewMode || localStorage.getItem('viewMode') || 'pro';
+        const guestModeBtn = document.getElementById('guestModeBtn');
+        const freeModeBtn = document.getElementById('freeModeBtn');
+        const proModeBtn = document.getElementById('proModeBtn');
+        
+        // Remove active class from all buttons
+        [guestModeBtn, freeModeBtn, proModeBtn].forEach(btn => {
+            if (btn) btn.classList.remove('active');
+        });
+        
+        // Add active class to current mode button
+        if (currentMode === 'guest' && guestModeBtn) {
+            guestModeBtn.classList.add('active');
+        } else if (currentMode === 'free' && freeModeBtn) {
+            freeModeBtn.classList.add('active');
+        } else if (currentMode === 'pro' && proModeBtn) {
+            proModeBtn.classList.add('active');
+        }
+    }
+
+    calculateWeekHours(stats) {
+        if (!stats.daily) return 0;
+        
+        const today = new Date();
+        let weekHours = 0;
+        
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            weekHours += stats.daily[dateStr] || 0;
+        }
+        
+        return Math.round(weekHours * 10) / 10;
+    }
+
+    calculateCyclesCompleted(stats) {
+        // Prefer the real completed cycles counter
+        if (stats.completedCycles && stats.completedCycles > 0) {
+            return stats.completedCycles;
+        }
+        // Fallback estimate if user had progress before this feature
+        const totalHours = stats.totalHours || 0;
+        const avgCycleHours = 2; // reasonable default
+        return Math.max(0, Math.floor(totalHours / avgCycleHours));
+    }
+
+    getCurrentTechniqueName() {
+        const selectedTechnique = localStorage.getItem('selectedTechnique');
+        if (selectedTechnique === 'custom') {
+            const savedCustomTimer = localStorage.getItem('customTimer');
+            if (savedCustomTimer) {
+                try {
+                    const customConfig = JSON.parse(savedCustomTimer);
+                    return customConfig.name || 'Custom Timer';
+                } catch (_) {
+                    return 'Custom Timer';
+                }
+            }
+            return 'Custom Timer';
+        }
+        
+        const techniqueMap = {
+            'pomodoro': 'Pomodoro',
+            'pomodoro-plus': 'Long Pomodoro',
+            'ultradian-rhythm': 'Ultradian Rhythm'
+        };
+        
+        return techniqueMap[selectedTechnique] || 'Pomodoro';
+    }
+
+    getMostUsedTechnique(stats) {
+        // Prefer accumulated technique time (focus + breaks)
+        if (stats.techniqueTime && Object.keys(stats.techniqueTime).length > 0) {
+            let mostUsed = '';
+            let maxHours = -1;
+            for (const [technique, hours] of Object.entries(stats.techniqueTime)) {
+                if (hours > maxHours) {
+                    maxHours = hours;
+                    mostUsed = technique;
+                }
+            }
+            return mostUsed || this.getCurrentTechniqueName();
+        }
+
+        // Fallback to count-based usage if old data
+        if (stats.techniqueUsage && Object.keys(stats.techniqueUsage).length > 0) {
+            let mostUsed = '';
+            let maxCount = -1;
+            for (const [technique, count] of Object.entries(stats.techniqueUsage)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    mostUsed = technique;
+                }
+            }
+            return mostUsed || this.getCurrentTechniqueName();
+        }
+
+        return this.getCurrentTechniqueName();
+    }
+
+    initializeCycleCounter() {
+        if (this.isAuthenticated && this.achievementCounter) {
+            this.updateFocusHoursDisplay();
+        }
+    }
+
     showTechniqueInfo(technique) {
+        // Handle custom timer configuration
+        if (technique === 'custom') {
+            this.showCustomTimerModal();
+            return;
+        }
+        
         const techniqueInfo = {
             'pomodoro': {
                 title: 'Pomodoro Technique',
@@ -1430,6 +2726,377 @@ class PomodoroTimer {
             }
         });
     }
+
+    showCustomTimerModal() {
+        // Load saved custom timer data if it exists
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        if (savedCustomTimer) {
+            try {
+                const customConfig = JSON.parse(savedCustomTimer);
+                console.log('Loading custom timer for editing:', customConfig);
+                
+                // Populate form fields with saved values
+                document.getElementById('customName').value = customConfig.name || '';
+                document.getElementById('focusTime').value = Math.round(customConfig.focusTime / 60) || 25;
+                document.getElementById('breakTime').value = Math.round(customConfig.breakTime / 60) || 5;
+                document.getElementById('longBreakTime').value = Math.round(customConfig.longBreakTime / 60) || 0;
+                document.getElementById('cycles').value = customConfig.cycles || 4;
+            } catch (error) {
+                console.error('Error loading custom timer for editing:', error);
+                // Reset to default values if there's an error
+                this.resetCustomTimerForm();
+            }
+        } else {
+            // Reset to default values if no saved timer
+            this.resetCustomTimerForm();
+        }
+        
+        this.customTimerModal.style.display = 'flex';
+        // Keep dropdown open
+        this.techniqueDropdown.classList.add('open');
+        
+        // Add real-time validation
+        this.setupCustomTimerValidation();
+    }
+
+    hideCustomTimerModal() {
+        this.customTimerModal.style.display = 'none';
+        // Keep dropdown open
+        this.techniqueDropdown.classList.add('open');
+    }
+
+    resetCustomTimerForm() {
+        document.getElementById('customName').value = '';
+        document.getElementById('focusTime').value = 25;
+        document.getElementById('breakTime').value = 5;
+        document.getElementById('longBreakTime').value = 0;
+        document.getElementById('cycles').value = 4;
+    }
+
+    setupCustomTimerValidation() {
+        const customNameInput = document.getElementById('customName');
+        const focusTimeInput = document.getElementById('focusTime');
+        const breakTimeInput = document.getElementById('breakTime');
+        const longBreakTimeInput = document.getElementById('longBreakTime');
+        const cyclesInput = document.getElementById('cycles');
+        const saveButton = document.getElementById('saveCustomTimer');
+
+        // Function to check all validations and enable/disable save button
+        const validateAll = () => {
+            const name = customNameInput.value.trim();
+            const focusTime = parseInt(focusTimeInput.value) || 0;
+            const breakTime = parseInt(breakTimeInput.value) || 0;
+            const longBreakTime = parseInt(longBreakTimeInput.value) || 0;
+            const cycles = parseInt(cyclesInput.value) || 0;
+
+            const hasErrors = 
+                name.length === 0 || name.length > 10 ||
+                focusTime < 1 || focusTime > 180 ||
+                breakTime < 1 || breakTime > 60 ||
+                longBreakTime < 0 || longBreakTime > 60 ||
+                cycles < 1 || cycles > 10;
+
+            saveButton.disabled = hasErrors;
+        };
+
+        // Custom Name validation (max 10 characters)
+        customNameInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const errorElement = document.getElementById('customNameError');
+            
+            if (value.length > 10) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Focus Time validation (max 180)
+        focusTimeInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('focusTimeError');
+            
+            if (value > 180) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Break Time validation (max 60)
+        breakTimeInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('breakTimeError');
+            
+            if (value > 60) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Long Break Time validation (max 60)
+        longBreakTimeInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('longBreakTimeError');
+            
+            if (value > 60) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Cycles validation (max 10)
+        cyclesInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('cyclesError');
+            
+            if (value > 10) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Initial validation
+        validateAll();
+    }
+
+
+    saveCustomTimerConfig() {
+        const name = document.getElementById('customName').value.trim();
+        const focusTime = parseInt(document.getElementById('focusTime').value);
+        const breakTime = parseInt(document.getElementById('breakTime').value);
+        const longBreakTime = parseInt(document.getElementById('longBreakTime').value);
+        const cycles = parseInt(document.getElementById('cycles').value);
+
+        // Check for validation errors
+        const hasErrors = document.querySelectorAll('.form-group input.error').length > 0;
+        if (hasErrors) {
+            alert('Please fix the validation errors before saving');
+            return;
+        }
+
+        // Validation
+        if (!name) {
+            alert('Please enter a timer name');
+            return;
+        }
+
+        if (name.length > 10) {
+            alert('Timer name must be 10 characters or less');
+            return;
+        }
+
+        if (focusTime < 1 || focusTime > 180) {
+            alert('Focus time must be between 1 and 180 minutes');
+            return;
+        }
+
+        if (breakTime < 1 || breakTime > 60) {
+            alert('Break time must be between 1 and 60 minutes');
+            return;
+        }
+
+        if (longBreakTime < 0 || longBreakTime > 60) {
+            alert('Long break time must be between 0 and 60 minutes');
+            return;
+        }
+
+        if (cycles < 1 || cycles > 10) {
+            alert('Number of cycles must be between 1 and 10');
+            return;
+        }
+
+        // Save custom timer configuration
+        const customConfig = {
+            name: name,
+            focusTime: focusTime * 60, // Convert to seconds
+            breakTime: breakTime * 60,
+            longBreakTime: longBreakTime * 60,
+            cycles: cycles
+        };
+
+        localStorage.setItem('customTimer', JSON.stringify(customConfig));
+
+        // Load the custom timer
+        this.loadCustomTechnique(customConfig);
+        
+        // Close modal and dropdown
+        this.hideCustomTimerModal();
+        this.closeDropdown();
+    }
+
+    loadCustomTechnique(config) {
+        this.workTime = config.focusTime;
+        this.shortBreakTime = config.breakTime;
+        this.longBreakTime = config.longBreakTime;
+        
+        // Build cycle sections
+        this.cycleSections = [];
+        for (let i = 0; i < config.cycles; i++) {
+            this.cycleSections.push({
+                type: 'work',
+                duration: this.workTime,
+                name: 'Focus'
+            });
+            this.cycleSections.push({
+                type: 'break',
+                duration: this.shortBreakTime,
+                name: 'Break'
+            });
+        }
+        
+        // Add long break if configured
+        if (this.longBreakTime > 0) {
+            this.cycleSections.push({
+                type: 'long-break',
+                duration: this.longBreakTime,
+                name: 'Long Break'
+            });
+        }
+
+        // Update UI
+        if (this.techniqueTitle) {
+            // Preserve the chevron icon when updating the title
+            const chevronIcon = this.techniqueTitle.querySelector('svg');
+            this.techniqueTitle.innerHTML = config.name;
+            if (chevronIcon) {
+                this.techniqueTitle.appendChild(chevronIcon);
+            }
+        }
+        if (this.techniqueDescription) {
+            this.techniqueDescription.textContent = `${config.focusTime/60} min focus, ${config.breakTime/60} min break${this.longBreakTime > 0 ? `, ${this.longBreakTime/60} min long break` : ''}`;
+        }
+        
+        // Update dropdown item to show custom name
+        const customItem = document.querySelector('[data-technique="custom"]');
+        if (customItem) {
+            const titleElement = customItem.querySelector('.item-title');
+            const descElement = customItem.querySelector('.item-description');
+            if (titleElement) titleElement.textContent = config.name;
+            if (descElement) descElement.textContent = `${config.focusTime/60} min focus, ${config.breakTime/60} min break${this.longBreakTime > 0 ? `, ${this.longBreakTime/60} min long break` : ''}`;
+        }
+        
+        // Mark custom timer as selected and unmark others
+        this.markTechniqueAsSelected('custom');
+        
+        // Save custom technique as selected
+        localStorage.setItem('selectedTechnique', 'custom');
+        
+        // Reset to first section
+        this.currentSection = 1;
+        this.timeLeft = this.cycleSections[0].duration;
+        this.isWorkSession = this.cycleSections[0].type === 'work';
+        this.isLongBreak = this.cycleSections[0].type === 'long-break';
+        
+        // Update progress ring and display
+        this.updateProgressRing();
+        this.updateDisplay();
+        this.updateProgress();
+        this.updateSections();
+        this.updateMode();
+        this.updateSessionInfo();
+        
+        // Close dropdown
+        this.closeDropdown();
+    }
+
+    markTechniqueAsSelected(technique) {
+        // Remove selected class from all dropdown items
+        const allItems = document.querySelectorAll('.dropdown-item');
+        allItems.forEach(item => item.classList.remove('selected'));
+        
+        // Add selected class to the specified technique
+        const selectedItem = document.querySelector(`[data-technique="${technique}"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('selected');
+        }
+    }
+
+    loadSavedCustomTimer() {
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        if (!savedCustomTimer) return;
+        try {
+            const customConfig = JSON.parse(savedCustomTimer);
+            // Only update the dropdown item's text so the user sees their custom config
+            const customItem = document.querySelector('[data-technique="custom"]');
+            if (customItem) {
+                const titleElement = customItem.querySelector('.item-title');
+                const descElement = customItem.querySelector('.item-description');
+                if (titleElement) titleElement.textContent = customConfig.name;
+                if (descElement) descElement.textContent = `${customConfig.focusTime/60} min focus, ${customConfig.breakTime/60} min break${customConfig.longBreakTime > 0 ? `, ${customConfig.longBreakTime/60} min long break` : ''}`;
+            }
+            // Do NOT auto-select here. Selection is handled by loadLastSelectedTechnique()
+        } catch (error) {
+            console.error('Error reading custom timer:', error);
+            localStorage.removeItem('customTimer');
+        }
+    }
+
+    loadLastSelectedTechnique() {
+        const lastSelectedTechnique = localStorage.getItem('selectedTechnique');
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        
+        // If the last selected was custom and we have a saved config, load it
+        if (lastSelectedTechnique === 'custom') {
+            if (savedCustomTimer) {
+                try {
+                    const customConfig = JSON.parse(savedCustomTimer);
+                    this.loadCustomTechnique(customConfig);
+                    return;
+                } catch (e) {
+                    console.error('Invalid custom timer config, defaulting to Pomodoro');
+                    localStorage.removeItem('customTimer');
+                }
+            }
+            // If no valid custom config, fall back to default
+            this.loadDefaultTechnique();
+            return;
+        }
+
+        // If the last selected is a built-in technique
+        if (lastSelectedTechnique) {
+            const techniqueItem = document.querySelector(`[data-technique="${lastSelectedTechnique}"]`);
+            if (techniqueItem) {
+                const requiresAccount = techniqueItem.dataset.requiresAccount === 'true';
+                if (requiresAccount && !this.isAuthenticated) {
+                    this.loadDefaultTechnique();
+                } else {
+                    this.selectTechnique(techniqueItem);
+                }
+                return;
+            }
+        }
+
+        // Default when nothing saved or item not found
+        this.loadDefaultTechnique();
+    }
+
+    loadDefaultTechnique() {
+        const pomodoroItem = document.querySelector('[data-technique="pomodoro"]');
+        if (pomodoroItem) {
+            this.selectTechnique(pomodoroItem);
+        }
+    }
+
+
 }
 
 // Initialize the timer when the page loads

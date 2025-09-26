@@ -3,6 +3,7 @@
 // STRIPE_SECRET_KEY
 
 const Stripe = require('stripe');
+const { Clerk } = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -11,7 +12,8 @@ module.exports = async (req, res) => {
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  const returnUrl = process.env.STRIPE_RETURN_URL || 'https://focus-timer-pomodoro-mu.vercel.app';
+  const returnUrl = process.env.STRIPE_RETURN_URL || 'https://superfocus.live';
+  const portalConfigurationId = process.env.STRIPE_PORTAL_CONFIGURATION_ID;
 
   if (!secretKey) {
     res.status(500).json({ error: 'Stripe not configured' });
@@ -21,38 +23,111 @@ module.exports = async (req, res) => {
   try {
     const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
     
-    // In a real app, you'd need to:
-    // 1. Get the customer ID from your database using the user ID
-    // 2. Create a customer portal session for that customer
+    // Get customer email from headers or body (sent by client)
+    let customerEmail = (req.headers['x-clerk-user-email'] || '').toString().trim();
+
+    // If Clerk user id is provided, fetch email from Clerk (more reliable)
+    const clerkSecret = process.env.CLERK_SECRET_KEY;
+    const clerkUserId = (req.headers['x-clerk-userid'] || '').toString().trim();
+    if (!customerEmail && clerkSecret && clerkUserId) {
+      try {
+        const clerk = new Clerk({ secretKey: clerkSecret });
+        const user = await clerk.users.getUser(clerkUserId);
+        customerEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
+      } catch (e) {
+        console.log('Could not fetch user from Clerk:', e?.message);
+      }
+    }
+    try {
+      if (!customerEmail && req.body) {
+        // Vercel Node functions don't parse body automatically for cjs - try to parse
+        const raw = typeof req.body === 'string' ? req.body : undefined;
+        const json = raw ? JSON.parse(raw) : (typeof req.body === 'object' ? req.body : {});
+        if (json && json.email) customerEmail = String(json.email).trim();
+      }
+    } catch (_) {}
+    if (!customerEmail) customerEmail = null;
     
-    // For now, since we don't have a database, we'll create a generic portal session
-    // This would need to be updated with proper customer management
-    
-    // First, try to find or create a customer
-    // In production, you'd store customer IDs in your database
-    const customers = await stripe.customers.list({
-      limit: 1,
-    });
-    
+    // Find customer by email or create a new one
     let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-    } else {
-      // Create a placeholder customer - in production, this would be properly managed
-      const customer = await stripe.customers.create({
-        email: 'user@example.com', // This would come from your user data
-      });
-      customerId = customer.id;
+
+    // 0) If client sent a Stripe customer id explicitly, use it immediately
+    const headerCustomerId = (req.headers['x-stripe-customer-id'] || '').toString().trim();
+    if (headerCustomerId) {
+      customerId = headerCustomerId;
+    }
+
+    // 1) Prefer Clerk-stored stripeCustomerId for exact match
+    try {
+      if (!customerId && clerkSecret && clerkUserId) {
+        const clerk = new Clerk({ secretKey: clerkSecret });
+        const user = await clerk.users.getUser(clerkUserId);
+        const storedId = user?.publicMetadata?.stripeCustomerId;
+        if (storedId) {
+          customerId = storedId;
+        }
+      }
+    } catch (e) {
+      console.log('No stripeCustomerId in Clerk:', e?.message);
     }
     
-    const session = await stripe.billingPortal.sessions.create({
+    if (!customerId && customerEmail) {
+      // Try to find existing customer by email
+      try {
+        const listed = await stripe.customers.list({ email: customerEmail, limit: 1 });
+        if (listed.data.length > 0) customerId = listed.data[0].id;
+      } catch (e) {
+        console.log('List by email failed:', e?.message);
+      }
+      if (!customerId) {
+        // Last resort: create customer and portal; user can link payment method inside
+        const customer = await stripe.customers.create({ email: customerEmail });
+        customerId = customer.id;
+      }
+    } else {
+      // Fallback: find any customer with active subscription
+      const customers = await stripe.customers.list({
+        limit: 10,
+      });
+      
+      // Look for customers with active subscriptions
+      for (const customer of customers.data) {
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customer.id,
+          status: 'active',
+          limit: 1,
+        });
+        
+        if (subscriptions.data.length > 0) {
+          customerId = customer.id;
+          break;
+        }
+      }
+      
+      // If no customer found, create a placeholder
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: 'user@example.com',
+        });
+        customerId = customer.id;
+      }
+    }
+    
+    if (!customerId) {
+      return res.status(400).json({ error: 'No Stripe customer found for user' });
+    }
+    const params = {
       customer: customerId,
       return_url: returnUrl,
-    });
+    };
+    if (portalConfigurationId) {
+      params.configuration = portalConfigurationId;
+    }
+    const session = await stripe.billingPortal.sessions.create(params);
     
     res.status(200).json({ url: session.url });
   } catch (err) {
     console.error('Customer portal error:', err);
-    res.status(500).json({ error: 'Failed to create customer portal session' });
+    res.status(500).json({ error: 'Failed to create customer portal session', details: err?.message || 'unknown' });
   }
 };
