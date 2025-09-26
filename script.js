@@ -21,7 +21,6 @@ class PomodoroTimer {
         // Ambient sounds system
         this.ambientPlaying = false;
         this.ambientVolume = 0.3;
-        this.audioContext = null;
         
         // Welcome modal elements
         this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
@@ -1195,25 +1194,39 @@ class PomodoroTimer {
 
     showAmbientLoginModal() {
         const modalContent = `
-            <div class="ambient-modal">
-                <button class="close-ambient-x">×</button>
-                <h3>Ambient Sounds</h3>
-                <p>Create a free account to access ambient sounds and enhance your focus sessions.</p>
-                <div class="ambient-login-buttons">
-                    <button class="ambient-login-btn" id="ambientLoginBtn">Login</button>
-                    <button class="ambient-cancel-btn" id="ambientCancelBtn">Cancel</button>
+            <div class="focus-stats-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="login-required-content">
+                    <div class="login-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music-icon lucide-music">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                        </svg>
+                    </div>
+                    <h3>Ambient Sounds</h3>
+                    <p>Create a free account to access ambient sounds and enhance your focus sessions.</p>
+                    <div class="login-required-buttons">
+                        <button class="login-btn" id="ambientLoginBtn">Login</button>
+                        <button class="cancel-btn" id="ambientCancelBtn">Cancel</button>
+                    </div>
                 </div>
             </div>
         `;
 
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'ambient-modal-overlay';
+        modalOverlay.className = 'focus-stats-overlay';
         modalOverlay.innerHTML = modalContent;
         document.body.appendChild(modalOverlay);
         modalOverlay.style.display = 'flex';
 
         // Event listeners
-        modalOverlay.querySelector('.close-ambient-x').addEventListener('click', () => {
+        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
 
@@ -1235,8 +1248,13 @@ class PomodoroTimer {
 
     showAmbientModal() {
         const modalContent = `
-            <div class="ambient-modal">
-                <button class="close-ambient-x">×</button>
+            <div class="focus-stats-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
                 <h3>Ambient Sounds</h3>
                 <div class="ambient-controls">
                     <div class="ambient-selector">
@@ -1254,21 +1272,21 @@ class PomodoroTimer {
                         <span id="ambientVolumeValue">30%</span>
                     </div>
                     <div class="ambient-actions">
-                        <button id="ambientPlayBtn" class="ambient-btn primary">Play</button>
-                        <button id="ambientStopBtn" class="ambient-btn secondary">Stop</button>
+                        <button id="ambientPlayBtn" class="login-btn">Play</button>
+                        <button id="ambientStopBtn" class="cancel-btn">Stop</button>
                     </div>
                 </div>
             </div>
         `;
 
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'ambient-modal-overlay';
+        modalOverlay.className = 'focus-stats-overlay';
         modalOverlay.innerHTML = modalContent;
         document.body.appendChild(modalOverlay);
         modalOverlay.style.display = 'flex';
 
         // Event listeners
-        modalOverlay.querySelector('.close-ambient-x').addEventListener('click', () => {
+        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
 
@@ -1299,40 +1317,17 @@ class PomodoroTimer {
     playAmbientSound(soundType) {
         this.stopAmbientSound();
         
-        if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
+        // TODO: Replace with actual MP3 files
+        console.log('Playing ambient sound:', soundType, 'Volume:', this.ambientVolume);
         
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
+        // For now, just show a placeholder message
+        alert(`Playing ${soundType} at ${Math.round(this.ambientVolume * 100)}% volume\n\n(MP3 files will be added soon)`);
         
-        // Simple frequencies for different sounds
-        const frequencies = {
-            rain: 200,
-            forest: 300,
-            coffee: 250,
-            wind: 150
-        };
-        
-        oscillator.frequency.value = frequencies[soundType] || 200;
-        oscillator.type = 'sine';
-        gainNode.gain.value = this.ambientVolume * 0.1;
-        
-        oscillator.start();
         this.ambientPlaying = true;
-        
-        // Store reference for stopping
-        this.currentAmbientOscillator = oscillator;
     }
 
     stopAmbientSound() {
-        if (this.currentAmbientOscillator) {
-            this.currentAmbientOscillator.stop();
-            this.currentAmbientOscillator = null;
-        }
+        console.log('Stopping ambient sound');
         this.ambientPlaying = false;
     }
 
