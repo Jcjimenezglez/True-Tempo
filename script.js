@@ -21,7 +21,28 @@ class PomodoroTimer {
         // Ambient sounds system
         this.ambientPlaying = false;
         this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
-        this.playlist = [];
+        this.playlist = [
+            "Chasing Clouds.mp3",
+            "Clouds Drift By.mp3",
+            "Clouds Drift By 2.mp3",
+            "Cloudy Minds.mp3",
+            "Cloudy Minds 2.mp3",
+            "Coffee Clouds.mp3",
+            "Coffee Clouds 2.mp3",
+            "Dreaming in Loops.mp3",
+            "Drift and Dream.mp3",
+            "Drift and Dream 2.mp3",
+            "Drifting in the Static.mp3",
+            "Drifting in the Static 2.mp3",
+            "Midnight Whispers.mp3",
+            "Midnight Whispers 2.mp3",
+            "Moonlit Scribbles.mp3",
+            "Nightfall Notebook.mp3",
+            "Nightfall Notebook 2.mp3",
+            "Nightlight Dreams.mp3",
+            "Under the Neon Moon.mp3",
+            "Under the Neon Moon 2.mp3"
+        ];
         this.currentTrackIndex = 0;
         
         // Welcome modal elements
