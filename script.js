@@ -96,6 +96,13 @@ class PomodoroTimer {
                 this.backgroundAudio.play().catch(() => {});
             });
         }
+
+        // Shuffle playlist order on each load so it doesn't always start with the same track
+        this.shufflePlaylist();
+
+        // Music ducking state
+        this.isDucked = false;
+        this.duckRestoreTimer = null;
         
         // Auth elements
         this.authContainer = document.getElementById('authContainer');
@@ -1296,8 +1303,10 @@ class PomodoroTimer {
                         <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
                     </div>
                     <div class=\"ambient-actions\">
+                        <button id=\"ambientPrevBtn\" class=\"cancel-btn\">Back</button>
                         <button id=\"ambientPlayBtn\" class=\"login-btn\">Play</button>
                         <button id=\"ambientStopBtn\" class=\"cancel-btn\">Stop</button>
+                        <button id=\"ambientNextBtn\" class=\"cancel-btn\">Next</button>
                     </div>
                 </div>
             </div>
@@ -1329,6 +1338,11 @@ class PomodoroTimer {
         modalOverlay.querySelector('#ambientStopBtn').addEventListener('click', () => {
             this.stopPlaylist();
         });
+
+        const nextBtn = modalOverlay.querySelector('#ambientNextBtn');
+        const prevBtn = modalOverlay.querySelector('#ambientPrevBtn');
+        if (nextBtn) nextBtn.addEventListener('click', () => this.nextTrack());
+        if (prevBtn) prevBtn.addEventListener('click', () => this.prevTrack());
 
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
@@ -1370,6 +1384,53 @@ class PomodoroTimer {
         this.ambientVolume = Math.max(0, Math.min(1, vol));
         localStorage.setItem('ambientVolume', String(this.ambientVolume));
         if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+    }
+
+    // Music ducking to prioritize session sounds
+    handleMusicDucking() {
+        if (!this.backgroundAudio || !this.ambientPlaying) return;
+        // Duck 2 seconds before end of section
+        if (this.timeLeft === 2 && !this.isDucked) {
+            this.isDucked = true;
+            this.backgroundAudio.volume = Math.max(0, this.ambientVolume * 0.15);
+        }
+        // Restore 2 seconds after a new section starts
+        if (this.timeLeft === this.cycleSections[this.currentSection - 1].duration - 2) {
+            this.restoreMusicIfDucked();
+        }
+    }
+
+    restoreMusicIfDucked() {
+        if (!this.backgroundAudio) return;
+        if (this.isDucked) {
+            this.backgroundAudio.volume = this.ambientVolume;
+            this.isDucked = false;
+        }
+    }
+
+    nextTrack() {
+        if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
+        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
+        this.backgroundAudio.volume = this.ambientVolume;
+        this.backgroundAudio.play().catch(() => {});
+        this.ambientPlaying = true;
+    }
+
+    prevTrack() {
+        if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
+        this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
+        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
+        this.backgroundAudio.volume = this.ambientVolume;
+        this.backgroundAudio.play().catch(() => {});
+        this.ambientPlaying = true;
+    }
+
+    shufflePlaylist() {
+        for (let i = this.playlist.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.playlist[i], this.playlist[j]] = [this.playlist[j], this.playlist[i]];
+        }
     }
 
     updatePremiumUI() {
@@ -1458,6 +1519,7 @@ class PomodoroTimer {
             this.updateDisplay();
             this.updateProgress();
             this.updateSections();
+            this.handleMusicDucking();
             this.updateSessionInfo();
             
             // Realtime tracking: focus-only for total focus time
@@ -1479,6 +1541,7 @@ class PomodoroTimer {
         
         clearInterval(this.interval);
         this.playUiSound('pause');
+        this.restoreMusicIfDucked();
         
         // Update title to show paused state
         const minutes = Math.floor(this.timeLeft / 60);
@@ -1588,6 +1651,7 @@ class PomodoroTimer {
         
         // Play notification sound
         this.playNotification();
+        this.restoreMusicIfDucked();
         
         // Advance section pointer
         const finishedWasFocus = this.isWorkSession === true;
