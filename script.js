@@ -21,6 +21,9 @@ class PomodoroTimer {
 		// Ambient sounds system
 		this.ambientPlaying = false;
 		this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
+		// Persisted enable flag (default On)
+		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
+		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
 		this.playlist = [
             "Chasing Clouds.mp3",
             "Clouds Drift By.mp3",
@@ -1283,6 +1286,7 @@ class PomodoroTimer {
 
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
+        const isEnabled = this.ambientEnabled;
         const modalContent = `
             <div class=\"focus-stats-modal\">
                 <button class=\"close-focus-stats-x\">
@@ -1297,7 +1301,7 @@ class PomodoroTimer {
                         <h4>Lofi Music</h4>
                         <div class=\"toggle-container\">
                             <label class=\"toggle-switch\">
-                                <input type=\"checkbox\" id=\"lofiToggle\" checked>
+                                <input type=\"checkbox\" id=\"lofiToggle\" ${isEnabled ? 'checked' : ''}>
                                 <span class=\"toggle-slider\"></span>
                             </label>
                         </div>
@@ -1329,14 +1333,20 @@ class PomodoroTimer {
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
+        
+        // Initialize controls with current state
+        volumeSlider.disabled = !isEnabled;
+        previewBtn.disabled = !isEnabled;
 
-        // Toggle logic
+        // Toggle logic with persistence
         lofiToggle.addEventListener('change', (e) => {
-            const isEnabled = e.target.checked;
-            volumeSlider.disabled = !isEnabled;
-            previewBtn.disabled = !isEnabled;
+            const enabled = e.target.checked;
+            this.ambientEnabled = enabled;
+            localStorage.setItem('ambientEnabled', String(enabled));
+            volumeSlider.disabled = !enabled;
+            previewBtn.disabled = !enabled;
             
-            if (!isEnabled) {
+            if (!enabled) {
                 this.stopPlaylist();
                 previewBtn.textContent = 'Preview';
             }
@@ -1547,9 +1557,8 @@ class PomodoroTimer {
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         
-        // Start background music if enabled
-        const lofiToggle = document.querySelector('#lofiToggle');
-        if (lofiToggle && lofiToggle.checked) {
+        // Start background music if enabled (persisted flag)
+        if (this.ambientEnabled) {
             this.playPlaylist();
         }
         
