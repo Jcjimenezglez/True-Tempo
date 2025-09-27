@@ -398,6 +398,67 @@
         </div>
     </div>
     
+    <!-- Guest Login Required Modal -->
+    <div class="guest-login-modal-overlay" id="guestLoginModal" style="display: none;">
+        <div class="guest-login-modal">
+            <button class="close-guest-login-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="guest-login-content">
+                <div class="guest-login-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-icon lucide-lock">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                <h3>Login Required</h3>
+                <p>This feature is only available for registered users. Sign up or log in to access background music and task management.</p>
+                <div class="guest-login-features">
+                    <div class="guest-login-feature">
+                        <span class="guest-login-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18V5l12-2v13"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <circle cx="18" cy="16" r="3"/>
+                            </svg>
+                        </span>
+                        <span class="guest-login-feature-text">Background Music</span>
+                    </div>
+                    <div class="guest-login-feature">
+                        <span class="guest-login-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 5h8"/>
+                                <path d="M13 12h8"/>
+                                <path d="M13 19h8"/>
+                                <path d="m3 17 2 2 4-4"/>
+                                <rect x="3" y="4" width="6" height="6" rx="1"/>
+                            </svg>
+                        </span>
+                        <span class="guest-login-feature-text">Task Management</span>
+                    </div>
+                    <div class="guest-login-feature">
+                        <span class="guest-login-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </span>
+                        <span class="guest-login-feature-text">Advanced Features</span>
+                    </div>
+                </div>
+                <div class="guest-login-buttons">
+                    <button class="guest-login-btn guest-login-btn-primary" id="guestLoginBtn">Log in</button>
+                    <button class="guest-login-btn guest-login-btn-secondary" id="guestSignupBtn">Sign up for free</button>
+                </div>
+                <div class="guest-login-footer">
+                    <button class="guest-login-link" id="guestContinueBtn">Continue as guest</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
     <div class="settings-modal-overlay" id="settingsModal" style="display: none;">
         <div class="settings-modal">

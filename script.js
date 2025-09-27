@@ -1249,7 +1249,7 @@ class PomodoroTimer {
     // Simple ambient sounds system
     toggleMusic() {
         if (!this.isAuthenticated || !this.user) {
-            this.showAmbientLoginModal();
+            this.showGuestLoginModal('music');
             return;
         }
         this.showAmbientModal();
@@ -1544,6 +1544,12 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
+        // Check if user is in guest mode
+        if (this.isGuestMode()) {
+            this.showGuestLoginModal('tasks');
+            return;
+        }
+        
         // Show only task list modal (no integration controls)
         this.showTaskListModal();
         // Don't toggle active state - keep button in normal state
@@ -2815,6 +2821,78 @@ class PomodoroTimer {
                 ...task,
                 sessions: config.sessions || 1
             };
+        });
+    }
+
+    // Guest mode detection
+    isGuestMode() {
+        return !this.isAuthenticated || !this.user;
+    }
+
+    // Show guest login modal
+    showGuestLoginModal(feature) {
+        const modal = document.getElementById('guestLoginModal');
+        if (!modal) return;
+
+        // Update modal content based on feature
+        const content = modal.querySelector('.guest-login-content p');
+        if (content) {
+            if (feature === 'music') {
+                content.textContent = 'Background music is only available for registered users. Sign up or log in to access ambient sounds and music.';
+            } else if (feature === 'tasks') {
+                content.textContent = 'Task management is only available for registered users. Sign up or log in to access Todoist integration and task tracking.';
+            }
+        }
+
+        modal.style.display = 'flex';
+
+        // Add event listeners
+        this.setupGuestLoginModalListeners(modal);
+    }
+
+    setupGuestLoginModalListeners(modal) {
+        const closeBtn = modal.querySelector('.close-guest-login-x');
+        const loginBtn = modal.querySelector('#guestLoginBtn');
+        const signupBtn = modal.querySelector('#guestSignupBtn');
+        const continueBtn = modal.querySelector('#guestContinueBtn');
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                closeModal();
+                // Trigger Clerk login
+                if (window.Clerk && window.Clerk.openSignIn) {
+                    window.Clerk.openSignIn();
+                }
+            });
+        }
+
+        if (signupBtn) {
+            signupBtn.addEventListener('click', () => {
+                closeModal();
+                // Trigger Clerk signup
+                if (window.Clerk && window.Clerk.openSignUp) {
+                    window.Clerk.openSignUp();
+                }
+            });
+        }
+
+        if (continueBtn) {
+            continueBtn.addEventListener('click', closeModal);
+        }
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
         });
     }
 
