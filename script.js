@@ -21,7 +21,6 @@ class PomodoroTimer {
 		// Ambient sounds system
 		this.ambientPlaying = false;
 		this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
-		this.ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
 		this.playlist = [
             "Chasing Clouds.mp3",
             "Clouds Drift By.mp3",
@@ -1284,7 +1283,6 @@ class PomodoroTimer {
 
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
-        const isEnabled = this.ambientEnabled;
         const modalContent = `
             <div class=\"focus-stats-modal\">
                 <button class=\"close-focus-stats-x\">
@@ -1299,7 +1297,7 @@ class PomodoroTimer {
                         <h4>Lofi Music</h4>
                         <div class=\"toggle-container\">
                             <label class=\"toggle-switch\">
-                                <input type=\"checkbox\" id=\"lofiToggle\" ${isEnabled ? 'checked' : ''}>
+                                <input type=\"checkbox\" id=\"lofiToggle\" checked>
                                 <span class=\"toggle-slider\"></span>
                             </label>
                         </div>
@@ -1331,17 +1329,10 @@ class PomodoroTimer {
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
-        
-        // Initialize controls with current state
-        volumeSlider.disabled = !isEnabled;
-        previewBtn.disabled = !isEnabled;
 
         // Toggle logic
         lofiToggle.addEventListener('change', (e) => {
             const isEnabled = e.target.checked;
-            this.ambientEnabled = isEnabled;
-            localStorage.setItem('ambientEnabled', String(isEnabled));
-            
             volumeSlider.disabled = !isEnabled;
             previewBtn.disabled = !isEnabled;
             
@@ -1557,7 +1548,8 @@ class PomodoroTimer {
         this.playUiSound('play');
         
         // Start background music if enabled
-        if (this.ambientEnabled) {
+        const lofiToggle = document.querySelector('#lofiToggle');
+        if (lofiToggle && lofiToggle.checked) {
             this.playPlaylist();
         }
         
@@ -1611,6 +1603,11 @@ class PomodoroTimer {
         this.startPauseBtn.classList.remove('running');
         
         clearInterval(this.interval);
+        
+        // Pause background music if playing
+        if (this.ambientPlaying) {
+            this.stopPlaylist();
+        }
         // No sound - silent pause
         
         // Update title to show paused state
