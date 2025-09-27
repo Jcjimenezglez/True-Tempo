@@ -1338,13 +1338,20 @@ class PomodoroTimer {
             
             if (!isEnabled) {
                 this.stopPlaylist();
+                previewBtn.textContent = 'Preview';
             }
         });
 
-        // Preview button
+        // Preview button (play/pause functionality)
         previewBtn.addEventListener('click', async () => {
             if (lofiToggle.checked) {
-                await this.playPlaylist();
+                if (previewBtn.textContent === 'Preview') {
+                    await this.playPlaylist();
+                    previewBtn.textContent = 'Pause';
+                } else {
+                    this.stopPlaylist();
+                    previewBtn.textContent = 'Preview';
+                }
             }
         });
 

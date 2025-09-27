@@ -3114,11 +3114,12 @@ input:checked + .toggle-slider:before {
 }
 
 input:checked + .toggle-slider {
-    background-color: #007AFF;
+    background-color: #ffffff;
 }
 
 input:checked + .toggle-slider:before {
     transform: translateX(26px);
+    background-color: #000000;
 }
 
 .preview-section {
@@ -3129,8 +3130,8 @@ input:checked + .toggle-slider:before {
 }
 
 .preview-btn {
-    background: #007AFF;
-    color: #ffffff;
+    background: #ffffff;
+    color: #000000;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 1.5rem;
@@ -3141,11 +3142,11 @@ input:checked + .toggle-slider:before {
 }
 
 .preview-btn:hover {
-    background: #0056b3;
+    background: #f0f0f0;
 }
 
 .preview-btn:disabled {
-    background: #2a2a2a;
+    background: rgba(255, 255, 255, 0.1);
     color: #666666;
     cursor: not-allowed;
 }
