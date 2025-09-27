@@ -1248,10 +1248,6 @@ class PomodoroTimer {
 
     // Simple ambient sounds system
     toggleMusic() {
-        if (!this.isAuthenticated || !this.user) {
-            this.showGuestLoginModal('music');
-            return;
-        }
         this.showAmbientModal();
     }
 
@@ -1413,7 +1409,6 @@ class PomodoroTimer {
 
     async playPlaylist() {
         if (!this.backgroundAudio) return;
-        if (!this.isAuthenticated || !this.user) return;
         if (!this.playlist || this.playlist.length === 0) {
             alert('No background tracks available yet. Upload MP3s to /audio/lofi');
             return;
@@ -1477,8 +1472,6 @@ class PomodoroTimer {
 
     nextTrack() {
         if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
-        if (!this.isAuthenticated || !this.user) return;
-        
         this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
         this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         this.backgroundAudio.volume = this.ambientVolume;
@@ -1489,8 +1482,6 @@ class PomodoroTimer {
 
     prevTrack() {
         if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
-        if (!this.isAuthenticated || !this.user) return;
-        
         this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
         this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         this.backgroundAudio.volume = this.ambientVolume;
@@ -1549,12 +1540,6 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
-        // Check if user is in guest mode
-        if (!this.isAuthenticated || !this.user) {
-            this.showGuestLoginModal('tasks');
-            return;
-        }
-        
         // Show only task list modal (no integration controls)
         this.showTaskListModal();
         // Don't toggle active state - keep button in normal state
@@ -1586,8 +1571,8 @@ class PomodoroTimer {
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         
-        // Start background music if enabled (persisted flag) and user is authenticated
-        if (this.ambientEnabled && this.isAuthenticated && this.user) {
+        // Start background music if enabled (persisted flag)
+        if (this.ambientEnabled) {
             this.playPlaylist();
         }
         
@@ -2209,9 +2194,6 @@ class PomodoroTimer {
     startAudio(type) {
         if (type === 'none') return;
         
-        // Only allow audio for authenticated users
-        if (!this.isAuthenticated || !this.user) return;
-        
         // Simple audio implementation
         const audioUrls = {
             'rain-light': 'https://www.soundjay.com/misc/sounds/rain-light.mp3',
@@ -2832,96 +2814,6 @@ class PomodoroTimer {
         });
     }
 
-    // Guest mode detection
-    isGuestMode() {
-        return !this.isAuthenticated || !this.user;
-    }
-
-    // Show guest login modal
-    showGuestLoginModal(feature) {
-        const modal = document.getElementById('guestLoginModal');
-        if (!modal) return;
-
-        // Update modal content based on feature
-        const content = modal.querySelector('#guestLoginMessage');
-        const featuresList = modal.querySelector('#guestLoginFeatures');
-        const iconContainer = modal.querySelector('#guestLoginIcon');
-        
-        if (feature === 'music') {
-            content.textContent = 'Background music is only available for registered users. Sign up or log in to access ambient sounds and music.';
-            iconContainer.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 18V5l12-2v13"/>
-                    <circle cx="6" cy="18" r="3"/>
-                    <circle cx="18" cy="16" r="3"/>
-                </svg>
-            `;
-            featuresList.innerHTML = ''; // No additional features list for music
-        } else if (feature === 'tasks') {
-            content.textContent = 'Task management is only available for registered users. Sign up or log in to access Todoist integration and task tracking.';
-            iconContainer.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M13 5h8"/>
-                    <path d="M13 12h8"/>
-                    <path d="M13 19h8"/>
-                    <path d="m3 17 2 2 4-4"/>
-                    <rect x="3" y="4" width="6" height="6" rx="1"/>
-                </svg>
-            `;
-            featuresList.innerHTML = ''; // No additional features list for tasks
-        }
-
-        modal.style.display = 'flex';
-
-        // Add event listeners
-        this.setupGuestLoginModalListeners(modal);
-    }
-
-    setupGuestLoginModalListeners(modal) {
-        const closeBtn = modal.querySelector('.close-guest-login-x');
-        const loginBtn = modal.querySelector('#guestLoginBtn');
-        const signupBtn = modal.querySelector('#guestSignupBtn');
-        const continueBtn = modal.querySelector('#guestContinueBtn');
-
-        const closeModal = () => {
-            modal.style.display = 'none';
-        };
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeModal);
-        }
-
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                closeModal();
-                // Trigger Clerk login
-                if (window.Clerk && window.Clerk.openSignIn) {
-                    window.Clerk.openSignIn();
-                }
-            });
-        }
-
-        if (signupBtn) {
-            signupBtn.addEventListener('click', () => {
-                closeModal();
-                // Trigger Clerk signup
-                if (window.Clerk && window.Clerk.openSignUp) {
-                    window.Clerk.openSignUp();
-                }
-            });
-        }
-
-        if (continueBtn) {
-            continueBtn.addEventListener('click', closeModal);
-        }
-
-        // Close on overlay click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
 
     async fetchTodoistData() {
         try {
