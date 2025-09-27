@@ -408,39 +408,13 @@
                 </svg>
             </button>
             <div class="guest-login-content">
-                <div class="guest-login-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
+                <div class="guest-login-icon" id="guestLoginIcon">
+                    <!-- Icon will be set dynamically based on feature -->
                 </div>
                 <h3>Sign in to continue</h3>
                 <p id="guestLoginMessage">This feature is only available for registered users. Sign up or log in to access all features.</p>
-                <div class="guest-login-features">
-                    <div class="guest-login-feature">
-                        <div class="guest-login-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </div>
-                        <div class="guest-login-feature-text">Access to all focus techniques</div>
-                    </div>
-                    <div class="guest-login-feature">
-                        <div class="guest-login-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </div>
-                        <div class="guest-login-feature-text">Task management and Todoist integration</div>
-                    </div>
-                    <div class="guest-login-feature">
-                        <div class="guest-login-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </div>
-                        <div class="guest-login-feature-text">Background music and ambient sounds</div>
-                    </div>
+                <div class="guest-login-features" id="guestLoginFeatures">
+                    <!-- Features will be set dynamically based on feature -->
                 </div>
                 <div class="guest-login-buttons">
                     <button class="guest-login-btn guest-login-btn-primary" id="guestLoginBtn">Log in</button>
