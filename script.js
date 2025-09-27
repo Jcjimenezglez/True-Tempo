@@ -528,6 +528,8 @@ class PomodoroTimer {
             // Optimistic UI update
             this.isAuthenticated = false;
             this.user = null;
+            // Clear Todoist tasks when user logs out
+            this.clearTodoistTasks();
             this.updateAuthState();
 
             // Sign out from Clerk (all sessions) without adding extra query params
@@ -1540,9 +1542,24 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
+        // Clear Todoist tasks if user is in guest mode
+        if (!this.isAuthenticated || !this.user) {
+            this.clearTodoistTasks();
+        }
+        
         // Show only task list modal (no integration controls)
         this.showTaskListModal();
         // Don't toggle active state - keep button in normal state
+    }
+
+    // Clear Todoist tasks and related data
+    clearTodoistTasks() {
+        this.todoistTasks = [];
+        this.todoistProjectsById = {};
+        // Clear task configurations from localStorage
+        localStorage.removeItem('taskConfigs');
+        // Clear current task banner if it exists
+        this.updateCurrentTaskBanner();
     }
 
     handleCustomTechniqueClick(item) {
@@ -3156,6 +3173,8 @@ class PomodoroTimer {
             } catch (_) {}
             this.isAuthenticated = false;
             this.user = null;
+            // Clear Todoist tasks when switching to guest mode
+            this.clearTodoistTasks();
             localStorage.removeItem('hasAccount');
             localStorage.setItem('isPremium', 'false');
             localStorage.setItem('hasPaidSubscription', 'false');
