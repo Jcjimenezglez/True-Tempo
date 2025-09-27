@@ -1657,24 +1657,16 @@ class PomodoroTimer {
     }
     
     toggleTimer() {
-        // Require a selected task before starting a focus session
-        if (!this.isRunning && (!this.currentTask || !this.currentTask.content)) {
-            // If not connected, nudge to Connections; else open tasks modal
-            (async () => {
-                try {
-                    const resp = await fetch('/api/todoist-status');
-                    const { connected } = await resp.json();
-                    if (connected) {
-                        this.showTodoistModal();
-                    } else {
-                        // Open the connections modal to connect first
-                        this.showConnectionsModal();
-                    }
-                } catch (_) {
+        // If Todoist está conectado y no hay tarea, pide seleccionar una
+        if (!this.isRunning) {
+            try {
+                const resp = await fetch('/api/todoist-status');
+                const { connected } = await resp.json();
+                if (connected && (!this.currentTask || !this.currentTask.content)) {
                     this.showTodoistModal();
+                    return;
                 }
-            })();
-            return;
+            } catch (_) { /* allow start */ }
         }
         if (this.isRunning) {
             this.pauseTimer();
@@ -2442,10 +2434,10 @@ class PomodoroTimer {
                 </div>
                 
                 <div class="integration-content">
-                    <div class="token-actions" style="display:none;">
-                        <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
-                        <button id="disconnectTodoistBtn" class="btn-secondary">Disconnect</button>
-                        <button id="fetchTodoistTasksBtn" class="btn-success">Fetch Tasks</button>
+                    <div class="token-actions">
+                        <button id="connectTodoistBtn" class="btn-primary" style="display:none;">Connect to Todoist</button>
+                        <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
+                        <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
                     </div>
                     <div id="todoistStatusText" class="tasks-subtitle"></div>
                     
