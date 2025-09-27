@@ -2343,8 +2343,8 @@ audio {
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
-    padding: 2rem;
-    max-width: 500px;
+    padding: 2rem 3rem;
+    max-width: 600px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
@@ -3440,18 +3440,19 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 16px;
+    padding: 12px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.2s;
 }
 
 .task-item:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .task-checkbox {
@@ -3462,16 +3463,16 @@ input:checked + .toggle-slider:before {
     appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid #e5e5e5;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    background: #f5f5f5;
+    background: rgba(255, 255, 255, 0.05);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .task-checkbox input[type="checkbox"]:checked {
-    background: #8B4513;
-    border-color: #8B4513;
+    background: #78dbff;
+    border-color: #78dbff;
 }
 
 .task-checkbox input[type="checkbox"]:checked::after {
@@ -3480,7 +3481,7 @@ input:checked + .toggle-slider:before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
+    color: #000;
     font-size: 12px;
     font-weight: bold;
 }
@@ -3493,7 +3494,7 @@ input:checked + .toggle-slider:before {
 }
 
 .task-title {
-    color: #333;
+    color: #ffffff;
     font-size: 16px;
     font-weight: 500;
 }
@@ -3505,7 +3506,7 @@ input:checked + .toggle-slider:before {
 }
 
 .sessions-label {
-    color: #666;
+    color: rgba(255, 255, 255, 0.7);
     font-size: 14px;
 }
 
@@ -3518,28 +3519,28 @@ input:checked + .toggle-slider:before {
 .sessions-btn {
     width: 24px;
     height: 24px;
-    border: 1px solid #ddd;
-    background: #f5f5f5;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    color: #666;
+    color: rgba(255, 255, 255, 0.7);
     transition: all 0.2s;
 }
 
 .sessions-btn:hover {
-    background: #e5e5e5;
-    border-color: #ccc;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .sessions-count {
     min-width: 20px;
     text-align: center;
     font-weight: 500;
-    color: #333;
+    color: #ffffff;
 }
 
 .task-menu {
@@ -3560,9 +3561,9 @@ input:checked + .toggle-slider:before {
 .add-task-btn {
     width: 100%;
     padding: 16px;
-    border: 2px dashed #8B4513;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
     background: transparent;
-    color: #8B4513;
+    color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
     cursor: pointer;
     display: flex;
@@ -3575,12 +3576,14 @@ input:checked + .toggle-slider:before {
 }
 
 .add-task-btn:hover {
-    background: rgba(139, 69, 19, 0.1);
-    border-color: #A0522D;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #ffffff;
 }
 
 .tasks-footer {
-    background: #8B4513;
+    background: rgba(120, 219, 255, 0.1);
+    border: 1px solid rgba(120, 219, 255, 0.2);
     padding: 12px 16px;
     border-radius: 8px;
     margin-top: 1rem;
@@ -3619,4 +3622,76 @@ input:checked + .toggle-slider:before {
 .empty-subtext {
     font-size: 0.9rem;
     color: #666;
+}
+
+/* Current Task Banner Styles */
+.current-task-banner {
+    background: rgba(120, 219, 255, 0.1);
+    border: 1px solid rgba(120, 219, 255, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.current-task-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.current-task-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(120, 219, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #78dbff;
+}
+
+.current-task-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.current-task-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.current-task-progress {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.task-sessions-info {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.change-task-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.change-task-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }

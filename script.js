@@ -2634,6 +2634,8 @@ class PomodoroTimer {
                 const taskId = e.target.id.replace('task-', '');
                 this.setTaskConfig(taskId, { selected: e.target.checked });
                 this.updateTaskFooter(modal);
+                // Update the main timer banner
+                this.updateCurrentTaskBanner();
             });
         });
 
@@ -2710,6 +2712,109 @@ class PomodoroTimer {
             hour: '2-digit', 
             minute: '2-digit',
             hour12: false 
+        });
+    }
+
+    // Show selected tasks in the main timer interface
+    updateCurrentTaskBanner() {
+        const selectedTasks = this.getSelectedTasks();
+        const taskBanner = document.getElementById('currentTaskBanner');
+        
+        if (!taskBanner) {
+            // Create task banner if it doesn't exist
+            this.createTaskBanner();
+            return;
+        }
+
+        if (selectedTasks.length === 0) {
+            taskBanner.style.display = 'none';
+            return;
+        }
+
+        // Show current task and progress
+        const currentTask = selectedTasks[0];
+        const taskInfo = document.getElementById('currentTaskInfo');
+        const taskProgress = document.getElementById('taskProgress');
+        
+        if (taskInfo) {
+            taskInfo.innerHTML = `
+                <div class="current-task-title">${currentTask.content}</div>
+                <div class="current-task-progress">Task 1 of ${selectedTasks.length}</div>
+            `;
+        }
+        
+        if (taskProgress) {
+            taskProgress.innerHTML = `
+                <div class="task-sessions-info">
+                    <span>${currentTask.sessions} session${currentTask.sessions > 1 ? 's' : ''}</span>
+                </div>
+            `;
+        }
+
+        taskBanner.style.display = 'block';
+    }
+
+    createTaskBanner() {
+        // Create task banner element
+        const taskBanner = document.createElement('div');
+        taskBanner.id = 'currentTaskBanner';
+        taskBanner.className = 'current-task-banner';
+        taskBanner.style.display = 'none';
+        
+        taskBanner.innerHTML = `
+            <div class="current-task-content">
+                <div class="current-task-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                    </svg>
+                </div>
+                <div class="current-task-details">
+                    <div id="currentTaskInfo">
+                        <div class="current-task-title">No task selected</div>
+                        <div class="current-task-progress">Select a task to focus on</div>
+                    </div>
+                    <div id="taskProgress">
+                        <div class="task-sessions-info">0 sessions</div>
+                    </div>
+                </div>
+                <button class="change-task-btn" id="changeTaskBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"/>
+                        <path d="M3 12h18"/>
+                        <path d="M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        // Insert after the timer content
+        const timerContent = document.querySelector('.timer-content');
+        if (timerContent) {
+            timerContent.parentNode.insertBefore(taskBanner, timerContent.nextSibling);
+        }
+
+        // Add event listener for change task button
+        const changeTaskBtn = document.getElementById('changeTaskBtn');
+        if (changeTaskBtn) {
+            changeTaskBtn.addEventListener('click', () => {
+                this.showTaskListModal();
+            });
+        }
+    }
+
+    getSelectedTasks() {
+        if (!this.todoistTasks) return [];
+        
+        return this.todoistTasks.filter(task => {
+            const config = this.getTaskConfig(task.id);
+            return config.selected;
+        }).map(task => {
+            const config = this.getTaskConfig(task.id);
+            return {
+                ...task,
+                sessions: config.sessions || 1
+            };
         });
     }
 
