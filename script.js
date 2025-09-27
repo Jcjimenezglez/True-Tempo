@@ -2566,19 +2566,21 @@ class PomodoroTimer {
 
         const renderTasks = () => {
             listEl.innerHTML = '';
-            if (!this.todoistTasks || this.todoistTasks.length === 0) {
+            const allTasks = this.getAllTasks();
+            
+            if (allTasks.length === 0) {
                 const empty = document.createElement('div');
                 empty.className = 'empty-state';
                 empty.innerHTML = `
                     <div class="empty-icon">📝</div>
                     <div class="empty-text">No tasks available</div>
-                    <div class="empty-subtext">Connect Todoist in Settings > Integrations to sync your tasks</div>
+                    <div class="empty-subtext">Add your first task or connect Todoist in Settings > Integrations</div>
                 `;
                 listEl.appendChild(empty);
                 return;
             }
             
-            this.todoistTasks.forEach((task, index) => {
+            allTasks.forEach((task, index) => {
                 const item = document.createElement('div');
                 item.className = 'task-item';
                 
@@ -2592,7 +2594,10 @@ class PomodoroTimer {
                         <label for="task-${task.id}"></label>
                     </div>
                     <div class="task-content">
-                        <div class="task-title">${task.content || '(untitled)'}</div>
+                        <div class="task-title">
+                            ${task.content || '(untitled)'}
+                            ${task.source === 'local' ? '<span class="task-source local">Local</span>' : ''}
+                        </div>
                         <div class="task-sessions">
                             <span class="sessions-label">Sessions:</span>
                             <div class="sessions-control">
@@ -2622,22 +2627,26 @@ class PomodoroTimer {
             this.updateTaskFooter(modal);
         };
 
-        // Load tasks respecting guest mode
-        if (!this.isAuthenticated || !this.user) {
-            // In guest mode we do not show Todoist tasks
-            this.todoistTasks = [];
-            this.todoistProjectsById = {};
-            renderTasks();
-        } else if (this.todoistTasks && this.todoistTasks.length > 0) {
-            renderTasks();
-        } else {
-            // Try to fetch tasks if user is connected
-            this.fetchTodoistData().then(() => {
-                renderTasks();
-            }).catch(() => {
-                renderTasks();
+        // Setup menu event listener
+        const menuBtn = modal.querySelector('.tasks-menu');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showTaskMenu(modal);
             });
         }
+
+        // Setup add task button
+        const addTaskBtn = modal.querySelector('.add-task-btn');
+        if (addTaskBtn) {
+            addTaskBtn.addEventListener('click', () => {
+                this.showAddTaskModal();
+            });
+        }
+
+        // Load tasks (local + Todoist if authenticated)
+        this.loadAllTasks();
+        renderTasks();
     }
 
     // Task configuration management
@@ -2830,9 +2839,9 @@ class PomodoroTimer {
     }
 
     getSelectedTasks() {
-        if (!this.todoistTasks) return [];
+        const allTasks = this.getAllTasks();
         
-        return this.todoistTasks.filter(task => {
+        return allTasks.filter(task => {
             const config = this.getTaskConfig(task.id);
             return config.selected;
         }).map(task => {
@@ -2842,6 +2851,401 @@ class PomodoroTimer {
                 sessions: config.sessions || 1
             };
         });
+    }
+
+    // Local task management
+    getLocalTasks() {
+        return JSON.parse(localStorage.getItem('localTasks') || '[]');
+    }
+
+    setLocalTasks(tasks) {
+        localStorage.setItem('localTasks', JSON.stringify(tasks));
+    }
+
+    getAllTasks() {
+        const localTasks = this.getLocalTasks();
+        const todoistTasks = this.isAuthenticated && this.user ? (this.todoistTasks || []) : [];
+        
+        // Combine and mark source
+        const allTasks = [
+            ...localTasks.map(task => ({ ...task, source: 'local' })),
+            ...todoistTasks.map(task => ({ ...task, source: 'todoist' }))
+        ];
+        
+        return allTasks;
+    }
+
+    loadAllTasks() {
+        // Load local tasks
+        this.localTasks = this.getLocalTasks();
+        
+        // Load Todoist tasks if authenticated
+        if (this.isAuthenticated && this.user) {
+            this.fetchTodoistData().catch(() => {
+                this.todoistTasks = [];
+                this.todoistProjectsById = {};
+            });
+        } else {
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+        }
+    }
+
+    showTaskMenu(modal) {
+        const menu = document.createElement('div');
+        menu.className = 'task-menu-dropdown';
+        menu.style.cssText = `
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        `;
+
+        const menuItems = [
+            { text: 'Clear finished tasks', icon: '🗑️', action: () => this.clearFinishedTasks() },
+            { text: 'Use Template', icon: '📋', action: () => this.showTemplatesModal() },
+            { text: 'Import from Todoist', icon: '📥', action: () => this.showImportModal(), locked: !this.isAuthenticated },
+            { text: 'Clear act pomodoros', icon: '✅', action: () => this.clearActPomodoros() },
+            { text: 'Hide tasks', icon: '👁️', action: () => this.hideTasks(), locked: !this.isAuthenticated },
+            { text: 'Clear all tasks', icon: '🗑️', action: () => this.clearAllTasks() }
+        ];
+
+        menuItems.forEach(item => {
+            const menuItem = document.createElement('div');
+            menuItem.className = 'task-menu-item';
+            menuItem.style.cssText = `
+                padding: 12px 16px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: ${item.locked ? 'rgba(255, 255, 255, 0.5)' : '#ffffff'};
+                transition: background-color 0.2s;
+            `;
+            
+            if (!item.locked) {
+                menuItem.addEventListener('mouseenter', () => {
+                    menuItem.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                });
+                menuItem.addEventListener('mouseleave', () => {
+                    menuItem.style.backgroundColor = 'transparent';
+                });
+            }
+
+            menuItem.innerHTML = `
+                <span>${item.icon}</span>
+                <span>${item.text}</span>
+                ${item.locked ? '<span style="margin-left: auto; color: rgba(255, 255, 255, 0.3);">🔒</span>' : ''}
+            `;
+
+            if (!item.locked) {
+                menuItem.addEventListener('click', () => {
+                    item.action();
+                    document.body.removeChild(menu);
+                });
+            }
+
+            menu.appendChild(menuItem);
+        });
+
+        // Position menu
+        const rect = modal.getBoundingClientRect();
+        menu.style.top = '40px';
+        menu.style.right = '20px';
+
+        modal.style.position = 'relative';
+        modal.appendChild(menu);
+
+        // Close menu when clicking outside
+        const closeMenu = (e) => {
+            if (!menu.contains(e.target)) {
+                document.body.removeChild(menu);
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        
+        setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+        }, 100);
+    }
+
+    showAddTaskModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="add-task-modal-content">
+                <h3>Add Task</h3>
+                <div class="task-form">
+                    <div class="form-group">
+                        <label>What are you working on?</label>
+                        <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Est Pomodoros</label>
+                        <div class="pomodoros-control">
+                            <button class="pomodoros-btn" id="decreasePomodoros">-</button>
+                            <input type="number" id="pomodorosCount" value="1" min="1" max="10">
+                            <button class="pomodoros-btn" id="increasePomodoros">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="cancelAddTask">Cancel</button>
+                    <button class="btn-primary" id="saveTask">Save</button>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        modal.querySelector('#cancelAddTask').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        // Pomodoros controls
+        const decreaseBtn = modal.querySelector('#decreasePomodoros');
+        const increaseBtn = modal.querySelector('#increasePomodoros');
+        const countInput = modal.querySelector('#pomodorosCount');
+
+        decreaseBtn.addEventListener('click', () => {
+            const current = parseInt(countInput.value);
+            if (current > 1) countInput.value = current - 1;
+        });
+
+        increaseBtn.addEventListener('click', () => {
+            const current = parseInt(countInput.value);
+            if (current < 10) countInput.value = current + 1;
+        });
+
+        // Save task
+        modal.querySelector('#saveTask').addEventListener('click', () => {
+            const description = modal.querySelector('#taskDescription').value.trim();
+            const pomodoros = parseInt(countInput.value);
+            
+            if (description) {
+                this.addLocalTask(description, pomodoros);
+                close();
+                // Refresh the task list
+                this.showTaskListModal();
+            }
+        });
+    }
+
+    addLocalTask(description, pomodoros = 1) {
+        const tasks = this.getLocalTasks();
+        const newTask = {
+            id: 'local_' + Date.now(),
+            content: description,
+            pomodoros: pomodoros,
+            created: new Date().toISOString(),
+            completed: false
+        };
+        
+        tasks.push(newTask);
+        this.setLocalTasks(tasks);
+    }
+
+    showImportModal() {
+        if (!this.isAuthenticated || !this.user) return;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal import-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="import-modal-content">
+                <h3>Import Tasks</h3>
+                <div class="search-section">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <input type="text" id="searchTasks" placeholder="Search Tasks">
+                    </div>
+                </div>
+                <div class="projects-section">
+                    <div class="projects-list" id="projectsList">
+                        <div class="loading">Loading projects...</div>
+                    </div>
+                </div>
+                <div class="import-actions">
+                    <button class="btn-secondary" id="clearSelection">Clear Selection</button>
+                    <button class="btn-primary" id="importTasks" disabled>Import</button>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        // Load projects and tasks
+        this.loadImportData(modal);
+    }
+
+    async loadImportData(modal) {
+        const projectsList = modal.querySelector('#projectsList');
+        
+        try {
+            // Load projects
+            const projectsRes = await fetch('/api/todoist-projects');
+            const projects = projectsRes.ok ? await projectsRes.json() : [];
+            
+            // Load tasks
+            const tasksRes = await fetch('/api/todoist-tasks');
+            const tasks = tasksRes.ok ? await tasksRes.json() : [];
+            
+            // Group tasks by project
+            const tasksByProject = {};
+            tasks.forEach(task => {
+                const projectId = task.project_id;
+                if (!tasksByProject[projectId]) {
+                    tasksByProject[projectId] = [];
+                }
+                tasksByProject[projectId].push(task);
+            });
+            
+            // Render projects
+            projectsList.innerHTML = '';
+            projects.forEach(project => {
+                const projectTasks = tasksByProject[project.id] || [];
+                if (projectTasks.length === 0) return;
+                
+                const projectDiv = document.createElement('div');
+                projectDiv.className = 'project-group';
+                projectDiv.innerHTML = `
+                    <div class="project-header">
+                        <h4>${project.name}</h4>
+                        <span class="task-count">${projectTasks.length} tasks</span>
+                    </div>
+                    <div class="project-tasks">
+                        ${projectTasks.map(task => `
+                            <div class="import-task-item" data-task-id="${task.id}">
+                                <input type="checkbox" class="task-checkbox">
+                                <span class="task-content">${task.content}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                projectsList.appendChild(projectDiv);
+            });
+            
+            // Setup selection handlers
+            this.setupImportHandlers(modal);
+            
+        } catch (error) {
+            projectsList.innerHTML = '<div class="error">Failed to load tasks</div>';
+        }
+    }
+
+    setupImportHandlers(modal) {
+        const checkboxes = modal.querySelectorAll('.import-task-item input[type="checkbox"]');
+        const importBtn = modal.querySelector('#importTasks');
+        const clearBtn = modal.querySelector('#clearSelection');
+        
+        const updateImportButton = () => {
+            const selected = modal.querySelectorAll('.import-task-item input[type="checkbox"]:checked');
+            importBtn.disabled = selected.length === 0;
+            importBtn.textContent = `Import (${selected.length})`;
+        };
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateImportButton);
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            checkboxes.forEach(cb => cb.checked = false);
+            updateImportButton();
+        });
+        
+        importBtn.addEventListener('click', () => {
+            const selected = modal.querySelectorAll('.import-task-item input[type="checkbox"]:checked');
+            selected.forEach(checkbox => {
+                const taskId = checkbox.closest('.import-task-item').dataset.taskId;
+                // Add to local tasks
+                const task = this.todoistTasks.find(t => t.id === taskId);
+                if (task) {
+                    this.addLocalTask(task.content, 1);
+                }
+            });
+            
+            // Close modal and refresh
+            modal.closest('.focus-stats-overlay').querySelector('.close-focus-stats-x').click();
+            this.showTaskListModal();
+        });
+    }
+
+    // Menu action functions
+    clearFinishedTasks() {
+        const tasks = this.getLocalTasks();
+        const activeTasks = tasks.filter(task => !task.completed);
+        this.setLocalTasks(activeTasks);
+        this.showTaskListModal();
+    }
+
+    clearAllTasks() {
+        if (confirm('Are you sure you want to clear all tasks?')) {
+            this.setLocalTasks([]);
+            localStorage.removeItem('taskConfigs');
+            this.showTaskListModal();
+        }
+    }
+
+    clearActPomodoros() {
+        // Clear current session data
+        this.currentTask = null;
+        this.updateCurrentTaskBanner();
+    }
+
+    showTemplatesModal() {
+        // TODO: Implement templates
+        alert('Templates feature coming soon!');
+    }
+
+    hideTasks() {
+        // TODO: Implement task hiding
+        alert('Hide tasks feature coming soon!');
     }
 
 

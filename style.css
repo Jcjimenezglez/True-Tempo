@@ -3695,3 +3695,280 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.2);
     color: #ffffff;
 }
+
+/* Task Management Styles */
+.task-menu-dropdown {
+    position: absolute;
+    top: 40px;
+    right: 20px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.task-menu-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff;
+    transition: background-color 0.2s;
+}
+
+.task-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Add Task Modal Styles */
+.add-task-modal-content {
+    padding: 0;
+}
+
+.task-form {
+    margin: 1.5rem 0;
+}
+
+.task-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.task-form label {
+    display: block;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.task-form input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.task-form input[type="text"]:focus {
+    outline: none;
+    border-color: #78dbff;
+}
+
+.pomodoros-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pomodoros-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.pomodoros-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.pomodoros-control input[type="number"] {
+    width: 60px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background: #78dbff;
+    color: #000;
+}
+
+.btn-primary:hover {
+    background: #5bc0de;
+}
+
+.btn-primary:disabled {
+    background: rgba(120, 219, 255, 0.3);
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Import Modal Styles */
+.import-modal {
+    max-width: 600px;
+    max-height: 80vh;
+}
+
+.import-modal-content {
+    padding: 0;
+}
+
+.search-section {
+    margin-bottom: 1.5rem;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-box input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.projects-section {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+}
+
+.project-group {
+    margin-bottom: 1.5rem;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+}
+
+.project-header h4 {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.task-count {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.project-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.import-task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.import-task-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.import-task-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #78dbff;
+}
+
+.import-task-item .task-content {
+    flex: 1;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.import-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading, .error {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 2rem;
+}
+
+/* Task Source Indicator */
+.task-source {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+.task-source.local {
+    background: rgba(120, 219, 255, 0.2);
+    color: #78dbff;
+    border: 1px solid rgba(120, 219, 255, 0.3);
+}
