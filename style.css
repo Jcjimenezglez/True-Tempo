@@ -2695,26 +2695,9 @@ audio {
     line-height: 1.3;
 }
 
-.task-meta {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
 .task-project {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.8rem;
-}
-
-.task-due {
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.task-priority {
-    font-size: 0.8rem;
-    font-weight: 500;
 }
 
 .task-actions {
@@ -2743,68 +2726,6 @@ audio {
 .empty-subtext {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.5);
-}
-
-.clear-task-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 4px 8px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-left: 8px;
-}
-
-.clear-task-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.connection-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-}
-
-.connection-status.connecting {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #3b82f6;
-}
-
-.connection-status.success {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #10b981;
-}
-
-.connection-status.error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #ef4444;
-}
-
-.status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-}
-
-.status-indicator.connecting {
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
 }
 
 /* Responsive Focus Stats Modal */
@@ -3475,4 +3396,46 @@ input:checked + .toggle-slider:before {
     gap: 1rem;
     justify-content: center;
     margin-top: 1rem;
+}
+
+/* Improved Todoist Integration Styles */
+.connect-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #e34f26, #ff6b35);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(227, 79, 38, 0.3);
+    width: 100%;
+    justify-content: center;
+}
+
+.connect-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(227, 79, 38, 0.4);
+    background: linear-gradient(135deg, #d63e1f, #ff5a2b);
+}
+
+.connect-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.connection-section {
+    margin-bottom: 24px;
+}
+
+.tasks-section {
+    display: none;
+}
+
+.tasks-section.show {
+    display: block;
 }

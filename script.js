@@ -1942,13 +1942,8 @@ class PomodoroTimer {
         const sessionNumber = this.currentSection;
         const totalSessions = this.cycleSections.length;
         let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
-        
-        // Add current task info with better formatting
         if (this.currentTask && this.currentTask.content) {
-            const taskText = this.currentTask.content.length > 30 
-                ? this.currentTask.content.substring(0, 30) + '...' 
-                : this.currentTask.content;
-            text += ` • 🎯 ${taskText}`;
+            text += ` • Task: ${this.currentTask.content}`;
         }
         this.sessionInfoElement.textContent = text;
     }
@@ -2333,20 +2328,16 @@ class PomodoroTimer {
                     </div>
                 </div>
                 
-                    <div class="integration-content">
-                        <div class="token-section">
-                            <label for="todoistTokenInput">Personal Token</label>
-                            <input id="todoistTokenInput" type="password" placeholder="Paste your Todoist token here" value="${tokenValue}">
-                            <div class="token-actions">
-                                <button id="saveTodoistTokenBtn" class="btn-primary">Save</button>
-                                <button id="clearTodoistTokenBtn" class="btn-secondary">Clear</button>
-                                <button id="fetchTodoistTasksBtn" class="btn-success">Fetch Tasks</button>
-                            </div>
-                            <div id="connectionStatus" class="connection-status" style="display: none;">
-                                <span class="status-indicator"></span>
-                                <span class="status-text">Connecting...</span>
-                            </div>
+                <div class="integration-content">
+                    <div class="token-section">
+                        <label for="todoistTokenInput">Personal Token</label>
+                        <input id="todoistTokenInput" type="password" placeholder="Paste your Todoist token here" value="${tokenValue}">
+                        <div class="token-actions">
+                            <button id="saveTodoistTokenBtn" class="btn-primary">Save</button>
+                            <button id="clearTodoistTokenBtn" class="btn-secondary">Clear</button>
+                            <button id="fetchTodoistTasksBtn" class="btn-success">Fetch Tasks</button>
                         </div>
+                    </div>
                     
                     <div class="tasks-section">
                         <div class="tasks-header">
@@ -2376,7 +2367,6 @@ class PomodoroTimer {
         const clearBtn = modal.querySelector('#clearTodoistTokenBtn');
         const fetchBtn = modal.querySelector('#fetchTodoistTasksBtn');
         const listEl = modal.querySelector('#todoistTasksList');
-        const statusEl = modal.querySelector('#connectionStatus');
 
         const renderTasks = () => {
             listEl.innerHTML = '';
@@ -2403,50 +2393,13 @@ class PomodoroTimer {
                 taskTitle.className = 'task-title';
                 taskTitle.textContent = task.content || '(untitled)';
                 
-                const taskMeta = document.createElement('div');
-                taskMeta.className = 'task-meta';
-                
-                // Project name
+                const taskProject = document.createElement('div');
+                taskProject.className = 'task-project';
                 const pj = this.todoistProjectsById[task.project_id];
-                const projectSpan = document.createElement('span');
-                projectSpan.className = 'task-project';
-                projectSpan.textContent = pj ? pj.name : 'Inbox';
-                taskMeta.appendChild(projectSpan);
-                
-                // Due date
-                if (task.due) {
-                    const dueSpan = document.createElement('span');
-                    dueSpan.className = 'task-due';
-                    const dueDate = new Date(task.due.date);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    
-                    if (dueDate.getTime() === today.getTime()) {
-                        dueSpan.textContent = 'Today';
-                        dueSpan.style.color = '#f59e0b';
-                    } else if (dueDate < today) {
-                        dueSpan.textContent = 'Overdue';
-                        dueSpan.style.color = '#ef4444';
-                    } else {
-                        const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                        dueSpan.textContent = `${diffDays} day${diffDays > 1 ? 's' : ''} left`;
-                        dueSpan.style.color = '#10b981';
-                    }
-                    taskMeta.appendChild(dueSpan);
-                }
-                
-                // Priority indicator
-                if (task.priority && task.priority < 4) {
-                    const prioritySpan = document.createElement('span');
-                    prioritySpan.className = 'task-priority';
-                    const priorityText = ['', 'High', 'Medium', 'Low'][task.priority] || '';
-                    prioritySpan.textContent = priorityText;
-                    prioritySpan.style.color = task.priority === 1 ? '#ef4444' : task.priority === 2 ? '#f59e0b' : '#6b7280';
-                    taskMeta.appendChild(prioritySpan);
-                }
+                taskProject.textContent = pj ? pj.name : 'Inbox';
                 
                 taskContent.appendChild(taskTitle);
-                taskContent.appendChild(taskMeta);
+                taskContent.appendChild(taskProject);
                 
                 const taskActions = document.createElement('div');
                 taskActions.className = 'task-actions';
@@ -2455,29 +2408,11 @@ class PomodoroTimer {
                 focusBtn.className = 'btn-focus';
                 focusBtn.textContent = 'Focus This';
                 focusBtn.addEventListener('click', () => {
-                    this.currentTask = { 
-                        id: task.id, 
-                        content: task.content, 
-                        project_id: task.project_id,
-                        due: task.due,
-                        priority: task.priority
-                    };
+                    this.currentTask = { id: task.id, content: task.content, project_id: task.project_id };
                     this.updateCurrentTaskBanner();
                     close();
                 });
                 
-                const completeBtn = document.createElement('button');
-                completeBtn.className = 'btn-secondary';
-                completeBtn.textContent = '✓';
-                completeBtn.title = 'Mark as completed';
-                completeBtn.addEventListener('click', async () => {
-                    await this.completeTodoistTask(task.id);
-                    // Refresh the task list
-                    await this.fetchTodoistData();
-                    renderTasks();
-                });
-                
-                taskActions.appendChild(completeBtn);
                 taskActions.appendChild(focusBtn);
                 
                 item.appendChild(taskContent);
@@ -2503,14 +2438,8 @@ class PomodoroTimer {
         });
 
         fetchBtn.addEventListener('click', async () => {
-            this.showConnectionStatus(statusEl, 'connecting', 'Connecting to Todoist...');
-            try {
-                await this.fetchTodoistData();
-                this.showConnectionStatus(statusEl, 'success', `Found ${this.todoistTasks.length} tasks`);
-                renderTasks();
-            } catch (error) {
-                this.showConnectionStatus(statusEl, 'error', 'Failed to connect to Todoist');
-            }
+            await this.fetchTodoistData();
+            renderTasks();
         });
 
         // Auto load if token exists
@@ -2540,33 +2469,13 @@ class PomodoroTimer {
             });
             if (tasksRes.ok) {
                 const tasks = await tasksRes.json();
-                // Filter and sort tasks: prioritize today's tasks, then by priority
-                this.todoistTasks = tasks
-                    .filter(task => !task.completed)
-                    .sort((a, b) => {
-                        // First: tasks due today
-                        const aDue = a.due ? new Date(a.due.date) : null;
-                        const bDue = b.due ? new Date(b.due.date) : null;
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        
-                        const aIsToday = aDue && aDue.getTime() === today.getTime();
-                        const bIsToday = bDue && bDue.getTime() === today.getTime();
-                        
-                        if (aIsToday && !bIsToday) return -1;
-                        if (!aIsToday && bIsToday) return 1;
-                        
-                        // Then: by priority (1=high, 4=low)
-                        const aPriority = a.priority || 4;
-                        const bPriority = b.priority || 4;
-                        return aPriority - bPriority;
-                    });
+                // Optionally filter for today/inbox etc. Keep simple for beta
+                this.todoistTasks = tasks;
             } else {
                 this.todoistTasks = [];
             }
-        } catch (error) {
-            console.error('Todoist API error:', error);
-            this.todoistTasks = [];
+        } catch (_) {
+            // silent
         }
     }
 
@@ -2574,77 +2483,6 @@ class PomodoroTimer {
         // Update session info line to include current task if any
         // Reuse updateSessionInfo to centralize rendering
         this.updateSessionInfo();
-        
-        // Add clear task button if there's a current task
-        if (this.currentTask && this.currentTask.content) {
-            this.addClearTaskButton();
-        } else {
-            this.removeClearTaskButton();
-        }
-    }
-    
-    addClearTaskButton() {
-        // Remove existing button if any
-        this.removeClearTaskButton();
-        
-        // Add clear task button to session info area
-        const sessionInfoContainer = document.querySelector('.session-info-container');
-        if (sessionInfoContainer && !sessionInfoContainer.querySelector('.clear-task-btn')) {
-            const clearBtn = document.createElement('button');
-            clearBtn.className = 'clear-task-btn';
-            clearBtn.innerHTML = '✕';
-            clearBtn.title = 'Clear current task';
-            clearBtn.addEventListener('click', () => {
-                this.currentTask = null;
-                this.updateCurrentTaskBanner();
-            });
-            sessionInfoContainer.appendChild(clearBtn);
-        }
-    }
-    
-    removeClearTaskButton() {
-        const clearBtn = document.querySelector('.clear-task-btn');
-        if (clearBtn) {
-            clearBtn.remove();
-        }
-    }
-    
-    async completeTodoistTask(taskId) {
-        if (!this.todoistToken) return false;
-        try {
-            const response = await fetch(`https://api.todoist.com/rest/v2/tasks/${taskId}/close`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${this.todoistToken}` }
-            });
-            return response.ok;
-        } catch (error) {
-            console.error('Error completing Todoist task:', error);
-            return false;
-        }
-    }
-    
-    showConnectionStatus(statusEl, type, message) {
-        if (!statusEl) return;
-        
-        statusEl.style.display = 'flex';
-        statusEl.className = `connection-status ${type}`;
-        
-        const indicator = statusEl.querySelector('.status-indicator');
-        const text = statusEl.querySelector('.status-text');
-        
-        if (indicator) {
-            indicator.className = `status-indicator ${type}`;
-        }
-        if (text) {
-            text.textContent = message;
-        }
-        
-        // Auto-hide success messages after 3 seconds
-        if (type === 'success') {
-            setTimeout(() => {
-                statusEl.style.display = 'none';
-            }, 3000);
-        }
     }
 
     updateCycleCounter() {
