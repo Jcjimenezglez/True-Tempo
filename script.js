@@ -20,6 +20,12 @@ class PomodoroTimer {
         this.actualFocusTimeCompleted = 0; // tracks actual seconds of focus completed in current cycle
         this.requiredFocusTimeForCycle = 0; // total focus time required for a complete cycle
         
+        // Todoist integration (free users beta)
+        this.todoistToken = localStorage.getItem('todoistToken') || '';
+        this.todoistTasks = [];
+        this.todoistProjectsById = {};
+        this.currentTask = null; // { id, content, project_id }
+        
 		// Ambient sounds system
 		this.ambientPlaying = false;
 		this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
@@ -1538,15 +1544,8 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
-        // Check if user is authenticated
-        if (this.isAuthenticated && this.user) {
-            // Show focus statistics modal for authenticated users
-            this.showFocusStatsModal();
-        } else {
-            // Show login required modal for guests
-            this.showFocusStatsLoginModal();
-        }
-        
+        // Open Todoist modal (free users beta)
+        this.showTodoistModal();
         // Don't toggle active state - keep button in normal state
     }
 
@@ -1939,10 +1938,14 @@ class PomodoroTimer {
         const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
         const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
         
-        // Format as "X/Y Sessions (Z%)"
+        // Format as "X/Y Sessions (Z%)" and include current task if any
         const sessionNumber = this.currentSection;
         const totalSessions = this.cycleSections.length;
-        this.sessionInfoElement.textContent = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
+        let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
+        if (this.currentTask && this.currentTask.content) {
+            text += ` • Task: ${this.currentTask.content}`;
+        }
+        this.sessionInfoElement.textContent = text;
     }
     
     playNotification() {
@@ -2285,6 +2288,183 @@ class PomodoroTimer {
         });
         
         // No auto-close - user must click "Awesome!" button
+    }
+
+    // =========================
+    // Todoist Integration (Free Beta)
+    // =========================
+    showTodoistModal() {
+        // Build modal
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-modal-overlay';
+        overlay.style.display = 'flex';
+
+        const tokenValue = this.todoistToken || '';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3>Todoist (Beta)</h3>
+            <p>Connect your Todoist to see your tasks here and pick one to focus on.</p>
+            <div class="settings-section">
+                <div class="settings-item">
+                    <div class="settings-label-group">
+                        <span class="settings-label">API Token</span>
+                        <span class="settings-description">Paste your Todoist personal token</span>
+                    </div>
+                    <input id="todoistTokenInput" type="password" placeholder="todoist token" value="${tokenValue}">
+                    <div class="settings-actions" style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+                        <button id="saveTodoistTokenBtn" class="settings-reset-btn">Save Token</button>
+                        <button id="clearTodoistTokenBtn" class="settings-reset-btn">Clear</button>
+                        <button id="fetchTodoistTasksBtn" class="settings-export-btn">Fetch Tasks</button>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="settings-item">
+                    <div class="settings-label-group">
+                        <span class="settings-label">Tasks</span>
+                        <span class="settings-description">Your Todoist tasks (inbox + today)</span>
+                    </div>
+                    <div id="todoistTasksList" class="tasks-list" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;"></div>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        const tokenInput = modal.querySelector('#todoistTokenInput');
+        const saveBtn = modal.querySelector('#saveTodoistTokenBtn');
+        const clearBtn = modal.querySelector('#clearTodoistTokenBtn');
+        const fetchBtn = modal.querySelector('#fetchTodoistTasksBtn');
+        const listEl = modal.querySelector('#todoistTasksList');
+
+        const renderTasks = () => {
+            listEl.innerHTML = '';
+            if (!this.todoistTasks || this.todoistTasks.length === 0) {
+                const empty = document.createElement('div');
+                empty.textContent = 'No tasks loaded yet.';
+                listEl.appendChild(empty);
+                return;
+            }
+            this.todoistTasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = 'task-item';
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.style.padding = '8px';
+                item.style.border = '1px solid rgba(255,255,255,0.1)';
+                item.style.borderRadius = '8px';
+
+                const left = document.createElement('div');
+                left.style.display = 'flex';
+                left.style.flexDirection = 'column';
+                left.style.gap = '4px';
+                const title = document.createElement('div');
+                title.textContent = task.content || '(untitled)';
+                const project = document.createElement('small');
+                const pj = this.todoistProjectsById[task.project_id];
+                project.textContent = pj ? `Project: ${pj.name}` : '';
+                left.appendChild(title);
+                left.appendChild(project);
+
+                const right = document.createElement('div');
+                const pickBtn = document.createElement('button');
+                pickBtn.className = 'settings-export-btn';
+                pickBtn.textContent = 'Focus This';
+                pickBtn.addEventListener('click', () => {
+                    this.currentTask = { id: task.id, content: task.content, project_id: task.project_id };
+                    // Reflect in UI
+                    this.updateCurrentTaskBanner();
+                    close();
+                });
+                right.appendChild(pickBtn);
+
+                item.appendChild(left);
+                item.appendChild(right);
+                listEl.appendChild(item);
+            });
+        };
+
+        saveBtn.addEventListener('click', () => {
+            const val = (tokenInput.value || '').trim();
+            if (!val) return;
+            this.todoistToken = val;
+            try { localStorage.setItem('todoistToken', val); } catch (_) {}
+        });
+
+        clearBtn.addEventListener('click', () => {
+            this.todoistToken = '';
+            tokenInput.value = '';
+            try { localStorage.removeItem('todoistToken'); } catch (_) {}
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+            renderTasks();
+        });
+
+        fetchBtn.addEventListener('click', async () => {
+            await this.fetchTodoistData();
+            renderTasks();
+        });
+
+        // Auto load if token exists
+        if (this.todoistToken) {
+            this.fetchTodoistData().then(renderTasks).catch(() => renderTasks());
+        } else {
+            renderTasks();
+        }
+    }
+
+    async fetchTodoistData() {
+        if (!this.todoistToken) return;
+        try {
+            // Fetch projects
+            const projRes = await fetch('https://api.todoist.com/rest/v2/projects', {
+                headers: { Authorization: `Bearer ${this.todoistToken}` }
+            });
+            if (projRes.ok) {
+                const projects = await projRes.json();
+                this.todoistProjectsById = {};
+                projects.forEach(p => { this.todoistProjectsById[p.id] = p; });
+            }
+
+            // Fetch tasks (defaults to open tasks)
+            const tasksRes = await fetch('https://api.todoist.com/rest/v2/tasks', {
+                headers: { Authorization: `Bearer ${this.todoistToken}` }
+            });
+            if (tasksRes.ok) {
+                const tasks = await tasksRes.json();
+                // Optionally filter for today/inbox etc. Keep simple for beta
+                this.todoistTasks = tasks;
+            } else {
+                this.todoistTasks = [];
+            }
+        } catch (_) {
+            // silent
+        }
+    }
+
+    updateCurrentTaskBanner() {
+        // Update session info line to include current task if any
+        // Reuse updateSessionInfo to centralize rendering
+        this.updateSessionInfo();
     }
 
     updateCycleCounter() {
