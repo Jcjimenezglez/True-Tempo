@@ -1291,7 +1291,7 @@ class PomodoroTimer {
                         <path d=\"m6 6 12 12\"/>
                     </svg>
                 </button>
-                <h3>Ambient Sounds</h3>
+                <h3>Background Music</h3>
                 <div class=\"ambient-controls\">
                     <div class=\"ambient-volume\">
                         <label>Volume:</label>
