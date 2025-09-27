@@ -2296,7 +2296,7 @@ class PomodoroTimer {
     showTodoistModal() {
         // Build modal
         const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-modal-overlay';
+        overlay.className = 'focus-stats-overlay';
         overlay.style.display = 'flex';
 
         const tokenValue = this.todoistToken || '';
