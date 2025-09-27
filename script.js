@@ -18,11 +18,10 @@ class PomodoroTimer {
         this.completedFocusSessionsInCycle = 0; // counts naturally finished focus sessions
         this.cheatedDuringFocusInCycle = false; // true if user used next/back while in a focus session
         
-        // Ambient sounds system
-        this.ambientPlaying = false;
-        this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
-        this.ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
-        this.playlist = [
+		// Ambient sounds system
+		this.ambientPlaying = false;
+		this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
+		this.playlist = [
             "Chasing Clouds.mp3",
             "Clouds Drift By.mp3",
             "Clouds Drift By 2.mp3",
@@ -44,7 +43,11 @@ class PomodoroTimer {
             "Under the Neon Moon.mp3",
             "Under the Neon Moon 2.mp3"
         ];
-        this.currentTrackIndex = 0;
+		this.currentTrackIndex = 0;
+		// Fade/ducking state
+		this.isDucked = false;
+		this.duckRestoreTimer = null;
+		this.fadeTimer = null;
         
         // Welcome modal elements
         this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
@@ -87,23 +90,15 @@ class PomodoroTimer {
         this.cancelCustomTimer = document.getElementById('cancelCustomTimer');
         this.saveCustomTimer = document.getElementById('saveCustomTimer');
         this.customPreview = document.getElementById('customPreview');
-        this.backgroundAudio = document.getElementById('backgroundAudio');
+		this.backgroundAudio = document.getElementById('backgroundAudio');
         if (this.backgroundAudio) {
-            this.backgroundAudio.addEventListener('ended', () => {
-                if (!this.playlist || this.playlist.length === 0) return;
-                this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
-                this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
-                this.backgroundAudio.volume = this.ambientVolume;
-                this.backgroundAudio.play().catch(() => {});
-            });
+			this.backgroundAudio.addEventListener('ended', () => {
+				this.nextTrack();
+			});
         }
 
-        // Shuffle playlist order on each load so it doesn't always start with the same track
-        this.shufflePlaylist();
-
-        // Music ducking state
-        this.isDucked = false;
-        this.duckRestoreTimer = null;
+		// Shuffle playlist order on each load so it doesn't always start with the same track
+		this.shufflePlaylist();
         
         // Auth elements
         this.authContainer = document.getElementById('authContainer');
@@ -1289,26 +1284,25 @@ class PomodoroTimer {
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
         const modalContent = `
-            <div class="focus-stats-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
+            <div class=\"focus-stats-modal\">
+                <button class=\"close-focus-stats-x\">
+                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">
+                        <path d=\"M18 6 6 18\"/>
+                        <path d=\"m6 6 12 12\"/>
                     </svg>
                 </button>
                 <h3>Ambient Sounds</h3>
-                <div class="ambient-controls">
-                    <div class="ambient-volume">
-                        <label>Ambient Music</label>
-                        <label class="settings-toggle" title="Ambient Music">
-                            <input type="checkbox" id="ambientToggle" ${this.ambientEnabled ? 'checked' : ''}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="ambient-volume">
+                <div class=\"ambient-controls\">
+                    <div class=\"ambient-volume\">
                         <label>Volume:</label>
-                        <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}">
-                        <span id="ambientVolumeValue">${initialVolumePct}%</span>
+                        <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">\n
+                        <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
+                    </div>
+                    <div class=\"ambient-actions\">
+                        <button id=\"ambientPrevBtn\" class=\"cancel-btn\">Back</button>
+                        <button id=\"ambientPlayBtn\" class=\"login-btn\">Play</button>
+                        <button id=\"ambientStopBtn\" class=\"cancel-btn\">Stop</button>
+                        <button id=\"ambientNextBtn\" class=\"cancel-btn\">Next</button>
                     </div>
                 </div>
             </div>
@@ -1333,19 +1327,18 @@ class PomodoroTimer {
             this.setAmbientVolume(e.target.value / 100);
         });
 
-        const toggleEl = modalOverlay.querySelector('#ambientToggle');
-        if (toggleEl) {
-            toggleEl.addEventListener('change', async (e) => {
-                this.ambientEnabled = !!e.target.checked;
-                localStorage.setItem('ambientEnabled', this.ambientEnabled ? 'true' : 'false');
-                if (this.ambientEnabled) {
-                    await this.playPlaylist();
-                    this.fadeMusicIn(2000);
-                } else {
-                    this.stopPlaylist();
-                }
-            });
-        }
+        modalOverlay.querySelector('#ambientPlayBtn').addEventListener('click', async () => {
+            await this.playPlaylist();
+        });
+
+        modalOverlay.querySelector('#ambientStopBtn').addEventListener('click', () => {
+            this.stopPlaylist();
+        });
+
+        const nextBtn = modalOverlay.querySelector('#ambientNextBtn');
+        if (nextBtn) nextBtn.addEventListener('click', () => this.nextTrack());
+        const prevBtn = modalOverlay.querySelector('#ambientPrevBtn');
+        if (prevBtn) prevBtn.addEventListener('click', () => this.prevTrack());
 
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
@@ -1387,24 +1380,6 @@ class PomodoroTimer {
         this.ambientVolume = Math.max(0, Math.min(1, vol));
         localStorage.setItem('ambientVolume', String(this.ambientVolume));
         if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
-    }
-
-    // Music ducking to prioritize session sounds
-    handleMusicDucking() {
-        if (!this.backgroundAudio || !this.ambientPlaying) return;
-        // Start fading out over the last 2 seconds of the section
-        if (this.timeLeft === 2 && !this.isDucked) {
-            this.isDucked = true;
-            this.fadeMusicOut(2000);
-        }
-    }
-
-    restoreMusicIfDucked() {
-        if (!this.backgroundAudio) return;
-        if (this.isDucked) {
-            this.backgroundAudio.volume = this.ambientVolume;
-            this.isDucked = false;
-        }
     }
 
     // Smooth fades
@@ -1450,6 +1425,7 @@ class PomodoroTimer {
         this.backgroundAudio.volume = this.ambientVolume;
         this.backgroundAudio.play().catch(() => {});
         this.ambientPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
     prevTrack() {
@@ -1459,6 +1435,7 @@ class PomodoroTimer {
         this.backgroundAudio.volume = this.ambientVolume;
         this.backgroundAudio.play().catch(() => {});
         this.ambientPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
     shufflePlaylist() {
@@ -1548,19 +1525,18 @@ class PomodoroTimer {
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
-        // Fade music in at the start of session
-        if (this.ambientEnabled) {
-            await this.playPlaylist();
-            this.fadeMusicIn(2000);
-        }
         
         this.interval = setInterval(() => {
             this.timeLeft--;
             this.updateDisplay();
             this.updateProgress();
             this.updateSections();
-            this.handleMusicDucking();
             this.updateSessionInfo();
+            // Music ducking: fade out 2s before end of section to prioritize alerts
+            if (this.timeLeft === 2) {
+                this.fadeMusicOut(2000);
+                this.isDucked = true;
+            }
             
             // Realtime tracking: focus-only for total focus time
             if (this.currentSection % 2 === 1) {
@@ -1581,7 +1557,6 @@ class PomodoroTimer {
         
         clearInterval(this.interval);
         this.playUiSound('pause');
-        this.restoreMusicIfDucked();
         
         // Update title to show paused state
         const minutes = Math.floor(this.timeLeft / 60);
@@ -1691,7 +1666,6 @@ class PomodoroTimer {
         
         // Play notification sound
         this.playNotification();
-        this.restoreMusicIfDucked();
         
         // Advance section pointer
         const finishedWasFocus = this.isWorkSession === true;
@@ -1738,8 +1712,6 @@ class PomodoroTimer {
             this.pauseTimerSilent();
             this.startPauseBtn.classList.remove('running');
             this.isRunning = false;
-            // Also pause background music at end of cycle
-            this.stopPlaylist();
             // Show celebration modal and exit
             this.showCycleCompletedCelebration(lastCycleWasLegitimate);
             return;
@@ -1748,6 +1720,13 @@ class PomodoroTimer {
         // Not end of cycle → auto-start next section after brief delay
         setTimeout(() => {
             this.startTimer();
+            // After new section starts, restore music after 2s
+            setTimeout(() => {
+                if (this.isDucked) {
+                    this.fadeMusicIn(2000);
+                    this.isDucked = false;
+                }
+            }, 2000);
         }, 600);
     }
     
