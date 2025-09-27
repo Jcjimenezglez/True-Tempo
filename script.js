@@ -1303,10 +1303,10 @@ class PomodoroTimer {
                         <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
                     </div>
                     <div class=\"ambient-actions\">
-                        <button id=\"ambientPrevBtn\" class=\"cancel-btn\">Back</button>
-                        <button id=\"ambientPlayBtn\" class=\"login-btn\">Play</button>
-                        <button id=\"ambientStopBtn\" class=\"cancel-btn\">Stop</button>
-                        <button id=\"ambientNextBtn\" class=\"cancel-btn\">Next</button>
+                        <label class=\"settings-toggle\">
+                            <input type=\"checkbox\" id=\"ambientToggle\" ${this.ambientPlaying ? 'checked' : ''}>
+                            <span class=\"toggle-slider\"></span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -1331,18 +1331,9 @@ class PomodoroTimer {
             this.setAmbientVolume(e.target.value / 100);
         });
 
-        modalOverlay.querySelector('#ambientPlayBtn').addEventListener('click', async () => {
-            await this.playPlaylist();
+        modalOverlay.querySelector('#ambientToggle').addEventListener('change', () => {
+            this.toggleMusic();
         });
-
-        modalOverlay.querySelector('#ambientStopBtn').addEventListener('click', () => {
-            this.stopPlaylist();
-        });
-
-        const nextBtn = modalOverlay.querySelector('#ambientNextBtn');
-        const prevBtn = modalOverlay.querySelector('#ambientPrevBtn');
-        if (nextBtn) nextBtn.addEventListener('click', () => this.nextTrack());
-        if (prevBtn) prevBtn.addEventListener('click', () => this.prevTrack());
 
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
@@ -1389,14 +1380,10 @@ class PomodoroTimer {
     // Music ducking to prioritize session sounds
     handleMusicDucking() {
         if (!this.backgroundAudio || !this.ambientPlaying) return;
-        // Duck 2 seconds before end of section
+        // Start fading out over the last 2 seconds of the section
         if (this.timeLeft === 2 && !this.isDucked) {
             this.isDucked = true;
-            this.backgroundAudio.volume = Math.max(0, this.ambientVolume * 0.15);
-        }
-        // Restore 2 seconds after a new section starts
-        if (this.timeLeft === this.cycleSections[this.currentSection - 1].duration - 2) {
-            this.restoreMusicIfDucked();
+            this.fadeMusicOut(2000);
         }
     }
 
@@ -1406,6 +1393,42 @@ class PomodoroTimer {
             this.backgroundAudio.volume = this.ambientVolume;
             this.isDucked = false;
         }
+    }
+
+    // Smooth fades
+    fadeMusicTo(targetVolume, durationMs) {
+        if (!this.backgroundAudio) return;
+        if (this.fadeTimer) {
+            clearInterval(this.fadeTimer);
+            this.fadeTimer = null;
+        }
+        const start = this.backgroundAudio.volume;
+        const delta = targetVolume - start;
+        const steps = Math.max(1, Math.floor(durationMs / 50));
+        let count = 0;
+        this.fadeTimer = setInterval(() => {
+            count++;
+            const t = count / steps;
+            const v = start + delta * t;
+            this.backgroundAudio.volume = Math.max(0, Math.min(1, v));
+            if (count >= steps) {
+                clearInterval(this.fadeTimer);
+                this.fadeTimer = null;
+                this.backgroundAudio.volume = Math.max(0, Math.min(1, targetVolume));
+            }
+        }, 50);
+    }
+
+    fadeMusicIn(durationMs) {
+        if (!this.backgroundAudio) return;
+        const target = this.ambientVolume;
+        if (this.backgroundAudio.volume > 0.001) this.backgroundAudio.volume = 0;
+        this.fadeMusicTo(target, durationMs);
+    }
+
+    fadeMusicOut(durationMs) {
+        if (!this.backgroundAudio) return;
+        this.fadeMusicTo(0, durationMs);
     }
 
     nextTrack() {
@@ -1513,6 +1536,10 @@ class PomodoroTimer {
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
+        // Fade music in at the start of session
+        if (this.ambientPlaying && this.backgroundAudio) {
+            this.fadeMusicIn(2000);
+        }
         
         this.interval = setInterval(() => {
             this.timeLeft--;
@@ -1698,6 +1725,8 @@ class PomodoroTimer {
             this.pauseTimerSilent();
             this.startPauseBtn.classList.remove('running');
             this.isRunning = false;
+            // Also pause background music at end of cycle
+            this.stopPlaylist();
             // Show celebration modal and exit
             this.showCycleCompletedCelebration(lastCycleWasLegitimate);
             return;
