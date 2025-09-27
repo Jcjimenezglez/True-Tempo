@@ -17,6 +17,8 @@ class PomodoroTimer {
         // Anti-cheat tracking within the current cycle
         this.completedFocusSessionsInCycle = 0; // counts naturally finished focus sessions
         this.cheatedDuringFocusInCycle = false; // true if user used next/back while in a focus session
+        this.actualFocusTimeCompleted = 0; // tracks actual seconds of focus completed in current cycle
+        this.requiredFocusTimeForCycle = 0; // total focus time required for a complete cycle
         
 		// Ambient sounds system
 		this.ambientPlaying = false;
@@ -69,6 +71,9 @@ class PomodoroTimer {
             { type: 'work', duration: this.workTime, name: 'Work 4' },
             { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
         ];
+        
+        // Calculate required focus time for complete cycle
+        this.calculateRequiredFocusTime();
         
         // DOM elements
         this.timeElement = document.getElementById('time');
@@ -698,6 +703,9 @@ class PomodoroTimer {
                 return;
         }
         
+        // Calculate required focus time for complete cycle
+        this.calculateRequiredFocusTime();
+        
         // Update progress ring to match new technique
         this.updateProgressRing();
         
@@ -707,6 +715,16 @@ class PomodoroTimer {
         this.loadCurrentSection();
         this.updateNavigationButtons();
         this.updateSessionInfo();
+    }
+
+    calculateRequiredFocusTime() {
+        // Calculate total focus time required for a complete cycle
+        this.requiredFocusTimeForCycle = 0;
+        this.cycleSections.forEach(section => {
+            if (section.type === 'work') {
+                this.requiredFocusTimeForCycle += section.duration;
+            }
+        });
     }
 
     updateProgressRing() {
@@ -1142,6 +1160,7 @@ class PomodoroTimer {
         // Reset cycle tracking for current cycle
         this.completedFocusSessionsInCycle = 0;
         this.cheatedDuringFocusInCycle = false;
+        this.actualFocusTimeCompleted = 0;
     }
 
     showUpgradeModal() {
@@ -1630,10 +1649,10 @@ class PomodoroTimer {
     goToPreviousSection() {
         if (this.currentSection > 1) {
             this.pauseTimerSilent(); // Pause without sound
-            // Reset legit focus for current cycle when jumping sections
-            // (User is navigating manually; we don't advance legit counters here)
-            if (this.currentSection % 2 === 1) { // if currently in a focus session
-                this.cheatedDuringFocusInCycle = true;
+            // Track time completed in current focus session before jumping
+            if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
+                const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
+                this.actualFocusTimeCompleted += timeCompleted;
             }
             this.currentSection--;
             this.loadCurrentSection();
@@ -1644,9 +1663,10 @@ class PomodoroTimer {
     goToNextSection() {
         if (this.currentSection < this.cycleSections.length) {
             this.pauseTimerSilent(); // Pause without sound
-            // Manual navigation should not add focus time or increment cycle
-            if (this.currentSection % 2 === 1) { // if currently in a focus session
-                this.cheatedDuringFocusInCycle = true;
+            // Track time completed in current focus session before jumping
+            if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
+                const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
+                this.actualFocusTimeCompleted += timeCompleted;
             }
             this.currentSection++;
             this.loadCurrentSection();
@@ -1723,16 +1743,20 @@ class PomodoroTimer {
         if (this.currentSection > this.cycleSections.length) {
             cycleCompleted = true;
             this.currentSection = 1; // reset to first section of next cycle
-            // Only count cycle if ALL focus sessions were completed naturally (no next/back during focus)
-            // and none were skipped; since we can't know per-session durations here, we track by
-            // counting completed focus sessions as they finish naturally in completeSession below
-            lastCycleWasLegitimate = (!this.cheatedDuringFocusInCycle && this.completedFocusSessionsInCycle >= this.sessionsPerCycle);
+            
+            // Add time from the last completed focus session
+            if (finishedWasFocus) {
+                const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
+                this.actualFocusTimeCompleted += timeCompleted;
+            }
+            
+            // Check if enough focus time was actually completed
+            lastCycleWasLegitimate = (this.actualFocusTimeCompleted >= this.requiredFocusTimeForCycle);
             if (lastCycleWasLegitimate) {
                 this.updateCycleCounter();
             }
-            // Reset legit focus tracker for next cycle
-            this.completedFocusSessionsInCycle = 0;
-            this.cheatedDuringFocusInCycle = false;
+            // Reset focus time tracker for next cycle
+            this.actualFocusTimeCompleted = 0;
         }
         
         // Load current section data
@@ -1748,9 +1772,10 @@ class PomodoroTimer {
         this.updateMode();
         this.updateSessionInfo();
         
-        // Count a naturally finished focus session (when not using Next/Back)
+        // Count time from naturally finished focus session (when not using Next/Back)
         if (finishedWasFocus) {
-            this.completedFocusSessionsInCycle += 1;
+            const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
+            this.actualFocusTimeCompleted += timeCompleted;
         }
 
         if (cycleCompleted) {
@@ -2232,8 +2257,8 @@ class PomodoroTimer {
                 <div class="celebration-modal">
                     <div class="celebration-content">
                         <div class="celebration-icon">⚠️</div>
-                        <h2>Cycle Skipped</h2>
-                        <p>You skipped focus sessions using navigation buttons. To count this as a completed cycle, complete all focus sessions naturally without using Next/Back buttons.</p>
+                        <h2>Cycle Incomplete</h2>
+                        <p>You didn't complete enough focus time in this cycle. You completed ${Math.floor(this.actualFocusTimeCompleted / 60)} minutes out of ${Math.floor(this.requiredFocusTimeForCycle / 60)} required minutes.</p>
                         <button class="celebration-close-btn">Try Again</button>
                     </div>
                 </div>
@@ -3138,6 +3163,9 @@ class PomodoroTimer {
                 name: 'Long Break'
             });
         }
+
+        // Calculate required focus time for complete cycle
+        this.calculateRequiredFocusTime();
 
         // Update UI
         if (this.techniqueTitle) {
