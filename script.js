@@ -209,6 +209,11 @@ class PomodoroTimer {
             this.isAuthenticated = !!window.Clerk.user;
             this.user = window.Clerk.user;
             console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            
+            // Clear Todoist tasks if user is not authenticated on initial load
+            if (!this.isAuthenticated) {
+                this.clearTodoistTasks();
+            }
 
             // If coming from a Clerk redirect, remove Clerk params from URL
             this.stripClerkParamsFromUrl();
@@ -372,6 +377,9 @@ class PomodoroTimer {
             // Apply saved technique now that auth is ready
             this.applySavedTechniqueOnce();
         } else {
+            // Clear Todoist tasks when user is not authenticated
+            this.clearTodoistTasks();
+            
             if (this.authContainer) this.authContainer.style.display = 'flex';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
             // Always show logo, never show achievement icon
