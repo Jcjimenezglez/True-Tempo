@@ -1413,6 +1413,7 @@ class PomodoroTimer {
 
     async playPlaylist() {
         if (!this.backgroundAudio) return;
+        if (!this.isAuthenticated || !this.user) return;
         if (!this.playlist || this.playlist.length === 0) {
             alert('No background tracks available yet. Upload MP3s to /audio/lofi');
             return;
@@ -1476,6 +1477,8 @@ class PomodoroTimer {
 
     nextTrack() {
         if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
+        if (!this.isAuthenticated || !this.user) return;
+        
         this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
         this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         this.backgroundAudio.volume = this.ambientVolume;
@@ -1486,6 +1489,8 @@ class PomodoroTimer {
 
     prevTrack() {
         if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
+        if (!this.isAuthenticated || !this.user) return;
+        
         this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
         this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         this.backgroundAudio.volume = this.ambientVolume;
@@ -1581,8 +1586,8 @@ class PomodoroTimer {
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         
-        // Start background music if enabled (persisted flag)
-        if (this.ambientEnabled) {
+        // Start background music if enabled (persisted flag) and user is authenticated
+        if (this.ambientEnabled && this.isAuthenticated && this.user) {
             this.playPlaylist();
         }
         
@@ -2203,6 +2208,9 @@ class PomodoroTimer {
     
     startAudio(type) {
         if (type === 'none') return;
+        
+        // Only allow audio for authenticated users
+        if (!this.isAuthenticated || !this.user) return;
         
         // Simple audio implementation
         const audioUrls = {
