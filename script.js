@@ -1,89 +1,3 @@
-    showConnectionsModal() {
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
-
-        const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal';
-        modal.innerHTML = `
-            <button class="close-focus-stats-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <h3>Connections</h3>
-            <p>Connect or disconnect integrations for your account.</p>
-
-            <div class="integration-section">
-                <div class="integration-header">
-                    <div class="integration-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-todo-icon lucide-list-todo"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><rect x="3" y="4" width="6" height="6" rx="1"/></svg>
-                    </div>
-                    <div class="integration-title">
-                        <h4>Todoist</h4>
-                        <p>Sync tasks to focus on the right work</p>
-                    </div>
-                </div>
-
-                <div class="integration-content">
-                    <div class="token-actions">
-                        <button id="connConnectTodoist" class="btn-primary">Connect</button>
-                        <button id="connDisconnectTodoist" class="btn-secondary" style="display:none;">Disconnect</button>
-                        <button id="connOpenTasks" class="btn-success" style="display:none;">Open Task List</button>
-                    </div>
-                    <div id="connStatus" class="tasks-subtitle"></div>
-                </div>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            try { document.body.removeChild(overlay); } catch (_) {}
-        };
-        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-
-        const connectBtn = modal.querySelector('#connConnectTodoist');
-        const disconnectBtn = modal.querySelector('#connDisconnectTodoist');
-        const openTasksBtn = modal.querySelector('#connOpenTasks');
-        const statusEl = modal.querySelector('#connStatus');
-
-        connectBtn.addEventListener('click', () => { window.location.href = '/api/todoist-auth-start'; });
-        openTasksBtn.addEventListener('click', () => { close(); this.showTodoistModal(); });
-        disconnectBtn.addEventListener('click', async () => {
-            try { await fetch('/api/todoist-disconnect', { method: 'POST' }); } catch (_) {}
-            if (statusEl) statusEl.textContent = 'Disconnected';
-            disconnectBtn.style.display = 'none';
-            openTasksBtn.style.display = 'none';
-            connectBtn.style.display = '';
-        });
-
-        (async () => {
-            try {
-                const r = await fetch('/api/todoist-status');
-                const { connected } = await r.json();
-                if (connected) {
-                    if (statusEl) statusEl.textContent = 'Connected to Todoist';
-                    connectBtn.style.display = 'none';
-                    disconnectBtn.style.display = '';
-                    openTasksBtn.style.display = '';
-                } else {
-                    if (statusEl) statusEl.textContent = 'Not connected';
-                    connectBtn.style.display = '';
-                    disconnectBtn.style.display = 'none';
-                    openTasksBtn.style.display = 'none';
-                }
-            } catch (_) {
-                if (statusEl) statusEl.textContent = 'Not connected';
-                connectBtn.style.display = '';
-                disconnectBtn.style.display = 'none';
-                openTasksBtn.style.display = 'none';
-            }
-        })();
-    }
 class PomodoroTimer {
     constructor() {
         // Pomodoro Technique structure
@@ -213,7 +127,6 @@ class PomodoroTimer {
         this.userProfileContainer = document.getElementById('userProfileContainer');
         this.userProfileButton = document.getElementById('userProfileButton');
         this.userProfileDropdown = document.getElementById('userProfileDropdown');
-        this.connectionsButton = document.getElementById('connectionsButton');
         this.userDropdownMenu = document.getElementById('userDropdownMenu');
         this.userAvatar = document.getElementById('userAvatar');
         this.logoutButton = document.getElementById('logoutButton');
@@ -1013,13 +926,6 @@ class PomodoroTimer {
             });
         }
 
-        if (this.connectionsButton) {
-            this.connectionsButton.addEventListener('click', () => {
-                if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                this.showConnectionsModal();
-            });
-        }
-
         // Achievement badge click - show focus stats in a simple way
         if (this.achievementIcon) {
             this.achievementIcon.addEventListener('click', (e) => {
@@ -1638,8 +1544,8 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
-        // Open Todoist modal (free users beta)
-        this.showTodoistModal();
+        // Show only task list modal (no integration controls)
+        this.showTaskListModal();
         // Don't toggle active state - keep button in normal state
     }
 
@@ -1657,17 +1563,6 @@ class PomodoroTimer {
     }
     
     toggleTimer() {
-        // If Todoist está conectado y no hay tarea, pide seleccionar una
-        if (!this.isRunning) {
-            try {
-                const resp = await fetch('/api/todoist-status');
-                const { connected } = await resp.json();
-                if (connected && (!this.currentTask || !this.currentTask.content)) {
-                    this.showTodoistModal();
-                    return;
-                }
-            } catch (_) { /* allow start */ }
-        }
         if (this.isRunning) {
             this.pauseTimer();
         } else {
@@ -2416,7 +2311,7 @@ class PomodoroTimer {
                 </svg>
             </button>
             <h3>Integrations</h3>
-            <p>Choose a task to focus on. To manage connections, go to Profile → Connections.</p>
+            <p>Connect your productivity tools to enhance your focus sessions.</p>
             
             <!-- Todoist Integration -->
             <div class="integration-section">
@@ -2434,12 +2329,14 @@ class PomodoroTimer {
                 </div>
                 
                 <div class="integration-content">
-                    <div class="token-actions">
-                        <button id="connectTodoistBtn" class="btn-primary" style="display:none;">Connect to Todoist</button>
-                        <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
-                        <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
+                    <div class="connection-section">
+                        <div class="token-actions">
+                            <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
+                            <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
+                            <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
+                        </div>
+                        <div id="todoistStatusText" class="tasks-subtitle"></div>
                     </div>
-                    <div id="todoistStatusText" class="tasks-subtitle"></div>
                     
                     <div class="tasks-section">
                         <div class="tasks-header">
@@ -2565,26 +2462,146 @@ class PomodoroTimer {
                 const json = await resp.json();
                 const connected = !!json.connected;
                 if (connected) {
-                    statusText.textContent = '';
-                    if (connectBtn) connectBtn.style.display = 'none';
-                    if (disconnectBtn) disconnectBtn.style.display = 'none';
+                    statusText.textContent = 'Connected to Todoist';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
                     fetchBtn.style.display = '';
                     this.fetchTodoistData().then(renderTasks).catch(() => renderTasks());
                 } else {
-                    statusText.textContent = 'Not connected. Open Profile → Connections to link Todoist.';
-                    if (connectBtn) connectBtn.style.display = '';
-                    if (disconnectBtn) disconnectBtn.style.display = 'none';
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
                     fetchBtn.style.display = 'none';
                     renderTasks();
                 }
             } catch (_) {
-                statusText.textContent = 'Not connected. Open Profile → Connections to link Todoist.';
-                if (connectBtn) connectBtn.style.display = '';
-                if (disconnectBtn) disconnectBtn.style.display = 'none';
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
                 fetchBtn.style.display = 'none';
                 renderTasks();
             }
         })();
+    }
+
+    showTaskListModal() {
+        // Build modal for task list only (no integration controls)
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3>Tasks</h3>
+            <p>Select a task to focus on during your session.</p>
+            
+            <div class="tasks-section">
+                <div class="tasks-header">
+                    <h5>Your Tasks</h5>
+                    <span class="tasks-subtitle">Choose a task to focus on</span>
+                </div>
+                <div id="todoistTasksList" class="tasks-list"></div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        const listEl = modal.querySelector('#todoistTasksList');
+
+        const renderTasks = () => {
+            listEl.innerHTML = '';
+            if (!this.todoistTasks || this.todoistTasks.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.innerHTML = `
+                    <div class="empty-icon">📝</div>
+                    <div class="empty-text">No tasks available</div>
+                    <div class="empty-subtext">Connect Todoist in Settings > Integrations to sync your tasks</div>
+                `;
+                listEl.appendChild(empty);
+                return;
+            }
+            
+            this.todoistTasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = 'task-item';
+                
+                const taskContent = document.createElement('div');
+                taskContent.className = 'task-content';
+                
+                const taskTitle = document.createElement('div');
+                taskTitle.className = 'task-title';
+                taskTitle.textContent = task.content || '(untitled)';
+                
+                const taskProject = document.createElement('div');
+                taskProject.className = 'task-project';
+                const pj = this.todoistProjectsById[task.project_id];
+                taskProject.textContent = pj ? pj.name : 'Inbox';
+                
+                taskContent.appendChild(taskTitle);
+                taskContent.appendChild(taskProject);
+                
+                const taskActions = document.createElement('div');
+                taskActions.className = 'task-actions';
+                
+                const focusBtn = document.createElement('button');
+                focusBtn.className = 'btn-focus';
+                focusBtn.textContent = 'Focus This';
+                focusBtn.addEventListener('click', () => {
+                    this.currentTask = { id: task.id, content: task.content, project_id: task.project_id };
+                    this.updateCurrentTaskBanner();
+                    close();
+                });
+                
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'btn-secondary';
+                completeBtn.textContent = '✓';
+                completeBtn.title = 'Mark as completed';
+                completeBtn.addEventListener('click', async () => {
+                    try {
+                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}`, { method: 'POST' });
+                    } catch (_) {}
+                    await this.fetchTodoistData();
+                    renderTasks();
+                });
+
+                taskActions.appendChild(completeBtn);
+                taskActions.appendChild(focusBtn);
+                
+                item.appendChild(taskContent);
+                item.appendChild(taskActions);
+                listEl.appendChild(item);
+            });
+        };
+
+        // Load tasks if available
+        if (this.todoistTasks && this.todoistTasks.length > 0) {
+            renderTasks();
+        } else {
+            // Try to fetch tasks if user is connected
+            this.fetchTodoistData().then(() => {
+                renderTasks();
+            }).catch(() => {
+                renderTasks();
+            });
+        }
     }
 
     async fetchTodoistData() {
@@ -2808,6 +2825,64 @@ class PomodoroTimer {
                 }
             });
         });
+        
+        // Setup Todoist integration controls in settings
+        this.setupTodoistIntegrationControls();
+    }
+    
+    setupTodoistIntegrationControls() {
+        const connectBtn = document.getElementById('connectTodoistBtn');
+        const disconnectBtn = document.getElementById('disconnectTodoistBtn');
+        const fetchBtn = document.getElementById('fetchTodoistTasksBtn');
+        const statusText = document.getElementById('todoistStatusText');
+        
+        if (!connectBtn || !disconnectBtn || !fetchBtn || !statusText) return;
+        
+        connectBtn.addEventListener('click', () => {
+            window.location.href = '/api/todoist-auth-start';
+        });
+
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/todoist-disconnect', { method: 'POST' });
+            } catch (_) {}
+            statusText.textContent = 'Disconnected';
+            fetchBtn.style.display = 'none';
+            disconnectBtn.style.display = 'none';
+            connectBtn.style.display = '';
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+        });
+
+        fetchBtn.addEventListener('click', async () => {
+            await this.fetchTodoistData();
+        });
+
+        // Check connection status and update UI
+        (async () => {
+            try {
+                const resp = await fetch('/api/todoist-status');
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusText.textContent = 'Connected to Todoist';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    fetchBtn.style.display = '';
+                    this.fetchTodoistData();
+                } else {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                    fetchBtn.style.display = 'none';
+                }
+            } catch (_) {
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+                fetchBtn.style.display = 'none';
+            }
+        })();
     }
 
     setupViewModeButtons() {

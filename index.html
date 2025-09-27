@@ -112,15 +112,6 @@
                             </svg>
                             <span>Settings</span>
                         </div>
-                        <div class="dropdown-item" id="connectionsButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 7h.01"/>
-                                <path d="M2 12h5l3 3 4-6 3 3h5"/>
-                                <path d="M2 18h6"/>
-                                <path d="M16 18h6"/>
-                            </svg>
-                            <span>Connections</span>
-                        </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -434,6 +425,15 @@
                         </svg>
                         <span>Account</span>
                     </div>
+                    <div class="settings-nav-item" data-tab="integrations">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug-icon lucide-plug">
+                            <path d="M12 22v-5"/>
+                            <path d="M9 8V2"/>
+                            <path d="M15 8V2"/>
+                            <path d="M18 8v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V8"/>
+                        </svg>
+                        <span>Integrations</span>
+                    </div>
                     <div class="settings-nav-item" data-tab="developer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-icon lucide-code">
                             <polyline points="16,18 22,12 16,6"/>
@@ -504,6 +504,25 @@
                                     <span class="settings-description">Download your focus data as CSV</span>
                                 </div>
                                 <button class="settings-export-btn">Export</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Integrations Tab -->
+                    <div class="settings-tab" id="integrations-tab">
+                        <h3>Integrations</h3>
+                        <div class="settings-section">
+                            <div class="settings-item">
+                                <div class="settings-label-group">
+                                    <span class="settings-label">Todoist</span>
+                                    <span class="settings-description">Connect your Todoist account to sync tasks</span>
+                                </div>
+                                <div class="integration-controls">
+                                    <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
+                                    <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
+                                    <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
+                                </div>
+                                <div id="todoistStatusText" class="tasks-subtitle"></div>
                             </div>
                         </div>
                     </div>
