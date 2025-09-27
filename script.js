@@ -2312,27 +2312,40 @@ class PomodoroTimer {
             </button>
             <h3>Integrations</h3>
             <p>Connect your productivity tools to enhance your focus sessions.</p>
-            <div class="settings-section">
-                <div class="settings-item">
-                    <div class="settings-label-group">
-                        <span class="settings-label">API Token</span>
-                        <span class="settings-description">Paste your Todoist personal token</span>
+            
+            <!-- Todoist Integration -->
+            <div class="integration-section">
+                <div class="integration-header">
+                    <div class="integration-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12l2 2 4-4"/>
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                        </svg>
                     </div>
-                    <input id="todoistTokenInput" type="password" placeholder="todoist token" value="${tokenValue}">
-                    <div class="settings-actions" style="margin-top:8px;display:flex;gap:8px;align-items:center;">
-                        <button id="saveTodoistTokenBtn" class="settings-reset-btn">Save Token</button>
-                        <button id="clearTodoistTokenBtn" class="settings-reset-btn">Clear</button>
-                        <button id="fetchTodoistTasksBtn" class="settings-export-btn">Fetch Tasks</button>
+                    <div class="integration-title">
+                        <h4>Todoist</h4>
+                        <p>Connect your Todoist account to sync tasks</p>
                     </div>
                 </div>
-            </div>
-            <div class="settings-section">
-                <div class="settings-item">
-                    <div class="settings-label-group">
-                        <span class="settings-label">Tasks</span>
-                        <span class="settings-description">Your Todoist tasks (inbox + today)</span>
+                
+                <div class="integration-content">
+                    <div class="token-section">
+                        <label for="todoistTokenInput">Personal Token</label>
+                        <input id="todoistTokenInput" type="password" placeholder="Paste your Todoist token here" value="${tokenValue}">
+                        <div class="token-actions">
+                            <button id="saveTodoistTokenBtn" class="btn-primary">Save</button>
+                            <button id="clearTodoistTokenBtn" class="btn-secondary">Clear</button>
+                            <button id="fetchTodoistTasksBtn" class="btn-success">Fetch Tasks</button>
+                        </div>
                     </div>
-                    <div id="todoistTasksList" class="tasks-list" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;"></div>
+                    
+                    <div class="tasks-section">
+                        <div class="tasks-header">
+                            <h5>Your Tasks</h5>
+                            <span class="tasks-subtitle">Select a task to focus on</span>
+                        </div>
+                        <div id="todoistTasksList" class="tasks-list"></div>
+                    </div>
                 </div>
             </div>
         `;
@@ -2359,46 +2372,51 @@ class PomodoroTimer {
             listEl.innerHTML = '';
             if (!this.todoistTasks || this.todoistTasks.length === 0) {
                 const empty = document.createElement('div');
-                empty.textContent = 'No tasks loaded yet.';
+                empty.className = 'empty-state';
+                empty.innerHTML = `
+                    <div class="empty-icon">📝</div>
+                    <div class="empty-text">No tasks loaded yet</div>
+                    <div class="empty-subtext">Click "Fetch Tasks" to load your Todoist tasks</div>
+                `;
                 listEl.appendChild(empty);
                 return;
             }
+            
             this.todoistTasks.forEach(task => {
                 const item = document.createElement('div');
                 item.className = 'task-item';
-                item.style.display = 'flex';
-                item.style.justifyContent = 'space-between';
-                item.style.alignItems = 'center';
-                item.style.padding = '8px';
-                item.style.border = '1px solid rgba(255,255,255,0.1)';
-                item.style.borderRadius = '8px';
-
-                const left = document.createElement('div');
-                left.style.display = 'flex';
-                left.style.flexDirection = 'column';
-                left.style.gap = '4px';
-                const title = document.createElement('div');
-                title.textContent = task.content || '(untitled)';
-                const project = document.createElement('small');
+                
+                const taskContent = document.createElement('div');
+                taskContent.className = 'task-content';
+                
+                const taskTitle = document.createElement('div');
+                taskTitle.className = 'task-title';
+                taskTitle.textContent = task.content || '(untitled)';
+                
+                const taskProject = document.createElement('div');
+                taskProject.className = 'task-project';
                 const pj = this.todoistProjectsById[task.project_id];
-                project.textContent = pj ? `Project: ${pj.name}` : '';
-                left.appendChild(title);
-                left.appendChild(project);
-
-                const right = document.createElement('div');
-                const pickBtn = document.createElement('button');
-                pickBtn.className = 'settings-export-btn';
-                pickBtn.textContent = 'Focus This';
-                pickBtn.addEventListener('click', () => {
+                taskProject.textContent = pj ? pj.name : 'Inbox';
+                
+                taskContent.appendChild(taskTitle);
+                taskContent.appendChild(taskProject);
+                
+                const taskActions = document.createElement('div');
+                taskActions.className = 'task-actions';
+                
+                const focusBtn = document.createElement('button');
+                focusBtn.className = 'btn-focus';
+                focusBtn.textContent = 'Focus This';
+                focusBtn.addEventListener('click', () => {
                     this.currentTask = { id: task.id, content: task.content, project_id: task.project_id };
-                    // Reflect in UI
                     this.updateCurrentTaskBanner();
                     close();
                 });
-                right.appendChild(pickBtn);
-
-                item.appendChild(left);
-                item.appendChild(right);
+                
+                taskActions.appendChild(focusBtn);
+                
+                item.appendChild(taskContent);
+                item.appendChild(taskActions);
                 listEl.appendChild(item);
             });
         };
