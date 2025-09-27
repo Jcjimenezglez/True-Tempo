@@ -7,22 +7,17 @@ function getToken(req) {
 
 module.exports = async (req, res) => {
   try {
-    const url = new URL(req.url, `https://${req.headers.host}`);
-    const id = url.searchParams.get('id');
-    if (!id) {
-      res.statusCode = 400;
-      return res.end('Missing id');
-    }
     const token = getToken(req);
-    const r = await fetch(`https://api.todoist.com/rest/v2/tasks/${id}/close`, {
-      method: 'POST',
+    const r = await fetch('https://api.todoist.com/rest/v2/projects', {
       headers: { Authorization: `Bearer ${token}` },
     });
-    res.statusCode = r.ok ? 200 : 500;
-    res.end(r.ok ? 'ok' : 'failed');
+    const json = await r.json();
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(json));
   } catch (e) {
     res.statusCode = 401;
-    res.end('unauthorized');
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: e.message }));
   }
 };
 

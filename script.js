@@ -2329,14 +2329,13 @@ class PomodoroTimer {
                 </div>
                 
                 <div class="integration-content">
-                    <div class="token-section">
-                        <label for="todoistTokenInput">Personal Token</label>
-                        <input id="todoistTokenInput" type="password" placeholder="Paste your Todoist token here" value="${tokenValue}">
+                    <div class="connection-section">
                         <div class="token-actions">
-                            <button id="saveTodoistTokenBtn" class="btn-primary">Save</button>
-                            <button id="clearTodoistTokenBtn" class="btn-secondary">Clear</button>
-                            <button id="fetchTodoistTasksBtn" class="btn-success">Fetch Tasks</button>
+                            <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
+                            <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
+                            <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
                         </div>
+                        <div id="todoistStatusText" class="tasks-subtitle"></div>
                     </div>
                     
                     <div class="tasks-section">
@@ -2362,11 +2361,11 @@ class PomodoroTimer {
             if (e.target === overlay) close();
         });
 
-        const tokenInput = modal.querySelector('#todoistTokenInput');
-        const saveBtn = modal.querySelector('#saveTodoistTokenBtn');
-        const clearBtn = modal.querySelector('#clearTodoistTokenBtn');
+        const connectBtn = modal.querySelector('#connectTodoistBtn');
+        const disconnectBtn = modal.querySelector('#disconnectTodoistBtn');
         const fetchBtn = modal.querySelector('#fetchTodoistTasksBtn');
         const listEl = modal.querySelector('#todoistTasksList');
+        const statusText = modal.querySelector('#todoistStatusText');
 
         const renderTasks = () => {
             listEl.innerHTML = '';
@@ -2413,6 +2412,19 @@ class PomodoroTimer {
                     close();
                 });
                 
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'btn-secondary';
+                completeBtn.textContent = '✓';
+                completeBtn.title = 'Mark as completed';
+                completeBtn.addEventListener('click', async () => {
+                    try {
+                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}`, { method: 'POST' });
+                    } catch (_) {}
+                    await this.fetchTodoistData();
+                    renderTasks();
+                });
+
+                taskActions.appendChild(completeBtn);
                 taskActions.appendChild(focusBtn);
                 
                 item.appendChild(taskContent);
@@ -2421,17 +2433,18 @@ class PomodoroTimer {
             });
         };
 
-        saveBtn.addEventListener('click', () => {
-            const val = (tokenInput.value || '').trim();
-            if (!val) return;
-            this.todoistToken = val;
-            try { localStorage.setItem('todoistToken', val); } catch (_) {}
+        connectBtn.addEventListener('click', () => {
+            window.location.href = '/api/todoist-auth-start';
         });
 
-        clearBtn.addEventListener('click', () => {
-            this.todoistToken = '';
-            tokenInput.value = '';
-            try { localStorage.removeItem('todoistToken'); } catch (_) {}
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/todoist-disconnect', { method: 'POST' });
+            } catch (_) {}
+            statusText.textContent = 'Disconnected';
+            fetchBtn.style.display = 'none';
+            disconnectBtn.style.display = 'none';
+            connectBtn.style.display = '';
             this.todoistTasks = [];
             this.todoistProjectsById = {};
             renderTasks();
@@ -2442,40 +2455,58 @@ class PomodoroTimer {
             renderTasks();
         });
 
-        // Auto load if token exists
-        if (this.todoistToken) {
-            this.fetchTodoistData().then(renderTasks).catch(() => renderTasks());
-        } else {
-            renderTasks();
-        }
+        // Check connection status and update UI
+        (async () => {
+            try {
+                const resp = await fetch('/api/todoist-status');
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusText.textContent = 'Connected to Todoist';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    fetchBtn.style.display = '';
+                    this.fetchTodoistData().then(renderTasks).catch(() => renderTasks());
+                } else {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                    fetchBtn.style.display = 'none';
+                    renderTasks();
+                }
+            } catch (_) {
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+                fetchBtn.style.display = 'none';
+                renderTasks();
+            }
+        })();
     }
 
     async fetchTodoistData() {
-        if (!this.todoistToken) return;
         try {
-            // Fetch projects
-            const projRes = await fetch('https://api.todoist.com/rest/v2/projects', {
-                headers: { Authorization: `Bearer ${this.todoistToken}` }
-            });
+            // Fetch projects via proxy
+            const projRes = await fetch('/api/todoist-projects');
             if (projRes.ok) {
                 const projects = await projRes.json();
                 this.todoistProjectsById = {};
                 projects.forEach(p => { this.todoistProjectsById[p.id] = p; });
+            } else {
+                this.todoistProjectsById = {};
             }
 
-            // Fetch tasks (defaults to open tasks)
-            const tasksRes = await fetch('https://api.todoist.com/rest/v2/tasks', {
-                headers: { Authorization: `Bearer ${this.todoistToken}` }
-            });
+            // Fetch tasks via proxy
+            const tasksRes = await fetch('/api/todoist-tasks');
             if (tasksRes.ok) {
                 const tasks = await tasksRes.json();
-                // Optionally filter for today/inbox etc. Keep simple for beta
                 this.todoistTasks = tasks;
             } else {
                 this.todoistTasks = [];
             }
         } catch (_) {
-            // silent
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
         }
     }
 

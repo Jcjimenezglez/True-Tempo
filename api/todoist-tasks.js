@@ -1,46 +1,23 @@
-// Proxies Todoist REST API to fetch projects and tasks using server-stored token
-const https = require('https');
-
-function getJson(url, token) {
-  return new Promise((resolve, reject) => {
-    const u = new URL(url);
-    const req = https.request({
-      hostname: u.hostname,
-      path: u.pathname + (u.search || ''),
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }, (res) => {
-      let data = '';
-      res.on('data', (c) => data += c);
-      res.on('end', () => {
-        try { resolve({ status: res.statusCode, json: JSON.parse(data || '[]') }); }
-        catch (_) { resolve({ status: res.statusCode, text: data }); }
-      });
-    });
-    req.on('error', reject);
-    req.end();
-  });
+function getToken(req) {
+  const cookie = req.headers.cookie || '';
+  const match = cookie.split(';').map(s => s.trim()).find(s => s.startsWith('todoist_access_token='));
+  if (!match) throw new Error('Not connected');
+  return decodeURIComponent(match.split('=')[1]);
 }
 
 module.exports = async (req, res) => {
-  const token = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('todoist_access_token='))?.split('=')[1] || '';
-  if (!token) {
-    res.status(401).json({ error: 'Not connected to Todoist' });
-    return;
-  }
-
   try {
-    const projects = await getJson('https://api.todoist.com/rest/v2/projects', token);
-    const tasks = await getJson('https://api.todoist.com/rest/v2/tasks', token);
-    if (projects.status !== 200 || tasks.status !== 200) {
-      res.status(502).json({ error: 'Todoist API error' });
-      return;
-    }
-    res.status(200).json({ projects: projects.json, tasks: tasks.json });
+    const token = getToken(req);
+    const r = await fetch('https://api.todoist.com/rest/v2/tasks', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = await r.json();
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(json));
   } catch (e) {
-    res.status(500).json({ error: 'Proxy error' });
+    res.statusCode = 401;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: e.message }));
   }
 };
 
