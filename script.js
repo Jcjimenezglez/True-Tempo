@@ -21,6 +21,7 @@ class PomodoroTimer {
         // Ambient sounds system
         this.ambientPlaying = false;
         this.ambientVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.3');
+        this.ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
         this.playlist = [
             "Chasing Clouds.mp3",
             "Clouds Drift By.mp3",
@@ -1288,25 +1289,26 @@ class PomodoroTimer {
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
         const modalContent = `
-            <div class=\"focus-stats-modal\">
-                <button class=\"close-focus-stats-x\">
-                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">
-                        <path d=\"M18 6 6 18\"/>
-                        <path d=\"m6 6 12 12\"/>
+            <div class="focus-stats-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
                     </svg>
                 </button>
                 <h3>Ambient Sounds</h3>
-                <div class=\"ambient-controls\">
-                    <div class=\"ambient-volume\">
-                        <label>Volume:</label>
-                        <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">\n
-                        <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
-                    </div>
-                    <div class=\"ambient-actions\">
-                        <label class=\"settings-toggle\">
-                            <input type=\"checkbox\" id=\"ambientToggle\" ${this.ambientPlaying ? 'checked' : ''}>
-                            <span class=\"toggle-slider\"></span>
+                <div class="ambient-controls">
+                    <div class="ambient-volume">
+                        <label>Ambient Music</label>
+                        <label class="settings-toggle" title="Ambient Music">
+                            <input type="checkbox" id="ambientToggle" ${this.ambientEnabled ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                    <div class="ambient-volume">
+                        <label>Volume:</label>
+                        <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}">
+                        <span id="ambientVolumeValue">${initialVolumePct}%</span>
                     </div>
                 </div>
             </div>
@@ -1331,9 +1333,19 @@ class PomodoroTimer {
             this.setAmbientVolume(e.target.value / 100);
         });
 
-        modalOverlay.querySelector('#ambientToggle').addEventListener('change', () => {
-            this.toggleMusic();
-        });
+        const toggleEl = modalOverlay.querySelector('#ambientToggle');
+        if (toggleEl) {
+            toggleEl.addEventListener('change', async (e) => {
+                this.ambientEnabled = !!e.target.checked;
+                localStorage.setItem('ambientEnabled', this.ambientEnabled ? 'true' : 'false');
+                if (this.ambientEnabled) {
+                    await this.playPlaylist();
+                    this.fadeMusicIn(2000);
+                } else {
+                    this.stopPlaylist();
+                }
+            });
+        }
 
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
@@ -1537,7 +1549,8 @@ class PomodoroTimer {
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         // Fade music in at the start of session
-        if (this.ambientPlaying && this.backgroundAudio) {
+        if (this.ambientEnabled) {
+            await this.playPlaylist();
             this.fadeMusicIn(2000);
         }
         
