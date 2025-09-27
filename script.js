@@ -2622,8 +2622,13 @@ class PomodoroTimer {
             this.updateTaskFooter(modal);
         };
 
-        // Load tasks if available
-        if (this.todoistTasks && this.todoistTasks.length > 0) {
+        // Load tasks respecting guest mode
+        if (!this.isAuthenticated || !this.user) {
+            // In guest mode we do not show Todoist tasks
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+            renderTasks();
+        } else if (this.todoistTasks && this.todoistTasks.length > 0) {
             renderTasks();
         } else {
             // Try to fetch tasks if user is connected
@@ -2841,6 +2846,12 @@ class PomodoroTimer {
 
 
     async fetchTodoistData() {
+        // Never fetch Todoist data when not authenticated
+        if (!this.isAuthenticated || !this.user) {
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+            return;
+        }
         try {
             // Fetch projects via proxy
             const projRes = await fetch('/api/todoist-projects');
