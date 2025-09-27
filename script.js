@@ -1298,12 +1298,6 @@ class PomodoroTimer {
                         <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">\n
                         <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
                     </div>
-                    <div class=\"ambient-actions\">
-                        <button id=\"ambientPrevBtn\" class=\"cancel-btn\">Back</button>
-                        <button id=\"ambientPlayBtn\" class=\"login-btn\">Play</button>
-                        <button id=\"ambientStopBtn\" class=\"cancel-btn\">Stop</button>
-                        <button id=\"ambientNextBtn\" class=\"cancel-btn\">Next</button>
-                    </div>
                 </div>
             </div>
         `;
@@ -1327,18 +1321,6 @@ class PomodoroTimer {
             this.setAmbientVolume(e.target.value / 100);
         });
 
-        modalOverlay.querySelector('#ambientPlayBtn').addEventListener('click', async () => {
-            await this.playPlaylist();
-        });
-
-        modalOverlay.querySelector('#ambientStopBtn').addEventListener('click', () => {
-            this.stopPlaylist();
-        });
-
-        const nextBtn = modalOverlay.querySelector('#ambientNextBtn');
-        if (nextBtn) nextBtn.addEventListener('click', () => this.nextTrack());
-        const prevBtn = modalOverlay.querySelector('#ambientPrevBtn');
-        if (prevBtn) prevBtn.addEventListener('click', () => this.prevTrack());
 
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
