@@ -1293,10 +1293,22 @@ class PomodoroTimer {
                 </button>
                 <h3>Background Music</h3>
                 <div class=\"ambient-controls\">
-                    <div class=\"ambient-volume\">
-                        <label>Volume:</label>
-                        <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">\n
-                        <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
+                    <div class=\"lofi-header\">
+                        <h4>Lofi Music</h4>
+                        <div class=\"toggle-container\">
+                            <label class=\"toggle-switch\">
+                                <input type=\"checkbox\" id=\"lofiToggle\" checked>
+                                <span class=\"toggle-slider\"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class=\"preview-section\">
+                        <button id=\"previewBtn\" class=\"preview-btn\">Preview</button>
+                        <div class=\"ambient-volume\">
+                            <label>Volume:</label>
+                            <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">
+                            <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1315,7 +1327,27 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        
+        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
+        const previewBtn = modalOverlay.querySelector('#previewBtn');
+
+        // Toggle logic
+        lofiToggle.addEventListener('change', (e) => {
+            const isEnabled = e.target.checked;
+            volumeSlider.disabled = !isEnabled;
+            previewBtn.disabled = !isEnabled;
+            
+            if (!isEnabled) {
+                this.stopPlaylist();
+            }
+        });
+
+        // Preview button
+        previewBtn.addEventListener('click', async () => {
+            if (lofiToggle.checked) {
+                await this.playPlaylist();
+            }
+        });
+
         volumeSlider.addEventListener('input', (e) => {
             volumeValue.textContent = e.target.value + '%';
             this.setAmbientVolume(e.target.value / 100);
