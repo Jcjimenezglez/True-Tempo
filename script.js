@@ -1545,7 +1545,7 @@ class PomodoroTimer {
 
     toggleTaskList() {
         // Check if user is in guest mode
-        if (this.isGuestMode()) {
+        if (!this.isAuthenticated || !this.user) {
             this.showGuestLoginModal('tasks');
             return;
         }
@@ -2835,13 +2835,39 @@ class PomodoroTimer {
         if (!modal) return;
 
         // Update modal content based on feature
-        const content = modal.querySelector('.guest-login-content p');
-        if (content) {
-            if (feature === 'music') {
-                content.textContent = 'Background music is only available for registered users. Sign up or log in to access ambient sounds and music.';
-            } else if (feature === 'tasks') {
-                content.textContent = 'Task management is only available for registered users. Sign up or log in to access Todoist integration and task tracking.';
-            }
+        const content = modal.querySelector('#guestLoginMessage');
+        const featuresList = modal.querySelector('.guest-login-features');
+        
+        if (feature === 'music') {
+            content.textContent = 'Background music is only available for registered users. Sign up or log in to access ambient sounds and music.';
+            featuresList.innerHTML = `
+                <div class="guest-login-feature">
+                    <div class="guest-login-feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="guest-login-feature-text">Background music and ambient sounds</div>
+                </div>
+            `;
+        } else if (feature === 'tasks') {
+            content.textContent = 'Task management is only available for registered users. Sign up or log in to access Todoist integration and task tracking.';
+            featuresList.innerHTML = `
+                <div class="guest-login-feature">
+                    <div class="guest-login-feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 5h8"/>
+                            <path d="M13 12h8"/>
+                            <path d="M13 19h8"/>
+                            <path d="m3 17 2 2 4-4"/>
+                            <rect x="3" y="4" width="6" height="6" rx="1"/>
+                        </svg>
+                    </div>
+                    <div class="guest-login-feature-text">Task management and Todoist integration</div>
+                </div>
+            `;
         }
 
         modal.style.display = 'flex';
