@@ -1,3 +1,89 @@
+    showConnectionsModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3>Connections</h3>
+            <p>Connect or disconnect integrations for your account.</p>
+
+            <div class="integration-section">
+                <div class="integration-header">
+                    <div class="integration-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-todo-icon lucide-list-todo"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><rect x="3" y="4" width="6" height="6" rx="1"/></svg>
+                    </div>
+                    <div class="integration-title">
+                        <h4>Todoist</h4>
+                        <p>Sync tasks to focus on the right work</p>
+                    </div>
+                </div>
+
+                <div class="integration-content">
+                    <div class="token-actions">
+                        <button id="connConnectTodoist" class="btn-primary">Connect</button>
+                        <button id="connDisconnectTodoist" class="btn-secondary" style="display:none;">Disconnect</button>
+                        <button id="connOpenTasks" class="btn-success" style="display:none;">Open Task List</button>
+                    </div>
+                    <div id="connStatus" class="tasks-subtitle"></div>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+        const connectBtn = modal.querySelector('#connConnectTodoist');
+        const disconnectBtn = modal.querySelector('#connDisconnectTodoist');
+        const openTasksBtn = modal.querySelector('#connOpenTasks');
+        const statusEl = modal.querySelector('#connStatus');
+
+        connectBtn.addEventListener('click', () => { window.location.href = '/api/todoist-auth-start'; });
+        openTasksBtn.addEventListener('click', () => { close(); this.showTodoistModal(); });
+        disconnectBtn.addEventListener('click', async () => {
+            try { await fetch('/api/todoist-disconnect', { method: 'POST' }); } catch (_) {}
+            if (statusEl) statusEl.textContent = 'Disconnected';
+            disconnectBtn.style.display = 'none';
+            openTasksBtn.style.display = 'none';
+            connectBtn.style.display = '';
+        });
+
+        (async () => {
+            try {
+                const r = await fetch('/api/todoist-status');
+                const { connected } = await r.json();
+                if (connected) {
+                    if (statusEl) statusEl.textContent = 'Connected to Todoist';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    openTasksBtn.style.display = '';
+                } else {
+                    if (statusEl) statusEl.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                    openTasksBtn.style.display = 'none';
+                }
+            } catch (_) {
+                if (statusEl) statusEl.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+                openTasksBtn.style.display = 'none';
+            }
+        })();
+    }
 class PomodoroTimer {
     constructor() {
         // Pomodoro Technique structure
@@ -127,6 +213,7 @@ class PomodoroTimer {
         this.userProfileContainer = document.getElementById('userProfileContainer');
         this.userProfileButton = document.getElementById('userProfileButton');
         this.userProfileDropdown = document.getElementById('userProfileDropdown');
+        this.connectionsButton = document.getElementById('connectionsButton');
         this.userDropdownMenu = document.getElementById('userDropdownMenu');
         this.userAvatar = document.getElementById('userAvatar');
         this.logoutButton = document.getElementById('logoutButton');
@@ -926,6 +1013,13 @@ class PomodoroTimer {
             });
         }
 
+        if (this.connectionsButton) {
+            this.connectionsButton.addEventListener('click', () => {
+                if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                this.showConnectionsModal();
+            });
+        }
+
         // Achievement badge click - show focus stats in a simple way
         if (this.achievementIcon) {
             this.achievementIcon.addEventListener('click', (e) => {
@@ -1563,6 +1657,25 @@ class PomodoroTimer {
     }
     
     toggleTimer() {
+        // Require a selected task before starting a focus session
+        if (!this.isRunning && (!this.currentTask || !this.currentTask.content)) {
+            // If not connected, nudge to Connections; else open tasks modal
+            (async () => {
+                try {
+                    const resp = await fetch('/api/todoist-status');
+                    const { connected } = await resp.json();
+                    if (connected) {
+                        this.showTodoistModal();
+                    } else {
+                        // Open the connections modal to connect first
+                        this.showConnectionsModal();
+                    }
+                } catch (_) {
+                    this.showTodoistModal();
+                }
+            })();
+            return;
+        }
         if (this.isRunning) {
             this.pauseTimer();
         } else {
@@ -2311,7 +2424,7 @@ class PomodoroTimer {
                 </svg>
             </button>
             <h3>Integrations</h3>
-            <p>Connect your productivity tools to enhance your focus sessions.</p>
+            <p>Choose a task to focus on. To manage connections, go to Profile → Connections.</p>
             
             <!-- Todoist Integration -->
             <div class="integration-section">
@@ -2329,14 +2442,12 @@ class PomodoroTimer {
                 </div>
                 
                 <div class="integration-content">
-                    <div class="connection-section">
-                        <div class="token-actions">
-                            <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
-                            <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
-                            <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
-                        </div>
-                        <div id="todoistStatusText" class="tasks-subtitle"></div>
+                    <div class="token-actions" style="display:none;">
+                        <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
+                        <button id="disconnectTodoistBtn" class="btn-secondary">Disconnect</button>
+                        <button id="fetchTodoistTasksBtn" class="btn-success">Fetch Tasks</button>
                     </div>
+                    <div id="todoistStatusText" class="tasks-subtitle"></div>
                     
                     <div class="tasks-section">
                         <div class="tasks-header">
@@ -2462,22 +2573,22 @@ class PomodoroTimer {
                 const json = await resp.json();
                 const connected = !!json.connected;
                 if (connected) {
-                    statusText.textContent = 'Connected to Todoist';
-                    connectBtn.style.display = 'none';
-                    disconnectBtn.style.display = '';
+                    statusText.textContent = '';
+                    if (connectBtn) connectBtn.style.display = 'none';
+                    if (disconnectBtn) disconnectBtn.style.display = 'none';
                     fetchBtn.style.display = '';
                     this.fetchTodoistData().then(renderTasks).catch(() => renderTasks());
                 } else {
-                    statusText.textContent = 'Not connected';
-                    connectBtn.style.display = '';
-                    disconnectBtn.style.display = 'none';
+                    statusText.textContent = 'Not connected. Open Profile → Connections to link Todoist.';
+                    if (connectBtn) connectBtn.style.display = '';
+                    if (disconnectBtn) disconnectBtn.style.display = 'none';
                     fetchBtn.style.display = 'none';
                     renderTasks();
                 }
             } catch (_) {
-                statusText.textContent = 'Not connected';
-                connectBtn.style.display = '';
-                disconnectBtn.style.display = 'none';
+                statusText.textContent = 'Not connected. Open Profile → Connections to link Todoist.';
+                if (connectBtn) connectBtn.style.display = '';
+                if (disconnectBtn) disconnectBtn.style.display = 'none';
                 fetchBtn.style.display = 'none';
                 renderTasks();
             }
