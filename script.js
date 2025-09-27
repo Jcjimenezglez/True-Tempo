@@ -2499,15 +2499,32 @@ class PomodoroTimer {
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <h3>Tasks</h3>
-            <p>Select a task to focus on during your session.</p>
-            
-            <div class="tasks-section">
-                <div class="tasks-header">
-                    <h5>Your Tasks</h5>
-                    <span class="tasks-subtitle">Choose a task to focus on</span>
+            <div class="tasks-header">
+                <h3>Tasks</h3>
+                <div class="tasks-menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
                 </div>
-                <div id="todoistTasksList" class="tasks-list"></div>
+            </div>
+            <div class="tasks-divider"></div>
+            <div id="todoistTasksList" class="tasks-list"></div>
+            <div class="add-task-section">
+                <button class="add-task-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"/>
+                        <path d="M5 12h14"/>
+                    </svg>
+                    Add Task
+                </button>
+            </div>
+            <div class="tasks-footer">
+                <div class="pomos-info">
+                    <span>Pomos: <strong>0/0</strong></span>
+                    <span>Finish At: <strong>--:--</strong></span>
+                </div>
             </div>
         `;
 
@@ -2524,6 +2541,7 @@ class PomodoroTimer {
         });
 
         const listEl = modal.querySelector('#todoistTasksList');
+        const pomosInfo = modal.querySelector('.pomos-info');
 
         const renderTasks = () => {
             listEl.innerHTML = '';
@@ -2539,56 +2557,48 @@ class PomodoroTimer {
                 return;
             }
             
-            this.todoistTasks.forEach(task => {
+            this.todoistTasks.forEach((task, index) => {
                 const item = document.createElement('div');
                 item.className = 'task-item';
                 
-                const taskContent = document.createElement('div');
-                taskContent.className = 'task-content';
+                // Get task session config from localStorage
+                const taskConfig = this.getTaskConfig(task.id);
+                const sessions = taskConfig.sessions || 1;
                 
-                const taskTitle = document.createElement('div');
-                taskTitle.className = 'task-title';
-                taskTitle.textContent = task.content || '(untitled)';
+                const itemContent = `
+                    <div class="task-checkbox">
+                        <input type="checkbox" id="task-${task.id}" ${taskConfig.selected ? 'checked' : ''}>
+                        <label for="task-${task.id}"></label>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">${task.content || '(untitled)'}</div>
+                        <div class="task-sessions">
+                            <span class="sessions-label">Sessions:</span>
+                            <div class="sessions-control">
+                                <button class="sessions-btn sessions-decrease" data-task-id="${task.id}">-</button>
+                                <span class="sessions-count">${sessions}</span>
+                                <button class="sessions-btn sessions-increase" data-task-id="${task.id}">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="19" cy="12" r="1"/>
+                            <circle cx="5" cy="12" r="1"/>
+                        </svg>
+                    </div>
+                `;
                 
-                const taskProject = document.createElement('div');
-                taskProject.className = 'task-project';
-                const pj = this.todoistProjectsById[task.project_id];
-                taskProject.textContent = pj ? pj.name : 'Inbox';
-                
-                taskContent.appendChild(taskTitle);
-                taskContent.appendChild(taskProject);
-                
-                const taskActions = document.createElement('div');
-                taskActions.className = 'task-actions';
-                
-                const focusBtn = document.createElement('button');
-                focusBtn.className = 'btn-focus';
-                focusBtn.textContent = 'Focus This';
-                focusBtn.addEventListener('click', () => {
-                    this.currentTask = { id: task.id, content: task.content, project_id: task.project_id };
-                    this.updateCurrentTaskBanner();
-                    close();
-                });
-                
-                const completeBtn = document.createElement('button');
-                completeBtn.className = 'btn-secondary';
-                completeBtn.textContent = '✓';
-                completeBtn.title = 'Mark as completed';
-                completeBtn.addEventListener('click', async () => {
-                    try {
-                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}`, { method: 'POST' });
-                    } catch (_) {}
-                    await this.fetchTodoistData();
-                    renderTasks();
-                });
-
-                taskActions.appendChild(completeBtn);
-                taskActions.appendChild(focusBtn);
-                
-                item.appendChild(taskContent);
-                item.appendChild(taskActions);
+                item.innerHTML = itemContent;
                 listEl.appendChild(item);
             });
+            
+            // Add event listeners for checkboxes and session controls
+            this.setupTaskEventListeners(modal);
+            
+            // Update footer info
+            this.updateTaskFooter(modal);
         };
 
         // Load tasks if available
@@ -2602,6 +2612,105 @@ class PomodoroTimer {
                 renderTasks();
             });
         }
+    }
+
+    // Task configuration management
+    getTaskConfig(taskId) {
+        const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+        return configs[taskId] || { sessions: 1, selected: false };
+    }
+
+    setTaskConfig(taskId, config) {
+        const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+        configs[taskId] = { ...configs[taskId], ...config };
+        localStorage.setItem('taskConfigs', JSON.stringify(configs));
+    }
+
+    setupTaskEventListeners(modal) {
+        // Checkbox event listeners
+        const checkboxes = modal.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const taskId = e.target.id.replace('task-', '');
+                this.setTaskConfig(taskId, { selected: e.target.checked });
+                this.updateTaskFooter(modal);
+            });
+        });
+
+        // Session control event listeners
+        const decreaseBtns = modal.querySelectorAll('.sessions-decrease');
+        const increaseBtns = modal.querySelectorAll('.sessions-increase');
+
+        decreaseBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const taskId = e.target.getAttribute('data-task-id');
+                const currentConfig = this.getTaskConfig(taskId);
+                const newSessions = Math.max(1, (currentConfig.sessions || 1) - 1);
+                this.setTaskConfig(taskId, { ...currentConfig, sessions: newSessions });
+                this.updateTaskSessionsDisplay(modal, taskId, newSessions);
+                this.updateTaskFooter(modal);
+            });
+        });
+
+        increaseBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const taskId = e.target.getAttribute('data-task-id');
+                const currentConfig = this.getTaskConfig(taskId);
+                const newSessions = Math.min(10, (currentConfig.sessions || 1) + 1);
+                this.setTaskConfig(taskId, { ...currentConfig, sessions: newSessions });
+                this.updateTaskSessionsDisplay(modal, taskId, newSessions);
+                this.updateTaskFooter(modal);
+            });
+        });
+    }
+
+    updateTaskSessionsDisplay(modal, taskId, sessions) {
+        const taskItem = modal.querySelector(`input[id="task-${taskId}"]`).closest('.task-item');
+        const sessionsCount = taskItem.querySelector('.sessions-count');
+        if (sessionsCount) {
+            sessionsCount.textContent = sessions;
+        }
+    }
+
+    updateTaskFooter(modal) {
+        const pomosInfo = modal.querySelector('.pomos-info');
+        if (!pomosInfo) return;
+
+        // Calculate total sessions from selected tasks
+        let totalSessions = 0;
+        let selectedTasks = 0;
+
+        if (this.todoistTasks) {
+            this.todoistTasks.forEach(task => {
+                const config = this.getTaskConfig(task.id);
+                if (config.selected) {
+                    selectedTasks++;
+                    totalSessions += config.sessions || 1;
+                }
+            });
+        }
+
+        // Calculate finish time (assuming 25min per session)
+        const sessionDuration = 25; // minutes
+        const totalMinutes = totalSessions * sessionDuration;
+        const finishTime = this.calculateFinishTime(totalMinutes);
+
+        pomosInfo.innerHTML = `
+            <span>Pomos: <strong>0/${totalSessions}</strong></span>
+            <span>Finish At: <strong>${finishTime}</strong></span>
+        `;
+    }
+
+    calculateFinishTime(totalMinutes) {
+        if (totalMinutes === 0) return '--:--';
+        
+        const now = new Date();
+        const finishTime = new Date(now.getTime() + totalMinutes * 60000);
+        return finishTime.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
     }
 
     async fetchTodoistData() {
