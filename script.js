@@ -926,11 +926,11 @@ class PomodoroTimer {
             });
         }
 
-        // Achievement badge click
+        // Achievement badge click - show focus stats in a simple way
         if (this.achievementIcon) {
             this.achievementIcon.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.showFocusStatsModal();
+                this.showSimpleFocusStats();
             });
         }
 
@@ -2310,8 +2310,8 @@ class PomodoroTimer {
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <h3>Todoist (Beta)</h3>
-            <p>Connect your Todoist to see your tasks here and pick one to focus on.</p>
+            <h3>Integrations</h3>
+            <p>Connect your productivity tools to enhance your focus sessions.</p>
             <div class="settings-section">
                 <div class="settings-item">
                     <div class="settings-label-group">
@@ -2594,142 +2594,15 @@ class PomodoroTimer {
         }
     }
 
-    showFocusStatsModal() {
+    showSimpleFocusStats() {
         const stats = this.getFocusStats();
-        // Calculate cycles completed
-        const cyclesCompleted = this.calculateCyclesCompleted(stats);
+        const totalFocusHours = stats.totalFocusHours || 0;
+        const hours = Math.floor(totalFocusHours);
+        const minutes = Math.floor((totalFocusHours - hours) * 60);
+        const timeString = `${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
         
-        // Get most used technique
-        const mostUsedTechnique = this.getMostUsedTechnique(stats);
-
-        // Format time strings
-        const formatTime = (hours) => {
-            const totalMinutes = Math.round(hours * 60);
-            const h = Math.floor(totalMinutes / 60);
-            const m = totalMinutes % 60;
-            return `${h.toString().padStart(2, '0')}h:${m.toString().padStart(2, '0')}m`;
-        };
-
-        const modalContent = `
-            <div class="focus-stats-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <h3>Focus Statistics</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-value">${formatTime(stats.totalHours || 0)}</div>
-                        <div class="stat-label">Total Focus Time</div>
-                    </div>
-                    <!-- Removed Today's Time and This Week for clarity -->
-                    <div class="stat-item">
-                        <div class="stat-value">${stats.consecutiveDays || 0}</div>
-                        <div class="stat-label">Consecutive Days</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${cyclesCompleted}</div>
-                        <div class="stat-label">Cycles Completed</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${mostUsedTechnique}</div>
-                        <div class="stat-label">Most Used Technique</div>
-                    </div>
-                </div>
-                <button class="close-focus-stats">Got it</button>
-            </div>
-        `;
-
-        // Create modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
-        modalOverlay.innerHTML = modalContent;
-        document.body.appendChild(modalOverlay);
-
-        // Show modal
-        modalOverlay.style.display = 'flex';
-
-        // Close modal functionality
-        const closeBtn = modalOverlay.querySelector('.close-focus-stats');
-        const closeBtnX = modalOverlay.querySelector('.close-focus-stats-x');
-        
-        closeBtn.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        closeBtnX.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
-    }
-
-    showFocusStatsLoginModal() {
-        const modalContent = `
-            <div class="focus-stats-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <div class="login-required-content">
-                    <div class="login-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-icon lucide-chart-no-axes-column">
-                            <path d="M5 21v-6"/>
-                            <path d="M12 21V3"/>
-                            <path d="M19 21V9"/>
-                        </svg>
-                    </div>
-                    <h3>Track Your Focus Progress</h3>
-                    <p>Create an account to access detailed focus statistics and track your productivity journey.</p>
-                    <div class="login-required-buttons">
-                        <button class="login-btn" id="focusStatsLoginBtn">Login</button>
-                        <button class="cancel-btn" id="focusStatsCancelBtn">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Create modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
-        modalOverlay.innerHTML = modalContent;
-        document.body.appendChild(modalOverlay);
-
-        // Show modal
-        modalOverlay.style.display = 'flex';
-
-        // Close modal functionality
-        const closeBtnX = modalOverlay.querySelector('.close-focus-stats-x');
-        const loginBtn = modalOverlay.querySelector('#focusStatsLoginBtn');
-        const cancelBtn = modalOverlay.querySelector('#focusStatsCancelBtn');
-        
-        closeBtnX.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        loginBtn.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            // Redirect to full-page Clerk sign-in
-            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
-        });
-        
-        cancelBtn.addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
+        // Simple alert for now - could be enhanced later
+        alert(`Total Focus Time: ${timeString}\nCycles Completed: ${this.calculateCyclesCompleted(stats)}`);
     }
 
 
