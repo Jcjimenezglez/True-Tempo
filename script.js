@@ -1402,6 +1402,15 @@ class PomodoroTimer {
                     <p class="modal-subtitle">Enhance your focus with ambient sounds</p>
                 </div>
                 <div class="music-controls">
+                    <div class="volume-section">
+                        <div class="volume-header">
+                            <label class="volume-label">Volume</label>
+                            <span class="volume-value" id="ambientVolumeValue">${initialVolumePct}%</span>
+                        </div>
+                        <div class="volume-control">
+                            <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}" class="volume-slider">
+                        </div>
+                    </div>
                     <div class="music-section">
                         <div class="music-header">
                             <div class="music-info">
@@ -1415,15 +1424,6 @@ class PomodoroTimer {
                                     <input type="checkbox" id="lofiToggle" ${isEnabled ? 'checked' : ''}>
                                     <span class="toggle-slider"></span>
                                 </label>
-                            </div>
-                        </div>
-                        <div class="volume-section">
-                            <div class="volume-header">
-                                <label class="volume-label">Volume</label>
-                                <span class="volume-value" id="ambientVolumeValue">${initialVolumePct}%</span>
-                            </div>
-                            <div class="volume-control">
-                                <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}" class="volume-slider">
                             </div>
                         </div>
                     </div>
