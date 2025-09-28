@@ -1341,6 +1341,7 @@ class PomodoroTimer {
                 </div>
                 
                 <div class=\"music-controls\">
+                    <!-- Lofi Music Section -->
                     <div class=\"music-section\">
                         <div class=\"music-header\">
                             <div class=\"music-info\">
@@ -1375,6 +1376,47 @@ class PomodoroTimer {
                         </div>
                     </div>
                     
+                    <!-- Spotify Section -->
+                    <div class=\"spotify-section\">
+                        <div class=\"spotify-header\">
+                            <div class=\"spotify-info\">
+                                <div class=\"spotify-icon\">
+                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\">
+                                        <path d=\"M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z\"/>
+                                    </svg>
+                                </div>
+                                <div class=\"spotify-details\">
+                                    <h4>Spotify</h4>
+                                    <p>Your personal playlists</p>
+                                </div>
+                            </div>
+                            <div class=\"spotify-status\" id=\"spotifyStatus\">
+                                <span class=\"status-text\">Not connected</span>
+                            </div>
+                        </div>
+                        
+                        <div class=\"spotify-content\" id=\"spotifyContent\" style=\"display: none;\">
+                            <div class=\"spotify-devices\">
+                                <h5>Devices</h5>
+                                <div id=\"spotifyDevicesList\" class=\"devices-list\">
+                                    <div class=\"loading\">Loading devices...</div>
+                                </div>
+                            </div>
+                            
+                            <div class=\"spotify-playlists\">
+                                <h5>Playlists</h5>
+                                <div id=\"spotifyPlaylistsList\" class=\"playlists-list\">
+                                    <div class=\"loading\">Loading playlists...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class=\"spotify-actions\">
+                            <button id=\"connectSpotifyBtn\" class=\"spotify-btn primary\">Connect Spotify</button>
+                            <button id=\"disconnectSpotifyBtn\" class=\"spotify-btn secondary\" style=\"display: none;\">Disconnect</button>
+                        </div>
+                    </div>
+                    
                     <div class=\"preview-section\">
                         <button id=\"previewBtn\" class=\"preview-btn\">
                             <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
@@ -1397,6 +1439,9 @@ class PomodoroTimer {
         modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
+
+        // Setup Spotify controls within the modal
+        this.setupSpotifyInModal(modalOverlay);
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
@@ -4184,6 +4229,104 @@ class PomodoroTimer {
             });
         } catch (e) {
             el.innerHTML = '<div>Failed to load playlists</div>';
+        }
+    }
+
+    setupSpotifyInModal(modalOverlay) {
+        const connectBtn = modalOverlay.querySelector('#connectSpotifyBtn');
+        const disconnectBtn = modalOverlay.querySelector('#disconnectSpotifyBtn');
+        const statusEl = modalOverlay.querySelector('#spotifyStatus');
+        const contentEl = modalOverlay.querySelector('#spotifyContent');
+
+        if (!connectBtn || !disconnectBtn || !statusEl || !contentEl) return;
+
+        const updateSpotifyStatus = async () => {
+            try {
+                const resp = await fetch('/api/spotify-status');
+                const data = await resp.json();
+                if (data.connected) {
+                    statusEl.querySelector('.status-text').textContent = 'Connected';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    contentEl.style.display = 'block';
+                    this.loadSpotifyDevicesInModal(modalOverlay);
+                    this.loadSpotifyPlaylistsInModal(modalOverlay);
+                } else {
+                    statusEl.querySelector('.status-text').textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                    contentEl.style.display = 'none';
+                }
+            } catch (_) {
+                statusEl.querySelector('.status-text').textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+                contentEl.style.display = 'none';
+            }
+        };
+
+        connectBtn.addEventListener('click', () => {
+            window.location.href = '/api/spotify-auth-start';
+        });
+
+        disconnectBtn.addEventListener('click', async () => {
+            await fetch('/api/spotify-disconnect');
+            updateSpotifyStatus();
+        });
+
+        updateSpotifyStatus();
+    }
+
+    async loadSpotifyDevicesInModal(modalOverlay) {
+        const el = modalOverlay.querySelector('#spotifyDevicesList');
+        try {
+            const resp = await fetch('/api/spotify-devices');
+            const data = await resp.json();
+            const devices = data.devices || [];
+            el.innerHTML = devices.length ? 
+                devices.map(d => `<div class="device-item ${d.is_active ? 'active' : ''}" data-id="${d.id}">${d.is_active ? '• ' : ''}${d.name}</div>`).join('') : 
+                '<div class="no-devices">No devices found. Open Spotify on a device.</div>';
+        } catch (e) {
+            el.innerHTML = '<div class="error">Failed to load devices</div>';
+        }
+    }
+
+    async loadSpotifyPlaylistsInModal(modalOverlay) {
+        const el = modalOverlay.querySelector('#spotifyPlaylistsList');
+        try {
+            const resp = await fetch('/api/spotify-playlists');
+            const data = await resp.json();
+            const items = data.items || [];
+            el.innerHTML = items.length ? 
+                items.map(p => `<div class="playlist-item" data-uri="${p.uri}">${p.name}</div>`).join('') : 
+                '<div class="no-playlists">No playlists found</div>';
+
+            el.querySelectorAll('.playlist-item').forEach(pl => {
+                pl.addEventListener('click', async () => {
+                    const uri = pl.getAttribute('data-uri');
+                    // Find active device
+                    let deviceId = '';
+                    try {
+                        const devResp = await fetch('/api/spotify-devices');
+                        const devData = await devResp.json();
+                        const active = (devData.devices || []).find(d => d.is_active) || (devData.devices || [])[0];
+                        if (active) deviceId = active.id;
+                    } catch (_) {}
+                    
+                    try {
+                        await fetch('/api/spotify-play', { 
+                            method: 'PUT', 
+                            headers: { 'Content-Type': 'application/json' }, 
+                            body: JSON.stringify({ device_id: deviceId, context_uri: uri }) 
+                        });
+                        pl.textContent = pl.textContent + ' ✓';
+                    } catch (e) {
+                        console.error('Failed to play playlist:', e);
+                    }
+                });
+            });
+        } catch (e) {
+            el.innerHTML = '<div class="error">Failed to load playlists</div>';
         }
     }
 

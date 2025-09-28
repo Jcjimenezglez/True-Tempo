@@ -4182,6 +4182,164 @@ input:checked + .toggle-slider:before {
     transform: translateY(0);
 }
 
+/* Spotify Section in Background Music Modal */
+.spotify-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.spotify-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.spotify-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.spotify-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    background: rgba(30, 215, 96, 0.1);
+    border: 1px solid rgba(30, 215, 96, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1ed760;
+}
+
+.spotify-details h4 {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.spotify-details p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.spotify-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.spotify-content {
+    margin-bottom: 1.5rem;
+}
+
+.spotify-devices,
+.spotify-playlists {
+    margin-bottom: 1rem;
+}
+
+.spotify-devices h5,
+.spotify-playlists h5 {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+}
+
+.devices-list,
+.playlists-list {
+    max-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.device-item,
+.playlist-item {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.device-item:hover,
+.playlist-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.device-item.active {
+    background: rgba(30, 215, 96, 0.1);
+    border-color: rgba(30, 215, 96, 0.3);
+    color: #1ed760;
+}
+
+.no-devices,
+.no-playlists,
+.loading,
+.error {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.spotify-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.spotify-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-width: 120px;
+}
+
+.spotify-btn.primary {
+    background: #1ed760;
+    color: #000000;
+}
+
+.spotify-btn.primary:hover {
+    background: #1db954;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 215, 96, 0.3);
+}
+
+.spotify-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.spotify-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Drag and Drop Styles */
 .task-item {
     cursor: move;
