@@ -417,10 +417,44 @@ class PomodoroTimer {
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             // Hide developer tab when not authenticated
             this.updateDeveloperTabVisibility();
+            
+            // Check if current technique requires authentication and reset to Pomodoro if so
+            this.resetToDefaultTechniqueIfNeeded();
         }
         
         // Update dropdown badges based on authentication state
         this.updateDropdownState();
+    }
+
+    // Reset to default technique if current technique requires authentication
+    resetToDefaultTechniqueIfNeeded() {
+        const savedTechnique = localStorage.getItem('selectedTechnique');
+        if (!savedTechnique) return;
+        
+        // Check if the saved technique requires authentication
+        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        if (proTechniques.includes(savedTechnique)) {
+            // Reset to default Pomodoro technique
+            localStorage.setItem('selectedTechnique', 'pomodoro');
+            
+            // Update UI to show Pomodoro
+            if (this.techniqueTitle) {
+                this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+            }
+            
+            // Update dropdown selection
+            if (this.dropdownItems) {
+                this.dropdownItems.forEach(item => {
+                    item.classList.remove('selected');
+                    if (item.dataset.technique === 'pomodoro') {
+                        item.classList.add('selected');
+                    }
+                });
+            }
+            
+            // Load the default Pomodoro technique
+            this.loadTechnique('pomodoro');
+        }
     }
 
     // Controls visibility of the Developer tab based on current user
