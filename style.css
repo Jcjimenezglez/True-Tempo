@@ -3586,6 +3586,91 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
 }
 
+/* Inline Add Task Form */
+.add-task-form {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.add-task-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.add-task-form .form-group:last-of-type {
+    margin-bottom: 1rem;
+}
+
+.add-task-form label {
+    display: block;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.add-task-form input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.add-task-form input[type="text"]:focus {
+    outline: none;
+    border-color: #78dbff;
+}
+
+.add-task-form .pomodoros-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-task-form .pomodoros-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.add-task-form .pomodoros-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.add-task-form .pomodoros-control input[type="number"] {
+    width: 60px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.add-task-form .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 
 /* Empty state styles */
 .empty-state {

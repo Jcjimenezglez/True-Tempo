@@ -2820,8 +2820,29 @@ class PomodoroTimer {
                 </div>
             ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
+            
+            <!-- Add Task Form (initially hidden) -->
+            <div id="addTaskForm" class="add-task-form" style="display: none;">
+                <div class="form-group">
+                    <label>What are you working on?</label>
+                    <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>Est Pomodoros</label>
+                    <div class="pomodoros-control">
+                        <button class="pomodoros-btn" id="decreasePomodoros">-</button>
+                        <input type="number" id="pomodorosCount" value="1" min="1" max="10">
+                        <button class="pomodoros-btn" id="increasePomodoros">+</button>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-secondary" id="cancelAddTask">Cancel</button>
+                    <button class="btn-primary" id="saveTask">Save</button>
+                </div>
+            </div>
+            
             <div class="add-task-section">
-                <button class="add-task-btn">
+                <button class="add-task-btn" id="showAddTaskForm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 5v14"/>
                         <path d="M5 12h14"/>
@@ -2924,16 +2945,95 @@ class PomodoroTimer {
         }
 
         // Setup add task button
-        const addTaskBtn = modal.querySelector('.add-task-btn');
-        if (addTaskBtn) {
+        const addTaskBtn = modal.querySelector('#showAddTaskForm');
+        const addTaskForm = modal.querySelector('#addTaskForm');
+        if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
-                this.showAddTaskModal();
+                addTaskForm.style.display = 'block';
+                addTaskBtn.style.display = 'none';
+                // Focus on the input field
+                const taskInput = addTaskForm.querySelector('#taskDescription');
+                if (taskInput) taskInput.focus();
             });
         }
+
+        // Setup form controls
+        this.setupAddTaskFormControls(modal);
 
         // Load tasks (local + Todoist if authenticated)
         this.loadAllTasks();
         renderTasks();
+    }
+
+    setupAddTaskFormControls(modal) {
+        const addTaskForm = modal.querySelector('#addTaskForm');
+        const addTaskBtn = modal.querySelector('#showAddTaskForm');
+        const cancelBtn = modal.querySelector('#cancelAddTask');
+        const saveBtn = modal.querySelector('#saveTask');
+        const taskInput = modal.querySelector('#taskDescription');
+        const pomodorosInput = modal.querySelector('#pomodorosCount');
+        const decreaseBtn = modal.querySelector('#decreasePomodoros');
+        const increaseBtn = modal.querySelector('#increasePomodoros');
+
+        // Cancel button - hide form and show add button
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                addTaskForm.style.display = 'none';
+                addTaskBtn.style.display = 'flex';
+                // Clear form
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+            });
+        }
+
+        // Save button - add task and hide form
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                const description = taskInput ? taskInput.value.trim() : '';
+                const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
+                
+                if (description) {
+                    this.addLocalTask(description, pomodoros);
+                    // Hide form and show add button
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.style.display = 'flex';
+                    // Clear form
+                    taskInput.value = '';
+                    pomodorosInput.value = '1';
+                    // Refresh task list
+                    this.loadAllTasks();
+                    renderTasks();
+                }
+            });
+        }
+
+        // Pomodoros controls
+        if (decreaseBtn && pomodorosInput) {
+            decreaseBtn.addEventListener('click', () => {
+                const current = parseInt(pomodorosInput.value);
+                if (current > 1) {
+                    pomodorosInput.value = current - 1;
+                }
+            });
+        }
+
+        if (increaseBtn && pomodorosInput) {
+            increaseBtn.addEventListener('click', () => {
+                const current = parseInt(pomodorosInput.value);
+                if (current < 10) {
+                    pomodorosInput.value = current + 1;
+                }
+            });
+        }
+
+        // Enter key to save
+        if (taskInput) {
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && saveBtn) {
+                    saveBtn.click();
+                }
+            });
+        }
     }
 
     // Task configuration management
