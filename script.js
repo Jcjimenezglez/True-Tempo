@@ -1510,7 +1510,7 @@ class PomodoroTimer {
                         <div class="volume-header">
                             <label class="volume-label">Volume</label>
                             <span class="volume-value" id="ambientVolumeValue">${initialVolumePct}%</span>
-                        </div>
+                                </div>
                         <div class="volume-control">
                             <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}" class="volume-slider">
                         </div>
@@ -1530,7 +1530,7 @@ class PomodoroTimer {
                                 </label>
                             </div>
                         </div>
-                    </div>
+                            </div>
                 </div>
             </div>
         `;
@@ -1546,13 +1546,13 @@ class PomodoroTimer {
             document.body.removeChild(modalOverlay);
         });
 
-		const volumeSlider = modalOverlay.querySelector('#ambientVolume');
-		const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-		const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-		const previewBtn = modalOverlay.querySelector('#previewBtn');
+        const volumeSlider = modalOverlay.querySelector('#ambientVolume');
+        const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
+        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
+        const previewBtn = modalOverlay.querySelector('#previewBtn');
         
-		// Initialize controls with current state
-		volumeSlider.disabled = !isEnabled;
+        // Initialize controls with current state
+        volumeSlider.disabled = !isEnabled;
 		if (previewBtn) previewBtn.disabled = !isEnabled;
 
         // Toggle logic with persistence
@@ -1560,7 +1560,7 @@ class PomodoroTimer {
             const enabled = e.target.checked;
             this.ambientEnabled = enabled;
             localStorage.setItem('ambientEnabled', String(enabled));
-			volumeSlider.disabled = !enabled;
+            volumeSlider.disabled = !enabled;
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (!enabled) {
@@ -1569,19 +1569,19 @@ class PomodoroTimer {
             }
         });
 
-		// Preview button (play/pause functionality)
+        // Preview button (play/pause functionality)
 		if (previewBtn) {
-			previewBtn.addEventListener('click', async () => {
-				if (lofiToggle.checked) {
-					if (previewBtn.textContent === 'Preview') {
-						await this.playPlaylist();
-						previewBtn.textContent = 'Pause';
-					} else {
-						this.stopPlaylist();
-						previewBtn.textContent = 'Preview';
-					}
-				}
-			});
+        previewBtn.addEventListener('click', async () => {
+            if (lofiToggle.checked) {
+                if (previewBtn.textContent === 'Preview') {
+                    await this.playPlaylist();
+                    previewBtn.textContent = 'Pause';
+                } else {
+                    this.stopPlaylist();
+                    previewBtn.textContent = 'Preview';
+                }
+            }
+        });
 		}
 
         volumeSlider.addEventListener('input', (e) => {
@@ -1757,7 +1757,7 @@ class PomodoroTimer {
         if (!this.isAuthenticated || !this.user) {
             // Guest users: show local tasks only
             this.clearTodoistTasks();
-            this.showTaskListModal();
+        this.showTaskListModal();
         } else if (this.user && !this.isPro) {
             // Free users: show local tasks only
             this.clearTodoistTasks();
@@ -1815,7 +1815,7 @@ class PomodoroTimer {
                 this.resumePlaylist();
             } else {
                 // No music was playing, start fresh
-                this.playPlaylist();
+            this.playPlaylist();
             }
         }
         
@@ -2865,14 +2865,14 @@ class PomodoroTimer {
                 <div class="pro-upgrade-banner">
                     <div class="pro-banner-content">
                         <div class="pro-banner-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                        </div>
+                    </svg>
+                </div>
                         <div class="pro-banner-text">
                             <h4>Upgrade to Pro</h4>
                             <p>Connect Todoist and sync your tasks across devices</p>
-                        </div>
+            </div>
                         <button class="pro-banner-btn" id="upgradeFromTasksBtn">Upgrade</button>
                     </div>
                 </div>
@@ -2967,10 +2967,10 @@ class PomodoroTimer {
                         <div class="task-title">
                             ${task.content || '(untitled)'}
                         </div>
-                    </div>
+                            </div>
                     <div class="task-progress">
                         <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                    </div>
+                        </div>
                     <div class="task-menu" data-task-id="${task.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="1"/>
@@ -3256,9 +3256,7 @@ class PomodoroTimer {
         // Cancel button - restore original task item
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                // Keep the original selection state when canceling edit
-                // Don't change the selected state - let user control it manually
-                
+                // Keep current selection state; user will deselect manually if desired
                 // Re-render the task list to restore original items
                 const renderTasks = () => {
                     const listEl = modal.querySelector('#todoistTasksList');
@@ -3427,6 +3425,11 @@ class PomodoroTimer {
         if (taskInput) {
             taskInput.focus();
         }
+
+        // Auto-select the task being edited
+        this.setTaskConfig(taskId, { ...taskConfig, selected: true });
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
     }
 
 
