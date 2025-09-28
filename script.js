@@ -3288,8 +3288,12 @@ class PomodoroTimer {
                         this.setLocalTasks(tasks);
                     }
                     
-                    // Update task config
-                    this.setTaskConfig(taskId, { sessions: pomodoros });
+                    // Update task config (preserve completedSessions)
+                    const currentConfig = this.getTaskConfig(taskId);
+                    this.setTaskConfig(taskId, { 
+                        ...currentConfig, 
+                        sessions: pomodoros 
+                    });
                     
                     close();
                     // Refresh the task list
