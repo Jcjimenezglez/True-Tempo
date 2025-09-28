@@ -427,6 +427,49 @@ class PomodoroTimer {
         this.updateDropdownState();
     }
 
+    // Close all open modals to focus on timer
+    closeAllModals() {
+        // Close focus stats overlay (Tasks, Stats, etc.)
+        const focusStatsOverlays = document.querySelectorAll('.focus-stats-overlay');
+        focusStatsOverlays.forEach(overlay => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        });
+        
+        // Close welcome modal
+        const welcomeModal = document.getElementById('welcomeModalOverlay');
+        if (welcomeModal) welcomeModal.style.display = 'none';
+        
+        // Close logout modal
+        const logoutModal = document.getElementById('logoutModalOverlay');
+        if (logoutModal) logoutModal.style.display = 'none';
+        
+        // Close custom timer modal
+        const customTimerModal = document.getElementById('customTimerModal');
+        if (customTimerModal) customTimerModal.style.display = 'none';
+        
+        // Close upgrade modal
+        const upgradeModal = document.querySelector('.upgrade-modal-overlay');
+        if (upgradeModal) upgradeModal.style.display = 'none';
+        
+        // Close settings modal
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal) settingsModal.style.display = 'none';
+        
+        // Close celebration modal
+        const celebrationModal = document.querySelector('.celebration-modal-overlay');
+        if (celebrationModal) celebrationModal.style.display = 'none';
+        
+        // Close technique dropdown
+        if (this.techniqueDropdown) {
+            this.techniqueDropdown.classList.remove('open');
+        }
+        
+        // Close user profile dropdown
+        if (this.userProfileDropdown) {
+            this.userProfileDropdown.style.display = 'none';
+        }
+    }
+
     // Reset to default technique if current technique requires authentication
     resetToDefaultTechniqueIfNeeded() {
         const savedTechnique = localStorage.getItem('selectedTechnique');
@@ -1761,6 +1804,9 @@ class PomodoroTimer {
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
+        
+        // Close all open modals to focus on timer
+        this.closeAllModals();
         
         // Resume background music if enabled (persisted flag)
         if (this.ambientEnabled) {
