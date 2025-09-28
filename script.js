@@ -1634,13 +1634,19 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
-        // Clear Todoist tasks if user is in guest mode
+        // Check user type and subscription level
         if (!this.isAuthenticated || !this.user) {
+            // Guest users: show local tasks only
             this.clearTodoistTasks();
+            this.showTaskListModal();
+        } else if (this.user && !this.isPro) {
+            // Free users: show local tasks only
+            this.clearTodoistTasks();
+            this.showTaskListModal();
+        } else if (this.user && this.isPro) {
+            // Pro users: show Todoist integration modal
+            this.showTodoistModal();
         }
-        
-        // Show only task list modal (no integration controls)
-        this.showTaskListModal();
         // Don't toggle active state - keep button in normal state
     }
 
@@ -2698,6 +2704,10 @@ class PomodoroTimer {
         overlay.className = 'focus-stats-overlay';
         overlay.style.display = 'flex';
 
+        // Check if user is authenticated and not Pro
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPro;
+        const isGuest = !this.isAuthenticated || !this.user;
+
         const modal = document.createElement('div');
         modal.className = 'focus-stats-modal';
         modal.innerHTML = `
@@ -2718,6 +2728,22 @@ class PomodoroTimer {
                 </div>
             </div>
             <div class="tasks-divider"></div>
+            ${isFreeUser ? `
+                <div class="pro-upgrade-banner">
+                    <div class="pro-banner-content">
+                        <div class="pro-banner-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div class="pro-banner-text">
+                            <h4>Upgrade to Pro</h4>
+                            <p>Connect Todoist and sync your tasks across devices</p>
+                        </div>
+                        <button class="pro-banner-btn" id="upgradeFromTasksBtn">Upgrade</button>
+                    </div>
+                </div>
+            ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
             <div class="add-task-section">
                 <button class="add-task-btn">
@@ -2741,6 +2767,17 @@ class PomodoroTimer {
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) close();
         });
+
+        // Add upgrade button event listener for free users
+        if (isFreeUser) {
+            const upgradeBtn = modal.querySelector('#upgradeFromTasksBtn');
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', () => {
+                    close();
+                    this.showUpgradeModal();
+                });
+            }
+        }
 
         const listEl = modal.querySelector('#todoistTasksList');
 

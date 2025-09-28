@@ -4199,6 +4199,58 @@ input:checked + .toggle-slider:before {
 
 /* Spotify Section in Background Music Modal */
 
+/* Pro Upgrade Banner in Tasks Modal */
+.pro-upgrade-banner {
+    background: linear-gradient(135deg, rgba(120, 219, 255, 0.1), rgba(120, 219, 255, 0.05));
+    border: 1px solid rgba(120, 219, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pro-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pro-banner-icon {
+    color: #78dbff;
+    flex-shrink: 0;
+}
+
+.pro-banner-text h4 {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.pro-banner-text p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.pro-banner-btn {
+    background: #78dbff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.pro-banner-btn:hover {
+    background: #5bc5ff;
+    transform: translateY(-1px);
+}
+
 /* Drag and Drop Styles */
 .task-item {
     cursor: move;
