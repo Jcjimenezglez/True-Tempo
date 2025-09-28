@@ -3204,9 +3204,9 @@ class PomodoroTimer {
         const taskConfig = this.getTaskConfig(taskId);
         const currentSessions = taskConfig.sessions || 1;
 
-        // Replace task item with edit form
+        // Replace task item with the same form component as Add Task
         taskItem.innerHTML = `
-            <div class="add-task-form" style="margin: 0; border: none; background: transparent; padding: 0;">
+            <div class="add-task-form">
                 <div class="form-group">
                     <label>What are you working on?</label>
                     <input type="text" id="editTaskDescription" value="${task.content}" maxlength="100">
@@ -3424,6 +3424,11 @@ class PomodoroTimer {
         if (taskInput) {
             taskInput.focus();
         }
+
+        // Auto-select the task being edited
+        this.setTaskConfig(taskId, { ...taskConfig, selected: true });
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
     }
 
 
