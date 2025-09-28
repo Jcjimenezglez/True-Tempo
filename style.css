@@ -3464,6 +3464,11 @@ input:checked + .toggle-slider:before {
     border-left: 4px solid #78dbff;
 }
 
+/* Preserve selected blue accent on hover */
+.task-item.selected:hover {
+    border-left-color: #78dbff;
+}
+
 .task-progress {
     display: flex;
     align-items: center;

@@ -2246,9 +2246,10 @@ class PomodoroTimer {
             this.currentTaskIndex += 1;
             this.currentTask = this.taskQueue[this.currentTaskIndex];
         } else {
-            // All planned task sessions completed → pause and show modal
+            // All planned task sessions completed → pause and show completion modal
             this.pauseTimer();
-            this.openTasksCompletedModal();
+            try { this.markLocalTaskAsCompleted(this.currentTask?.id); } catch (_) {}
+            this.showTaskCompletedModal();
         }
     }
 
@@ -2268,8 +2269,52 @@ class PomodoroTimer {
     }
 
     openTasksCompletedModal() {
-        // Reuse Tasks modal to let user review; alternatively, open list directly
-        this.showTaskListModal();
+        this.showTaskCompletedModal();
+    }
+
+    markLocalTaskAsCompleted(taskId) {
+        if (!taskId) return;
+        const tasks = this.getLocalTasks();
+        const idx = tasks.findIndex(t => t.id === taskId);
+        if (idx !== -1) {
+            tasks[idx].completed = true;
+            this.setLocalTasks(tasks);
+        }
+    }
+
+    showTaskCompletedModal() {
+        const current = this.taskQueue && this.taskQueue[this.currentTaskIndex] ? this.taskQueue[this.currentTaskIndex] : null;
+        const taskId = current ? current.id : null;
+        const taskName = current ? (current.content || 'Task') : 'Task';
+        const config = taskId ? this.getTaskConfig(taskId) : { sessions: 1 };
+        const planned = config.sessions || 1;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="tasks-header">
+                <h3>Task completed</h3>
+                <p class="tasks-subtitle">${taskName} • ${planned} session${planned>1?'s':''} done</p>
+            </div>
+            <div class="tasks-divider"></div>
+            <div class="tasks-actions" style="display:flex; gap:8px; justify-content:flex-end;">
+                <button class="btn-primary" id="closeCompleted">OK</button>
+            </div>
+        `;
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        const close = () => { try { document.body.removeChild(overlay); } catch (_) {} };
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        modal.querySelector('#closeCompleted').addEventListener('click', close);
     }
     
     updateSessionInfo() {
@@ -3161,7 +3206,7 @@ class PomodoroTimer {
                         if (addSection) addSection.style.display = '';
                     } else {
                         // Create new task
-                        this.addLocalTask(description, pomodoros);
+                    this.addLocalTask(description, pomodoros);
                     }
                     // Clear form
                     taskInput.value = '';
