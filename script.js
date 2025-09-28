@@ -150,6 +150,9 @@ class PomodoroTimer {
         this.isAuthenticated = false;
         this.user = null;
         
+        // Task form state
+        this.editingTaskId = null;
+        
         // Audio state
         this.currentAudio = null;
         this.cassetteSounds = null;
@@ -3008,10 +3011,15 @@ class PomodoroTimer {
         const addTaskForm = modal.querySelector('#addTaskForm');
         if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
+                // Enter add mode
+                this.editingTaskId = null;
                 addTaskForm.style.display = 'block';
                 addTaskBtn.disabled = true;
-                // Focus on the input field
+                // Reset fields for add mode
                 const taskInput = addTaskForm.querySelector('#taskDescription');
+                const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
                 if (taskInput) taskInput.focus();
             });
         }
@@ -3048,7 +3056,7 @@ class PomodoroTimer {
         const decreaseBtn = modal.querySelector('#decreasePomodoros');
         const increaseBtn = modal.querySelector('#increasePomodoros');
 
-        // Cancel button - hide form and show add button
+        // Cancel button - hide form and show add button; exit edit mode if any
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
                 // If there are no tasks, keep the form open and button disabled
@@ -3063,17 +3071,32 @@ class PomodoroTimer {
                 // Clear form
                 if (taskInput) taskInput.value = '';
                 if (pomodorosInput) pomodorosInput.value = '1';
+                // Exit edit mode
+                this.editingTaskId = null;
             });
         }
 
-        // Save button - add task and hide form
+        // Save button - add or update task and hide form
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
                 const description = taskInput ? taskInput.value.trim() : '';
                 const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
                 
                 if (description) {
-                    this.addLocalTask(description, pomodoros);
+                    if (this.editingTaskId) {
+                        // Update existing task
+                        const tasks = this.getLocalTasks();
+                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                        if (idx !== -1) {
+                            tasks[idx].content = description;
+                            this.setLocalTasks(tasks);
+                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
+                        }
+                        this.editingTaskId = null;
+                    } else {
+                        // Create new task
+                        this.addLocalTask(description, pomodoros);
+                    }
                     // Clear form
                     taskInput.value = '';
                     pomodorosInput.value = '1';
@@ -3169,13 +3192,34 @@ class PomodoroTimer {
             });
         });
 
-        // Task menu (3 dots) click listeners
+        // Task menu (3 dots) click listeners - use bottom form in edit mode
         const taskMenus = modal.querySelectorAll('.task-menu');
         taskMenus.forEach(menu => {
             menu.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const taskId = menu.dataset.taskId;
-                this.showEditTaskInline(taskId, modal);
+                const addTaskForm = modal.querySelector('#addTaskForm');
+                const addTaskBtn = modal.querySelector('#showAddTaskForm');
+                if (!addTaskForm || !addTaskBtn) return;
+                
+                // Enter edit mode, prefill fields
+                const task = this.getLocalTasks().find(t => t.id === taskId);
+                if (!task) {
+                    // Only local tasks can be edited inline
+                    return;
+                }
+                const config = this.getTaskConfig(taskId);
+                this.editingTaskId = taskId;
+                addTaskForm.style.display = 'block';
+                addTaskBtn.disabled = true;
+                const taskInput = addTaskForm.querySelector('#taskDescription');
+                const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                if (taskInput) taskInput.value = task ? (task.content || '') : '';
+                if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
+                if (taskInput) taskInput.focus();
+                
+                // Scroll form into view
+                try { addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) {}
             });
         });
     }
