@@ -3461,12 +3461,7 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    background: rgba(120, 219, 255, 0.1);
-    border-color: #78dbff;
-}
-
-.task-item.selected .task-title {
-    color: #78dbff;
+    border-left: 4px solid #78dbff;
 }
 
 .task-checkbox {
