@@ -3256,6 +3256,11 @@ class PomodoroTimer {
         // Cancel button - restore original task item
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
+                // Deselect the task when canceling edit
+                this.setTaskConfig(taskId, { ...taskConfig, selected: false });
+                this.updateCurrentTaskBanner();
+                this.rebuildTaskQueue();
+                
                 // Re-render the task list to restore original items
                 const renderTasks = () => {
                     const listEl = modal.querySelector('#todoistTasksList');
