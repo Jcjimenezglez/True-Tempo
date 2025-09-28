@@ -3256,10 +3256,8 @@ class PomodoroTimer {
         // Cancel button - restore original task item
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                // Deselect the task when canceling edit
-                this.setTaskConfig(taskId, { ...taskConfig, selected: false });
-                this.updateCurrentTaskBanner();
-                this.rebuildTaskQueue();
+                // Keep the original selection state when canceling edit
+                // Don't change the selected state - let user control it manually
                 
                 // Re-render the task list to restore original items
                 const renderTasks = () => {
@@ -3429,11 +3427,6 @@ class PomodoroTimer {
         if (taskInput) {
             taskInput.focus();
         }
-
-        // Auto-select the task being edited
-        this.setTaskConfig(taskId, { ...taskConfig, selected: true });
-        this.updateCurrentTaskBanner();
-        this.rebuildTaskQueue();
     }
 
 
