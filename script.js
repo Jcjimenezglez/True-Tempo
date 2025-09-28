@@ -3028,9 +3028,17 @@ class PomodoroTimer {
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
                 const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
+                const saveBtn = addTaskForm.querySelector('#saveTask');
                 if (taskInput) taskInput.value = '';
                 if (pomodorosInput) pomodorosInput.value = '1';
                 if (deleteBtn) deleteBtn.style.display = 'none';
+                // First task UX: hide cancel if no tasks exist; also disable save until text
+                try {
+                    const count = (this.getAllTasks() || []).length;
+                    if (cancelBtn) cancelBtn.style.display = count === 0 ? 'none' : '';
+                    if (saveBtn) saveBtn.disabled = !taskInput || !taskInput.value.trim();
+                } catch (_) {}
                 if (taskInput) taskInput.focus();
             });
         }
@@ -3042,15 +3050,16 @@ class PomodoroTimer {
                 if (Array.isArray(initialTasks) && initialTasks.length === 0) {
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
-                    // Hide cancel button when no tasks exist
-                    if (cancelBtn) cancelBtn.style.display = 'none';
-                    // Disable save button initially
-                    if (saveBtn) saveBtn.disabled = true;
+                    // First task: hide cancel, disable save until input
+                    const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
+                    const saveBtn0 = addTaskForm.querySelector('#saveTask');
+                    if (cancelBtn0) cancelBtn0.style.display = 'none';
+                    if (saveBtn0) saveBtn0.disabled = true;
                 } else {
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
-                    // Show cancel button when tasks exist
-                    if (cancelBtn) cancelBtn.style.display = '';
+                    const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
+                    if (cancelBtn0) cancelBtn0.style.display = '';
                 }
             } catch (_) {}
         }
@@ -3082,13 +3091,9 @@ class PomodoroTimer {
                 if (!tasks || tasks.length === 0) {
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
-                    // Hide cancel button when no tasks exist
-                    cancelBtn.style.display = 'none';
                 } else {
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
-                    // Show cancel button when tasks exist
-                    cancelBtn.style.display = '';
                 }
                 // Clear form
                 if (taskInput) taskInput.value = '';
@@ -3198,8 +3203,7 @@ class PomodoroTimer {
                     saveBtn.click();
                 }
             });
-            
-            // Enable/disable save button based on input
+            // Enable/disable save based on input text
             taskInput.addEventListener('input', () => {
                 if (saveBtn) {
                     saveBtn.disabled = !taskInput.value.trim();
@@ -3976,9 +3980,8 @@ class PomodoroTimer {
         
         tasks.push(newTask);
         this.setLocalTasks(tasks);
-        
-        // Set task config with the correct session count
-        this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: false });
+        // Persist planned sessions so the card progress matches the chosen value
+        this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: false, completedSessions: 0 });
     }
 
     showImportModal() {
