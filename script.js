@@ -3085,6 +3085,11 @@ class PomodoroTimer {
                 if (pomodorosInput) pomodorosInput.value = '1';
                 // Exit edit mode
                 this.editingTaskId = null;
+                // Restore list and add-section
+                const listEl = modal.querySelector('#todoistTasksList');
+                const addSection = modal.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = '';
+                if (addSection) addSection.style.display = '';
             });
         }
 
@@ -3105,6 +3110,11 @@ class PomodoroTimer {
                 pomodorosInput.value = '1';
                 addTaskForm.style.display = 'none';
                 addTaskBtn.disabled = false;
+                // Restore list and add-section
+                const listEl = modal.querySelector('#todoistTasksList');
+                const addSection = modal.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = '';
+                if (addSection) addSection.style.display = '';
                 // Refresh list/banner/queue
                 this.loadAllTasks();
                 if (typeof renderTasks === 'function') renderTasks();
@@ -3130,6 +3140,11 @@ class PomodoroTimer {
                             this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
                         }
                         this.editingTaskId = null;
+                        // Restore list and add-section
+                        const listEl = modal.querySelector('#todoistTasksList');
+                        const addSection = modal.querySelector('.add-task-section');
+                        if (listEl) listEl.style.display = '';
+                        if (addSection) addSection.style.display = '';
                     } else {
                         // Create new task
                         this.addLocalTask(description, pomodoros);
@@ -3249,6 +3264,11 @@ class PomodoroTimer {
                 this.editingTaskId = taskId;
                 addTaskForm.style.display = 'block';
                 addTaskBtn.disabled = true;
+                // Hide list and add-section while editing
+                const listEl = modal.querySelector('#todoistTasksList');
+                const addSection = modal.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = 'none';
+                if (addSection) addSection.style.display = 'none';
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
                 const deleteBtn = addTaskForm.querySelector('#deleteTask');
@@ -3257,7 +3277,8 @@ class PomodoroTimer {
                 if (deleteBtn) deleteBtn.style.display = '';
                 if (taskInput) taskInput.focus();
                 
-                // Keep current scroll so the task item remains visible while editing
+                // Scroll form into view
+                try { addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) {}
             });
         });
     }
