@@ -4251,6 +4251,8 @@ class PomodoroTimer {
                     contentEl.style.display = 'block';
                     this.loadSpotifyDevicesInModal(modalOverlay);
                     this.loadSpotifyPlaylistsInModal(modalOverlay);
+                    // Try to provision a Web Player if there are no devices
+                    this.initSpotifyWebPlayerIfNeeded(modalOverlay);
                 } else {
                     statusEl.querySelector('.status-text').textContent = 'Not connected';
                     connectBtn.style.display = '';
@@ -4275,6 +4277,53 @@ class PomodoroTimer {
         });
 
         updateSpotifyStatus();
+    }
+
+    initSpotifyWebPlayerIfNeeded(modalOverlay) {
+        // If devices exist, skip
+        fetch('/api/spotify-devices').then(r => r.json()).then(async data => {
+            const devices = data.devices || [];
+            if (devices.length > 0) return;
+
+            // Load SDK once
+            if (!window.__spotifySdkLoading && !window.Spotify) {
+                window.__spotifySdkLoading = true;
+                const s = document.createElement('script');
+                s.src = 'https://sdk.scdn.co/spotify-player.js';
+                document.head.appendChild(s);
+            }
+
+            const ensureReady = () => new Promise(resolve => {
+                if (window.Spotify) return resolve();
+                const iv = setInterval(() => { if (window.Spotify) { clearInterval(iv); resolve(); } }, 100);
+                setTimeout(() => { clearInterval(iv); resolve(); }, 8000);
+            });
+
+            await ensureReady();
+            if (!window.Spotify) return;
+
+            if (!this.spotifyPlayer) {
+                this.spotifyPlayer = new window.Spotify.Player({
+                    name: 'Superfocus Web Player',
+                    getOAuthToken: async cb => {
+                        try {
+                            const t = await fetch('/api/spotify-access-token');
+                            const j = await t.json();
+                            cb(j.access_token);
+                        } catch (_) { cb(''); }
+                    },
+                    volume: 0.5,
+                });
+
+                this.spotifyPlayer.addListener('ready', ({ device_id }) => {
+                    this.spotifyWebDeviceId = device_id;
+                    // Refresh device list to include the web player
+                    this.loadSpotifyDevicesInModal(modalOverlay);
+                });
+                this.spotifyPlayer.addListener('not_ready', () => {});
+                this.spotifyPlayer.connect();
+            }
+        }).catch(() => {});
     }
 
     async loadSpotifyDevicesInModal(modalOverlay) {
