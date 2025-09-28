@@ -1378,29 +1378,7 @@ class PomodoroTimer {
                         </div>
                     </div>
                     
-                    <!-- Spotify Section -->
-                    <div class=\"spotify-section\">
-                        <div class=\"spotify-header\">
-                            <div class=\"spotify-info\">
-                                <div class=\"spotify-icon\">
-                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\">
-                                        <path d=\"M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z\"/>
-                                    </svg>
-                                </div>
-                                <div class=\"spotify-details\">
-                                    <h4>Spotify</h4>
-                                    <p>Your personal playlists</p>
-                                </div>
-                            </div>
-                            <div class=\"spotify-status\" id=\"spotifyStatus\">
-                                <span class=\"status-text\">Not connected</span>
-                            </div>
-                        </div>
                         
-                        <div class=\"spotify-content\" id=\"spotifyContent\" style=\"display: none;\">
-                            <div class=\"spotify-playlists\">
-                                <div class=\"music-header\" style=\"margin-bottom: .75rem;\">
-                                    <div class=\"music-info\">
                                         <div class=\"music-icon\">
                                             <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
                                                 <path d=\"M9 18V5l12-2v13"/>
@@ -1426,20 +1404,7 @@ class PomodoroTimer {
                             </div>
                         </div>
                         
-                        <div class=\"spotify-actions\">
-                            <button id=\"connectSpotifyBtn\" class=\"spotify-btn primary\">Connect Spotify</button>
-                            <button id=\"disconnectSpotifyBtn\" class=\"spotify-btn secondary\" style=\"display: none;\">Disconnect</button>
-                        </div>
-                    </div>
                     
-                    <div class=\"preview-section\">
-                        <button id=\"previewBtn\" class=\"preview-btn\">
-                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
-                                <polygon points=\"5,3 19,12 5,21\"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
                 </div>
             </div>
         `;
@@ -1458,11 +1423,9 @@ class PomodoroTimer {
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-        const previewBtn = modalOverlay.querySelector('#previewBtn');
         
         // Initialize controls with current state
         volumeSlider.disabled = !isEnabled;
-        previewBtn.disabled = !isEnabled;
 
         // Toggle logic with persistence
         lofiToggle.addEventListener('change', (e) => {
@@ -1470,26 +1433,12 @@ class PomodoroTimer {
             this.ambientEnabled = enabled;
             localStorage.setItem('ambientEnabled', String(enabled));
             volumeSlider.disabled = !enabled;
-            previewBtn.disabled = !enabled;
             
             if (!enabled) {
                 this.stopPlaylist();
-                previewBtn.textContent = 'Preview';
             }
         });
 
-        // Preview button (play/pause functionality)
-        previewBtn.addEventListener('click', async () => {
-            if (lofiToggle.checked) {
-                if (previewBtn.textContent === 'Preview') {
-                    await this.playPlaylist();
-                    previewBtn.textContent = 'Pause';
-                } else {
-                    this.stopPlaylist();
-                    previewBtn.textContent = 'Preview';
-                }
-            }
-        });
 
         volumeSlider.addEventListener('input', (e) => {
             volumeValue.textContent = e.target.value + '%';
