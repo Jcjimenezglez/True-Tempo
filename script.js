@@ -4060,6 +4060,131 @@ class PomodoroTimer {
                 this.techniqueDropdown.classList.add('open');
             }
         });
+
+        // Initialize integration controls for Spotify similar to Todoist
+        this.setupSpotifyIntegrationControls();
+    }
+
+    setupSpotifyIntegrationControls() {
+        try {
+            const connectBtn = document.getElementById('connectSpotifyBtn');
+            const disconnectBtn = document.getElementById('disconnectSpotifyBtn');
+            const openBtn = document.getElementById('openSpotifyModalBtn');
+            const statusText = document.getElementById('spotifyStatusText');
+
+            if (!connectBtn || !disconnectBtn || !openBtn || !statusText) return;
+
+            const refreshStatus = async () => {
+                try {
+                    const resp = await fetch('/api/spotify-status');
+                    const data = await resp.json();
+                    if (data.connected) {
+                        statusText.textContent = 'Connected';
+                        connectBtn.style.display = 'none';
+                        disconnectBtn.style.display = '';
+                        openBtn.style.display = '';
+                    } else {
+                        statusText.textContent = 'Not connected';
+                        connectBtn.style.display = '';
+                        disconnectBtn.style.display = 'none';
+                        openBtn.style.display = 'none';
+                    }
+                } catch (_) {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                    openBtn.style.display = 'none';
+                }
+            };
+
+            connectBtn.addEventListener('click', async () => {
+                window.location.href = '/api/spotify-auth-start';
+            });
+
+            disconnectBtn.addEventListener('click', async () => {
+                await fetch('/api/spotify-disconnect');
+                refreshStatus();
+            });
+
+            openBtn.addEventListener('click', () => {
+                this.showSpotifyModal();
+            });
+
+            refreshStatus();
+        } catch (_) {}
+    }
+
+    showSpotifyModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '720px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3>Spotify</h3>
+            <div class="spotify-content">
+                <div class="spotify-devices" id="spotifyDevices"></div>
+                <div class="spotify-playlists" id="spotifyPlaylists"></div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => { try { document.body.removeChild(overlay); } catch (_) {} };
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+        // Load devices and playlists
+        this.loadSpotifyDevices(modal);
+        this.loadSpotifyPlaylists(modal);
+    }
+
+    async loadSpotifyDevices(modal) {
+        const el = modal.querySelector('#spotifyDevices');
+        try {
+            const resp = await fetch('/api/spotify-devices');
+            const data = await resp.json();
+            const devices = data.devices || [];
+            el.innerHTML = '<h4>Devices</h4>' + (devices.length ? devices.map(d => `<div class="device" data-id="${d.id}">${d.is_active ? '• ' : ''}${d.name}</div>`).join('') : '<div>No devices found. Open Spotify on a device.</div>');
+        } catch (e) {
+            el.innerHTML = '<div>Failed to load devices</div>';
+        }
+    }
+
+    async loadSpotifyPlaylists(modal) {
+        const el = modal.querySelector('#spotifyPlaylists');
+        try {
+            const resp = await fetch('/api/spotify-playlists');
+            const data = await resp.json();
+            const items = data.items || [];
+            el.innerHTML = '<h4>Playlists</h4>' + (items.length ? items.map(p => `<div class="playlist" data-uri="${p.uri}">${p.name}</div>`).join('') : '<div>No playlists</div>');
+
+            el.querySelectorAll('.playlist').forEach(pl => {
+                pl.addEventListener('click', async () => {
+                    const uri = pl.getAttribute('data-uri');
+                    // Find active device if any
+                    let deviceId = '';
+                    try {
+                        const devResp = await fetch('/api/spotify-devices');
+                        const devData = await devResp.json();
+                        const active = (devData.devices || []).find(d => d.is_active) || (devData.devices || [])[0];
+                        if (active) deviceId = active.id;
+                    } catch (_) {}
+                    await fetch('/api/spotify-play', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: deviceId, context_uri: uri }) });
+                });
+            });
+        } catch (e) {
+            el.innerHTML = '<div>Failed to load playlists</div>';
+        }
     }
 
     showCustomTimerModal() {
