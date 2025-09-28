@@ -2880,7 +2880,7 @@ class PomodoroTimer {
                     <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
                 </div>
                 <div class="form-group">
-                    <label>Est Pomodoros</label>
+                    <label>Sessions</label>
                     <div class="pomodoros-control">
                         <button class="pomodoros-btn" id="decreasePomodoros">-</button>
                         <input type="number" id="pomodorosCount" value="1" min="1" max="10">

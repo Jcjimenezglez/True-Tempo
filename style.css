@@ -3665,6 +3665,14 @@ input:checked + .toggle-slider:before {
     border-radius: 6px;
     color: #ffffff;
     text-align: center;
+    /* Hide native number input spinners */
+    -moz-appearance: textfield;
+}
+
+.add-task-form .pomodoros-control input[type="number"]::-webkit-outer-spin-button,
+.add-task-form .pomodoros-control input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .add-task-form .form-actions {
