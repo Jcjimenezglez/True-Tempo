@@ -586,11 +586,11 @@ body::after {
 }
 
 .music-btn.playing {
-    color: #4ade80;
+    color: #78dbff;
 }
 
 .music-btn.playing:hover {
-    background: rgba(74, 222, 128, 0.1);
+    background: rgba(120, 219, 255, 0.1);
 }
 
 .task-btn {
