@@ -3257,8 +3257,7 @@ class PomodoroTimer {
                 if (deleteBtn) deleteBtn.style.display = '';
                 if (taskInput) taskInput.focus();
                 
-                // Scroll form into view
-                try { addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) {}
+                // Keep current scroll so the task item remains visible while editing
             });
         });
     }
