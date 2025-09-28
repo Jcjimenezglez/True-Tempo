@@ -2233,6 +2233,12 @@ class PomodoroTimer {
     // Advance to next task slot after finishing a focus session
     advanceTaskQueueAfterFocus() {
         if (!this.taskQueue || this.taskQueue.length === 0) return;
+        
+        // Increment completed sessions for current task
+        if (this.currentTask && this.currentTask.id) {
+            this.incrementTaskCompletedSessions(this.currentTask.id);
+        }
+        
         // Only advance when the finished section was a work session
         if (this.currentTaskIndex < this.taskQueue.length - 1) {
             this.currentTaskIndex += 1;
@@ -2949,6 +2955,9 @@ class PomodoroTimer {
                 const taskConfig = this.getTaskConfig(task.id);
                 const sessions = taskConfig.sessions || 1;
                 
+                const completedSessions = taskConfig.completedSessions || 0;
+                const totalSessions = taskConfig.sessions || 1;
+                
                 const itemContent = `
                     <div class="task-checkbox">
                         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} disabled>
@@ -2958,6 +2967,9 @@ class PomodoroTimer {
                         <div class="task-title">
                             ${task.content || '(untitled)'}
                         </div>
+                    </div>
+                    <div class="task-progress">
+                        <span class="progress-text">${completedSessions}/${totalSessions}</span>
                     </div>
                     <div class="task-menu" data-task-id="${task.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3117,6 +3129,21 @@ class PomodoroTimer {
         const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
         configs[taskId] = { ...configs[taskId], ...config };
         localStorage.setItem('taskConfigs', JSON.stringify(configs));
+    }
+
+    incrementTaskCompletedSessions(taskId) {
+        const config = this.getTaskConfig(taskId);
+        const currentCompleted = config.completedSessions || 0;
+        const newCompleted = currentCompleted + 1;
+        
+        // Don't exceed the total sessions planned
+        const totalSessions = config.sessions || 1;
+        const finalCompleted = Math.min(newCompleted, totalSessions);
+        
+        this.setTaskConfig(taskId, { 
+            ...config, 
+            completedSessions: finalCompleted 
+        });
     }
 
     setupTaskEventListeners(modal) {

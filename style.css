@@ -3464,6 +3464,19 @@ input:checked + .toggle-slider:before {
     border-left: 4px solid #78dbff;
 }
 
+.task-progress {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 12px;
+}
+
+.progress-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 500;
+}
+
 .task-checkbox {
     position: relative;
 }
