@@ -37,6 +37,10 @@ class PomodoroTimer {
 		// Persisted enable flag (default On)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
+
+		// Spotify playback state
+		this.spotifyEnabled = localStorage.getItem('spotifyEnabled') === 'true';
+		this.spotifySelectedUri = localStorage.getItem('spotifySelectedUri') || '';
 		this.playlist = [
             "Chasing Clouds.mp3",
             "Clouds Drift By.mp3",
@@ -1404,7 +1408,27 @@ class PomodoroTimer {
                             </div>
                             
                             <div class=\"spotify-playlists\">
-                                <h5>Playlists</h5>
+                                <div class=\"music-header\" style=\"margin-bottom: .75rem;\">
+                                    <div class=\"music-info\">
+                                        <div class=\"music-icon\">
+                                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
+                                                <path d=\"M9 18V5l12-2v13"/>
+                                                <circle cx=\"6\" cy=\"18\" r=\"3\"/>
+                                                <circle cx=\"18\" cy=\"16\" r=\"3\"/>
+                                            </svg>
+                                        </div>
+                                        <div class=\"music-details\">
+                                            <h4>Playlists</h4>
+                                            <p>Use Spotify playlists as background</p>
+                                        </div>
+                                    </div>
+                                    <div class=\"toggle-container\">
+                                        <label class=\"toggle-switch\">
+                                            <input type=\"checkbox\" id=\"spotifyToggle\">
+                                            <span class=\"toggle-slider\"></span>
+                                        </label>
+                                    </div>
+                                </div>
                                 <div id=\"spotifyPlaylistsList\" class=\"playlists-list\">
                                     <div class=\"loading\">Loading playlists...</div>
                                 </div>
@@ -1464,7 +1488,42 @@ class PomodoroTimer {
                 this.stopPlaylist();
                 previewBtn.textContent = 'Preview';
             }
+
+            // Mutual exclusivity with Spotify
+            const spotifyToggle = modalOverlay.querySelector('#spotifyToggle');
+            if (enabled && spotifyToggle) {
+                spotifyToggle.checked = false;
+                this.spotifyEnabled = false;
+                localStorage.setItem('spotifyEnabled', 'false');
+                this.pauseSpotify();
+            }
         });
+
+        // Spotify toggle handler
+        const spotifyToggleEl = modalOverlay.querySelector('#spotifyToggle');
+        if (spotifyToggleEl) {
+            spotifyToggleEl.checked = this.spotifyEnabled === true;
+            spotifyToggleEl.addEventListener('change', (e) => {
+                const on = e.target.checked;
+                this.spotifyEnabled = on;
+                localStorage.setItem('spotifyEnabled', String(on));
+                if (on) {
+                    // turn off lofi
+                    lofiToggle.checked = false;
+                    this.ambientEnabled = false;
+                    localStorage.setItem('ambientEnabled', 'false');
+                    volumeSlider.disabled = true;
+                    previewBtn.disabled = true;
+                    this.stopPlaylist();
+                    // if a playlist is selected, start playback
+                    if (this.spotifySelectedUri) {
+                        this.playSpotifyUri(this.spotifySelectedUri);
+                    }
+                } else {
+                    this.pauseSpotify();
+                }
+            });
+        }
 
         // Preview button (play/pause functionality)
         previewBtn.addEventListener('click', async () => {
@@ -4353,12 +4412,22 @@ class PomodoroTimer {
             const data = await resp.json();
             const items = data.items || [];
             el.innerHTML = items.length ? 
-                items.map(p => `<div class="playlist-item" data-uri="${p.uri}">${p.name}</div>`).join('') : 
+                items.map(p => `<div class=\"playlist-item\" data-uri=\"${p.uri}\">${p.name}</div>`).join('') : 
                 '<div class="no-playlists">No playlists found</div>';
 
             el.querySelectorAll('.playlist-item').forEach(pl => {
                 pl.addEventListener('click', async () => {
                     const uri = pl.getAttribute('data-uri');
+                    this.spotifySelectedUri = uri;
+                    localStorage.setItem('spotifySelectedUri', uri);
+                    // if spotify toggle is ON, start playing immediately
+                    const spotifyToggle = modalOverlay.querySelector('#spotifyToggle');
+                    if (spotifyToggle && spotifyToggle.checked) {
+                        await this.playSpotifyUri(uri);
+                        // visual feedback
+                        el.querySelectorAll('.playlist-item').forEach(x => x.classList.remove('active'));
+                        pl.classList.add('active');
+                    }
                     // Find active device
                     let deviceId = '';
                     try {
@@ -4368,21 +4437,53 @@ class PomodoroTimer {
                         if (active) deviceId = active.id;
                     } catch (_) {}
                     
-                    try {
-                        await fetch('/api/spotify-play', { 
-                            method: 'PUT', 
-                            headers: { 'Content-Type': 'application/json' }, 
-                            body: JSON.stringify({ device_id: deviceId, context_uri: uri }) 
-                        });
-                        pl.textContent = pl.textContent + ' ✓';
-                    } catch (e) {
-                        console.error('Failed to play playlist:', e);
-                    }
+                    // Note: actual playback now centralized in playSpotifyUri
                 });
             });
         } catch (e) {
             el.innerHTML = '<div class="error">Failed to load playlists</div>';
         }
+    }
+
+    async playSpotifyUri(uri) {
+        try {
+            // ensure web player exists/active
+            if (!this.spotifyWebDeviceId) {
+                await this.initSpotifyWebPlayerIfNeeded(document.body);
+            }
+            let deviceId = this.spotifyWebDeviceId || '';
+            try {
+                const devResp = await fetch('/api/spotify-devices');
+                const devData = await devResp.json();
+                const active = (devData.devices || []).find(d => d.is_active) || (devData.devices || [])[0];
+                if (active) deviceId = active.id;
+            } catch (_) {}
+
+            if (this.spotifyWebDeviceId && deviceId !== this.spotifyWebDeviceId) {
+                await fetch('/api/spotify-transfer', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: this.spotifyWebDeviceId, play: true }) });
+                deviceId = this.spotifyWebDeviceId;
+            }
+
+            await fetch('/api/spotify-play', { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ device_id: deviceId, context_uri: uri }) 
+            });
+        } catch (e) {
+            console.error('Failed to play Spotify URI', e);
+        }
+    }
+
+    async pauseSpotify() {
+        try {
+            // Use Spotify API pause
+            const cookies = document.cookie;
+            // Just call play endpoint with empty body? Better to call a pause endpoint (not added),
+            // but Web SDK can pause:
+            if (this.spotifyPlayer && this.spotifyPlayer.pause) {
+                await this.spotifyPlayer.pause();
+            }
+        } catch (_) {}
     }
 
     showCustomTimerModal() {
@@ -4757,6 +4858,15 @@ class PomodoroTimer {
         }
     }
 
+    pauseSpotify() {
+        // Implement logic to pause Spotify playback
+        console.log('Spotify paused');
+    }
+
+    playSpotifyUri(uri) {
+        // Implement logic to play a specific Spotify URI
+        console.log('Playing Spotify URI:', uri);
+    }
 
 }
 
