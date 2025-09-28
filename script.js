@@ -1851,6 +1851,9 @@ class PomodoroTimer {
         clearInterval(this.interval);
         this.playUiSound('pause');
         
+        // Close all open modals to focus on timer
+        this.closeAllModals();
+        
         // Pause background music if playing
         if (this.ambientPlaying) {
             this.pausePlaylist();
@@ -1881,6 +1884,9 @@ class PomodoroTimer {
         this.startPauseBtn.classList.remove('running');
         
         clearInterval(this.interval);
+        
+        // Close all open modals to focus on timer
+        this.closeAllModals();
         
         // Pause background music if playing
         if (this.ambientPlaying) {
