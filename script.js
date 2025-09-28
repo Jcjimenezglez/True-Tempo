@@ -1405,7 +1405,6 @@ class PomodoroTimer {
                     <div class="music-section">
                         <div class="music-header">
                             <div class="music-info">
-                                <div class="music-icon"></div>
                                 <div class="music-details">
                                     <h4>Lofi Music</h4>
                                     <p>Relaxing beats for deep focus</p>
