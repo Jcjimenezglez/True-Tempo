@@ -2056,8 +2056,7 @@ class PomodoroTimer {
             this.pauseTimerSilent();
             this.startPauseBtn.classList.remove('running');
             this.isRunning = false;
-            // Show celebration modal and exit
-            this.showCycleCompletedCelebration(lastCycleWasLegitimate);
+            // No modal, just stop at end of cycle
             return;
         }
         
@@ -2246,10 +2245,9 @@ class PomodoroTimer {
             this.currentTaskIndex += 1;
             this.currentTask = this.taskQueue[this.currentTaskIndex];
         } else {
-            // All planned task sessions completed → pause and show completion modal
+            // All planned task sessions completed → pause only (no modal)
             this.pauseTimer();
             try { this.markLocalTaskAsCompleted(this.currentTask?.id); } catch (_) {}
-            this.showTaskCompletedModal();
         }
     }
 
@@ -2268,9 +2266,7 @@ class PomodoroTimer {
         } catch (_) {}
     }
 
-    openTasksCompletedModal() {
-        this.showTaskCompletedModal();
-    }
+    openTasksCompletedModal() {}
 
     markLocalTaskAsCompleted(taskId) {
         if (!taskId) return;
@@ -2282,40 +2278,7 @@ class PomodoroTimer {
         }
     }
 
-    showTaskCompletedModal() {
-        const current = this.taskQueue && this.taskQueue[this.currentTaskIndex] ? this.taskQueue[this.currentTaskIndex] : null;
-        const taskId = current ? current.id : null;
-        const taskName = current ? (current.content || 'Task') : 'Task';
-        const config = taskId ? this.getTaskConfig(taskId) : { sessions: 1 };
-        const planned = config.sessions || 1;
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
-        const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal';
-        modal.innerHTML = `
-            <button class="close-focus-stats-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="tasks-header">
-                <h3>Task completed</h3>
-                <p class="tasks-subtitle">${taskName} • ${planned} session${planned>1?'s':''} done</p>
-            </div>
-            <div class="tasks-divider"></div>
-            <div class="tasks-actions" style="display:flex; gap:8px; justify-content:flex-end;">
-                <button class="btn-primary" id="closeCompleted">OK</button>
-            </div>
-        `;
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-        const close = () => { try { document.body.removeChild(overlay); } catch (_) {} };
-        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
-        modal.querySelector('#closeCompleted').addEventListener('click', close);
-    }
+    showTaskCompletedModal() {}
     
     updateSessionInfo() {
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
@@ -2627,58 +2590,7 @@ class PomodoroTimer {
         }
     }
 
-    showCycleCompletedCelebration(wasLegitimate) {
-        
-        // Create celebration modal with different content based on legitimacy
-        const celebrationModal = document.createElement('div');
-        celebrationModal.className = 'celebration-modal-overlay';
-        
-        let modalContent;
-        if (wasLegitimate) {
-            modalContent = `
-                <div class="celebration-modal">
-                    <div class="celebration-content">
-                        <div class="celebration-icon">🎉</div>
-                        <h2>Cycle Completed!</h2>
-                        <p>Great job! You've finished a complete focus cycle.</p>
-                        <button class="celebration-close-btn">Awesome!</button>
-                    </div>
-                </div>
-            `;
-        } else {
-            modalContent = `
-                <div class="celebration-modal">
-                    <div class="celebration-content">
-                        <div class="celebration-icon">⚠️</div>
-                        <h2>Cycle Incomplete</h2>
-                        <p>You didn't complete enough focus time in this cycle. You completed ${Math.floor(this.actualFocusTimeCompleted / 60)} minutes out of ${Math.floor(this.requiredFocusTimeForCycle / 60)} required minutes.</p>
-                        <button class="celebration-close-btn">Try Again</button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        celebrationModal.innerHTML = modalContent;
-        
-        document.body.appendChild(celebrationModal);
-        celebrationModal.style.display = 'flex';
-        
-        // Close celebration modal
-        const closeBtn = celebrationModal.querySelector('.celebration-close-btn');
-        closeBtn.addEventListener('click', () => {
-            document.body.removeChild(celebrationModal);
-            // Reset button state for new cycle
-            this.startPauseBtn.classList.remove('running');
-            this.isRunning = false;
-        });
-        
-        // Don't allow closing by clicking overlay - user must click button
-        celebrationModal.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-        
-        // No auto-close - user must click "Awesome!" button
-    }
+    showCycleCompletedCelebration(wasLegitimate) {}
 
     // =========================
     // Todoist Integration (Free Beta)
