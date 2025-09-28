@@ -2801,8 +2801,8 @@ class PomodoroTimer {
             </button>
             <div class="tasks-header">
                 <h3>Tasks</h3>
+                <p class="tasks-subtitle">Manage your focus tasks</p>
             </div>
-            <div class="tasks-divider"></div>
             ${isFreeUser ? `
                 <div class="pro-upgrade-banner">
                     <div class="pro-banner-content">
