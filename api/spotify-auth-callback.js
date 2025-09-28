@@ -53,20 +53,24 @@ module.exports = async (req, res) => {
     const now = Math.floor(Date.now() / 1000);
     const expiry = now + expiresIn - 60; // refresh a bit early
 
-    const cookies = [
+    const accessCookie = [
       'spotify_access_token=' + encodeURIComponent(accessToken),
       'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', `Max-Age=${expiresIn}`
-    ];
-    if (refreshToken) {
-      cookies.push('\n');
-      cookies.push(['spotify_refresh_token=' + encodeURIComponent(refreshToken), 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', 'Max-Age=31536000'].join('; '));
-    }
-    cookies.push('\n');
-    cookies.push(['spotify_expiry=' + expiry, 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', `Max-Age=${expiresIn}`].join('; '));
+    ].join('; ');
+    const expiryCookie = [
+      'spotify_expiry=' + expiry,
+      'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', `Max-Age=${expiresIn}`
+    ].join('; ');
+    const refreshCookie = refreshToken ? [
+      'spotify_refresh_token=' + encodeURIComponent(refreshToken),
+      'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', 'Max-Age=31536000'
+    ].join('; ') : null;
+
+    const cookieHeaders = refreshCookie ? [accessCookie, expiryCookie, refreshCookie] : [accessCookie, expiryCookie];
 
     res.writeHead(302, {
       Location: '/?spotify=connected',
-      'Set-Cookie': cookies.join('')
+      'Set-Cookie': cookieHeaders
     });
     res.end();
   } catch (e) {

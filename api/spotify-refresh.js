@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
     const now = Math.floor(Date.now() / 1000);
     const expiry = now + expiresIn - 60;
 
-    const cookiesOut = [
+    const accessCookie = [
       'spotify_access_token=' + encodeURIComponent(accessToken),
       'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', `Max-Age=${expiresIn}`
     ].join('; ');
@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
       'Path=/', 'HttpOnly', 'SameSite=Lax', 'Secure', `Max-Age=${expiresIn}`
     ].join('; ');
 
-    res.writeHead(200, { 'Set-Cookie': cookiesOut + '\n' + expiryCookie });
+    res.writeHead(200, { 'Set-Cookie': [accessCookie, expiryCookie] });
     res.end(JSON.stringify({ ok: true }));
   } catch (e) {
     res.statusCode = 500;
