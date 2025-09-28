@@ -1319,31 +1319,55 @@ class PomodoroTimer {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
         const isEnabled = this.ambientEnabled;
         const modalContent = `
-            <div class=\"focus-stats-modal\">
+            <div class=\"focus-stats-modal background-music-modal\">
                 <button class=\"close-focus-stats-x\">
                     <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">
                         <path d=\"M18 6 6 18\"/>
                         <path d=\"m6 6 12 12\"/>
                     </svg>
                 </button>
-                <h3>Background Music</h3>
-                <div class=\"ambient-controls\">
-                    <div class=\"lofi-header\">
-                        <h4>Lofi Music</h4>
-                        <div class=\"toggle-container\">
-                            <label class=\"toggle-switch\">
-                                <input type=\"checkbox\" id=\"lofiToggle\" ${isEnabled ? 'checked' : ''}>
-                                <span class=\"toggle-slider\"></span>
-                            </label>
+                
+                <div class=\"modal-header\">
+                    <h3>Background Music</h3>
+                    <p class=\"modal-subtitle\">Enhance your focus with ambient sounds</p>
+                </div>
+                
+                <div class=\"music-controls\">
+                    <div class=\"music-section\">
+                        <div class=\"music-header\">
+                            <div class=\"music-info\">
+                                <div class=\"music-icon\">🎵</div>
+                                <div class=\"music-details\">
+                                    <h4>Lofi Music</h4>
+                                    <p>Relaxing beats for deep focus</p>
+                                </div>
+                            </div>
+                            <div class=\"toggle-container\">
+                                <label class=\"toggle-switch\">
+                                    <input type=\"checkbox\" id=\"lofiToggle\" ${isEnabled ? 'checked' : ''}>
+                                    <span class=\"toggle-slider\"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class=\"volume-section\">
+                            <div class=\"volume-header\">
+                                <label class=\"volume-label\">Volume</label>
+                                <span class=\"volume-value\" id=\"ambientVolumeValue\">${initialVolumePct}%</span>
+                            </div>
+                            <div class=\"volume-control\">
+                                <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\" class=\"volume-slider\">
+                            </div>
                         </div>
                     </div>
+                    
                     <div class=\"preview-section\">
-                        <button id=\"previewBtn\" class=\"preview-btn\">Preview</button>
-                        <div class=\"ambient-volume\">
-                            <label>Volume:</label>
-                            <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\">
-                            <span id=\"ambientVolumeValue\">${initialVolumePct}%</span>
-                        </div>
+                        <button id=\"previewBtn\" class=\"preview-btn\">
+                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
+                                <polygon points=\"5,3 19,12 5,21\"/>
+                            </svg>
+                            Preview
+                        </button>
                     </div>
                 </div>
             </div>
