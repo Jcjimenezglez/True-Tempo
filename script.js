@@ -3042,9 +3042,15 @@ class PomodoroTimer {
                 if (Array.isArray(initialTasks) && initialTasks.length === 0) {
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
+                    // Hide cancel button when no tasks exist
+                    if (cancelBtn) cancelBtn.style.display = 'none';
+                    // Disable save button initially
+                    if (saveBtn) saveBtn.disabled = true;
                 } else {
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
+                    // Show cancel button when tasks exist
+                    if (cancelBtn) cancelBtn.style.display = '';
                 }
             } catch (_) {}
         }
@@ -3076,9 +3082,13 @@ class PomodoroTimer {
                 if (!tasks || tasks.length === 0) {
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
+                    // Hide cancel button when no tasks exist
+                    cancelBtn.style.display = 'none';
                 } else {
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
+                    // Show cancel button when tasks exist
+                    cancelBtn.style.display = '';
                 }
                 // Clear form
                 if (taskInput) taskInput.value = '';
@@ -3186,6 +3196,13 @@ class PomodoroTimer {
             taskInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && saveBtn) {
                     saveBtn.click();
+                }
+            });
+            
+            // Enable/disable save button based on input
+            taskInput.addEventListener('input', () => {
+                if (saveBtn) {
+                    saveBtn.disabled = !taskInput.value.trim();
                 }
             });
         }
@@ -3959,6 +3976,9 @@ class PomodoroTimer {
         
         tasks.push(newTask);
         this.setLocalTasks(tasks);
+        
+        // Set task config with the correct session count
+        this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: false });
     }
 
     showImportModal() {
