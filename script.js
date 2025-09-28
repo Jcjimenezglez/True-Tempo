@@ -2284,13 +2284,10 @@ class PomodoroTimer {
         const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
         const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
         
-        // Format as "X/Y Sessions (Z%)" and include current task if any
+        // Format as "X/Y Sessions (Z%)"
         const sessionNumber = this.currentSection;
         const totalSessions = this.cycleSections.length;
         let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
-        if (this.currentTask && this.currentTask.content) {
-            text += ` • Task: ${this.currentTask.content}`;
-        }
         this.sessionInfoElement.textContent = text;
     }
     
@@ -3256,7 +3253,11 @@ class PomodoroTimer {
         // Cancel button - restore original task item
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                // Keep current selection state; user will deselect manually if desired
+                // Deselect the task when canceling edit
+                this.setTaskConfig(taskId, { ...taskConfig, selected: false });
+                this.updateCurrentTaskBanner();
+                this.rebuildTaskQueue();
+                
                 // Re-render the task list to restore original items
                 const renderTasks = () => {
                     const listEl = modal.querySelector('#todoistTasksList');
