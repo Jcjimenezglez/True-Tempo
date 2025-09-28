@@ -3460,6 +3460,15 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
+.task-item.selected {
+    background: rgba(120, 219, 255, 0.1);
+    border-color: #78dbff;
+}
+
+.task-item.selected .task-title {
+    color: #78dbff;
+}
+
 .task-checkbox {
     position: relative;
 }
