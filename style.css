@@ -3581,24 +3581,6 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
 }
 
-.tasks-footer {
-    background: rgba(120, 219, 255, 0.1);
-    border: 1px solid rgba(120, 219, 255, 0.2);
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-top: 1rem;
-}
-
-.pomos-info {
-    display: flex;
-    justify-content: space-between;
-    color: white;
-    font-size: 14px;
-}
-
-.pomos-info strong {
-    font-weight: 600;
-}
 
 /* Empty state styles */
 .empty-state {

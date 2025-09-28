@@ -2579,12 +2579,6 @@ class PomodoroTimer {
                     Add Task
                 </button>
             </div>
-            <div class="tasks-footer">
-                <div class="pomos-info">
-                    <span>Pomos: <strong>0/0</strong></span>
-                    <span>Finish At: <strong>--:--</strong></span>
-                </div>
-            </div>
         `;
 
         overlay.appendChild(modal);
@@ -2600,7 +2594,6 @@ class PomodoroTimer {
         });
 
         const listEl = modal.querySelector('#todoistTasksList');
-        const pomosInfo = modal.querySelector('.pomos-info');
 
         const renderTasks = () => {
             listEl.innerHTML = '';
@@ -2668,9 +2661,6 @@ class PomodoroTimer {
             
             // Add event listeners for checkboxes and session controls
             this.setupTaskEventListeners(modal);
-            
-            // Update footer info
-            this.updateTaskFooter(modal);
         };
 
         // Setup menu event listener
@@ -2714,7 +2704,6 @@ class PomodoroTimer {
             checkbox.addEventListener('change', (e) => {
                 const taskId = e.target.id.replace('task-', '');
                 this.setTaskConfig(taskId, { selected: e.target.checked });
-                this.updateTaskFooter(modal);
                 // Update the main timer banner
                 this.updateCurrentTaskBanner();
             });
@@ -2731,7 +2720,6 @@ class PomodoroTimer {
                 const newSessions = Math.max(1, (currentConfig.sessions || 1) - 1);
                 this.setTaskConfig(taskId, { ...currentConfig, sessions: newSessions });
                 this.updateTaskSessionsDisplay(modal, taskId, newSessions);
-                this.updateTaskFooter(modal);
             });
         });
 
@@ -2742,7 +2730,6 @@ class PomodoroTimer {
                 const newSessions = Math.min(10, (currentConfig.sessions || 1) + 1);
                 this.setTaskConfig(taskId, { ...currentConfig, sessions: newSessions });
                 this.updateTaskSessionsDisplay(modal, taskId, newSessions);
-                this.updateTaskFooter(modal);
             });
         });
     }
@@ -2755,34 +2742,6 @@ class PomodoroTimer {
         }
     }
 
-    updateTaskFooter(modal) {
-        const pomosInfo = modal.querySelector('.pomos-info');
-        if (!pomosInfo) return;
-
-        // Calculate total sessions from selected tasks
-        let totalSessions = 0;
-        let selectedTasks = 0;
-
-        if (this.todoistTasks) {
-            this.todoistTasks.forEach(task => {
-                const config = this.getTaskConfig(task.id);
-                if (config.selected) {
-                    selectedTasks++;
-                    totalSessions += config.sessions || 1;
-                }
-            });
-        }
-
-        // Calculate finish time (assuming 25min per session)
-        const sessionDuration = 25; // minutes
-        const totalMinutes = totalSessions * sessionDuration;
-        const finishTime = this.calculateFinishTime(totalMinutes);
-
-        pomosInfo.innerHTML = `
-            <span>Pomos: <strong>0/${totalSessions}</strong></span>
-            <span>Finish At: <strong>${finishTime}</strong></span>
-        `;
-    }
 
     calculateFinishTime(totalMinutes) {
         if (totalMinutes === 0) return '--:--';
