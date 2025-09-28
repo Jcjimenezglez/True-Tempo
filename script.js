@@ -1672,7 +1672,19 @@ class PomodoroTimer {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        const modeText = this.isWorkSession ? 'Focus' : (this.isLongBreak ? 'Long Break' : 'Break');
+        // Show current task name instead of "Focus" if task is selected
+        let modeText;
+        if (this.isWorkSession) {
+            const selectedTasks = this.getSelectedTasks();
+            if (selectedTasks.length > 0) {
+                // Show the first selected task name
+                modeText = selectedTasks[0].content || 'Focus';
+            } else {
+                modeText = 'Focus';
+            }
+        } else {
+            modeText = this.isLongBreak ? 'Long Break' : 'Break';
+        }
         document.title = `${timeString} - ${modeText} (Paused)`;
     }
     
@@ -1692,7 +1704,19 @@ class PomodoroTimer {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        const modeText = this.isWorkSession ? 'Focus' : (this.isLongBreak ? 'Long Break' : 'Break');
+        // Show current task name instead of "Focus" if task is selected
+        let modeText;
+        if (this.isWorkSession) {
+            const selectedTasks = this.getSelectedTasks();
+            if (selectedTasks.length > 0) {
+                // Show the first selected task name
+                modeText = selectedTasks[0].content || 'Focus';
+            } else {
+                modeText = 'Focus';
+            }
+        } else {
+            modeText = this.isLongBreak ? 'Long Break' : 'Break';
+        }
         document.title = `${timeString} - ${modeText} (Paused)`;
     }
     
@@ -1861,7 +1885,19 @@ class PomodoroTimer {
         
         // Update browser tab title
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
-        const modeText = this.isWorkSession ? 'Focus' : (this.isLongBreak ? 'Long Break' : 'Break');
+        // Show current task name instead of "Focus" if task is selected
+        let modeText;
+        if (this.isWorkSession) {
+            const selectedTasks = this.getSelectedTasks();
+            if (selectedTasks.length > 0) {
+                // Show the first selected task name
+                modeText = selectedTasks[0].content || 'Focus';
+            } else {
+                modeText = 'Focus';
+            }
+        } else {
+            modeText = this.isLongBreak ? 'Long Break' : 'Break';
+        }
         document.title = `${timeString} - ${modeText}`;
     }
     
@@ -2622,6 +2658,9 @@ class PomodoroTimer {
             allTasks.forEach((task, index) => {
                 const item = document.createElement('div');
                 item.className = 'task-item';
+                item.draggable = true;
+                item.dataset.taskId = task.id;
+                item.dataset.index = index;
                 
                 // Get task session config from localStorage
                 const taskConfig = this.getTaskConfig(task.id);
@@ -2635,7 +2674,6 @@ class PomodoroTimer {
                     <div class="task-content">
                         <div class="task-title">
                             ${task.content || '(untitled)'}
-                            ${task.source === 'local' ? '<span class="task-source local">Local</span>' : ''}
                         </div>
                         <div class="task-sessions">
                             <span class="sessions-label">Sessions:</span>
@@ -2661,6 +2699,9 @@ class PomodoroTimer {
             
             // Add event listeners for checkboxes and session controls
             this.setupTaskEventListeners(modal);
+            
+            // Add drag and drop functionality
+            this.setupDragAndDrop(modal);
         };
 
         // Setup menu event listener
@@ -2989,6 +3030,89 @@ class PomodoroTimer {
         setTimeout(() => {
             document.addEventListener('click', closeMenu);
         }, 100);
+    }
+
+    setupDragAndDrop(modal) {
+        const listEl = modal.querySelector('#todoistTasksList');
+        let draggedElement = null;
+
+        // Drag start
+        listEl.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('task-item')) {
+                draggedElement = e.target;
+                e.target.style.opacity = '0.5';
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+            }
+        });
+
+        // Drag end
+        listEl.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('task-item')) {
+                e.target.style.opacity = '';
+                e.target.classList.remove('dragging');
+                draggedElement = null;
+            }
+        });
+
+        // Drag over
+        listEl.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const afterElement = this.getDragAfterElement(listEl, e.clientY);
+            
+            if (afterElement == null) {
+                listEl.appendChild(draggedElement);
+            } else {
+                listEl.insertBefore(draggedElement, afterElement);
+            }
+        });
+
+        // Drop
+        listEl.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedElement) {
+                this.updateTaskOrder(listEl);
+            }
+        });
+    }
+
+    getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    updateTaskOrder(listEl) {
+        const taskItems = listEl.querySelectorAll('.task-item');
+        const newOrder = [];
+        
+        taskItems.forEach((item, index) => {
+            const taskId = item.dataset.taskId;
+            newOrder.push({ id: taskId, order: index });
+        });
+        
+        // Update local storage with new order
+        this.saveTaskOrder(newOrder);
+    }
+
+    saveTaskOrder(newOrder) {
+        localStorage.setItem('taskOrder', JSON.stringify(newOrder));
+    }
+
+    getTaskOrder() {
+        return JSON.parse(localStorage.getItem('taskOrder') || '[]');
     }
 
     showAddTaskModal() {

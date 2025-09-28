@@ -4181,3 +4181,21 @@ input:checked + .toggle-slider:before {
 .preview-btn:active {
     transform: translateY(0);
 }
+
+/* Drag and Drop Styles */
+.task-item {
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.task-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
