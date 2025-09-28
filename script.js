@@ -1776,8 +1776,7 @@ class PomodoroTimer {
     clearTodoistTasks() {
         this.todoistTasks = [];
         this.todoistProjectsById = {};
-        // Clear task configurations from localStorage
-        localStorage.removeItem('taskConfigs');
+        // Keep local task configurations (sessions, selection) intact
         // Clear current task banner if it exists
         this.updateCurrentTaskBanner();
     }
@@ -4143,6 +4142,7 @@ class PomodoroTimer {
     clearAllTasks() {
         if (confirm('Are you sure you want to clear all tasks?')) {
             this.setLocalTasks([]);
+            // Explicit clear is OK here since the user is clearing everything
             localStorage.removeItem('taskConfigs');
             this.showTaskListModal();
         }
