@@ -2046,7 +2046,7 @@ class PomodoroTimer {
             
             const sessionNumber = this.currentSection;
             const totalSessions = this.cycleSections.length;
-            let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
+            text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
         }
         this.sessionInfoElement.textContent = text;
     }
@@ -2925,8 +2925,8 @@ class PomodoroTimer {
     }
 
     getAllTasks() {
-        const localTasks = this.getLocalTasks();
-        const todoistTasks = this.isAuthenticated && this.user ? (this.todoistTasks || []) : [];
+        const localTasks = this.getLocalTasks() || [];
+        const todoistTasks = (this.isAuthenticated && this.user && this.todoistTasks) ? this.todoistTasks : [];
         
         // Combine and mark source
         const allTasks = [
@@ -3133,24 +3133,34 @@ class PomodoroTimer {
 
     // Task progress tracking
     getCompletedTasksCount() {
-        const completedTasks = localStorage.getItem('completedTasks') || '[]';
-        return JSON.parse(completedTasks).length;
+        try {
+            const completedTasks = localStorage.getItem('completedTasks') || '[]';
+            return JSON.parse(completedTasks).length;
+        } catch (error) {
+            console.error('Error getting completed tasks count:', error);
+            return 0;
+        }
     }
 
     getCurrentTask() {
-        const selectedTasks = this.getSelectedTasks();
-        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-        
-        if (selectedTasks.length === 0) return null;
-        
-        // Find the first uncompleted task
-        for (const task of selectedTasks) {
-            if (!completedTasks.includes(task.id)) {
-                return task;
+        try {
+            const selectedTasks = this.getSelectedTasks();
+            const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+            
+            if (selectedTasks.length === 0) return null;
+            
+            // Find the first uncompleted task
+            for (const task of selectedTasks) {
+                if (!completedTasks.includes(task.id)) {
+                    return task;
+                }
             }
+            
+            return null; // All tasks completed
+        } catch (error) {
+            console.error('Error getting current task:', error);
+            return null;
         }
-        
-        return null; // All tasks completed
     }
 
     markTaskAsCompleted(taskId) {
