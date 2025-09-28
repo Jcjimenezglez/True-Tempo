@@ -1304,6 +1304,50 @@ class PomodoroTimer {
         document.body.appendChild(modalOverlay);
         modalOverlay.style.display = 'flex';
 
+		// Hard-remove any Spotify-related UI from the Background Music modal (defensive)
+		(() => {
+			const selectors = [
+				'#spotifyPlaylistsList',
+				'.spotify-actions',
+				'#connectSpotifyBtn',
+				'#disconnectSpotifyBtn',
+				'#spotifyToggle',
+				'#spotifyPlaylists'
+			];
+			selectors.forEach((sel) => {
+				const el = modalOverlay.querySelector(sel);
+				if (!el) return;
+				const container = el.closest('.music-section') || el.closest('.music-controls > *') || el.parentElement;
+				if (container && container.parentElement) {
+					container.parentElement.removeChild(container);
+				} else {
+					el.remove();
+				}
+			});
+
+			// Remove any headings/text blocks that mention Spotify/Playlists
+			Array.from(modalOverlay.querySelectorAll('h4, p, div, span')).forEach((node) => {
+				try {
+					const text = (node.textContent || '').trim();
+					if (!text) return;
+					if (/spotify/i.test(text) || /playlists/i.test(text)) {
+						const container = node.closest('.music-section') || node.closest('.music-controls > *') || node.parentElement;
+						if (container && container.parentElement && container !== modalOverlay) {
+							container.parentElement.removeChild(container);
+						} else {
+							node.remove();
+						}
+					}
+				} catch (_) {}
+			});
+
+			// Also remove any Preview control if present
+			const previewBtnInDom = modalOverlay.querySelector('#previewBtn');
+			if (previewBtnInDom && previewBtnInDom.parentElement) {
+				previewBtnInDom.parentElement.removeChild(previewBtnInDom);
+			}
+		})();
+
 		// Remove Spotify UI and Preview button from the modal UI
 		const spotifyListSection = modalOverlay.querySelector('#spotifyPlaylistsList');
 		if (spotifyListSection) {
