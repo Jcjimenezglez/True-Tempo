@@ -19,6 +19,11 @@ class PomodoroTimer {
         this.cheatedDuringFocusInCycle = false; // true if user used next/back while in a focus session
         this.actualFocusTimeCompleted = 0; // tracks actual seconds of focus completed in current cycle
         this.requiredFocusTimeForCycle = 0; // total focus time required for a complete cycle
+
+        // Task execution queue (built from selected tasks and their session counts)
+        this.taskQueue = [];
+        this.currentTaskIndex = 0;
+        this.currentTask = null;
         
         // Todoist integration (free users beta)
         this.todoistToken = localStorage.getItem('todoistToken') || '';
@@ -32,6 +37,8 @@ class PomodoroTimer {
 		// Persisted enable flag (default On)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
+
+
 		this.playlist = [
             "Chasing Clouds.mp3",
             "Clouds Drift By.mp3",
@@ -183,6 +190,9 @@ class PomodoroTimer {
                 setTimeout(() => this.checkAuthState(), 2000);
             });
         }
+
+        // Build task queue at startup
+        this.rebuildTaskQueue();
 
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
@@ -1333,6 +1343,7 @@ class PomodoroTimer {
                 </div>
                 
                 <div class=\"music-controls\">
+                    <!-- Lofi Music Section -->
                     <div class=\"music-section\">
                         <div class=\"music-header\">
                             <div class=\"music-info\">
@@ -1364,6 +1375,60 @@ class PomodoroTimer {
                             <div class=\"volume-control\">
                                 <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\" class=\"volume-slider\">
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Spotify Section -->
+                    <div class=\"spotify-section\">
+                        <div class=\"spotify-header\">
+                            <div class=\"spotify-info\">
+                                <div class=\"spotify-icon\">
+                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\">
+                                        <path d=\"M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z\"/>
+                                    </svg>
+                                </div>
+                                <div class=\"spotify-details\">
+                                    <h4>Spotify</h4>
+                                    <p>Your personal playlists</p>
+                                </div>
+                            </div>
+                            <div class=\"spotify-status\" id=\"spotifyStatus\">
+                                <span class=\"status-text\">Not connected</span>
+                            </div>
+                        </div>
+                        
+                        <div class=\"spotify-content\" id=\"spotifyContent\" style=\"display: none;\">
+                            <div class=\"spotify-playlists\">
+                                <div class=\"music-header\" style=\"margin-bottom: .75rem;\">
+                                    <div class=\"music-info\">
+                                        <div class=\"music-icon\">
+                                            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
+                                                <path d=\"M9 18V5l12-2v13"/>
+                                                <circle cx=\"6\" cy=\"18\" r=\"3\"/>
+                                                <circle cx=\"18\" cy=\"16\" r=\"3\"/>
+                                            </svg>
+                                        </div>
+                                        <div class=\"music-details\">
+                                            <h4>Playlists</h4>
+                                            <p>Use Spotify playlists as background</p>
+                                        </div>
+                                    </div>
+                                    <div class=\"toggle-container\">
+                                        <label class=\"toggle-switch\">
+                                            <input type=\"checkbox\" id=\"spotifyToggle\">
+                                            <span class=\"toggle-slider\"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id=\"spotifyPlaylistsList\" class=\"playlists-list\">
+                                    <div class=\"loading\">Loading playlists...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class=\"spotify-actions\">
+                            <button id=\"connectSpotifyBtn\" class=\"spotify-btn primary\">Connect Spotify</button>
+                            <button id=\"disconnectSpotifyBtn\" class=\"spotify-btn secondary\" style=\"display: none;\">Disconnect</button>
                         </div>
                     </div>
                     
@@ -1850,9 +1915,9 @@ class PomodoroTimer {
         if (finishedWasFocus) {
             const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
             this.actualFocusTimeCompleted += timeCompleted;
-            
-            // Handle task completion for focus sessions
-            this.handleTaskCompletion();
+            // Mark todoist task and advance queue
+            this.completeCurrentTodoistTaskIfAny();
+            this.advanceTaskQueueAfterFocus();
         }
 
         if (cycleCompleted) {
@@ -1888,16 +1953,10 @@ class PomodoroTimer {
         
         // Update browser tab title
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
-        // Show current task name instead of "Focus" if task is selected
+        // Use current queued task as label during work sessions
         let modeText;
         if (this.isWorkSession) {
-            const selectedTasks = this.getSelectedTasks();
-            if (selectedTasks.length > 0) {
-                // Show the first selected task name
-                modeText = selectedTasks[0].content || 'Focus';
-            } else {
-                modeText = 'Focus';
-            }
+            modeText = this.getCurrentTaskLabel() || 'Focus';
         } else {
             modeText = this.isLongBreak ? 'Long Break' : 'Break';
         }
@@ -1997,7 +2056,9 @@ class PomodoroTimer {
     
     updateMode() {
         if (this.isWorkSession) {
-            this.modeElement.textContent = 'Focus';
+            // If there is a current task in the queue, show it instead of 'Focus'
+            const taskLabel = this.getCurrentTaskLabel();
+            this.modeElement.textContent = taskLabel || 'Focus';
             this.modeElement.className = 'mode focus';
             // White for focus sessions
             this.progressIndicator.style.stroke = '#ffffff';
@@ -2013,40 +2074,87 @@ class PomodoroTimer {
             this.progressIndicator.style.stroke = '#ffffff';
         }
     }
+
+    // Build an execution queue from selected tasks and their configured sessions
+    rebuildTaskQueue() {
+        const selected = this.getSelectedTasks();
+        const queue = [];
+        selected.forEach(task => {
+            const sessions = Math.max(1, task.sessions || 1);
+            for (let i = 0; i < sessions; i++) {
+                queue.push({ id: task.id, content: task.content, source: task.source || 'local' });
+            }
+        });
+        this.taskQueue = queue;
+        this.currentTaskIndex = 0;
+        this.currentTask = this.taskQueue.length > 0 ? this.taskQueue[0] : null;
+
+        // Reflect immediately in UI mode label if in work session
+        if (this.isWorkSession) {
+            this.updateMode();
+        }
+    }
+
+    getCurrentTaskLabel() {
+        if (!this.taskQueue || this.taskQueue.length === 0) return '';
+        const current = this.taskQueue[this.currentTaskIndex] || null;
+        return current && current.content ? current.content : '';
+    }
+
+    // Advance to next task slot after finishing a focus session
+    advanceTaskQueueAfterFocus() {
+        if (!this.taskQueue || this.taskQueue.length === 0) return;
+        // Only advance when the finished section was a work session
+        if (this.currentTaskIndex < this.taskQueue.length - 1) {
+            this.currentTaskIndex += 1;
+            this.currentTask = this.taskQueue[this.currentTaskIndex];
+        } else {
+            // All planned task sessions completed → pause and show modal
+            this.pauseTimer();
+            this.openTasksCompletedModal();
+        }
+    }
+
+    // Mark current task instance as completed in Todoist if applicable
+    async completeCurrentTodoistTaskIfAny() {
+        const current = this.taskQueue && this.taskQueue[this.currentTaskIndex] ? this.taskQueue[this.currentTaskIndex] : null;
+        if (!current) return;
+        if (current.source !== 'todoist') return;
+        if (!this.isAuthenticated || !this.user) return;
+        try {
+            await fetch('/api/todoist-complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskId: current.id })
+            });
+        } catch (_) {}
+    }
+
+    openTasksCompletedModal() {
+        // Reuse Tasks modal to let user review; alternatively, open list directly
+        this.showTaskListModal();
+    }
     
     updateSessionInfo() {
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         
-        // Get selected tasks
-        const selectedTasks = this.getSelectedTasks();
+        // Calculate progress percentage
+        let totalCycleProgress = 0;
+        for (let i = 0; i < this.currentSection - 1; i++) {
+            totalCycleProgress += this.cycleSections[i].duration;
+        }
+        totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
         
-        if (selectedTasks.length > 0) {
-            // Show task progress instead of session progress
-            const completedTasks = this.getCompletedTasksCount();
-            const totalTasks = selectedTasks.length;
-            const progressPercentage = Math.round((completedTasks / totalTasks) * 100);
-            
-            let text = `${completedTasks}/${totalTasks} Tasks (${progressPercentage}%)`;
-            
-            // Show current task name
-            const currentTask = this.getCurrentTask();
-            if (currentTask) {
-                text += ` • ${currentTask.content}`;
-            }
-        } else {
-            // Fallback to session progress when no tasks selected
-            let totalCycleProgress = 0;
-            for (let i = 0; i < this.currentSection - 1; i++) {
-                totalCycleProgress += this.cycleSections[i].duration;
-            }
-            totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
-            
-            const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
-            const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
-            
-            const sessionNumber = this.currentSection;
-            const totalSessions = this.cycleSections.length;
-            let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
+        // Calculate total cycle time dynamically
+        const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+        const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
+        
+        // Format as "X/Y Sessions (Z%)" and include current task if any
+        const sessionNumber = this.currentSection;
+        const totalSessions = this.cycleSections.length;
+        let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
+        if (this.currentTask && this.currentTask.content) {
+            text += ` • Task: ${this.currentTask.content}`;
         }
         this.sessionInfoElement.textContent = text;
     }
@@ -2763,6 +2871,7 @@ class PomodoroTimer {
                 this.setTaskConfig(taskId, { selected: e.target.checked });
                 // Update the main timer banner
                 this.updateCurrentTaskBanner();
+                this.rebuildTaskQueue();
             });
         });
 
@@ -2777,6 +2886,7 @@ class PomodoroTimer {
                 const newSessions = Math.max(1, (currentConfig.sessions || 1) - 1);
                 this.setTaskConfig(taskId, { ...currentConfig, sessions: newSessions });
                 this.updateTaskSessionsDisplay(modal, taskId, newSessions);
+                this.rebuildTaskQueue();
             });
         });
 
@@ -2787,6 +2897,7 @@ class PomodoroTimer {
                 const newSessions = Math.min(10, (currentConfig.sessions || 1) + 1);
                 this.setTaskConfig(taskId, { ...currentConfig, sessions: newSessions });
                 this.updateTaskSessionsDisplay(modal, taskId, newSessions);
+                this.rebuildTaskQueue();
             });
         });
     }
@@ -3129,140 +3240,6 @@ class PomodoroTimer {
 
     getTaskOrder() {
         return JSON.parse(localStorage.getItem('taskOrder') || '[]');
-    }
-
-    // Task progress tracking
-    getCompletedTasksCount() {
-        const completedTasks = localStorage.getItem('completedTasks') || '[]';
-        return JSON.parse(completedTasks).length;
-    }
-
-    getCurrentTask() {
-        const selectedTasks = this.getSelectedTasks();
-        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-        
-        if (selectedTasks.length === 0) return null;
-        
-        // Find the first uncompleted task
-        for (const task of selectedTasks) {
-            if (!completedTasks.includes(task.id)) {
-                return task;
-            }
-        }
-        
-        return null; // All tasks completed
-    }
-
-    markTaskAsCompleted(taskId) {
-        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-        if (!completedTasks.includes(taskId)) {
-            completedTasks.push(taskId);
-            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-        }
-    }
-
-    checkAllTasksCompleted() {
-        const selectedTasks = this.getSelectedTasks();
-        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
-        
-        if (selectedTasks.length === 0) return false;
-        
-        // Check if all selected tasks are completed
-        return selectedTasks.every(task => completedTasks.includes(task.id));
-    }
-
-    async completeTaskInTodoist(taskId) {
-        if (!this.isAuthenticated || !this.user) return;
-        
-        try {
-            const response = await fetch('/api/todoist-complete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ taskId: taskId })
-            });
-            
-            if (response.ok) {
-                console.log('Task completed in Todoist:', taskId);
-            }
-        } catch (error) {
-            console.error('Error completing task in Todoist:', error);
-        }
-    }
-
-    handleTaskCompletion() {
-        const selectedTasks = this.getSelectedTasks();
-        if (selectedTasks.length === 0) return;
-
-        const currentTask = this.getCurrentTask();
-        if (!currentTask) return;
-
-        // Mark current task as completed
-        this.markTaskAsCompleted(currentTask.id);
-        
-        // Complete task in Todoist if it's a Todoist task
-        if (currentTask.source === 'todoist') {
-            this.completeTaskInTodoist(currentTask.id);
-        }
-
-        // Check if all tasks are completed
-        if (this.checkAllTasksCompleted()) {
-            // Pause timer and show completion modal
-            this.pauseTimer();
-            this.showTaskCompletionModal();
-        }
-    }
-
-    showTaskCompletionModal() {
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
-
-        const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal task-completion-modal';
-        modal.innerHTML = `
-            <button class="close-focus-stats-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            
-            <div class="completion-header">
-                <div class="completion-icon">🎉</div>
-                <h3>All Tasks Completed!</h3>
-                <p>Great job! You've finished all your selected tasks.</p>
-            </div>
-            
-            <div class="completion-actions">
-                <button class="btn-primary" id="viewTasksBtn">View Tasks</button>
-                <button class="btn-secondary" id="continueBtn">Continue Timer</button>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            try { document.body.removeChild(overlay); } catch (_) {}
-        };
-
-        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
-        // View Tasks button
-        modal.querySelector('#viewTasksBtn').addEventListener('click', () => {
-            close();
-            this.showTaskListModal();
-        });
-
-        // Continue button
-        modal.querySelector('#continueBtn').addEventListener('click', () => {
-            close();
-        });
     }
 
     showAddTaskModal() {
@@ -4140,7 +4117,144 @@ class PomodoroTimer {
                 this.techniqueDropdown.classList.add('open');
             }
         });
+
+        // Initialize integration controls for Spotify similar to Todoist
+        this.setupSpotifyIntegrationControls();
     }
+
+    setupSpotifyIntegrationControls() {
+        try {
+            const connectBtn = document.getElementById('connectSpotifyBtn');
+            const disconnectBtn = document.getElementById('disconnectSpotifyBtn');
+            const openBtn = document.getElementById('openSpotifyModalBtn');
+            const statusText = document.getElementById('spotifyStatusText');
+
+            if (!connectBtn || !disconnectBtn || !openBtn || !statusText) return;
+
+            const refreshStatus = async () => {
+                try {
+                    const resp = await fetch('/api/spotify-status');
+                    const data = await resp.json();
+                    if (data.connected) {
+                        statusText.textContent = 'Connected';
+                        connectBtn.style.display = 'none';
+                        disconnectBtn.style.display = '';
+                        openBtn.style.display = '';
+                    } else {
+                        statusText.textContent = 'Not connected';
+                        connectBtn.style.display = '';
+                        disconnectBtn.style.display = 'none';
+                        openBtn.style.display = 'none';
+                    }
+                } catch (_) {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                    openBtn.style.display = 'none';
+                }
+            };
+
+            connectBtn.addEventListener('click', async () => {
+                window.location.href = '/api/spotify-auth-start';
+            });
+
+            disconnectBtn.addEventListener('click', async () => {
+                await fetch('/api/spotify-disconnect');
+                refreshStatus();
+            });
+
+            openBtn.addEventListener('click', () => {
+                this.showSpotifyModal();
+            });
+
+            refreshStatus();
+        } catch (_) {}
+    }
+
+    showSpotifyModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '720px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3>Spotify</h3>
+            <div class="spotify-content">
+                <div class="spotify-devices" id="spotifyDevices"></div>
+                <div class="spotify-playlists" id="spotifyPlaylists"></div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => { try { document.body.removeChild(overlay); } catch (_) {} };
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+        // Load devices and playlists
+        this.loadSpotifyDevices(modal);
+        this.loadSpotifyPlaylists(modal);
+    }
+
+    async loadSpotifyDevices(modal) {
+        const el = modal.querySelector('#spotifyDevices');
+        try {
+            const resp = await fetch('/api/spotify-devices');
+            const data = await resp.json();
+            const devices = data.devices || [];
+            el.innerHTML = '<h4>Devices</h4>' + (devices.length ? devices.map(d => `<div class="device" data-id="${d.id}">${d.is_active ? '• ' : ''}${d.name}</div>`).join('') : '<div>No devices found. Open Spotify on a device.</div>');
+        } catch (e) {
+            el.innerHTML = '<div>Failed to load devices</div>';
+        }
+    }
+
+    async loadSpotifyPlaylists(modal) {
+        const el = modal.querySelector('#spotifyPlaylists');
+        try {
+            const resp = await fetch('/api/spotify-playlists');
+            const data = await resp.json();
+            const items = data.items || [];
+            el.innerHTML = '<h4>Playlists</h4>' + (items.length ? items.map(p => `<div class="playlist" data-uri="${p.uri}">${p.name}</div>`).join('') : '<div>No playlists</div>');
+
+            el.querySelectorAll('.playlist').forEach(pl => {
+                pl.addEventListener('click', async () => {
+                    const uri = pl.getAttribute('data-uri');
+                    // Find active device if any
+                    let deviceId = '';
+                    try {
+                        const devResp = await fetch('/api/spotify-devices');
+                        const devData = await devResp.json();
+                        const active = (devData.devices || []).find(d => d.is_active) || (devData.devices || [])[0];
+                        if (active) deviceId = active.id;
+                    } catch (_) {}
+                    await fetch('/api/spotify-play', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: deviceId, context_uri: uri }) });
+                });
+            });
+        } catch (e) {
+            el.innerHTML = '<div>Failed to load playlists</div>';
+        }
+    }
+
+    setupSpotifyInModal(modalOverlay) {}
+
+    initSpotifyWebPlayerIfNeeded() {}
+
+    async loadSpotifyDevicesInModal() {}
+
+    async loadSpotifyPlaylistsInModal() {}
+
+    async playSpotifyUri() {}
+
+    async pauseSpotify() {}
 
     showCustomTimerModal() {
         // Load saved custom timer data if it exists
@@ -4514,6 +4628,15 @@ class PomodoroTimer {
         }
     }
 
+    pauseSpotify() {
+        // Implement logic to pause Spotify playback
+        console.log('Spotify paused');
+    }
+
+    playSpotifyUri(uri) {
+        // Implement logic to play a specific Spotify URI
+        console.log('Playing Spotify URI:', uri);
+    }
 
 }
 
