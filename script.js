@@ -1534,6 +1534,21 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
     }
 
+    pausePlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.ambientPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    resumePlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.ambientEnabled) return;
+        try { this.backgroundAudio.play(); } catch (_) {}
+        this.ambientPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
     setAmbientVolume(vol) {
         this.ambientVolume = Math.max(0, Math.min(1, vol));
         localStorage.setItem('ambientVolume', String(this.ambientVolume));
@@ -1698,9 +1713,15 @@ class PomodoroTimer {
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         
-        // Start background music if enabled (persisted flag)
+        // Resume background music if enabled (persisted flag)
         if (this.ambientEnabled) {
-            this.playPlaylist();
+            if (this.backgroundAudio && this.backgroundAudio.src && this.backgroundAudio.currentTime > 0) {
+                // Music was paused, resume from where it left off
+                this.resumePlaylist();
+            } else {
+                // No music was playing, start fresh
+                this.playPlaylist();
+            }
         }
         
         this.interval = setInterval(() => {
@@ -1737,7 +1758,7 @@ class PomodoroTimer {
         
         // Pause background music if playing
         if (this.ambientPlaying) {
-            this.stopPlaylist();
+            this.pausePlaylist();
         }
         
         // Update title to show paused state
@@ -1768,7 +1789,7 @@ class PomodoroTimer {
         
         // Pause background music if playing
         if (this.ambientPlaying) {
-            this.stopPlaylist();
+            this.pausePlaylist();
         }
         // No sound - silent pause
         
