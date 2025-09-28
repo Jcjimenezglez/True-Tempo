@@ -2950,28 +2950,36 @@ class PomodoroTimer {
         if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
                 addTaskForm.style.display = 'block';
-                addTaskBtn.style.display = 'none';
+                addTaskBtn.disabled = true;
                 // Focus on the input field
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 if (taskInput) taskInput.focus();
             });
         }
 
-        // Ensure form is hidden initially
-        const addTaskForm = modal.querySelector('#addTaskForm');
-        const addTaskBtn = modal.querySelector('#showAddTaskForm');
-        if (addTaskForm) addTaskForm.style.display = 'none';
-        if (addTaskBtn) addTaskBtn.style.display = 'flex';
+        // Initial UI state: if no tasks, show form and disable button
+        if (addTaskBtn && addTaskForm) {
+            try {
+                const initialTasks = this.getAllTasks();
+                if (Array.isArray(initialTasks) && initialTasks.length === 0) {
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                } else {
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                }
+            } catch (_) {}
+        }
 
         // Setup form controls
-        this.setupAddTaskFormControls(modal);
+        this.setupAddTaskFormControls(modal, renderTasks);
 
         // Load tasks (local + Todoist if authenticated)
         this.loadAllTasks();
         renderTasks();
     }
 
-    setupAddTaskFormControls(modal) {
+    setupAddTaskFormControls(modal, renderTasks) {
         const addTaskForm = modal.querySelector('#addTaskForm');
         const addTaskBtn = modal.querySelector('#showAddTaskForm');
         const cancelBtn = modal.querySelector('#cancelAddTask');
@@ -2984,8 +2992,15 @@ class PomodoroTimer {
         // Cancel button - hide form and show add button
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                addTaskForm.style.display = 'none';
-                addTaskBtn.style.display = 'flex';
+                // If there are no tasks, keep the form open and button disabled
+                const tasks = this.getAllTasks();
+                if (!tasks || tasks.length === 0) {
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                } else {
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                }
                 // Clear form
                 if (taskInput) taskInput.value = '';
                 if (pomodorosInput) pomodorosInput.value = '1';
@@ -3000,15 +3015,15 @@ class PomodoroTimer {
                 
                 if (description) {
                     this.addLocalTask(description, pomodoros);
-                    // Hide form and show add button
-                    addTaskForm.style.display = 'none';
-                    addTaskBtn.style.display = 'flex';
                     // Clear form
                     taskInput.value = '';
                     pomodorosInput.value = '1';
                     // Refresh task list
                     this.loadAllTasks();
-                    renderTasks();
+                    if (typeof renderTasks === 'function') renderTasks();
+                    // Enable button now that there is at least one task, and hide form
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
                 }
             });
         }
