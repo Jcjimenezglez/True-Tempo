@@ -3640,7 +3640,7 @@ class PomodoroTimer {
 
     getAllTasks() {
         const localTasks = this.getLocalTasks();
-        const todoistTasks = this.isAuthenticated && this.user ? (this.todoistTasks || []) : [];
+        const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
         
         // Combine and mark source
         const allTasks = [
