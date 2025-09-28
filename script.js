@@ -4319,6 +4319,12 @@ class PomodoroTimer {
                     this.spotifyWebDeviceId = device_id;
                     // Refresh device list to include the web player
                     this.loadSpotifyDevicesInModal(modalOverlay);
+                    // Make the browser the active device automatically
+                    fetch('/api/spotify-transfer', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ device_id: device_id, play: false })
+                    }).catch(() => {});
                 });
                 this.spotifyPlayer.addListener('not_ready', () => {});
                 this.spotifyPlayer.connect();
