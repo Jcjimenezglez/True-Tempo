@@ -2957,6 +2957,12 @@ class PomodoroTimer {
             });
         }
 
+        // Ensure form is hidden initially
+        const addTaskForm = modal.querySelector('#addTaskForm');
+        const addTaskBtn = modal.querySelector('#showAddTaskForm');
+        if (addTaskForm) addTaskForm.style.display = 'none';
+        if (addTaskBtn) addTaskBtn.style.display = 'flex';
+
         // Setup form controls
         this.setupAddTaskFormControls(modal);
 
