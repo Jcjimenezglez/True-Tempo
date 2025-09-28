@@ -2894,6 +2894,15 @@ class PomodoroTimer {
                     </div>
                 </div>
                 <div class="form-actions">
+                    <button id="deleteTask" title="Delete task" style="display:none; margin-right: 8px; background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px; border-radius: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <path d="M10 11v6"/>
+                            <path d="M14 11v6"/>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
+                    </button>
                     <button class="btn-secondary" id="cancelAddTask">Cancel</button>
                     <button class="btn-primary" id="saveTask">Save</button>
                 </div>
@@ -3018,8 +3027,10 @@ class PomodoroTimer {
                 // Reset fields for add mode
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                const deleteBtn = addTaskForm.querySelector('#deleteTask');
                 if (taskInput) taskInput.value = '';
                 if (pomodorosInput) pomodorosInput.value = '1';
+                if (deleteBtn) deleteBtn.style.display = 'none';
                 if (taskInput) taskInput.focus();
             });
         }
@@ -3051,6 +3062,7 @@ class PomodoroTimer {
         const addTaskBtn = modal.querySelector('#showAddTaskForm');
         const cancelBtn = modal.querySelector('#cancelAddTask');
         const saveBtn = modal.querySelector('#saveTask');
+        const deleteBtn = modal.querySelector('#deleteTask');
         const taskInput = modal.querySelector('#taskDescription');
         const pomodorosInput = modal.querySelector('#pomodorosCount');
         const decreaseBtn = modal.querySelector('#decreasePomodoros');
@@ -3073,6 +3085,31 @@ class PomodoroTimer {
                 if (pomodorosInput) pomodorosInput.value = '1';
                 // Exit edit mode
                 this.editingTaskId = null;
+            });
+        }
+
+        // Delete button - only in edit mode
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                if (!this.editingTaskId) return;
+                // Remove from local tasks
+                const tasks = this.getLocalTasks().filter(t => t.id !== this.editingTaskId);
+                this.setLocalTasks(tasks);
+                // Remove any config for the task
+                const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+                delete configs[this.editingTaskId];
+                localStorage.setItem('taskConfigs', JSON.stringify(configs));
+                // Reset state and UI
+                this.editingTaskId = null;
+                taskInput.value = '';
+                pomodorosInput.value = '1';
+                addTaskForm.style.display = 'none';
+                addTaskBtn.disabled = false;
+                // Refresh list/banner/queue
+                this.loadAllTasks();
+                if (typeof renderTasks === 'function') renderTasks();
+                this.updateCurrentTaskBanner();
+                this.rebuildTaskQueue();
             });
         }
 
@@ -3214,8 +3251,10 @@ class PomodoroTimer {
                 addTaskBtn.disabled = true;
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                const deleteBtn = addTaskForm.querySelector('#deleteTask');
                 if (taskInput) taskInput.value = task ? (task.content || '') : '';
                 if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
+                if (deleteBtn) deleteBtn.style.display = '';
                 if (taskInput) taskInput.focus();
                 
                 // Scroll form into view
