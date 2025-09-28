@@ -3009,8 +3009,10 @@ class PomodoroTimer {
                     // First task: hide cancel, disable save until input
                     const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
                     const saveBtn0 = addTaskForm.querySelector('#saveTask');
+                    const taskInput0 = addTaskForm.querySelector('#taskDescription');
                     if (cancelBtn0) cancelBtn0.style.display = 'none';
                     if (saveBtn0) saveBtn0.disabled = true;
+                    if (taskInput0) taskInput0.focus();
                 } else {
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
