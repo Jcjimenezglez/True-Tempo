@@ -3178,7 +3178,7 @@ class PomodoroTimer {
             menu.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const taskId = menu.dataset.taskId;
-                this.showEditTaskModal(taskId);
+                this.showEditTaskInline(taskId, modal);
             });
         });
     }
@@ -3194,27 +3194,19 @@ class PomodoroTimer {
         }
     }
 
-    showEditTaskModal(taskId) {
+    showEditTaskInline(taskId, modal) {
         const task = this.getLocalTasks().find(t => t.id === taskId);
         if (!task) return;
 
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
+        const taskItem = modal.querySelector(`[data-task-id="${taskId}"]`);
+        if (!taskItem) return;
 
-        const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal';
-        modal.innerHTML = `
-            <button class="close-focus-stats-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="tasks-header">
-                <h3>Edit Task</h3>
-            </div>
-            <div class="add-task-form">
+        const taskConfig = this.getTaskConfig(taskId);
+        const currentSessions = taskConfig.sessions || 1;
+
+        // Replace task item with edit form
+        taskItem.innerHTML = `
+            <div class="add-task-form" style="margin: 0; border: none; background: transparent; padding: 0;">
                 <div class="form-group">
                     <label>What are you working on?</label>
                     <input type="text" id="editTaskDescription" value="${task.content}" maxlength="100">
@@ -3223,7 +3215,7 @@ class PomodoroTimer {
                     <label>Sessions</label>
                     <div class="pomodoros-control">
                         <button class="pomodoros-btn" id="editDecreasePomodoros">-</button>
-                        <input type="number" id="editPomodorosCount" value="${this.getTaskConfig(taskId).sessions || 1}" min="1" max="10">
+                        <input type="number" id="editPomodorosCount" value="${currentSessions}" min="1" max="10">
                         <button class="pomodoros-btn" id="editIncreasePomodoros">+</button>
                     </div>
                 </div>
@@ -3234,25 +3226,13 @@ class PomodoroTimer {
             </div>
         `;
 
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            try { document.body.removeChild(overlay); } catch (_) {}
-        };
-
-        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
-        modal.querySelector('#cancelEditTask').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
         // Setup form controls
-        const taskInput = modal.querySelector('#editTaskDescription');
-        const pomodorosInput = modal.querySelector('#editPomodorosCount');
-        const decreaseBtn = modal.querySelector('#editDecreasePomodoros');
-        const increaseBtn = modal.querySelector('#editIncreasePomodoros');
-        const saveBtn = modal.querySelector('#saveEditTask');
+        const taskInput = taskItem.querySelector('#editTaskDescription');
+        const pomodorosInput = taskItem.querySelector('#editPomodorosCount');
+        const decreaseBtn = taskItem.querySelector('#editDecreasePomodoros');
+        const increaseBtn = taskItem.querySelector('#editIncreasePomodoros');
+        const saveBtn = taskItem.querySelector('#saveEditTask');
+        const cancelBtn = taskItem.querySelector('#cancelEditTask');
 
         // Pomodoros controls
         if (decreaseBtn && pomodorosInput) {
@@ -3273,6 +3253,77 @@ class PomodoroTimer {
             });
         }
 
+        // Cancel button - restore original task item
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                // Re-render the task list to restore original items
+                const renderTasks = () => {
+                    const listEl = modal.querySelector('#todoistTasksList');
+                    if (!listEl) return;
+                    
+                    listEl.innerHTML = '';
+                    const allTasks = this.getAllTasks();
+                    
+                    if (allTasks.length === 0) {
+                        const addTaskForm = modal.querySelector('#addTaskForm');
+                        const addTaskBtn = modal.querySelector('#showAddTaskForm');
+                        if (addTaskForm) addTaskForm.style.display = 'block';
+                        if (addTaskBtn) {
+                            addTaskBtn.style.display = 'none';
+                            addTaskBtn.disabled = true;
+                        }
+                        return;
+                    }
+                    
+                    allTasks.forEach((task, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'task-item';
+                        item.draggable = true;
+                        item.dataset.taskId = task.id;
+                        item.dataset.index = index;
+                        
+                        const taskConfig = this.getTaskConfig(task.id);
+                        const completedSessions = taskConfig.completedSessions || 0;
+                        const totalSessions = taskConfig.sessions || 1;
+                        
+                        const itemContent = `
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} disabled>
+                                <label for="task-${task.id}"></label>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title">
+                                    ${task.content || '(untitled)'}
+                                </div>
+                            </div>
+                            <div class="task-progress">
+                                <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                            </div>
+                            <div class="task-menu" data-task-id="${task.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="1"/>
+                                    <circle cx="19" cy="12" r="1"/>
+                                    <circle cx="5" cy="12" r="1"/>
+                                </svg>
+                            </div>
+                        `;
+                        
+                        item.innerHTML = itemContent;
+                        
+                        if (taskConfig.selected) {
+                            item.classList.add('selected');
+                        }
+                        
+                        listEl.appendChild(item);
+                    });
+                    
+                    this.setupTaskEventListeners(modal);
+                };
+                
+                renderTasks();
+            });
+        }
+
         // Save button
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
@@ -3288,16 +3339,74 @@ class PomodoroTimer {
                         this.setLocalTasks(tasks);
                     }
                     
-                    // Update task config (preserve completedSessions)
-                    const currentConfig = this.getTaskConfig(taskId);
-                    this.setTaskConfig(taskId, { 
-                        ...currentConfig, 
-                        sessions: pomodoros 
-                    });
+                    // Update task config
+                    this.setTaskConfig(taskId, { sessions: pomodoros });
                     
-                    close();
-                    // Refresh the task list
-                    this.showTaskListModal();
+                    // Re-render the task list
+                    const renderTasks = () => {
+                        const listEl = modal.querySelector('#todoistTasksList');
+                        if (!listEl) return;
+                        
+                        listEl.innerHTML = '';
+                        const allTasks = this.getAllTasks();
+                        
+                        if (allTasks.length === 0) {
+                            const addTaskForm = modal.querySelector('#addTaskForm');
+                            const addTaskBtn = modal.querySelector('#showAddTaskForm');
+                            if (addTaskForm) addTaskForm.style.display = 'block';
+                            if (addTaskBtn) {
+                                addTaskBtn.style.display = 'none';
+                                addTaskBtn.disabled = true;
+                            }
+                            return;
+                        }
+                        
+                        allTasks.forEach((task, index) => {
+                            const item = document.createElement('div');
+                            item.className = 'task-item';
+                            item.draggable = true;
+                            item.dataset.taskId = task.id;
+                            item.dataset.index = index;
+                            
+                            const taskConfig = this.getTaskConfig(task.id);
+                            const completedSessions = taskConfig.completedSessions || 0;
+                            const totalSessions = taskConfig.sessions || 1;
+                            
+                            const itemContent = `
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} disabled>
+                                    <label for="task-${task.id}"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        ${task.content || '(untitled)'}
+                                    </div>
+                                </div>
+                                <div class="task-progress">
+                                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                                </div>
+                                <div class="task-menu" data-task-id="${task.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="1"/>
+                                        <circle cx="19" cy="12" r="1"/>
+                                        <circle cx="5" cy="12" r="1"/>
+                                    </svg>
+                                </div>
+                            `;
+                            
+                            item.innerHTML = itemContent;
+                            
+                            if (taskConfig.selected) {
+                                item.classList.add('selected');
+                            }
+                            
+                            listEl.appendChild(item);
+                        });
+                        
+                        this.setupTaskEventListeners(modal);
+                    };
+                    
+                    renderTasks();
                 }
             });
         }
@@ -3309,6 +3418,11 @@ class PomodoroTimer {
                     saveBtn.click();
                 }
             });
+        }
+
+        // Focus on the input field
+        if (taskInput) {
+            taskInput.focus();
         }
     }
 
