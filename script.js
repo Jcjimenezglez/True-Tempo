@@ -1336,7 +1336,13 @@ class PomodoroTimer {
                     <div class=\"music-section\">
                         <div class=\"music-header\">
                             <div class=\"music-info\">
-                                <div class=\"music-icon\">🎵</div>
+                                <div class=\"music-icon\">
+                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
+                                        <path d=\"M9 18V5l12-2v13\"/>
+                                        <circle cx=\"6\" cy=\"18\" r=\"3\"/>
+                                        <circle cx=\"18\" cy=\"16\" r=\"3\"/>
+                                    </svg>
+                                </div>
                                 <div class=\"music-details\">
                                     <h4>Lofi Music</h4>
                                     <p>Relaxing beats for deep focus</p>
@@ -2418,7 +2424,15 @@ class PomodoroTimer {
                 const empty = document.createElement('div');
                 empty.className = 'empty-state';
                 empty.innerHTML = `
-                    <div class="empty-icon">📝</div>
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                    </div>
                     <div class="empty-text">No tasks loaded yet</div>
                     <div class="empty-subtext">Click "Fetch Tasks" to load your Todoist tasks</div>
                 `;
@@ -2596,7 +2610,15 @@ class PomodoroTimer {
                 const empty = document.createElement('div');
                 empty.className = 'empty-state';
                 empty.innerHTML = `
-                    <div class="empty-icon">📝</div>
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                    </div>
                     <div class="empty-text">No tasks available</div>
                     <div class="empty-subtext">Add your first task or connect Todoist in Settings > Integrations</div>
                 `;
@@ -2932,12 +2954,12 @@ class PomodoroTimer {
         `;
 
         const menuItems = [
-            { text: 'Clear finished tasks', icon: '🗑️', action: () => this.clearFinishedTasks() },
-            { text: 'Use Template', icon: '📋', action: () => this.showTemplatesModal() },
-            { text: 'Import from Todoist', icon: '📥', action: () => this.showImportModal(), locked: !this.isAuthenticated },
-            { text: 'Clear act pomodoros', icon: '✅', action: () => this.clearActPomodoros() },
-            { text: 'Hide tasks', icon: '👁️', action: () => this.hideTasks(), locked: !this.isAuthenticated },
-            { text: 'Clear all tasks', icon: '🗑️', action: () => this.clearAllTasks() }
+            { text: 'Clear finished tasks', icon: 'trash', action: () => this.clearFinishedTasks() },
+            { text: 'Use Template', icon: 'template', action: () => this.showTemplatesModal() },
+            { text: 'Import from Todoist', icon: 'download', action: () => this.showImportModal(), locked: !this.isAuthenticated },
+            { text: 'Clear act pomodoros', icon: 'check', action: () => this.clearActPomodoros() },
+            { text: 'Hide tasks', icon: 'eye', action: () => this.hideTasks(), locked: !this.isAuthenticated },
+            { text: 'Clear all tasks', icon: 'trash', action: () => this.clearAllTasks() }
         ];
 
         menuItems.forEach(item => {
@@ -2962,10 +2984,21 @@ class PomodoroTimer {
                 });
             }
 
+            const getIconSVG = (iconName) => {
+                const icons = {
+                    trash: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path></svg>`,
+                    template: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>`,
+                    download: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
+                    check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>`,
+                    eye: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
+                };
+                return icons[iconName] || '';
+            };
+
             menuItem.innerHTML = `
-                <span>${item.icon}</span>
+                <span>${getIconSVG(item.icon)}</span>
                 <span>${item.text}</span>
-                ${item.locked ? '<span style="margin-left: auto; color: rgba(255, 255, 255, 0.3);">🔒</span>' : ''}
+                ${item.locked ? '<span style="margin-left: auto; color: rgba(255, 255, 255, 0.3);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><circle cx="12" cy="16" r="1"></circle><path d="M7 11V7a5 5 0 0 1 10 0v0"></path></svg></span>' : ''}
             `;
 
             if (!item.locked) {
