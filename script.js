@@ -1850,6 +1850,9 @@ class PomodoroTimer {
         if (finishedWasFocus) {
             const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
             this.actualFocusTimeCompleted += timeCompleted;
+            
+            // Handle task completion for focus sessions
+            this.handleTaskCompletion();
         }
 
         if (cycleCompleted) {
@@ -2014,23 +2017,36 @@ class PomodoroTimer {
     updateSessionInfo() {
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         
-        // Calculate progress percentage
-        let totalCycleProgress = 0;
-        for (let i = 0; i < this.currentSection - 1; i++) {
-            totalCycleProgress += this.cycleSections[i].duration;
-        }
-        totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
+        // Get selected tasks
+        const selectedTasks = this.getSelectedTasks();
         
-        // Calculate total cycle time dynamically
-        const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
-        const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
-        
-        // Format as "X/Y Sessions (Z%)" and include current task if any
-        const sessionNumber = this.currentSection;
-        const totalSessions = this.cycleSections.length;
-        let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
-        if (this.currentTask && this.currentTask.content) {
-            text += ` • Task: ${this.currentTask.content}`;
+        if (selectedTasks.length > 0) {
+            // Show task progress instead of session progress
+            const completedTasks = this.getCompletedTasksCount();
+            const totalTasks = selectedTasks.length;
+            const progressPercentage = Math.round((completedTasks / totalTasks) * 100);
+            
+            let text = `${completedTasks}/${totalTasks} Tasks (${progressPercentage}%)`;
+            
+            // Show current task name
+            const currentTask = this.getCurrentTask();
+            if (currentTask) {
+                text += ` • ${currentTask.content}`;
+            }
+        } else {
+            // Fallback to session progress when no tasks selected
+            let totalCycleProgress = 0;
+            for (let i = 0; i < this.currentSection - 1; i++) {
+                totalCycleProgress += this.cycleSections[i].duration;
+            }
+            totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
+            
+            const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+            const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
+            
+            const sessionNumber = this.currentSection;
+            const totalSessions = this.cycleSections.length;
+            let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
         }
         this.sessionInfoElement.textContent = text;
     }
@@ -3113,6 +3129,140 @@ class PomodoroTimer {
 
     getTaskOrder() {
         return JSON.parse(localStorage.getItem('taskOrder') || '[]');
+    }
+
+    // Task progress tracking
+    getCompletedTasksCount() {
+        const completedTasks = localStorage.getItem('completedTasks') || '[]';
+        return JSON.parse(completedTasks).length;
+    }
+
+    getCurrentTask() {
+        const selectedTasks = this.getSelectedTasks();
+        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+        
+        if (selectedTasks.length === 0) return null;
+        
+        // Find the first uncompleted task
+        for (const task of selectedTasks) {
+            if (!completedTasks.includes(task.id)) {
+                return task;
+            }
+        }
+        
+        return null; // All tasks completed
+    }
+
+    markTaskAsCompleted(taskId) {
+        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+        if (!completedTasks.includes(taskId)) {
+            completedTasks.push(taskId);
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+        }
+    }
+
+    checkAllTasksCompleted() {
+        const selectedTasks = this.getSelectedTasks();
+        const completedTasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+        
+        if (selectedTasks.length === 0) return false;
+        
+        // Check if all selected tasks are completed
+        return selectedTasks.every(task => completedTasks.includes(task.id));
+    }
+
+    async completeTaskInTodoist(taskId) {
+        if (!this.isAuthenticated || !this.user) return;
+        
+        try {
+            const response = await fetch('/api/todoist-complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ taskId: taskId })
+            });
+            
+            if (response.ok) {
+                console.log('Task completed in Todoist:', taskId);
+            }
+        } catch (error) {
+            console.error('Error completing task in Todoist:', error);
+        }
+    }
+
+    handleTaskCompletion() {
+        const selectedTasks = this.getSelectedTasks();
+        if (selectedTasks.length === 0) return;
+
+        const currentTask = this.getCurrentTask();
+        if (!currentTask) return;
+
+        // Mark current task as completed
+        this.markTaskAsCompleted(currentTask.id);
+        
+        // Complete task in Todoist if it's a Todoist task
+        if (currentTask.source === 'todoist') {
+            this.completeTaskInTodoist(currentTask.id);
+        }
+
+        // Check if all tasks are completed
+        if (this.checkAllTasksCompleted()) {
+            // Pause timer and show completion modal
+            this.pauseTimer();
+            this.showTaskCompletionModal();
+        }
+    }
+
+    showTaskCompletionModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal task-completion-modal';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <div class="completion-header">
+                <div class="completion-icon">🎉</div>
+                <h3>All Tasks Completed!</h3>
+                <p>Great job! You've finished all your selected tasks.</p>
+            </div>
+            
+            <div class="completion-actions">
+                <button class="btn-primary" id="viewTasksBtn">View Tasks</button>
+                <button class="btn-secondary" id="continueBtn">Continue Timer</button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        // View Tasks button
+        modal.querySelector('#viewTasksBtn').addEventListener('click', () => {
+            close();
+            this.showTaskListModal();
+        });
+
+        // Continue button
+        modal.querySelector('#continueBtn').addEventListener('click', () => {
+            close();
+        });
     }
 
     showAddTaskModal() {

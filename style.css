@@ -4182,6 +4182,40 @@ input:checked + .toggle-slider:before {
     transform: translateY(0);
 }
 
+/* Task Completion Modal */
+.task-completion-modal {
+    text-align: center;
+    max-width: 400px;
+}
+
+.completion-header {
+    margin-bottom: 2rem;
+}
+
+.completion-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.completion-header h3 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.completion-header p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.completion-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
 /* Drag and Drop Styles */
 .task-item {
     cursor: move;
