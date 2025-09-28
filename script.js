@@ -1304,6 +1304,23 @@ class PomodoroTimer {
         document.body.appendChild(modalOverlay);
         modalOverlay.style.display = 'flex';
 
+		// Remove Spotify UI and Preview button from the modal UI
+		const spotifyListSection = modalOverlay.querySelector('#spotifyPlaylistsList');
+		if (spotifyListSection) {
+			const spotifySectionContainer = spotifyListSection.closest('.music-section') || spotifyListSection.parentElement;
+			if (spotifySectionContainer && spotifySectionContainer.parentElement) {
+				spotifySectionContainer.parentElement.removeChild(spotifySectionContainer);
+			}
+		}
+		const spotifyActions = modalOverlay.querySelector('.spotify-actions');
+		if (spotifyActions && spotifyActions.parentElement) {
+			spotifyActions.parentElement.removeChild(spotifyActions);
+		}
+		const previewBtnInDom = modalOverlay.querySelector('#previewBtn');
+		if (previewBtnInDom && previewBtnInDom.parentElement) {
+			previewBtnInDom.parentElement.removeChild(previewBtnInDom);
+		}
+
         // Event listeners
         modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
@@ -1325,6 +1342,150 @@ class PomodoroTimer {
         });
     }
 
+    showAmbientModal() {
+        const initialVolumePct = Math.round(this.ambientVolume * 100);
+        const isEnabled = this.ambientEnabled;
+        const modalContent = `
+            <div class=\"focus-stats-modal background-music-modal\">
+                <button class=\"close-focus-stats-x\">
+                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">
+                        <path d=\"M18 6 6 18\"/>
+                        <path d=\"m6 6 12 12\"/>
+                    </svg>
+                </button>
+                
+                <div class=\"modal-header\">
+                    <h3>Background Music</h3>
+                    <p class=\"modal-subtitle\">Enhance your focus with ambient sounds</p>
+                </div>
+                
+                <div class=\"music-controls\">
+                    <!-- Lofi Music Section -->
+                    <div class=\"music-section\">
+                        <div class=\"music-header\">
+                            <div class=\"music-info\">
+                                <div class=\"music-icon\">
+                                </div>
+                                <div class=\"music-details\">
+                                    <h4>Lofi Music</h4>
+                                    <p>Relaxing beats for deep focus</p>
+                                </div>
+                            </div>
+                            <div class=\"toggle-container\">
+                                <label class=\"toggle-switch\">
+                                    <input type=\"checkbox\" id=\"lofiToggle\" ${isEnabled ? 'checked' : ''}>
+                                    <span class=\"toggle-slider\"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class=\"volume-section\">
+                            <div class=\"volume-header\">
+                                <label class=\"volume-label\">Volume</label>
+                                <span class=\"volume-value\" id=\"ambientVolumeValue\">${initialVolumePct}%</span>
+                            </div>
+                            <div class=\"volume-control\">
+                                <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\" class=\"volume-slider\">
+                            </div>
+                        </div>
+                    </div>
+                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                                                <path d=\"M9 18V5l12-2v13"/>
+                                            </svg>
+                                        </div>
+                                        <div class=\"music-details\">
+                                            <h4>Playlists</h4>
+                                            <p>Use Spotify playlists as background</p>
+                                        </div>
+                                    </div>
+                                    <div class=\"toggle-container\">
+                                        <label class=\"toggle-switch\">
+                                            <input type=\"checkbox\" id=\"spotifyToggle\">
+                                            <span class=\"toggle-slider\"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id=\"spotifyPlaylistsList\" class=\"playlists-list\">
+                                    <div class=\"loading\">Loading playlists...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class=\"spotify-actions\">
+                            <button id=\"connectSpotifyBtn\" class=\"spotify-btn primary\">Connect Spotify</button>
+                            <button id=\"disconnectSpotifyBtn\" class=\"spotify-btn secondary\" style=\"display: none;\">Disconnect</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        `;
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+
+        // Event listeners
+        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+		const volumeSlider = modalOverlay.querySelector('#ambientVolume');
+		const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
+		const lofiToggle = modalOverlay.querySelector('#lofiToggle');
+		const previewBtn = modalOverlay.querySelector('#previewBtn');
+        
+		// Initialize controls with current state
+		volumeSlider.disabled = !isEnabled;
+		if (previewBtn) previewBtn.disabled = !isEnabled;
+
+        // Toggle logic with persistence
+        lofiToggle.addEventListener('change', (e) => {
+            const enabled = e.target.checked;
+            this.ambientEnabled = enabled;
+            localStorage.setItem('ambientEnabled', String(enabled));
+			volumeSlider.disabled = !enabled;
+			if (previewBtn) previewBtn.disabled = !enabled;
+            
+            if (!enabled) {
+                this.stopPlaylist();
+				if (previewBtn) previewBtn.textContent = 'Preview';
+            }
+        });
+
+		// Preview button (play/pause functionality)
+		if (previewBtn) {
+			previewBtn.addEventListener('click', async () => {
+				if (lofiToggle.checked) {
+					if (previewBtn.textContent === 'Preview') {
+						await this.playPlaylist();
+						previewBtn.textContent = 'Pause';
+					} else {
+						this.stopPlaylist();
+						previewBtn.textContent = 'Preview';
+					}
+				}
+			});
+		}
+
+        volumeSlider.addEventListener('input', (e) => {
+            volumeValue.textContent = e.target.value + '%';
+            this.setAmbientVolume(e.target.value / 100);
+        });
+
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
 
     // Helper to set playlist after uploading files
     setPlaylist(trackFilenames = []) {
@@ -4465,100 +4626,4 @@ class PomodoroTimer {
 // Initialize the timer when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new PomodoroTimer();
-});    showAmbientModal() {
-        const initialVolumePct = Math.round(this.ambientVolume * 100);
-        const isEnabled = this.ambientEnabled;
-        const modalContent = `
-            <div class=\"focus-stats-modal background-music-modal\">
-                <button class=\"close-focus-stats-x\">
-                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x-icon lucide-x\">
-                        <path d=\"M18 6 6 18\"/>
-                        <path d=\"m6 6 12 12\"/>
-                    </svg>
-                </button>
-                
-                <div class=\"modal-header\">
-                    <h3>Background Music</h3>
-                    <p class=\"modal-subtitle\">Enhance your focus with ambient sounds</p>
-                </div>
-                
-                <div class=\"music-controls\">
-                    <!-- Lofi Music Section -->
-                    <div class=\"music-section\">
-                        <div class=\"music-header\">
-                            <div class=\"music-info\">
-                                <div class=\"music-icon\">
-                                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
-                                        <path d=\"M9 18V5l12-2v13\"/>
-                                        <circle cx=\"6\" cy=\"18\" r=\"3\"/>
-                                        <circle cx=\"18\" cy=\"16\" r=\"3\"/>
-                                    </svg>
-                                </div>
-                                <div class=\"music-details\">
-                                    <h4>Lofi Music</h4>
-                                    <p>Relaxing beats for deep focus</p>
-                                </div>
-                            </div>
-                            <div class=\"toggle-container\">
-                                <label class=\"toggle-switch\">
-                                    <input type=\"checkbox\" id=\"lofiToggle\" ${isEnabled ? 'checked' : ''}>
-                                    <span class=\"toggle-slider\"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class=\"volume-section\">
-                            <div class=\"volume-header\">
-                                <label class=\"volume-label\">Volume</label>
-                                <span class=\"volume-value\" id=\"ambientVolumeValue\">${initialVolumePct}%</span>
-                            </div>
-                            <div class=\"volume-control\">
-                                <input type=\"range\" id=\"ambientVolume\" min=\"0\" max=\"100\" value=\"${initialVolumePct}\" class=\"volume-slider\">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
-        modalOverlay.innerHTML = modalContent;
-        document.body.appendChild(modalOverlay);
-        modalOverlay.style.display = 'flex';
-
-        // Event listeners
-        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-
-        const volumeSlider = modalOverlay.querySelector('#ambientVolume');
-        const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-        
-        // Initialize controls with current state
-        volumeSlider.disabled = !isEnabled;
-
-        // Toggle logic with persistence
-        lofiToggle.addEventListener('change', (e) => {
-            const enabled = e.target.checked;
-            this.ambientEnabled = enabled;
-            localStorage.setItem('ambientEnabled', String(enabled));
-            volumeSlider.disabled = !enabled;
-            
-            if (!enabled) {
-                this.stopPlaylist();
-            }
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            volumeValue.textContent = e.target.value + '%';
-            this.setAmbientVolume(e.target.value / 100);
-        });
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
-    }
+});
