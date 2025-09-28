@@ -16,8 +16,8 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    const clientId = (process.env.SPOTIFY_CLIENT_ID || '').trim();
+    const clientSecret = (process.env.SPOTIFY_CLIENT_SECRET || '').trim();
     const redirectUri = (process.env.SPOTIFY_REDIRECT_URI || `https://${req.headers.host}/api/spotify-auth-callback`).trim();
 
     const body = new URLSearchParams({

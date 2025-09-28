@@ -14,8 +14,8 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    const clientId = (process.env.SPOTIFY_CLIENT_ID || '').trim();
+    const clientSecret = (process.env.SPOTIFY_CLIENT_SECRET || '').trim();
     const body = new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: refreshToken,

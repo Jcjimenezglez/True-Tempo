@@ -4,7 +4,7 @@
 
 module.exports = async (req, res) => {
   try {
-    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientId = (process.env.SPOTIFY_CLIENT_ID || '').trim();
     if (!clientId) {
       res.statusCode = 500;
       res.end('Missing SPOTIFY_CLIENT_ID');
