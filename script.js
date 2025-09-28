@@ -33,9 +33,8 @@ class PomodoroTimer {
         
 		// Ambient sounds system
 		this.ambientPlaying = false;
-		// Default volume is 50% (0.5), but save/restore user preference when logged in
-		const savedVolume = localStorage.getItem('ambientVolume');
-		this.ambientVolume = savedVolume ? parseFloat(savedVolume) : 0.5;
+		// Default guest volume starts at 50% (0.5). Authenticated users will load saved volume in updateAuthState()
+		this.ambientVolume = 0.5;
 		// Persisted enable flag (default On)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
@@ -388,9 +387,14 @@ class PomodoroTimer {
 
             // Apply saved technique now that auth is ready
             this.applySavedTechniqueOnce();
-            
-            // Restore user's saved volume preference
-            this.restoreUserVolumePreference();
+            // Restore user's saved volume preference when authenticated
+            try {
+                const savedVolume = localStorage.getItem('ambientVolume');
+                if (savedVolume !== null) {
+                    this.ambientVolume = Math.max(0, Math.min(1, parseFloat(savedVolume)));
+                    if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+                }
+            } catch (_) {}
         } else {
             // Clear Todoist tasks when user is not authenticated
             this.clearTodoistTasks();
@@ -408,10 +412,9 @@ class PomodoroTimer {
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
             }
-            
-            // Reset volume to default (50%) for guests
-            this.resetVolumeToDefault();
-            }
+            // Ensure guest default volume (50%) when not authenticated
+            this.ambientVolume = 0.5;
+            if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             // Hide developer tab when not authenticated
             this.updateDeveloperTabVisibility();
         }
@@ -1533,25 +1536,7 @@ class PomodoroTimer {
 
     setAmbientVolume(vol) {
         this.ambientVolume = Math.max(0, Math.min(1, vol));
-        // Only save to localStorage if user is authenticated
-        if (this.isAuthenticated && this.user) {
-            localStorage.setItem('ambientVolume', String(this.ambientVolume));
-        }
-        if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
-    }
-
-    // Restore user's saved volume preference when they log in
-    restoreUserVolumePreference() {
-        const savedVolume = localStorage.getItem('ambientVolume');
-        if (savedVolume) {
-            this.ambientVolume = parseFloat(savedVolume);
-            if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
-        }
-    }
-
-    // Reset volume to default (50%) for guests
-    resetVolumeToDefault() {
-        this.ambientVolume = 0.5;
+        localStorage.setItem('ambientVolume', String(this.ambientVolume));
         if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
     }
 
