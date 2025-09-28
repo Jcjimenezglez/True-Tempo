@@ -1400,13 +1400,6 @@ class PomodoroTimer {
                         </div>
                         
                         <div class=\"spotify-content\" id=\"spotifyContent\" style=\"display: none;\">
-                            <div class=\"spotify-devices\">
-                                <h5>Devices</h5>
-                                <div id=\"spotifyDevicesList\" class=\"devices-list\">
-                                    <div class=\"loading\">Loading devices...</div>
-                                </div>
-                            </div>
-                            
                             <div class=\"spotify-playlists\">
                                 <div class=\"music-header\" style=\"margin-bottom: .75rem;\">
                                     <div class=\"music-info\">
@@ -1474,7 +1467,7 @@ class PomodoroTimer {
         
         // Initialize controls with current state
         volumeSlider.disabled = !isEnabled;
-        previewBtn.disabled = !isEnabled;
+        previewBtn.disabled = !isEnabled && !this.spotifyEnabled;
 
         // Toggle logic with persistence
         lofiToggle.addEventListener('change', (e) => {
@@ -1513,7 +1506,7 @@ class PomodoroTimer {
                     this.ambientEnabled = false;
                     localStorage.setItem('ambientEnabled', 'false');
                     volumeSlider.disabled = true;
-                    previewBtn.disabled = true;
+                    previewBtn.disabled = false; // Enable preview for Spotify
                     this.stopPlaylist();
                     // if a playlist is selected, start playback
                     if (this.spotifySelectedUri) {
@@ -1521,18 +1514,28 @@ class PomodoroTimer {
                     }
                 } else {
                     this.pauseSpotify();
+                    previewBtn.disabled = true;
                 }
             });
         }
 
         // Preview button (play/pause functionality)
         previewBtn.addEventListener('click', async () => {
+            const spotifyToggle = modalOverlay.querySelector('#spotifyToggle');
             if (lofiToggle.checked) {
                 if (previewBtn.textContent === 'Preview') {
                     await this.playPlaylist();
                     previewBtn.textContent = 'Pause';
                 } else {
                     this.stopPlaylist();
+                    previewBtn.textContent = 'Preview';
+                }
+            } else if (spotifyToggle && spotifyToggle.checked && this.spotifySelectedUri) {
+                if (previewBtn.textContent === 'Preview') {
+                    await this.playSpotifyUri(this.spotifySelectedUri);
+                    previewBtn.textContent = 'Pause';
+                } else {
+                    await this.pauseSpotify();
                     previewBtn.textContent = 'Preview';
                 }
             }
