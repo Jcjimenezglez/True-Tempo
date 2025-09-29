@@ -3542,12 +3542,19 @@ class PomodoroTimer {
             optionsDropdown.style.display = isVisible ? 'none' : 'block';
         });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
+        // Close dropdown when clicking outside the modal
+        const closeDropdownOnOutsideClick = (e) => {
+            // Don't close if clicking on the options button or dropdown
+            if (optionsBtn.contains(e.target) || optionsDropdown.contains(e.target)) {
+                return;
+            }
+            // Close if clicking outside the modal
             if (!modal.contains(e.target)) {
                 optionsDropdown.style.display = 'none';
             }
-        });
+        };
+        
+        document.addEventListener('click', closeDropdownOnOutsideClick);
 
         // Clear all tasks
         if (clearAllBtn) {
