@@ -3216,16 +3216,6 @@ class PomodoroTimer {
                 filteredTasks = allTasks.filter(task => task.completed);
             }
             
-            // Show/hide Add Task button based on current tab
-            const addTaskSection = modal.querySelector('.add-task-section');
-            if (addTaskSection) {
-                if (currentTab === 'done') {
-                    addTaskSection.style.display = 'none';
-                } else {
-                    addTaskSection.style.display = 'block';
-                }
-            }
-            
             if (filteredTasks.length === 0) {
                 // Show empty list without any message
                 listEl.innerHTML = '';
@@ -3381,15 +3371,6 @@ class PomodoroTimer {
                     tab.classList.add('active');
                     // Update current tab
                     currentTab = tab.dataset.tab;
-                    
-                    // Hide add task form if switching to Done tab
-                    if (currentTab === 'done') {
-                        const addTaskForm = modal.querySelector('#addTaskForm');
-                        if (addTaskForm) {
-                            addTaskForm.style.display = 'none';
-                        }
-                    }
-                    
                     // Re-render tasks
                     renderTasks();
                 });
