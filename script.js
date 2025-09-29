@@ -3167,7 +3167,7 @@ class PomodoroTimer {
                 
                 const itemContent = `
                     <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${taskConfig.selected ? 'checked' : ''}>
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
                         <label for="task-${task.id}"></label>
                     </div>
                     <div class="task-content">
@@ -3440,26 +3440,6 @@ class PomodoroTimer {
     }
 
     setupTaskEventListeners(modal) {
-        // Task checkbox click listeners
-        const taskCheckboxes = modal.querySelectorAll('.task-checkbox input[type="checkbox"]');
-        taskCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const taskId = e.target.id.replace('task-', '');
-                const currentConfig = this.getTaskConfig(taskId);
-                const newSelected = e.target.checked;
-                
-                // Toggle selection
-                this.setTaskConfig(taskId, { ...currentConfig, selected: newSelected });
-                
-                // Update visual state
-                this.updateTaskSelectionVisual(modal, taskId, newSelected);
-                
-                // Update the main timer banner
-                this.updateCurrentTaskBanner();
-                this.rebuildTaskQueue();
-            });
-        });
-
         // Task item click listeners (select task, not checkbox)
         const taskItems = modal.querySelectorAll('.task-item');
         taskItems.forEach(item => {
@@ -4251,7 +4231,7 @@ class PomodoroTimer {
         tasks.push(newTask);
         this.setLocalTasks(tasks);
         // Persist planned sessions so the card progress matches the chosen value
-        this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: false, completedSessions: 0 });
+        this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: true, completedSessions: 0 });
     }
 
     showImportModal() {
