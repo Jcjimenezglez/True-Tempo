@@ -13,6 +13,7 @@ class PomodoroTimer {
         this.isWorkSession = true;
         this.isLongBreak = false;
         this.currentTaskName = null; // Current task being worked on
+        this.sessionTasks = []; // Array to store tasks for each focus session
         this.interval = null;
         
         // Anti-cheat tracking within the current cycle
@@ -180,8 +181,8 @@ class PomodoroTimer {
         this.updateNavigationButtons();
         this.initClerk();
         
-        // Set example task for demonstration
-        this.setCurrentTask("Aplicando a Jobs");
+        // Initialize tasks for each focus session
+        this.initializeSessionTasks();
         
         // Add click handler to cycle through example tasks
         if (this.currentTaskElement) {
@@ -1953,6 +1954,9 @@ class PomodoroTimer {
         this.isWorkSession = currentSectionInfo.type === 'work';
         this.isLongBreak = currentSectionInfo.type === 'long-break';
         
+        // Update current session task
+        this.updateCurrentSessionTask();
+        
         // Keep task label in sync with completed sessions
         if (this.isWorkSession) {
             try {
@@ -2075,6 +2079,7 @@ class PomodoroTimer {
         this.updateSections();
         this.updateMode();
         this.updateSessionInfo();
+        this.updateCurrentSessionTask();
 
         if (cycleCompleted) {
             // Ensure fully paused state and correct button/title
@@ -2373,6 +2378,36 @@ class PomodoroTimer {
         }
     }
     
+    // Initialize tasks for each focus session
+    initializeSessionTasks() {
+        this.sessionTasks = [
+            "Aplicando a Jobs",      // Session 1
+            "Making Interviews",     // Session 2  
+            "Studying React",        // Session 3
+            "Writing Documentation", // Session 4
+            "Code Review",           // Session 5
+            "Planning Sprint",       // Session 6
+            "Learning TypeScript",   // Session 7
+            "Designing UI"           // Session 8
+        ];
+        
+        // Set the task for the current session
+        this.updateCurrentSessionTask();
+    }
+    
+    // Update current session task based on current section
+    updateCurrentSessionTask() {
+        if (this.isWorkSession && this.sessionTasks.length > 0) {
+            // Calculate which focus session this is (1, 3, 5, 7 for a 4-session cycle)
+            const focusSessionNumber = Math.floor((this.currentSection + 1) / 2);
+            const taskIndex = Math.min(focusSessionNumber - 1, this.sessionTasks.length - 1);
+            this.setCurrentTask(this.sessionTasks[taskIndex]);
+        } else {
+            // Clear task for break sessions
+            this.clearCurrentTask();
+        }
+    }
+    
     // Example tasks for demonstration
     getExampleTasks() {
         return [
@@ -2387,12 +2422,21 @@ class PomodoroTimer {
         ];
     }
     
-    // Method to cycle through example tasks (for demonstration)
+    // Method to cycle through tasks for current session
     cycleToNextTask() {
-        const tasks = this.getExampleTasks();
-        const currentIndex = tasks.indexOf(this.currentTaskName);
-        const nextIndex = (currentIndex + 1) % tasks.length;
-        this.setCurrentTask(tasks[nextIndex]);
+        if (this.isWorkSession && this.sessionTasks.length > 0) {
+            const focusSessionNumber = Math.floor((this.currentSection + 1) / 2);
+            const taskIndex = Math.min(focusSessionNumber - 1, this.sessionTasks.length - 1);
+            
+            // Get all available tasks
+            const allTasks = this.getExampleTasks();
+            const currentIndex = allTasks.indexOf(this.sessionTasks[taskIndex]);
+            const nextIndex = (currentIndex + 1) % allTasks.length;
+            
+            // Update the task for this session
+            this.sessionTasks[taskIndex] = allTasks[nextIndex];
+            this.setCurrentTask(this.sessionTasks[taskIndex]);
+        }
     }
     
     playNotification() {
