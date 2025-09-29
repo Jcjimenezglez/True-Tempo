@@ -1868,13 +1868,8 @@ class PomodoroTimer {
         // Show current task name instead of "Focus" if task is selected
         let modeText;
         if (this.isWorkSession) {
-            const selectedTasks = this.getSelectedTasks();
-            if (selectedTasks.length > 0) {
-                // Show the first selected task name
-                modeText = selectedTasks[0].content || 'Focus';
-            } else {
-                modeText = 'Focus';
-            }
+            const currentLabel = this.getCurrentTaskLabel();
+            modeText = currentLabel || 'Focus';
         } else {
             modeText = this.isLongBreak ? 'Long Break' : 'Break';
         }
@@ -1903,13 +1898,8 @@ class PomodoroTimer {
         // Show current task name instead of "Focus" if task is selected
         let modeText;
         if (this.isWorkSession) {
-            const selectedTasks = this.getSelectedTasks();
-            if (selectedTasks.length > 0) {
-                // Show the first selected task name
-                modeText = selectedTasks[0].content || 'Focus';
-            } else {
-                modeText = 'Focus';
-            }
+            const currentLabel = this.getCurrentTaskLabel();
+            modeText = currentLabel || 'Focus';
         } else {
             modeText = this.isLongBreak ? 'Long Break' : 'Break';
         }
@@ -2262,25 +2252,36 @@ class PomodoroTimer {
         if (!this.taskQueue || this.taskQueue.length === 0) return;
         
         // Increment completed sessions for current task
-        if (this.currentTask && this.currentTask.id) {
-            this.incrementTaskCompletedSessions(this.currentTask.id);
+        const finishedTaskId = this.currentTask && this.currentTask.id ? this.currentTask.id : null;
+        if (finishedTaskId) {
+            this.incrementTaskCompletedSessions(finishedTaskId);
+            // If the task reached its planned sessions, mark completed and rebuild queue
+            const cfg = this.getTaskConfig(finishedTaskId);
+            const planned = Math.max(1, cfg.sessions || 1);
+            const done = Math.min(cfg.completedSessions || 0, planned);
+            const taskFinished = done >= planned;
+            if (taskFinished) {
+                try { this.markLocalTaskAsCompleted(finishedTaskId); } catch (_) {}
+                // Queue rebuilt from remaining selected tasks
+                if (this.taskQueue && this.taskQueue.length > 0) {
+                    this.currentTaskIndex = 0;
+                    this.currentTask = this.taskQueue[0];
+                } else {
+                    this.currentTaskIndex = 0;
+                    this.currentTask = null; // Will show Focus
+                }
+                this.updateMode();
+                return;
+            }
         }
         
-        // Only advance when the finished section was a work session
+        // Task not finished yet → advance to next slot in queue
         if (this.currentTaskIndex < this.taskQueue.length - 1) {
             this.currentTaskIndex += 1;
             this.currentTask = this.taskQueue[this.currentTaskIndex];
         } else {
-            // All planned task sessions completed → continue with Focus (no task label)
-            const completedTaskId = this.currentTask ? this.currentTask.id : null;
+            // End of queue (shouldn't happen if task not finished), fallback to Focus
             this.currentTask = null;
-            // Point index beyond the queue length so getCurrentTaskLabel() returns empty
-            this.currentTaskIndex = this.taskQueue.length;
-            if (completedTaskId) {
-                try { this.markLocalTaskAsCompleted(completedTaskId); } catch (_) {}
-            }
-            // Mode text will now fall back to 'Focus'
-            this.updateMode();
         }
     }
 
@@ -3584,8 +3585,13 @@ class PomodoroTimer {
             return;
         }
 
-        // Show current task and progress
-        const currentTask = selectedTasks[0];
+        // Show current task and progress (use currentTaskIndex across queue)
+        let currentTask;
+        if (Array.isArray(this.taskQueue) && this.taskQueue.length > 0 && this.currentTaskIndex < this.taskQueue.length) {
+            currentTask = this.taskQueue[this.currentTaskIndex];
+        } else {
+            currentTask = selectedTasks[0];
+        }
         const taskInfo = document.getElementById('currentTaskInfo');
         const taskProgress = document.getElementById('taskProgress');
         
