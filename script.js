@@ -151,7 +151,6 @@ class PomodoroTimer {
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
-        this.isPro = false;
         
         // Task form state
         this.editingTaskId = null;
@@ -380,9 +379,6 @@ class PomodoroTimer {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
         }
-        
-        // Update Pro status
-        this.isPro = this.isPremiumUser();
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
