@@ -3836,7 +3836,8 @@ class PomodoroTimer {
         
         return allTasks.filter(task => {
             const config = this.getTaskConfig(task.id);
-            return config.selected;
+            // Only include tasks that are selected AND not completed
+            return config.selected && !task.completed;
         }).map(task => {
             const config = this.getTaskConfig(task.id);
             return {
