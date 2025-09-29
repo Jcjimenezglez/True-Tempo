@@ -3371,6 +3371,21 @@ class PomodoroTimer {
                     tab.classList.add('active');
                     // Update current tab
                     currentTab = tab.dataset.tab;
+                    
+                    // Show/hide add task elements based on current tab
+                    const addTaskForm = modal.querySelector('#addTaskForm');
+                    const addTaskBtn = modal.querySelector('#showAddTaskForm');
+                    const addTaskSection = modal.querySelector('.add-task-section');
+                    
+                    if (currentTab === 'done') {
+                        // Hide add task elements in Done tab
+                        if (addTaskForm) addTaskForm.style.display = 'none';
+                        if (addTaskSection) addTaskSection.style.display = 'none';
+                    } else {
+                        // Show add task elements in To-do tab
+                        if (addTaskSection) addTaskSection.style.display = 'block';
+                    }
+                    
                     // Re-render tasks
                     renderTasks();
                 });
