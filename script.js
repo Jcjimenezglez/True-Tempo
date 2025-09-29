@@ -2245,9 +2245,14 @@ class PomodoroTimer {
             this.currentTaskIndex += 1;
             this.currentTask = this.taskQueue[this.currentTaskIndex];
         } else {
-            // All planned task sessions completed → pause only (no modal)
-            this.pauseTimer();
-            try { this.markLocalTaskAsCompleted(this.currentTask?.id); } catch (_) {}
+            // All planned task sessions completed → continue with "Focus" sessions
+            // Don't pause the timer, just clear the current task so it shows "Focus"
+            const completedTaskId = this.currentTask?.id;
+            this.currentTask = null;
+            this.currentTaskIndex = this.taskQueue.length; // Set beyond queue length
+            if (completedTaskId) {
+                try { this.markLocalTaskAsCompleted(completedTaskId); } catch (_) {}
+            }
         }
     }
 
