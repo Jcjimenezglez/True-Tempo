@@ -1865,11 +1865,10 @@ class PomodoroTimer {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        // Show current task name instead of "Focus" if task is selected
+        // Always call work sessions "Focus"
         let modeText;
         if (this.isWorkSession) {
-            const currentLabel = this.getCurrentTaskLabel();
-            modeText = currentLabel || 'Focus';
+            modeText = 'Focus';
         } else {
             modeText = this.isLongBreak ? 'Long Break' : 'Break';
         }
@@ -1895,11 +1894,10 @@ class PomodoroTimer {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        // Show current task name instead of "Focus" if task is selected
+        // Always call work sessions "Focus"
         let modeText;
         if (this.isWorkSession) {
-            const currentLabel = this.getCurrentTaskLabel();
-            modeText = currentLabel || 'Focus';
+            modeText = 'Focus';
         } else {
             modeText = this.isLongBreak ? 'Long Break' : 'Break';
         }
@@ -2097,10 +2095,10 @@ class PomodoroTimer {
         
         // Update browser tab title
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
-        // Use current queued task as label during work sessions
+        // Always call work sessions "Focus"
         let modeText;
         if (this.isWorkSession) {
-            modeText = this.getCurrentTaskLabel() || 'Focus';
+            modeText = 'Focus';
         } else {
             modeText = this.isLongBreak ? 'Long Break' : 'Break';
         }
@@ -2200,9 +2198,8 @@ class PomodoroTimer {
     
     updateMode() {
         if (this.isWorkSession) {
-            // If there is a current task in the queue, show it instead of 'Focus'
-            const taskLabel = this.getCurrentTaskLabel();
-            this.modeElement.textContent = taskLabel || 'Focus';
+            // Always display 'Focus' for work sessions
+            this.modeElement.textContent = 'Focus';
             this.modeElement.className = 'mode focus';
             // White for focus sessions
             this.progressIndicator.style.stroke = '#ffffff';
