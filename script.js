@@ -2029,6 +2029,15 @@ class PomodoroTimer {
             this.actualFocusTimeCompleted = 0;
         }
         
+        // Count time from naturally finished focus session (when not using Next/Back)
+        if (finishedWasFocus) {
+            const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
+            this.actualFocusTimeCompleted += timeCompleted;
+            // Mark todoist task and advance queue BEFORE loading next section so the label updates immediately
+            this.completeCurrentTodoistTaskIfAny();
+            this.advanceTaskQueueAfterFocus();
+        }
+
         // Load current section data
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         this.timeLeft = currentSectionInfo.duration;
@@ -2041,15 +2050,6 @@ class PomodoroTimer {
         this.updateSections();
         this.updateMode();
         this.updateSessionInfo();
-        
-        // Count time from naturally finished focus session (when not using Next/Back)
-        if (finishedWasFocus) {
-            const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
-            this.actualFocusTimeCompleted += timeCompleted;
-            // Mark todoist task and advance queue
-            this.completeCurrentTodoistTaskIfAny();
-            this.advanceTaskQueueAfterFocus();
-        }
 
         if (cycleCompleted) {
             // Ensure fully paused state and correct button/title
