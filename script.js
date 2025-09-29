@@ -93,7 +93,6 @@ class PomodoroTimer {
         
         // DOM elements
         this.timeElement = document.getElementById('time');
-        this.modeElement = document.getElementById('mode');
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.currentTaskElement = document.getElementById('currentTask');
         this.startPauseBtn = document.getElementById('startPause');
@@ -170,7 +169,6 @@ class PomodoroTimer {
     init() {
         this.layoutSegments();
         this.updateDisplay();
-        this.updateMode();
         this.updateProgress();
         this.updateSections();
         this.updateSessionInfo();
@@ -1995,7 +1993,6 @@ class PomodoroTimer {
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
-        this.updateMode();
         this.updateSessionInfo();
     }
     
@@ -2088,7 +2085,6 @@ class PomodoroTimer {
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
-        this.updateMode();
         this.updateSessionInfo();
         this.updateCurrentSessionTask();
 
@@ -2225,25 +2221,6 @@ class PomodoroTimer {
         // No highlight: segments remain uniform per type
     }
     
-    updateMode() {
-        if (this.isWorkSession) {
-            // Always display 'Focus' for work sessions
-            this.modeElement.textContent = 'Focus';
-            this.modeElement.className = 'mode focus';
-            // White for focus sessions
-            this.progressIndicator.style.stroke = '#ffffff';
-        } else if (this.isLongBreak) {
-            this.modeElement.textContent = 'Long Break';
-            this.modeElement.className = 'mode long-break';
-            // White for long breaks
-            this.progressIndicator.style.stroke = '#ffffff';
-        } else {
-            this.modeElement.textContent = 'Break';
-            this.modeElement.className = 'mode break';
-            // White for short breaks
-            this.progressIndicator.style.stroke = '#ffffff';
-        }
-    }
 
     // Get total number of focus sessions for current technique
     getTotalFocusSessions() {
@@ -2286,10 +2263,6 @@ class PomodoroTimer {
         // Keep sessionTasks in sync with taskQueue
         this.updateSessionTasksFromSelected();
 
-        // Reflect immediately in UI mode label if in work session
-        if (this.isWorkSession) {
-            this.updateMode();
-        }
     }
 
     getCurrentTaskLabel() {
@@ -2323,7 +2296,6 @@ class PomodoroTimer {
                     this.currentTaskIndex = 0;
                     this.currentTask = null; // Will show Focus
                 }
-                this.updateMode();
                 return;
             }
         }
@@ -5534,7 +5506,6 @@ class PomodoroTimer {
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
-        this.updateMode();
         this.updateSessionInfo();
         
         // Close dropdown

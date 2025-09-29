@@ -442,34 +442,6 @@ body::after {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
-.mode {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    text-transform: none;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-}
-
-.mode:hover {
-    background: rgba(120, 219, 255, 0.1);
-    transform: translateY(-1px);
-}
-
-.mode.focus {
-    color: #ffffff;
-}
-
-.mode.break {
-    color: #ffffff;
-}
-
-.mode.long-break {
-    color: #ffffff;
-}
 
 .session-info {
     font-size: 0.875rem;
