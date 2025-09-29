@@ -2293,10 +2293,10 @@ class PomodoroTimer {
     }
 
     getCurrentTaskLabel() {
-        if (!this.taskQueue || this.taskQueue.length === 0) return '';
+        if (!this.taskQueue || this.taskQueue.length === 0) return 'Focus';
         const current = this.taskQueue[this.currentTaskIndex] || null;
-        // Return empty string for empty slots (sessions without assigned tasks)
-        if (!current || current.source === 'empty' || !current.content) return '';
+        // Return "Focus" for empty slots (sessions without assigned tasks)
+        if (!current || current.source === 'empty' || !current.content) return 'Focus';
         return current.content;
     }
 
@@ -2410,12 +2410,10 @@ class PomodoroTimer {
             if (this.currentTaskName) {
                 this.currentTaskElement.textContent = this.currentTaskName;
                 this.currentTaskElement.style.display = 'block';
-                this.currentTaskElement.style.visibility = 'visible';
             } else {
-                // Keep the element visible but with empty content to maintain layout
-                this.currentTaskElement.textContent = '';
+                // Show "Focus" when no task is assigned
+                this.currentTaskElement.textContent = 'Focus';
                 this.currentTaskElement.style.display = 'block';
-                this.currentTaskElement.style.visibility = 'hidden';
             }
         }
     }
@@ -2442,8 +2440,12 @@ class PomodoroTimer {
                 this.currentTask = this.taskQueue[this.currentTaskIndex];
                 this.currentTaskName = this.currentTask ? this.currentTask.content : null;
             }
+        } else if (this.isWorkSession) {
+            // In work session but no tasks selected - show "Focus"
+            this.currentTask = null;
+            this.currentTaskName = null;
         } else {
-            // Not in work session or no tasks
+            // Not in work session
             this.currentTask = null;
             this.currentTaskName = null;
         }
