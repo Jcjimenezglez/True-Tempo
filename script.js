@@ -3195,6 +3195,11 @@ class PomodoroTimer {
             ...config, 
             completedSessions: finalCompleted 
         });
+        
+        // If all sessions are completed, mark the task as completed
+        if (finalCompleted >= totalSessions) {
+            this.markLocalTaskAsCompleted(taskId);
+        }
     }
 
     setupTaskEventListeners(modal) {
