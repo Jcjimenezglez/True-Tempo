@@ -3216,6 +3216,16 @@ class PomodoroTimer {
                 filteredTasks = allTasks.filter(task => task.completed);
             }
             
+            // Show/hide Add Task button based on current tab
+            const addTaskSection = modal.querySelector('.add-task-section');
+            if (addTaskSection) {
+                if (currentTab === 'done') {
+                    addTaskSection.style.display = 'none';
+                } else {
+                    addTaskSection.style.display = 'block';
+                }
+            }
+            
             if (filteredTasks.length === 0) {
                 // Show empty list without any message
                 listEl.innerHTML = '';
@@ -3363,9 +3373,6 @@ class PomodoroTimer {
         // Tab switching logic
         const setupTabs = () => {
             const tabs = modal.querySelectorAll('.task-tab');
-            const addTaskSection = modal.querySelector('.add-task-section');
-            const addTaskForm = modal.querySelector('#addTaskForm');
-            
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     // Remove active class from all tabs
@@ -3375,15 +3382,12 @@ class PomodoroTimer {
                     // Update current tab
                     currentTab = tab.dataset.tab;
                     
-                    // Show/hide Add Task button and form based on tab
-                    if (currentTab === 'todo') {
-                        // Show Add Task button in To-do tab
-                        if (addTaskSection) addTaskSection.style.display = '';
-                        if (addTaskForm) addTaskForm.style.display = 'none';
-                    } else if (currentTab === 'done') {
-                        // Hide Add Task button and form in Done tab
-                        if (addTaskSection) addTaskSection.style.display = 'none';
-                        if (addTaskForm) addTaskForm.style.display = 'none';
+                    // Hide add task form if switching to Done tab
+                    if (currentTab === 'done') {
+                        const addTaskForm = modal.querySelector('#addTaskForm');
+                        if (addTaskForm) {
+                            addTaskForm.style.display = 'none';
+                        }
                     }
                     
                     // Re-render tasks
@@ -3396,12 +3400,6 @@ class PomodoroTimer {
         this.loadAllTasks();
         renderTasks();
         setupTabs();
-        
-        // Set initial state for Add Task button (show in todo tab by default)
-        const addTaskSection = modal.querySelector('.add-task-section');
-        const addTaskForm = modal.querySelector('#addTaskForm');
-        if (addTaskSection) addTaskSection.style.display = '';
-        if (addTaskForm) addTaskForm.style.display = 'none';
         
         // Setup task options dropdown
         this.setupTaskOptions(modal, renderTasks);
