@@ -3050,7 +3050,7 @@ class PomodoroTimer {
         overlay.style.display = 'flex';
 
         // Check if user is authenticated and not Pro
-        const isFreeUser = this.isAuthenticated && this.user && !this.isPro;
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
         const isGuest = !this.isAuthenticated || !this.user;
 
         const modal = document.createElement('div');
