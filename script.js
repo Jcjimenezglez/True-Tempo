@@ -2250,8 +2250,11 @@ class PomodoroTimer {
         
         selected.forEach(task => {
             const config = this.getTaskConfig(task.id);
-            const sessions = Math.max(1, config.sessions || 1);
-            for (let i = 0; i < sessions; i++) {
+            const totalSessions = Math.max(1, config.sessions || 1);
+            const completedSessions = config.completedSessions || 0;
+            const remainingSessions = Math.max(0, totalSessions - completedSessions);
+            
+            for (let i = 0; i < remainingSessions; i++) {
                 queue.push({ id: task.id, content: task.content, source: task.source || 'local' });
             }
         });
@@ -2416,8 +2419,11 @@ class PomodoroTimer {
         // Build task queue from selected tasks
         selectedTasks.forEach(task => {
             const config = this.getTaskConfig(task.id);
-            const sessions = Math.max(1, config.sessions || 1);
-            for (let i = 0; i < sessions; i++) {
+            const totalSessions = Math.max(1, config.sessions || 1);
+            const completedSessions = config.completedSessions || 0;
+            const remainingSessions = Math.max(0, totalSessions - completedSessions);
+            
+            for (let i = 0; i < remainingSessions; i++) {
                 this.sessionTasks.push(task.content);
             }
         });
