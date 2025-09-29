@@ -2298,8 +2298,8 @@ audio {
 
 /* Pro Account Badge */
 .pro-badge {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #000000;
+    background: linear-gradient(135deg, #78dbff 0%, #5bc5ff 100%);
+    color: #1a1a1a;
     font-size: 0.7rem;
     font-weight: 700;
     padding: 0.2rem 0.4rem;
