@@ -2269,6 +2269,9 @@ class PomodoroTimer {
         this.currentTaskIndex = 0;
         this.currentTask = this.taskQueue.length > 0 ? this.taskQueue[0] : null;
 
+        // Keep sessionTasks in sync with taskQueue
+        this.updateSessionTasksFromSelected();
+
         // Reflect immediately in UI mode label if in work session
         if (this.isWorkSession) {
             this.updateMode();
