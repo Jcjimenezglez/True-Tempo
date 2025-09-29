@@ -3093,6 +3093,9 @@ class PomodoroTimer {
 
         const close = () => {
             try { document.body.removeChild(overlay); } catch (_) {}
+            // Update task distribution when modal is closed
+            this.rebuildTaskQueue();
+            this.updateCurrentTaskBanner();
         };
 
         modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
