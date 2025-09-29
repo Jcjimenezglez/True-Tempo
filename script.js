@@ -2234,11 +2234,20 @@ class PomodoroTimer {
         }
     }
 
+    // Get total number of focus sessions for current technique
+    getTotalFocusSessions() {
+        return this.sessionsPerCycle || 4; // Default to 4 if not set
+    }
+
     // Build an execution queue from selected tasks and their configured sessions
     rebuildTaskQueue() {
         // Only include tasks that are explicitly selected
         const selected = this.getSelectedTasks();
         const queue = [];
+        
+        // Calculate total sessions needed
+        const totalSessions = this.getTotalFocusSessions();
+        
         selected.forEach(task => {
             const config = this.getTaskConfig(task.id);
             const sessions = Math.max(1, config.sessions || 1);
@@ -2246,6 +2255,16 @@ class PomodoroTimer {
                 queue.push({ id: task.id, content: task.content, source: task.source || 'local' });
             }
         });
+        
+        // If we have more focus sessions than tasks, add empty slots for the extra sessions
+        const totalTaskSlots = queue.length;
+        if (totalSessions > totalTaskSlots) {
+            const extraSessions = totalSessions - totalTaskSlots;
+            for (let i = 0; i < extraSessions; i++) {
+                queue.push({ id: null, content: '', source: 'empty' });
+            }
+        }
+        
         this.taskQueue = queue;
         this.currentTaskIndex = 0;
         this.currentTask = this.taskQueue.length > 0 ? this.taskQueue[0] : null;
@@ -2259,14 +2278,16 @@ class PomodoroTimer {
     getCurrentTaskLabel() {
         if (!this.taskQueue || this.taskQueue.length === 0) return '';
         const current = this.taskQueue[this.currentTaskIndex] || null;
-        return current && current.content ? current.content : '';
+        // Return empty string for empty slots (sessions without assigned tasks)
+        if (!current || current.source === 'empty' || !current.content) return '';
+        return current.content;
     }
 
     // Advance to next task slot after finishing a focus session
     advanceTaskQueueAfterFocus() {
         if (!this.taskQueue || this.taskQueue.length === 0) return;
         
-        // Increment completed sessions for current task
+        // Increment completed sessions for current task (only if it's a real task, not empty slot)
         const finishedTaskId = this.currentTask && this.currentTask.id ? this.currentTask.id : null;
         if (finishedTaskId) {
             this.incrementTaskCompletedSessions(finishedTaskId);
@@ -2290,12 +2311,12 @@ class PomodoroTimer {
             }
         }
         
-        // Task not finished yet → advance to next slot in queue
+        // Advance to next slot in queue
         if (this.currentTaskIndex < this.taskQueue.length - 1) {
             this.currentTaskIndex += 1;
             this.currentTask = this.taskQueue[this.currentTaskIndex];
         } else {
-            // End of queue (shouldn't happen if task not finished), fallback to Focus
+            // End of queue, fallback to Focus
             this.currentTask = null;
         }
     }
