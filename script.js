@@ -3175,12 +3175,8 @@ class PomodoroTimer {
             }
             
             if (filteredTasks.length === 0) {
-                // Show empty state based on tab
-                if (currentTab === 'todo') {
-                    listEl.innerHTML = '<div class="empty-state">No active tasks</div>';
-                } else {
-                    listEl.innerHTML = '<div class="empty-state">No completed tasks</div>';
-                }
+                // Show empty list without any message
+                listEl.innerHTML = '';
                 return;
             }
             
