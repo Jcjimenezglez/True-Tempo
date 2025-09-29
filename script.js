@@ -3069,9 +3069,51 @@ class PomodoroTimer {
             
             <!-- Task Tabs -->
             <div class="task-tabs">
-                <button class="task-tab active" data-tab="todo">To-do</button>
-                <button class="task-tab" data-tab="done">Done</button>
+                <div class="task-tabs-left">
+                    <button class="task-tab active" data-tab="todo">To-do</button>
+                    <button class="task-tab" data-tab="done">Done</button>
+                </div>
+                <div class="task-tabs-right">
+                    <button class="task-options-btn" id="taskOptionsBtn" title="Task options">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="19" cy="12" r="1"/>
+                            <circle cx="5" cy="12" r="1"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
+            
+            <!-- Task Options Dropdown -->
+            <div class="task-options-dropdown" id="taskOptionsDropdown" style="display: none;">
+                <div class="task-options-menu">
+                    <button class="task-option-item" id="clearAllTasksBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                        Clear All Tasks
+                    </button>
+                    <button class="task-option-item" id="clearDoneTasksBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Clear Done Tasks
+                    </button>
+                    <button class="task-option-item" id="importTodoistTasksBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                        Import from Todoist
+                    </button>
+                </div>
+            </div>
+            
             ${isFreeUser ? `
                 <div class="pro-upgrade-banner">
                     <div class="pro-banner-content">
@@ -3339,6 +3381,9 @@ class PomodoroTimer {
         this.loadAllTasks();
         renderTasks();
         setupTabs();
+        
+        // Setup task options dropdown
+        this.setupTaskOptions(modal, renderTasks);
     }
 
     setupAddTaskFormControls(modal, renderTasks) {
@@ -3476,6 +3521,86 @@ class PomodoroTimer {
             taskInput.addEventListener('input', () => {
                 if (saveBtn) {
                     saveBtn.disabled = !taskInput.value.trim();
+                }
+            });
+        }
+    }
+
+    setupTaskOptions(modal, renderTasks) {
+        const optionsBtn = modal.querySelector('#taskOptionsBtn');
+        const optionsDropdown = modal.querySelector('#taskOptionsDropdown');
+        const clearAllBtn = modal.querySelector('#clearAllTasksBtn');
+        const clearDoneBtn = modal.querySelector('#clearDoneTasksBtn');
+        const importBtn = modal.querySelector('#importTodoistTasksBtn');
+
+        if (!optionsBtn || !optionsDropdown) return;
+
+        // Toggle dropdown visibility
+        optionsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = optionsDropdown.style.display !== 'none';
+            optionsDropdown.style.display = isVisible ? 'none' : 'block';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!modal.contains(e.target)) {
+                optionsDropdown.style.display = 'none';
+            }
+        });
+
+        // Clear all tasks
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
+                    // Clear local tasks
+                    this.setLocalTasks([]);
+                    // Clear task configs
+                    localStorage.removeItem('taskConfigs');
+                    // Clear task order
+                    localStorage.removeItem('taskOrder');
+                    // Refresh UI
+                    this.loadAllTasks();
+                    renderTasks();
+                    this.updateCurrentTaskBanner();
+                    this.rebuildTaskQueue();
+                    // Close dropdown
+                    optionsDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        // Clear done tasks
+        if (clearDoneBtn) {
+            clearDoneBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all completed tasks?')) {
+                    const allTasks = this.getAllTasks();
+                    const activeTasks = allTasks.filter(task => !task.completed);
+                    this.setLocalTasks(activeTasks);
+                    // Refresh UI
+                    this.loadAllTasks();
+                    renderTasks();
+                    this.updateCurrentTaskBanner();
+                    this.rebuildTaskQueue();
+                    // Close dropdown
+                    optionsDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        // Import from Todoist
+        if (importBtn) {
+            importBtn.addEventListener('click', async () => {
+                try {
+                    await this.fetchTodoistData();
+                    renderTasks();
+                    this.updateCurrentTaskBanner();
+                    this.rebuildTaskQueue();
+                    // Close dropdown
+                    optionsDropdown.style.display = 'none';
+                } catch (error) {
+                    console.error('Error importing from Todoist:', error);
+                    alert('Error importing tasks from Todoist. Please try again.');
                 }
             });
         }
