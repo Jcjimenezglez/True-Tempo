@@ -636,11 +636,11 @@ body::after {
 }
 
 .task-btn.active {
-    color: #3b82f6;
+    color: #78dbff;
 }
 
 .task-btn.active:hover {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(120, 219, 255, 0.1);
 }
 
 .start-btn .play-icon {
