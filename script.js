@@ -1776,11 +1776,11 @@ class PomodoroTimer {
             // Guest users: show local tasks only
             this.clearTodoistTasks();
         this.showTaskListModal();
-        } else if (this.user && !this.isPro) {
+        } else if (this.user && !this.isPremiumUser()) {
             // Free users: show local tasks only
             this.clearTodoistTasks();
             this.showTaskListModal();
-        } else if (this.user && this.isPro) {
+        } else if (this.user && this.isPremiumUser()) {
             // Pro users: show Todoist integration modal
             this.showTodoistModal();
         }
@@ -3050,7 +3050,7 @@ class PomodoroTimer {
         overlay.style.display = 'flex';
 
         // Check if user is authenticated and not Pro
-        const isFreeUser = this.isAuthenticated && this.user && !this.isPro;
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
         const isGuest = !this.isAuthenticated || !this.user;
 
         const modal = document.createElement('div');
@@ -4135,7 +4135,7 @@ class PomodoroTimer {
 
     getAllTasks() {
         const localTasks = this.getLocalTasks();
-        const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
+        const todoistTasks = this.isAuthenticated && this.user && this.isPremiumUser() ? (this.todoistTasks || []) : [];
         
         // Combine and mark source
         const allTasks = [
