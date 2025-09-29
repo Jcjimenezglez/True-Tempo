@@ -2245,14 +2245,16 @@ class PomodoroTimer {
             this.currentTaskIndex += 1;
             this.currentTask = this.taskQueue[this.currentTaskIndex];
         } else {
-            // All planned task sessions completed → continue with "Focus" sessions
-            // Don't pause the timer, just clear the current task so it shows "Focus"
-            const completedTaskId = this.currentTask?.id;
+            // All planned task sessions completed → continue with Focus (no task label)
+            const completedTaskId = this.currentTask ? this.currentTask.id : null;
             this.currentTask = null;
-            this.currentTaskIndex = this.taskQueue.length; // Set beyond queue length
+            // Point index beyond the queue length so getCurrentTaskLabel() returns empty
+            this.currentTaskIndex = this.taskQueue.length;
             if (completedTaskId) {
                 try { this.markLocalTaskAsCompleted(completedTaskId); } catch (_) {}
             }
+            // Mode text will now fall back to 'Focus'
+            this.updateMode();
         }
     }
 
