@@ -3933,6 +3933,136 @@ input:checked + .toggle-slider:before {
     flex-shrink: 0;
 }
 
+/* Todoist Projects Modal Styles */
+.todoist-projects-container {
+    margin: 1.5rem 0;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #78dbff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.todoist-projects-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.todoist-project-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.todoist-project-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.todoist-project-item.selected {
+    background: rgba(120, 219, 255, 0.1);
+    border-color: rgba(120, 219, 255, 0.3);
+}
+
+.project-checkbox {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.project-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.project-checkbox-label {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.project-checkbox-input:checked + .project-checkbox-label {
+    background: #78dbff;
+    border-color: #78dbff;
+}
+
+.project-checkbox-input:checked + .project-checkbox-label::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid #1a1a1a;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.project-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.project-name {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.project-tasks-count {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.todoist-import-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.todoist-import-actions .btn-primary:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
 .empty-state {
     text-align: center;
     color: rgba(255, 255, 255, 0.6);

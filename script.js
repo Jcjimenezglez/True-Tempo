@@ -3646,17 +3646,264 @@ class PomodoroTimer {
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
                 try {
-                    await this.fetchTodoistData();
-                    renderTasks();
-                    this.updateCurrentTaskBanner();
-                    this.rebuildTaskQueue();
-                    // Close dropdown
+                    // Close dropdown first
                     optionsDropdown.style.display = 'none';
+                    // Show Todoist projects selection modal
+                    await this.showTodoistProjectsModal();
                 } catch (error) {
-                    console.error('Error importing from Todoist:', error);
-                    alert('Error importing tasks from Todoist. Please try again.');
+                    console.error('Error opening Todoist projects modal:', error);
+                    alert('Error loading Todoist projects. Please try again.');
                 }
             });
+        }
+    }
+
+    async showTodoistProjectsModal() {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '600px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x" id="closeTodoistProjectsModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="tasks-header">
+                <h3>Import Tasks from Todoist</h3>
+                <p class="tasks-subtitle">Select projects to import tasks from</p>
+            </div>
+            
+            <div class="todoist-projects-container">
+                <div class="loading-state" id="todoistLoadingState">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your Todoist projects...</p>
+                </div>
+                <div class="todoist-projects-list" id="todoistProjectsList" style="display: none;">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="todoist-import-actions" id="todoistImportActions" style="display: none;">
+                <button class="btn-secondary" id="clearTodoistSelection">Clear Selection</button>
+                <button class="btn-primary" id="importSelectedProjects">Import Selected</button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Close modal function
+        const closeModal = () => {
+            try {
+                document.body.removeChild(overlay);
+            } catch (_) {}
+        };
+
+        // Event listeners
+        const closeBtn = modal.querySelector('#closeTodoistProjectsModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
+
+        // Load Todoist projects
+        try {
+            await this.loadTodoistProjects(modal);
+        } catch (error) {
+            console.error('Error loading Todoist projects:', error);
+            // Show error state
+            const projectsList = modal.querySelector('#todoistProjectsList');
+            const loadingState = modal.querySelector('#todoistLoadingState');
+            if (loadingState) loadingState.style.display = 'none';
+            if (projectsList) {
+                projectsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">Error loading projects</div>
+                        <div class="empty-subtext">Please check your Todoist connection and try again</div>
+                    </div>
+                `;
+                projectsList.style.display = 'block';
+            }
+        }
+    }
+
+    async loadTodoistProjects(modal) {
+        const loadingState = modal.querySelector('#todoistLoadingState');
+        const projectsList = modal.querySelector('#todoistProjectsList');
+        const importActions = modal.querySelector('#todoistImportActions');
+        
+        try {
+            // Fetch projects from Todoist API
+            const response = await fetch('/api/todoist-projects', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch projects');
+            }
+
+            const projects = await response.json();
+            
+            // Hide loading state
+            if (loadingState) loadingState.style.display = 'none';
+            
+            if (projects.length === 0) {
+                // Show empty state
+                projectsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No projects found</div>
+                        <div class="empty-subtext">Create some projects in Todoist to import tasks</div>
+                    </div>
+                `;
+            } else {
+                // Render projects
+                projectsList.innerHTML = projects.map(project => `
+                    <div class="todoist-project-item" data-project-id="${project.id}">
+                        <div class="project-checkbox">
+                            <input type="checkbox" id="project-${project.id}" class="project-checkbox-input">
+                            <label for="project-${project.id}" class="project-checkbox-label"></label>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-name">${project.name}</div>
+                            <div class="project-tasks-count">${project.task_count || 0} tasks</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            projectsList.style.display = 'block';
+            importActions.style.display = 'flex';
+            
+            // Setup project selection handlers
+            this.setupTodoistProjectSelection(modal);
+            
+        } catch (error) {
+            console.error('Error loading Todoist projects:', error);
+            throw error;
+        }
+    }
+
+    setupTodoistProjectSelection(modal) {
+        const projectItems = modal.querySelectorAll('.todoist-project-item');
+        const clearSelectionBtn = modal.querySelector('#clearTodoistSelection');
+        const importBtn = modal.querySelector('#importSelectedProjects');
+        
+        // Handle project selection
+        projectItems.forEach(item => {
+            const checkbox = item.querySelector('.project-checkbox-input');
+            if (checkbox) {
+                checkbox.addEventListener('change', () => {
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateTodoistImportButton(modal);
+                });
+            }
+        });
+
+        // Clear selection
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', () => {
+                projectItems.forEach(item => {
+                    const checkbox = item.querySelector('.project-checkbox-input');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        item.classList.remove('selected');
+                    }
+                });
+                this.updateTodoistImportButton(modal);
+            });
+        }
+
+        // Import selected projects
+        if (importBtn) {
+            importBtn.addEventListener('click', async () => {
+                const selectedProjects = Array.from(projectItems)
+                    .filter(item => item.classList.contains('selected'))
+                    .map(item => ({
+                        id: item.dataset.projectId,
+                        name: item.querySelector('.project-name').textContent
+                    }));
+
+                if (selectedProjects.length === 0) {
+                    alert('Please select at least one project to import.');
+                    return;
+                }
+
+                try {
+                    await this.importTodoistProjects(selectedProjects);
+                    // Close modal
+                    const overlay = modal.closest('.focus-stats-overlay');
+                    if (overlay) {
+                        document.body.removeChild(overlay);
+                    }
+                } catch (error) {
+                    console.error('Error importing projects:', error);
+                    alert('Error importing projects. Please try again.');
+                }
+            });
+        }
+    }
+
+    updateTodoistImportButton(modal) {
+        const importBtn = modal.querySelector('#importSelectedProjects');
+        const selectedCount = modal.querySelectorAll('.todoist-project-item.selected').length;
+        
+        if (importBtn) {
+            if (selectedCount > 0) {
+                importBtn.textContent = `Import ${selectedCount} Project${selectedCount > 1 ? 's' : ''}`;
+                importBtn.disabled = false;
+            } else {
+                importBtn.textContent = 'Import Selected';
+                importBtn.disabled = true;
+            }
+        }
+    }
+
+    async importTodoistProjects(selectedProjects) {
+        try {
+            // Import tasks from selected projects
+            for (const project of selectedProjects) {
+                await this.fetchTodoistTasksFromProject(project.id);
+            }
+            
+            // Refresh the task list
+            this.loadAllTasks();
+            this.updateCurrentTaskBanner();
+            this.rebuildTaskQueue();
+            
+            // Show success message
+            alert(`Successfully imported tasks from ${selectedProjects.length} project${selectedProjects.length > 1 ? 's' : ''}!`);
+            
+        } catch (error) {
+            console.error('Error importing Todoist projects:', error);
+            throw error;
         }
     }
 
