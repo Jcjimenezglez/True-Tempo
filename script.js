@@ -3925,10 +3925,22 @@ class PomodoroTimer {
             // Add new tasks to existing local tasks
             this.setLocalTasks([...localTasks, ...newTasks]);
             
+            // Set task config for each new task (selected by default)
+            newTasks.forEach(task => {
+                this.setTaskConfig(task.id, { 
+                    sessions: 1, 
+                    selected: true, 
+                    completedSessions: 0 
+                });
+            });
+            
             // Refresh the task list
             this.loadAllTasks();
             this.updateCurrentTaskBanner();
             this.rebuildTaskQueue();
+            
+            // Refresh task modal if it's open
+            this.refreshTaskModalIfOpen();
             
             // Show success message
             alert(`Successfully imported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}!`);
@@ -3937,6 +3949,118 @@ class PomodoroTimer {
             console.error('Error importing Todoist tasks:', error);
             throw error;
         }
+    }
+
+    refreshTaskModalIfOpen() {
+        // Check if task modal is currently open
+        const taskModal = document.querySelector('.focus-stats-overlay');
+        if (taskModal) {
+            // Find the tasks list element
+            const tasksList = taskModal.querySelector('#todoistTasksList');
+            if (tasksList) {
+                // Get current tab
+                const activeTab = taskModal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                
+                // Re-render tasks for the current tab
+                const allTasks = this.getAllTasks();
+                let filteredTasks = allTasks;
+                if (currentTab === 'todo') {
+                    filteredTasks = allTasks.filter(task => !task.completed);
+                } else if (currentTab === 'done') {
+                    filteredTasks = allTasks.filter(task => task.completed);
+                }
+                
+                if (filteredTasks.length === 0) {
+                    if (currentTab === 'done') {
+                        tasksList.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 12l2 2 4-4"/>
+                                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                    </svg>
+                                </div>
+                                <div class="empty-text">No completed tasks yet</div>
+                                <div class="empty-subtext">Complete some tasks to see them here</div>
+                            </div>
+                        `;
+                    } else {
+                        tasksList.innerHTML = '';
+                    }
+                } else {
+                    // Apply saved task order
+                    const savedOrder = this.getTaskOrder();
+                    let orderedTasks = filteredTasks;
+                    
+                    if (savedOrder.length > 0) {
+                        const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+                        orderedTasks = [];
+                        savedOrder.forEach(orderItem => {
+                            if (taskMap.has(orderItem.id)) {
+                                orderedTasks.push(taskMap.get(orderItem.id));
+                                taskMap.delete(orderItem.id);
+                            }
+                        });
+                        taskMap.forEach(task => orderedTasks.push(task));
+                    }
+                    
+                    // Render tasks
+                    tasksList.innerHTML = orderedTasks.map(task => {
+                        const config = this.getTaskConfig(task.id);
+                        const isSelected = config.selected;
+                        const sessions = config.sessions || 1;
+                        const completedSessions = config.completedSessions || 0;
+                        
+                        return `
+                            <div class="task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
+                                <div class="task-content">
+                                    <div class="task-title">${task.content}</div>
+                                    ${task.source === 'todoist' ? '<div class="task-project">Todoist</div>' : ''}
+                                </div>
+                                <div class="task-actions">
+                                    <div class="task-sessions">
+                                        <span class="sessions-text">${completedSessions}/${sessions}</span>
+                                    </div>
+                                    <button class="task-toggle-btn ${isSelected ? 'active' : ''}" data-task-id="${task.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 12l2 2 4-4"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Re-setup event listeners for the new tasks
+                    this.setupTaskItemListeners(tasksList);
+                }
+            }
+        }
+    }
+
+    setupTaskItemListeners(container) {
+        // Setup toggle buttons
+        const toggleBtns = container.querySelectorAll('.task-toggle-btn');
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const taskId = btn.dataset.taskId;
+                const taskItem = btn.closest('.task-item');
+                const config = this.getTaskConfig(taskId);
+                
+                // Toggle selection
+                const newSelected = !config.selected;
+                this.setTaskConfig(taskId, { ...config, selected: newSelected });
+                
+                // Update UI
+                taskItem.classList.toggle('selected', newSelected);
+                btn.classList.toggle('active', newSelected);
+                
+                // Update task button state
+                this.updateTaskButtonState();
+            });
+        });
     }
 
     // Task configuration management
