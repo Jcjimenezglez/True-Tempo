@@ -2378,21 +2378,39 @@ class PomodoroTimer {
         }
     }
     
-    // Initialize tasks for each focus session
+    // Initialize tasks for each focus session from selected tasks
     initializeSessionTasks() {
-        this.sessionTasks = [
-            "Aplicando a Jobs",      // Session 1
-            "Making Interviews",     // Session 2  
-            "Studying React",        // Session 3
-            "Writing Documentation", // Session 4
-            "Code Review",           // Session 5
-            "Planning Sprint",       // Session 6
-            "Learning TypeScript",   // Session 7
-            "Designing UI"           // Session 8
-        ];
-        
-        // Set the task for the current session
+        this.updateSessionTasksFromSelected();
         this.updateCurrentSessionTask();
+    }
+    
+    // Update session tasks from selected tasks in modal
+    updateSessionTasksFromSelected() {
+        const selectedTasks = this.getSelectedTasks();
+        this.sessionTasks = [];
+        
+        // Build task queue from selected tasks
+        selectedTasks.forEach(task => {
+            const config = this.getTaskConfig(task.id);
+            const sessions = Math.max(1, config.sessions || 1);
+            for (let i = 0; i < sessions; i++) {
+                this.sessionTasks.push(task.content);
+            }
+        });
+        
+        // If no tasks are selected, use default tasks
+        if (this.sessionTasks.length === 0) {
+            this.sessionTasks = [
+                "Aplicando a Jobs",
+                "Making Interviews", 
+                "Studying React",
+                "Writing Documentation",
+                "Code Review",
+                "Planning Sprint",
+                "Learning TypeScript",
+                "Designing UI"
+            ];
+        }
     }
     
     // Update current session task based on current section
@@ -2401,7 +2419,14 @@ class PomodoroTimer {
             // Calculate which focus session this is (1, 3, 5, 7 for a 4-session cycle)
             const focusSessionNumber = Math.floor((this.currentSection + 1) / 2);
             const taskIndex = Math.min(focusSessionNumber - 1, this.sessionTasks.length - 1);
-            this.setCurrentTask(this.sessionTasks[taskIndex]);
+            
+            // If we have a task for this session, use it
+            if (this.sessionTasks[taskIndex]) {
+                this.setCurrentTask(this.sessionTasks[taskIndex]);
+            } else {
+                // If no task for this session, use the first available task
+                this.setCurrentTask(this.sessionTasks[0] || "Focus Session");
+            }
         } else {
             // Clear task for break sessions
             this.clearCurrentTask();
@@ -2428,8 +2453,16 @@ class PomodoroTimer {
             const focusSessionNumber = Math.floor((this.currentSection + 1) / 2);
             const taskIndex = Math.min(focusSessionNumber - 1, this.sessionTasks.length - 1);
             
-            // Get all available tasks
-            const allTasks = this.getExampleTasks();
+            // Get all available tasks (from selected tasks or default)
+            const selectedTasks = this.getSelectedTasks();
+            let allTasks = [];
+            
+            if (selectedTasks.length > 0) {
+                allTasks = selectedTasks.map(task => task.content);
+            } else {
+                allTasks = this.getExampleTasks();
+            }
+            
             const currentIndex = allTasks.indexOf(this.sessionTasks[taskIndex]);
             const nextIndex = (currentIndex + 1) % allTasks.length;
             
@@ -4303,6 +4336,9 @@ class PomodoroTimer {
     }
 
     updateCurrentTaskBanner() {
+        // Update session tasks from selected tasks
+        this.updateSessionTasksFromSelected();
+        
         // Update session info line to include current task if any
         // Reuse updateSessionInfo to centralize rendering
         this.updateSessionInfo();
