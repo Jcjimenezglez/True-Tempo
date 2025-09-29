@@ -2276,6 +2276,10 @@ class PomodoroTimer {
             tasks[idx].completed = true;
             this.setLocalTasks(tasks);
         }
+        // Deselect the completed task so it doesn't show the blue accent
+        this.setTaskConfig(taskId, { selected: false });
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
     }
 
     showTaskCompletedModal() {}
