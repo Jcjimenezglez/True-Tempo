@@ -2207,13 +2207,10 @@ class PomodoroTimer {
 
     // Build an execution queue from selected tasks and their configured sessions
     rebuildTaskQueue() {
+        // Only include tasks that are explicitly selected
         const selected = this.getSelectedTasks();
-        // Fallback: if no tasks are explicitly selected, use all local tasks in list order
-        const baseTasks = (selected && selected.length > 0) 
-            ? selected 
-            : this.getLocalTasks().map(t => ({ ...t, source: 'local' }));
         const queue = [];
-        baseTasks.forEach(task => {
+        selected.forEach(task => {
             const config = this.getTaskConfig(task.id);
             const sessions = Math.max(1, config.sessions || 1);
             for (let i = 0; i < sessions; i++) {
