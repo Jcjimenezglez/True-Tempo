@@ -2419,6 +2419,18 @@ class PomodoroTimer {
             }
         });
         
+        // Calculate total sessions needed
+        const totalSessions = this.getTotalFocusSessions();
+        
+        // If we have more focus sessions than tasks, add empty slots for the extra sessions
+        const totalTaskSlots = this.sessionTasks.length;
+        if (totalSessions > totalTaskSlots) {
+            const extraSessions = totalSessions - totalTaskSlots;
+            for (let i = 0; i < extraSessions; i++) {
+                this.sessionTasks.push(''); // Empty string for sessions without tasks
+            }
+        }
+        
         // If no tasks are selected, use default tasks
         if (this.sessionTasks.length === 0) {
             this.sessionTasks = [
@@ -2439,14 +2451,14 @@ class PomodoroTimer {
         if (this.isWorkSession && this.sessionTasks.length > 0) {
             // Calculate which focus session this is (1, 3, 5, 7 for a 4-session cycle)
             const focusSessionNumber = Math.floor((this.currentSection + 1) / 2);
-            const taskIndex = Math.min(focusSessionNumber - 1, this.sessionTasks.length - 1);
+            const taskIndex = focusSessionNumber - 1;
             
-            // If we have a task for this session, use it
-            if (this.sessionTasks[taskIndex]) {
+            // If we have a task for this session and it's not empty, use it
+            if (taskIndex < this.sessionTasks.length && this.sessionTasks[taskIndex] && this.sessionTasks[taskIndex] !== '') {
                 this.setCurrentTask(this.sessionTasks[taskIndex]);
             } else {
-                // If no task for this session, use the first available task
-                this.setCurrentTask(this.sessionTasks[0] || "Focus Session");
+                // If no task for this session (empty slot), clear the task to show just "Focus"
+                this.clearCurrentTask();
             }
         } else {
             // Clear task for break sessions
