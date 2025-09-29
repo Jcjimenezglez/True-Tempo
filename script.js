@@ -192,14 +192,6 @@ class PomodoroTimer {
             });
         }
         
-        // Add click handler to mode element (Focus, Break, Long Break)
-        if (this.modeElement) {
-            this.modeElement.style.cursor = 'pointer';
-            this.modeElement.addEventListener('click', () => {
-                this.toggleTaskList();
-            });
-        }
-        
         // Load custom timer labels if it exists (do not auto-select here)
         this.loadSavedCustomTimer();
 
@@ -1968,7 +1960,7 @@ class PomodoroTimer {
         // Update current session task
         this.updateCurrentSessionTask();
         
-        // Keep task label in sync with completed sessions
+        // Keep task label in sync with completed sessions (only for work sessions)
         if (this.isWorkSession) {
             try {
                 // Calculate how many task slots have been completed so far
@@ -1990,6 +1982,14 @@ class PomodoroTimer {
                     }
                 }
             } catch (_) {}
+        } else {
+            // For breaks, set current task based on break type
+            if (this.isLongBreak) {
+                this.currentTask = { content: "Long Break - Rest & Recharge", source: 'break' };
+            } else {
+                this.currentTask = { content: "Short Break - Take a breather", source: 'break' };
+            }
+            this.currentTaskName = this.currentTask.content;
         }
         
         this.updateDisplay();
@@ -2511,9 +2511,12 @@ class PomodoroTimer {
                 // If no task for this session (empty slot), clear the task to show just "Focus"
                 this.clearCurrentTask();
             }
+        } else if (this.isLongBreak) {
+            // Show long break information
+            this.setCurrentTask("Long Break - Rest & Recharge");
         } else {
-            // Clear task for break sessions
-            this.clearCurrentTask();
+            // Show short break information
+            this.setCurrentTask("Short Break - Take a breather");
         }
     }
     
