@@ -469,7 +469,7 @@ body::after {
 }
 
 .current-task {
-    font-size: 0.875rem;
+    font-size: 18px;
     color: #78dbff;
     font-weight: 500;
     margin-top: 0.5rem;
