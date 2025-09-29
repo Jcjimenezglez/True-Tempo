@@ -3710,7 +3710,7 @@ input:checked + .toggle-slider:before {
 #deleteTask {
     background: none !important;
     border: none !important;
-    padding: 8px !important;
+    padding: 0 !important;
     color: rgba(255, 255, 255, 0.6) !important;
     cursor: pointer;
     border-radius: 6px;
@@ -3718,6 +3718,10 @@ input:checked + .toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
 }
 
 #deleteTask:hover {
