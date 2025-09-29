@@ -1880,14 +1880,19 @@ class PomodoroTimer {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        // Always call work sessions "Focus"
-        let modeText;
-        if (this.isWorkSession) {
-            modeText = 'Focus';
+        // Use current task content for title
+        let titleText;
+        if (this.currentTaskName) {
+            titleText = this.currentTaskName;
         } else {
-            modeText = this.isLongBreak ? 'Long Break' : 'Break';
+            // Fallback to session type if no current task
+            if (this.isWorkSession) {
+                titleText = 'Focus';
+            } else {
+                titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
+            }
         }
-        document.title = `${timeString} - ${modeText} (Paused)`;
+        document.title = `${timeString} - ${titleText} (Paused)`;
     }
     
     pauseTimerSilent() {
@@ -1909,14 +1914,19 @@ class PomodoroTimer {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        // Always call work sessions "Focus"
-        let modeText;
-        if (this.isWorkSession) {
-            modeText = 'Focus';
+        // Use current task content for title
+        let titleText;
+        if (this.currentTaskName) {
+            titleText = this.currentTaskName;
         } else {
-            modeText = this.isLongBreak ? 'Long Break' : 'Break';
+            // Fallback to session type if no current task
+            if (this.isWorkSession) {
+                titleText = 'Focus';
+            } else {
+                titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
+            }
         }
-        document.title = `${timeString} - ${modeText} (Paused)`;
+        document.title = `${timeString} - ${titleText} (Paused)`;
     }
     
     goToPreviousSection() {
@@ -2118,16 +2128,19 @@ class PomodoroTimer {
         // Update main display
         this.timeElement.textContent = timeString;
         
-        // Update browser tab title
-        const currentSectionInfo = this.cycleSections[this.currentSection - 1];
-        // Always call work sessions "Focus"
-        let modeText;
-        if (this.isWorkSession) {
-            modeText = 'Focus';
+        // Update browser tab title with current task content
+        let titleText;
+        if (this.currentTaskName) {
+            titleText = this.currentTaskName;
         } else {
-            modeText = this.isLongBreak ? 'Long Break' : 'Break';
+            // Fallback to session type if no current task
+            if (this.isWorkSession) {
+                titleText = 'Focus';
+            } else {
+                titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
+            }
         }
-        document.title = `${timeString} - ${modeText}`;
+        document.title = `${timeString} - ${titleText}`;
     }
     
     updateProgress() {
