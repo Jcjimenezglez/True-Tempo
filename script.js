@@ -3216,6 +3216,16 @@ class PomodoroTimer {
                 filteredTasks = allTasks.filter(task => task.completed);
             }
             
+            // Show/hide Add Task button based on current tab
+            const addTaskSection = modal.querySelector('.add-task-section');
+            if (addTaskSection) {
+                if (currentTab === 'done') {
+                    addTaskSection.style.display = 'none';
+                } else {
+                    addTaskSection.style.display = '';
+                }
+            }
+            
             if (filteredTasks.length === 0) {
                 // Show empty list without any message
                 listEl.innerHTML = '';
