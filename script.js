@@ -1985,9 +1985,9 @@ class PomodoroTimer {
         } else {
             // For breaks, set current task based on break type
             if (this.isLongBreak) {
-                this.currentTask = { content: "Long Break - Rest & Recharge", source: 'break' };
+                this.currentTask = { content: "Long Break", source: 'break' };
             } else {
-                this.currentTask = { content: "Short Break - Take a breather", source: 'break' };
+                this.currentTask = { content: "Short Break", source: 'break' };
             }
             this.currentTaskName = this.currentTask.content;
         }
@@ -2513,10 +2513,10 @@ class PomodoroTimer {
             }
         } else if (this.isLongBreak) {
             // Show long break information
-            this.setCurrentTask("Long Break - Rest & Recharge");
+            this.setCurrentTask("Long Break");
         } else {
             // Show short break information
-            this.setCurrentTask("Short Break - Take a breather");
+            this.setCurrentTask("Short Break");
         }
     }
     
