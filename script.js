@@ -3677,22 +3677,22 @@ class PomodoroTimer {
             </button>
             <div class="tasks-header">
                 <h3>Import Tasks from Todoist</h3>
-                <p class="tasks-subtitle">Select projects to import tasks from</p>
+                <p class="tasks-subtitle">Select tasks to import from your Todoist projects</p>
             </div>
             
             <div class="todoist-projects-container">
                 <div class="loading-state" id="todoistLoadingState">
                     <div class="loading-spinner"></div>
-                    <p>Loading your Todoist projects...</p>
+                    <p>Loading your Todoist tasks...</p>
                 </div>
-                <div class="todoist-projects-list" id="todoistProjectsList" style="display: none;">
-                    <!-- Projects will be loaded here -->
+                <div class="todoist-tasks-list" id="todoistTasksList" style="display: none;">
+                    <!-- Tasks will be loaded here -->
                 </div>
             </div>
             
             <div class="todoist-import-actions" id="todoistImportActions" style="display: none;">
                 <button class="btn-secondary" id="clearTodoistSelection">Clear Selection</button>
-                <button class="btn-primary" id="importSelectedProjects">Import Selected</button>
+                <button class="btn-primary" id="importSelectedTasks">Import Selected</button>
             </div>
         `;
 
@@ -3719,17 +3719,17 @@ class PomodoroTimer {
             }
         });
 
-        // Load Todoist projects
+        // Load Todoist tasks
         try {
-            await this.loadTodoistProjects(modal);
+            await this.loadTodoistTasks(modal);
         } catch (error) {
-            console.error('Error loading Todoist projects:', error);
+            console.error('Error loading Todoist tasks:', error);
             // Show error state
-            const projectsList = modal.querySelector('#todoistProjectsList');
+            const tasksList = modal.querySelector('#todoistTasksList');
             const loadingState = modal.querySelector('#todoistLoadingState');
             if (loadingState) loadingState.style.display = 'none';
-            if (projectsList) {
-                projectsList.innerHTML = `
+            if (tasksList) {
+                tasksList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3738,23 +3738,23 @@ class PomodoroTimer {
                                 <line x1="9" y1="9" x2="15" y2="15"/>
                             </svg>
                         </div>
-                        <div class="empty-text">Error loading projects</div>
+                        <div class="empty-text">Error loading tasks</div>
                         <div class="empty-subtext">Please check your Todoist connection and try again</div>
                     </div>
                 `;
-                projectsList.style.display = 'block';
+                tasksList.style.display = 'block';
             }
         }
     }
 
-    async loadTodoistProjects(modal) {
+    async loadTodoistTasks(modal) {
         const loadingState = modal.querySelector('#todoistLoadingState');
-        const projectsList = modal.querySelector('#todoistProjectsList');
+        const tasksList = modal.querySelector('#todoistTasksList');
         const importActions = modal.querySelector('#todoistImportActions');
         
         try {
-            // Fetch projects from Todoist API
-            const response = await fetch('/api/todoist-projects', {
+            // Fetch tasks from Todoist API
+            const response = await fetch('/api/todoist-tasks', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -3762,63 +3762,88 @@ class PomodoroTimer {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch projects');
+                throw new Error('Failed to fetch tasks');
             }
 
-            const projects = await response.json();
+            const tasks = await response.json();
             
             // Hide loading state
             if (loadingState) loadingState.style.display = 'none';
             
-            if (projects.length === 0) {
+            if (tasks.length === 0) {
                 // Show empty state
-                projectsList.innerHTML = `
+                tasksList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
                             </svg>
                         </div>
-                        <div class="empty-text">No projects found</div>
-                        <div class="empty-subtext">Create some projects in Todoist to import tasks</div>
+                        <div class="empty-text">No tasks found</div>
+                        <div class="empty-subtext">Create some tasks in Todoist to import them</div>
                     </div>
                 `;
             } else {
-                // Render projects
-                projectsList.innerHTML = projects.map(project => `
-                    <div class="todoist-project-item" data-project-id="${project.id}">
-                        <div class="project-checkbox">
-                            <input type="checkbox" id="project-${project.id}" class="project-checkbox-input">
-                            <label for="project-${project.id}" class="project-checkbox-label"></label>
+                // Group tasks by project
+                const tasksByProject = this.groupTasksByProject(tasks);
+                
+                // Render tasks grouped by project
+                tasksList.innerHTML = Object.entries(tasksByProject).map(([projectName, projectTasks]) => `
+                    <div class="todoist-project-section">
+                        <div class="project-header">
+                            <h4 class="project-title">${projectName}</h4>
+                            <span class="project-task-count">${projectTasks.length} task${projectTasks.length > 1 ? 's' : ''}</span>
                         </div>
-                        <div class="project-info">
-                            <div class="project-name">${project.name}</div>
-                            <div class="project-tasks-count">${project.task_count || 0} tasks</div>
+                        <div class="project-tasks">
+                            ${projectTasks.map(task => `
+                                <div class="todoist-task-item" data-task-id="${task.id}">
+                                    <div class="task-checkbox">
+                                        <input type="checkbox" id="task-${task.id}" class="task-checkbox-input">
+                                        <label for="task-${task.id}" class="task-checkbox-label"></label>
+                                    </div>
+                                    <div class="task-info">
+                                        <div class="task-content">${task.content}</div>
+                                        ${task.due ? `<div class="task-due">Due: ${new Date(task.due.date).toLocaleDateString()}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 `).join('');
             }
             
-            projectsList.style.display = 'block';
+            tasksList.style.display = 'block';
             importActions.style.display = 'flex';
             
-            // Setup project selection handlers
-            this.setupTodoistProjectSelection(modal);
+            // Setup task selection handlers
+            this.setupTodoistTaskSelection(modal);
             
         } catch (error) {
-            console.error('Error loading Todoist projects:', error);
+            console.error('Error loading Todoist tasks:', error);
             throw error;
         }
     }
 
-    setupTodoistProjectSelection(modal) {
-        const projectItems = modal.querySelectorAll('.todoist-project-item');
+    groupTasksByProject(tasks) {
+        const grouped = {};
+        tasks.forEach(task => {
+            const projectName = task.project_name || 'Inbox';
+            if (!grouped[projectName]) {
+                grouped[projectName] = [];
+            }
+            grouped[projectName].push(task);
+        });
+        return grouped;
+    }
+
+    setupTodoistTaskSelection(modal) {
+        const taskItems = modal.querySelectorAll('.todoist-task-item');
         const clearSelectionBtn = modal.querySelector('#clearTodoistSelection');
-        const importBtn = modal.querySelector('#importSelectedProjects');
+        const importBtn = modal.querySelector('#importSelectedTasks');
         
-        // Handle project selection
-        projectItems.forEach(item => {
-            const checkbox = item.querySelector('.project-checkbox-input');
+        // Handle task selection
+        taskItems.forEach(item => {
+            const checkbox = item.querySelector('.task-checkbox-input');
             if (checkbox) {
                 checkbox.addEventListener('change', () => {
                     item.classList.toggle('selected', checkbox.checked);
@@ -3830,8 +3855,8 @@ class PomodoroTimer {
         // Clear selection
         if (clearSelectionBtn) {
             clearSelectionBtn.addEventListener('click', () => {
-                projectItems.forEach(item => {
-                    const checkbox = item.querySelector('.project-checkbox-input');
+                taskItems.forEach(item => {
+                    const checkbox = item.querySelector('.task-checkbox-input');
                     if (checkbox) {
                         checkbox.checked = false;
                         item.classList.remove('selected');
@@ -3841,43 +3866,43 @@ class PomodoroTimer {
             });
         }
 
-        // Import selected projects
+        // Import selected tasks
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
-                const selectedProjects = Array.from(projectItems)
+                const selectedTasks = Array.from(taskItems)
                     .filter(item => item.classList.contains('selected'))
                     .map(item => ({
-                        id: item.dataset.projectId,
-                        name: item.querySelector('.project-name').textContent
+                        id: item.dataset.taskId,
+                        content: item.querySelector('.task-content').textContent
                     }));
 
-                if (selectedProjects.length === 0) {
-                    alert('Please select at least one project to import.');
+                if (selectedTasks.length === 0) {
+                    alert('Please select at least one task to import.');
                     return;
                 }
 
                 try {
-                    await this.importTodoistProjects(selectedProjects);
+                    await this.importTodoistTasks(selectedTasks);
                     // Close modal
                     const overlay = modal.closest('.focus-stats-overlay');
                     if (overlay) {
                         document.body.removeChild(overlay);
                     }
                 } catch (error) {
-                    console.error('Error importing projects:', error);
-                    alert('Error importing projects. Please try again.');
+                    console.error('Error importing tasks:', error);
+                    alert('Error importing tasks. Please try again.');
                 }
             });
         }
     }
 
     updateTodoistImportButton(modal) {
-        const importBtn = modal.querySelector('#importSelectedProjects');
-        const selectedCount = modal.querySelectorAll('.todoist-project-item.selected').length;
+        const importBtn = modal.querySelector('#importSelectedTasks');
+        const selectedCount = modal.querySelectorAll('.todoist-task-item.selected').length;
         
         if (importBtn) {
             if (selectedCount > 0) {
-                importBtn.textContent = `Import ${selectedCount} Project${selectedCount > 1 ? 's' : ''}`;
+                importBtn.textContent = `Import ${selectedCount} Task${selectedCount > 1 ? 's' : ''}`;
                 importBtn.disabled = false;
             } else {
                 importBtn.textContent = 'Import Selected';
@@ -3886,12 +3911,19 @@ class PomodoroTimer {
         }
     }
 
-    async importTodoistProjects(selectedProjects) {
+    async importTodoistTasks(selectedTasks) {
         try {
-            // Import tasks from selected projects
-            for (const project of selectedProjects) {
-                await this.fetchTodoistTasksFromProject(project.id);
-            }
+            // Add selected tasks to local tasks
+            const localTasks = this.getLocalTasks();
+            const newTasks = selectedTasks.map(task => ({
+                id: `todoist_${task.id}`,
+                content: task.content,
+                completed: false,
+                source: 'todoist'
+            }));
+            
+            // Add new tasks to existing local tasks
+            this.setLocalTasks([...localTasks, ...newTasks]);
             
             // Refresh the task list
             this.loadAllTasks();
@@ -3899,10 +3931,10 @@ class PomodoroTimer {
             this.rebuildTaskQueue();
             
             // Show success message
-            alert(`Successfully imported tasks from ${selectedProjects.length} project${selectedProjects.length > 1 ? 's' : ''}!`);
+            alert(`Successfully imported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}!`);
             
         } catch (error) {
-            console.error('Error importing Todoist projects:', error);
+            console.error('Error importing Todoist tasks:', error);
             throw error;
         }
     }
