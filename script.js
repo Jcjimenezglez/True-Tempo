@@ -184,11 +184,11 @@ class PomodoroTimer {
         // Initialize tasks for each focus session
         this.initializeSessionTasks();
         
-        // Add click handler to cycle through example tasks
+        // Add click handler to open task modal
         if (this.currentTaskElement) {
             this.currentTaskElement.style.cursor = 'pointer';
             this.currentTaskElement.addEventListener('click', () => {
-                this.cycleToNextTask();
+                this.toggleTaskList();
             });
         }
         
