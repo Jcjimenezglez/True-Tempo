@@ -3217,8 +3217,19 @@ class PomodoroTimer {
             }
             
             if (filteredTasks.length === 0) {
-                // Show empty list without any message
-                listEl.innerHTML = '';
+                // Show appropriate message based on current tab
+                if (currentTab === 'done') {
+                    listEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-text">No completed tasks yet</div>
+                            <div class="empty-subtext">Complete some tasks to see them here</div>
+                        </div>
+                    `;
+                } else {
+                    // For todo tab, show empty list without message
+                    listEl.innerHTML = '';
+                }
                 return;
             }
             
