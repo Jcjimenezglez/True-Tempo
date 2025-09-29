@@ -468,6 +468,25 @@ body::after {
     font-weight: 400;
 }
 
+.current-task {
+    font-size: 0.875rem;
+    color: #78dbff;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    text-align: center;
+    opacity: 0.9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.current-task:hover {
+    opacity: 1;
+    background: rgba(120, 219, 255, 0.1);
+    transform: translateY(-1px);
+}
+
 /* Footer */
 .timer-footer {
     display: flex;

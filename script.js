@@ -12,6 +12,7 @@ class PomodoroTimer {
         this.currentSection = 1; // 1-8 for complete cycle
         this.isWorkSession = true;
         this.isLongBreak = false;
+        this.currentTaskName = null; // Current task being worked on
         this.interval = null;
         
         // Anti-cheat tracking within the current cycle
@@ -93,6 +94,7 @@ class PomodoroTimer {
         this.timeElement = document.getElementById('time');
         this.modeElement = document.getElementById('mode');
         this.sessionInfoElement = document.getElementById('sessionInfo');
+        this.currentTaskElement = document.getElementById('currentTask');
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
         this.nextSectionBtn = document.getElementById('nextSectionBtn');
@@ -177,6 +179,17 @@ class PomodoroTimer {
         this.loadCassetteSounds();
         this.updateNavigationButtons();
         this.initClerk();
+        
+        // Set example task for demonstration
+        this.setCurrentTask("Aplicando a Jobs");
+        
+        // Add click handler to cycle through example tasks
+        if (this.currentTaskElement) {
+            this.currentTaskElement.style.cursor = 'pointer';
+            this.currentTaskElement.addEventListener('click', () => {
+                this.cycleToNextTask();
+            });
+        }
         
         // Load custom timer labels if it exists (do not auto-select here)
         this.loadSavedCustomTimer();
@@ -2334,6 +2347,52 @@ class PomodoroTimer {
         const totalSessions = this.cycleSections.length;
         let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
         this.sessionInfoElement.textContent = text;
+        
+        // Update current task display
+        this.updateCurrentTaskDisplay();
+    }
+    
+    setCurrentTask(taskName) {
+        this.currentTaskName = taskName;
+        this.updateCurrentTaskDisplay();
+    }
+    
+    clearCurrentTask() {
+        this.currentTaskName = null;
+        this.updateCurrentTaskDisplay();
+    }
+    
+    updateCurrentTaskDisplay() {
+        if (this.currentTaskElement) {
+            if (this.currentTaskName) {
+                this.currentTaskElement.textContent = this.currentTaskName;
+                this.currentTaskElement.style.display = 'block';
+            } else {
+                this.currentTaskElement.style.display = 'none';
+            }
+        }
+    }
+    
+    // Example tasks for demonstration
+    getExampleTasks() {
+        return [
+            "Aplicando a Jobs",
+            "Making Interviews", 
+            "Studying React",
+            "Writing Documentation",
+            "Code Review",
+            "Planning Sprint",
+            "Learning TypeScript",
+            "Designing UI"
+        ];
+    }
+    
+    // Method to cycle through example tasks (for demonstration)
+    cycleToNextTask() {
+        const tasks = this.getExampleTasks();
+        const currentIndex = tasks.indexOf(this.currentTaskName);
+        const nextIndex = (currentIndex + 1) % tasks.length;
+        this.setCurrentTask(tasks[nextIndex]);
     }
     
     playNotification() {
