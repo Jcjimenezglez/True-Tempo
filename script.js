@@ -212,6 +212,9 @@ class PomodoroTimer {
         // Build task queue at startup
         this.rebuildTaskQueue();
 
+        // Update task button state on startup
+        this.updateTaskButtonState();
+
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
     }
@@ -3096,6 +3099,7 @@ class PomodoroTimer {
             // Update task distribution when modal is closed
             this.rebuildTaskQueue();
             this.updateCurrentTaskBanner();
+            this.updateTaskButtonState();
         };
 
         modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
@@ -3810,6 +3814,24 @@ class PomodoroTimer {
         }
 
         taskBanner.style.display = 'block';
+        
+        // Update task button state
+        this.updateTaskButtonState();
+    }
+
+    updateTaskButtonState() {
+        const taskButton = document.getElementById('taskToggleBtn');
+        if (!taskButton) return;
+
+        const selectedTasks = this.getSelectedTasks();
+        
+        if (selectedTasks.length > 0) {
+            // Has active tasks - make button blue
+            taskButton.classList.add('active');
+        } else {
+            // No active tasks - make button white
+            taskButton.classList.remove('active');
+        }
     }
 
     createTaskBanner() {
