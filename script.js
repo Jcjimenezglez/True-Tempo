@@ -2922,10 +2922,11 @@ class PomodoroTimer {
                 
                 const completedSessions = taskConfig.completedSessions || 0;
                 const totalSessions = taskConfig.sessions || 1;
+                const isCompleted = task.completed || (completedSessions >= totalSessions);
                 
                 const itemContent = `
                     <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} disabled>
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
                         <label for="task-${task.id}"></label>
                     </div>
                     <div class="task-content">
@@ -3195,11 +3196,6 @@ class PomodoroTimer {
             ...config, 
             completedSessions: finalCompleted 
         });
-        
-        // If all sessions are completed, mark the task as completed
-        if (finalCompleted >= totalSessions) {
-            this.markLocalTaskAsCompleted(taskId);
-        }
     }
 
     setupTaskEventListeners(modal) {
@@ -3374,10 +3370,11 @@ class PomodoroTimer {
                         const taskConfig = this.getTaskConfig(task.id);
                         const completedSessions = taskConfig.completedSessions || 0;
                         const totalSessions = taskConfig.sessions || 1;
+                        const isCompleted = task.completed || (completedSessions >= totalSessions);
                         
                         const itemContent = `
                             <div class="task-checkbox">
-                                <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} disabled>
+                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
                                 <label for="task-${task.id}"></label>
                             </div>
                             <div class="task-content">
@@ -3460,10 +3457,11 @@ class PomodoroTimer {
                             const taskConfig = this.getTaskConfig(task.id);
                             const completedSessions = taskConfig.completedSessions || 0;
                             const totalSessions = taskConfig.sessions || 1;
+                            const isCompleted = task.completed || (completedSessions >= totalSessions);
                             
                             const itemContent = `
                                 <div class="task-checkbox">
-                                    <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} disabled>
+                                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
                                     <label for="task-${task.id}"></label>
                                 </div>
                                 <div class="task-content">
