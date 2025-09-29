@@ -1993,8 +1993,8 @@ audio {
 }
 
 .upgrade-icon svg {
-    color: #888;
-    opacity: 0.7;
+    color: #78dbff;
+    opacity: 1;
 }
 
 .upgrade-content h3 {
@@ -2045,8 +2045,8 @@ audio {
 }
 
 .upgrade-required-buttons .upgrade-btn {
-    background: #ffffff;
-    color: #000000;
+    background: #78dbff;
+    color: #1a1a1a;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 1.5rem;
@@ -2058,7 +2058,7 @@ audio {
 }
 
 .upgrade-required-buttons .upgrade-btn:hover {
-    background: #f0f0f0;
+    background: #5bc5ff;
 }
 
 .upgrade-required-buttons .cancel-btn {
