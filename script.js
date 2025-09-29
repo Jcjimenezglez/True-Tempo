@@ -2407,6 +2407,37 @@ class PomodoroTimer {
             }
         }
     }
+
+    updateCurrentTaskFromQueue() {
+        // Update current task based on task queue and current session
+        if (this.isWorkSession && this.taskQueue && this.taskQueue.length > 0) {
+            // Calculate how many task slots have been completed so far
+            const selected = this.getSelectedTasks();
+            let slotsCompleted = 0;
+            selected.forEach(task => {
+                const cfg = this.getTaskConfig(task.id);
+                const total = Math.max(1, cfg.sessions || 1);
+                const done = Math.min(cfg.completedSessions || 0, total);
+                slotsCompleted += done;
+            });
+            
+            if (slotsCompleted >= this.taskQueue.length) {
+                this.currentTaskIndex = this.taskQueue.length; // beyond queue → Focus label
+                this.currentTask = null;
+                this.currentTaskName = null;
+            } else {
+                this.currentTaskIndex = slotsCompleted;
+                this.currentTask = this.taskQueue[this.currentTaskIndex];
+                this.currentTaskName = this.currentTask ? this.currentTask.content : null;
+            }
+        } else {
+            // Not in work session or no tasks
+            this.currentTask = null;
+            this.currentTaskName = null;
+        }
+        
+        this.updateCurrentTaskDisplay();
+    }
     
     // Initialize tasks for each focus session from selected tasks
     initializeSessionTasks() {
@@ -3106,6 +3137,8 @@ class PomodoroTimer {
             this.rebuildTaskQueue();
             this.updateCurrentTaskBanner();
             this.updateTaskButtonState();
+            // Update current task display in timer
+            this.updateCurrentTaskFromQueue();
         };
 
         modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
