@@ -3125,7 +3125,28 @@ class PomodoroTimer {
                 return;
             }
             
-            allTasks.forEach((task, index) => {
+            // Apply saved task order
+            const savedOrder = this.getTaskOrder();
+            let orderedTasks = allTasks;
+            
+            if (savedOrder.length > 0) {
+                // Create a map for quick lookup
+                const taskMap = new Map(allTasks.map(task => [task.id, task]));
+                
+                // Sort by saved order
+                orderedTasks = [];
+                savedOrder.forEach(orderItem => {
+                    if (taskMap.has(orderItem.id)) {
+                        orderedTasks.push(taskMap.get(orderItem.id));
+                        taskMap.delete(orderItem.id);
+                    }
+                });
+                
+                // Add any remaining tasks that weren't in the saved order
+                taskMap.forEach(task => orderedTasks.push(task));
+            }
+            
+            orderedTasks.forEach((task, index) => {
                 const item = document.createElement('div');
                 item.className = 'task-item';
                 item.draggable = true;
@@ -3843,7 +3864,8 @@ class PomodoroTimer {
     getSelectedTasks() {
         const allTasks = this.getAllTasks();
         
-        return allTasks.filter(task => {
+        // Get selected tasks
+        const selectedTasks = allTasks.filter(task => {
             const config = this.getTaskConfig(task.id);
             // Only include tasks that are selected AND not completed
             return config.selected && !task.completed;
@@ -3854,6 +3876,29 @@ class PomodoroTimer {
                 sessions: config.sessions || 1
             };
         });
+        
+        // Apply saved task order
+        const savedOrder = this.getTaskOrder();
+        if (savedOrder.length > 0) {
+            // Create a map for quick lookup
+            const taskMap = new Map(selectedTasks.map(task => [task.id, task]));
+            
+            // Sort by saved order
+            const orderedTasks = [];
+            savedOrder.forEach(orderItem => {
+                if (taskMap.has(orderItem.id)) {
+                    orderedTasks.push(taskMap.get(orderItem.id));
+                    taskMap.delete(orderItem.id);
+                }
+            });
+            
+            // Add any remaining tasks that weren't in the saved order
+            taskMap.forEach(task => orderedTasks.push(task));
+            
+            return orderedTasks;
+        }
+        
+        return selectedTasks;
     }
 
     // Local task management
