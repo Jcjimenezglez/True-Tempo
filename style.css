@@ -3752,12 +3752,12 @@ input:checked + .toggle-slider:before {
     font-size: 1.2rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: #333;
+    color: #ffffff;
 }
 
 .empty-subtext {
     font-size: 0.9rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 /* Current Task Banner Styles */

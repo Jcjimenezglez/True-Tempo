@@ -3221,7 +3221,12 @@ class PomodoroTimer {
                 if (currentTab === 'done') {
                     listEl.innerHTML = `
                         <div class="empty-state">
-                            <div class="empty-icon">📝</div>
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                </svg>
+                            </div>
                             <div class="empty-text">No completed tasks yet</div>
                             <div class="empty-subtext">Complete some tasks to see them here</div>
                         </div>
