@@ -1952,6 +1952,30 @@ class PomodoroTimer {
         this.isWorkSession = currentSectionInfo.type === 'work';
         this.isLongBreak = currentSectionInfo.type === 'long-break';
         
+        // Keep task label in sync with completed sessions
+        if (this.isWorkSession) {
+            try {
+                // Calculate how many task slots have been completed so far
+                const selected = this.getSelectedTasks();
+                let slotsCompleted = 0;
+                selected.forEach(task => {
+                    const cfg = this.getTaskConfig(task.id);
+                    const total = Math.max(1, cfg.sessions || 1);
+                    const done = Math.min(cfg.completedSessions || 0, total);
+                    slotsCompleted += done;
+                });
+                if (Array.isArray(this.taskQueue) && this.taskQueue.length > 0) {
+                    if (slotsCompleted >= this.taskQueue.length) {
+                        this.currentTaskIndex = this.taskQueue.length; // beyond queue → Focus label
+                        this.currentTask = null;
+                    } else {
+                        this.currentTaskIndex = slotsCompleted;
+                        this.currentTask = this.taskQueue[this.currentTaskIndex];
+                    }
+                }
+            } catch (_) {}
+        }
+        
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
