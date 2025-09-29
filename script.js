@@ -3033,6 +3033,12 @@ class PomodoroTimer {
                 <h3>Tasks</h3>
                 <p class="tasks-subtitle">Manage your focus tasks</p>
             </div>
+            
+            <!-- Task Tabs -->
+            <div class="task-tabs">
+                <button class="task-tab active" data-tab="todo">To-do</button>
+                <button class="task-tab" data-tab="done">Done</button>
+            </div>
             ${isFreeUser ? `
                 <div class="pro-upgrade-banner">
                     <div class="pro-banner-content">
@@ -3119,23 +3125,37 @@ class PomodoroTimer {
         }
 
         const listEl = modal.querySelector('#todoistTasksList');
+        let currentTab = 'todo'; // Default to todo tab
 
         const renderTasks = () => {
             listEl.innerHTML = '';
             const allTasks = this.getAllTasks();
             
-            if (allTasks.length === 0) {
-                // Show empty list without any empty state content
+            // Filter tasks based on current tab
+            let filteredTasks = allTasks;
+            if (currentTab === 'todo') {
+                filteredTasks = allTasks.filter(task => !task.completed);
+            } else if (currentTab === 'done') {
+                filteredTasks = allTasks.filter(task => task.completed);
+            }
+            
+            if (filteredTasks.length === 0) {
+                // Show empty state based on tab
+                if (currentTab === 'todo') {
+                    listEl.innerHTML = '<div class="empty-state">No active tasks</div>';
+                } else {
+                    listEl.innerHTML = '<div class="empty-state">No completed tasks</div>';
+                }
                 return;
             }
             
             // Apply saved task order
             const savedOrder = this.getTaskOrder();
-            let orderedTasks = allTasks;
+            let orderedTasks = filteredTasks;
             
             if (savedOrder.length > 0) {
                 // Create a map for quick lookup
-                const taskMap = new Map(allTasks.map(task => [task.id, task]));
+                const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
                 
                 // Sort by saved order
                 orderedTasks = [];
@@ -3267,9 +3287,27 @@ class PomodoroTimer {
         // Setup form controls
         this.setupAddTaskFormControls(modal, renderTasks);
 
+        // Tab switching logic
+        const setupTabs = () => {
+            const tabs = modal.querySelectorAll('.task-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    // Update current tab
+                    currentTab = tab.dataset.tab;
+                    // Re-render tasks
+                    renderTasks();
+                });
+            });
+        };
+
         // Load tasks (local + Todoist if authenticated)
         this.loadAllTasks();
         renderTasks();
+        setupTabs();
     }
 
     setupAddTaskFormControls(modal, renderTasks) {
