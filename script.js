@@ -2410,8 +2410,12 @@ class PomodoroTimer {
             if (this.currentTaskName) {
                 this.currentTaskElement.textContent = this.currentTaskName;
                 this.currentTaskElement.style.display = 'block';
+                this.currentTaskElement.style.visibility = 'visible';
             } else {
-                this.currentTaskElement.style.display = 'none';
+                // Keep the element visible but with empty content to maintain layout
+                this.currentTaskElement.textContent = '';
+                this.currentTaskElement.style.display = 'block';
+                this.currentTaskElement.style.visibility = 'hidden';
             }
         }
     }
