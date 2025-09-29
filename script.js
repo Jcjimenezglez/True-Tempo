@@ -151,6 +151,7 @@ class PomodoroTimer {
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
+        this.isPro = false;
         
         // Task form state
         this.editingTaskId = null;
@@ -379,6 +380,9 @@ class PomodoroTimer {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
         }
+        
+        // Update Pro status
+        this.isPro = this.isPremiumUser();
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
@@ -1776,11 +1780,11 @@ class PomodoroTimer {
             // Guest users: show local tasks only
             this.clearTodoistTasks();
         this.showTaskListModal();
-        } else if (this.user && !this.isPremiumUser()) {
+        } else if (this.user && !this.isPro) {
             // Free users: show local tasks only
             this.clearTodoistTasks();
             this.showTaskListModal();
-        } else if (this.user && this.isPremiumUser()) {
+        } else if (this.user && this.isPro) {
             // Pro users: show Todoist integration modal
             this.showTodoistModal();
         }
@@ -3050,7 +3054,7 @@ class PomodoroTimer {
         overlay.style.display = 'flex';
 
         // Check if user is authenticated and not Pro
-        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPro;
         const isGuest = !this.isAuthenticated || !this.user;
 
         const modal = document.createElement('div');
@@ -4135,7 +4139,7 @@ class PomodoroTimer {
 
     getAllTasks() {
         const localTasks = this.getLocalTasks();
-        const todoistTasks = this.isAuthenticated && this.user && this.isPremiumUser() ? (this.todoistTasks || []) : [];
+        const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
         
         // Combine and mark source
         const allTasks = [
