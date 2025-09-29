@@ -192,6 +192,14 @@ class PomodoroTimer {
             });
         }
         
+        // Add click handler to mode element (Focus, Break, Long Break)
+        if (this.modeElement) {
+            this.modeElement.style.cursor = 'pointer';
+            this.modeElement.addEventListener('click', () => {
+                this.toggleTaskList();
+            });
+        }
+        
         // Load custom timer labels if it exists (do not auto-select here)
         this.loadSavedCustomTimer();
 
