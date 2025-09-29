@@ -3384,6 +3384,20 @@ class PomodoroTimer {
                     } else {
                         // Show add task elements in To-do tab
                         if (addTaskSection) addTaskSection.style.display = 'block';
+                        
+                        // Restore addTaskForm to its proper state based on whether there are tasks
+                        if (addTaskForm && addTaskBtn) {
+                            const tasks = this.getAllTasks();
+                            if (Array.isArray(tasks) && tasks.length === 0) {
+                                // No tasks: show form and disable button
+                                addTaskForm.style.display = 'block';
+                                addTaskBtn.disabled = true;
+                            } else {
+                                // Has tasks: hide form and enable button
+                                addTaskForm.style.display = 'none';
+                                addTaskBtn.disabled = false;
+                            }
+                        }
                     }
                     
                     // Re-render tasks
