@@ -1,6 +1,6 @@
 // Stripe webhook handler to sync premium status with Clerk
 const Stripe = require('stripe');
-const { Clerk } = require('@clerk/clerk-sdk-node');
+const Clerk = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {

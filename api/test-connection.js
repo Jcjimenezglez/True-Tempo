@@ -1,6 +1,6 @@
 // Simple test script to verify Stripe and Clerk connections
 const Stripe = require('stripe');
-const { Clerk } = require('@clerk/clerk-sdk-node');
+const Clerk = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {

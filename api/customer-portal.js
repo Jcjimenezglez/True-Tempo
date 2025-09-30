@@ -3,7 +3,7 @@
 // STRIPE_SECRET_KEY
 
 const Stripe = require('stripe');
-const { Clerk } = require('@clerk/clerk-sdk-node');
+const Clerk = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
