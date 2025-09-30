@@ -14,6 +14,13 @@ module.exports = async (req, res) => {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const returnUrl = process.env.STRIPE_RETURN_URL || 'https://www.superfocus.live';
   const portalConfigurationId = process.env.STRIPE_PORTAL_CONFIGURATION_ID || 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL';
+  
+  console.log('Customer Portal Debug - Environment:', {
+    hasSecretKey: !!secretKey,
+    returnUrl,
+    portalConfigurationId,
+    hasClerkSecret: !!process.env.CLERK_SECRET_KEY
+  });
 
   if (!secretKey) {
     res.status(500).json({ error: 'Stripe not configured' });
