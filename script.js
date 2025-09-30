@@ -609,6 +609,15 @@ class PomodoroTimer {
 
     updateUserProfile() {
         if (!this.user) return;
+        
+        // Update user email in dropdown
+        const userEmailElement = document.getElementById('userEmail');
+        if (userEmailElement) {
+            const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress || 'user@example.com';
+            userEmailElement.textContent = email;
+        }
+        
+        // Update user avatar
         if (this.user.imageUrl && this.userAvatar) {
             this.userAvatar.src = this.user.imageUrl;
         } else if (this.userAvatar) {
