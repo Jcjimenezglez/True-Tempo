@@ -2330,10 +2330,11 @@ class PomodoroTimer {
         if (current.source !== 'todoist') return;
         if (!this.isAuthenticated || !this.user) return;
         try {
-            await fetch('/api/todoist-complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taskId: current.id })
+            // Extract original Todoist ID if we used a local prefix
+            const originalId = String(current.id).startsWith('todoist_') ? String(current.id).replace('todoist_', '') : current.id;
+            
+            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, {
+                method: 'POST'
             });
         } catch (_) {}
     }
@@ -2367,11 +2368,9 @@ class PomodoroTimer {
             // Extract original Todoist ID if we used a local prefix
             const originalId = String(taskId).startsWith('todoist_') ? String(taskId).replace('todoist_', '') : taskId;
             
-            // Call the API to mark task as completed in Todoist
-            await fetch('/api/todoist-complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taskId: originalId })
+            // Call the API to mark task as completed in Todoist (using query parameter)
+            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, {
+                method: 'POST'
             });
         } catch (error) {
             console.error('Error completing Todoist task:', error);
