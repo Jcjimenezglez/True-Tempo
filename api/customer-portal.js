@@ -85,32 +85,10 @@ module.exports = async (req, res) => {
         customerId = customer.id;
       }
     } else {
-      // Fallback: find any customer with active subscription
-      const customers = await stripe.customers.list({
-        limit: 10,
+      // No customer found - return error instead of showing random customer
+      return res.status(400).json({ 
+        error: 'No Stripe customer found for this user. Please make a purchase first to access billing management.' 
       });
-      
-      // Look for customers with active subscriptions
-      for (const customer of customers.data) {
-        const subscriptions = await stripe.subscriptions.list({
-          customer: customer.id,
-          status: 'active',
-          limit: 1,
-        });
-        
-        if (subscriptions.data.length > 0) {
-          customerId = customer.id;
-          break;
-        }
-      }
-      
-      // If no customer found, create a placeholder
-      if (!customerId) {
-        const customer = await stripe.customers.create({
-          email: 'user@example.com',
-        });
-        customerId = customer.id;
-      }
     }
     
     if (!customerId) {
