@@ -4073,14 +4073,15 @@ input:checked + .toggle-slider:before {
 }
 
 .todoist-import-actions {
-    position: sticky;
+    position: absolute;
     bottom: 0;
+    left: 0;
+    right: 0;
     background: #1a1a1a;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1.5rem;
-    padding: 1.5rem 2rem 2rem 2rem;
+    padding: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 10;
 }
