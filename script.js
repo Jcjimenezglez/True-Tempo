@@ -528,6 +528,8 @@ class PomodoroTimer {
     updateDeveloperTabVisibility() {
         const developerTab = document.querySelector('[data-tab="developer"]');
         const developerContent = document.getElementById('developer-tab');
+        const developerDropdownItem = document.getElementById('developerButton');
+        
         if (!developerTab || !developerContent) return;
 
         const user = (window.Clerk && window.Clerk.user) ? window.Clerk.user : this.user;
@@ -547,9 +549,11 @@ class PomodoroTimer {
         if (isDeveloper) {
             developerTab.style.display = '';
             developerContent.style.display = '';
+            if (developerDropdownItem) developerDropdownItem.style.display = '';
         } else {
             developerTab.style.display = 'none';
             developerContent.style.display = 'none';
+            if (developerDropdownItem) developerDropdownItem.style.display = 'none';
         }
     }
 
@@ -1262,6 +1266,19 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                } else if (text === 'Settings') {
+                    e.preventDefault();
+                    this.showSettingsModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                } else if (text === 'Integrations') {
+                    e.preventDefault();
+                    this.showIntegrationsModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                } else if (text === 'Developer') {
+                    e.preventDefault();
+                    this.showDeveloperModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                }
             });
         });
         
@@ -1348,6 +1365,41 @@ class PomodoroTimer {
             this.updateDeveloperTabVisibility();
             settingsModal.style.display = 'flex';
         }
+    }
+
+    showIntegrationsModal() {
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal) {
+            // Switch to integrations tab
+            this.switchToSettingsTab('integrations');
+            settingsModal.style.display = 'flex';
+        }
+    }
+
+    showDeveloperModal() {
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal) {
+            // Switch to developer tab
+            this.switchToSettingsTab('developer');
+            settingsModal.style.display = 'flex';
+        }
+    }
+
+    switchToSettingsTab(tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.settings-tab');
+        tabs.forEach(tab => tab.style.display = 'none');
+        
+        // Remove active class from all nav items
+        const navItems = document.querySelectorAll('.settings-nav-item');
+        navItems.forEach(item => item.classList.remove('active'));
+        
+        // Show the requested tab
+        const targetTab = document.getElementById(`${tabName}-tab`);
+        const targetNavItem = document.querySelector(`[data-tab="${tabName}"]`);
+        
+        if (targetTab) targetTab.style.display = 'block';
+        if (targetNavItem) targetNavItem.classList.add('active');
     }
 
     hideSettingsModal() {
