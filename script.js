@@ -1262,11 +1262,6 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Settings') {
-                    e.preventDefault();
-                    this.showSettingsModal();
-                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                }
             });
         });
         
