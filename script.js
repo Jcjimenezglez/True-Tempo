@@ -1795,17 +1795,20 @@ class PomodoroTimer {
         const upgradeButton = document.getElementById('upgradeToProButton');
         const manageSubscriptionButton = document.getElementById('manageSubscriptionButton');
         const userProBadge = document.getElementById('userProBadge');
+        const integrationsButton = document.getElementById('integrationsButton');
         
         if (this.isPremiumUser()) {
-            // Show Manage subscription, hide Upgrade, show Pro badge
+            // Show Manage subscription, hide Upgrade, show Pro badge, show Integrations
             if (upgradeButton) upgradeButton.style.display = 'none';
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
             if (userProBadge) userProBadge.style.display = 'inline-block';
+            if (integrationsButton) integrationsButton.style.display = 'flex';
         } else {
-            // Show Upgrade, hide Manage subscription, hide Pro badge
+            // Show Upgrade, hide Manage subscription, hide Pro badge, hide Integrations
             if (upgradeButton) upgradeButton.style.display = 'flex';
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'none';
             if (userProBadge) userProBadge.style.display = 'none';
+            if (integrationsButton) integrationsButton.style.display = 'none';
         }
     }
 
