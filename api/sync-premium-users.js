@@ -24,47 +24,56 @@ module.exports = async (req, res) => {
     const customers = await stripe.customers.list({ limit: 100 });
     const syncedUsers = [];
 
+    console.log(`Found ${customers.data.length} customers in Stripe`);
+
     for (const customer of customers.data) {
-      // Check if customer has any subscriptions
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customer.id,
-        limit: 10,
-      });
-
-      const hasActiveSubscription = subscriptions.data.some(sub => 
-        ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
-      );
-
-      if (hasActiveSubscription && customer.email) {
-        // Find Clerk user by email
-        const users = await clerk.users.getUserList({
-          limit: 100,
+      try {
+        // Check if customer has any subscriptions
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customer.id,
+          limit: 10,
         });
-        
-        const user = users.data.find(u => 
-          u.emailAddresses?.some(email => email.emailAddress === customer.email)
+
+        const hasActiveSubscription = subscriptions.data.some(sub => 
+          ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
         );
 
-        if (user) {
+        console.log(`Customer ${customer.email}: ${subscriptions.data.length} subscriptions, hasActive: ${hasActiveSubscription}`);
+
+        if (hasActiveSubscription && customer.email) {
+          // Find Clerk user by email
+          const users = await clerk.users.getUserList({
+            limit: 100,
+          });
           
-          // Update user with Stripe customer ID and premium status
-          await clerk.users.updateUser(user.id, {
-            publicMetadata: {
-              ...user.publicMetadata,
+          const user = users.data.find(u => 
+            u.emailAddresses?.some(email => email.emailAddress === customer.email)
+          );
+
+          if (user) {
+            // Update user with Stripe customer ID and premium status
+            await clerk.users.updateUser(user.id, {
+              publicMetadata: {
+                ...user.publicMetadata,
+                stripeCustomerId: customer.id,
+                isPremium: true,
+                premiumSince: user.publicMetadata?.premiumSince || new Date().toISOString(),
+              },
+            });
+
+            syncedUsers.push({
+              email: customer.email,
+              clerkUserId: user.id,
               stripeCustomerId: customer.id,
-              isPremium: true,
-              premiumSince: user.publicMetadata?.premiumSince || new Date().toISOString(),
-            },
-          });
+            });
 
-          syncedUsers.push({
-            email: customer.email,
-            clerkUserId: user.id,
-            stripeCustomerId: customer.id,
-          });
-
-          console.log(`Synced user: ${customer.email} -> ${user.id}`);
+            console.log(`Synced user: ${customer.email} -> ${user.id}`);
+          } else {
+            console.log(`No Clerk user found for email: ${customer.email}`);
+          }
         }
+      } catch (customerError) {
+        console.error(`Error processing customer ${customer.email}:`, customerError.message);
       }
     }
 
