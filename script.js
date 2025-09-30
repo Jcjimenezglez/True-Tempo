@@ -3708,10 +3708,11 @@ class PomodoroTimer {
     }
 
     async showTodoistProjectsModal() {
-        // Create overlay
+        // Create overlay (ensure on top of Tasks modal)
         const overlay = document.createElement('div');
         overlay.className = 'focus-stats-overlay';
         overlay.style.display = 'flex';
+        overlay.style.zIndex = '100001';
 
         // Create modal
         const modal = document.createElement('div');
@@ -3730,11 +3731,11 @@ class PomodoroTimer {
             </div>
             
             <div class="todoist-projects-container">
-                <div class="loading-state" id="todoistLoadingState">
+                <div class="loading-state" id="todoistImportLoadingState">
                     <div class="loading-spinner"></div>
                     <p>Loading your Todoist tasks...</p>
                 </div>
-                <div class="todoist-tasks-list" id="todoistTasksList" style="display: none;">
+                <div class="todoist-tasks-list" id="todoistImportTasksList" style="display: none;">
                     <!-- Tasks will be loaded here -->
                 </div>
             </div>
@@ -3761,7 +3762,7 @@ class PomodoroTimer {
             closeBtn.addEventListener('click', closeModal);
         }
 
-        // Close on overlay click
+        // Close on overlay click (but not when clicking inside modal)
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 closeModal();
@@ -3797,8 +3798,8 @@ class PomodoroTimer {
     }
 
     async loadTodoistTasks(modal) {
-        const loadingState = modal.querySelector('#todoistLoadingState');
-        const tasksList = modal.querySelector('#todoistTasksList');
+        const loadingState = modal.querySelector('#todoistImportLoadingState');
+        const tasksList = modal.querySelector('#todoistImportTasksList');
         const importActions = modal.querySelector('#todoistImportActions');
         
         try {
