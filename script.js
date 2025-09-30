@@ -215,9 +215,6 @@ class PomodoroTimer {
 
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
-        
-        // Check for Todoist connection success
-        this.checkTodoistConnectionSuccess();
     }
 
     // Clerk Authentication Methods
@@ -1373,19 +1370,27 @@ class PomodoroTimer {
     showIntegrationsModal() {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
-            // Switch to integrations tab
+            // Switch to integrations tab and make it active
             this.switchToSettingsTab('integrations');
+            // Make integrations nav item active
+            const integrationsNav = document.querySelector('[data-tab="integrations"]');
+            if (integrationsNav) {
+                integrationsNav.classList.add('active');
+            }
             settingsModal.style.display = 'flex';
-            // Update Todoist status display
-            this.updateTodoistStatusDisplay();
         }
     }
 
     showDeveloperModal() {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
-            // Switch to developer tab
+            // Switch to developer tab and make it active
             this.switchToSettingsTab('developer');
+            // Make developer nav item active
+            const developerNav = document.querySelector('[data-tab="developer"]');
+            if (developerNav) {
+                developerNav.classList.add('active');
+            }
             settingsModal.style.display = 'flex';
         }
     }
@@ -1411,66 +1416,6 @@ class PomodoroTimer {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
             settingsModal.style.display = 'none';
-        }
-    }
-
-    updateTodoistStatusDisplay() {
-        const statusBadge = document.getElementById('todoistStatusBadge');
-        const statusText = document.getElementById('todoistStatusText');
-        const connectBtn = document.getElementById('connectTodoistBtn');
-        const disconnectBtn = document.getElementById('disconnectTodoistBtn');
-        const fetchBtn = document.getElementById('fetchTodoistTasksBtn');
-
-        if (!statusBadge || !statusText) return;
-
-        // Check if Todoist is connected
-        const isConnected = this.isTodoistConnected();
-        
-        if (isConnected) {
-            statusBadge.classList.add('connected');
-            statusBadge.querySelector('.status-text').textContent = 'Connected';
-            if (!statusText.textContent || !statusText.textContent.includes('Successfully')) {
-                statusText.textContent = 'Connected to Todoist';
-            }
-            
-            if (connectBtn) connectBtn.style.display = 'none';
-            if (disconnectBtn) disconnectBtn.style.display = 'flex';
-            if (fetchBtn) fetchBtn.style.display = 'flex';
-        } else {
-            statusBadge.classList.remove('connected');
-            statusBadge.querySelector('.status-text').textContent = 'Not Connected';
-            statusText.textContent = '';
-            
-            if (connectBtn) connectBtn.style.display = 'flex';
-            if (disconnectBtn) disconnectBtn.style.display = 'none';
-            if (fetchBtn) fetchBtn.style.display = 'none';
-        }
-    }
-
-    isTodoistConnected() {
-        // Check if Todoist access token exists in cookies
-        const cookies = document.cookie.split(';');
-        const todoistToken = cookies.find(cookie => cookie.trim().startsWith('todoist_access_token='));
-        return !!todoistToken;
-    }
-
-    checkTodoistConnectionSuccess() {
-        // Check if URL contains todoist=connected parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('todoist') === 'connected') {
-            // Update the UI to show connected state
-            this.updateTodoistStatusDisplay();
-            
-            // Clean up URL by removing the parameter
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-            
-            // Show success message
-            const statusText = document.getElementById('todoistStatusText');
-            if (statusText) {
-                statusText.textContent = 'Successfully connected to Todoist!';
-                statusText.style.color = '#78dbff';
-            }
         }
     }
 

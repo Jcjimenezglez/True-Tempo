@@ -432,7 +432,7 @@
                         </svg>
                         <span>Account</span>
                     </div>
-                    <div class="settings-nav-item active" data-tab="integrations">
+                    <div class="settings-nav-item" data-tab="integrations">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug-icon lucide-plug">
                             <path d="M12 22v-5"/>
                             <path d="M9 8V2"/>
@@ -453,7 +453,7 @@
                 <!-- Right Content -->
                 <div class="settings-content">
                     <!-- General Tab -->
-                    <div class="settings-tab" id="general-tab" style="display: none;">
+                    <div class="settings-tab active" id="general-tab">
                         <h3>General</h3>
                         <div class="settings-section">
                             <div class="settings-item">
@@ -516,62 +516,23 @@
                     </div>
                     
                     <!-- Integrations Tab -->
-                    <div class="settings-tab active" id="integrations-tab">
-                        <div class="integrations-header">
-                            <h3>Integrations</h3>
-                            <p class="integrations-subtitle">Connect your productivity tools to enhance your focus sessions</p>
-                        </div>
-                        
-                        <div class="integrations-grid">
-                            <!-- Todoist Integration Card -->
-                            <div class="integration-card">
-                                <div class="integration-card-header">
-                                    <div class="integration-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                                            <line x1="12" y1="22.08" x2="12" y2="12"/>
-                                        </svg>
-                                    </div>
-                                    <div class="integration-info">
-                                        <h4 class="integration-title">Todoist</h4>
-                                        <p class="integration-description">Sync your tasks and projects from Todoist</p>
-                                    </div>
-                                    <div class="integration-status" id="todoistStatusBadge">
-                                        <span class="status-dot"></span>
-                                        <span class="status-text">Not Connected</span>
-                                    </div>
+                    <div class="settings-tab" id="integrations-tab">
+                        <h3>Integrations</h3>
+                        <div class="settings-section">
+                            <div class="settings-item">
+                                <div class="settings-label-group">
+                                    <span class="settings-label">Todoist</span>
+                                    <span class="settings-description">Connect your Todoist account to sync tasks</span>
                                 </div>
-                                
-                                <div class="integration-card-content">
-                                    <div class="integration-actions">
-                                        <button id="connectTodoistBtn" class="integration-btn integration-btn-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                                                <line x1="12" y1="22.08" x2="12" y2="12"/>
-                                            </svg>
-                                            Connect to Todoist
-                                        </button>
-                                        <button id="disconnectTodoistBtn" class="integration-btn integration-btn-secondary" style="display:none;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M18 6 6 18"/>
-                                                <path d="m6 6 12 12"/>
-                                            </svg>
-                                            Disconnect
-                                        </button>
-                                        <button id="fetchTodoistTasksBtn" class="integration-btn integration-btn-success" style="display:none;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                                                <line x1="12" y1="22.08" x2="12" y2="12"/>
-                                            </svg>
-                                            Fetch Tasks
-                                        </button>
-                                    </div>
-                                    <div id="todoistStatusText" class="integration-status-text"></div>
+                                <div class="integration-controls">
+                                    <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
+                                    <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
+                                    <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
                                 </div>
+                                <div id="todoistStatusText" class="tasks-subtitle"></div>
                             </div>
+
+                            
                         </div>
                     </div>
                     
