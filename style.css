@@ -2578,8 +2578,10 @@ audio {
 
 .token-actions {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .btn-primary, .btn-secondary, .btn-success, .btn-focus {
@@ -2655,6 +2657,15 @@ audio {
 .tasks-subtitle {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.85rem;
+    margin: 8px 0 0 0;
+    padding: 4px 0;
+}
+
+.connection-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 8px;
 }
 
 .tasks-list {
