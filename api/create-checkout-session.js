@@ -54,6 +54,8 @@ module.exports = async (req, res) => {
         clerk_user_id: (req.headers['x-clerk-userid'] || '').toString(),
         app_name: 'Superfocus',
         app_version: '1.0',
+        business_name: 'Superfocus',
+        business_type: 'Pomodoro Timer & Focus App',
       },
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
@@ -70,7 +72,7 @@ module.exports = async (req, res) => {
           optional: true,
         },
       ],
-      // Use the new payment configuration
+      // Use the Superfocus payment configuration specifically
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     });
 
