@@ -2708,6 +2708,35 @@ audio {
     display: none; /* Hide transparent status badges */
 }
 
+/* Todoist Connection Prompt Styles */
+.connection-prompt-content {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.connection-prompt-icon {
+    margin-bottom: 16px;
+    color: #10b981;
+}
+
+.connection-prompt-text {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.connection-prompt-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.connection-prompt-actions .btn-primary,
+.connection-prompt-actions .btn-secondary {
+    min-width: 140px;
+}
+
 .tasks-list {
     max-height: 300px;
     overflow-y: auto;

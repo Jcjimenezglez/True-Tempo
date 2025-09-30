@@ -3541,6 +3541,13 @@ class PomodoroTimer {
                 e.preventDefault();
                 e.stopPropagation();
                 try {
+                    // Check if Todoist is connected first
+                    const isConnected = await this.checkTodoistConnection();
+                    if (!isConnected) {
+                        // Show connection prompt and redirect to auth
+                        this.showTodoistConnectionPrompt();
+                        return;
+                    }
                     // Show Todoist projects selection modal
                     await this.showTodoistProjectsModal();
                 } catch (error) {
@@ -3762,6 +3769,85 @@ class PomodoroTimer {
 
         // Import from Todoist
         // no import item in dropdown anymore
+    }
+
+    async checkTodoistConnection() {
+        try {
+            const resp = await fetch('/api/todoist-status');
+            const json = await resp.json();
+            return !!json.connected;
+        } catch (error) {
+            console.error('Error checking Todoist connection:', error);
+            return false;
+        }
+    }
+
+    showTodoistConnectionPrompt() {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        overlay.style.zIndex = '100002';
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '400px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x" id="closeConnectionPrompt">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="tasks-header">
+                <h3>Connect to Todoist</h3>
+                <p class="tasks-subtitle">You need to connect your Todoist account to import tasks</p>
+            </div>
+            
+            <div class="connection-prompt-content">
+                <div class="connection-prompt-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                    </svg>
+                </div>
+                <p class="connection-prompt-text">
+                    Connect your Todoist account to import tasks and enhance your focus sessions.
+                </p>
+                <div class="connection-prompt-actions">
+                    <button class="btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
+                    <button class="btn-secondary" id="cancelConnectionPrompt">Cancel</button>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Setup event listeners
+        const closeBtn = modal.querySelector('#closeConnectionPrompt');
+        const connectBtn = modal.querySelector('#connectTodoistPromptBtn');
+        const cancelBtn = modal.querySelector('#cancelConnectionPrompt');
+
+        const closeModal = () => {
+            document.body.removeChild(overlay);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        connectBtn.addEventListener('click', () => {
+            // Redirect to Todoist auth
+            window.location.href = '/api/todoist-auth-start';
+        });
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
     }
 
     async showTodoistProjectsModal() {
@@ -5440,8 +5526,75 @@ class PomodoroTimer {
         
         // Setup Todoist integration controls in settings
         this.setupTodoistIntegrationControls();
+        
+        // Check if user just connected to Todoist and should open task list
+        this.checkTodoistConnectionRedirect();
     }
     
+    checkTodoistConnectionRedirect() {
+        // Check if user just connected to Todoist
+        const urlParams = new URLSearchParams(window.location.search);
+        const todoistConnected = urlParams.get('todoist');
+        
+        if (todoistConnected === 'connected') {
+            // Remove the parameter from URL without page reload
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Show success message and open task list
+            setTimeout(() => {
+                this.showTodoistConnectionSuccess();
+            }, 1000); // Small delay to let the page fully load
+        }
+    }
+
+    showTodoistConnectionSuccess() {
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'todoist-success-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12l2 2 4-4"/>
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                </svg>
+                <span>Successfully connected to Todoist!</span>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
+        
+        // Open task list modal automatically
+        setTimeout(() => {
+            this.showTaskListModal();
+        }, 500);
+    }
+
     setupTodoistIntegrationControls() {
         const connectBtn = document.getElementById('connectTodoistBtn');
         const disconnectBtn = document.getElementById('disconnectTodoistBtn');
