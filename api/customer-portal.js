@@ -71,6 +71,32 @@ module.exports = async (req, res) => {
       console.log('No stripeCustomerId in Clerk:', e?.message);
     }
     
+    // 2) If still no customerId, try to find by email in Stripe
+    if (!customerId && customerEmail) {
+      try {
+        const customers = await stripe.customers.list({ 
+          email: customerEmail, 
+          limit: 10 
+        });
+        
+        // Look for customers with active subscriptions
+        for (const customer of customers.data) {
+          const subscriptions = await stripe.subscriptions.list({
+            customer: customer.id,
+            status: 'active',
+            limit: 1,
+          });
+          
+          if (subscriptions.data.length > 0) {
+            customerId = customer.id;
+            break;
+          }
+        }
+      } catch (e) {
+        console.log('Error finding customer by email:', e?.message);
+      }
+    }
+    
     if (!customerId && customerEmail) {
       // Try to find existing customer by email
       try {
