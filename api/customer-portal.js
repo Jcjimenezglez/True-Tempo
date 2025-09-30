@@ -128,11 +128,6 @@ module.exports = async (req, res) => {
         const customer = await stripe.customers.create({ email: customerEmail });
         customerId = customer.id;
       }
-    } else {
-      // No customer found - return error instead of showing random customer
-      return res.status(400).json({ 
-        error: 'No Stripe customer found for this user. Please make a purchase first to access billing management.' 
-      });
     }
     
     if (!customerId) {
