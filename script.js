@@ -1373,6 +1373,8 @@ class PomodoroTimer {
             // Switch to integrations tab
             this.switchToSettingsTab('integrations');
             settingsModal.style.display = 'flex';
+            // Update Todoist status display
+            this.updateTodoistStatusDisplay();
         }
     }
 
@@ -1407,6 +1409,44 @@ class PomodoroTimer {
         if (settingsModal) {
             settingsModal.style.display = 'none';
         }
+    }
+
+    updateTodoistStatusDisplay() {
+        const statusBadge = document.getElementById('todoistStatusBadge');
+        const statusText = document.getElementById('todoistStatusText');
+        const connectBtn = document.getElementById('connectTodoistBtn');
+        const disconnectBtn = document.getElementById('disconnectTodoistBtn');
+        const fetchBtn = document.getElementById('fetchTodoistTasksBtn');
+
+        if (!statusBadge || !statusText) return;
+
+        // Check if Todoist is connected
+        const isConnected = this.isTodoistConnected();
+        
+        if (isConnected) {
+            statusBadge.classList.add('connected');
+            statusBadge.querySelector('.status-text').textContent = 'Connected';
+            statusText.textContent = 'Connected to Todoist';
+            
+            if (connectBtn) connectBtn.style.display = 'none';
+            if (disconnectBtn) disconnectBtn.style.display = 'flex';
+            if (fetchBtn) fetchBtn.style.display = 'flex';
+        } else {
+            statusBadge.classList.remove('connected');
+            statusBadge.querySelector('.status-text').textContent = 'Not Connected';
+            statusText.textContent = '';
+            
+            if (connectBtn) connectBtn.style.display = 'flex';
+            if (disconnectBtn) disconnectBtn.style.display = 'none';
+            if (fetchBtn) fetchBtn.style.display = 'none';
+        }
+    }
+
+    isTodoistConnected() {
+        // Check if Todoist access token exists in cookies
+        const cookies = document.cookie.split(';');
+        const todoistToken = cookies.find(cookie => cookie.trim().startsWith('todoist_access_token='));
+        return !!todoistToken;
     }
 
     // Sound system methods
