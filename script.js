@@ -5445,10 +5445,9 @@ class PomodoroTimer {
     setupTodoistIntegrationControls() {
         const connectBtn = document.getElementById('connectTodoistBtn');
         const disconnectBtn = document.getElementById('disconnectTodoistBtn');
-        const fetchBtn = document.getElementById('fetchTodoistTasksBtn');
         const statusText = document.getElementById('todoistStatusText');
         
-        if (!connectBtn || !disconnectBtn || !fetchBtn || !statusText) return;
+        if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
             window.location.href = '/api/todoist-auth-start';
@@ -5459,16 +5458,13 @@ class PomodoroTimer {
                 await fetch('/api/todoist-disconnect', { method: 'POST' });
             } catch (_) {}
             statusText.textContent = 'Disconnected';
-            fetchBtn.style.display = 'none';
             disconnectBtn.style.display = 'none';
             connectBtn.style.display = '';
             this.todoistTasks = [];
             this.todoistProjectsById = {};
         });
 
-        fetchBtn.addEventListener('click', async () => {
-            await this.fetchTodoistData();
-        });
+        // Fetch Tasks button removed - tasks are fetched automatically when connected
 
         // Check connection status and update UI
         (async () => {
@@ -5480,19 +5476,16 @@ class PomodoroTimer {
                     statusText.textContent = 'Connected to Todoist';
                     connectBtn.style.display = 'none';
                     disconnectBtn.style.display = '';
-                    fetchBtn.style.display = 'none'; // Hide Fetch Tasks button
                     this.fetchTodoistData();
                 } else {
                     statusText.textContent = 'Disconnected';
                     connectBtn.style.display = '';
                     disconnectBtn.style.display = 'none';
-                    fetchBtn.style.display = 'none';
                 }
             } catch (_) {
-                statusText.textContent = 'Not connected';
+                statusText.textContent = 'Disconnected';
                 connectBtn.style.display = '';
                 disconnectBtn.style.display = 'none';
-                fetchBtn.style.display = 'none';
             }
         })();
     }
