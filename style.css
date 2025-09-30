@@ -2675,32 +2675,36 @@ audio {
 }
 
 .status-text {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
     font-weight: 500;
-    padding: 4px 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
 }
 
 .integration-actions {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     align-items: flex-start;
+    margin-top: 8px;
 }
 
 .integration-controls {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+    position: relative;
 }
 
 .integration-controls .integration-status {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
 }
 
 .tasks-list {
