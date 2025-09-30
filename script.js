@@ -215,6 +215,9 @@ class PomodoroTimer {
 
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
+        
+        // Check for Todoist connection success
+        this.checkTodoistConnectionSuccess();
     }
 
     // Clerk Authentication Methods
@@ -1426,7 +1429,9 @@ class PomodoroTimer {
         if (isConnected) {
             statusBadge.classList.add('connected');
             statusBadge.querySelector('.status-text').textContent = 'Connected';
-            statusText.textContent = 'Connected to Todoist';
+            if (!statusText.textContent || !statusText.textContent.includes('Successfully')) {
+                statusText.textContent = 'Connected to Todoist';
+            }
             
             if (connectBtn) connectBtn.style.display = 'none';
             if (disconnectBtn) disconnectBtn.style.display = 'flex';
@@ -1447,6 +1452,26 @@ class PomodoroTimer {
         const cookies = document.cookie.split(';');
         const todoistToken = cookies.find(cookie => cookie.trim().startsWith('todoist_access_token='));
         return !!todoistToken;
+    }
+
+    checkTodoistConnectionSuccess() {
+        // Check if URL contains todoist=connected parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('todoist') === 'connected') {
+            // Update the UI to show connected state
+            this.updateTodoistStatusDisplay();
+            
+            // Clean up URL by removing the parameter
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Show success message
+            const statusText = document.getElementById('todoistStatusText');
+            if (statusText) {
+                statusText.textContent = 'Successfully connected to Todoist!';
+                statusText.style.color = '#78dbff';
+            }
+        }
     }
 
     // Sound system methods
