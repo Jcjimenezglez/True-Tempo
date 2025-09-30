@@ -1129,6 +1129,12 @@ class PomodoroTimer {
                         }
                     } catch (_) {}
 
+                    // If user is not logged in, show login prompt
+                    if (!userId && !userEmail) {
+                        alert('Please log in first to upgrade to Pro. Click "Sign up for free" or "Login" to continue.');
+                        return;
+                    }
+
                     const resp = await fetch('/api/create-checkout-session', {
                         method: 'POST',
                         headers: {
