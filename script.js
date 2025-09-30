@@ -2080,7 +2080,8 @@ class PomodoroTimer {
         if (finishedWasFocus) {
             const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
             this.actualFocusTimeCompleted += timeCompleted;
-            // Advance queue after a focus session finishes
+            // Mark todoist task and advance queue BEFORE loading next section so the label updates immediately
+            this.completeCurrentTodoistTaskIfAny();
             this.advanceTaskQueueAfterFocus();
         }
 
@@ -2299,15 +2300,7 @@ class PomodoroTimer {
             const done = Math.min(cfg.completedSessions || 0, planned);
             const taskFinished = done >= planned;
             if (taskFinished) {
-                try { 
-                    // Mark locally as completed
-                    this.markLocalTaskAsCompleted(finishedTaskId);
-                    // If it originated from Todoist, also close it in Todoist
-                    const finishedTask = (this.getAllTasks() || []).find(t => t.id === finishedTaskId);
-                    if (finishedTask && finishedTask.source === 'todoist') {
-                        this.completeTodoistTaskIfConnected(finishedTaskId);
-                    }
-                } catch (_) {}
+                try { this.markLocalTaskAsCompleted(finishedTaskId); } catch (_) {}
                 // Queue rebuilt from remaining selected tasks
                 if (this.taskQueue && this.taskQueue.length > 0) {
                     this.currentTaskIndex = 0;
@@ -2330,15 +2323,18 @@ class PomodoroTimer {
         }
     }
 
-    // Mark a Todoist task as completed in Todoist (id may be prefixed with 'todoist_')
-    async completeTodoistTaskIfConnected(taskId) {
+    // Mark current task instance as completed in Todoist if applicable
+    async completeCurrentTodoistTaskIfAny() {
+        const current = this.taskQueue && this.taskQueue[this.currentTaskIndex] ? this.taskQueue[this.currentTaskIndex] : null;
+        if (!current) return;
+        if (current.source !== 'todoist') return;
         if (!this.isAuthenticated || !this.user) return;
-        if (!taskId) return;
-        // Extract original Todoist ID if we used a local prefix
-        const originalId = String(taskId).startsWith('todoist_') ? String(taskId).replace('todoist_', '') : taskId;
         try {
-            // Our server endpoint expects id as a query param per api/todoist-complete.js
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, { method: 'POST' });
+            await fetch('/api/todoist-complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskId: current.id })
+            });
         } catch (_) {}
     }
 
@@ -2351,11 +2347,35 @@ class PomodoroTimer {
         if (idx !== -1) {
             tasks[idx].completed = true;
             this.setLocalTasks(tasks);
+            
+            // If it's a Todoist task, mark it as completed in Todoist
+            if (tasks[idx].source === 'todoist') {
+                this.completeTodoistTaskInTodoist(taskId);
+            }
         }
         // Deselect the completed task so it doesn't show the blue accent
         this.setTaskConfig(taskId, { selected: false });
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
+    }
+
+    async completeTodoistTaskInTodoist(taskId) {
+        if (!taskId) return;
+        if (!this.isAuthenticated || !this.user) return;
+        
+        try {
+            // Extract original Todoist ID if we used a local prefix
+            const originalId = String(taskId).startsWith('todoist_') ? String(taskId).replace('todoist_', '') : taskId;
+            
+            // Call the API to mark task as completed in Todoist
+            await fetch('/api/todoist-complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskId: originalId })
+            });
+        } catch (error) {
+            console.error('Error completing Todoist task:', error);
+        }
     }
 
     showTaskCompletedModal() {}
