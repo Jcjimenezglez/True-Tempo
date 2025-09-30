@@ -3807,10 +3807,6 @@ class PomodoroTimer {
             
             <div class="settings-section">
                 <div class="settings-item">
-                    <div class="settings-label-group">
-                        <span class="settings-label">Todoist Integration</span>
-                        <span class="settings-description">Connect your Todoist account to import tasks and enhance your focus sessions.</span>
-                    </div>
                     <div class="integration-actions">
                         <button class="btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
                         <button class="btn-secondary" id="cancelConnectionPrompt">Cancel</button>
