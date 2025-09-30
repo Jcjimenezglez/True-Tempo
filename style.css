@@ -2669,7 +2669,7 @@ audio {
 }
 
 .integration-status {
-    display: flex;
+    display: none; /* Hide transparent status badges */
     justify-content: flex-end;
     margin-bottom: 8px;
 }
@@ -2705,6 +2705,7 @@ audio {
     top: 0;
     right: 0;
     margin: 0;
+    display: none; /* Hide transparent status badges */
 }
 
 .tasks-list {
