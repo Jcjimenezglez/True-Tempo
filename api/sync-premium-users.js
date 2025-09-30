@@ -38,12 +38,14 @@ module.exports = async (req, res) => {
       if (hasActiveSubscription && customer.email) {
         // Find Clerk user by email
         const users = await clerk.users.getUserList({
-          emailAddress: [customer.email],
-          limit: 1,
+          limit: 100,
         });
+        
+        const user = users.data.find(u => 
+          u.emailAddresses?.some(email => email.emailAddress === customer.email)
+        );
 
-        if (users.data.length > 0) {
-          const user = users.data[0];
+        if (user) {
           
           // Update user with Stripe customer ID and premium status
           await clerk.users.updateUser(user.id, {
