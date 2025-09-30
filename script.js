@@ -3800,17 +3800,12 @@ class PomodoroTimer {
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <div class="tasks-header">
+            <div class="connection-modal-content">
                 <h3>Connect to Todoist</h3>
-                <p class="tasks-subtitle">You need to connect your Todoist account to import tasks</p>
-            </div>
-            
-            <div class="settings-section">
-                <div class="settings-item">
-                    <div class="integration-actions">
-                        <button class="btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
-                        <button class="btn-secondary" id="cancelConnectionPrompt">Cancel</button>
-                    </div>
+                <p>You need to connect your Todoist account to import tasks</p>
+                <div class="connection-modal-actions">
+                    <button class="btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
+                    <button class="btn-secondary" id="cancelConnectionPrompt">Cancel</button>
                 </div>
             </div>
         `;
