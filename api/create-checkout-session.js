@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card'],
+      payment_method_types: ['card', 'apple_pay', 'google_pay'],
       line_items: [
         {
           price: priceId,
@@ -57,6 +57,21 @@ module.exports = async (req, res) => {
       billing_address_collection: 'auto',
       success_url: successUrl,
       cancel_url: cancelUrl,
+      custom_fields: [
+        {
+          key: 'company_name',
+          label: {
+            type: 'custom',
+            custom: 'Company (Optional)',
+          },
+          type: 'text',
+          optional: true,
+        },
+      ],
+      metadata: {
+        app_name: 'Superfocus',
+        app_version: '1.0',
+      },
     });
 
     res.status(200).json({ url: session.url });
