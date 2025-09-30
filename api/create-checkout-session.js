@@ -42,7 +42,6 @@ module.exports = async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
       line_items: [
         {
           price: priceId,
@@ -72,7 +71,7 @@ module.exports = async (req, res) => {
           optional: true,
         },
       ],
-      // Use the Superfocus payment configuration specifically
+      // Use the Superfocus payment configuration (includes all payment methods)
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     });
 
