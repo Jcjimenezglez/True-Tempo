@@ -3092,11 +3092,11 @@ class PomodoroTimer {
             ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
             <div class="add-task-section" style="margin-bottom: 12px;">
                 <button class="import-task-btn" id="importTodoistMainBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                    <line x1="12" y1="22.08" x2="12" y2="12"/>
-                </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
                     Import from Todoist
                 </button>
             </div>
@@ -3818,29 +3818,42 @@ class PomodoroTimer {
                 // Group tasks by project
                 const tasksByProject = this.groupTasksByProject(tasks);
                 
-                // Render tasks grouped by project
-                tasksList.innerHTML = Object.entries(tasksByProject).map(([projectName, projectTasks]) => `
-                    <div class="todoist-project-section">
-                        <div class="project-header">
-                            <h4 class="project-title">${projectName}</h4>
-                            <span class="project-task-count">${projectTasks.length} task${projectTasks.length > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="project-tasks">
-                            ${projectTasks.map(task => `
-                                <div class="todoist-task-item" data-task-id="${task.id}">
-                                    <div class="task-checkbox">
-                                        <input type="checkbox" id="task-${task.id}" class="task-checkbox-input">
-                                        <label for="task-${task.id}" class="task-checkbox-label"></label>
-                                    </div>
-                                    <div class="task-info">
-                                        <div class="task-content">${task.content}</div>
-                                        ${task.due ? `<div class="task-due">Due: ${new Date(task.due.date).toLocaleDateString()}</div>` : ''}
-                                    </div>
+                    // Render tasks grouped by project
+                    const projectEntries = Object.entries(tasksByProject);
+                    const inboxIndex = projectEntries.findIndex(([name]) => name === 'Inbox');
+                    
+                    // Sort projects: Inbox first, then others alphabetically
+                    const sortedProjects = [...projectEntries];
+                    if (inboxIndex > 0) {
+                        const inboxProject = sortedProjects.splice(inboxIndex, 1)[0];
+                        sortedProjects.unshift(inboxProject);
+                    }
+                    
+                    tasksList.innerHTML = sortedProjects.map(([projectName, projectTasks]) => {
+                        const isInbox = projectName === 'Inbox';
+                        return `
+                            <div class="todoist-project-section ${isInbox ? 'inbox-section' : ''}">
+                                <div class="project-header">
+                                    <h4 class="project-title">${isInbox ? '📥 Inbox' : projectName}</h4>
+                                    <span class="project-task-count">${projectTasks.length} task${projectTasks.length > 1 ? 's' : ''}</span>
                                 </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('');
+                                <div class="project-tasks">
+                                    ${projectTasks.map(task => `
+                                        <div class="todoist-task-item" data-task-id="${task.id}">
+                                            <div class="task-checkbox">
+                                                <input type="checkbox" id="task-${task.id}" class="task-checkbox-input">
+                                                <label for="task-${task.id}" class="task-checkbox-label"></label>
+                                            </div>
+                                            <div class="task-info">
+                                                <div class="task-content">${task.content}</div>
+                                                ${task.due ? `<div class="task-due">Due: ${new Date(task.due.date).toLocaleDateString()}</div>` : ''}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
             }
             
             tasksList.style.display = 'block';
@@ -3857,13 +3870,32 @@ class PomodoroTimer {
 
     groupTasksByProject(tasks) {
         const grouped = {};
+        const inboxTasks = [];
+        const myProjects = {};
+        
         tasks.forEach(task => {
-            const projectName = task.project_name || 'Inbox';
-            if (!grouped[projectName]) {
-                grouped[projectName] = [];
+            const projectName = task.project_name;
+            
+            // Separate inbox tasks from regular projects
+            if (!projectName || projectName === 'Inbox' || projectName.toLowerCase().includes('inbox')) {
+                inboxTasks.push(task);
+            } else {
+                // Group by actual project names
+                if (!myProjects[projectName]) {
+                    myProjects[projectName] = [];
+                }
+                myProjects[projectName].push(task);
             }
-            grouped[projectName].push(task);
         });
+        
+        // Add inbox section if there are inbox tasks
+        if (inboxTasks.length > 0) {
+            grouped['Inbox'] = inboxTasks;
+        }
+        
+        // Add all other projects
+        Object.assign(grouped, myProjects);
+        
         return grouped;
     }
 
