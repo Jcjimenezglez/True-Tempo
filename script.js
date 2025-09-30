@@ -3089,6 +3089,18 @@ class PomodoroTimer {
                 <h3>Tasks</h3>
                 <p class="tasks-subtitle">Manage your focus tasks</p>
             </div>
+            ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
+            <div class="add-task-section" style="margin-bottom: 12px;">
+                <button class="import-task-btn" id="importTodoistMainBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    Import from Todoist
+                </button>
+            </div>
+            ` : ''}
             
             <!-- Task Tabs -->
             <div class="task-tabs">
@@ -3194,16 +3206,6 @@ class PomodoroTimer {
                     </svg>
                     Add Task
                 </button>
-                ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
-                <button class="import-task-btn" id="importTodoistTasksBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                        <line x1="12" y1="22.08" x2="12" y2="12"/>
-                    </svg>
-                    Import from Todoist
-                </button>
-                ` : ''}
             </div>
         `;
 
@@ -3465,8 +3467,8 @@ class PomodoroTimer {
         // Setup task options dropdown
         this.setupTaskOptions(modal, renderTasks);
         
-        // Setup Import button (main button, not in dropdown)
-        const mainImportBtn = modal.querySelector('#importTodoistTasksBtn');
+        // Setup Import button (main button above tabs)
+        const mainImportBtn = modal.querySelector('#importTodoistMainBtn');
         if (mainImportBtn) {
             mainImportBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
