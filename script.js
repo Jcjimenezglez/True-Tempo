@@ -3464,6 +3464,20 @@ class PomodoroTimer {
         
         // Setup task options dropdown
         this.setupTaskOptions(modal, renderTasks);
+        
+        // Setup Import button (main button, not in dropdown)
+        const mainImportBtn = modal.querySelector('#importTodoistTasksBtn');
+        if (mainImportBtn) {
+            mainImportBtn.addEventListener('click', async () => {
+                try {
+                    // Show Todoist projects selection modal
+                    await this.showTodoistProjectsModal();
+                } catch (error) {
+                    console.error('Error opening Todoist projects modal:', error);
+                    alert('Error loading Todoist projects. Please try again.');
+                }
+            });
+        }
     }
 
     setupAddTaskFormControls(modal, renderTasks) {
@@ -3690,19 +3704,6 @@ class PomodoroTimer {
             });
         }
 
-        // Import from Todoist (from main button)
-        const mainImportBtn = modal.querySelector('#importTodoistTasksBtn');
-        if (mainImportBtn) {
-            mainImportBtn.addEventListener('click', async () => {
-                try {
-                    // Show Todoist projects selection modal
-                    await this.showTodoistProjectsModal();
-                } catch (error) {
-                    console.error('Error opening Todoist projects modal:', error);
-                    alert('Error loading Todoist projects. Please try again.');
-                }
-            });
-        }
     }
 
     async showTodoistProjectsModal() {
