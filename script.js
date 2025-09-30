@@ -3468,7 +3468,11 @@ class PomodoroTimer {
         // Setup Import button (main button, not in dropdown)
         const mainImportBtn = modal.querySelector('#importTodoistTasksBtn');
         if (mainImportBtn) {
-            mainImportBtn.addEventListener('click', async () => {
+            console.log('Import button found, setting up event listener');
+            mainImportBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Import button clicked');
                 try {
                     // Show Todoist projects selection modal
                     await this.showTodoistProjectsModal();
@@ -3477,6 +3481,8 @@ class PomodoroTimer {
                     alert('Error loading Todoist projects. Please try again.');
                 }
             });
+        } else {
+            console.log('Import button not found - user may not be Premium');
         }
     }
 
