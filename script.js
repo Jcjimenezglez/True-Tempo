@@ -3832,16 +3832,18 @@ class PomodoroTimer {
                 // Group tasks by project
                 const tasksByProject = this.groupTasksByProject(tasks);
                 
+                // Debug: Log grouped projects
+                console.log('Grouped projects:', Object.keys(tasksByProject));
+                
                     // Render tasks grouped by project
                     const projectEntries = Object.entries(tasksByProject);
-                    const inboxIndex = projectEntries.findIndex(([name]) => name === 'Inbox');
                     
                     // Sort projects: Inbox first, then others alphabetically
-                    const sortedProjects = [...projectEntries];
-                    if (inboxIndex > 0) {
-                        const inboxProject = sortedProjects.splice(inboxIndex, 1)[0];
-                        sortedProjects.unshift(inboxProject);
-                    }
+                    const sortedProjects = projectEntries.sort(([nameA], [nameB]) => {
+                        if (nameA === 'Inbox') return -1;
+                        if (nameB === 'Inbox') return 1;
+                        return nameA.localeCompare(nameB);
+                    });
                     
                     tasksList.innerHTML = sortedProjects.map(([projectName, projectTasks]) => {
                         const isInbox = projectName === 'Inbox';
