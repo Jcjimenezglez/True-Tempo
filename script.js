@@ -3805,19 +3805,16 @@ class PomodoroTimer {
                 <p class="tasks-subtitle">You need to connect your Todoist account to import tasks</p>
             </div>
             
-            <div class="connection-prompt-content">
-                <div class="connection-prompt-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 12l2 2 4-4"/>
-                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
-                    </svg>
-                </div>
-                <p class="connection-prompt-text">
-                    Connect your Todoist account to import tasks and enhance your focus sessions.
-                </p>
-                <div class="connection-prompt-actions">
-                    <button class="btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
-                    <button class="btn-secondary" id="cancelConnectionPrompt">Cancel</button>
+            <div class="settings-section">
+                <div class="settings-item">
+                    <div class="settings-label-group">
+                        <span class="settings-label">Todoist Integration</span>
+                        <span class="settings-description">Connect your Todoist account to import tasks and enhance your focus sessions.</span>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
+                        <button class="btn-secondary" id="cancelConnectionPrompt">Cancel</button>
+                    </div>
                 </div>
             </div>
         `;
