@@ -3613,6 +3613,30 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
 }
 
+.import-task-btn {
+    width: 100%;
+    padding: 16px;
+    border: 2px dashed rgba(120, 219, 255, 0.3);
+    background: transparent;
+    color: rgba(120, 219, 255, 0.7);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.import-task-btn:hover {
+    background: rgba(120, 219, 255, 0.05);
+    border-color: rgba(120, 219, 255, 0.5);
+    color: #78dbff;
+}
+
 /* Inline Add Task Form */
 .add-task-form {
     background: rgba(255, 255, 255, 0.03);
