@@ -3201,7 +3201,7 @@ class PomodoroTimer {
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
                         <line x1="12" y1="22.08" x2="12" y2="12"/>
                     </svg>
-                    Import
+                    Import from Todoist
                 </button>
                 ` : ''}
             </div>
@@ -3468,11 +3468,9 @@ class PomodoroTimer {
         // Setup Import button (main button, not in dropdown)
         const mainImportBtn = modal.querySelector('#importTodoistTasksBtn');
         if (mainImportBtn) {
-            console.log('Import button found, setting up event listener');
             mainImportBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Import button clicked');
                 try {
                     // Show Todoist projects selection modal
                     await this.showTodoistProjectsModal();
@@ -3481,8 +3479,6 @@ class PomodoroTimer {
                     alert('Error loading Todoist projects. Please try again.');
                 }
             });
-        } else {
-            console.log('Import button not found - user may not be Premium');
         }
     }
 
@@ -3695,7 +3691,7 @@ class PomodoroTimer {
             });
         }
 
-        // Import from Todoist (from dropdown)
+        // Import from Todoist
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
                 try {
@@ -3709,7 +3705,6 @@ class PomodoroTimer {
                 }
             });
         }
-
     }
 
     async showTodoistProjectsModal() {

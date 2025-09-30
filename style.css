@@ -3616,9 +3616,9 @@ input:checked + .toggle-slider:before {
 .import-task-btn {
     width: 100%;
     padding: 16px;
-    border: 2px dashed rgba(120, 219, 255, 0.3);
-    background: transparent;
-    color: rgba(120, 219, 255, 0.7);
+    border: 2px solid rgba(120, 219, 255, 0.3);
+    background: rgba(120, 219, 255, 0.1);
+    color: #78dbff;
     border-radius: 8px;
     cursor: pointer;
     display: flex;
@@ -3632,9 +3632,9 @@ input:checked + .toggle-slider:before {
 }
 
 .import-task-btn:hover {
-    background: rgba(120, 219, 255, 0.05);
+    background: rgba(120, 219, 255, 0.2);
     border-color: rgba(120, 219, 255, 0.5);
-    color: #78dbff;
+    color: #ffffff;
 }
 
 /* Inline Add Task Form */
