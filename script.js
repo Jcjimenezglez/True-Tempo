@@ -3783,20 +3783,30 @@ class PomodoroTimer {
         const tasksList = modal.querySelector('#todoistImportTasksList');
         const importActions = modal.querySelector('#todoistImportActions');
         
-        try {
-            // Fetch tasks from Todoist API
-            const response = await fetch('/api/todoist-tasks', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
+            try {
+                // Fetch both tasks and projects
+                const [tasksResponse, projectsResponse] = await Promise.all([
+                    fetch('/api/todoist-tasks'),
+                    fetch('/api/todoist-projects')
+                ]);
+
+                if (!tasksResponse.ok || !projectsResponse.ok) {
+                    throw new Error('Failed to fetch data');
                 }
-            });
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch tasks');
-            }
-
-                const tasks = await response.json();
+                const tasks = await tasksResponse.json();
+                const projects = await projectsResponse.json();
+                
+                // Create project ID to name mapping
+                const projectMap = {};
+                projects.forEach(project => {
+                    projectMap[project.id] = project.name;
+                });
+                
+                // Add project_name to each task
+                tasks.forEach(task => {
+                    task.project_name = projectMap[task.project_id] || 'Inbox';
+                });
                 
                 // Debug: Log tasks to see project_name values
                 console.log('Todoist tasks:', tasks);
