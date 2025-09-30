@@ -4100,8 +4100,7 @@ input:checked + .toggle-slider:before {
 }
 
 .todoist-project-section.inbox-section {
-    border: 1px solid rgba(120, 219, 255, 0.3);
-    background: rgba(120, 219, 255, 0.05);
+    /* Removed border and background for cleaner look */
 }
 
 .project-header {
