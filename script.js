@@ -3796,10 +3796,14 @@ class PomodoroTimer {
                 throw new Error('Failed to fetch tasks');
             }
 
-            const tasks = await response.json();
-            
-            // Hide loading state
-            if (loadingState) loadingState.style.display = 'none';
+                const tasks = await response.json();
+                
+                // Debug: Log tasks to see project_name values
+                console.log('Todoist tasks:', tasks);
+                console.log('Project names found:', [...new Set(tasks.map(t => t.project_name))]);
+                
+                // Hide loading state
+                if (loadingState) loadingState.style.display = 'none';
             
             if (tasks.length === 0) {
                 // Show empty state
@@ -3870,31 +3874,16 @@ class PomodoroTimer {
 
     groupTasksByProject(tasks) {
         const grouped = {};
-        const inboxTasks = [];
-        const myProjects = {};
         
         tasks.forEach(task => {
-            const projectName = task.project_name;
+            // Use project_name if available, otherwise use 'Inbox'
+            const projectName = task.project_name || 'Inbox';
             
-            // Separate inbox tasks from regular projects
-            if (!projectName || projectName === 'Inbox' || projectName.toLowerCase().includes('inbox')) {
-                inboxTasks.push(task);
-            } else {
-                // Group by actual project names
-                if (!myProjects[projectName]) {
-                    myProjects[projectName] = [];
-                }
-                myProjects[projectName].push(task);
+            if (!grouped[projectName]) {
+                grouped[projectName] = [];
             }
+            grouped[projectName].push(task);
         });
-        
-        // Add inbox section if there are inbox tasks
-        if (inboxTasks.length > 0) {
-            grouped['Inbox'] = inboxTasks;
-        }
-        
-        // Add all other projects
-        Object.assign(grouped, myProjects);
         
         return grouped;
     }
