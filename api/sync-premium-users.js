@@ -71,6 +71,36 @@ module.exports = async (req, res) => {
           } else {
             console.log(`No Clerk user found for email: ${customer.email}`);
           }
+        } else if (hasActiveSubscription && !customer.email) {
+          // Handle Apple Pay customers without email in Stripe
+          // Try to find by recent creation date and metadata
+          const recentCustomer = customer.created > (Date.now() / 1000) - (7 * 24 * 60 * 60);
+          const hasClerkMetadata = customer.metadata?.clerk_user_id;
+          
+          if (recentCustomer && hasClerkMetadata) {
+            try {
+              const user = await clerk.users.getUser(hasClerkMetadata);
+              
+              await clerk.users.updateUser(user.id, {
+                publicMetadata: {
+                  ...user.publicMetadata,
+                  stripeCustomerId: customer.id,
+                  isPremium: true,
+                  premiumSince: user.publicMetadata?.premiumSince || new Date().toISOString(),
+                },
+              });
+
+              syncedUsers.push({
+                email: 'Apple Pay customer',
+                clerkUserId: user.id,
+                stripeCustomerId: customer.id
+              });
+
+              console.log(`Synced Apple Pay user: ${user.id} -> ${customer.id}`);
+            } catch (error) {
+              console.log(`Error syncing Apple Pay user: ${error.message}`);
+            }
+          }
         }
       } catch (customerError) {
         console.error(`Error processing customer ${customer.email}:`, customerError.message);

@@ -62,14 +62,39 @@ async function handleCheckoutCompleted(session, clerk) {
   const customerId = session.customer;
   const clerkUserId = session.metadata?.clerk_user_id;
 
-  if (!customerId || !clerkUserId) {
-    console.log('Missing customer ID or Clerk user ID in checkout session');
+  if (!customerId) {
+    console.log('Missing customer ID in checkout session');
     return;
   }
 
   try {
+    let targetUserId = clerkUserId;
+
+    // If no Clerk user ID in metadata (Apple Pay case), find by email
+    if (!targetUserId) {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const customer = await stripe.customers.retrieve(customerId);
+      
+      if (customer.email) {
+        const users = await clerk.users.getUserList({ limit: 100 });
+        const user = users.data.find(u => 
+          u.emailAddresses?.some(email => email.emailAddress === customer.email)
+        );
+        
+        if (user) {
+          targetUserId = user.id;
+          console.log(`Found Clerk user by email: ${customer.email} -> ${targetUserId}`);
+        }
+      }
+    }
+
+    if (!targetUserId) {
+      console.log('Could not find Clerk user for customer:', customerId);
+      return;
+    }
+
     // Update Clerk user with Stripe customer ID and premium status
-    await clerk.users.updateUser(clerkUserId, {
+    await clerk.users.updateUser(targetUserId, {
       publicMetadata: {
         stripeCustomerId: customerId,
         isPremium: true,
@@ -77,7 +102,7 @@ async function handleCheckoutCompleted(session, clerk) {
       },
     });
 
-    console.log(`Updated Clerk user ${clerkUserId} with premium status`);
+    console.log(`Updated Clerk user ${targetUserId} with premium status`);
   } catch (error) {
     console.error('Error updating Clerk user:', error);
   }
