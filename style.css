@@ -2668,6 +2668,41 @@ audio {
     margin-bottom: 8px;
 }
 
+.integration-status {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+
+.status-text {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.integration-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.integration-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.integration-controls .integration-status {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
 .tasks-list {
     max-height: 300px;
     overflow-y: auto;

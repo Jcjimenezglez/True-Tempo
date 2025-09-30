@@ -615,11 +615,14 @@
                                     <span class="settings-description">Connect your Todoist account to sync tasks</span>
                                 </div>
                                 <div class="integration-controls">
-                                    <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
-                                    <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
-                                    <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
+                                    <div class="integration-status">
+                                        <span id="todoistStatusText" class="status-text">Disconnected</span>
+                                    </div>
+                                    <div class="integration-actions">
+                                        <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
+                                        <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
+                                    </div>
                                 </div>
-                                <div id="todoistStatusText" class="tasks-subtitle"></div>
                             </div>
 
                             

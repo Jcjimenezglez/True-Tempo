@@ -2979,12 +2979,13 @@ class PomodoroTimer {
                 
                 <div class="integration-content">
                     <div class="connection-section">
-                        <div class="token-actions">
+                        <div class="integration-status">
+                            <span id="todoistStatusText" class="status-text">Disconnected</span>
+                        </div>
+                        <div class="integration-actions">
                             <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
                             <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
-                            <button id="fetchTodoistTasksBtn" class="btn-success" style="display:none;">Fetch Tasks</button>
                         </div>
-                        <div id="todoistStatusText" class="tasks-subtitle"></div>
                     </div>
                     
                     <div class="tasks-section">
@@ -5479,10 +5480,10 @@ class PomodoroTimer {
                     statusText.textContent = 'Connected to Todoist';
                     connectBtn.style.display = 'none';
                     disconnectBtn.style.display = '';
-                    fetchBtn.style.display = '';
+                    fetchBtn.style.display = 'none'; // Hide Fetch Tasks button
                     this.fetchTodoistData();
                 } else {
-                    statusText.textContent = 'Not connected';
+                    statusText.textContent = 'Disconnected';
                     connectBtn.style.display = '';
                     disconnectBtn.style.display = 'none';
                     fetchBtn.style.display = 'none';
