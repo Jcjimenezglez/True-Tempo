@@ -1,6 +1,6 @@
 // Simple test script to verify Stripe and Clerk connections
 const Stripe = require('stripe');
-const Clerk = require('@clerk/clerk-sdk-node');
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
 
   try {
     const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
-    const clerk = new Clerk({ secretKey: clerkSecret });
+    const clerk = createClerkClient({ secretKey: clerkSecret });
 
     // Test Stripe connection
     const customers = await stripe.customers.list({ limit: 5 });

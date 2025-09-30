@@ -1,6 +1,6 @@
 // Stripe webhook handler to sync premium status with Clerk
 const Stripe = require('stripe');
-const Clerk = require('@clerk/clerk-sdk-node');
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
   }
 
   const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
-  const clerk = new Clerk({ secretKey: clerkSecret });
+  const clerk = createClerkClient({ secretKey: clerkSecret });
 
   const sig = req.headers['stripe-signature'];
   let event;

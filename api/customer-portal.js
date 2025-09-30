@@ -3,7 +3,7 @@
 // STRIPE_SECRET_KEY
 
 const Stripe = require('stripe');
-const Clerk = require('@clerk/clerk-sdk-node');
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
     const clerkUserId = (req.headers['x-clerk-userid'] || '').toString().trim();
     if (!customerEmail && clerkSecret && clerkUserId) {
       try {
-        const clerk = new Clerk({ secretKey: clerkSecret });
+        const clerk = createClerkClient({ secretKey: clerkSecret });
         const user = await clerk.users.getUser(clerkUserId);
         customerEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
       } catch (e) {
@@ -66,7 +66,7 @@ module.exports = async (req, res) => {
     // 1) Prefer Clerk-stored stripeCustomerId for exact match
     try {
       if (!customerId && clerkSecret && clerkUserId) {
-        const clerk = new Clerk({ secretKey: clerkSecret });
+        const clerk = createClerkClient({ secretKey: clerkSecret });
         const user = await clerk.users.getUser(clerkUserId);
         const storedId = user?.publicMetadata?.stripeCustomerId;
         const isPremium = user?.publicMetadata?.isPremium;
