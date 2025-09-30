@@ -3783,30 +3783,21 @@ class PomodoroTimer {
     }
 
     showTodoistConnectionPrompt() {
-        // Create overlay
+        // Create overlay (same as logout modal)
         const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
+        overlay.className = 'logout-modal-overlay';
         overlay.style.display = 'flex';
         overlay.style.zIndex = '100002';
 
-        // Create modal
+        // Create modal (same structure as logout modal)
         const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal';
-        modal.style.maxWidth = '400px';
+        modal.className = 'logout-modal';
         modal.innerHTML = `
-            <button class="close-focus-stats-x" id="closeConnectionPrompt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="logout-modal">
-                <h3 class="logout-modal-title">Connect to Todoist</h3>
-                <p class="logout-modal-message">You need to connect your Todoist account to import tasks</p>
-                <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelConnectionPrompt">Cancel</button>
-                </div>
+            <h3 class="logout-modal-title">Connect to Todoist</h3>
+            <p class="logout-modal-message">You need to connect your Todoist account to import tasks</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-modal-btn logout-modal-btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelConnectionPrompt">Cancel</button>
             </div>
         `;
 
@@ -3814,7 +3805,6 @@ class PomodoroTimer {
         document.body.appendChild(overlay);
 
         // Setup event listeners
-        const closeBtn = modal.querySelector('#closeConnectionPrompt');
         const connectBtn = modal.querySelector('#connectTodoistPromptBtn');
         const cancelBtn = modal.querySelector('#cancelConnectionPrompt');
 
@@ -3822,7 +3812,6 @@ class PomodoroTimer {
             document.body.removeChild(overlay);
         };
 
-        closeBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
         
         connectBtn.addEventListener('click', () => {
@@ -3830,7 +3819,7 @@ class PomodoroTimer {
             window.location.href = '/api/todoist-auth-start';
         });
 
-        // Close on overlay click
+        // Close on overlay click (same as logout modal)
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 closeModal();
