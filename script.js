@@ -3136,16 +3136,7 @@ class PomodoroTimer {
                                 </svg>
                                 Clear Done Tasks
                             </button>
-                            ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
-                            <button class="task-option-item" id="importTodoistTasksBtn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                                    <line x1="12" y1="22.08" x2="12" y2="12"/>
-                                </svg>
-                                Import from Todoist
-                            </button>
-                            ` : ''}
+                            
                         </div>
                     </div>
                 </div>
@@ -3629,7 +3620,7 @@ class PomodoroTimer {
         const optionsDropdown = modal.querySelector('#taskOptionsDropdown');
         const clearAllBtn = modal.querySelector('#clearAllTasksBtn');
         const clearDoneBtn = modal.querySelector('#clearDoneTasksBtn');
-        const importBtn = modal.querySelector('#importTodoistTasksBtn');
+        const importBtn = null; // removed menu import button
 
         if (!optionsBtn || !optionsDropdown) return;
 
@@ -3694,19 +3685,7 @@ class PomodoroTimer {
         }
 
         // Import from Todoist
-        if (importBtn) {
-            importBtn.addEventListener('click', async () => {
-                try {
-                    // Close dropdown first
-                    optionsDropdown.style.display = 'none';
-                    // Show Todoist projects selection modal
-                    await this.showTodoistProjectsModal();
-                } catch (error) {
-                    console.error('Error opening Todoist projects modal:', error);
-                    alert('Error loading Todoist projects. Please try again.');
-                }
-            });
-        }
+        // no import item in dropdown anymore
     }
 
     async showTodoistProjectsModal() {
