@@ -25,6 +25,12 @@ module.exports = async (req, res) => {
     
     // Get customer email from headers or body (sent by client)
     let customerEmail = (req.headers['x-clerk-user-email'] || '').toString().trim();
+    
+    console.log('Customer Portal Debug:', {
+      customerEmail,
+      clerkUserId: (req.headers['x-clerk-userid'] || '').toString().trim(),
+      hasClerkSecret: !!process.env.CLERK_SECRET_KEY
+    });
 
     // If Clerk user id is provided, fetch email from Clerk (more reliable)
     const clerkSecret = process.env.CLERK_SECRET_KEY;
@@ -79,15 +85,19 @@ module.exports = async (req, res) => {
           limit: 10 
         });
         
-        // Look for customers with active subscriptions
+        // Look for customers with any subscriptions (active, past_due, etc.)
         for (const customer of customers.data) {
           const subscriptions = await stripe.subscriptions.list({
             customer: customer.id,
-            status: 'active',
-            limit: 1,
+            limit: 10,
           });
           
-          if (subscriptions.data.length > 0) {
+          // Check for any subscription (active, past_due, trialing, etc.)
+          const hasSubscription = subscriptions.data.some(sub => 
+            ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
+          );
+          
+          if (hasSubscription) {
             customerId = customer.id;
             break;
           }
