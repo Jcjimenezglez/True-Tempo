@@ -13,8 +13,8 @@ module.exports = async (req, res) => {
   // Read and sanitize env vars
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
   const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
-  const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://superfocus.live?premium=1').trim();
-  const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://superfocus.live').trim();
+  const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://www.superfocus.live?premium=1').trim();
+  const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://www.superfocus.live').trim();
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card', 'apple_pay', 'google_pay'],
+      payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
       line_items: [
         {
           price: priceId,
@@ -52,6 +52,8 @@ module.exports = async (req, res) => {
       // Pass Clerk user id if present so webhook can mark premium
       metadata: {
         clerk_user_id: (req.headers['x-clerk-userid'] || '').toString(),
+        app_name: 'Superfocus',
+        app_version: '1.0',
       },
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
@@ -68,10 +70,8 @@ module.exports = async (req, res) => {
           optional: true,
         },
       ],
-      metadata: {
-        app_name: 'Superfocus',
-        app_version: '1.0',
-      },
+      // Use the new payment configuration
+      payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     });
 
     res.status(200).json({ url: session.url });
