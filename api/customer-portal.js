@@ -69,6 +69,14 @@ module.exports = async (req, res) => {
         const clerk = new Clerk({ secretKey: clerkSecret });
         const user = await clerk.users.getUser(clerkUserId);
         const storedId = user?.publicMetadata?.stripeCustomerId;
+        const isPremium = user?.publicMetadata?.isPremium;
+        
+        console.log('Clerk user data:', {
+          userId: clerkUserId,
+          stripeCustomerId: storedId,
+          isPremium: isPremium
+        });
+        
         if (storedId) {
           customerId = storedId;
         }

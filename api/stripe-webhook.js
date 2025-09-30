@@ -1,22 +1,6 @@
-// Stripe webhook handler for subscription events
-// This will automatically mark users as premium when they pay
-
+// Stripe webhook handler to sync premium status with Clerk
 const Stripe = require('stripe');
-const { createClerkClient } = require('@clerk/clerk-sdk-node');
-
-// Helper to read raw body for Stripe signature verification
-async function getRawBody(req) {
-  return await new Promise((resolve, reject) => {
-    try {
-      const chunks = [];
-      req.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-      req.on('end', () => resolve(Buffer.concat(chunks)));
-      req.on('error', reject);
-    } catch (e) {
-      reject(e);
-    }
-  });
-}
+const { Clerk } = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -24,119 +8,136 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2022-11-15',
-  });
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const clerkSecret = process.env.CLERK_SECRET_KEY;
+
+  if (!secretKey || !webhookSecret || !clerkSecret) {
+    console.error('Missing required environment variables');
+    res.status(500).json({ error: 'Server configuration error' });
+    return;
+  }
+
+  const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
+  const clerk = new Clerk({ secretKey: clerkSecret });
 
   const sig = req.headers['stripe-signature'];
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
   let event;
 
   try {
-    const rawBody = await getRawBody(req);
-    event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    res.status(400).json({ error: 'Invalid signature' });
+    return;
   }
 
-  // Handle the event
-  switch (event.type) {
-    case 'checkout.session.completed':
-      const session = event.data.object;
-      console.log('Payment successful for session:', session.id);
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutCompleted(event.data.object, clerk);
+        break;
       
-      // Try to mark user as premium in Clerk using metadata or email
-      try {
-        const clerkSecret = process.env.CLERK_SECRET_KEY;
-        if (clerkSecret) {
-          const clerk = createClerkClient({ secretKey: clerkSecret });
-          const clerkUserId = session.metadata?.clerk_user_id;
-          const email = session.customer_details?.email;
-          const stripeCustomerId = session.customer;
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        await handleSubscriptionChange(event.data.object, clerk);
+        break;
+      
+      case 'customer.subscription.deleted':
+        await handleSubscriptionDeleted(event.data.object, clerk);
+        break;
+      
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
 
-          if (clerkUserId) {
-            await clerk.users.updateUser(clerkUserId, {
-              publicMetadata: { isPremium: true, stripeCustomerId },
-            });
-          } else if (email) {
-            const users = await clerk.users.getUserList({ emailAddress: [email] });
-            if (users?.length) {
-              await clerk.users.updateUser(users[0].id, {
-                publicMetadata: { isPremium: true, stripeCustomerId },
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Failed to update Clerk metadata:', e);
-      }
-      
-      break;
-      
-    case 'invoice.payment_succeeded':
-      const invoice = event.data.object;
-      console.log('Subscription payment succeeded:', invoice.id);
-      
-      // Ensure stripeCustomerId is stored too (for existing users)
-      try {
-        const clerkSecret = process.env.CLERK_SECRET_KEY;
-        if (clerkSecret) {
-          const clerk = createClerkClient({ secretKey: clerkSecret });
-          const customerId = invoice.customer;
-          const customer = await stripe.customers.retrieve(customerId);
-          const email = customer?.email;
-          if (email) {
-            const users = await clerk.users.getUserList({ emailAddress: [email] });
-            if (users?.length) {
-              const currentMeta = users[0].publicMetadata || {};
-              await clerk.users.updateUser(users[0].id, {
-                publicMetadata: { ...currentMeta, isPremium: true, stripeCustomerId: customerId },
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Failed to persist stripeCustomerId on payment_succeeded:', e);
-      }
-      
-      break;
-      
-    case 'customer.subscription.deleted':
-    case 'customer.subscription.canceled':
-      try {
-        const clerkSecret = process.env.CLERK_SECRET_KEY;
-        if (clerkSecret) {
-          const clerk = createClerkClient({ secretKey: clerkSecret });
-          const sub = event.data.object;
-          const customer = await stripe.customers.retrieve(sub.customer);
-          const email = customer?.email;
-          if (email) {
-            const users = await clerk.users.getUserList({ emailAddress: [email] });
-            if (users?.length) {
-              await clerk.users.updateUser(users[0].id, {
-                publicMetadata: { isPremium: false },
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Failed to downgrade Clerk metadata:', e);
-      }
-      break;
-
-    case 'customer.subscription.created':
-      const subscription = event.data.object;
-      console.log('New subscription created:', subscription.id);
-      
-      // No-op; checkout.completed already marks premium
-      
-      break;
-      
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error('Webhook handler error:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
   }
-
-  res.json({ received: true });
 };
+
+async function handleCheckoutCompleted(session, clerk) {
+  const customerId = session.customer;
+  const clerkUserId = session.metadata?.clerk_user_id;
+
+  if (!customerId || !clerkUserId) {
+    console.log('Missing customer ID or Clerk user ID in checkout session');
+    return;
+  }
+
+  try {
+    // Update Clerk user with Stripe customer ID and premium status
+    await clerk.users.updateUser(clerkUserId, {
+      publicMetadata: {
+        stripeCustomerId: customerId,
+        isPremium: true,
+        premiumSince: new Date().toISOString(),
+      },
+    });
+
+    console.log(`Updated Clerk user ${clerkUserId} with premium status`);
+  } catch (error) {
+    console.error('Error updating Clerk user:', error);
+  }
+}
+
+async function handleSubscriptionChange(subscription, clerk) {
+  const customerId = subscription.customer;
+  const isActive = ['active', 'trialing'].includes(subscription.status);
+
+  try {
+    // Find Clerk user by Stripe customer ID
+    const users = await clerk.users.getUserList({
+      limit: 100,
+    });
+
+    const user = users.data.find(u => 
+      u.publicMetadata?.stripeCustomerId === customerId
+    );
+
+    if (user) {
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          isPremium: isActive,
+          premiumSince: isActive ? (user.publicMetadata?.premiumSince || new Date().toISOString()) : null,
+        },
+      });
+
+      console.log(`Updated subscription status for user ${user.id}: ${subscription.status}`);
+    }
+  } catch (error) {
+    console.error('Error updating subscription status:', error);
+  }
+}
+
+async function handleSubscriptionDeleted(subscription, clerk) {
+  const customerId = subscription.customer;
+
+  try {
+    // Find Clerk user by Stripe customer ID
+    const users = await clerk.users.getUserList({
+      limit: 100,
+    });
+
+    const user = users.data.find(u => 
+      u.publicMetadata?.stripeCustomerId === customerId
+    );
+
+    if (user) {
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          isPremium: false,
+          premiumSince: null,
+        },
+      });
+
+      console.log(`Removed premium status for user ${user.id}`);
+    }
+  } catch (error) {
+    console.error('Error removing premium status:', error);
+  }
+}
