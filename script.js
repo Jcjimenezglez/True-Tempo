@@ -716,7 +716,9 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
+            // Redirect to signup success page after successful signup
+            const successUrl = window.location.origin + '/?signup=success';
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
@@ -5506,6 +5508,9 @@ class PomodoroTimer {
         
         // Check if user just connected to Todoist and should open task list
         this.checkTodoistConnectionRedirect();
+        
+        // Check if user just signed up successfully
+        this.checkSignupSuccessRedirect();
     }
     
     checkTodoistConnectionRedirect() {
@@ -5523,6 +5528,66 @@ class PomodoroTimer {
                 this.showTodoistConnectionSuccess();
             }, 1000); // Small delay to let the page fully load
         }
+    }
+
+    checkSignupSuccessRedirect() {
+        // Check if user just signed up successfully
+        const urlParams = new URLSearchParams(window.location.search);
+        const signupSuccess = urlParams.get('signup');
+        
+        if (signupSuccess === 'success') {
+            // Remove the parameter from URL without page reload
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Show success message for signup
+            setTimeout(() => {
+                this.showSignupSuccessMessage();
+            }, 1000); // Small delay to let the page fully load
+        }
+    }
+
+    showSignupSuccessMessage() {
+        // Show success notification for signup
+        const notification = document.createElement('div');
+        notification.className = 'signup-success-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12l2 2 4-4"/>
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                </svg>
+                <span>Welcome to Superfocus! Your account has been created successfully.</span>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            max-width: 400px;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
     }
 
     showTodoistConnectionSuccess() {
