@@ -2547,19 +2547,25 @@ class PomodoroTimer {
     // Update session tasks from selected tasks in modal
     updateSessionTasksFromSelected() {
         const selectedTasks = this.getSelectedTasks();
-        this.sessionTasks = [];
         
-        // Build task queue from selected tasks
-        selectedTasks.forEach(task => {
-            const config = this.getTaskConfig(task.id);
-            const totalSessions = Math.max(1, config.sessions || 1);
-            const completedSessions = config.completedSessions || 0;
-            const remainingSessions = Math.max(0, totalSessions - completedSessions);
+        // Only reset sessionTasks if we have selected tasks (user actively selected tasks)
+        // Don't reset when changing techniques if no tasks are selected
+        if (selectedTasks.length > 0) {
+            this.sessionTasks = [];
             
-            for (let i = 0; i < remainingSessions; i++) {
-                this.sessionTasks.push(task.content);
-            }
-        });
+            // Build task queue from selected tasks
+            selectedTasks.forEach(task => {
+                const config = this.getTaskConfig(task.id);
+                const totalSessions = Math.max(1, config.sessions || 1);
+                const completedSessions = config.completedSessions || 0;
+                const remainingSessions = Math.max(0, totalSessions - completedSessions);
+                
+                for (let i = 0; i < remainingSessions; i++) {
+                    this.sessionTasks.push(task.content);
+                }
+            });
+        }
+        // If no tasks selected, keep existing sessionTasks (don't reset them)
         
         // Calculate total sessions needed
         const totalSessions = this.getTotalFocusSessions();
