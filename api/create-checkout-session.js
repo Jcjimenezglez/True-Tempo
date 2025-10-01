@@ -15,6 +15,12 @@ module.exports = async (req, res) => {
   const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
   const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://www.superfocus.live?premium=1').trim();
   const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://www.superfocus.live').trim();
+  
+  // Ensure URLs are properly formatted for Apple Pay
+  const finalSuccessUrl = successUrl.includes('?') ? 
+    `${successUrl}&payment=success` : 
+    `${successUrl}?payment=success`;
+  const finalCancelUrl = cancelUrl;
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
@@ -29,9 +35,9 @@ module.exports = async (req, res) => {
     // Validate URLs to avoid Stripe "url_invalid"
     // Throws if invalid
     // eslint-disable-next-line no-new
-    new URL(successUrl);
+    new URL(finalSuccessUrl);
     // eslint-disable-next-line no-new
-    new URL(cancelUrl);
+    new URL(finalCancelUrl);
   } catch (_) {
     res.status(500).json({ error: 'Invalid redirect URLs for Stripe' });
     return;
@@ -58,8 +64,8 @@ module.exports = async (req, res) => {
       },
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
       custom_fields: [
         {
           key: 'company_name',
