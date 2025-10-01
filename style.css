@@ -2710,6 +2710,41 @@ audio {
 
 /* Todoist Connection Modal - Uses existing logout modal styles */
 
+/* Feedback Modal Styles */
+.feedback-form {
+    margin-top: 20px;
+}
+
+.feedback-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 20px;
+}
+
+.feedback-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.feedback-form textarea:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.feedback-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
 .tasks-list {
     max-height: 300px;
     overflow-y: auto;

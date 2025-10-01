@@ -145,6 +145,10 @@ class PomodoroTimer {
         // Logout modal elements
         this.logoutModalOverlay = document.getElementById('logoutModalOverlay');
         this.logoutModalMessage = document.getElementById('logoutModalMessage');
+        
+        // Feedback modal elements
+        this.feedbackModalOverlay = document.getElementById('feedbackModalOverlay');
+        this.feedbackText = document.getElementById('feedbackText');
         this.confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
         this.cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
         
@@ -648,6 +652,60 @@ class PomodoroTimer {
     hideLogoutModal() {
         if (this.logoutModalOverlay) {
             this.logoutModalOverlay.style.display = 'none';
+        }
+    }
+
+    showFeedbackModal() {
+        if (this.feedbackModalOverlay) {
+            this.feedbackModalOverlay.style.display = 'flex';
+            // Clear previous feedback
+            if (this.feedbackText) {
+                this.feedbackText.value = '';
+            }
+        }
+    }
+
+    hideFeedbackModal() {
+        if (this.feedbackModalOverlay) {
+            this.feedbackModalOverlay.style.display = 'none';
+        }
+    }
+
+    async submitFeedback() {
+        const feedbackText = this.feedbackText?.value?.trim();
+        
+        if (!feedbackText) {
+            alert('Please enter your feedback before submitting.');
+            return;
+        }
+
+        if (!this.user) {
+            alert('Please log in to submit feedback.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/submit-feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    feedback: feedbackText,
+                    userEmail: this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress,
+                    userId: this.user.id
+                })
+            });
+
+            if (response.ok) {
+                alert('Thank you for your feedback! We appreciate your input.');
+                this.hideFeedbackModal();
+            } else {
+                throw new Error('Failed to submit feedback');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            alert('Sorry, there was an error submitting your feedback. Please try again.');
         }
     }
     
@@ -1295,6 +1353,10 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showDeveloperModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+                } else if (text === 'Feedback') {
+                    e.preventDefault();
+                    this.showFeedbackModal();
+                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
                 }
             });
         });
@@ -1314,12 +1376,37 @@ class PomodoroTimer {
                 this.hideLogoutModal();
             });
         }
+
+        // Feedback modal actions
+        const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
+        const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+        
+        if (cancelFeedbackBtn) {
+            cancelFeedbackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideFeedbackModal();
+            });
+        }
+        if (submitFeedbackBtn) {
+            submitFeedbackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.submitFeedback();
+            });
+        }
         
         // Close modal when clicking overlay
         if (this.logoutModalOverlay) {
             this.logoutModalOverlay.addEventListener('click', (e) => {
                 if (e.target === this.logoutModalOverlay) {
                     this.hideLogoutModal();
+                }
+            });
+        }
+
+        if (this.feedbackModalOverlay) {
+            this.feedbackModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.feedbackModalOverlay) {
+                    this.hideFeedbackModal();
                 }
             });
         }

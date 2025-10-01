@@ -218,6 +218,14 @@
                             </svg>
                             <span>Developer</span>
                         </div>
+                        <div class="dropdown-item" id="feedbackButton">
+                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                <path d="M13 8H7"/>
+                                <path d="M17 12H7"/>
+                            </svg>
+                            <span>Feedback</span>
+                        </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -382,6 +390,21 @@
             <div class="logout-modal-buttons">
                 <button class="logout-modal-btn logout-modal-btn-primary" id="confirmLogoutBtn">Log out</button>
                 <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelLogoutBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <h3 class="logout-modal-title">Give feedback</h3>
+            <p class="logout-modal-message">We'd love to hear what went well or how we can improve the product experience.</p>
+            <div class="feedback-form">
+                <textarea id="feedbackText" placeholder="Your feedback" rows="4"></textarea>
+                <div class="feedback-actions">
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelFeedbackBtn">Cancel</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="submitFeedbackBtn">Submit</button>
+                </div>
             </div>
         </div>
     </div>
