@@ -5689,6 +5689,14 @@ class PomodoroTimer {
             setTimeout(() => {
                 this.showPaymentSuccessMessage();
                 this.updatePremiumUI(); // Refresh premium status
+                
+                // If user is still not premium after 3 seconds, try to sync manually
+                setTimeout(() => {
+                    if (!this.isPremium) {
+                        console.log('User still not premium after payment, attempting manual sync...');
+                        this.attemptPremiumSync();
+                    }
+                }, 3000);
             }, 1000); // Small delay to let the page fully load
         }
     }
@@ -5777,6 +5785,33 @@ class PomodoroTimer {
                 notification.parentNode.removeChild(notification);
             }
         }, 5000);
+    }
+
+    async attemptPremiumSync() {
+        try {
+            console.log('Attempting to sync premium status...');
+            
+            // Try to sync premium users from Stripe
+            const response = await fetch('/api/sync-premium-users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (response.ok) {
+                console.log('Premium sync successful, updating UI...');
+                // Wait a bit for the sync to complete, then refresh
+                setTimeout(() => {
+                    this.updateAuthState();
+                    this.updatePremiumUI();
+                }, 1000);
+            } else {
+                console.error('Premium sync failed:', response.status);
+            }
+        } catch (error) {
+            console.error('Error during premium sync:', error);
+        }
     }
 
     showTodoistConnectionSuccess() {
