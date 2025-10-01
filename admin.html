@@ -163,6 +163,71 @@
             color: white;
         }
 
+        .severity-high {
+            background: #ef4444;
+            color: white;
+        }
+
+        .severity-medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .severity-low {
+            background: #6b7280;
+            color: white;
+        }
+
+        .issue-card {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .issue-card:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .issue-info h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .issue-info p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .issue-details {
+            background: #333;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .issue-details h4 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .issue-details p {
+            color: #ccc;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
         .user-actions {
             display: flex;
             gap: 10px;
@@ -356,6 +421,7 @@
 
         <div class="admin-tabs">
             <button class="tab-button active" data-tab="users">Users</button>
+            <button class="tab-button" data-tab="payment-issues">Payment Issues</button>
             <button class="tab-button" data-tab="payments">Payment Logs</button>
             <button class="tab-button" data-tab="webhooks">Webhook Logs</button>
             <button class="tab-button" data-tab="stats">Statistics</button>
@@ -368,6 +434,16 @@
             </div>
             <div id="userList" class="user-list">
                 <div class="loading">Loading users...</div>
+            </div>
+        </div>
+
+        <!-- Payment Issues Tab -->
+        <div id="payment-issues" class="tab-content">
+            <div class="search-section">
+                <input type="text" class="search-input" id="issueSearch" placeholder="Search payment issues...">
+            </div>
+            <div id="paymentIssues" class="user-list">
+                <div class="loading">Loading payment issues...</div>
             </div>
         </div>
 
@@ -433,6 +509,7 @@
             constructor() {
                 this.currentTab = 'users';
                 this.users = [];
+                this.paymentIssues = [];
                 this.paymentLogs = [];
                 this.webhookLogs = [];
                 this.currentUserId = null;
@@ -480,6 +557,7 @@
 
             async loadData() {
                 await this.loadUsers();
+                await this.loadPaymentIssues();
                 await this.loadPaymentLogs();
                 await this.loadWebhookLogs();
                 await this.loadStats();
@@ -489,6 +567,9 @@
                 switch(tabId) {
                     case 'users':
                         await this.loadUsers();
+                        break;
+                    case 'payment-issues':
+                        await this.loadPaymentIssues();
                         break;
                     case 'payments':
                         await this.loadPaymentLogs();
@@ -504,7 +585,11 @@
 
             async loadUsers() {
                 try {
-                    const response = await fetch('/api/admin/users');
+                    const response = await fetch('/api/admin/users', {
+                        headers: {
+                            'x-admin-key': 'your-admin-key-here' // You'll need to set this
+                        }
+                    });
                     const data = await response.json();
                     
                     if (data.success) {
@@ -515,6 +600,26 @@
                     }
                 } catch (error) {
                     this.showError('Error loading users: ' + error.message);
+                }
+            }
+
+            async loadPaymentIssues() {
+                try {
+                    const response = await fetch('/api/admin/payment-issues', {
+                        headers: {
+                            'x-admin-key': 'your-admin-key-here' // You'll need to set this
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.paymentIssues = data.issues;
+                        this.renderPaymentIssues();
+                    } else {
+                        this.showError('Failed to load payment issues: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading payment issues: ' + error.message);
                 }
             }
 
@@ -592,6 +697,53 @@
                             <button class="btn btn-secondary" onclick="adminPanel.viewUserDetails('${user.id}')">
                                 View Details
                             </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderPaymentIssues() {
+                const container = document.getElementById('paymentIssues');
+                
+                if (this.paymentIssues.length === 0) {
+                    container.innerHTML = '<div class="loading">No payment issues found</div>';
+                    return;
+                }
+
+                container.innerHTML = this.paymentIssues.map(issue => `
+                    <div class="issue-card">
+                        <div class="issue-header">
+                            <div class="issue-info">
+                                <h3>${issue.email}</h3>
+                                <p>${issue.issue}</p>
+                            </div>
+                            <div class="user-status severity-${issue.severity}">
+                                ${issue.severity.toUpperCase()}
+                            </div>
+                        </div>
+                        
+                        <div class="issue-details">
+                            <h4>Payment Details</h4>
+                            <p><strong>Amount:</strong> $${issue.amount} ${issue.currency.toUpperCase()}</p>
+                            <p><strong>Status:</strong> ${issue.subscriptionStatus}</p>
+                            <p><strong>Stripe Customer:</strong> ${issue.stripeCustomerId}</p>
+                            ${issue.subscriptionId ? `<p><strong>Subscription:</strong> ${issue.subscriptionId}</p>` : ''}
+                            ${issue.lastPayment ? `<p><strong>Last Payment:</strong> ${new Date(issue.lastPayment).toLocaleString()}</p>` : ''}
+                        </div>
+                        
+                        <div class="user-actions">
+                            ${issue.clerkUserId ? `
+                                <button class="btn btn-primary" onclick="adminPanel.fixPaymentIssue('${issue.email}', '${issue.stripeCustomerId}', 'fix_pro_status')">
+                                    Fix Pro Status
+                                </button>
+                                <button class="btn btn-secondary" onclick="adminPanel.fixPaymentIssue('${issue.email}', '${issue.stripeCustomerId}', 'sync_user')">
+                                    Sync User Data
+                                </button>
+                            ` : `
+                                <button class="btn btn-secondary" onclick="adminPanel.viewIssueDetails('${issue.email}')">
+                                    View Details
+                                </button>
+                            `}
                         </div>
                     </div>
                 `).join('');
@@ -696,6 +848,43 @@
                 const user = this.users.find(u => u.id === userId);
                 if (user) {
                     alert(`User Details:\n\nEmail: ${user.email}\nID: ${user.id}\nStatus: ${user.isPremium ? 'PRO' : 'FREE'}\nCreated: ${new Date(user.createdAt).toLocaleString()}\nStripe Customer ID: ${user.stripeCustomerId || 'None'}`);
+                }
+            }
+
+            async fixPaymentIssue(email, stripeCustomerId, action) {
+                try {
+                    const response = await fetch('/api/admin/fix-payment-issues', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-admin-key': 'your-admin-key-here' // You'll need to set this
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            stripeCustomerId: stripeCustomerId,
+                            action: action
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showSuccess(`Payment issue fixed successfully: ${data.message}`);
+                        this.loadPaymentIssues();
+                        this.loadUsers();
+                        this.loadStats();
+                    } else {
+                        this.showError('Failed to fix payment issue: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error fixing payment issue: ' + error.message);
+                }
+            }
+
+            viewIssueDetails(email) {
+                const issue = this.paymentIssues.find(i => i.email === email);
+                if (issue) {
+                    alert(`Payment Issue Details:\n\nEmail: ${issue.email}\nIssue: ${issue.issue}\nSeverity: ${issue.severity}\nAmount: $${issue.amount} ${issue.currency.toUpperCase()}\nStatus: ${issue.subscriptionStatus}\nStripe Customer: ${issue.stripeCustomerId}\nLast Payment: ${issue.lastPayment ? new Date(issue.lastPayment).toLocaleString() : 'N/A'}`);
                 }
             }
 
