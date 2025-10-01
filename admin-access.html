@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access - Superfocus</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .access-container {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .access-container h1 {
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+
+        .access-container p {
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .access-button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .access-button:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            border: 1px solid #444;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+
+        .instructions ul {
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="access-container">
+        <h1>🎯 Admin Panel Access</h1>
+        <p>Access the Superfocus Admin Panel to manage users and monitor payments.</p>
+        
+        <a href="admin.html" class="access-button">Open Admin Panel</a>
+        
+        <div class="instructions">
+            <h3>Setup Instructions:</h3>
+            <ul>
+                <li>Add <span class="code">ADMIN_SECRET_KEY</span> to your Vercel environment variables</li>
+                <li>Use the admin key in the request headers: <span class="code">x-admin-key</span></li>
+                <li>The admin panel will authenticate using this key</li>
+                <li>You can manage user status, view payment logs, and monitor webhooks</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
