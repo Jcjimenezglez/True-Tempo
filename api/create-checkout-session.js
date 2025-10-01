@@ -13,14 +13,10 @@ module.exports = async (req, res) => {
   // Read and sanitize env vars
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
   const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
-  const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://www.superfocus.live?premium=1').trim();
-  const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://www.superfocus.live').trim();
   
-  // Ensure URLs are properly formatted for Apple Pay
-  const finalSuccessUrl = successUrl.includes('?') ? 
-    `${successUrl}&payment=success` : 
-    `${successUrl}?payment=success`;
-  const finalCancelUrl = cancelUrl;
+  // Use hardcoded URLs to avoid environment variable issues
+  const finalSuccessUrl = 'https://www.superfocus.live?premium=1&payment=success';
+  const finalCancelUrl = 'https://www.superfocus.live';
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
