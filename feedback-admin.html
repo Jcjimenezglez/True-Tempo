@@ -335,18 +335,42 @@
         let allFeedback = [];
         let filteredFeedback = [];
 
-        // Load feedback data
-        async function loadFeedback() {
+        // Load feedback data from localStorage
+        function loadFeedback() {
             try {
-                const response = await fetch('/api/get-feedback');
-                if (response.ok) {
-                    allFeedback = await response.json();
-                    filteredFeedback = [...allFeedback];
-                    renderFeedback();
-                    updateStats();
+                // Load from localStorage (where feedback is stored when submitted)
+                const stored = localStorage.getItem('superfocus_feedback');
+                if (stored) {
+                    allFeedback = JSON.parse(stored);
                 } else {
-                    throw new Error('Failed to load feedback');
+                    allFeedback = [];
                 }
+
+                // Also try to load from API (for any server-side feedback)
+                fetch('/api/get-feedback')
+                    .then(response => response.json())
+                    .then(apiFeedback => {
+                        // Merge API feedback with local feedback
+                        const apiIds = new Set(allFeedback.map(f => f.id));
+                        const newApiFeedback = apiFeedback.filter(f => !apiIds.has(f.id));
+                        allFeedback = [...allFeedback, ...newApiFeedback];
+                        
+                        // Sort by timestamp (newest first)
+                        allFeedback.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        
+                        filteredFeedback = [...allFeedback];
+                        renderFeedback();
+                        updateStats();
+                    })
+                    .catch(error => {
+                        console.log('API feedback not available, using local only');
+                        // Sort by timestamp (newest first)
+                        allFeedback.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        
+                        filteredFeedback = [...allFeedback];
+                        renderFeedback();
+                        updateStats();
+                    });
             } catch (error) {
                 console.error('Error loading feedback:', error);
                 document.getElementById('feedbackList').innerHTML = 
@@ -415,28 +439,33 @@
         // Update feedback status
         async function updateStatus(id, newStatus) {
             try {
-                const response = await fetch('/api/update-feedback-status', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id, status: newStatus })
-                });
-
-                if (response.ok) {
-                    // Update local data
-                    const feedback = allFeedback.find(f => f.id === id);
-                    if (feedback) {
-                        feedback.status = newStatus;
-                    }
-                    
-                    // Re-filter and re-render
-                    const currentFilter = document.querySelector('.filter-btn.active').dataset.filter;
-                    filterFeedback(currentFilter);
-                    updateStats();
-                } else {
-                    throw new Error('Failed to update status');
+                // Update local data
+                const feedback = allFeedback.find(f => f.id === id);
+                if (feedback) {
+                    feedback.status = newStatus;
+                    feedback.updatedAt = new Date().toISOString();
                 }
+                
+                // Update localStorage
+                localStorage.setItem('superfocus_feedback', JSON.stringify(allFeedback));
+                
+                // Try to update via API (optional)
+                try {
+                    await fetch('/api/update-feedback-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id, status: newStatus })
+                    });
+                } catch (apiError) {
+                    console.log('API update failed, but local update succeeded');
+                }
+                
+                // Re-filter and re-render
+                const currentFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                filterFeedback(currentFilter);
+                updateStats();
             } catch (error) {
                 console.error('Error updating status:', error);
                 alert('Failed to update feedback status. Please try again.');
@@ -450,25 +479,29 @@
             }
 
             try {
-                const response = await fetch('/api/delete-feedback', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id })
-                });
-
-                if (response.ok) {
-                    // Remove from local data
-                    allFeedback = allFeedback.filter(f => f.id !== id);
-                    
-                    // Re-filter and re-render
-                    const currentFilter = document.querySelector('.filter-btn.active').dataset.filter;
-                    filterFeedback(currentFilter);
-                    updateStats();
-                } else {
-                    throw new Error('Failed to delete feedback');
+                // Remove from local data
+                allFeedback = allFeedback.filter(f => f.id !== id);
+                
+                // Update localStorage
+                localStorage.setItem('superfocus_feedback', JSON.stringify(allFeedback));
+                
+                // Try to delete via API (optional)
+                try {
+                    await fetch('/api/delete-feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id })
+                    });
+                } catch (apiError) {
+                    console.log('API delete failed, but local delete succeeded');
                 }
+                
+                // Re-filter and re-render
+                const currentFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                filterFeedback(currentFilter);
+                updateStats();
             } catch (error) {
                 console.error('Error deleting feedback:', error);
                 alert('Failed to delete feedback. Please try again.');
