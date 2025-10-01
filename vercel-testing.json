@@ -1,14 +1,14 @@
 {
   "version": 2,
-  "name": "superfocus-staging",
+  "name": "superfocus-testing",
   "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
     {
       "src": "api/**/*.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -22,6 +22,6 @@
     }
   ],
   "env": {
-    "NODE_ENV": "staging"
+    "NODE_ENV": "testing"
   }
 }

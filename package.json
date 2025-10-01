@@ -5,15 +5,12 @@
   "engines": {
     "node": ">=18"
   },
-  "scripts": {
-    "dev": "vercel dev",
-    "setup-dev": "node scripts/setup-dev.js",
-    "deploy-staging": "node scripts/deploy-staging.js",
-    "logs": "vercel logs --follow"
-  },
   "dependencies": {
     "@clerk/clerk-js": "^5.95.0",
     "@clerk/clerk-sdk-node": "^5.0.24",
     "stripe": "^12.18.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
   }
 }

@@ -13,8 +13,18 @@ module.exports = async (req, res) => {
   // Read and sanitize env vars
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
   const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
-  const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://www.superfocus.live?premium=1').trim();
-  const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://www.superfocus.live').trim();
+  
+  // Determine environment and set URLs accordingly
+  const isTesting = process.env.NODE_ENV === 'testing' || 
+                   process.env.VERCEL_ENV === 'preview' ||
+                   secretKey.includes('sk_test_');
+  
+  const baseUrl = isTesting ? 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000') :
+    'https://www.superfocus.live';
+  
+  const finalSuccessUrl = `${baseUrl}?premium=1&payment=success`;
+  const finalCancelUrl = baseUrl;
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
@@ -29,9 +39,9 @@ module.exports = async (req, res) => {
     // Validate URLs to avoid Stripe "url_invalid"
     // Throws if invalid
     // eslint-disable-next-line no-new
-    new URL(successUrl);
+    new URL(finalSuccessUrl);
     // eslint-disable-next-line no-new
-    new URL(cancelUrl);
+    new URL(finalCancelUrl);
   } catch (_) {
     res.status(500).json({ error: 'Invalid redirect URLs for Stripe' });
     return;
@@ -58,8 +68,8 @@ module.exports = async (req, res) => {
       },
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
       custom_fields: [
         {
           key: 'company_name',
