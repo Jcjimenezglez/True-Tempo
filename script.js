@@ -5363,6 +5363,12 @@ class PomodoroTimer {
         const tasks = this.getLocalTasks();
         const activeTasks = tasks.filter(task => !task.completed);
         this.setLocalTasks(activeTasks);
+        
+        // Update UI immediately
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
+        
         this.showTaskListModal();
     }
 
@@ -5371,6 +5377,12 @@ class PomodoroTimer {
             this.setLocalTasks([]);
             // Explicit clear is OK here since the user is clearing everything
             localStorage.removeItem('taskConfigs');
+            
+            // Update UI immediately
+            this.updateCurrentTaskBanner();
+            this.rebuildTaskQueue();
+            this.updateCurrentTaskFromQueue();
+            
             this.showTaskListModal();
         }
     }
