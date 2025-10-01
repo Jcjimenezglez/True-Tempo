@@ -585,9 +585,12 @@
 
             async loadUsers() {
                 try {
+                    const adminKey = prompt('Enter admin key:');
+                    if (!adminKey) return;
+                    
                     const response = await fetch('/api/admin/users', {
                         headers: {
-                            'x-admin-key': 'your-admin-key-here' // You'll need to set this
+                            'x-admin-key': adminKey
                         }
                     });
                     const data = await response.json();
@@ -605,9 +608,12 @@
 
             async loadPaymentIssues() {
                 try {
+                    const adminKey = prompt('Enter admin key:');
+                    if (!adminKey) return;
+                    
                     const response = await fetch('/api/admin/payment-issues', {
                         headers: {
-                            'x-admin-key': 'your-admin-key-here' // You'll need to set this
+                            'x-admin-key': adminKey
                         }
                     });
                     const data = await response.json();
@@ -853,11 +859,14 @@
 
             async fixPaymentIssue(email, stripeCustomerId, action) {
                 try {
+                    const adminKey = prompt('Enter admin key:');
+                    if (!adminKey) return;
+                    
                     const response = await fetch('/api/admin/fix-payment-issues', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'x-admin-key': 'your-admin-key-here' // You'll need to set this
+                            'x-admin-key': adminKey
                         },
                         body: JSON.stringify({
                             email: email,
