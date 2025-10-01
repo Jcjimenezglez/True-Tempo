@@ -7,12 +7,12 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Simple admin authentication
-  const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_SECRET_KEY) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+  // Admin authentication disabled for now
+  // const adminKey = req.headers['x-admin-key'];
+  // if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+  //   res.status(401).json({ error: 'Unauthorized' });
+  //   return;
+  // }
 
   try {
     // For now, return sample webhook logs

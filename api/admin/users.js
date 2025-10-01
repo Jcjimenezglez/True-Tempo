@@ -7,12 +7,12 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Simple admin authentication (you can enhance this)
-  const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_SECRET_KEY) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+  // Admin authentication disabled for now
+  // const adminKey = req.headers['x-admin-key'];
+  // if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+  //   res.status(401).json({ error: 'Unauthorized' });
+  //   return;
+  // }
 
   const clerkSecret = process.env.CLERK_SECRET_KEY;
   if (!clerkSecret) {
