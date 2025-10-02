@@ -1026,7 +1026,7 @@ body::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 99999;
     backdrop-filter: blur(8px);
 }
 
@@ -1608,7 +1608,7 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
+    z-index: 99999;
     animation: fadeIn 0.2s ease-out;
 }
 
@@ -1794,7 +1794,7 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 99999;
     animation: fadeIn 0.3s ease;
 }
 
@@ -1889,7 +1889,7 @@ audio {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 99999;
     animation: fadeIn 0.3s ease;
 }
 
@@ -2096,7 +2096,7 @@ audio {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;
+    z-index: 99999;
     backdrop-filter: blur(8px);
 }
 
@@ -2240,7 +2240,7 @@ audio {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;
+    z-index: 99999;
 }
 
 .settings-modal {
@@ -3031,7 +3031,7 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 99999;
     backdrop-filter: blur(8px);
 }
 
