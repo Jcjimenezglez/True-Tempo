@@ -1100,12 +1100,8 @@ class PomodoroTimer {
             }
         });
         
-        // Close dropdown when clicking outside (but ignore technique info modal)
+        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
-            // If click is inside the technique info modal, do nothing
-            const inTechniqueInfo = e.target.closest && e.target.closest('.technique-info-overlay');
-            if (inTechniqueInfo) return;
-
             if (!this.techniqueDropdown.contains(e.target)) {
                 this.closeDropdown();
             }
@@ -1114,12 +1110,6 @@ class PomodoroTimer {
         // Handle dropdown item selection
         this.dropdownItems.forEach(item => {
             item.addEventListener('click', (e) => {
-                // Don't select technique if clicking on learn more link
-                if (e.target.classList.contains('learn-more-link')) {
-                    e.stopPropagation();
-                    this.showTechniqueInfo(e.target.dataset.technique);
-                    return;
-                }
 
                 const technique = item.getAttribute('data-technique');
                 if (technique === 'custom') {
@@ -6228,131 +6218,6 @@ class PomodoroTimer {
         }
     }
 
-    showTechniqueInfo(technique) {
-        // Handle custom timer configuration
-        if (technique === 'custom') {
-            this.showCustomTimerModal();
-            return;
-        }
-        
-        const techniqueInfo = {
-            'pomodoro': {
-                title: 'Pomodoro Technique',
-                description: 'The Pomodoro Technique is a time management method developed by Francesco Cirillo. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. After 4 pomodoros, take a longer break of 15-30 minutes.',
-                benefits: [
-                    'Improves focus and concentration',
-                    'Reduces mental fatigue',
-                    'Increases productivity',
-                    'Helps manage time effectively'
-                ],
-                videoId: 'IlU-zDU6aQ0'
-            },
-            'pomodoro-plus': {
-                title: 'Long Pomodoro',
-                description: 'An extended version of the Pomodoro Technique with longer work sessions. Perfect for deep work and complex tasks that require sustained attention. The 50-minute focus periods allow for deeper immersion in your work.',
-                benefits: [
-                    'Better for deep work sessions',
-                    'Reduces context switching',
-                    'Ideal for complex projects',
-                    'Maintains focus for longer periods'
-                ],
-                videoId: 'bmnoNm64ovI'
-            },
-            'ultradian-rhythm': {
-                title: 'Ultradian Rhythm',
-                description: 'Based on natural biological rhythms, the Ultradian Rhythm technique aligns with your body\'s natural energy cycles. Work for 90 minutes followed by a 20-minute break to match your natural attention span.',
-                benefits: [
-                    'Aligns with natural body rhythms',
-                    'Optimizes energy levels',
-                    'Reduces mental fatigue',
-                    'Enhances cognitive performance'
-                ],
-                videoId: 'lsODSDmY4CY'
-            }
-        };
-
-        const info = techniqueInfo[technique];
-        if (!info) return;
-
-        // Create modal content
-        const modalContent = `
-            <div class="technique-info-modal">
-                <button class="close-technique-info-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <h3>${info.title}</h3>
-                <p class="technique-description">${info.description}</p>
-                <div class="technique-video">
-                    <iframe 
-                        width="100%" 
-                        height="200" 
-                        src="https://www.youtube.com/embed/${info.videoId}" 
-                        title="${info.title} Video"
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                    </iframe>
-                </div>
-                <div class="technique-benefits">
-                    <h4>Benefits:</h4>
-                    <ul>
-                        ${info.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
-                    </ul>
-                </div>
-                <button class="close-technique-info">Got it</button>
-            </div>
-        `;
-
-        // Create modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'technique-info-overlay';
-        modalOverlay.innerHTML = modalContent;
-        document.body.appendChild(modalOverlay);
-
-        // Show modal
-        modalOverlay.style.display = 'flex';
-
-        // Close modal functionality
-        const closeBtn = modalOverlay.querySelector('.close-technique-info');
-        const closeBtnX = modalOverlay.querySelector('.close-technique-info-x');
-        
-        closeBtn.addEventListener('click', (evt) => {
-            // Prevent this click from bubbling to document listener
-            evt.stopPropagation();
-            document.body.removeChild(modalOverlay);
-            // Keep dropdown open after closing modal
-            this.techniqueDropdown.classList.add('open');
-        });
-        
-        closeBtnX.addEventListener('click', (evt) => {
-            // Prevent this click from bubbling to document listener
-            evt.stopPropagation();
-            document.body.removeChild(modalOverlay);
-            // Keep dropdown open after closing modal
-            this.techniqueDropdown.classList.add('open');
-        });
-
-        modalOverlay.addEventListener('click', (e) => {
-            // Prevent bubbling for any click inside the modal content
-            const inModal = e.target.closest && e.target.closest('.technique-info-modal');
-            if (inModal) {
-                e.stopPropagation();
-                return;
-            }
-            if (e.target === modalOverlay) {
-                e.stopPropagation();
-                document.body.removeChild(modalOverlay);
-                // Keep dropdown open after closing modal
-                this.techniqueDropdown.classList.add('open');
-            }
-        });
-
-        // Initialize integration controls for Spotify similar to Todoist
-        this.setupSpotifyIntegrationControls();
-    }
 
     setupSpotifyIntegrationControls() {
         try {
