@@ -400,6 +400,8 @@ class PomodoroTimer {
             this.updatePremiumUI();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
+            // Hide welcome modal if user is authenticated
+            this.hideWelcomeModal();
             console.log('User is authenticated, showing profile avatar');
 
             // Ensure developer tab visibility according to current user
@@ -746,6 +748,8 @@ class PomodoroTimer {
             // Wait a moment for the fade effect
             await new Promise(resolve => setTimeout(resolve, 300));
             
+            // Mark that user just logged out to prevent welcome modal
+            try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
             
             // Optimistic UI update
             this.isAuthenticated = false;
@@ -2838,7 +2842,7 @@ class PomodoroTimer {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
             this.cassetteSounds.volume = 0.3; // Set volume to 30%
-            this.cassetteSounds.preload = 'none'; // Lazy load audio
+            this.cassetteSounds.preload = 'auto';
             
             // Create audio context for pitch and speed control
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -2977,21 +2981,15 @@ class PomodoroTimer {
     }
     
     loadAudio() {
-        // Lazy load audio - only load when needed
-        this.audio = null;
-        this.audioLoaded = false;
+        // Simple audio loading - no complex audio options for now
+        const savedAudio = localStorage.getItem('selectedAudio') || 'none';
+        if (savedAudio !== 'none') {
+            this.startAudio(savedAudio);
+        }
     }
     
     startAudio(type) {
         if (type === 'none') return;
-        
-        // Lazy load audio when first needed
-        if (!this.audioLoaded) {
-            this.audio = new Audio();
-            this.audio.loop = true;
-            this.audio.volume = 0.3;
-            this.audioLoaded = true;
-        }
         
         // Simple audio implementation
         const audioUrls = {
