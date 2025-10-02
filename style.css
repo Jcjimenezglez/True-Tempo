@@ -502,13 +502,14 @@ body::after {
     font-size: 18px;
     color: #a3a3a3;
     font-weight: 500;
-    margin-top: 0.5rem;
+    margin: 0.5rem auto 0 auto;
     text-align: center;
     opacity: 0.9;
     cursor: pointer;
     transition: all 0.2s ease;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
+    width: fit-content;
 }
 
 .current-task:hover {
