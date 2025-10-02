@@ -726,21 +726,95 @@
             
             <h2>Focus Techniques Available</h2>
             
-            <h3>🍅 Pomodoro Technique</h3>
-            <p>The classic 25-minute work sessions with 5-minute breaks. Perfect for most tasks and maintaining consistent productivity throughout the day.</p>
-            <button class="learn-more-btn" onclick="showTechniqueInfo('pomodoro')">Learn More</button>
+            <div class="technique-card" id="pomodoro">
+                <h3>🍅 Pomodoro Technique</h3>
+                <p>The Pomodoro Technique is a time management method developed by Francesco Cirillo. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. After 4 pomodoros, take a longer break of 15-30 minutes.</p>
+                
+                <h4>Benefits:</h4>
+                <ul>
+                    <li>Improves focus and concentration</li>
+                    <li>Reduces mental fatigue</li>
+                    <li>Increases productivity</li>
+                    <li>Helps manage time effectively</li>
+                </ul>
+                
+                <div class="technique-video">
+                    <iframe 
+                        width="100%" 
+                        height="200" 
+                        src="https://www.youtube.com/embed/IlU-zDU6aQ0" 
+                        title="Pomodoro Technique Video"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
             
-            <h3>⏰ Long Pomodoro (Pro)</h3>
-            <p>Extended 50-minute focus sessions for deep work. Ideal for complex projects, coding, writing, and tasks requiring sustained attention.</p>
-            <button class="learn-more-btn" onclick="showTechniqueInfo('pomodoro-plus')">Learn More</button>
+            <div class="technique-card pro-feature" id="long-pomodoro">
+                <h3>⏰ Long Pomodoro (Pro)</h3>
+                <p>An extended version of the Pomodoro Technique with longer work sessions. Perfect for deep work and complex tasks that require sustained attention. The 50-minute focus periods allow for deeper immersion in your work.</p>
+                
+                <h4>Benefits:</h4>
+                <ul>
+                    <li>Better for deep work sessions</li>
+                    <li>Reduces context switching</li>
+                    <li>Ideal for complex projects</li>
+                    <li>Maintains focus for longer periods</li>
+                </ul>
+                
+                <div class="technique-video">
+                    <iframe 
+                        width="100%" 
+                        height="200" 
+                        src="https://www.youtube.com/embed/bmnoNm64ovI" 
+                        title="Long Pomodoro Video"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
             
-            <h3>🧠 Ultradian Rhythm (Pro)</h3>
-            <p>90-minute work sessions based on natural biological rhythms. Aligns with your body's energy cycles for optimal cognitive performance.</p>
-            <button class="learn-more-btn" onclick="showTechniqueInfo('ultradian-rhythm')">Learn More</button>
+            <div class="technique-card pro-feature" id="ultradian-rhythm">
+                <h3>🧠 Ultradian Rhythm (Pro)</h3>
+                <p>Based on natural biological rhythms, the Ultradian Rhythm technique aligns with your body's natural energy cycles. Work for 90 minutes followed by a 20-minute break to match your natural attention span.</p>
+                
+                <h4>Benefits:</h4>
+                <ul>
+                    <li>Aligns with natural body rhythms</li>
+                    <li>Optimizes energy levels</li>
+                    <li>Reduces mental fatigue</li>
+                    <li>Enhances cognitive performance</li>
+                </ul>
+                
+                <div class="technique-video">
+                    <iframe 
+                        width="100%" 
+                        height="200" 
+                        src="https://www.youtube.com/embed/lsODSDmY4CY" 
+                        title="Ultradian Rhythm Video"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
             
-            <h3>⚙️ Custom Timer (Pro)</h3>
-            <p>Create your own focus technique with personalized work and break intervals. Perfect for finding your optimal productivity rhythm.</p>
-            <button class="learn-more-btn" onclick="showTechniqueInfo('custom')">Learn More</button>
+            <div class="technique-card pro-feature" id="custom-timer">
+                <h3>⚙️ Custom Timer (Pro)</h3>
+                <p>Create your own focus technique with personalized work and break intervals. Perfect for finding your optimal productivity rhythm. Set custom durations for work sessions, short breaks, long breaks, and cycle counts.</p>
+                
+                <h4>Benefits:</h4>
+                <ul>
+                    <li>Personalized to your work style</li>
+                    <li>Flexible timing options</li>
+                    <li>Adapts to different project types</li>
+                    <li>Optimizes your unique rhythm</li>
+                </ul>
+                
+                <p><em>Custom timers are created through the technique selector in the timer interface.</em></p>
+            </div>
             
             <h2>How to Use Superfocus</h2>
             <ol>
@@ -793,10 +867,10 @@
             <div class="footer-section">
                 <h4>Techniques</h4>
                 <ul>
-                    <li><a href="#" onclick="showTechniqueInfo('pomodoro')">Pomodoro</a></li>
-                    <li><a href="#" onclick="showTechniqueInfo('pomodoro-plus')">Long Pomodoro</a></li>
-                    <li><a href="#" onclick="showTechniqueInfo('ultradian-rhythm')">Ultradian Rhythm</a></li>
-                    <li><a href="#" onclick="showTechniqueInfo('custom')">Custom Timer</a></li>
+                    <li><a href="#pomodoro">Pomodoro</a></li>
+                    <li><a href="#long-pomodoro">Long Pomodoro</a></li>
+                    <li><a href="#ultradian-rhythm">Ultradian Rhythm</a></li>
+                    <li><a href="#custom-timer">Custom Timer</a></li>
                 </ul>
             </div>
             
