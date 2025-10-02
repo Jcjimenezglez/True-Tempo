@@ -1378,12 +1378,22 @@ audio {
 /* Removed all requires-account and badge styles - all techniques now available */
 
 /* Selected technique indicator */
+.dropdown-item.selected {
+    background: rgba(163, 163, 163, 0.15);
+    border: 1px solid rgba(163, 163, 163, 0.3);
+}
+
 .dropdown-item.selected::after {
     content: '✓';
     color: #ffffff;
     font-weight: bold;
     font-size: 14px;
     margin-left: auto;
+}
+
+.authenticated-user .dropdown-item.selected {
+    background: rgba(163, 163, 163, 0.15);
+    border: 1px solid rgba(163, 163, 163, 0.3);
 }
 
 .authenticated-user .dropdown-item.selected::after {

@@ -937,6 +937,9 @@ class PomodoroTimer {
         // Track applied technique key to short-circuit future loads
         this.currentTechniqueKey = technique;
         
+        // Mark technique as selected in UI
+        this.markTechniqueAsSelected(technique);
+        
         // Calculate required focus time for complete cycle
         this.calculateRequiredFocusTime();
         
