@@ -15,7 +15,7 @@ body {
     color: #ffffff;
     margin: 0;
     padding: 0;
-    position: static;
+    position: relative;
     /* Remove body background animation for performance */
 }
 
@@ -27,7 +27,8 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: visible;
+    overflow: hidden;
+    padding-top: 80px; /* Space for fixed header */
 }
 
 .timer-section::before { display: none; }
@@ -159,7 +160,11 @@ body::after {
 
 /* Main Header */
 .main-header {
-    position: static;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -167,7 +172,6 @@ body::after {
     min-height: 64px;
     background: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(8px);
-    margin-bottom: 2rem;
 }
 
 /* Header Left - Achievement Icon */

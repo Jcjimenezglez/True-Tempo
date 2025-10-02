@@ -137,6 +137,11 @@
 <body>
     <!-- Timer Section - Full Viewport -->
     <section class="timer-section">
+    <!-- Unified Header -->
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo-icon" id="logoIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target-icon lucide-target">
                     <circle cx="12" cy="12" r="10"/>
                     <circle cx="12" cy="12" r="6"/>
                     <circle cx="12" cy="12" r="2"/>
@@ -713,110 +718,6 @@
     
     <!-- Content Section - Educational Content -->
     <section class="content-section">
-        <!-- Unified Header -->
-        <header class="main-header">
-            <div class="header-left">
-                <div class="logo-icon" id="logoIcon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target-icon lucide-target">
-                        <circle cx="12" cy="12" r="10"/>
-                        <circle cx="12" cy="12" r="6"/>
-                        <circle cx="12" cy="12" r="2"/>
-                    </svg>
-                </div>
-            </div>
-            
-            <div class="header-center">
-                <div class="technique-dropdown" id="techniqueDropdown">
-                    <button class="technique-title" id="techniqueTitle">
-                        Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <div class="dropdown-item" data-technique="pomodoro">
-                            <div class="item-content">
-                                <div class="item-title">Pomodoro</div>
-                                <div class="item-description">25 min focus, 5 min break, 15 min long break</div>
-                                <div class="item-link">
-                                    <a href="#" class="learn-more-link" data-technique="pomodoro">Learn more</a>
-                                </div>
-                            </div>
-                            <div class="item-badge free">FREE</div>
-                        </div>
-                        <div class="dropdown-item requires-account" data-technique="pomodoro-plus" data-requires-account="true">
-                            <div class="item-content">
-                                <div class="item-title">Long Pomodoro</div>
-                                <div class="item-description">50 min focus, 10 min break</div>
-                                <div class="item-link">
-                                    <a href="#" class="learn-more-link" data-technique="pomodoro-plus">Learn more</a>
-                                </div>
-                            </div>
-                            <div class="item-badge locked"><span>LOGIN</span></div>
-                        </div>
-                        <div class="dropdown-item requires-account" data-technique="ultradian-rhythm" data-requires-account="true">
-                            <div class="item-content">
-                                <div class="item-title">Ultradian Rhythm</div>
-                                <div class="item-description">90 min focus, 20 min break</div>
-                                <div class="item-link">
-                                    <a href="#" class="learn-more-link" data-technique="ultradian-rhythm">Learn more</a>
-                                </div>
-                            </div>
-                            <div class="item-badge locked"><span>LOGIN</span></div>
-                        </div>
-                        <div class="dropdown-item requires-account" data-technique="custom" data-requires-account="true">
-                            <div class="item-content">
-                                <div class="item-title">Custom Timer</div>
-                                <div class="item-description">Create your own focus technique</div>
-                                <div class="item-link">
-                                    <a href="#" class="learn-more-link" data-technique="custom">Learn more</a>
-                                </div>
-                            </div>
-                            <div class="item-badge locked"><span>LOGIN</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="header-right">
-                <div class="auth-container" id="authContainer">
-                    <button class="login-button" id="loginButton">Login</button>
-                    <button class="signup-button" id="signupButton">Sign up for free</button>
-                </div>
-                
-                <div class="user-profile-container" id="userProfileContainer" style="display: none;">
-                    <button class="user-profile-button" id="userProfileButton" aria-label="Account">
-                        <img id="userAvatar" alt="User avatar" />
-                    </button>
-                    <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
-                        <div class="user-dropdown-menu">
-                            <div class="user-info">
-                                <p class="user-email" id="userEmail"></p>
-                            </div>
-                            <div class="dropdown-item">
-                                <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                <span>Profile</span>
-                                <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item">
-                                <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
-                                <span>Settings</span>
-                                <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
-                            </div>
-                            <div class="dropdown-item">
-                                <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle-icon lucide-help-circle"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                                <span>Help & Support</span>
-                                <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <button class="logout-button" id="logoutButton">
-                                <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                                Log out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        
         <div class="content-container">
             <h1>An online Pomodoro Timer to boost your productivity</h1>
             
