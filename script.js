@@ -1110,7 +1110,6 @@ class PomodoroTimer {
         // Handle dropdown item selection
         this.dropdownItems.forEach(item => {
             item.addEventListener('click', (e) => {
-
                 const technique = item.getAttribute('data-technique');
                 if (technique === 'custom') {
                     e.stopPropagation();
