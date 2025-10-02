@@ -113,24 +113,31 @@ body.is-scrolling .streak-fire {
 
 /* Technique video embeds */
 .technique-video {
-    margin: 1.5rem 0;
-    border-radius: 8px;
+    margin: 2rem auto;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
 }
 
 .technique-video iframe {
-    display: block;
-    border-radius: 8px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
 }
 
 @media (max-width: 768px) {
     .technique-video {
-        margin: 1rem 0;
-    }
-    
-    .technique-video iframe {
-        height: 200px;
+        margin: 1.5rem auto;
+        max-width: 100%;
     }
 }
 
@@ -395,6 +402,19 @@ body.is-scrolling .streak-fire {
     margin-top: 0.25rem;
 }
 
+.learn-more-link {
+    color: #a3a3a3;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.learn-more-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
 
 .item-content {
     flex: 0 1 auto;
@@ -1378,22 +1398,12 @@ audio {
 /* Removed all requires-account and badge styles - all techniques now available */
 
 /* Selected technique indicator */
-.dropdown-item.selected {
-    background: rgba(163, 163, 163, 0.15);
-    border: 1px solid rgba(163, 163, 163, 0.3);
-}
-
 .dropdown-item.selected::after {
     content: '✓';
     color: #ffffff;
     font-weight: bold;
     font-size: 14px;
     margin-left: auto;
-}
-
-.authenticated-user .dropdown-item.selected {
-    background: rgba(163, 163, 163, 0.15);
-    border: 1px solid rgba(163, 163, 163, 0.3);
 }
 
 .authenticated-user .dropdown-item.selected::after {
@@ -1404,6 +1414,171 @@ audio {
     margin-left: auto;
 }
 
+/* Technique Info Modal */
+.technique-info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.technique-info-modal {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+    animation: slideIn 0.3s ease-out;
+    position: relative;
+    /* Custom scrollbar for desktop */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.technique-info-modal::-webkit-scrollbar {
+    width: 6px;
+}
+
+.technique-info-modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.technique-info-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.technique-info-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.close-technique-info-x {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    padding: 0;
+}
+
+.close-technique-info-x svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+.close-technique-info-x:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.technique-info-modal h3 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.technique-description {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+
+.technique-benefits h4 {
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.technique-benefits ul {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    margin: 0 0 2rem 0;
+    padding-left: 1.5rem;
+    line-height: 1.6;
+}
+
+.technique-benefits li {
+    margin-bottom: 0.5rem;
+}
+
+.close-technique-info {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.close-technique-info:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive styles for technique info modal */
+@media (max-width: 768px) {
+    .technique-info-modal {
+        max-width: 95%;
+        padding: 1.5rem;
+        max-height: 95vh;
+    }
+    
+    .technique-info-modal h3 {
+        font-size: 1.25rem;
+    }
+    
+    .technique-description {
+        font-size: 0.9rem;
+    }
+    
+    .technique-benefits ul {
+        font-size: 0.85rem;
+    }
+    
+    .close-technique-info {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
 
 /* Celebration Modal Styles */
 .celebration-modal-overlay {
@@ -1500,6 +1675,7 @@ audio {
     }
 }
 
+/* Custom Timer Modal Styles */
 .custom-timer-modal-overlay {
     position: fixed;
     top: 0;

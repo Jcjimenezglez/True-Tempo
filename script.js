@@ -194,6 +194,8 @@ class PomodoroTimer {
             });
         }
         
+        // Load custom timer labels if it exists (do not auto-select here)
+        this.loadSavedCustomTimer();
 
 
         // Try to apply saved technique (will re-run after auth hydrates)
@@ -460,6 +462,9 @@ class PomodoroTimer {
         const logoutModal = document.getElementById('logoutModalOverlay');
         if (logoutModal) logoutModal.style.display = 'none';
         
+        // Close custom timer modal
+        const customTimerModal = document.getElementById('customTimerModal');
+        if (customTimerModal) customTimerModal.style.display = 'none';
         
         // Close upgrade modal
         const upgradeModal = document.querySelector('.upgrade-modal-overlay');
@@ -937,9 +942,6 @@ class PomodoroTimer {
         // Track applied technique key to short-circuit future loads
         this.currentTechniqueKey = technique;
         
-        // Mark technique as selected in UI
-        this.markTechniqueAsSelected(technique);
-        
         // Calculate required focus time for complete cycle
         this.calculateRequiredFocusTime();
         
@@ -1112,8 +1114,19 @@ class PomodoroTimer {
         // Handle dropdown item selection
         this.dropdownItems.forEach(item => {
             item.addEventListener('click', (e) => {
+                // Don't select technique if clicking on learn more link
+                if (e.target.classList.contains('learn-more-link')) {
+                    e.stopPropagation();
+                    this.showTechniqueInfo(e.target.dataset.technique);
+                    return;
+                }
 
                 const technique = item.getAttribute('data-technique');
+                if (technique === 'custom') {
+                    e.stopPropagation();
+                    this.handleCustomTechniqueClick(item);
+                    return;
+                }
                 this.selectTechnique(item);
             });
         });
@@ -1981,6 +1994,18 @@ class PomodoroTimer {
         this.updateCurrentTaskBanner();
     }
 
+    handleCustomTechniqueClick(item) {
+        // Check if user has a saved custom timer
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        
+        if (savedCustomTimer) {
+            // User has a custom timer - select it normally
+            this.selectTechnique(item);
+        } else {
+            // User doesn't have a custom timer - show the modal to create one
+            this.showCustomTimerModal();
+        }
+    }
     
     toggleTimer() {
         if (this.isRunning) {
@@ -6203,6 +6228,131 @@ class PomodoroTimer {
         }
     }
 
+    showTechniqueInfo(technique) {
+        // Handle custom timer configuration
+        if (technique === 'custom') {
+            this.showCustomTimerModal();
+            return;
+        }
+        
+        const techniqueInfo = {
+            'pomodoro': {
+                title: 'Pomodoro Technique',
+                description: 'The Pomodoro Technique is a time management method developed by Francesco Cirillo. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. After 4 pomodoros, take a longer break of 15-30 minutes.',
+                benefits: [
+                    'Improves focus and concentration',
+                    'Reduces mental fatigue',
+                    'Increases productivity',
+                    'Helps manage time effectively'
+                ],
+                videoId: 'IlU-zDU6aQ0'
+            },
+            'pomodoro-plus': {
+                title: 'Long Pomodoro',
+                description: 'An extended version of the Pomodoro Technique with longer work sessions. Perfect for deep work and complex tasks that require sustained attention. The 50-minute focus periods allow for deeper immersion in your work.',
+                benefits: [
+                    'Better for deep work sessions',
+                    'Reduces context switching',
+                    'Ideal for complex projects',
+                    'Maintains focus for longer periods'
+                ],
+                videoId: 'bmnoNm64ovI'
+            },
+            'ultradian-rhythm': {
+                title: 'Ultradian Rhythm',
+                description: 'Based on natural biological rhythms, the Ultradian Rhythm technique aligns with your body\'s natural energy cycles. Work for 90 minutes followed by a 20-minute break to match your natural attention span.',
+                benefits: [
+                    'Aligns with natural body rhythms',
+                    'Optimizes energy levels',
+                    'Reduces mental fatigue',
+                    'Enhances cognitive performance'
+                ],
+                videoId: 'lsODSDmY4CY'
+            }
+        };
+
+        const info = techniqueInfo[technique];
+        if (!info) return;
+
+        // Create modal content
+        const modalContent = `
+            <div class="technique-info-modal">
+                <button class="close-technique-info-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <h3>${info.title}</h3>
+                <p class="technique-description">${info.description}</p>
+                <div class="technique-video">
+                    <iframe 
+                        width="100%" 
+                        height="200" 
+                        src="https://www.youtube.com/embed/${info.videoId}" 
+                        title="${info.title} Video"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="technique-benefits">
+                    <h4>Benefits:</h4>
+                    <ul>
+                        ${info.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                    </ul>
+                </div>
+                <button class="close-technique-info">Got it</button>
+            </div>
+        `;
+
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'technique-info-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+
+        // Show modal
+        modalOverlay.style.display = 'flex';
+
+        // Close modal functionality
+        const closeBtn = modalOverlay.querySelector('.close-technique-info');
+        const closeBtnX = modalOverlay.querySelector('.close-technique-info-x');
+        
+        closeBtn.addEventListener('click', (evt) => {
+            // Prevent this click from bubbling to document listener
+            evt.stopPropagation();
+            document.body.removeChild(modalOverlay);
+            // Keep dropdown open after closing modal
+            this.techniqueDropdown.classList.add('open');
+        });
+        
+        closeBtnX.addEventListener('click', (evt) => {
+            // Prevent this click from bubbling to document listener
+            evt.stopPropagation();
+            document.body.removeChild(modalOverlay);
+            // Keep dropdown open after closing modal
+            this.techniqueDropdown.classList.add('open');
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            // Prevent bubbling for any click inside the modal content
+            const inModal = e.target.closest && e.target.closest('.technique-info-modal');
+            if (inModal) {
+                e.stopPropagation();
+                return;
+            }
+            if (e.target === modalOverlay) {
+                e.stopPropagation();
+                document.body.removeChild(modalOverlay);
+                // Keep dropdown open after closing modal
+                this.techniqueDropdown.classList.add('open');
+            }
+        });
+
+        // Initialize integration controls for Spotify similar to Todoist
+        this.setupSpotifyIntegrationControls();
+    }
 
     setupSpotifyIntegrationControls() {
         try {
@@ -6338,6 +6488,298 @@ class PomodoroTimer {
 
     async pauseSpotify() {}
 
+    showCustomTimerModal() {
+        // Load saved custom timer data if it exists
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        if (savedCustomTimer) {
+            try {
+                const customConfig = JSON.parse(savedCustomTimer);
+                console.log('Loading custom timer for editing:', customConfig);
+                
+                // Populate form fields with saved values
+                document.getElementById('customName').value = customConfig.name || '';
+                document.getElementById('focusTime').value = Math.round(customConfig.focusTime / 60) || 25;
+                document.getElementById('breakTime').value = Math.round(customConfig.breakTime / 60) || 5;
+                document.getElementById('longBreakTime').value = Math.round(customConfig.longBreakTime / 60) || 0;
+                document.getElementById('cycles').value = customConfig.cycles || 4;
+            } catch (error) {
+                console.error('Error loading custom timer for editing:', error);
+                // Reset to default values if there's an error
+                this.resetCustomTimerForm();
+            }
+        } else {
+            // Reset to default values if no saved timer
+            this.resetCustomTimerForm();
+        }
+        
+        this.customTimerModal.style.display = 'flex';
+        // Keep dropdown open
+        this.techniqueDropdown.classList.add('open');
+        
+        // Add real-time validation
+        this.setupCustomTimerValidation();
+    }
+
+    hideCustomTimerModal() {
+        this.customTimerModal.style.display = 'none';
+        // Keep dropdown open
+        this.techniqueDropdown.classList.add('open');
+    }
+
+    resetCustomTimerForm() {
+        document.getElementById('customName').value = '';
+        document.getElementById('focusTime').value = 25;
+        document.getElementById('breakTime').value = 5;
+        document.getElementById('longBreakTime').value = 0;
+        document.getElementById('cycles').value = 4;
+    }
+
+    setupCustomTimerValidation() {
+        const customNameInput = document.getElementById('customName');
+        const focusTimeInput = document.getElementById('focusTime');
+        const breakTimeInput = document.getElementById('breakTime');
+        const longBreakTimeInput = document.getElementById('longBreakTime');
+        const cyclesInput = document.getElementById('cycles');
+        const saveButton = document.getElementById('saveCustomTimer');
+
+        // Function to check all validations and enable/disable save button
+        const validateAll = () => {
+            const name = customNameInput.value.trim();
+            const focusTime = parseInt(focusTimeInput.value) || 0;
+            const breakTime = parseInt(breakTimeInput.value) || 0;
+            const longBreakTime = parseInt(longBreakTimeInput.value) || 0;
+            const cycles = parseInt(cyclesInput.value) || 0;
+
+            const hasErrors = 
+                name.length === 0 || name.length > 10 ||
+                focusTime < 1 || focusTime > 180 ||
+                breakTime < 1 || breakTime > 60 ||
+                longBreakTime < 0 || longBreakTime > 60 ||
+                cycles < 1 || cycles > 10;
+
+            saveButton.disabled = hasErrors;
+        };
+
+        // Custom Name validation (max 10 characters)
+        customNameInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const errorElement = document.getElementById('customNameError');
+            
+            if (value.length > 10) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Focus Time validation (max 180)
+        focusTimeInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('focusTimeError');
+            
+            if (value > 180) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Break Time validation (max 60)
+        breakTimeInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('breakTimeError');
+            
+            if (value > 60) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Long Break Time validation (max 60)
+        longBreakTimeInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('longBreakTimeError');
+            
+            if (value > 60) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Cycles validation (max 10)
+        cyclesInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            const errorElement = document.getElementById('cyclesError');
+            
+            if (value > 10) {
+                e.target.classList.add('error');
+                errorElement.style.display = 'block';
+            } else {
+                e.target.classList.remove('error');
+                errorElement.style.display = 'none';
+            }
+            validateAll();
+        });
+
+        // Initial validation
+        validateAll();
+    }
+
+
+    saveCustomTimerConfig() {
+        const name = document.getElementById('customName').value.trim();
+        const focusTime = parseInt(document.getElementById('focusTime').value);
+        const breakTime = parseInt(document.getElementById('breakTime').value);
+        const longBreakTime = parseInt(document.getElementById('longBreakTime').value);
+        const cycles = parseInt(document.getElementById('cycles').value);
+
+        // Check for validation errors
+        const hasErrors = document.querySelectorAll('.form-group input.error').length > 0;
+        if (hasErrors) {
+            alert('Please fix the validation errors before saving');
+            return;
+        }
+
+        // Validation
+        if (!name) {
+            alert('Please enter a timer name');
+            return;
+        }
+
+        if (name.length > 10) {
+            alert('Timer name must be 10 characters or less');
+            return;
+        }
+
+        if (focusTime < 1 || focusTime > 180) {
+            alert('Focus time must be between 1 and 180 minutes');
+            return;
+        }
+
+        if (breakTime < 1 || breakTime > 60) {
+            alert('Break time must be between 1 and 60 minutes');
+            return;
+        }
+
+        if (longBreakTime < 0 || longBreakTime > 60) {
+            alert('Long break time must be between 0 and 60 minutes');
+            return;
+        }
+
+        if (cycles < 1 || cycles > 10) {
+            alert('Number of cycles must be between 1 and 10');
+            return;
+        }
+
+        // Save custom timer configuration
+        const customConfig = {
+            name: name,
+            focusTime: focusTime * 60, // Convert to seconds
+            breakTime: breakTime * 60,
+            longBreakTime: longBreakTime * 60,
+            cycles: cycles
+        };
+
+        localStorage.setItem('customTimer', JSON.stringify(customConfig));
+
+        // Load the custom timer
+        this.loadCustomTechnique(customConfig);
+        
+        // Close modal and dropdown
+        this.hideCustomTimerModal();
+        this.closeDropdown();
+    }
+
+    loadCustomTechnique(config) {
+        this.workTime = config.focusTime;
+        this.shortBreakTime = config.breakTime;
+        this.longBreakTime = config.longBreakTime;
+        
+        // Build cycle sections
+        this.cycleSections = [];
+        for (let i = 0; i < config.cycles; i++) {
+            this.cycleSections.push({
+                type: 'work',
+                duration: this.workTime,
+                name: 'Focus'
+            });
+            this.cycleSections.push({
+                type: 'break',
+                duration: this.shortBreakTime,
+                name: 'Break'
+            });
+        }
+        
+        // Add long break if configured
+        if (this.longBreakTime > 0) {
+            this.cycleSections.push({
+                type: 'long-break',
+                duration: this.longBreakTime,
+                name: 'Long Break'
+            });
+        }
+
+        // Calculate required focus time for complete cycle
+        this.calculateRequiredFocusTime();
+
+        // Update UI
+        if (this.techniqueTitle) {
+            // Preserve the chevron icon when updating the title
+            const chevronIcon = this.techniqueTitle.querySelector('svg');
+            this.techniqueTitle.innerHTML = config.name;
+            if (chevronIcon) {
+                this.techniqueTitle.appendChild(chevronIcon);
+            }
+        }
+        if (this.techniqueDescription) {
+            this.techniqueDescription.textContent = `${config.focusTime/60} min focus, ${config.breakTime/60} min break${this.longBreakTime > 0 ? `, ${this.longBreakTime/60} min long break` : ''}`;
+        }
+        
+        // Update dropdown item to show custom name
+        const customItem = document.querySelector('[data-technique="custom"]');
+        if (customItem) {
+            const titleElement = customItem.querySelector('.item-title');
+            const descElement = customItem.querySelector('.item-description');
+            if (titleElement) titleElement.textContent = config.name;
+            if (descElement) descElement.textContent = `${config.focusTime/60} min focus, ${config.breakTime/60} min break${this.longBreakTime > 0 ? `, ${this.longBreakTime/60} min long break` : ''}`;
+        }
+        
+        // Mark custom timer as selected and unmark others
+        this.markTechniqueAsSelected('custom');
+        
+        // Save custom technique as selected
+        localStorage.setItem('selectedTechnique', 'custom');
+        
+        // Reset to first section
+        this.currentSection = 1;
+        this.timeLeft = this.cycleSections[0].duration;
+        this.isWorkSession = this.cycleSections[0].type === 'work';
+        this.isLongBreak = this.cycleSections[0].type === 'long-break';
+        
+        // Update progress ring and display
+        this.updateProgressRing();
+        this.updateDisplay();
+        this.updateProgress();
+        this.updateSections();
+        this.updateSessionInfo();
+        
+        // Close dropdown
+        this.closeDropdown();
+    }
 
     markTechniqueAsSelected(technique) {
         // Remove selected class from all dropdown items
@@ -6351,9 +6793,47 @@ class PomodoroTimer {
         }
     }
 
+    loadSavedCustomTimer() {
+        const savedCustomTimer = localStorage.getItem('customTimer');
+        if (!savedCustomTimer) return;
+        try {
+            const customConfig = JSON.parse(savedCustomTimer);
+            // Only update the dropdown item's text so the user sees their custom config
+            const customItem = document.querySelector('[data-technique="custom"]');
+            if (customItem) {
+                const titleElement = customItem.querySelector('.item-title');
+                const descElement = customItem.querySelector('.item-description');
+                if (titleElement) titleElement.textContent = customConfig.name;
+                if (descElement) descElement.textContent = `${customConfig.focusTime/60} min focus, ${customConfig.breakTime/60} min break${customConfig.longBreakTime > 0 ? `, ${customConfig.longBreakTime/60} min long break` : ''}`;
+            }
+            // Do NOT auto-select here. Selection is handled by loadLastSelectedTechnique()
+        } catch (error) {
+            console.error('Error reading custom timer:', error);
+            localStorage.removeItem('customTimer');
+        }
+    }
+
     loadLastSelectedTechnique() {
         const lastSelectedTechnique = localStorage.getItem('selectedTechnique');
+        const savedCustomTimer = localStorage.getItem('customTimer');
         
+        // If the last selected was custom and we have a saved config, load it
+        if (lastSelectedTechnique === 'custom') {
+            if (savedCustomTimer) {
+                try {
+                    const customConfig = JSON.parse(savedCustomTimer);
+                    this.loadCustomTechnique(customConfig);
+                    return;
+                } catch (e) {
+                    console.error('Invalid custom timer config, defaulting to Pomodoro');
+                    localStorage.removeItem('customTimer');
+                }
+            }
+            // If no valid custom config, fall back to default
+            this.loadDefaultTechnique();
+            return;
+        }
+
         // If the last selected is a built-in technique
         if (lastSelectedTechnique) {
             const techniqueItem = document.querySelector(`[data-technique="${lastSelectedTechnique}"]`);

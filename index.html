@@ -160,18 +160,36 @@
                         <div class="item-content">
                             <div class="item-title">Pomodoro</div>
                             <div class="item-description">25 min focus, 5 min break, 15 min long break</div>
+                            <div class="item-link">
+                                <a href="#" class="learn-more-link" data-technique="pomodoro">Learn more</a>
+                            </div>
                         </div>
                     </div>
                     <div class="dropdown-item" data-technique="pomodoro-plus">
                         <div class="item-content">
                             <div class="item-title">Long Pomodoro</div>
                             <div class="item-description">50 min focus, 10 min break</div>
+                            <div class="item-link">
+                                <a href="#" class="learn-more-link" data-technique="pomodoro-plus">Learn more</a>
+                            </div>
                         </div>
                     </div>
                     <div class="dropdown-item" data-technique="ultradian-rhythm">
                         <div class="item-content">
                             <div class="item-title">Ultradian Rhythm</div>
                             <div class="item-description">90 min focus, 20 min break</div>
+                            <div class="item-link">
+                                <a href="#" class="learn-more-link" data-technique="ultradian-rhythm">Learn more</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" data-technique="custom">
+                        <div class="item-content">
+                            <div class="item-title">Custom Timer</div>
+                            <div class="item-description">Create your own focus technique</div>
+                            <div class="item-link">
+                                <a href="#" class="learn-more-link" data-technique="custom">Configure</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -415,6 +433,61 @@
         </div>
     </div>
     
+    <!-- Custom Timer Configuration Modal -->
+    <div class="custom-timer-modal-overlay" id="customTimerModal">
+        <div class="custom-timer-modal">
+            <div class="custom-timer-header">
+                <h3>Configure Custom Timer</h3>
+                <button class="close-custom-timer-x" id="closeCustomTimer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="custom-timer-content">
+                <div class="custom-timer-form">
+                    <div class="form-group">
+                        <label for="customName">Timer Name</label>
+                        <input type="text" id="customName" placeholder="e.g., My Focus" maxlength="10">
+                        <div class="error-message" id="customNameError" style="display: none;">Maximum 10 characters</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="focusTime">Focus Time (minutes)</label>
+                            <input type="number" id="focusTime" min="1" max="180" value="25">
+                            <div class="error-message" id="focusTimeError" style="display: none;">Maximum 180 minutes</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="breakTime">Break Time (minutes)</label>
+                            <input type="number" id="breakTime" min="1" max="60" value="5">
+                            <div class="error-message" id="breakTimeError" style="display: none;">Maximum 60 minutes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="longBreakTime">Long Break Time (minutes)</label>
+                            <input type="number" id="longBreakTime" min="0" max="60" value="15">
+                            <div class="error-message" id="longBreakTimeError" style="display: none;">Maximum 60 minutes</div>
+                            <small>Set to 0 to disable long breaks</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cycles">Number of Cycles</label>
+                            <input type="number" id="cycles" min="1" max="10" value="4">
+                            <div class="error-message" id="cyclesError" style="display: none;">Maximum 10 cycles</div>
+                            <small>How many focus sessions before long break</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="custom-timer-actions">
+                <button class="custom-timer-btn custom-timer-btn-primary" id="saveCustomTimer" disabled>Save</button>
+                <button class="custom-timer-btn custom-timer-btn-secondary" id="cancelCustomTimer">Cancel</button>
+            </div>
+        </div>
+    </div>
     
     <!-- Upgrade to Pro Modal -->
     <div class="upgrade-modal-overlay" id="upgradeModal" style="display: none;">
@@ -744,6 +817,25 @@
                 <a href="https://www.psychologytoday.com/us/blog/the-power-rest/201206/your-90-minute-ultradian-rhythm" target="_blank" style="color: #007bff;">Psychology Today Article</a>
             </p>
             
+            <h2>Custom Timer</h2>
+            <p><strong>What is it?</strong> Create your own personalized focus technique tailored to your specific needs, work style, and attention span. Perfect for experimenting with different timing patterns.</p>
+            
+            <p><strong>How to use it:</strong></p>
+            <ol>
+                <li>Click "Configure" to open the custom timer settings</li>
+                <li>Set your preferred focus duration (1-120 minutes)</li>
+                <li>Choose your break length (1-60 minutes)</li>
+                <li>Set the number of cycles you want to complete</li>
+                <li>Save and start your personalized focus session</li>
+            </ol>
+            
+            <p><strong>Benefits:</strong> Fully customizable to your preferences, allows experimentation with different patterns, and adapts to your unique work style.</p>
+            
+            <p><strong>Learn more:</strong> 
+                <a href="https://en.wikipedia.org/wiki/Time_management" target="_blank" style="color: #007bff;">Time Management Wikipedia</a> • 
+                <a href="https://www.mindtools.com/pages/article/newHTE_00.htm" target="_blank" style="color: #007bff;">Mind Tools - Time Management</a> • 
+                <a href="https://www.forbes.com/sites/ashleystahl/2020/01/15/5-time-management-techniques-that-actually-work/" target="_blank" style="color: #007bff;">Forbes - Time Management Techniques</a>
+            </p>
             
             <h2>Getting Started</h2>
             <p>All techniques are available for free! Simply select your preferred method from the dropdown menu above the timer and start focusing. Each technique includes background music, task management, and progress tracking to help you stay productive.</p>
@@ -752,6 +844,6 @@
         </div>
     </section>
     
-    <script src="script.js?v=8.7"></script>
+    <script src="script.js?v=8.5"></script>
 </body>
 </html>
