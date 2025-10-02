@@ -13,16 +13,24 @@ body {
         radial-gradient(circle at 40% 80%, rgba(163, 163, 163, 0.05) 0%, transparent 50%),
         linear-gradient(135deg, #050505 0%, #0a0a0a 50%, #030303 100%);
     color: #ffffff;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
+    margin: 0;
+    padding: 0;
     position: relative;
     animation: backgroundPulse 8s ease-in-out infinite;
 }
 
-body::before {
+/* Timer Section - Full Viewport */
+.timer-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.timer-section::before {
     content: '';
     position: absolute;
     top: 0;
@@ -34,6 +42,50 @@ body::before {
         radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.005) 0%, transparent 50%);
     pointer-events: none;
     animation: backgroundShift 15s ease-in-out infinite;
+}
+
+/* Content Section - Below Timer */
+.content-section {
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 60px 20px;
+    min-height: 100vh;
+}
+
+.content-container {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.content-section h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.content-section h2 {
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin: 2rem 0 1rem 0;
+    color: #333;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.content-section ul {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.content-section li {
+    margin-bottom: 0.5rem;
+    color: #555;
 }
 
 body::after {
