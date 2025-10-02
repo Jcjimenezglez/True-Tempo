@@ -28,7 +28,6 @@ body {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    padding-top: 80px; /* Space for fixed header */
 }
 
 .timer-section::before { display: none; }
@@ -160,10 +159,8 @@ body::after {
 
 /* Main Header */
 .main-header {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
     z-index: 10000;
     display: flex;
     align-items: center;
