@@ -17,3 +17,8 @@ Disallow: /script_*.js
 Allow: /index.html
 Allow: /style.css
 Allow: /audio/
+Allow: /favicon.ico
+Allow: /favicon.svg
+Allow: /favicon-*.png
+Allow: /apple-touch-icon.png
+Allow: /site.webmanifest
