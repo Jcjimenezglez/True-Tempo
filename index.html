@@ -716,6 +716,210 @@
     </div>
     </section>
     
+    <!-- All Modals - Outside timer section for proper positioning -->
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal-overlay" id="logoutModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <h3 class="logout-modal-title">Are you sure you want<br>to log out?</h3>
+            <p class="logout-modal-message" id="logoutModalMessage">Log out of True Tempo as user@example.com?</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmLogoutBtn">Log out</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelLogoutBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <h3 class="logout-modal-title">Give feedback</h3>
+            <p class="logout-modal-message">We'd love to hear what went well or how we can improve the product experience.</p>
+            <div class="feedback-form">
+                <textarea id="feedbackText" placeholder="Your feedback" rows="4"></textarea>
+                <div class="feedback-actions">
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelFeedbackBtn">Cancel</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="submitFeedbackBtn">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Timer Configuration Modal -->
+    <div class="custom-timer-modal-overlay" id="customTimerModal">
+        <div class="custom-timer-modal">
+            <div class="custom-timer-header">
+                <h3>Configure Custom Timer</h3>
+                <button class="close-custom-timer-x" id="closeCustomTimer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="custom-timer-content">
+                <div class="custom-timer-form">
+                    <div class="form-group">
+                        <label for="customName">Timer Name</label>
+                        <input type="text" id="customName" placeholder="e.g., My Focus" maxlength="10">
+                        <div class="error-message" id="customNameError" style="display: none;">Maximum 10 characters</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="focusTime">Focus Time (minutes)</label>
+                            <input type="number" id="focusTime" min="1" max="180" value="25">
+                        </div>
+                        <div class="form-group">
+                            <label for="breakTime">Break Time (minutes)</label>
+                            <input type="number" id="breakTime" min="1" max="60" value="5">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="longBreakTime">Long Break (minutes)</label>
+                            <input type="number" id="longBreakTime" min="1" max="60" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label for="cycles">Cycles</label>
+                            <input type="number" id="cycles" min="1" max="10" value="4">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="custom-timer-preview">
+                    <h4>Preview</h4>
+                    <div class="preview-content" id="customPreview">
+                        <div class="preview-item">
+                            <span class="preview-label">Focus:</span>
+                            <span class="preview-value">25 min</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Break:</span>
+                            <span class="preview-value">5 min</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Long Break:</span>
+                            <span class="preview-value">15 min</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Cycles:</span>
+                            <span class="preview-value">4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="custom-timer-actions">
+                <button class="custom-timer-btn custom-timer-btn-secondary" id="cancelCustomTimer">Cancel</button>
+                <button class="custom-timer-btn custom-timer-btn-primary" id="saveCustomTimer">Save Timer</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upgrade to Pro Modal -->
+    <div class="upgrade-modal-overlay" id="upgradeModal" style="display: none;">
+        <div class="upgrade-modal">
+            <button class="close-upgrade-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3>Upgrade to Pro</h3>
+                <p>Unlock advanced features and boost your productivity</p>
+                
+                <div class="pro-features">
+                    <div class="pro-feature">
+                        <div class="pro-feature-icon">⏰</div>
+                        <div class="pro-feature-text">
+                            <h4>Advanced Techniques</h4>
+                            <p>Long Pomodoro (50min) and Ultradian Rhythm (90min)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pro-feature">
+                        <div class="pro-feature-icon">⚙️</div>
+                        <div class="pro-feature-text">
+                            <h4>Custom Timer</h4>
+                            <p>Create personalized work/break intervals</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pro-feature">
+                        <div class="pro-feature-icon">📊</div>
+                        <div class="pro-feature-text">
+                            <h4>Focus Analytics</h4>
+                            <p>Export your productivity data</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pro-feature">
+                        <div class="pro-feature-icon">🔗</div>
+                        <div class="pro-feature-text">
+                            <h4>Todoist Integration</h4>
+                            <p>Sync tasks with your Todoist account</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upgrade-actions">
+                    <button class="upgrade-btn" id="upgradeToProBtn">Upgrade to Pro</button>
+                    <p class="upgrade-note">Start your free trial today</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="settings-modal-overlay" id="settingsModal" style="display: none;">
+        <div class="settings-modal">
+            <button class="close-settings-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="settings-content">
+                <h3>Settings</h3>
+                
+                <div class="settings-section">
+                    <h4>Timer Settings</h4>
+                    <div class="settings-item">
+                        <label class="settings-label">Default Work Time</label>
+                        <input type="number" id="defaultWorkTime" min="1" max="180" value="25">
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">Default Break Time</label>
+                        <input type="number" id="defaultBreakTime" min="1" max="60" value="5">
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">Default Long Break</label>
+                        <input type="number" id="defaultLongBreak" min="1" max="60" value="15">
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Audio Settings</h4>
+                    <div class="settings-item">
+                        <label class="settings-label">Sound Notifications</label>
+                        <input type="checkbox" id="soundNotifications" checked>
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">Background Music</label>
+                        <input type="checkbox" id="backgroundMusic" checked>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Appearance</h4>
+                    <div class="settings-item">
+                        <label class="settings-label">Dark Mode</label>
+                        <input type="checkbox" id="darkMode" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Content Section - Educational Content -->
     <section class="content-section">
         <div class="content-container">
