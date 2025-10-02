@@ -74,11 +74,6 @@ class PomodoroTimer {
 		this.duckRestoreTimer = null;
 		this.fadeTimer = null;
         
-        // Welcome modal elements
-        this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
-        this.welcomeLoginBtn = document.getElementById('welcomeLoginBtn');
-        this.welcomeSignupBtn = document.getElementById('welcomeSignupBtn');
-        this.stayLoggedOutBtn = document.getElementById('stayLoggedOutBtn');
         
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
@@ -405,8 +400,6 @@ class PomodoroTimer {
             this.updatePremiumUI();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
-            // Hide welcome modal if user is authenticated
-            this.hideWelcomeModal();
             console.log('User is authenticated, showing profile avatar');
 
             // Ensure developer tab visibility according to current user
@@ -462,9 +455,6 @@ class PomodoroTimer {
             try { document.body.removeChild(overlay); } catch (_) {}
         });
         
-        // Close welcome modal
-        const welcomeModal = document.getElementById('welcomeModalOverlay');
-        if (welcomeModal) welcomeModal.style.display = 'none';
         
         // Close logout modal
         const logoutModal = document.getElementById('logoutModalOverlay');
@@ -756,8 +746,6 @@ class PomodoroTimer {
             // Wait a moment for the fade effect
             await new Promise(resolve => setTimeout(resolve, 300));
             
-            // Mark that user just logged out to prevent welcome modal
-            try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
             
             // Optimistic UI update
             this.isAuthenticated = false;
@@ -1145,8 +1133,6 @@ class PomodoroTimer {
             });
         });
         
-        // Setup welcome modal events
-        this.setupWelcomeModalEvents();
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
@@ -2844,44 +2830,9 @@ class PomodoroTimer {
                 return;
             }
 
-            // Returning guest (new navigation, not reload) → show modal
-            this.showWelcomeModal();
         }, 1000); // slight delay so Clerk can hydrate
     }
     
-    showWelcomeModal() {
-        if (this.welcomeModalOverlay) {
-            this.welcomeModalOverlay.style.display = 'flex';
-        }
-    }
-    
-    hideWelcomeModal() {
-        if (this.welcomeModalOverlay) {
-            this.welcomeModalOverlay.style.display = 'none';
-        }
-    }
-    
-    setupWelcomeModalEvents() {
-        if (this.welcomeLoginBtn) {
-            this.welcomeLoginBtn.addEventListener('click', () => {
-                this.hideWelcomeModal();
-                this.handleLogin();
-            });
-        }
-        
-        if (this.welcomeSignupBtn) {
-            this.welcomeSignupBtn.addEventListener('click', () => {
-                this.hideWelcomeModal();
-                this.handleSignup();
-            });
-        }
-        
-        if (this.stayLoggedOutBtn) {
-            this.stayLoggedOutBtn.addEventListener('click', () => {
-                this.hideWelcomeModal();
-            });
-        }
-    }
 
     loadCassetteSounds() {
         try {
