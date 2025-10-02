@@ -612,7 +612,7 @@ body::after {
 .music-btn {
     background: none;
     border: none;
-    color: #ffffff;
+    color: #a3a3a3;
     border-radius: 50%;
     width: 56px;
     height: 56px;
@@ -624,7 +624,8 @@ body::after {
 }
 
 .music-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(163, 163, 163, 0.1);
+    color: #ffffff;
     transform: translateY(-1px);
 }
 
@@ -643,7 +644,7 @@ body::after {
 .task-btn {
     background: none;
     border: none;
-    color: #ffffff;
+    color: #a3a3a3;
     border-radius: 50%;
     width: 56px;
     height: 56px;
@@ -655,7 +656,8 @@ body::after {
 }
 
 .task-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(163, 163, 163, 0.1);
+    color: #ffffff;
     transform: translateY(-1px);
 }
 
