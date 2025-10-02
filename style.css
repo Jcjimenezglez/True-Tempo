@@ -88,6 +88,109 @@ body {
     color: #555;
 }
 
+.content-section h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2rem 0 0.5rem 0;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.learn-more-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0.5rem 0 1.5rem 0;
+    transition: background-color 0.2s ease;
+}
+
+.learn-more-btn:hover {
+    background: #0056b3;
+}
+
+/* Footer Styles */
+.main-footer {
+    background: #f8f9fa;
+    color: #333;
+    padding: 3rem 0 1rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.footer-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.footer-section p {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-section ul li a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-section ul li a:hover {
+    color: #007bff;
+}
+
+.footer-bottom {
+    max-width: 1200px;
+    margin: 2rem auto 0 auto;
+    padding: 1rem 20px 0 20px;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.footer-bottom p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Responsive Footer */
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .main-footer {
+        padding: 2rem 0 1rem 0;
+    }
+}
+
 body::after {
     content: '';
     position: absolute;

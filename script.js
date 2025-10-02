@@ -2834,6 +2834,7 @@ class PomodoroTimer {
     }
     
 
+
     loadCassetteSounds() {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
@@ -6862,6 +6863,14 @@ class PomodoroTimer {
 }
 
 // Initialize the timer when the page loads
+let timer;
 document.addEventListener('DOMContentLoaded', () => {
-    new PomodoroTimer();
-});// Force redeploy for admin key
+    timer = new PomodoroTimer();
+});
+
+// Make showTechniqueInfo globally accessible for HTML onclick handlers
+function showTechniqueInfo(technique) {
+    if (timer) {
+        timer.showTechniqueInfo(technique);
+    }
+}// Force redeploy for admin key

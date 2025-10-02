@@ -719,45 +719,112 @@
     <!-- Content Section - Educational Content -->
     <section class="content-section">
         <div class="content-container">
-            <h1>An online Pomodoro Timer to boost your productivity</h1>
+            <h1>Superfocus - The Ultimate Pomodoro Timer for Deep Work</h1>
             
             <h2>What is Superfocus?</h2>
-            <p>Superfocus is a customizable Pomodoro timer for desktop and mobile browsers. It helps you focus on tasks like studying, writing, or coding. The timer uses the Pomodoro Technique, a time management method developed by Francesco Cirillo.</p>
+            <p>Superfocus is a premium Pomodoro timer designed for deep work, study sessions, and productivity. Unlike basic timers, Superfocus offers advanced techniques like Long Pomodoro and Ultradian Rhythm to match your natural energy cycles and optimize focus.</p>
             
-            <h2>What is Pomodoro Technique?</h2>
-            <p>The Pomodoro Technique is a time management method that uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. These intervals are known as "pomodoros", named after the tomato-shaped kitchen timer that Cirillo used as a university student.</p>
-            <p>The technique is based on the idea that frequent breaks can improve mental agility. Learn more about the <a href="https://en.wikipedia.org/wiki/Pomodoro_Technique" target="_blank" style="color: #007bff;">Pomodoro Technique on Wikipedia</a>.</p>
+            <h2>Focus Techniques Available</h2>
             
-            <h2>How to use the Pomodoro Timer?</h2>
+            <h3>🍅 Pomodoro Technique</h3>
+            <p>The classic 25-minute work sessions with 5-minute breaks. Perfect for most tasks and maintaining consistent productivity throughout the day.</p>
+            <button class="learn-more-btn" onclick="showTechniqueInfo('pomodoro')">Learn More</button>
+            
+            <h3>⏰ Long Pomodoro (Pro)</h3>
+            <p>Extended 50-minute focus sessions for deep work. Ideal for complex projects, coding, writing, and tasks requiring sustained attention.</p>
+            <button class="learn-more-btn" onclick="showTechniqueInfo('pomodoro-plus')">Learn More</button>
+            
+            <h3>🧠 Ultradian Rhythm (Pro)</h3>
+            <p>90-minute work sessions based on natural biological rhythms. Aligns with your body's energy cycles for optimal cognitive performance.</p>
+            <button class="learn-more-btn" onclick="showTechniqueInfo('ultradian-rhythm')">Learn More</button>
+            
+            <h3>⚙️ Custom Timer (Pro)</h3>
+            <p>Create your own focus technique with personalized work and break intervals. Perfect for finding your optimal productivity rhythm.</p>
+            <button class="learn-more-btn" onclick="showTechniqueInfo('custom')">Learn More</button>
+            
+            <h2>How to Use Superfocus</h2>
             <ol>
-                <li>Add tasks to work on today</li>
-                <li>Set estimate pomodoros (1 = 25min of work) for each tasks</li>
-                <li>Select a task to work on</li>
-                <li>Start timer and focus on the task for 25 minutes</li>
-                <li>Take a 5 minute break when the alarm ring</li>
-                <li>Iterate 3-5 until you finish the tasks</li>
+                <li><strong>Choose your technique</strong> - Select from Pomodoro, Long Pomodoro, Ultradian Rhythm, or create a custom timer</li>
+                <li><strong>Add your tasks</strong> - Break down your work into manageable focus sessions</li>
+                <li><strong>Start focusing</strong> - Begin your timer and enter deep work mode</li>
+                <li><strong>Take breaks</strong> - Rest during break periods to maintain energy</li>
+                <li><strong>Track your streak</strong> - Build consistent focus habits with daily streak tracking</li>
             </ol>
             
-            <h2>Basic Features</h2>
+            <h2>Free Features</h2>
             <ul>
-                <li>Customizable timer intervals</li>
+                <li>Classic Pomodoro Technique (25/5/25/5/25/5/25/15)</li>
                 <li>Task management and tracking</li>
-                <li>Focus statistics and analytics</li>
                 <li>Background music and ambient sounds</li>
                 <li>Day streak tracking</li>
+                <li>Mobile and desktop support</li>
+                <li>Keyboard shortcuts</li>
             </ul>
             
             <h2>Pro Features</h2>
             <ul>
-                <li>Advanced timer techniques (Long Pomodoro, Ultradian Rhythm)</li>
-                <li>Custom timer configurations</li>
-                <li>Todoist integration</li>
-                <li>Export focus data</li>
-                <li>Priority support</li>
-                <li>Ad-free experience</li>
+                <li><strong>Advanced Techniques</strong> - Long Pomodoro (50min) and Ultradian Rhythm (90min)</li>
+                <li><strong>Custom Timer</strong> - Create personalized work/break intervals</li>
+                <li><strong>Todoist Integration</strong> - Sync tasks with your Todoist account</li>
+                <li><strong>Focus Data Export</strong> - Download your productivity analytics</li>
+                <li><strong>Priority Support</strong> - Get help when you need it</li>
+                <li><strong>Ad-free Experience</strong> - Distraction-free focus environment</li>
+            </ul>
+            
+            <h2>Perfect For</h2>
+            <ul>
+                <li><strong>Students</strong> - Study sessions, exam preparation, research</li>
+                <li><strong>Developers</strong> - Coding sprints, debugging, feature development</li>
+                <li><strong>Writers</strong> - Content creation, editing, creative writing</li>
+                <li><strong>Professionals</strong> - Deep work, project management, analysis</li>
+                <li><strong>Remote Workers</strong> - Focus time, meeting preparation, task completion</li>
             </ul>
         </div>
     </section>
+    
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Superfocus</h4>
+                <p>The ultimate Pomodoro timer for deep work and productivity.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Techniques</h4>
+                <ul>
+                    <li><a href="#" onclick="showTechniqueInfo('pomodoro')">Pomodoro</a></li>
+                    <li><a href="#" onclick="showTechniqueInfo('pomodoro-plus')">Long Pomodoro</a></li>
+                    <li><a href="#" onclick="showTechniqueInfo('ultradian-rhythm')">Ultradian Rhythm</a></li>
+                    <li><a href="#" onclick="showTechniqueInfo('custom')">Custom Timer</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Features</h4>
+                <ul>
+                    <li><a href="#task-management">Task Management</a></li>
+                    <li><a href="#background-music">Background Music</a></li>
+                    <li><a href="#streak-tracking">Streak Tracking</a></li>
+                    <li><a href="#todoist-integration">Todoist Integration</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Superfocus. All rights reserved.</p>
+        </div>
+    </footer>
     
     <script src="script.js?v=8.2"></script>
 </body>
