@@ -10,7 +10,7 @@ body {
     background: 
         radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.05) 0%, transparent 50%),
         radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(163, 163, 163, 0.05) 0%, transparent 50%),
         linear-gradient(135deg, #050505 0%, #0a0a0a 50%, #030303 100%);
     color: #ffffff;
     height: 100vh;
@@ -46,7 +46,7 @@ body::after {
     background: 
         radial-gradient(circle at 60% 20%, rgba(120, 119, 198, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 20% 80%, rgba(255, 119, 198, 0.06) 0%, transparent 40%),
-        radial-gradient(circle at 80% 60%, rgba(120, 219, 255, 0.07) 0%, transparent 40%);
+        radial-gradient(circle at 80% 60%, rgba(163, 163, 163, 0.07) 0%, transparent 40%);
     pointer-events: none;
     animation: colorFlow 12s ease-in-out infinite;
 }
@@ -314,7 +314,7 @@ body::after {
 }
 
 .learn-more-link {
-    color: #78dbff;
+    color: #a3a3a3;
     font-size: 12px;
     font-weight: 500;
     text-decoration: none;
@@ -500,7 +500,7 @@ body::after {
 
 .current-task {
     font-size: 18px;
-    color: #78dbff;
+    color: #a3a3a3;
     font-weight: 500;
     margin-top: 0.5rem;
     text-align: center;
@@ -513,7 +513,7 @@ body::after {
 
 .current-task:hover {
     opacity: 1;
-    background: rgba(120, 219, 255, 0.1);
+    background: rgba(163, 163, 163, 0.1);
     transform: translateY(-1px);
 }
 
@@ -636,11 +636,11 @@ body::after {
 }
 
 .music-btn.playing {
-    color: #78dbff;
+    color: #a3a3a3;
 }
 
 .music-btn.playing:hover {
-    background: rgba(120, 219, 255, 0.1);
+    background: rgba(163, 163, 163, 0.1);
 }
 
 .task-btn {
@@ -668,11 +668,11 @@ body::after {
 }
 
 .task-btn.active {
-    color: #78dbff;
+    color: #a3a3a3;
 }
 
 .task-btn.active:hover {
-    background: rgba(120, 219, 255, 0.1);
+    background: rgba(163, 163, 163, 0.1);
 }
 
 .start-btn .play-icon {
@@ -2044,7 +2044,7 @@ audio {
 }
 
 .upgrade-icon svg {
-    color: #78dbff;
+    color: #a3a3a3;
     opacity: 1;
 }
 
@@ -2096,7 +2096,7 @@ audio {
 }
 
 .upgrade-required-buttons .upgrade-btn {
-    background: #78dbff;
+    background: #a3a3a3;
     color: #1a1a1a;
     border: none;
     border-radius: 8px;
@@ -2349,7 +2349,7 @@ audio {
 
 /* Pro Account Badge */
 .pro-badge {
-    background: linear-gradient(135deg, #78dbff 0%, #5bc5ff 100%);
+    background: linear-gradient(135deg, #a3a3a3 0%, #5bc5ff 100%);
     color: #1a1a1a;
     font-size: 0.7rem;
     font-weight: 700;
@@ -3600,12 +3600,12 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: 4px solid #78dbff;
+    border-left: 4px solid #a3a3a3;
 }
 
 /* Preserve selected blue accent on hover */
 .task-item.selected:hover {
-    border-left-color: #78dbff;
+    border-left-color: #a3a3a3;
 }
 
 .task-progress {
@@ -3637,8 +3637,8 @@ input:checked + .toggle-slider:before {
 }
 
 .task-checkbox input[type="checkbox"]:checked {
-    background: #78dbff;
-    border-color: #78dbff;
+    background: #a3a3a3;
+    border-color: #a3a3a3;
 }
 
 .task-checkbox input[type="checkbox"]:checked::after {
@@ -3755,9 +3755,9 @@ input:checked + .toggle-slider:before {
 .import-task-btn {
     width: 100%;
     padding: 16px;
-    border: 2px solid rgba(120, 219, 255, 0.3);
-    background: rgba(120, 219, 255, 0.1);
-    color: #78dbff;
+    border: 2px solid rgba(163, 163, 163, 0.3);
+    background: rgba(163, 163, 163, 0.1);
+    color: #a3a3a3;
     border-radius: 8px;
     cursor: pointer;
     display: flex;
@@ -3771,8 +3771,8 @@ input:checked + .toggle-slider:before {
 }
 
 .import-task-btn:hover {
-    background: rgba(120, 219, 255, 0.2);
-    border-color: rgba(120, 219, 255, 0.5);
+    background: rgba(163, 163, 163, 0.2);
+    border-color: rgba(163, 163, 163, 0.5);
     color: #ffffff;
 }
 
@@ -3814,7 +3814,7 @@ input:checked + .toggle-slider:before {
 
 .add-task-form input[type="text"]:focus {
     outline: none;
-    border-color: #78dbff;
+    border-color: #a3a3a3;
 }
 
 .add-task-form .pomodoros-control {
@@ -3925,8 +3925,8 @@ input:checked + .toggle-slider:before {
 
 /* Current Task Banner Styles */
 .current-task-banner {
-    background: rgba(120, 219, 255, 0.1);
-    border: 1px solid rgba(120, 219, 255, 0.2);
+    background: rgba(163, 163, 163, 0.1);
+    border: 1px solid rgba(163, 163, 163, 0.2);
     border-radius: 12px;
     padding: 16px;
     margin: 16px 0;
@@ -3943,12 +3943,12 @@ input:checked + .toggle-slider:before {
 .current-task-icon {
     width: 32px;
     height: 32px;
-    background: rgba(120, 219, 255, 0.2);
+    background: rgba(163, 163, 163, 0.2);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #78dbff;
+    color: #a3a3a3;
 }
 
 .current-task-details {
@@ -4033,8 +4033,8 @@ input:checked + .toggle-slider:before {
 }
 
 .task-tab.active {
-    color: #78dbff;
-    border-bottom-color: #78dbff;
+    color: #a3a3a3;
+    border-bottom-color: #a3a3a3;
 }
 
 /* Task Options Button */
@@ -4111,7 +4111,7 @@ input:checked + .toggle-slider:before {
     width: 32px;
     height: 32px;
     border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top: 3px solid #78dbff;
+    border-top: 3px solid #a3a3a3;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 1rem;
@@ -4148,8 +4148,8 @@ input:checked + .toggle-slider:before {
 }
 
 .todoist-project-item.selected {
-    background: rgba(120, 219, 255, 0.1);
-    border-color: rgba(120, 219, 255, 0.3);
+    background: rgba(163, 163, 163, 0.1);
+    border-color: rgba(163, 163, 163, 0.3);
 }
 
 .project-checkbox {
@@ -4176,8 +4176,8 @@ input:checked + .toggle-slider:before {
 }
 
 .project-checkbox-input:checked + .project-checkbox-label {
-    background: #78dbff;
-    border-color: #78dbff;
+    background: #a3a3a3;
+    border-color: #a3a3a3;
 }
 
 .project-checkbox-input:checked + .project-checkbox-label::after {
@@ -4247,7 +4247,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(120, 219, 255, 0.2);
+    border-bottom: 1px solid rgba(163, 163, 163, 0.2);
 }
 
 .project-title {
@@ -4289,7 +4289,7 @@ input:checked + .toggle-slider:before {
 }
 
 .todoist-task-item.selected {
-    background: rgba(120, 219, 255, 0.1);
+    background: rgba(163, 163, 163, 0.1);
 }
 
 .task-checkbox {
@@ -4316,8 +4316,8 @@ input:checked + .toggle-slider:before {
 }
 
 .task-checkbox-input:checked + .task-checkbox-label {
-    background: #78dbff;
-    border-color: #78dbff;
+    background: #a3a3a3;
+    border-color: #a3a3a3;
 }
 
 .task-checkbox-input:checked + .task-checkbox-label::after {
@@ -4421,7 +4421,7 @@ input:checked + .toggle-slider:before {
 
 .task-form input[type="text"]:focus {
     outline: none;
-    border-color: #78dbff;
+    border-color: #a3a3a3;
 }
 
 .pomodoros-control {
@@ -4479,7 +4479,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary {
-    background: #78dbff;
+    background: #a3a3a3;
     color: #000;
 }
 
@@ -4488,7 +4488,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary:disabled {
-    background: rgba(120, 219, 255, 0.3);
+    background: rgba(163, 163, 163, 0.3);
     cursor: not-allowed;
 }
 
@@ -4597,7 +4597,7 @@ input:checked + .toggle-slider:before {
 .import-task-item input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: #78dbff;
+    accent-color: #a3a3a3;
 }
 
 .import-task-item .task-content {
@@ -4632,9 +4632,9 @@ input:checked + .toggle-slider:before {
 }
 
 .task-source.local {
-    background: rgba(120, 219, 255, 0.2);
-    color: #78dbff;
-    border: 1px solid rgba(120, 219, 255, 0.3);
+    background: rgba(163, 163, 163, 0.2);
+    color: #a3a3a3;
+    border: 1px solid rgba(163, 163, 163, 0.3);
 }
 
 /* Background Music Modal - Redesigned */
@@ -4836,7 +4836,7 @@ input:checked + .toggle-slider:before {
 }
 
 .volume-slider:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 2px rgba(120, 219, 255, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 2px rgba(163, 163, 163, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .volume-slider:hover::-moz-range-thumb {
@@ -4844,7 +4844,7 @@ input:checked + .toggle-slider:before {
 }
 
 .volume-slider:focus::-moz-range-thumb {
-    box-shadow: 0 0 0 2px rgba(120, 219, 255, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 2px rgba(163, 163, 163, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .preview-section {
@@ -4853,7 +4853,7 @@ input:checked + .toggle-slider:before {
 }
 
 .preview-btn {
-    background: #78dbff;
+    background: #a3a3a3;
     color: #000000;
     border: none;
     padding: 12px 24px;
@@ -4872,7 +4872,7 @@ input:checked + .toggle-slider:before {
 .preview-btn:hover {
     background: #5bc0de;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(120, 219, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(163, 163, 163, 0.3);
 }
 
 .preview-btn:active {
@@ -4883,8 +4883,8 @@ input:checked + .toggle-slider:before {
 
 /* Pro Upgrade Banner in Tasks Modal */
 .pro-upgrade-banner {
-    background: linear-gradient(135deg, rgba(120, 219, 255, 0.1), rgba(120, 219, 255, 0.05));
-    border: 1px solid rgba(120, 219, 255, 0.2);
+    background: linear-gradient(135deg, rgba(163, 163, 163, 0.1), rgba(163, 163, 163, 0.05));
+    border: 1px solid rgba(163, 163, 163, 0.2);
     border-radius: 12px;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -4897,7 +4897,7 @@ input:checked + .toggle-slider:before {
 }
 
 .pro-banner-icon {
-    color: #78dbff;
+    color: #a3a3a3;
     flex-shrink: 0;
 }
 
@@ -4915,7 +4915,7 @@ input:checked + .toggle-slider:before {
 }
 
 .pro-banner-btn {
-    background: #78dbff;
+    background: #a3a3a3;
     color: #1a1a1a;
     border: none;
     border-radius: 6px;
