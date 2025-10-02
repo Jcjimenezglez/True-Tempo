@@ -111,6 +111,29 @@ body.is-scrolling .streak-fire {
     color: #555;
 }
 
+/* Technique video embeds */
+.technique-video {
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.technique-video iframe {
+    display: block;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .technique-video {
+        margin: 1rem 0;
+    }
+    
+    .technique-video iframe {
+        height: 200px;
+    }
+}
+
 /* Mobile adjustments for content section */
 @media (max-width: 768px) {
     .content-section {
