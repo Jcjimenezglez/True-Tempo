@@ -449,6 +449,42 @@ body::after {
     font-weight: 400;
 }
 
+.streak-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: #ff6b35;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.streak-fire {
+    font-size: 1rem;
+    animation: fireGlow 2s ease-in-out infinite alternate;
+}
+
+.streak-days {
+    font-weight: 600;
+    color: #ff6b35;
+}
+
+.streak-text {
+    color: #a3a3a3;
+    font-weight: 400;
+}
+
+@keyframes fireGlow {
+    0% {
+        filter: drop-shadow(0 0 3px rgba(255, 107, 53, 0.3));
+    }
+    100% {
+        filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.6));
+    }
+}
+
 .current-task {
     font-size: 18px;
     color: #78dbff;

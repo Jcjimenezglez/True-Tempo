@@ -22,6 +22,10 @@ class PomodoroTimer {
         this.actualFocusTimeCompleted = 0; // tracks actual seconds of focus completed in current cycle
         this.requiredFocusTimeForCycle = 0; // total focus time required for a complete cycle
 
+        // Day streak tracking
+        this.streakData = this.loadStreakData();
+        this.hasCompletedFocusToday = false; // tracks if user completed focus session today
+
         // Task execution queue (built from selected tasks and their session counts)
         this.taskQueue = [];
         this.currentTaskIndex = 0;
@@ -176,6 +180,7 @@ class PomodoroTimer {
         this.updateProgress();
         this.updateSections();
         this.updateSessionInfo();
+        this.updateStreakDisplay();
         this.bindEvents();
         this.updateTechniqueTitle();
         this.loadAudio();
@@ -2274,6 +2279,11 @@ class PomodoroTimer {
             // Mark todoist task and advance queue BEFORE loading next section so the label updates immediately
             this.completeCurrentTodoistTaskIfAny();
             this.advanceTaskQueueAfterFocus();
+            
+            // Update day streak only if no cheating occurred during focus session
+            if (!this.cheatedDuringFocusInCycle) {
+                this.updateStreak();
+            }
         }
 
         // Load current section data
@@ -5544,6 +5554,71 @@ class PomodoroTimer {
             return JSON.parse(localStorage.getItem('focusStats') || '{}');
         } catch {
             return {};
+        }
+    }
+
+    // Day streak functions
+    loadStreakData() {
+        try {
+            const data = JSON.parse(localStorage.getItem('streakData') || '{}');
+            return {
+                currentStreak: data.currentStreak || 0,
+                lastActiveDate: data.lastActiveDate || null,
+                ...data
+            };
+        } catch {
+            return {
+                currentStreak: 0,
+                lastActiveDate: null
+            };
+        }
+    }
+
+    saveStreakData() {
+        try {
+            localStorage.setItem('streakData', JSON.stringify(this.streakData));
+        } catch (error) {
+            console.error('Error saving streak data:', error);
+        }
+    }
+
+    updateStreak() {
+        const today = new Date().toDateString();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+
+        // Check if we already completed focus today
+        if (this.hasCompletedFocusToday) {
+            return; // Already counted today
+        }
+
+        // Mark that we completed focus today
+        this.hasCompletedFocusToday = true;
+
+        // If this is the first time today, update streak
+        if (this.streakData.lastActiveDate !== today) {
+            if (this.streakData.lastActiveDate === yesterdayStr) {
+                // Consecutive day - increment streak
+                this.streakData.currentStreak += 1;
+            } else if (this.streakData.lastActiveDate === null) {
+                // First time ever
+                this.streakData.currentStreak = 1;
+            } else {
+                // Streak broken - reset to 1
+                this.streakData.currentStreak = 1;
+            }
+            
+            this.streakData.lastActiveDate = today;
+            this.saveStreakData();
+            this.updateStreakDisplay();
+        }
+    }
+
+    updateStreakDisplay() {
+        const streakDaysElement = document.getElementById('streakDays');
+        if (streakDaysElement) {
+            streakDaysElement.textContent = this.streakData.currentStreak;
         }
     }
 
