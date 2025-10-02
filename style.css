@@ -2096,7 +2096,7 @@ audio {
 }
 
 .upgrade-required-buttons .upgrade-btn {
-    background: #a3a3a3;
+    background: #ffffff;
     color: #1a1a1a;
     border: none;
     border-radius: 8px;
@@ -2109,7 +2109,7 @@ audio {
 }
 
 .upgrade-required-buttons .upgrade-btn:hover {
-    background: #5bc5ff;
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .upgrade-required-buttons .cancel-btn {
@@ -2349,7 +2349,7 @@ audio {
 
 /* Pro Account Badge */
 .pro-badge {
-    background: linear-gradient(135deg, #a3a3a3 0%, #5bc5ff 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
     color: #1a1a1a;
     font-size: 0.7rem;
     font-weight: 700;
@@ -4479,12 +4479,12 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary {
-    background: #a3a3a3;
+    background: #ffffff;
     color: #000;
 }
 
 .btn-primary:hover {
-    background: #5bc0de;
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .btn-primary:disabled {
@@ -4853,7 +4853,7 @@ input:checked + .toggle-slider:before {
 }
 
 .preview-btn {
-    background: #a3a3a3;
+    background: #ffffff;
     color: #000000;
     border: none;
     padding: 12px 24px;
@@ -4870,9 +4870,9 @@ input:checked + .toggle-slider:before {
 }
 
 .preview-btn:hover {
-    background: #5bc0de;
+    background: rgba(255, 255, 255, 0.9);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(163, 163, 163, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
 .preview-btn:active {
@@ -4915,7 +4915,7 @@ input:checked + .toggle-slider:before {
 }
 
 .pro-banner-btn {
-    background: #a3a3a3;
+    background: #ffffff;
     color: #1a1a1a;
     border: none;
     border-radius: 6px;
@@ -4929,7 +4929,7 @@ input:checked + .toggle-slider:before {
 }
 
 .pro-banner-btn:hover {
-    background: #5bc5ff;
+    background: rgba(255, 255, 255, 0.9);
     transform: translateY(-1px);
 }
 
