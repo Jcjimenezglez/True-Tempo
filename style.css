@@ -433,8 +433,8 @@ body::after {
 }
 
 .time {
-    font-size: 5.5rem;
-    font-weight: 300;
+    font-size: 6rem;
+    font-weight: 500;
     color: #ffffff;
     margin-bottom: 0.5rem;
     font-variant-numeric: tabular-nums;
