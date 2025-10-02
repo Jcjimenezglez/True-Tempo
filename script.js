@@ -1100,8 +1100,12 @@ class PomodoroTimer {
             }
         });
         
-        // Close dropdown when clicking outside
+        // Close dropdown when clicking outside (but ignore technique info modal)
         document.addEventListener('click', (e) => {
+            // If click is inside the technique info modal, do nothing
+            const inTechniqueInfo = e.target.closest && e.target.closest('.technique-info-overlay');
+            if (inTechniqueInfo) return;
+
             if (!this.techniqueDropdown.contains(e.target)) {
                 this.closeDropdown();
             }
@@ -1110,6 +1114,7 @@ class PomodoroTimer {
         // Handle dropdown item selection
         this.dropdownItems.forEach(item => {
             item.addEventListener('click', (e) => {
+
                 const technique = item.getAttribute('data-technique');
                 if (technique === 'custom') {
                     e.stopPropagation();
