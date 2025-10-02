@@ -28,7 +28,6 @@ body {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    padding-top: 80px; /* Space for sticky header */
     box-sizing: border-box;
 }
 
@@ -790,9 +789,6 @@ body::after {
         min-height: 56px;
     }
     
-    .timer-section {
-        padding-top: 60px; /* Reduced padding for mobile */
-    }
     
     .header-left {
         min-height: 36px;
