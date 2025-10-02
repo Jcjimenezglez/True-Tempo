@@ -39,6 +39,16 @@
     
     <link rel="stylesheet" href="style.css?v=6.1">
     
+    <!-- Google Ads Conversion Tracking -->
+    <script>
+        // Check if this is a signup success page
+        if (window.location.search.includes('signup=success')) {
+            gtag('event', 'conversion_event_signup', {
+                // <event_parameters>
+            });
+        }
+    </script>
+    
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
