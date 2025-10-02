@@ -167,19 +167,24 @@ body::after {
 
 /* Main Header */
 .main-header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
     min-height: 64px;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(8px);
+    background: transparent;
+    backdrop-filter: none;
     width: 100%;
     box-sizing: border-box;
+    pointer-events: none; /* prevent intercepting scroll */
 }
+
+.main-header * { pointer-events: auto; }
 
 /* Header Left - Achievement Icon */
 .header-left {
