@@ -8,22 +8,21 @@
     <meta name="keywords" content="pomodoro timer, focus timer, productivity app, time management techniques, time management methods, pomodoro time management, time management pomodoro technique, time management tools, time blocking software, pomodoro technique timer, focus timer app, time management timer, pomodoro timer for study, time management techniques for work, pomodoro technique time, study timer, work timer, focus music, todoist integration, ultradian rhythm, custom timer">
     <meta name="author" content="Superfocus">
     <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#1a1a1a">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.superfocus.live/">
-    <meta property="og:title" content="Time Management Techniques - Advanced Pomodoro Timer & Focus App">
-    <meta property="og:description" content="Boost your productivity with our advanced Pomodoro timer. Features multiple focus techniques, Todoist integration, ambient music, and custom timers.">
-    <meta property="og:image" content="https://www.superfocus.live/og-image.svg">
-    <meta property="og:site_name" content="Superfocus">
+    <meta property="og:url" content="https://superfocus.live/">
+    <meta property="og:title" content="Free Pomodoro Timer - Best Time Management Tool for Productivity">
+    <meta property="og:description" content="Free online Pomodoro timer and time management tool. Boost productivity with proven time management techniques. Customizable timer, task management, and focus tracking.">
+    <meta property="og:image" content="https://superfocus.live/favicon.svg">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://www.superfocus.live/">
-    <meta property="twitter:title" content="Time Management Techniques - Advanced Pomodoro Timer & Focus App">
-    <meta property="twitter:description" content="Boost your productivity with our advanced Pomodoro timer. Features multiple focus techniques, Todoist integration, ambient music, and custom timers.">
-    <meta property="twitter:image" content="https://www.superfocus.live/og-image.svg">
+    <meta property="twitter:url" content="https://superfocus.live/">
+    <meta property="twitter:title" content="Free Pomodoro Timer - Best Time Management Tool for Productivity">
+    <meta property="twitter:description" content="Free online Pomodoro timer and time management tool. Boost productivity with proven time management techniques.">
+    <meta property="twitter:image" content="https://superfocus.live/favicon.svg">
+    <meta name="theme-color" content="#1a1a1a">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.superfocus.live/">
@@ -716,385 +715,66 @@
     </div>
     </section>
     
-    <!-- All Modals - Outside timer section for proper positioning -->
-    <!-- Logout Confirmation Modal -->
-    <div class="logout-modal-overlay" id="logoutModalOverlay" style="display: none;">
-        <div class="logout-modal">
-            <h3 class="logout-modal-title">Are you sure you want<br>to log out?</h3>
-            <p class="logout-modal-message" id="logoutModalMessage">Log out of True Tempo as user@example.com?</p>
-            <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmLogoutBtn">Log out</button>
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelLogoutBtn">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Feedback Modal -->
-    <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">
-        <div class="logout-modal">
-            <h3 class="logout-modal-title">Give feedback</h3>
-            <p class="logout-modal-message">We'd love to hear what went well or how we can improve the product experience.</p>
-            <div class="feedback-form">
-                <textarea id="feedbackText" placeholder="Your feedback" rows="4"></textarea>
-                <div class="feedback-actions">
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelFeedbackBtn">Cancel</button>
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="submitFeedbackBtn">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Custom Timer Configuration Modal -->
-    <div class="custom-timer-modal-overlay" id="customTimerModal">
-        <div class="custom-timer-modal">
-            <div class="custom-timer-header">
-                <h3>Configure Custom Timer</h3>
-                <button class="close-custom-timer-x" id="closeCustomTimer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-            </div>
-            <div class="custom-timer-content">
-                <div class="custom-timer-form">
-                    <div class="form-group">
-                        <label for="customName">Timer Name</label>
-                        <input type="text" id="customName" placeholder="e.g., My Focus" maxlength="10">
-                        <div class="error-message" id="customNameError" style="display: none;">Maximum 10 characters</div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="focusTime">Focus Time (minutes)</label>
-                            <input type="number" id="focusTime" min="1" max="180" value="25">
-                        </div>
-                        <div class="form-group">
-                            <label for="breakTime">Break Time (minutes)</label>
-                            <input type="number" id="breakTime" min="1" max="60" value="5">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="longBreakTime">Long Break (minutes)</label>
-                            <input type="number" id="longBreakTime" min="1" max="60" value="15">
-                        </div>
-                        <div class="form-group">
-                            <label for="cycles">Cycles</label>
-                            <input type="number" id="cycles" min="1" max="10" value="4">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="custom-timer-preview">
-                    <h4>Preview</h4>
-                    <div class="preview-content" id="customPreview">
-                        <div class="preview-item">
-                            <span class="preview-label">Focus:</span>
-                            <span class="preview-value">25 min</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Break:</span>
-                            <span class="preview-value">5 min</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Long Break:</span>
-                            <span class="preview-value">15 min</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Cycles:</span>
-                            <span class="preview-value">4</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="custom-timer-actions">
-                <button class="custom-timer-btn custom-timer-btn-secondary" id="cancelCustomTimer">Cancel</button>
-                <button class="custom-timer-btn custom-timer-btn-primary" id="saveCustomTimer">Save Timer</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Upgrade to Pro Modal -->
-    <div class="upgrade-modal-overlay" id="upgradeModal" style="display: none;">
-        <div class="upgrade-modal">
-            <button class="close-upgrade-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <h3>Upgrade to Pro</h3>
-                <p>Unlock advanced features and boost your productivity</p>
-                
-                <div class="pro-features">
-                    <div class="pro-feature">
-                        <div class="pro-feature-icon">⏰</div>
-                        <div class="pro-feature-text">
-                            <h4>Advanced Techniques</h4>
-                            <p>Long Pomodoro (50min) and Ultradian Rhythm (90min)</p>
-                        </div>
-                    </div>
-                    
-                    <div class="pro-feature">
-                        <div class="pro-feature-icon">⚙️</div>
-                        <div class="pro-feature-text">
-                            <h4>Custom Timer</h4>
-                            <p>Create personalized work/break intervals</p>
-                        </div>
-                    </div>
-                    
-                    <div class="pro-feature">
-                        <div class="pro-feature-icon">📊</div>
-                        <div class="pro-feature-text">
-                            <h4>Focus Analytics</h4>
-                            <p>Export your productivity data</p>
-                        </div>
-                    </div>
-                    
-                    <div class="pro-feature">
-                        <div class="pro-feature-icon">🔗</div>
-                        <div class="pro-feature-text">
-                            <h4>Todoist Integration</h4>
-                            <p>Sync tasks with your Todoist account</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="upgrade-actions">
-                    <button class="upgrade-btn" id="upgradeToProBtn">Upgrade to Pro</button>
-                    <p class="upgrade-note">Start your free trial today</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Settings Modal -->
-    <div class="settings-modal-overlay" id="settingsModal" style="display: none;">
-        <div class="settings-modal">
-            <button class="close-settings-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="settings-content">
-                <h3>Settings</h3>
-                
-                <div class="settings-section">
-                    <h4>Timer Settings</h4>
-                    <div class="settings-item">
-                        <label class="settings-label">Default Work Time</label>
-                        <input type="number" id="defaultWorkTime" min="1" max="180" value="25">
-                    </div>
-                    <div class="settings-item">
-                        <label class="settings-label">Default Break Time</label>
-                        <input type="number" id="defaultBreakTime" min="1" max="60" value="5">
-                    </div>
-                    <div class="settings-item">
-                        <label class="settings-label">Default Long Break</label>
-                        <input type="number" id="defaultLongBreak" min="1" max="60" value="15">
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <h4>Audio Settings</h4>
-                    <div class="settings-item">
-                        <label class="settings-label">Sound Notifications</label>
-                        <input type="checkbox" id="soundNotifications" checked>
-                    </div>
-                    <div class="settings-item">
-                        <label class="settings-label">Background Music</label>
-                        <input type="checkbox" id="backgroundMusic" checked>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <h4>Appearance</h4>
-                    <div class="settings-item">
-                        <label class="settings-label">Dark Mode</label>
-                        <input type="checkbox" id="darkMode" checked>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <!-- Content Section - Educational Content -->
     <section class="content-section">
         <div class="content-container">
-            <h1>Superfocus - The Ultimate Pomodoro Timer for Deep Work</h1>
+            <h1>Free Pomodoro Timer - The Best Time Management Tool for Productivity</h1>
             
             <h2>What is Superfocus?</h2>
-            <p>Superfocus is a premium Pomodoro timer designed for deep work, study sessions, and productivity. Unlike basic timers, Superfocus offers advanced techniques like Long Pomodoro and Ultradian Rhythm to match your natural energy cycles and optimize focus.</p>
+            <p>Superfocus is a free online Pomodoro timer and time management tool designed to boost your productivity. This powerful time management technique helps you focus on tasks like studying, writing, coding, and deep work. Our Pomodoro technique timer uses the proven time management method developed by Francesco Cirillo to maximize your efficiency.</p>
             
-            <h2>Focus Techniques Available</h2>
+            <h2>What is the Pomodoro Technique?</h2>
+            <p>The Pomodoro Technique is one of the most effective time management techniques available today. This time management method uses a timer to break work into focused intervals, traditionally 25 minutes in length, separated by short breaks. These intervals are known as "pomodoros", named after the tomato-shaped kitchen timer that Cirillo used as a university student.</p>
+            <p>This proven time management technique is based on the idea that frequent breaks can improve mental agility and prevent burnout. Learn more about the <a href="https://en.wikipedia.org/wiki/Pomodoro_Technique" target="_blank" style="color: #007bff;">Pomodoro Technique on Wikipedia</a>.</p>
             
-            <div class="technique-card" id="pomodoro">
-                <h3>🍅 Pomodoro Technique (Guest/Free/Pro)</h3>
-                <p>The Pomodoro Technique is a time management method developed by Francesco Cirillo. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. After 4 pomodoros, take a longer break of 15-30 minutes.</p>
-                
-                <h4>Benefits:</h4>
-                <ul>
-                    <li>Improves focus and concentration</li>
-                    <li>Reduces mental fatigue</li>
-                    <li>Increases productivity</li>
-                    <li>Helps manage time effectively</li>
-                </ul>
-                
-                <div class="technique-video-link">
-                    <a href="https://www.youtube.com/watch?v=IlU-zDU6aQ0" target="_blank" rel="noopener noreferrer">
-                        📺 Watch: Pomodoro Technique Explained
-                    </a>
-                </div>
-            </div>
-            
-            <div class="technique-card pro-feature" id="long-pomodoro">
-                <h3>⏰ Long Pomodoro (Pro Only)</h3>
-                <p>An extended version of the Pomodoro Technique with longer work sessions. Perfect for deep work and complex tasks that require sustained attention. The 50-minute focus periods allow for deeper immersion in your work.</p>
-                
-                <h4>Benefits:</h4>
-                <ul>
-                    <li>Better for deep work sessions</li>
-                    <li>Reduces context switching</li>
-                    <li>Ideal for complex projects</li>
-                    <li>Maintains focus for longer periods</li>
-                </ul>
-                
-                <div class="technique-video-link">
-                    <a href="https://www.youtube.com/watch?v=bmnoNm64ovI" target="_blank" rel="noopener noreferrer">
-                        📺 Watch: Long Pomodoro Technique
-                    </a>
-                </div>
-            </div>
-            
-            <div class="technique-card pro-feature" id="ultradian-rhythm">
-                <h3>🧠 Ultradian Rhythm (Pro Only)</h3>
-                <p>Based on natural biological rhythms, the Ultradian Rhythm technique aligns with your body's natural energy cycles. Work for 90 minutes followed by a 20-minute break to match your natural attention span.</p>
-                
-                <h4>Benefits:</h4>
-                <ul>
-                    <li>Aligns with natural body rhythms</li>
-                    <li>Optimizes energy levels</li>
-                    <li>Reduces mental fatigue</li>
-                    <li>Enhances cognitive performance</li>
-                </ul>
-                
-                <div class="technique-video-link">
-                    <a href="https://www.youtube.com/watch?v=lsODSDmY4CY" target="_blank" rel="noopener noreferrer">
-                        📺 Watch: Ultradian Rhythm Technique
-                    </a>
-                </div>
-            </div>
-            
-            <div class="technique-card pro-feature" id="custom-timer">
-                <h3>⚙️ Custom Timer (Pro Only)</h3>
-                <p>Create your own focus technique with personalized work and break intervals. Perfect for finding your optimal productivity rhythm. Set custom durations for work sessions, short breaks, long breaks, and cycle counts.</p>
-                
-                <h4>Benefits:</h4>
-                <ul>
-                    <li>Personalized to your work style</li>
-                    <li>Flexible timing options</li>
-                    <li>Adapts to different project types</li>
-                    <li>Optimizes your unique rhythm</li>
-                </ul>
-                
-                <p><em>Custom timers are created through the technique selector in the timer interface.</em></p>
-            </div>
-            
-            <h2>How to Use Superfocus</h2>
+            <h2>How to Use Our Pomodoro Timer for Time Management</h2>
             <ol>
-                <li><strong>Choose your technique</strong> - Select from Pomodoro, Long Pomodoro, Ultradian Rhythm, or create a custom timer</li>
                 <li><strong>Add your tasks</strong> - Break down your work into manageable focus sessions</li>
-                <li><strong>Start focusing</strong> - Begin your timer and enter deep work mode</li>
-                <li><strong>Take breaks</strong> - Rest during break periods to maintain energy</li>
-                <li><strong>Track your streak</strong> - Build consistent focus habits with daily streak tracking</li>
+                <li><strong>Set time estimates</strong> - Estimate how many pomodoros (25-minute blocks) each task needs</li>
+                <li><strong>Select your task</strong> - Choose what to work on first</li>
+                <li><strong>Start the timer</strong> - Focus intensely on your task for 25 minutes</li>
+                <li><strong>Take a break</strong> - Rest for 5 minutes when the timer rings</li>
+                <li><strong>Repeat the cycle</strong> - Continue for 3-5 pomodoros until tasks are complete</li>
             </ol>
             
-            <h2>Guest Features (No Login Required)</h2>
+            <h2>Why Choose Our Time Management Tool?</h2>
+            <p>Our Pomodoro timer is more than just a simple time management tool. It's a comprehensive productivity system that combines the best time management techniques with modern technology:</p>
+            
+            <h3>Free Time Management Features</h3>
             <ul>
-                <li>Classic Pomodoro Technique (25/5/25/5/25/5/25/15)</li>
-                <li>Basic task management</li>
-                <li>Background music and ambient sounds</li>
-                <li>Day streak tracking</li>
-                <li>Mobile and desktop support</li>
-                <li>Keyboard shortcuts</li>
+                <li><strong>Customizable timer intervals</strong> - Adjust work and break times to fit your schedule</li>
+                <li><strong>Task management system</strong> - Organize and track your daily tasks</li>
+                <li><strong>Focus statistics</strong> - Monitor your productivity and time management progress</li>
+                <li><strong>Background music</strong> - Ambient sounds to enhance concentration</li>
+                <li><strong>Day streak tracking</strong> - Build consistent time management habits</li>
+                <li><strong>Mobile and desktop support</strong> - Access your timer anywhere</li>
             </ul>
             
-            <h2>Free Features (Registered Users)</h2>
+            <h3>Advanced Time Management Techniques (Pro)</h3>
             <ul>
-                <li><strong>All Guest Features</strong> - Everything available to guests</li>
-                <li><strong>Task Persistence</strong> - Your tasks are saved across sessions</li>
-                <li><strong>Focus Statistics</strong> - Track your productivity over time</li>
-                <li><strong>Task Templates</strong> - Save and reuse common task sets</li>
-                <li><strong>Import/Export Tasks</strong> - Backup and restore your task lists</li>
-                <li><strong>Hide Tasks Feature</strong> - Clean interface when not needed</li>
+                <li><strong>Long Pomodoro</strong> - Extended 50-minute focus sessions for deep work</li>
+                <li><strong>Ultradian Rhythm</strong> - 90-minute work cycles aligned with natural body rhythms</li>
+                <li><strong>Custom timer configurations</strong> - Create personalized time management methods</li>
+                <li><strong>Todoist integration</strong> - Sync with your existing task management system</li>
+                <li><strong>Focus data export</strong> - Analyze your time management patterns</li>
+                <li><strong>Ad-free experience</strong> - Distraction-free focus environment</li>
             </ul>
             
-            <h2>Pro Features (Premium Users)</h2>
-            <ul>
-                <li><strong>All Free Features</strong> - Everything available to registered users</li>
-                <li><strong>Advanced Techniques</strong> - Long Pomodoro (50min) and Ultradian Rhythm (90min)</li>
-                <li><strong>Custom Timer</strong> - Create personalized work/break intervals</li>
-                <li><strong>Todoist Integration</strong> - Sync tasks with your Todoist account</li>
-                <li><strong>Focus Data Export</strong> - Download your productivity analytics</li>
-                <li><strong>Priority Support</strong> - Get help when you need it</li>
-                <li><strong>Ad-free Experience</strong> - Distraction-free focus environment</li>
-            </ul>
+            <h2>Best Time Management Methods for Different Goals</h2>
             
-            <h2>Perfect For</h2>
-            <ul>
-                <li><strong>Students</strong> - Study sessions, exam preparation, research</li>
-                <li><strong>Developers</strong> - Coding sprints, debugging, feature development</li>
-                <li><strong>Writers</strong> - Content creation, editing, creative writing</li>
-                <li><strong>Professionals</strong> - Deep work, project management, analysis</li>
-                <li><strong>Remote Workers</strong> - Focus time, meeting preparation, task completion</li>
-            </ul>
+            <h3>For Students</h3>
+            <p>Our Pomodoro timer is perfect for study sessions, exam preparation, and research. The time management technique helps maintain focus during long study periods while preventing mental fatigue.</p>
+            
+            <h3>For Professionals</h3>
+            <p>Whether you're coding, writing, or analyzing data, our time management tool helps you tackle complex projects with structured focus sessions. The technique reduces context switching and improves deep work.</p>
+            
+            <h3>For Remote Workers</h3>
+            <p>Maintain productivity at home with our proven time management methods. The Pomodoro technique timer helps create structure and boundaries in your workday.</p>
+            
+            <h2>Start Your Time Management Journey Today</h2>
+            <p>Join thousands of users who have improved their productivity with our free Pomodoro timer. This simple yet powerful time management technique can transform how you work, study, and achieve your goals. No registration required - start focusing immediately!</p>
         </div>
     </section>
-    
-    <!-- Footer -->
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h4>Superfocus</h4>
-                <p>The ultimate Pomodoro timer for deep work and productivity.</p>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Techniques</h4>
-                <ul>
-                    <li><a href="#pomodoro">Pomodoro</a></li>
-                    <li><a href="#long-pomodoro">Long Pomodoro</a></li>
-                    <li><a href="#ultradian-rhythm">Ultradian Rhythm</a></li>
-                    <li><a href="#custom-timer">Custom Timer</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Features</h4>
-                <ul>
-                    <li><a href="#task-management">Task Management</a></li>
-                    <li><a href="#background-music">Background Music</a></li>
-                    <li><a href="#streak-tracking">Streak Tracking</a></li>
-                    <li><a href="#todoist-integration">Todoist Integration</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="#help">Help Center</a></li>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#terms">Terms of Service</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 Superfocus. All rights reserved.</p>
-        </div>
-    </footer>
     
     <script src="script.js?v=8.2"></script>
 </body>

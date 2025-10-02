@@ -27,6 +27,7 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
+    overflow: hidden;
 }
 
 .timer-section::before {
@@ -90,165 +91,24 @@ body {
 .content-section h3 {
     font-size: 1.4rem;
     font-weight: 600;
-    margin: 2rem 0 0.5rem 0;
+    margin: 2rem 0 1rem 0;
     color: #333;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
-/* Technique Cards */
-.technique-card {
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 2rem 0;
-}
-
-.technique-card h3 {
-    font-size: 1.5rem;
+.content-section strong {
+    color: #333;
     font-weight: 600;
-    margin: 0 0 1rem 0;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
-.technique-card h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 1.5rem 0 0.5rem 0;
-    color: #333;
-}
-
-.technique-card p {
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-.technique-card ul {
-    margin: 0.5rem 0 1.5rem 0;
-    padding-left: 1.5rem;
-}
-
-.technique-card ul li {
-    color: #555;
-    margin-bottom: 0.5rem;
-}
-
-.technique-video-link {
-    margin-top: 1.5rem;
-    text-align: center;
-}
-
-.technique-video-link a {
-    display: inline-block;
+.content-section a {
     color: #007bff;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 1rem;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid #007bff;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    background: rgba(0, 123, 255, 0.1);
-}
-
-.technique-video-link a:hover {
-    background: #007bff;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-/* Responsive technique cards */
-@media (max-width: 768px) {
-    .technique-card {
-        padding: 1.5rem;
-        margin: 1.5rem 0;
-    }
-    
-    .technique-card h3 {
-        font-size: 1.3rem;
-    }
-}
-
-/* Footer Styles */
-.main-footer {
-    background: #f8f9fa;
-    color: #333;
-    padding: 3rem 0 1rem 0;
-    border-top: 1px solid #e9ecef;
-}
-
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.footer-section h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
-.footer-section p {
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-}
-
-.footer-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.footer-section ul li {
-    margin-bottom: 0.5rem;
-}
-
-.footer-section ul li a {
-    color: #666;
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
-.footer-section ul li a:hover {
-    color: #007bff;
-}
-
-.footer-bottom {
-    max-width: 1200px;
-    margin: 2rem auto 0 auto;
-    padding: 1rem 20px 0 20px;
-    border-top: 1px solid #e9ecef;
-    text-align: center;
-}
-
-.footer-bottom p {
-    color: #666;
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-/* Responsive Footer */
-@media (max-width: 768px) {
-    .footer-container {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .main-footer {
-        padding: 2rem 0 1rem 0;
-    }
+.content-section a:hover {
+    color: #0056b3;
+    text-decoration: underline;
 }
 
 body::after {
@@ -1040,7 +900,7 @@ body::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 10000;
     backdrop-filter: blur(8px);
 }
 
@@ -1615,14 +1475,14 @@ audio {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 2000;
     animation: fadeIn 0.2s ease-out;
 }
 
@@ -1712,6 +1572,26 @@ audio {
     font-weight: 400;
 }
 
+.technique-video {
+    margin: 0 0 1.5rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.technique-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+}
 
 .technique-benefits h4 {
     color: #ffffff;
@@ -1789,7 +1669,7 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 10000;
     animation: fadeIn 0.3s ease;
 }
 
@@ -1884,7 +1764,7 @@ audio {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 10000;
     animation: fadeIn 0.3s ease;
 }
 
@@ -2091,7 +1971,7 @@ audio {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 99999;
+    z-index: 10000;
     backdrop-filter: blur(8px);
 }
 
@@ -2235,7 +2115,7 @@ audio {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 99999;
+    z-index: 10000;
 }
 
 .settings-modal {
@@ -3026,7 +2906,7 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 10000;
     backdrop-filter: blur(8px);
 }
 
