@@ -593,12 +593,6 @@ class PomodoroTimer {
         // Built-in technique
         const item = document.querySelector(`[data-technique="${saved}"]`);
         if (item) {
-            const requiresAccount = item.dataset.requiresAccount === 'true';
-            if (requiresAccount && !this.isAuthenticated) {
-                // Defer until auth is ready; do NOT mark as applied yet
-                this.pendingSelectedTechnique = saved;
-                return;
-            }
             this.selectTechnique(item);
             this.hasAppliedSavedTechnique = true;
             return;
@@ -6844,12 +6838,7 @@ class PomodoroTimer {
         if (lastSelectedTechnique) {
             const techniqueItem = document.querySelector(`[data-technique="${lastSelectedTechnique}"]`);
             if (techniqueItem) {
-                const requiresAccount = techniqueItem.dataset.requiresAccount === 'true';
-                if (requiresAccount && !this.isAuthenticated) {
-                    this.loadDefaultTechnique();
-                } else {
-                    this.selectTechnique(techniqueItem);
-                }
+                this.selectTechnique(techniqueItem);
                 return;
             }
         }
