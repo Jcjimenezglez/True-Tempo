@@ -100,17 +100,14 @@ body {
 
 /* Technique Cards */
 .technique-card {
-    background: #f8f9fa;
     border: 1px solid #e9ecef;
     border-radius: 12px;
     padding: 2rem;
     margin: 2rem 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .technique-card.pro-feature {
-    border-left: 4px solid #007bff;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+    border: 2px solid #007bff;
 }
 
 .technique-card h3 {
@@ -150,7 +147,6 @@ body {
     margin-top: 1.5rem;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .technique-video iframe {
