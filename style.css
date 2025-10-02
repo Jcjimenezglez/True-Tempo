@@ -7,6 +7,7 @@
 
 html {
     overflow-x: hidden; /* Disable horizontal scroll at root level */
+    overflow-y: auto; /* Ensure only one vertical scrollbar */
 }
 
 body {
@@ -17,6 +18,7 @@ body {
     padding: 0;
     position: relative;
     overflow-x: hidden; /* Disable horizontal scroll */
+    overflow-y: auto; /* Consistent vertical scroll */
     /* Remove body background animation for performance */
 }
 
@@ -28,7 +30,7 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     box-sizing: border-box;
     background: #000000;
 }
