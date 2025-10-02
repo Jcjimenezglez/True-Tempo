@@ -2838,7 +2838,7 @@ class PomodoroTimer {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
             this.cassetteSounds.volume = 0.3; // Set volume to 30%
-            this.cassetteSounds.preload = 'auto';
+            this.cassetteSounds.preload = 'none'; // Lazy load audio
             
             // Create audio context for pitch and speed control
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -2977,15 +2977,21 @@ class PomodoroTimer {
     }
     
     loadAudio() {
-        // Simple audio loading - no complex audio options for now
-        const savedAudio = localStorage.getItem('selectedAudio') || 'none';
-        if (savedAudio !== 'none') {
-            this.startAudio(savedAudio);
-        }
+        // Lazy load audio - only load when needed
+        this.audio = null;
+        this.audioLoaded = false;
     }
     
     startAudio(type) {
         if (type === 'none') return;
+        
+        // Lazy load audio when first needed
+        if (!this.audioLoaded) {
+            this.audio = new Audio();
+            this.audio.loop = true;
+            this.audio.volume = 0.3;
+            this.audioLoaded = true;
+        }
         
         // Simple audio implementation
         const audioUrls = {

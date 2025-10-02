@@ -36,7 +36,12 @@
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="manifest" href="/site.webmanifest">
     
-    <link rel="stylesheet" href="style.css?v=6.1">
+    <!-- Preload critical resources -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    <link rel="preload" href="audio/ui/cassette-player-button-1.mp3" as="audio">
+    
+    <link rel="stylesheet" href="style.css?v=6.2">
     
     <!-- Google Ads Conversion Tracking -->
     <script>
@@ -776,6 +781,6 @@
         </div>
     </section>
     
-    <script src="script.js?v=8.2"></script>
+    <script src="script.js?v=8.3" defer></script>
 </body>
 </html>
