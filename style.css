@@ -100,14 +100,10 @@ body {
 
 /* Technique Cards */
 .technique-card {
-    border: 1px solid #e9ecef;
+    border: 2px solid #a3a3a3;
     border-radius: 12px;
     padding: 2rem;
     margin: 2rem 0;
-}
-
-.technique-card.pro-feature {
-    border: 2px solid #007bff;
 }
 
 .technique-card h3 {
