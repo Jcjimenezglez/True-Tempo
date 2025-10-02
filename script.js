@@ -1092,6 +1092,12 @@ class PomodoroTimer {
         this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
         this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
+        // Streak button event listener
+        const streakInfo = document.getElementById('streakInfo');
+        if (streakInfo) {
+            streakInfo.addEventListener('click', () => this.showStreakInfo());
+        }
+        
         // Custom timer event listeners
         this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
         this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
@@ -5620,6 +5626,23 @@ class PomodoroTimer {
         if (streakDaysElement) {
             streakDaysElement.textContent = this.streakData.currentStreak;
         }
+    }
+
+    showStreakInfo() {
+        const streakDays = this.streakData.currentStreak;
+        const lastActiveDate = this.streakData.lastActiveDate;
+        
+        let message = '';
+        if (streakDays === 0) {
+            message = 'Start your focus streak today! Complete a focus session to begin.';
+        } else if (streakDays === 1) {
+            message = 'Great start! Keep the momentum going with another focus session tomorrow.';
+        } else {
+            message = `Amazing! You've been super focused for ${streakDays} days in a row! 🔥`;
+        }
+        
+        // Show a simple alert for now (can be replaced with a modal later)
+        alert(message);
     }
 
     updateConsecutiveDays(stats) {

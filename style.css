@@ -459,6 +459,17 @@ body::after {
     color: #ff6b35;
     font-weight: 500;
     opacity: 0.9;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.streak-info:hover {
+    background: rgba(255, 107, 53, 0.1);
+    opacity: 1;
 }
 
 .streak-fire {
@@ -469,11 +480,6 @@ body::after {
 .streak-days {
     font-weight: 600;
     color: #ff6b35;
-}
-
-.streak-text {
-    color: #a3a3a3;
-    font-weight: 400;
 }
 
 @keyframes fireGlow {
