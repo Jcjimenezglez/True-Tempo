@@ -52,7 +52,7 @@ body.is-scrolling .streak-fire {
 .content-section {
     background: #ffffff;
     color: #1a1a1a;
-    padding: 60px 20px;
+    padding: 60px 20px 100px 20px;
     min-height: 100vh;
     content-visibility: auto;
     contain-intrinsic-size: 1000px;
@@ -92,6 +92,13 @@ body.is-scrolling .streak-fire {
 .content-section li {
     margin-bottom: 0.5rem;
     color: #555;
+}
+
+/* Mobile adjustments for content section */
+@media (max-width: 768px) {
+    .content-section {
+        padding: 40px 16px 80px 16px;
+    }
 }
 
 body::after {
