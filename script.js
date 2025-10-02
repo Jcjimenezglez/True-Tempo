@@ -1140,6 +1140,18 @@ class PomodoroTimer {
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
+
+        // Improve scroll performance by pausing heavy animations while scrolling
+        let scrollTimeoutId = null;
+        window.addEventListener('scroll', () => {
+            document.body.classList.add('is-scrolling');
+            if (scrollTimeoutId) {
+                clearTimeout(scrollTimeoutId);
+            }
+            scrollTimeoutId = setTimeout(() => {
+                document.body.classList.remove('is-scrolling');
+            }, 150);
+        }, { passive: true });
         
         // Handle login button
         if (this.loginButton) {

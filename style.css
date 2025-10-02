@@ -44,12 +44,29 @@ body {
     animation: backgroundShift 15s ease-in-out infinite;
 }
 
+/* Pause animations during active scroll */
+body.is-scrolling .timer-section::before,
+body.is-scrolling .streak-fire {
+    animation-play-state: paused !important;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 /* Content Section - Below Timer */
 .content-section {
     background: #ffffff;
     color: #1a1a1a;
     padding: 60px 20px;
     min-height: 100vh;
+    content-visibility: auto;
+    contain-intrinsic-size: 1000px;
 }
 
 .content-container {
