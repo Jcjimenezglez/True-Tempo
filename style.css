@@ -6,6 +6,7 @@
 }
 
 html {
+    scroll-behavior: smooth;
     overflow-x: hidden; /* Disable horizontal scroll at root level */
     overflow-y: auto; /* Ensure only one vertical scrollbar */
     /* Hide scrollbar for Chrome, Safari and Opera */
