@@ -412,6 +412,20 @@ body.is-scrolling .streak-fire {
     cursor: pointer;
 }
 
+.edit-custom-link {
+    color: #a3a3a3;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.edit-custom-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
 .learn-more-link:hover {
     color: #ffffff;
     text-decoration: underline;

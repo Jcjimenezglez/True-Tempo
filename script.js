@@ -1131,6 +1131,16 @@ class PomodoroTimer {
             });
         });
         
+        // Edit custom timer link event listener
+        const editCustomLink = document.getElementById("editCustomLink");
+        if (editCustomLink) {
+            editCustomLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showCustomTimerModal();
+            });
+        }
+        
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
