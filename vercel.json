@@ -52,13 +52,5 @@
       "destination": "https://superfocus.live/$1",
       "permanent": true
     }
-  ],
-  "functions": {
-    "privacy.html": {
-      "runtime": "@vercel/static"
-    },
-    "terms.html": {
-      "runtime": "@vercel/static"
-    }
-  }
+  ]
 }
