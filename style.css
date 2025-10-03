@@ -413,21 +413,7 @@ body.is-scrolling .streak-fire {
 }
 
 .learn-more-link:hover {
-
-/* Configure link styles - visible for Custom Timer */
-.configure-link {
-    color: #a3a3a3;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.configure-link:hover {
     color: #ffffff;
-    text-decoration: underline;
-
     text-decoration: underline;
 }
 
