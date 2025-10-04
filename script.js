@@ -1139,7 +1139,7 @@ class PomodoroTimer {
                 if (e.target.classList.contains('login-btn')) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const technique = item.getAttribute('data-technique');
+                const technique = item.getAttribute('data-technique');
                     this.showLoginRequiredModal(technique);
                     return;
                 }
@@ -1167,6 +1167,9 @@ class PomodoroTimer {
         
         // Handle login buttons for advanced techniques
         this.setupLoginButtons();
+        
+        // Initialize dropdown items state immediately to prevent flash of enabled state
+        this.initializeDropdownItemsState();
         
         
         // Handle keyboard shortcuts
@@ -2876,7 +2879,7 @@ class PomodoroTimer {
 
         }, 1000); // slight delay so Clerk can hydrate
     }
-
+    
     checkPomodoroIntro() {
         // Only show for first-time users (not authenticated and haven't seen intro)
         if (this.isAuthenticated) {
@@ -3388,6 +3391,25 @@ class PomodoroTimer {
             // Remove authenticated class to show badges
             body.classList.remove('authenticated-user');
         }
+    }
+
+    initializeDropdownItemsState() {
+        // Initialize dropdown items state immediately to prevent flash of enabled state
+        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        
+        this.dropdownItems.forEach(item => {
+            const technique = item.getAttribute('data-technique');
+            const requiresAccount = proTechniques.includes(technique);
+            
+            if (requiresAccount) {
+                // Start with disabled state for guest users (will be updated when auth state is known)
+                item.classList.add('disabled');
+                const loginBtn = item.querySelector('.login-btn');
+                if (loginBtn) {
+                    loginBtn.style.display = 'block';
+                }
+            }
+        });
     }
 
     updateDropdownItemsState() {
