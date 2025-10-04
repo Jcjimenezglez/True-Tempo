@@ -39,6 +39,14 @@
     {
       "source": "/(.*)",
       "has": [
+        { "type": "host", "value": "superfocus.live" }
+      ],
+      "destination": "https://www.superfocus.live/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
         { "type": "host", "value": "truetempo.app" }
       ],
       "destination": "https://superfocus.live/$1",

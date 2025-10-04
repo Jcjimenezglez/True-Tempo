@@ -2,6 +2,20 @@
 const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+// Helper to read raw body for Stripe signature verification on Vercel Node functions
+async function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    try {
+      const chunks = [];
+      req.on('data', (chunk) => chunks.push(chunk));
+      req.on('end', () => resolve(Buffer.concat(chunks)));
+      req.on('error', reject);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -25,7 +39,9 @@ module.exports = async (req, res) => {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    // Read raw body buffer to verify signature
+    const rawBody = await readRawBody(req);
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     res.status(400).json({ error: 'Invalid signature' });
