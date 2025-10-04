@@ -6168,77 +6168,21 @@ class PomodoroTimer {
         modal.innerHTML = `
             <div style="text-align: center; margin-bottom: 32px;">
                 <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600;">Report</h3>
-                <p style="margin: 0; color: #a3a3a3; font-size: 16px;">Start saving your focus on the free account.</p>
+                <p style="margin: 0; color: #a3a3a3; font-size: 16px;">We're working on something amazing for you.</p>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="color: #ff6b35; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+            <div style="text-align: center; margin-bottom: 32px;">
+                <div style="background: #2a2a2a; border-radius: 16px; padding: 40px 20px; margin-bottom: 24px;">
+                    <div style="color: #10b981; margin-bottom: 16px; display: flex; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
                     </div>
-                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${streakDays}</div>
-                    <div style="color: #a3a3a3; font-size: 14px;">Day Streak</div>
-                </div>
-                
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="color: #ffd700; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-                            <path d="M4 22h16"/>
-                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21l-1.4.58c-.53.22-1.12.22-1.65 0l-1.4-.58c-.5-.23-.98-.66-.98-1.21v-2.34"/>
-                            <path d="M14 14.66V17c0 .55.47.98.97 1.21l1.4.58c.53.22 1.12.22 1.65 0l1.4-.58c.5-.23.98-.66.98-1.21v-2.34"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${longestStreak}</div>
-                    <div style="color: #a3a3a3; font-size: 14px;">Longest Streak</div>
-                </div>
-                
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="color: #10b981; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${daysMeditated}</div>
-                    <div style="color: #a3a3a3; font-size: 14px;">Days Meditated</div>
-                </div>
-                
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="color: #3b82f6; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${totalSessions}</div>
-                    <div style="color: #a3a3a3; font-size: 14px;">Total Sessions</div>
-                </div>
-                
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="color: #8b5cf6; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 3v18h18"/>
-                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${averageSession}</div>
-                    <div style="color: #a3a3a3; font-size: 14px;">Session Average</div>
-                </div>
-                
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="color: #ef4444; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 3v18h18"/>
-                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${longestSession}</div>
-                    <div style="color: #a3a3a3; font-size: 14px;">Longest Session</div>
+                    <h4 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #ffffff;">Coming Soon</h4>
+                    <p style="margin: 0; color: #a3a3a3; font-size: 14px; line-height: 1.5;">
+                        We're building detailed analytics and insights to help you track your focus journey. 
+                        Stay tuned for personalized reports, streak tracking, and progress visualization.
+                    </p>
                 </div>
             </div>
             
