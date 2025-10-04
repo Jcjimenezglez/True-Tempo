@@ -2889,7 +2889,13 @@ class PomodoroTimer {
             return;
         }
 
-        // Show intro modal
+        // Check if user has visited before - if so, they'll see welcome back modal instead
+        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+        if (hasVisitedBefore) {
+            return; // Don't show Pomodoro intro for returning users
+        }
+
+        // Show intro modal only for completely new users
         this.showPomodoroIntro();
     }
 
