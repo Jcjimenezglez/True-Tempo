@@ -1128,6 +1128,16 @@ class PomodoroTimer {
                 }
 
                 const technique = item.getAttribute('data-technique');
+                
+                // Check if technique requires authentication
+                const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+                if (proTechniques.includes(technique) && !this.isAuthenticated) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showLoginRequiredModal(technique);
+                    return;
+                }
+                
                 if (technique === 'custom') {
                     e.preventDefault();
                     e.stopPropagation();
@@ -2847,6 +2857,110 @@ class PomodoroTimer {
         }, 1000); // slight delay so Clerk can hydrate
     }
     
+
+    showLoginRequiredModal(technique) {
+        // Get technique information
+        const techniqueInfo = {
+            'pomodoro-plus': {
+                name: 'Long Pomodoro',
+                description: 'Extended focus sessions for deep work',
+                benefits: [
+                    'Perfect for complex projects requiring sustained attention',
+                    'Reduces context switching between tasks',
+                    'Ideal for deep work and creative projects',
+                    'Maintains focus for longer periods'
+                ]
+            },
+            'ultradian-rhythm': {
+                name: 'Ultradian Rhythm',
+                description: 'Natural biological rhythm-based focus technique',
+                benefits: [
+                    'Aligns with your body\'s natural energy cycles',
+                    'Optimizes energy levels and cognitive performance',
+                    'Reduces mental fatigue during long sessions',
+                    'Based on scientific research on attention spans'
+                ]
+            },
+            'custom': {
+                name: 'Custom Timer',
+                description: 'Create your own personalized focus technique',
+                benefits: [
+                    'Fully customizable to your work style',
+                    'Experiment with different timing patterns',
+                    'Adapt to your unique attention span',
+                    'Create the perfect technique for your needs'
+                ]
+            }
+        };
+        
+        const info = techniqueInfo[technique];
+        if (!info) return;
+        
+        // Create login required modal using upgrade modal styling
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeLoginRequiredModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h3>${info.name}</h3>
+                <p>${info.description}. Create a free account to unlock this advanced focus technique.</p>
+                <div class="upgrade-features">
+                    ${info.benefits.map(benefit => `
+                        <div class="upgrade-feature">
+                            <span class="upgrade-feature-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6 9 17l-5-5"/>
+                                </svg>
+                            </span>
+                            <span class="upgrade-feature-text">${benefit}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="loginRequiredSignupBtn">Sign up for free</button>
+                    <button class="cancel-btn" id="dismissLoginRequiredBtn">Maybe later</button>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Add event listeners
+        document.getElementById('loginRequiredSignupBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            this.signupButton.click();
+        });
+        
+        document.getElementById('dismissLoginRequiredBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        document.getElementById('closeLoginRequiredModal').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
 
     showSignupReminderModal() {
         // Create signup reminder modal using upgrade modal styling
