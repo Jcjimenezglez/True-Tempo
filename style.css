@@ -1923,6 +1923,26 @@ audio {
     opacity: 0.5;
 }
 
+/* Authenticated dropdown items - should look completely normal */
+.dropdown-item:not(.disabled) {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.dropdown-item:not(.disabled) .item-title,
+.dropdown-item:not(.disabled) .item-description {
+    color: #fff;
+}
+
+.dropdown-item:not(.disabled) .login-btn {
+    display: none !important;
+}
+
+.dropdown-item:not(.disabled) .learn-more-link {
+    pointer-events: auto;
+    opacity: 1;
+}
+
 /* Pomodoro Intro Modal */
 .pomodoro-intro-modal-overlay {
     position: fixed;
