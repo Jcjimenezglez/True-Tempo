@@ -202,6 +202,11 @@ class PomodoroTimer {
         this.applySavedTechniqueOnce();
         this.checkWelcomeModal();
         
+        // Check for Pomodoro intro (after welcome modal)
+        setTimeout(() => {
+            this.checkPomodoroIntro();
+        }, 1500); // Slight delay after welcome modal
+        
         // Additional check when page is fully loaded
         if (document.readyState === 'complete') {
             setTimeout(() => this.checkAuthState(), 2000);
@@ -2871,7 +2876,98 @@ class PomodoroTimer {
 
         }, 1000); // slight delay so Clerk can hydrate
     }
-    
+
+    checkPomodoroIntro() {
+        // Only show for first-time users (not authenticated and haven't seen intro)
+        if (this.isAuthenticated) {
+            return;
+        }
+
+        // Check if user has seen the intro before
+        const hasSeenIntro = localStorage.getItem('pomodoro_intro_seen');
+        if (hasSeenIntro) {
+            return;
+        }
+
+        // Show intro modal
+        this.showPomodoroIntro();
+    }
+
+    showPomodoroIntro() {
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'pomodoro-intro-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'pomodoro-intro-modal';
+        
+        modal.innerHTML = `
+            <button class="close-intro-modal" id="closeIntroModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3>🍅 Welcome to Pomodoro Technique</h3>
+            <p>25 minutes of focused work, then a 5-minute break. Repeat this cycle to build consistent focus habits.</p>
+            
+            <div class="cycle-visual">
+                <div class="cycle-step">Focus (25min)</div>
+                <div class="cycle-arrow">→</div>
+                <div class="cycle-step">Break (5min)</div>
+                <div class="cycle-arrow">→</div>
+                <div class="cycle-step">Repeat</div>
+            </div>
+            
+            <div class="pomodoro-benefits">
+                <div class="pomodoro-benefit">
+                    <span class="pomodoro-benefit-icon">✅</span>
+                    <span>Build consistent focus habits</span>
+                </div>
+                <div class="pomodoro-benefit">
+                    <span class="pomodoro-benefit-icon">✅</span>
+                    <span>Avoid burnout with regular breaks</span>
+                </div>
+                <div class="pomodoro-benefit">
+                    <span class="pomodoro-benefit-icon">✅</span>
+                    <span>Stay productive throughout the day</span>
+                </div>
+            </div>
+            
+            <button class="intro-start-btn" id="startFirstSession">Start your first session</button>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Event listeners
+        document.getElementById('closeIntroModal').addEventListener('click', () => {
+            this.closePomodoroIntro();
+        });
+        
+        document.getElementById('startFirstSession').addEventListener('click', () => {
+            this.closePomodoroIntro();
+            // Optionally start the timer automatically
+            // this.startTimer();
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                this.closePomodoroIntro();
+            }
+        });
+    }
+
+    closePomodoroIntro() {
+        const modal = document.querySelector('.pomodoro-intro-modal-overlay');
+        if (modal) {
+            modal.remove();
+        }
+        // Mark as seen
+        localStorage.setItem('pomodoro_intro_seen', 'true');
+    }
 
     showLoginRequiredModal(technique) {
         // Get technique information

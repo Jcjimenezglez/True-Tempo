@@ -1923,6 +1923,123 @@ audio {
     opacity: 0.5;
 }
 
+/* Pomodoro Intro Modal */
+.pomodoro-intro-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.pomodoro-intro-modal {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+}
+
+.pomodoro-intro-modal h3 {
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.pomodoro-intro-modal p {
+    color: #a3a3a3;
+    font-size: 16px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.cycle-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+}
+
+.cycle-step {
+    background: #333;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.cycle-arrow {
+    color: #666;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.pomodoro-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.pomodoro-benefit {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #a3a3a3;
+    font-size: 14px;
+}
+
+.pomodoro-benefit-icon {
+    color: #4ade80;
+    font-size: 16px;
+}
+
+.intro-start-btn {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 24px;
+}
+
+.intro-start-btn:hover {
+    background: #e55a2b;
+    transform: translateY(-1px);
+}
+
+.close-intro-modal {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 4px;
+}
+
+.close-intro-modal:hover {
+    color: #fff;
+}
+
 /* Upgrade Modal */
 .upgrade-modal-overlay {
     position: fixed;
