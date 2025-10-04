@@ -147,7 +147,7 @@
         
         <div class="header-center">
             <div class="technique-dropdown" id="techniqueDropdown">
-                <button class="technique-title" id="techniqueTitle">
+                <button class="technique-title" id="techniqueTitle" title="Select Focus Technique">
                     Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <div class="dropdown-menu" id="dropdownMenu">
@@ -238,13 +238,6 @@
                             </svg>
                             <span>Integrations</span>
                         </div>
-                        <div class="dropdown-item" id="developerButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="16,18 22,12 16,6"/>
-                                <polyline points="8,6 2,12 8,18"/>
-                            </svg>
-                            <span>Developer</span>
-                        </div>
                         <div class="dropdown-item" id="feedbackButton">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -254,7 +247,7 @@
                             <span>Feedback</span>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <div class="dropdown-item">
+                        <div class="dropdown-item" id="logoutButton">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                                 <polyline points="16,17 21,12 16,7"/>
@@ -345,7 +338,7 @@
             </svg>
             
             <div class="timer-content">
-                <button class="streak-info" id="streakInfo">
+                <button class="streak-info" id="streakInfo" title="Focus Streak">
                     <svg class="streak-fire" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
                         <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
                     </svg>
@@ -372,7 +365,7 @@
                 <path d="M15 18l-6-6 6-6"/>
             </svg>
         </button>
-        <button id="startPause" class="start-btn">
+        <button id="startPause" class="start-btn" title="Start/Pause Timer">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
                 <polygon points="5,3 19,12 5,21"/>
             </svg>
@@ -574,13 +567,6 @@
                         </svg>
                         <span>Integrations</span>
                     </div>
-                    <div class="settings-nav-item" data-tab="developer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-icon lucide-code">
-                            <polyline points="16,18 22,12 16,6"/>
-                            <polyline points="8,6 2,12 8,18"/>
-                        </svg>
-                        <span>Developer</span>
-                    </div>
                 </div>
                 
                 <!-- Right Content -->
@@ -672,37 +658,6 @@
                         </div>
                     </div>
                     
-                    <!-- Developer Tab -->
-                    <div class="settings-tab" id="developer-tab">
-                        <h3>Developer</h3>
-                        <div class="settings-section">
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">View Mode Toggle</span>
-                                    <span class="settings-description">Switch between different user views for testing</span>
-                                </div>
-                                <div class="view-mode-buttons">
-                                    <button id="guestModeBtn" class="view-mode-btn">Guest</button>
-                                    <button id="freeModeBtn" class="view-mode-btn">Free</button>
-                                    <button id="proModeBtn" class="view-mode-btn active">Pro</button>
-                                </div>
-                                <div class="view-mode-actions">
-                                    <button id="applyViewModeBtn" class="apply-view-mode-btn">Apply</button>
-                                </div>
-                            </div>
-                            
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Debug Mode</span>
-                                    <span class="settings-description">Enable console logging for debugging</span>
-                                </div>
-                                <label class="settings-toggle">
-                                    <input type="checkbox">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
