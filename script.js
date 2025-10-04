@@ -1168,8 +1168,10 @@ class PomodoroTimer {
         // Handle login buttons for advanced techniques
         this.setupLoginButtons();
         
-        // Initialize dropdown items state immediately to prevent flash of enabled state
-        this.initializeDropdownItemsState();
+        // Initialize dropdown items state after auth state is determined
+        setTimeout(() => {
+            this.initializeDropdownItemsState();
+        }, 100);
         
         
         // Handle keyboard shortcuts
