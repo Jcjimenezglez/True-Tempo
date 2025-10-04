@@ -6362,10 +6362,10 @@ class PomodoroTimer {
                 console.log('Google Ads conversion tracked for signup');
             }
             
-            // Show success message for signup
-            setTimeout(() => {
-                this.showSignupSuccessMessage();
-            }, 1000); // Small delay to let the page fully load
+            // Show success message for signup - DISABLED
+            // setTimeout(() => {
+            //     this.showSignupSuccessMessage();
+            // }, 1000); // Small delay to let the page fully load
         }
         
         if (paymentSuccess === 'success' || premiumStatus === '1') {
