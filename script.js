@@ -1141,12 +1141,12 @@ class PomodoroTimer {
 
                 const technique = item.getAttribute('data-technique');
                 
-                // Check if technique requires authentication and user is not authenticated
+                // Check if technique requires authentication
                 const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
                 if (proTechniques.includes(technique) && !this.isAuthenticated) {
                     e.preventDefault();
                     e.stopPropagation();
-                    // Don't show modal here, let the login button handle it
+                    this.showLoginRequiredModal(technique);
                     return;
                 }
                 

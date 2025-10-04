@@ -1884,9 +1884,9 @@ audio {
 
 /* Login buttons in dropdown */
 .login-btn {
-    background: #ff6b35 !important;
-    color: white !important;
-    border: none !important;
+    background: #666;
+    color: white;
+    border: none;
     border-radius: 6px;
     padding: 6px 12px;
     font-size: 12px;
@@ -1895,18 +1895,17 @@ audio {
     transition: all 0.2s ease;
     margin-left: auto;
     flex-shrink: 0;
-    display: block !important;
 }
 
 .login-btn:hover {
-    background: #e55a2b !important;
-    transform: translateY(-1px);
+    background: #666;
+    transform: none;
 }
 
 /* Disabled dropdown items */
 .dropdown-item.disabled {
     opacity: 0.6;
-    pointer-events: none;
+    cursor: pointer;
 }
 
 .dropdown-item.disabled .item-title,
@@ -1917,6 +1916,11 @@ audio {
 .dropdown-item.disabled .login-btn {
     pointer-events: auto;
     opacity: 1;
+}
+
+.dropdown-item.disabled .learn-more-link {
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 /* Upgrade Modal */
