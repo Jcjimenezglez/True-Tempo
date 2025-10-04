@@ -3402,11 +3402,21 @@ class PomodoroTimer {
             const requiresAccount = proTechniques.includes(technique);
             
             if (requiresAccount) {
-                // Start with disabled state for guest users (will be updated when auth state is known)
-                item.classList.add('disabled');
-                const loginBtn = item.querySelector('.login-btn');
-                if (loginBtn) {
-                    loginBtn.style.display = 'block';
+                // Check if user is already authenticated (for immediate login scenarios)
+                if (this.isAuthenticated) {
+                    // Enable item for authenticated users
+                    item.classList.remove('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'none';
+                    }
+                } else {
+                    // Start with disabled state for guest users (will be updated when auth state is known)
+                    item.classList.add('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'block';
+                    }
                 }
             }
         });
