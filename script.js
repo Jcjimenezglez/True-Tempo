@@ -455,6 +455,9 @@ class PomodoroTimer {
         
         // Update streak display based on authentication state
         this.updateStreakDisplay();
+        
+        // Update dropdown items disabled state
+        this.updateDropdownItemsState();
     }
 
     // Close all open modals to focus on timer
@@ -1147,6 +1150,9 @@ class PomodoroTimer {
                 this.selectTechnique(item);
             });
         });
+        
+        // Handle login buttons for advanced techniques
+        this.setupLoginButtons();
         
         
         // Handle keyboard shortcuts
@@ -3244,6 +3250,53 @@ class PomodoroTimer {
             // Remove authenticated class to show badges
             body.classList.remove('authenticated-user');
         }
+    }
+
+    updateDropdownItemsState() {
+        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        
+        this.dropdownItems.forEach(item => {
+            const technique = item.getAttribute('data-technique');
+            const requiresAccount = proTechniques.includes(technique);
+            
+            if (requiresAccount) {
+                if (this.isAuthenticated) {
+                    // Enable item for authenticated users
+                    item.classList.remove('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'none';
+                    }
+                } else {
+                    // Disable item for non-authenticated users
+                    item.classList.add('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'block';
+                    }
+                }
+            }
+        });
+    }
+
+    setupLoginButtons() {
+        // Setup login buttons for advanced techniques
+        const loginButtons = [
+            { id: 'loginPomodoroPlusBtn', technique: 'pomodoro-plus' },
+            { id: 'loginUltradianBtn', technique: 'ultradian-rhythm' },
+            { id: 'loginCustomBtn', technique: 'custom' }
+        ];
+        
+        loginButtons.forEach(({ id, technique }) => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showLoginRequiredModal(technique);
+                });
+            }
+        });
     }
 
     showCycleCompletedCelebration(wasLegitimate) {}

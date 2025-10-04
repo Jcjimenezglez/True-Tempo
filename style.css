@@ -1882,6 +1882,42 @@ audio {
     box-shadow: none;
 }
 
+/* Login buttons in dropdown */
+.login-btn {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.login-btn:hover {
+    background: #e55a2b;
+    transform: translateY(-1px);
+}
+
+/* Disabled dropdown items */
+.dropdown-item.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.dropdown-item.disabled .item-title,
+.dropdown-item.disabled .item-description {
+    color: #666;
+}
+
+.dropdown-item.disabled .login-btn {
+    pointer-events: auto;
+    opacity: 1;
+}
+
 /* Upgrade Modal */
 .upgrade-modal-overlay {
     position: fixed;
