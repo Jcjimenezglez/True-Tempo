@@ -2909,33 +2909,55 @@ class PomodoroTimer {
                 </svg>
             </button>
             
-            <h3>🍅 Welcome to Pomodoro Technique</h3>
-            <p>25 minutes of focused work, then a 5-minute break. Repeat this cycle to build consistent focus habits.</p>
-            
-            <div class="cycle-visual">
-                <div class="cycle-step">Focus (25min)</div>
-                <div class="cycle-arrow">→</div>
-                <div class="cycle-step">Break (5min)</div>
-                <div class="cycle-arrow">→</div>
-                <div class="cycle-step">Repeat</div>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h3>Welcome to Pomodoro Technique</h3>
+                <p>25 minutes of focused work, then a 5-minute break. Repeat this cycle to build consistent focus habits.</p>
+                
+                <div class="cycle-visual">
+                    <div class="cycle-step">Focus (25min)</div>
+                    <div class="cycle-arrow">→</div>
+                    <div class="cycle-step">Break (5min)</div>
+                    <div class="cycle-arrow">→</div>
+                    <div class="cycle-step">Repeat</div>
+                </div>
+                
+                <div class="upgrade-features">
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Build consistent focus habits</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Avoid burnout with regular breaks</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Stay productive throughout the day</span>
+                    </div>
+                </div>
+                
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="startFirstSession">Start your first session</button>
+                    <button class="cancel-btn" id="dismissIntroBtn">Maybe later</button>
+                </div>
             </div>
-            
-            <div class="pomodoro-benefits">
-                <div class="pomodoro-benefit">
-                    <span class="pomodoro-benefit-icon">✅</span>
-                    <span>Build consistent focus habits</span>
-                </div>
-                <div class="pomodoro-benefit">
-                    <span class="pomodoro-benefit-icon">✅</span>
-                    <span>Avoid burnout with regular breaks</span>
-                </div>
-                <div class="pomodoro-benefit">
-                    <span class="pomodoro-benefit-icon">✅</span>
-                    <span>Stay productive throughout the day</span>
-                </div>
-            </div>
-            
-            <button class="intro-start-btn" id="startFirstSession">Start your first session</button>
         `;
         
         modalOverlay.appendChild(modal);
@@ -2950,6 +2972,10 @@ class PomodoroTimer {
             this.closePomodoroIntro();
             // Optionally start the timer automatically
             // this.startTimer();
+        });
+        
+        document.getElementById('dismissIntroBtn').addEventListener('click', () => {
+            this.closePomodoroIntro();
         });
         
         // Close on overlay click
