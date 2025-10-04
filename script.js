@@ -1121,6 +1121,7 @@ class PomodoroTimer {
             item.addEventListener('click', (e) => {
                 // Don't select technique if clicking on learn more link
                 if (e.target.classList.contains('learn-more-link')) {
+                    e.preventDefault();
                     e.stopPropagation();
                     this.showTechniqueInfo(e.target.dataset.technique);
                     return;
@@ -1128,6 +1129,7 @@ class PomodoroTimer {
 
                 const technique = item.getAttribute('data-technique');
                 if (technique === 'custom') {
+                    e.preventDefault();
                     e.stopPropagation();
                     this.handleCustomTechniqueClick(item);
                     return;
