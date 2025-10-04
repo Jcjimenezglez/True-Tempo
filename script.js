@@ -1173,6 +1173,11 @@ class PomodoroTimer {
             this.initializeDropdownItemsState();
         }, 100);
         
+        // Force update dropdown state after auth is fully determined
+        setTimeout(() => {
+            this.updateDropdownItemsState();
+        }, 500);
+        
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
