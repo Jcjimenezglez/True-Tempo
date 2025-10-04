@@ -5586,7 +5586,7 @@ class PomodoroTimer {
         if (streakDaysElement) {
             // In guest mode, always show 0. Only show real streak for authenticated users
             if (this.isAuthenticated) {
-                streakDaysElement.textContent = this.streakData.currentStreak;
+            streakDaysElement.textContent = this.streakData.currentStreak;
             } else {
                 streakDaysElement.textContent = '0';
             }
@@ -5605,72 +5605,58 @@ class PomodoroTimer {
     }
 
     showGuestStreakModal() {
-        // Create guest streak modal
+        // Create guest streak modal using upgrade modal styling
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'guest-streak-modal-overlay';
-        modalOverlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        `;
+        modalOverlay.className = 'upgrade-modal-overlay';
         
         const modal = document.createElement('div');
-        modal.className = 'guest-streak-modal';
-        modal.style.cssText = `
-            background: #1a1a1a;
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            color: white;
-            border: 1px solid #333;
-        `;
+        modal.className = 'upgrade-modal';
         
         modal.innerHTML = `
-            <div style="margin-bottom: 24px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
-                    <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+            <button class="close-upgrade-x" id="closeGuestModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
                 </svg>
-                <h3 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">Focus Streak</h3>
-                <p style="margin: 0 0 24px 0; color: #a3a3a3; line-height: 1.5;">
-                    Track your daily focus sessions and build a consistent habit. 
-                    Your streak shows how many consecutive days you've completed focus sessions.
-                </p>
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <p style="margin: 0; color: #ff6b35; font-weight: 600; font-size: 18px;">
-                        Sign up to start tracking your focus streak!
-                    </p>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                    </svg>
                 </div>
-            </div>
-            <div style="display: flex; gap: 12px; justify-content: center;">
-                <button id="guestSignupBtn" style="
-                    background: #ff6b35;
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    flex: 1;
-                ">Sign up for free</button>
-                <button id="guestCloseBtn" style="
-                    background: transparent;
-                    color: #a3a3a3;
-                    border: 1px solid #333;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    flex: 1;
-                ">Maybe later</button>
+                <h3>Focus Streak</h3>
+                <p>Track your daily focus sessions and build a consistent habit. Your streak shows how many consecutive days you've completed focus sessions.</p>
+                <div class="upgrade-features">
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Track your daily focus progress</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Build consistent focus habits</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">See detailed focus statistics</span>
+                    </div>
+                </div>
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="guestSignupBtn">Sign up for free</button>
+                    <button class="cancel-btn" id="guestCloseBtn">Maybe later</button>
+                </div>
             </div>
         `;
         
@@ -5684,6 +5670,10 @@ class PomodoroTimer {
         });
         
         document.getElementById('guestCloseBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        document.getElementById('closeGuestModal').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
         
