@@ -4,17 +4,17 @@
     "description": "Advanced time management techniques with Pomodoro timer. Features time blocking software, focus timer app, and productivity tools.",
     "icons": [
         {
-            "src": "/Superfocus-isotipo.svg?v=3",
+            "src": "/coffee-logo.svg",
             "sizes": "16x16",
             "type": "image/svg+xml"
         },
         {
-            "src": "/Superfocus-isotipo.svg?v=3",
+            "src": "/coffee-logo.svg",
             "sizes": "32x32",
             "type": "image/svg+xml"
         },
         {
-            "src": "/apple-touch-icon.png",
+            "src": "/coffee-logo.svg",
             "sizes": "180x180",
             "type": "image/svg+xml"
         }
