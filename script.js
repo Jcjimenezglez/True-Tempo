@@ -210,6 +210,11 @@ class PomodoroTimer {
                 setTimeout(() => this.checkAuthState(), 2000);
             });
         }
+        
+        // Ensure logout button is properly bound after DOM is fully loaded
+        window.addEventListener('load', () => {
+            this.ensureLogoutButtonBinding();
+        });
 
         // Build task queue at startup
         this.rebuildTaskQueue();
@@ -378,8 +383,12 @@ class PomodoroTimer {
     updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
         
-        // Force check current auth state from Clerk
-        if (window.Clerk && window.Clerk.user) {
+        // If we just logged out, do NOT rehydrate from Clerk even if window.Clerk.user still exists momentáneamente
+        let justLoggedOut = false;
+        try { justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true'; } catch (_) {}
+
+        // Force check current auth state from Clerk unless we just logged out
+        if (window.Clerk && window.Clerk.user && !justLoggedOut) {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
         }
@@ -404,8 +413,6 @@ class PomodoroTimer {
             this.hideWelcomeModal();
             console.log('User is authenticated, showing profile avatar');
 
-            // Ensure developer tab visibility according to current user
-            this.updateDeveloperTabVisibility();
 
             // Apply saved technique now that auth is ready
             this.applySavedTechniqueOnce();
@@ -440,13 +447,14 @@ class PomodoroTimer {
             // Ensure guest default volume (50%) when not authenticated
             this.ambientVolume = 0.5;
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
-            // Hide developer tab when not authenticated
-            this.updateDeveloperTabVisibility();
             // reset already handled at top of branch
         }
         
         // Update dropdown badges based on authentication state
         this.updateDropdownState();
+        
+        // Update streak display based on authentication state
+        this.updateStreakDisplay();
     }
 
     // Close all open modals to focus on timer
@@ -525,38 +533,6 @@ class PomodoroTimer {
         }
     }
 
-    // Controls visibility of the Developer tab based on current user
-    updateDeveloperTabVisibility() {
-        const developerTab = document.querySelector('[data-tab="developer"]');
-        const developerContent = document.getElementById('developer-tab');
-        const developerDropdownItem = document.getElementById('developerButton');
-        
-        if (!developerTab || !developerContent) return;
-
-        const user = (window.Clerk && window.Clerk.user) ? window.Clerk.user : this.user;
-        let isDeveloper = false;
-        if (user) {
-            try {
-                if (user.emailAddresses && user.emailAddresses.length > 0) {
-                    isDeveloper = user.emailAddresses.some(e => e.emailAddress === 'jcjimenezglez@gmail.com');
-                } else if (user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) {
-                    isDeveloper = user.primaryEmailAddress.emailAddress === 'jcjimenezglez@gmail.com';
-                } else if (user.emailAddress) {
-                    isDeveloper = user.emailAddress === 'jcjimenezglez@gmail.com';
-                }
-            } catch (_) {}
-        }
-
-        if (isDeveloper) {
-            developerTab.style.display = '';
-            developerContent.style.display = '';
-            if (developerDropdownItem) developerDropdownItem.style.display = '';
-        } else {
-            developerTab.style.display = 'none';
-            developerContent.style.display = 'none';
-            if (developerDropdownItem) developerDropdownItem.style.display = 'none';
-        }
-    }
 
     // Apply saved technique once, after auth/user state is hydrated
     applySavedTechniqueOnce() {
@@ -727,6 +703,28 @@ class PomodoroTimer {
         }
     }
     
+    ensureLogoutButtonBinding() {
+        // Ensure logout button is properly bound
+        const confirmBtn = document.getElementById('confirmLogoutBtn');
+        if (confirmBtn && !confirmBtn.hasAttribute('data-bound')) {
+            confirmBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                this.hideLogoutModal();
+                await this.performLogout();
+            });
+            confirmBtn.setAttribute('data-bound', 'true');
+        }
+        
+        const cancelBtn = document.getElementById('cancelLogoutBtn');
+        if (cancelBtn && !cancelBtn.hasAttribute('data-bound')) {
+            cancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideLogoutModal();
+            });
+            cancelBtn.setAttribute('data-bound', 'true');
+        }
+    }
+    
     async performLogout() {
         try {
             // Add loading state to confirm button
@@ -742,20 +740,27 @@ class PomodoroTimer {
             // Wait a moment for the fade effect
             await new Promise(resolve => setTimeout(resolve, 300));
             
-            // Mark that user just logged out to prevent welcome modal
+            // Mark that user just logged out to prevent re-hydration and welcome modal
             try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
+            // Force clear any forced view mode and premium hints
+            try {
+                localStorage.removeItem('viewMode');
+                localStorage.removeItem('hasAccount');
+                localStorage.setItem('isPremium', 'false');
+                localStorage.setItem('hasPaidSubscription', 'false');
+            } catch (_) {}
             
-            // Optimistic UI update
+            // Sign out from Clerk (all sessions) without adding extra query params FIRST
+            try {
+                await window.Clerk.signOut({ signOutAll: true });
+            } catch (_) { /* ignore */ }
+
+            // Now optimistic UI update to guest mode
             this.isAuthenticated = false;
             this.user = null;
             // Clear Todoist tasks when user logs out
             this.clearTodoistTasks();
             this.updateAuthState();
-
-            // Sign out from Clerk (all sessions) without adding extra query params
-            try {
-                await window.Clerk.signOut({ signOutAll: true });
-            } catch (_) { /* ignore */ }
 
             // Clean Clerk params and hard reload the page without query string
             this.stripClerkParamsFromUrl();
@@ -1383,10 +1388,6 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showIntegrationsModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Developer') {
-                    e.preventDefault();
-                    this.showDeveloperModal();
-                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
                 } else if (text === 'Feedback') {
                     e.preventDefault();
                     this.showFeedbackModal();
@@ -1402,6 +1403,16 @@ class PomodoroTimer {
                 this.hideLogoutModal();
                 await this.performLogout();
             });
+        } else {
+            // Fallback: try to find the button again and bind the event
+            const confirmBtn = document.getElementById('confirmLogoutBtn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    this.hideLogoutModal();
+                    await this.performLogout();
+                });
+            }
         }
         
         if (this.cancelLogoutBtn) {
@@ -1499,8 +1510,6 @@ class PomodoroTimer {
     showSettingsModal() {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
-            // Ensure developer tab visibility at open time
-            this.updateDeveloperTabVisibility();
             settingsModal.style.display = 'flex';
         }
     }
@@ -1519,19 +1528,6 @@ class PomodoroTimer {
         }
     }
 
-    showDeveloperModal() {
-        const settingsModal = document.getElementById('settingsModal');
-        if (settingsModal) {
-            // Switch to developer tab and make it active
-            this.switchToSettingsTab('developer');
-            // Make developer nav item active
-            const developerNav = document.querySelector('[data-tab="developer"]');
-            if (developerNav) {
-                developerNav.classList.add('active');
-            }
-            settingsModal.style.display = 'flex';
-        }
-    }
 
     switchToSettingsTab(tabName) {
         // Hide all tabs
@@ -1559,11 +1555,7 @@ class PomodoroTimer {
 
     // Sound system methods
     isPremiumUser() {
-        const forcedMode = localStorage.getItem('viewMode');
-        if (forcedMode === 'pro') return true;
-        if (forcedMode === 'free' || forcedMode === 'guest') return false;
-        
-        // Prefer Clerk metadata when available
+        // 1) Prefer real Pro from Clerk metadata regardless of any previous forced mode
         try {
             if (window.Clerk && window.Clerk.user) {
                 const meta = window.Clerk.user.publicMetadata || {};
@@ -1571,11 +1563,18 @@ class PomodoroTimer {
             }
         } catch (_) {}
 
+        // 2) Then check if a forced view mode exists (legacy/dev only)
+        const forcedMode = localStorage.getItem('viewMode');
+        if (forcedMode === 'pro') return true;
+        if (forcedMode === 'free' || forcedMode === 'guest') return false;
+
         const urlParams = new URLSearchParams(window.location.search);
         const hasPremiumParam = urlParams.get('premium') === '1';
         const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
         const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
         if (hasPremiumParam) {
+            // Clear any forced mode to avoid overriding real Pro
+            try { localStorage.removeItem('viewMode'); } catch (_) {}
             localStorage.setItem('isPremium', 'true');
             localStorage.setItem('hasPaidSubscription', 'true');
             return true;
@@ -5585,25 +5584,260 @@ class PomodoroTimer {
     updateStreakDisplay() {
         const streakDaysElement = document.getElementById('streakDays');
         if (streakDaysElement) {
-            streakDaysElement.textContent = this.streakData.currentStreak;
+            // In guest mode, always show 0. Only show real streak for authenticated users
+            if (this.isAuthenticated) {
+                streakDaysElement.textContent = this.streakData.currentStreak;
+            } else {
+                streakDaysElement.textContent = '0';
+            }
         }
     }
 
     showStreakInfo() {
-        const streakDays = this.streakData.currentStreak;
-        const lastActiveDate = this.streakData.lastActiveDate;
-        
-        let message = '';
-        if (streakDays === 0) {
-            message = 'Start your focus streak today! Complete a focus session to begin.';
-        } else if (streakDays === 1) {
-            message = 'Great start! Keep the momentum going with another focus session tomorrow.';
-        } else {
-            message = `Amazing! You've been super focused for ${streakDays} days in a row! 🔥`;
+        // If user is not authenticated, show guest modal
+        if (!this.isAuthenticated) {
+            this.showGuestStreakModal();
+            return;
         }
         
-        // Show a simple alert for now (can be replaced with a modal later)
-        alert(message);
+        // For authenticated users, show the full statistics modal
+        this.showStatisticsModal();
+    }
+
+    showGuestStreakModal() {
+        // Create guest streak modal
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'guest-streak-modal-overlay';
+        modalOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const modal = document.createElement('div');
+        modal.className = 'guest-streak-modal';
+        modal.style.cssText = `
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            color: white;
+            border: 1px solid #333;
+        `;
+        
+        modal.innerHTML = `
+            <div style="margin-bottom: 24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
+                    <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                </svg>
+                <h3 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">Focus Streak</h3>
+                <p style="margin: 0 0 24px 0; color: #a3a3a3; line-height: 1.5;">
+                    Track your daily focus sessions and build a consistent habit. 
+                    Your streak shows how many consecutive days you've completed focus sessions.
+                </p>
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <p style="margin: 0; color: #ff6b35; font-weight: 600; font-size: 18px;">
+                        Sign up to start tracking your focus streak!
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="guestSignupBtn" style="
+                    background: #ff6b35;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    flex: 1;
+                ">Sign up for free</button>
+                <button id="guestCloseBtn" style="
+                    background: transparent;
+                    color: #a3a3a3;
+                    border: 1px solid #333;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    flex: 1;
+                ">Maybe later</button>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Add event listeners
+        document.getElementById('guestSignupBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            this.signupButton.click();
+        });
+        
+        document.getElementById('guestCloseBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showStatisticsModal() {
+        // Get user statistics
+        const stats = this.getFocusStats();
+        const streakDays = this.streakData.currentStreak;
+        const longestStreak = this.streakData.longestStreak || streakDays;
+        const totalSessions = stats.totalSessions || 0;
+        const totalTime = stats.totalTime || 0;
+        const averageSession = totalSessions > 0 ? Math.round(totalTime / totalSessions / 60) : 0;
+        const longestSession = Math.round((stats.longestSession || 0) / 60);
+        const daysMeditated = stats.daysMeditated || 0;
+        
+        // Create statistics modal
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'statistics-modal-overlay';
+        modalOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const modal = document.createElement('div');
+        modal.className = 'statistics-modal';
+        modal.style.cssText = `
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            border: 1px solid #333;
+        `;
+        
+        modal.innerHTML = `
+            <div style="text-align: center; margin-bottom: 32px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600;">Report</h3>
+                <p style="margin: 0; color: #a3a3a3; font-size: 16px;">Start saving your focus on the free account.</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="color: #ff6b35; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${streakDays}</div>
+                    <div style="color: #a3a3a3; font-size: 14px;">Day Streak</div>
+                </div>
+                
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="color: #ffd700; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                            <path d="M4 22h16"/>
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21l-1.4.58c-.53.22-1.12.22-1.65 0l-1.4-.58c-.5-.23-.98-.66-.98-1.21v-2.34"/>
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21l1.4.58c.53.22 1.12.22 1.65 0l1.4-.58c.5-.23.98-.66.98-1.21v-2.34"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${longestStreak}</div>
+                    <div style="color: #a3a3a3; font-size: 14px;">Longest Streak</div>
+                </div>
+                
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="color: #10b981; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${daysMeditated}</div>
+                    <div style="color: #a3a3a3; font-size: 14px;">Days Meditated</div>
+                </div>
+                
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="color: #3b82f6; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${totalSessions}</div>
+                    <div style="color: #a3a3a3; font-size: 14px;">Total Sessions</div>
+                </div>
+                
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="color: #8b5cf6; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18"/>
+                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${averageSession}</div>
+                    <div style="color: #a3a3a3; font-size: 14px;">Session Average</div>
+                </div>
+                
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="color: #ef4444; margin-bottom: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18"/>
+                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${longestSession}</div>
+                    <div style="color: #a3a3a3; font-size: 14px;">Longest Session</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button id="closeStatsBtn" style="
+                    background: transparent;
+                    color: #a3a3a3;
+                    border: 1px solid #333;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                ">Close</button>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Add event listener for close button
+        document.getElementById('closeStatsBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
     }
 
     updateConsecutiveDays(stats) {
@@ -5647,35 +5881,6 @@ class PomodoroTimer {
         const navItems = document.querySelectorAll('.settings-nav-item');
         const tabs = document.querySelectorAll('.settings-tab');
         
-        // Hide Developer tab if user is not the developer
-        const developerTab = document.querySelector('[data-tab="developer"]');
-        const developerContent = document.getElementById('developer-tab');
-        
-        if (developerTab && developerContent) {
-            // Check if user is the developer
-            let isDeveloper = false;
-            
-            if (this.user) {
-                // Try different ways to access the email
-                if (this.user.emailAddresses && this.user.emailAddresses.length > 0) {
-                    isDeveloper = this.user.emailAddresses.some(email => 
-                        email.emailAddress === 'jcjimenezglez@gmail.com'
-                    );
-                } else if (this.user.primaryEmailAddress) {
-                    isDeveloper = this.user.primaryEmailAddress.emailAddress === 'jcjimenezglez@gmail.com';
-                } else if (this.user.emailAddress) {
-                    isDeveloper = this.user.emailAddress === 'jcjimenezglez@gmail.com';
-                }
-            }
-            
-            console.log('User object:', this.user);
-            console.log('Is developer:', isDeveloper);
-            
-            if (!isDeveloper) {
-                developerTab.style.display = 'none';
-                developerContent.style.display = 'none';
-            }
-        }
         
         navItems.forEach(item => {
             item.addEventListener('click', () => {
