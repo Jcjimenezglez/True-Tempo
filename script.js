@@ -1130,14 +1130,23 @@ class PomodoroTimer {
                     return;
                 }
 
+                // Don't select technique if clicking on login button
+                if (e.target.classList.contains('login-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const technique = item.getAttribute('data-technique');
+                    this.showLoginRequiredModal(technique);
+                    return;
+                }
+
                 const technique = item.getAttribute('data-technique');
                 
-                // Check if technique requires authentication
+                // Check if technique requires authentication and user is not authenticated
                 const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
                 if (proTechniques.includes(technique) && !this.isAuthenticated) {
                     e.preventDefault();
                     e.stopPropagation();
-                    this.showLoginRequiredModal(technique);
+                    // Don't show modal here, let the login button handle it
                     return;
                 }
                 

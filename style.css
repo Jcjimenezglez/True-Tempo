@@ -1884,9 +1884,9 @@ audio {
 
 /* Login buttons in dropdown */
 .login-btn {
-    background: #ff6b35;
-    color: white;
-    border: none;
+    background: #ff6b35 !important;
+    color: white !important;
+    border: none !important;
     border-radius: 6px;
     padding: 6px 12px;
     font-size: 12px;
@@ -1895,10 +1895,11 @@ audio {
     transition: all 0.2s ease;
     margin-left: auto;
     flex-shrink: 0;
+    display: block !important;
 }
 
 .login-btn:hover {
-    background: #e55a2b;
+    background: #e55a2b !important;
     transform: translateY(-1px);
 }
 
