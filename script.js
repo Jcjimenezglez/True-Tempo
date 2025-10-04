@@ -2911,12 +2911,15 @@ class PomodoroTimer {
             
             <div class="upgrade-content">
                 <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
+                        <path d="M10 2v2"/>
+                        <path d="M14 2v2"/>
+                        <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
+                        <path d="M6 2v2"/>
                     </svg>
                 </div>
-                <h3>Welcome to Pomodoro Technique</h3>
-                <p>25 minutes of focused work, then a 5-minute break. Repeat this cycle to build consistent focus habits.</p>
+                <h3>Welcome to Superfocus</h3>
+                <p>You're about to try the Pomodoro Technique: 25 minutes of focused work, then a 5-minute break. Repeat this cycle to build consistent focus habits.</p>
                 
                 <div class="cycle-visual">
                     <div class="cycle-step">Focus (25min)</div>
@@ -2955,7 +2958,6 @@ class PomodoroTimer {
                 
                 <div class="upgrade-required-buttons">
                     <button class="upgrade-btn" id="startFirstSession">Start your first session</button>
-                    <button class="cancel-btn" id="dismissIntroBtn">Maybe later</button>
                 </div>
             </div>
         `;
@@ -2972,10 +2974,6 @@ class PomodoroTimer {
             this.closePomodoroIntro();
             // Optionally start the timer automatically
             // this.startTimer();
-        });
-        
-        document.getElementById('dismissIntroBtn').addEventListener('click', () => {
-            this.closePomodoroIntro();
         });
         
         // Close on overlay click
