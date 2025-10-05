@@ -5027,44 +5027,35 @@ input:checked + .toggle-slider:before {
 
 /* Footer Styles */
 .main-footer {
-    background: #000000 !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    padding: 2rem 0 !important;
-    margin-top: 0 !important;
-    display: block !important; /* Show the footer */
-    visibility: visible !important;
-    opacity: 1 !important;
+    background: #000000;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem 0;
+    margin-top: 0;
+    display: block; /* Show the footer */
 }
 
 .footer-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
-    display: flex !important;
+    display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    visibility: visible !important;
-    opacity: 1 !important;
 }
 
 .footer-links {
-    display: flex !important;
+    display: flex;
     gap: 2rem;
     align-items: center;
-    visibility: visible !important;
-    opacity: 1 !important;
 }
 
 .footer-link {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
     transition: color 0.2s ease;
-    display: inline-block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
 }
 
 .footer-link:hover {
@@ -5112,7 +5103,7 @@ input:checked + .toggle-slider:before {
 }
 
 .privacy-header-container {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 0 2rem;
 }
