@@ -227,10 +227,10 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
-        // Show welcome modal with a small delay to allow auth to load
+        // Show welcome modal with a delay to allow auth to load
         setTimeout(() => {
             this.checkWelcomeModal();
-        }, 100);
+        }, 250);
         
         // Check Pomodoro intro without depending on welcome modal timing
         this.checkPomodoroIntro();
