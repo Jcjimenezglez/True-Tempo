@@ -1907,7 +1907,7 @@ class PomodoroTimer {
             const enabled = e.target.checked;
             this.ambientEnabled = enabled;
             localStorage.setItem('ambientEnabled', String(enabled));
-            volumeSlider.disabled = !enabled && !this.buryTheLightEnabled;
+            volumeSlider.disabled = !(this.ambientEnabled || this.buryTheLightEnabled);
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (enabled) {
@@ -1926,7 +1926,8 @@ class PomodoroTimer {
                     this.buryTheLightEnabled = true;
                     localStorage.setItem('buryTheLightEnabled', 'true');
                     buryTheLightToggle.checked = true;
-                    volumeSlider.disabled = true;
+                    // Auto-enabled Bury the Light should still allow volume control
+                    volumeSlider.disabled = false;
                     if (previewBtn) previewBtn.disabled = true;
                     this.stopPlaylist();
                     if (this.isRunning) {
@@ -1950,7 +1951,7 @@ class PomodoroTimer {
                 this.ambientEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
                 lofiToggle.checked = false;
-                volumeSlider.disabled = !this.ambientEnabled;
+                volumeSlider.disabled = !(this.ambientEnabled || this.buryTheLightEnabled);
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
                 // Start Bury the Light music if timer is running
