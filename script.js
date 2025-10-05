@@ -186,7 +186,7 @@ class PomodoroTimer {
         this.loadingScreen = document.getElementById('loadingScreen');
         this.isLoading = false;
         this.loadingStartTime = null;
-        this.minLoadingTime = 100; // Minimum time to show loading (0.1s) - very quick
+        this.minLoadingTime = 50; // Minimum time to show loading (0.05s) - ultra fast
         
         // Task form state
         this.editingTaskId = null;
@@ -8109,11 +8109,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 timer.hideLoadingScreen();
                 return;
             }
-            setTimeout(tryHide, 150);
+            setTimeout(tryHide, 25);
         };
         
-        // Start checking after a short delay
-        setTimeout(tryHide, 200);
+        // Start checking immediately for ultra-fast hiding
+        setTimeout(tryHide, 50);
         
         // Safety timeout
         setTimeout(() => timer.hideLoadingScreen(), 5000);
