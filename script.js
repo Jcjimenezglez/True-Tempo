@@ -227,8 +227,10 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
-        // Show welcome modal immediately; it will auto-hide if user is authenticated
-        this.checkWelcomeModal();
+        // Show welcome modal with a small delay to allow auth to load
+        setTimeout(() => {
+            this.checkWelcomeModal();
+        }, 100);
         
         // Check Pomodoro intro without depending on welcome modal timing
         this.checkPomodoroIntro();
@@ -3102,7 +3104,7 @@ class PomodoroTimer {
 
         // If this navigation is a plain reload, do not show modal
         try {
-            const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+            const nav = performance.getEntriesByType('navigation')[0];
             const isReload = nav && nav.type === 'reload';
             if (isReload) {
                 return; // Refresh/F5 → never show
@@ -3365,7 +3367,42 @@ class PomodoroTimer {
         });
     }
 
+    hideWelcomeModal() {
+        // Hide any existing upgrade modals (both the main one and signup reminder)
+        const upgradeModal = document.getElementById('upgradeModal');
+        if (upgradeModal) {
+            upgradeModal.style.display = 'none';
+        }
+        
+        // Hide any dynamically created signup reminder modals
+        const signupReminderModals = document.querySelectorAll('.upgrade-modal-overlay.signup-reminder');
+        signupReminderModals.forEach(modal => {
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+        });
+        
+        // Also hide any upgrade modal overlays
+        const upgradeModalOverlays = document.querySelectorAll('.upgrade-modal-overlay');
+        upgradeModalOverlays.forEach(overlay => {
+            if (overlay.id !== 'upgradeModal') { // Don't remove the main upgrade modal, just hide it
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }
+        });
+    }
+
     showSignupReminderModal() {
+        // Double-check authentication state before showing modal
+        if (window.Clerk && window.Clerk.user) {
+            this.isAuthenticated = true;
+            return; // Don't show for authenticated users
+        }
+        if (this.isAuthenticated) {
+            return; // Don't show for authenticated users
+        }
+        
         // Create signup reminder modal using upgrade modal styling
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'upgrade-modal-overlay';
