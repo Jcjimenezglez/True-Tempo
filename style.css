@@ -33,7 +33,7 @@
 }
 
 .loading-logo {
-    animation: logoPulse 2s ease-in-out infinite;
+    /* No animation - static display */
 }
 
 .loading-logo img {
@@ -46,7 +46,7 @@
     border: 3px solid rgba(255, 255, 255, 0.1);
     border-top: 3px solid #ffffff;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    /* No animation - static display */
 }
 
 .loading-text {
@@ -54,37 +54,10 @@
     font-size: 16px;
     font-weight: 500;
     letter-spacing: 0.5px;
-    animation: textFade 2s ease-in-out infinite;
+    /* No animation - static display */
 }
 
-@keyframes logoPulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.05);
-        opacity: 0.8;
-    }
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes textFade {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-}
+/* Animations removed for faster, cleaner loading screen */
 
 html {
     overflow-x: hidden; /* Disable horizontal scroll at root level */

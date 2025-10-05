@@ -186,7 +186,7 @@ class PomodoroTimer {
         this.loadingScreen = document.getElementById('loadingScreen');
         this.isLoading = false;
         this.loadingStartTime = null;
-        this.minLoadingTime = 1200; // Minimum time to show loading (1.2s) - visible even on fast connections
+        this.minLoadingTime = 400; // Minimum time to show loading (0.4s) - quick and visible
         
         // Task form state
         this.editingTaskId = null;
