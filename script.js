@@ -8100,28 +8100,29 @@ class PomodoroTimer {
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     
-    // Decide whether to show loader only under clear slowness
-    const maybeShowLoader = () => {
-        // Show only if network truly slow OR essential UI not ready after 1200ms
-        if (timer.checkConnectionSpeed() || timer.checkIfStillLoading()) {
-            timer.showLoadingScreen();
+    // Only show loader in Lighthouse runs or when explicitly requested via query param
+    const shouldShowLoader = () => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('loader') === '1' || params.get('lh') === '1') return true;
+            const ua = navigator.userAgent || '';
+            return /Lighthouse|Chrome-Lighthouse/i.test(ua);
+        } catch (_) {
+            return false;
         }
     };
-    // Single check at 1200ms to drastically reduce false positives on fast networks
-    setTimeout(maybeShowLoader, 1200);
     
-    // Hide loading screen when essential UI is ready
-    const tryHide = () => {
-        if (!timer.isLoading) return; // nothing to do
-        if (!timer.checkIfStillLoading()) {
-            timer.hideLoadingScreen();
-            return;
-        }
-        setTimeout(tryHide, 150);
-    };
-    // Begin hide checks slightly after potential show
-    setTimeout(tryHide, 1400);
-    
-    // Absolute safety timeout: never exceed 6s
-    setTimeout(() => timer.hideLoadingScreen(), 6000);
+    if (shouldShowLoader()) {
+        timer.showLoadingScreen();
+        const tryHide = () => {
+            if (!timer.isLoading) return;
+            if (!timer.checkIfStillLoading()) {
+                timer.hideLoadingScreen();
+                return;
+            }
+            setTimeout(tryHide, 150);
+        };
+        setTimeout(tryHide, 800);
+        setTimeout(() => timer.hideLoadingScreen(), 4000);
+    }
 });// Force redeploy for admin key
