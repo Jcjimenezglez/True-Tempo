@@ -1874,13 +1874,25 @@ class PomodoroTimer {
         const buryTheLightToggle = modalOverlay.querySelector('#buryTheLightToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
         
-        // Initialize controls with current state
-        volumeSlider.disabled = !isEnabled;
-		if (previewBtn) previewBtn.disabled = !isEnabled;
+        // Initialize controls with current state (volume only applies to Lofi)
+        volumeSlider.disabled = !lofiEnabled;
+		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize toggle states
         lofiToggle.checked = this.ambientEnabled;
         buryTheLightToggle.checked = this.buryTheLightEnabled;
+
+        // Safety: ensure at least one category is active
+        if (!lofiToggle.checked && !buryTheLightToggle.checked) {
+            // Default to Lofi when both are off
+            lofiToggle.checked = true;
+            this.ambientEnabled = true;
+            localStorage.setItem('ambientEnabled', 'true');
+            this.buryTheLightEnabled = false;
+            localStorage.setItem('buryTheLightEnabled', 'false');
+            volumeSlider.disabled = false;
+            if (previewBtn) previewBtn.disabled = false;
+        }
 
         // Toggle logic with persistence
         lofiToggle.addEventListener('change', (e) => {
@@ -1901,8 +1913,21 @@ class PomodoroTimer {
                     this.playPlaylist();
                 }
             } else {
-                this.stopPlaylist();
-				if (previewBtn) previewBtn.textContent = 'Preview';
+                // If disabling lofi would leave both off, auto-enable Bury the Light
+                if (!buryTheLightToggle.checked) {
+                    this.buryTheLightEnabled = true;
+                    localStorage.setItem('buryTheLightEnabled', 'true');
+                    buryTheLightToggle.checked = true;
+                    volumeSlider.disabled = true;
+                    if (previewBtn) previewBtn.disabled = true;
+                    this.stopPlaylist();
+                    if (this.isRunning) {
+                        this.playBuryTheLightPlaylist();
+                    }
+                } else {
+                    this.stopPlaylist();
+					if (previewBtn) previewBtn.textContent = 'Preview';
+                }
             }
         });
 
@@ -1926,6 +1951,17 @@ class PomodoroTimer {
                 }
             } else {
                 this.stopBuryTheLightPlaylist();
+                // If disabling Bury the Light would leave both off, auto-enable Lofi
+                if (!lofiToggle.checked) {
+                    this.ambientEnabled = true;
+                    localStorage.setItem('ambientEnabled', 'true');
+                    lofiToggle.checked = true;
+                    volumeSlider.disabled = false;
+                    if (previewBtn) previewBtn.disabled = false;
+                    if (this.isRunning) {
+                        this.playPlaylist();
+                    }
+                }
             }
         });
 
