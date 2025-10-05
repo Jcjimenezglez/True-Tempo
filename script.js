@@ -5124,6 +5124,9 @@ class PomodoroTimer {
         // Update the main timer banner
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
+        
+        // Re-render tasks to move between tabs
+        this.rerenderTaskList();
     }
 
     updateTaskCompletionVisual(modal, taskId, isCompleted) {
@@ -5135,6 +5138,127 @@ class PomodoroTimer {
                 taskItem.classList.remove('completed');
             }
         }
+    }
+
+    rerenderTaskList() {
+        // Find the task modal and re-render the task list
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) {
+            const listEl = modal.querySelector('#todoistTasksList');
+            if (listEl) {
+                // Get current tab
+                const activeTab = modal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                
+                // Re-render tasks with current tab filter
+                this.renderTasksInModal(modal, currentTab);
+            }
+        }
+    }
+
+    renderTasksInModal(modal, currentTab) {
+        const listEl = modal.querySelector('#todoistTasksList');
+        if (!listEl) return;
+        
+        listEl.innerHTML = '';
+        const allTasks = this.getAllTasks();
+        
+        // Filter tasks based on current tab
+        let filteredTasks = allTasks;
+        if (currentTab === 'todo') {
+            filteredTasks = allTasks.filter(task => !task.completed);
+        } else if (currentTab === 'done') {
+            filteredTasks = allTasks.filter(task => task.completed);
+        }
+        
+        if (filteredTasks.length === 0) {
+            // Show appropriate message based on current tab
+            if (currentTab === 'done') {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
+                    </div>
+                `;
+            } else {
+                // For todo tab, show empty list without message
+                listEl.innerHTML = '';
+            }
+            return;
+        }
+        
+        // Apply saved task order
+        const savedOrder = this.getTaskOrder();
+        let orderedTasks = filteredTasks;
+        
+        if (savedOrder.length > 0) {
+            orderedTasks = filteredTasks.sort((a, b) => {
+                const aIndex = savedOrder.indexOf(a.id);
+                const bIndex = savedOrder.indexOf(b.id);
+                if (aIndex === -1 && bIndex === -1) return 0;
+                if (aIndex === -1) return 1;
+                if (bIndex === -1) return -1;
+                return aIndex - bIndex;
+            });
+        }
+        
+        orderedTasks.forEach((task, index) => {
+            const item = document.createElement('div');
+            item.className = 'task-item';
+            item.draggable = true;
+            item.dataset.taskId = task.id;
+            item.dataset.index = index;
+            
+            const taskConfig = this.getTaskConfig(task.id);
+            const completedSessions = taskConfig.completedSessions || 0;
+            const totalSessions = taskConfig.sessions || 1;
+            const isCompleted = task.completed || (completedSessions >= totalSessions);
+            
+            const itemContent = `
+                <div class="task-checkbox">
+                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                    <label for="task-${task.id}"></label>
+                </div>
+                <div class="task-content">
+                    <div class="task-title">
+                        ${task.content || '(untitled)'}
+                    </div>
+                </div>
+                <div class="task-progress">
+                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                </div>
+                <div class="task-menu" data-task-id="${task.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                </div>
+            `;
+            
+            item.innerHTML = itemContent;
+            
+            // Set initial selected state
+            if (taskConfig.selected) {
+                item.classList.add('selected');
+            }
+            
+            // Add completed class if task is completed
+            if (isCompleted) {
+                item.classList.add('completed');
+            }
+            
+            listEl.appendChild(item);
+        });
+        
+        // Re-setup event listeners for the new elements
+        this.setupTaskEventListeners(modal);
     }
 
     showEditTaskInline(taskId, modal) {
