@@ -3406,37 +3406,47 @@ class PomodoroTimer {
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
         
-        // Add event listeners with error handling and delay to ensure elements exist
-        setTimeout(() => {
-            try {
-                const signupBtn = document.getElementById('signupReminderBtn');
-                const dismissBtn = document.getElementById('dismissSignupReminderBtn');
-                const closeBtn = document.getElementById('closeSignupReminderModal');
-                
-                if (signupBtn) {
-                    signupBtn.addEventListener('click', () => {
-                        document.body.removeChild(modalOverlay);
-                        if (this.signupButton) {
-                            this.signupButton.click();
-                        }
-                    });
-                }
-                
-                if (dismissBtn) {
-                    dismissBtn.addEventListener('click', () => {
-                        document.body.removeChild(modalOverlay);
-                    });
-                }
-                
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', () => {
-                        document.body.removeChild(modalOverlay);
-                    });
-                }
-            } catch (error) {
-                console.error('Error setting up welcome modal event listeners:', error);
+        // Add event listeners scoped to this modal (no delay)
+        const signupBtn = modal.querySelector('#signupReminderBtn');
+        const dismissBtn = modal.querySelector('#dismissSignupReminderBtn');
+        const closeBtn = modal.querySelector('#closeSignupReminderModal');
+
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+            document.removeEventListener('keydown', onKeyDown, true);
+        };
+
+        const onKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
             }
-        }, 100);
+        };
+        document.addEventListener('keydown', onKeyDown, true);
+
+        if (signupBtn) {
+            signupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+                this.handleSignup();
+            });
+        }
+
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+        }
         
         // Close on overlay click
         modalOverlay.addEventListener('click', (e) => {
