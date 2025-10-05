@@ -182,6 +182,10 @@ class PomodoroTimer {
         // Signals when Clerk auth has fully hydrated for this session
         this.authReady = false;
         
+        // Loading screen management
+        this.loadingScreen = document.getElementById('loadingScreen');
+        this.isLoading = true;
+        
         // Task form state
         this.editingTaskId = null;
         
@@ -456,6 +460,8 @@ class PomodoroTimer {
             this.refreshPremiumFromServer().catch(() => {});
             // Hide welcome modal if user is authenticated
             this.hideWelcomeModal();
+            // Hide loading screen when user is authenticated
+            this.hideLoadingScreen();
             console.log('User is authenticated, showing profile avatar');
 
 
@@ -3365,6 +3371,19 @@ class PomodoroTimer {
                 document.body.removeChild(modalOverlay);
             }
         });
+    }
+
+    hideLoadingScreen() {
+        if (this.loadingScreen && this.isLoading) {
+            this.loadingScreen.classList.add('hidden');
+            this.isLoading = false;
+            // Remove from DOM after transition
+            setTimeout(() => {
+                if (this.loadingScreen && this.loadingScreen.parentNode) {
+                    this.loadingScreen.parentNode.removeChild(this.loadingScreen);
+                }
+            }, 500);
+        }
     }
 
     hideWelcomeModal() {
@@ -8025,5 +8044,25 @@ class PomodoroTimer {
 
 // Initialize the timer when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new PomodoroTimer();
+    const timer = new PomodoroTimer();
+    
+    // Hide loading screen when everything is ready
+    // Wait for auth to load and then hide loading screen
+    const hideLoadingWhenReady = () => {
+        // Wait for auth state to be determined
+        if (timer.authReady || (!timer.isLoading && window.Clerk)) {
+            timer.hideLoadingScreen();
+        } else {
+            // Check again in 100ms
+            setTimeout(hideLoadingWhenReady, 100);
+        }
+    };
+    
+    // Start checking after a short delay
+    setTimeout(hideLoadingWhenReady, 200);
+    
+    // Force hide loading screen after 3 seconds maximum
+    setTimeout(() => {
+        timer.hideLoadingScreen();
+    }, 3000);
 });// Force redeploy for admin key
