@@ -186,7 +186,7 @@ class PomodoroTimer {
         this.loadingScreen = document.getElementById('loadingScreen');
         this.isLoading = false;
         this.loadingStartTime = null;
-        this.minLoadingTime = 400; // Minimum time to show loading (0.4s) - quick and visible
+        this.minLoadingTime = 100; // Minimum time to show loading (0.1s) - very quick
         
         // Task form state
         this.editingTaskId = null;
@@ -3389,14 +3389,12 @@ class PomodoroTimer {
             
             // Only hide if we've shown it for minimum time or if it's been too long
             if (elapsed >= this.minLoadingTime || elapsed > 5000) {
-                this.loadingScreen.classList.add('hidden');
+                this.loadingScreen.style.display = 'none';
                 this.isLoading = false;
-                // Remove from DOM after transition
-                setTimeout(() => {
-                    if (this.loadingScreen && this.loadingScreen.parentNode) {
-                        this.loadingScreen.parentNode.removeChild(this.loadingScreen);
-                    }
-                }, 500);
+                // Remove from DOM immediately - no transition
+                if (this.loadingScreen && this.loadingScreen.parentNode) {
+                    this.loadingScreen.parentNode.removeChild(this.loadingScreen);
+                }
             } else {
                 // Wait for minimum time
                 setTimeout(() => this.hideLoadingScreen(), this.minLoadingTime - elapsed);
