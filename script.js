@@ -4091,7 +4091,7 @@ class PomodoroTimer {
                 
                 const itemContent = `
                     <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
                         <label for="task-${task.id}"></label>
                     </div>
                     <div class="task-content">
@@ -5030,6 +5030,22 @@ class PomodoroTimer {
             });
         });
 
+        // Task checkbox click listeners - manual completion toggle
+        const taskCheckboxes = modal.querySelectorAll('.task-checkbox input[type="checkbox"]');
+        taskCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const taskId = checkbox.id.replace('task-', '');
+                const isChecked = checkbox.checked;
+                
+                // Update task completion status
+                this.toggleTaskCompletion(taskId, isChecked);
+                
+                // Update visual state
+                this.updateTaskCompletionVisual(modal, taskId, isChecked);
+            });
+        });
+
         // Task menu (3 dots) click listeners - use bottom form in edit mode
         const taskMenus = modal.querySelectorAll('.task-menu');
         taskMenus.forEach(menu => {
@@ -5076,6 +5092,47 @@ class PomodoroTimer {
                 taskItem.classList.add('selected');
             } else {
                 taskItem.classList.remove('selected');
+            }
+        }
+    }
+
+    toggleTaskCompletion(taskId, isCompleted) {
+        // Update local task completion status
+        const localTasks = this.getLocalTasks();
+        const taskIndex = localTasks.findIndex(t => t.id === taskId);
+        if (taskIndex !== -1) {
+            localTasks[taskIndex].completed = isCompleted;
+            this.setLocalTasks(localTasks);
+        }
+        
+        // Update task config to reflect completion
+        const taskConfig = this.getTaskConfig(taskId);
+        if (isCompleted) {
+            // Mark as completed by setting completed sessions to total sessions
+            this.setTaskConfig(taskId, { 
+                ...taskConfig, 
+                completedSessions: taskConfig.sessions || 1 
+            });
+        } else {
+            // Reset completion by setting completed sessions to 0
+            this.setTaskConfig(taskId, { 
+                ...taskConfig, 
+                completedSessions: 0 
+            });
+        }
+        
+        // Update the main timer banner
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
+    }
+
+    updateTaskCompletionVisual(modal, taskId, isCompleted) {
+        const taskItem = modal.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskItem) {
+            if (isCompleted) {
+                taskItem.classList.add('completed');
+            } else {
+                taskItem.classList.remove('completed');
             }
         }
     }

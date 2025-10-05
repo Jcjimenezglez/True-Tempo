@@ -3682,6 +3682,20 @@ input:checked + .toggle-slider:before {
     border-left-color: #a3a3a3;
 }
 
+.task-item.completed {
+    opacity: 0.6;
+    background: rgba(163, 163, 163, 0.1);
+}
+
+.task-item.completed .task-title {
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.task-item.completed .progress-text {
+    color: rgba(163, 163, 163, 0.7);
+}
+
 .task-progress {
     display: flex;
     align-items: center;
