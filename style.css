@@ -5105,11 +5105,7 @@ input:checked + .toggle-slider:before {
 .privacy-header-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.privacy-logo {
-    padding: 0;
+    padding: 0 0rem;
 }
 
 .privacy-logo a {
