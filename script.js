@@ -5191,11 +5191,15 @@ class PomodoroTimer {
     }
 
     toggleTaskCompletion(taskId, isCompleted) {
+        console.log(`Toggling task ${taskId} completion to: ${isCompleted}`);
+        
         // Get all tasks to determine the source
         const allTasks = this.getAllTasks();
         const task = allTasks.find(t => t.id === taskId);
         
         if (task) {
+            console.log(`Task source: ${task.source}`);
+            
             if (task.source === 'local') {
                 // Update local task completion status
                 const localTasks = this.getLocalTasks();
@@ -5203,6 +5207,7 @@ class PomodoroTimer {
                 if (taskIndex !== -1) {
                     localTasks[taskIndex].completed = isCompleted;
                     this.setLocalTasks(localTasks);
+                    console.log(`Updated local task ${taskId} completed status to: ${isCompleted}`);
                 }
             } else if (task.source === 'todoist') {
                 // For Todoist tasks, track completion state locally
@@ -5235,8 +5240,11 @@ class PomodoroTimer {
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
         
-        // Re-render tasks to move between tabs
-        this.rerenderTaskList();
+        // Force immediate re-render with a small delay to ensure state is updated
+        setTimeout(() => {
+            console.log('Re-rendering task list after completion toggle');
+            this.rerenderTaskList();
+        }, 10);
     }
 
     updateTaskCompletionVisual(modal, taskId, isCompleted) {
@@ -5272,13 +5280,17 @@ class PomodoroTimer {
         
         listEl.innerHTML = '';
         const allTasks = this.getAllTasks();
+        console.log(`Rendering tasks for tab: ${currentTab}`);
+        console.log('All tasks:', allTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, source: t.source })));
         
         // Filter tasks based on current tab
         let filteredTasks = allTasks;
         if (currentTab === 'todo') {
             filteredTasks = allTasks.filter(task => !task.completed);
+            console.log('Filtered todo tasks:', filteredTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed })));
         } else if (currentTab === 'done') {
             filteredTasks = allTasks.filter(task => task.completed);
+            console.log('Filtered done tasks:', filteredTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed })));
         }
         
         if (filteredTasks.length === 0) {
