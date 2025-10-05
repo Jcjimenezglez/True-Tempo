@@ -41,7 +41,7 @@ class PomodoroTimer {
 		this.ambientPlaying = false;
 		// Default guest volume starts at 50% (0.5). Authenticated users will load saved volume in updateAuthState()
 		this.ambientVolume = 0.5;
-		// Persisted enable flag (default On)
+		// Persisted enable flag (default On for guests, load saved for authenticated users)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
 
@@ -454,6 +454,18 @@ class PomodoroTimer {
                     if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
                 }
             } catch (_) {}
+            
+            // Restore user's saved music preferences when authenticated
+            try {
+                const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
+                if (savedAmbientEnabled !== null) {
+                    this.ambientEnabled = savedAmbientEnabled === 'true';
+                }
+                const savedBuryTheLightEnabled = localStorage.getItem('buryTheLightEnabled');
+                if (savedBuryTheLightEnabled !== null) {
+                    this.buryTheLightEnabled = savedBuryTheLightEnabled === 'true';
+                }
+            } catch (_) {}
         } else {
             // Double-check with Clerk before showing login UI
             if (window.Clerk && window.Clerk.user) {
@@ -487,6 +499,12 @@ class PomodoroTimer {
             // Ensure guest default volume (50%) when not authenticated
             this.ambientVolume = 0.5;
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+            
+            // Ensure guest users always have Lofi Music selected by default
+            this.ambientEnabled = true;
+            this.buryTheLightEnabled = false;
+            localStorage.setItem('ambientEnabled', 'true');
+            localStorage.setItem('buryTheLightEnabled', 'false');
             // reset already handled at top of branch
         }
         
@@ -1781,7 +1799,8 @@ class PomodoroTimer {
 
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
-        const isEnabled = this.ambientEnabled;
+        const lofiEnabled = this.ambientEnabled;
+        const buryTheLightEnabled = this.buryTheLightEnabled;
         const modalContent = `
             <div class="focus-stats-modal background-music-modal">
                 <button class="close-focus-stats-x">
@@ -1814,7 +1833,7 @@ class PomodoroTimer {
                             </div>
                             <div class="toggle-container">
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="lofiToggle" ${isEnabled ? 'checked' : ''}>
+                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -1828,7 +1847,7 @@ class PomodoroTimer {
                             </div>
                             <div class="toggle-container">
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="buryTheLightToggle" ${isEnabled ? 'checked' : ''}>
+                                    <input type="checkbox" id="buryTheLightToggle" ${buryTheLightEnabled ? 'checked' : ''}>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -3351,19 +3370,37 @@ class PomodoroTimer {
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
         
-        // Add event listeners
-        document.getElementById('signupReminderBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            this.signupButton.click();
-        });
-        
-        document.getElementById('dismissSignupReminderBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        document.getElementById('closeSignupReminderModal').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
+        // Add event listeners with error handling and delay to ensure elements exist
+        setTimeout(() => {
+            try {
+                const signupBtn = document.getElementById('signupReminderBtn');
+                const dismissBtn = document.getElementById('dismissSignupReminderBtn');
+                const closeBtn = document.getElementById('closeSignupReminderModal');
+                
+                if (signupBtn) {
+                    signupBtn.addEventListener('click', () => {
+                        document.body.removeChild(modalOverlay);
+                        if (this.signupButton) {
+                            this.signupButton.click();
+                        }
+                    });
+                }
+                
+                if (dismissBtn) {
+                    dismissBtn.addEventListener('click', () => {
+                        document.body.removeChild(modalOverlay);
+                    });
+                }
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        document.body.removeChild(modalOverlay);
+                    });
+                }
+            } catch (error) {
+                console.error('Error setting up welcome modal event listeners:', error);
+            }
+        }, 100);
         
         // Close on overlay click
         modalOverlay.addEventListener('click', (e) => {
