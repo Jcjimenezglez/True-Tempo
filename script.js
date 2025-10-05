@@ -214,10 +214,8 @@ class PomodoroTimer {
         // Show welcome modal immediately; it will auto-hide if user is authenticated
         this.checkWelcomeModal();
         
-        // Check for Pomodoro intro (after welcome modal)
-        setTimeout(() => {
-            this.checkPomodoroIntro();
-        }, 1500); // Slight delay after welcome modal
+        // Check Pomodoro intro without depending on welcome modal timing
+        this.checkPomodoroIntro();
         
         // Additional check when page is fully loaded
         if (document.readyState === 'complete') {
@@ -327,8 +325,7 @@ class PomodoroTimer {
             this.authReady = true;
             // Ensure techniques reflect correct state (guest vs free vs pro)
             try { this.updateDropdownItemsState(); } catch (_) {}
-            // Now it's safe to evaluate welcome modals
-            try { this.checkWelcomeModal(); } catch (_) {}
+            // Removed extra welcome modal trigger to avoid duplicate rendering
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }
