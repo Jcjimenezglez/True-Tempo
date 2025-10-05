@@ -230,7 +230,7 @@ class PomodoroTimer {
         // Show welcome modal with a delay to allow auth to load
         setTimeout(() => {
             this.checkWelcomeModal();
-        }, 250);
+        }, 500);
         
         // Check Pomodoro intro without depending on welcome modal timing
         this.checkPomodoroIntro();
@@ -3410,6 +3410,18 @@ class PomodoroTimer {
         const modal = document.createElement('div');
         modal.className = 'upgrade-modal';
         
+        // Add a continuous check to hide modal if user becomes authenticated
+        const authCheckInterval = setInterval(() => {
+            if (window.Clerk && window.Clerk.user) {
+                this.isAuthenticated = true;
+                this.hideWelcomeModal();
+                clearInterval(authCheckInterval);
+            } else if (this.isAuthenticated) {
+                this.hideWelcomeModal();
+                clearInterval(authCheckInterval);
+            }
+        }, 100);
+        
         modal.innerHTML = `
             <button class="close-upgrade-x" id="closeSignupReminderModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3481,6 +3493,8 @@ class PomodoroTimer {
             try { document.body.removeChild(modalOverlay); } catch (_) {}
             document.removeEventListener('keydown', onKeyDown, true);
             document.body.style.overflow = previousOverflow || '';
+            // Clear the auth check interval
+            clearInterval(authCheckInterval);
         };
 
         const onKeyDown = (e) => {
