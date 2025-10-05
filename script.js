@@ -3063,48 +3063,47 @@ class PomodoroTimer {
     checkWelcomeModal() {
         // Only evaluate welcome modal once auth system has declared readiness
         if (!this.authReady) {
-            // Try again shortly once Clerk hydrates
-            setTimeout(() => this.checkWelcomeModal(), 400);
             return;
         }
-        // Wait a bit to ensure auth state is properly checked
-        setTimeout(() => {
-            // Double check auth state
-            if (window.Clerk && window.Clerk.user) {
-                this.isAuthenticated = true;
-                return; // Don't show for authenticated users
+        // Double check auth state (instant)
+        if (window.Clerk && window.Clerk.user) {
+            this.isAuthenticated = true;
+            return; // Don't show for authenticated users
+        }
+        if (this.isAuthenticated) {
+            return; // Don't show for authenticated users
+        }
+
+        // If this navigation is a plain reload, do not show modal
+        try {
+            const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+            const isReload = nav && nav.type === 'reload';
+            if (isReload) {
+                return; // Refresh/F5 → never show
             }
-            if (this.isAuthenticated) {
-                return; // Don't show for authenticated users
-            }
+        } catch (_) {}
 
-            // If this navigation is a plain reload, do not show modal
-            try {
-                const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-                const isReload = nav && nav.type === 'reload';
-                if (isReload) {
-                    return; // Refresh/F5 → never show
-                }
-            } catch (_) {}
+        // Check if user just logged out - don't show modal after logout
+        const justLoggedOut = sessionStorage.getItem('just_logged_out');
+        if (justLoggedOut === 'true') {
+            sessionStorage.removeItem('just_logged_out');
+            return; // Don't show modal after logout
+        }
 
-            // Check if user just logged out - don't show modal after logout
-            const justLoggedOut = sessionStorage.getItem('just_logged_out');
-            if (justLoggedOut === 'true') {
-                sessionStorage.removeItem('just_logged_out');
-                return; // Don't show modal after logout
-            }
+        // First visit? mark and skip
+        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
+        if (!hasVisitedBefore) {
+            try { localStorage.setItem('truetempo_has_visited', 'true'); } catch (_) {}
+            return;
+        }
 
-            // First visit? mark and skip
-            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-            if (!hasVisitedBefore) {
-                try { localStorage.setItem('truetempo_has_visited', 'true'); } catch (_) {}
-                return;
-            }
+        // Prevent duplicate overlays
+        if (document.querySelector('.upgrade-modal-overlay.signup-reminder')) {
+            return;
+        }
 
-            // User has visited before and is returning - show signup reminder modal
-            this.showSignupReminderModal();
-
-        }, 600); // slight delay so Clerk can hydrate
+        // User has visited before and is returning - show signup reminder modal
+        this.showSignupReminderModal();
     }
     
     checkPomodoroIntro() {
@@ -3269,7 +3268,7 @@ class PomodoroTimer {
         
         // Create login required modal using upgrade modal styling
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay';
+        modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
         
         const modal = document.createElement('div');
         modal.className = 'upgrade-modal';
@@ -3313,6 +3312,10 @@ class PomodoroTimer {
         
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
+
+        // Prevent background scroll while modal open
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
         
         // Add event listeners
         document.getElementById('loginRequiredSignupBtn').addEventListener('click', () => {
@@ -3414,6 +3417,7 @@ class PomodoroTimer {
         const closeModal = () => {
             try { document.body.removeChild(modalOverlay); } catch (_) {}
             document.removeEventListener('keydown', onKeyDown, true);
+            document.body.style.overflow = previousOverflow || '';
         };
 
         const onKeyDown = (e) => {
