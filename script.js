@@ -5191,12 +5191,28 @@ class PomodoroTimer {
     }
 
     toggleTaskCompletion(taskId, isCompleted) {
-        // Update local task completion status
-        const localTasks = this.getLocalTasks();
-        const taskIndex = localTasks.findIndex(t => t.id === taskId);
-        if (taskIndex !== -1) {
-            localTasks[taskIndex].completed = isCompleted;
-            this.setLocalTasks(localTasks);
+        // Get all tasks to determine the source
+        const allTasks = this.getAllTasks();
+        const task = allTasks.find(t => t.id === taskId);
+        
+        if (task) {
+            if (task.source === 'local') {
+                // Update local task completion status
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
+            } else if (task.source === 'todoist') {
+                // For Todoist tasks, track completion state locally
+                this.updateTodoistTaskCompletionState(taskId, isCompleted);
+                
+                // If completing, also call the API
+                if (isCompleted) {
+                    this.completeTodoistTaskInTodoist(taskId);
+                }
+            }
         }
         
         // Update task config to reflect completion
@@ -5772,14 +5788,36 @@ class PomodoroTimer {
         localStorage.setItem('localTasks', JSON.stringify(tasks));
     }
 
+    // Todoist task completion state management
+    getTodoistTaskCompletionState() {
+        return JSON.parse(localStorage.getItem('todoistTaskCompletionState') || '{}');
+    }
+
+    setTodoistTaskCompletionState(state) {
+        localStorage.setItem('todoistTaskCompletionState', JSON.stringify(state));
+    }
+
+    updateTodoistTaskCompletionState(taskId, isCompleted) {
+        const currentState = this.getTodoistTaskCompletionState();
+        currentState[taskId] = isCompleted;
+        this.setTodoistTaskCompletionState(currentState);
+    }
+
     getAllTasks() {
         const localTasks = this.getLocalTasks();
         const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
         
+        // Get local completion state for Todoist tasks
+        const todoistCompletionState = this.getTodoistTaskCompletionState();
+        
         // Combine and mark source
         const allTasks = [
             ...localTasks.map(task => ({ ...task, source: 'local' })),
-            ...todoistTasks.map(task => ({ ...task, source: 'todoist' }))
+            ...todoistTasks.map(task => ({ 
+                ...task, 
+                source: 'todoist',
+                completed: todoistCompletionState[task.id] || false
+            }))
         ];
         
         return allTasks;
