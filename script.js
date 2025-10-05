@@ -858,9 +858,10 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
-            // Redirect to signup success page after successful signup
-            const successUrl = window.location.origin + '/?signup=success';
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
+            // Redirect to signup success page after successful signup (force www domain)
+            const successUrl = 'https://www.superfocus.live/?signup=success';
+            const signupUrl = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
+            window.location.assign(signupUrl);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
