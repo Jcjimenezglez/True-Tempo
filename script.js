@@ -136,6 +136,13 @@ class PomodoroTimer {
                     this.nextTrack();
                 }
             });
+            // Defensive: when play() resolves, mark the correct flags by inspecting src
+            this.backgroundAudio.addEventListener('play', () => {
+                const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+                const isBtl = /\/audio\/Bury the Light\//.test(src);
+                this.buryTheLightPlaying = isBtl;
+                this.ambientPlaying = !isBtl;
+            });
         }
 
 		// Shuffle playlist order on each load so it doesn't always start with the same track
@@ -2045,14 +2052,17 @@ class PomodoroTimer {
     resumePlaylist() {
         if (!this.backgroundAudio) return;
         if (!this.ambientEnabled && !this.buryTheLightEnabled) return;
-        try { this.backgroundAudio.play(); } catch (_) {}
-        if (this.buryTheLightEnabled) {
-            this.buryTheLightPlaying = true;
-            this.ambientPlaying = false; // Ensure only one flag is set
-        } else {
-            this.ambientPlaying = true;
-            this.buryTheLightPlaying = false; // Ensure only one flag is set
+        // Ensure the correct source is loaded when resuming
+        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+        const isLofiSrc = /\/audio\/lofi\//.test(src);
+        const shouldBeLofi = this.ambientEnabled && !this.buryTheLightEnabled;
+        if (shouldBeLofi && !isLofiSrc) {
+            // Switch to lofi source before resuming
+            this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         }
+        try { this.backgroundAudio.play(); } catch (_) {}
+        this.ambientPlaying = true;
+        this.buryTheLightPlaying = false;
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
@@ -2177,6 +2187,12 @@ class PomodoroTimer {
     resumeBuryTheLightPlaylist() {
         if (!this.backgroundAudio) return;
         if (!this.buryTheLightEnabled) return;
+        // Ensure the correct source is loaded when resuming
+        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+        const isBtlSrc = /\/audio\/Bury the Light\//.test(src);
+        if (!isBtlSrc) {
+            this.backgroundAudio.src = '/audio/Bury the Light/' + this.buryTheLightPlaylist[this.currentBuryTheLightTrackIndex];
+        }
         try { this.backgroundAudio.play(); } catch (_) {}
         this.buryTheLightPlaying = true;
         this.ambientPlaying = false; // Ensure only one flag is set
@@ -2285,17 +2301,17 @@ class PomodoroTimer {
         
         // Resume background music if enabled (persisted flag)
         if (this.ambientEnabled || this.buryTheLightEnabled) {
-            if (this.backgroundAudio && this.backgroundAudio.src && this.backgroundAudio.currentTime > 0) {
-                // Music was paused, resume from where it left off
-                if (this.buryTheLightEnabled) {
+            const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
+            if (this.buryTheLightEnabled) {
+                // Always ensure correct source for BTL
+                if (hasProgress && /\/audio\/Bury the Light\//.test(this.backgroundAudio.currentSrc || '')) {
                     this.resumeBuryTheLightPlaylist();
                 } else {
-                    this.resumePlaylist();
-                }
-            } else {
-                // No music was playing, start fresh
-                if (this.buryTheLightEnabled) {
                     this.playBuryTheLightPlaylist();
+                }
+            } else if (this.ambientEnabled) {
+                if (hasProgress && /\/audio\/lofi\//.test(this.backgroundAudio.currentSrc || '')) {
+                    this.resumePlaylist();
                 } else {
                     this.playPlaylist();
                 }
