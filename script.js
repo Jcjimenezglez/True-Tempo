@@ -5137,6 +5137,21 @@ class PomodoroTimer {
                 
                 // Update visual state
                 this.updateTaskCompletionVisual(modal, taskId, isChecked);
+
+                // If we're on To-do and the task just got completed, remove it immediately
+                // If we're on Done and the task was unchecked, remove it immediately
+                const activeTab = modal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                const taskItem = modal.querySelector(`[data-task-id="${taskId}"]`);
+                if (taskItem) {
+                    const shouldRemoveFromCurrentView = (currentTab === 'todo' && isChecked) || (currentTab === 'done' && !isChecked);
+                    if (shouldRemoveFromCurrentView) {
+                        try { taskItem.remove(); } catch (_) {}
+                    }
+                }
+
+                // Ensure counts/empty state reflect the change
+                this.rerenderTaskList();
             });
         });
 
@@ -5191,15 +5206,11 @@ class PomodoroTimer {
     }
 
     toggleTaskCompletion(taskId, isCompleted) {
-        console.log(`Toggling task ${taskId} completion to: ${isCompleted}`);
-        
         // Get all tasks to determine the source
         const allTasks = this.getAllTasks();
         const task = allTasks.find(t => t.id === taskId);
         
         if (task) {
-            console.log(`Task source: ${task.source}`);
-            
             if (task.source === 'local') {
                 // Update local task completion status
                 const localTasks = this.getLocalTasks();
@@ -5207,7 +5218,6 @@ class PomodoroTimer {
                 if (taskIndex !== -1) {
                     localTasks[taskIndex].completed = isCompleted;
                     this.setLocalTasks(localTasks);
-                    console.log(`Updated local task ${taskId} completed status to: ${isCompleted}`);
                 }
             } else if (task.source === 'todoist') {
                 // For Todoist tasks, track completion state locally
@@ -5240,11 +5250,8 @@ class PomodoroTimer {
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
         
-        // Force immediate re-render with a small delay to ensure state is updated
-        setTimeout(() => {
-            console.log('Re-rendering task list after completion toggle');
-            this.rerenderTaskList();
-        }, 10);
+        // Re-render tasks to move between tabs
+        this.rerenderTaskList();
     }
 
     updateTaskCompletionVisual(modal, taskId, isCompleted) {
@@ -5259,8 +5266,9 @@ class PomodoroTimer {
     }
 
     rerenderTaskList() {
-        // Find the task modal and re-render the task list
-        const modal = document.querySelector('.modal-overlay');
+        // Find the tasks modal and re-render the task list
+        // The modal uses the class 'focus-stats-overlay'/'focus-stats-modal' for the tasks UI
+        const modal = document.querySelector('.focus-stats-modal');
         if (modal) {
             const listEl = modal.querySelector('#todoistTasksList');
             if (listEl) {
@@ -5280,17 +5288,13 @@ class PomodoroTimer {
         
         listEl.innerHTML = '';
         const allTasks = this.getAllTasks();
-        console.log(`Rendering tasks for tab: ${currentTab}`);
-        console.log('All tasks:', allTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, source: t.source })));
         
         // Filter tasks based on current tab
         let filteredTasks = allTasks;
         if (currentTab === 'todo') {
             filteredTasks = allTasks.filter(task => !task.completed);
-            console.log('Filtered todo tasks:', filteredTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed })));
         } else if (currentTab === 'done') {
             filteredTasks = allTasks.filter(task => task.completed);
-            console.log('Filtered done tasks:', filteredTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed })));
         }
         
         if (filteredTasks.length === 0) {
