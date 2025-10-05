@@ -1949,6 +1949,7 @@ class PomodoroTimer {
         this.backgroundAudio.volume = this.ambientVolume;
         try { await this.backgroundAudio.play(); } catch (_) {}
         this.ambientPlaying = true;
+        this.buryTheLightPlaying = false; // Ensure only one flag is set
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
@@ -1963,14 +1964,21 @@ class PomodoroTimer {
         if (!this.backgroundAudio) return;
         try { this.backgroundAudio.pause(); } catch (_) {}
         this.ambientPlaying = false;
+        this.buryTheLightPlaying = false; // Ensure both flags are cleared
         if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
     }
 
     resumePlaylist() {
         if (!this.backgroundAudio) return;
-        if (!this.ambientEnabled) return;
+        if (!this.ambientEnabled && !this.buryTheLightEnabled) return;
         try { this.backgroundAudio.play(); } catch (_) {}
-        this.ambientPlaying = true;
+        if (this.buryTheLightEnabled) {
+            this.buryTheLightPlaying = true;
+            this.ambientPlaying = false; // Ensure only one flag is set
+        } else {
+            this.ambientPlaying = true;
+            this.buryTheLightPlaying = false; // Ensure only one flag is set
+        }
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
@@ -1983,6 +1991,9 @@ class PomodoroTimer {
     // Smooth fades
     fadeMusicTo(targetVolume, durationMs) {
         if (!this.backgroundAudio) return;
+        // Only fade if music is actually playing (either lofi or Bury the Light)
+        if (!this.ambientPlaying && !this.buryTheLightPlaying) return;
+        
         if (this.fadeTimer) {
             clearInterval(this.fadeTimer);
             this.fadeTimer = null;
@@ -2006,6 +2017,9 @@ class PomodoroTimer {
 
     fadeMusicIn(durationMs) {
         if (!this.backgroundAudio) return;
+        // Only fade in if music is actually playing (either lofi or Bury the Light)
+        if (!this.ambientPlaying && !this.buryTheLightPlaying) return;
+        
         const target = this.ambientVolume;
         if (this.backgroundAudio.volume > 0.001) this.backgroundAudio.volume = 0;
         this.fadeMusicTo(target, durationMs);
@@ -2013,6 +2027,9 @@ class PomodoroTimer {
 
     fadeMusicOut(durationMs) {
         if (!this.backgroundAudio) return;
+        // Only fade out if music is actually playing (either lofi or Bury the Light)
+        if (!this.ambientPlaying && !this.buryTheLightPlaying) return;
+        
         this.fadeMusicTo(0, durationMs);
     }
 
@@ -2062,6 +2079,7 @@ class PomodoroTimer {
         this.backgroundAudio.volume = this.ambientVolume;
         try { await this.backgroundAudio.play(); } catch (_) {}
         this.buryTheLightPlaying = true;
+        this.ambientPlaying = false; // Ensure only one flag is set
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
@@ -2076,6 +2094,7 @@ class PomodoroTimer {
         if (!this.backgroundAudio) return;
         try { this.backgroundAudio.pause(); } catch (_) {}
         this.buryTheLightPlaying = false;
+        this.ambientPlaying = false; // Ensure both flags are cleared
         if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
     }
 
@@ -2084,6 +2103,7 @@ class PomodoroTimer {
         if (!this.buryTheLightEnabled) return;
         try { this.backgroundAudio.play(); } catch (_) {}
         this.buryTheLightPlaying = true;
+        this.ambientPlaying = false; // Ensure only one flag is set
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
@@ -2242,7 +2262,7 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying) {
+        if (this.ambientPlaying || this.buryTheLightPlaying) {
             this.pausePlaylist();
         }
         
@@ -2275,7 +2295,7 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying) {
+        if (this.ambientPlaying || this.buryTheLightPlaying) {
             this.pausePlaylist();
         }
         // No sound - silent pause
