@@ -3405,48 +3405,38 @@ class PomodoroTimer {
     }
 
     checkConnectionSpeed() {
-        // Check if we have connection info
-        if ('connection' in navigator) {
-            const connection = navigator.connection;
-            // Show loading if connection is slow (2G, 3G, or slow 4G)
-            if (connection.effectiveType === '2g' || connection.effectiveType === '3g' || 
-                (connection.effectiveType === '4g' && connection.downlink < 1.5)) {
-                return true;
+        // Prefer explicit network information when available
+        try {
+            if ('connection' in navigator && navigator.connection) {
+                const { effectiveType, downlink, rtt } = navigator.connection;
+                // Consider slow only on 2G/3G or very poor 4G
+                if (effectiveType === 'slow-2g' || effectiveType === '2g' || effectiveType === '3g') {
+                    return true;
+                }
+                if (effectiveType === '4g') {
+                    // Treat as slow 4G only if bandwidth is clearly low or RTT very high
+                    if ((typeof downlink === 'number' && downlink < 0.8) || (typeof rtt === 'number' && rtt > 400)) {
+                        return true;
+                    }
+                }
+                // 5g typically reports as 4g in many browsers; above thresholds avoid false positives
             }
-        }
+        } catch (_) {}
         
-        // Check if page is taking too long to load
-        const loadTime = performance.now();
-        if (loadTime > 1000) { // If page takes more than 1 second to start loading
-            return true;
-        }
-        
-        // Check if DOMContentLoaded took too long
-        if (document.readyState === 'loading' && loadTime > 800) {
-            return true;
-        }
-        
+        // Fallback: do NOT infer slowness from generic timers to avoid false positives on fast networks
         return false;
     }
 
     checkIfStillLoading() {
-        // Check if auth is still loading after a reasonable time
-        if (!this.authReady && !window.Clerk) {
-            return true;
-        }
-        
-        // Check if critical resources are still loading
-        const criticalElements = [
+        // Determine readiness based on essential UI presence only (avoid auth timing noise)
+        const essentialElements = [
             document.getElementById('timerDisplay'),
             document.getElementById('startBtn'),
             document.getElementById('techniqueDropdown')
         ];
-        
-        const missingElements = criticalElements.filter(el => !el);
-        if (missingElements.length > 0) {
+        if (essentialElements.some(el => !el)) {
             return true;
         }
-        
         return false;
     }
 
@@ -8110,35 +8100,28 @@ class PomodoroTimer {
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     
-    // Check if we need to show loading screen based on connection speed
-    const checkIfLoadingNeeded = () => {
+    // Decide whether to show loader only under clear slowness
+    const maybeShowLoader = () => {
+        // Show only if network truly slow OR essential UI not ready after 1200ms
         if (timer.checkConnectionSpeed() || timer.checkIfStillLoading()) {
             timer.showLoadingScreen();
         }
     };
+    // Single check at 1200ms to drastically reduce false positives on fast networks
+    setTimeout(maybeShowLoader, 1200);
     
-    // Check after a short delay to see if loading is slow
-    setTimeout(checkIfLoadingNeeded, 500);
-    
-    // Also check again after 1 second to catch slow auth loading
-    setTimeout(checkIfLoadingNeeded, 1000);
-    
-    // Hide loading screen when everything is ready
-    const hideLoadingWhenReady = () => {
-        // Wait for auth state to be determined
-        if (timer.authReady || (!timer.isLoading && window.Clerk)) {
+    // Hide loading screen when essential UI is ready
+    const tryHide = () => {
+        if (!timer.isLoading) return; // nothing to do
+        if (!timer.checkIfStillLoading()) {
             timer.hideLoadingScreen();
-        } else {
-            // Check again in 100ms
-            setTimeout(hideLoadingWhenReady, 100);
+            return;
         }
+        setTimeout(tryHide, 150);
     };
+    // Begin hide checks slightly after potential show
+    setTimeout(tryHide, 1400);
     
-    // Start checking after a short delay
-    setTimeout(hideLoadingWhenReady, 200);
-    
-    // Force hide loading screen after 5 seconds maximum
-    setTimeout(() => {
-        timer.hideLoadingScreen();
-    }, 5000);
+    // Absolute safety timeout: never exceed 6s
+    setTimeout(() => timer.hideLoadingScreen(), 6000);
 });// Force redeploy for admin key
