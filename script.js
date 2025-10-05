@@ -122,11 +122,20 @@ class PomodoroTimer {
         this.cancelCustomTimer = document.getElementById('cancelCustomTimer');
         this.saveCustomTimer = document.getElementById('saveCustomTimer');
         this.customPreview = document.getElementById('customPreview');
-		this.backgroundAudio = document.getElementById('backgroundAudio');
+        this.backgroundAudio = document.getElementById('backgroundAudio');
         if (this.backgroundAudio) {
-			this.backgroundAudio.addEventListener('ended', () => {
-				this.nextTrack();
-			});
+            this.backgroundAudio.addEventListener('ended', () => {
+                // Advance according to the currently active source
+                if (this.buryTheLightPlaying || this.buryTheLightEnabled) {
+                    // Advance to next Bury the Light track if multiple exist; otherwise restart
+                    if (Array.isArray(this.buryTheLightPlaylist) && this.buryTheLightPlaylist.length > 0) {
+                        this.currentBuryTheLightTrackIndex = (this.currentBuryTheLightTrackIndex + 1) % this.buryTheLightPlaylist.length;
+                        this.playBuryTheLightPlaylist();
+                    }
+                } else if (this.ambientPlaying || this.ambientEnabled) {
+                    this.nextTrack();
+                }
+            });
         }
 
 		// Shuffle playlist order on each load so it doesn't always start with the same track
@@ -1872,8 +1881,9 @@ class PomodoroTimer {
         const buryTheLightToggle = modalOverlay.querySelector('#buryTheLightToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
         
-        // Initialize controls with current state (volume only applies to Lofi)
-        volumeSlider.disabled = !lofiEnabled;
+        // Initialize controls with current state (volume applies to active source)
+        volumeSlider.disabled = !(lofiEnabled || buryTheLightEnabled);
+        // The same slider controls the single <audio> element, regardless of source
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize toggle states
@@ -1897,7 +1907,7 @@ class PomodoroTimer {
             const enabled = e.target.checked;
             this.ambientEnabled = enabled;
             localStorage.setItem('ambientEnabled', String(enabled));
-            volumeSlider.disabled = !enabled;
+            volumeSlider.disabled = !enabled && !this.buryTheLightEnabled;
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (enabled) {
@@ -1940,7 +1950,7 @@ class PomodoroTimer {
                 this.ambientEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
                 lofiToggle.checked = false;
-                volumeSlider.disabled = true;
+                volumeSlider.disabled = !this.ambientEnabled;
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
                 // Start Bury the Light music if timer is running
@@ -2005,6 +2015,8 @@ class PomodoroTimer {
             alert('No background tracks available yet. Upload MP3s to /audio/lofi');
             return;
         }
+        // If switching from Bury the Light, ensure src actually changes to lofi
+        this.backgroundAudio.pause();
         this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         this.backgroundAudio.loop = false;
         this.backgroundAudio.volume = this.ambientVolume;
@@ -2135,6 +2147,8 @@ class PomodoroTimer {
             alert('No Bury the Light tracks available yet. Upload MP3s to /audio/Bury the Light/');
             return;
         }
+        // Ensure we stop any lofi playback and swap source cleanly
+        this.backgroundAudio.pause();
         this.backgroundAudio.src = '/audio/Bury the Light/' + this.buryTheLightPlaylist[this.currentBuryTheLightTrackIndex];
         this.backgroundAudio.loop = false;
         this.backgroundAudio.volume = this.ambientVolume;
