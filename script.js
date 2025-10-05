@@ -3432,8 +3432,14 @@ class PomodoroTimer {
             signupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                closeModal();
-                this.handleSignup();
+                // Trigger the exact same flow as the header button
+                if (this.signupButton && this.signupButton.click) {
+                    this.signupButton.click();
+                } else {
+                    this.handleSignup();
+                }
+                // Close modal after triggering navigation
+                setTimeout(() => closeModal(), 0);
             });
         }
 
