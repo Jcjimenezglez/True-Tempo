@@ -303,9 +303,12 @@ class PomodoroTimer {
                 });
             } catch (_) {}
             
-            this.updateAuthState();
-            // Auth may have hydrated; attempt to apply saved technique now
-            this.applySavedTechniqueOnce();
+            // Wait a bit more for Clerk to fully hydrate before updating UI
+            setTimeout(() => {
+                this.updateAuthState();
+                // Auth may have hydrated; attempt to apply saved technique now
+                this.applySavedTechniqueOnce();
+            }, 500);
             
             // Force check auth state after a short delay to catch post-redirect state
             setTimeout(() => {
@@ -352,10 +355,13 @@ class PomodoroTimer {
                     this.updateAuthState();
                     console.log('Auth state verified:', { user: currentUser, session: currentSession });
                 } else {
-                    this.isAuthenticated = false;
-                    this.user = null;
-                    this.updateAuthState();
-                    console.log('No authenticated user found');
+                    // Only update to unauthenticated if we're sure there's no user
+                    // This prevents showing login modal when user is actually authenticated
+                    if (this.isAuthenticated === false) {
+                        this.user = null;
+                        this.updateAuthState();
+                        console.log('No authenticated user found');
+                    }
                 }
             }
         } catch (error) {
@@ -439,6 +445,16 @@ class PomodoroTimer {
                 }
             } catch (_) {}
         } else {
+            // Double-check with Clerk before showing login UI
+            if (window.Clerk && window.Clerk.user) {
+                console.log('Clerk user found, updating auth state');
+                this.isAuthenticated = true;
+                this.user = window.Clerk.user;
+                // Recursively call updateAuthState to handle authenticated case
+                this.updateAuthState();
+                return;
+            }
+            
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
 
