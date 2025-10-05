@@ -5108,6 +5108,10 @@ input:checked + .toggle-slider:before {
     padding: 0 2rem;
 }
 
+.privacy-logo {
+    padding: 0;
+}
+
 .privacy-logo a {
     display: flex;
     align-items: center;
