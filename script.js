@@ -1872,11 +1872,15 @@ class PomodoroTimer {
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (enabled) {
-                // If lofi is enabled, disable Bury the Light
+                // If lofi is enabled, disable Bury the Light and switch music
                 this.buryTheLightEnabled = false;
                 localStorage.setItem('buryTheLightEnabled', 'false');
                 buryTheLightToggle.checked = false;
                 this.stopBuryTheLightPlaylist();
+                // Start lofi music if timer is running
+                if (this.isRunning) {
+                    this.playPlaylist();
+                }
             } else {
                 this.stopPlaylist();
 				if (previewBtn) previewBtn.textContent = 'Preview';
@@ -1890,13 +1894,17 @@ class PomodoroTimer {
             localStorage.setItem('buryTheLightEnabled', String(enabled));
             
             if (enabled) {
-                // If Bury the Light is enabled, disable lofi
+                // If Bury the Light is enabled, disable lofi and switch music
                 this.ambientEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
                 lofiToggle.checked = false;
                 volumeSlider.disabled = true;
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
+                // Start Bury the Light music if timer is running
+                if (this.isRunning) {
+                    this.playBuryTheLightPlaylist();
+                }
             } else {
                 this.stopBuryTheLightPlaylist();
             }
