@@ -163,6 +163,8 @@ class PomodoroTimer {
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
+        // Signals when Clerk auth has fully hydrated for this session
+        this.authReady = false;
         
         // Task form state
         this.editingTaskId = null;
@@ -209,6 +211,7 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
+        // Welcome modal is gated behind authReady to avoid false prompts
         this.checkWelcomeModal();
         
         // Check for Pomodoro intro (after welcome modal)
@@ -305,9 +308,9 @@ class PomodoroTimer {
             
             // Wait a bit more for Clerk to fully hydrate before updating UI
             setTimeout(() => {
-                this.updateAuthState();
-                // Auth may have hydrated; attempt to apply saved technique now
-                this.applySavedTechniqueOnce();
+            this.updateAuthState();
+            // Auth may have hydrated; attempt to apply saved technique now
+            this.applySavedTechniqueOnce();
             }, 500);
             
             // Force check auth state after a short delay to catch post-redirect state
@@ -319,6 +322,13 @@ class PomodoroTimer {
             setTimeout(() => {
                 this.checkAuthState();
             }, 3000);
+
+            // Mark auth system as ready and re-run UI gates that depend on it
+            this.authReady = true;
+            // Ensure techniques reflect correct state (guest vs free vs pro)
+            try { this.updateDropdownItemsState(); } catch (_) {}
+            // Now it's safe to evaluate welcome modals
+            try { this.checkWelcomeModal(); } catch (_) {}
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }
@@ -2968,6 +2978,12 @@ class PomodoroTimer {
     }
     
     checkWelcomeModal() {
+        // Only evaluate welcome modal once auth system has declared readiness
+        if (!this.authReady) {
+            // Try again shortly once Clerk hydrates
+            setTimeout(() => this.checkWelcomeModal(), 400);
+            return;
+        }
         // Wait a bit to ensure auth state is properly checked
         setTimeout(() => {
             // Double check auth state
@@ -3005,7 +3021,7 @@ class PomodoroTimer {
             // User has visited before and is returning - show signup reminder modal
             this.showSignupReminderModal();
 
-        }, 1000); // slight delay so Clerk can hydrate
+        }, 600); // slight delay so Clerk can hydrate
     }
     
     checkPomodoroIntro() {
@@ -3558,6 +3574,13 @@ class PomodoroTimer {
             const requiresAccount = proTechniques.includes(technique);
             
             if (requiresAccount) {
+                // If auth readiness isn't known yet, keep items disabled to avoid flicker
+                if (!this.authReady) {
+                    item.classList.add('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) loginBtn.style.display = 'block';
+                    return;
+                }
                 if (this.isAuthenticated) {
                     // Enable item for authenticated users
                     item.classList.remove('disabled');
