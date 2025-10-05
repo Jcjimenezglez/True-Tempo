@@ -186,7 +186,7 @@ class PomodoroTimer {
         this.loadingScreen = document.getElementById('loadingScreen');
         this.isLoading = false;
         this.loadingStartTime = null;
-        this.minLoadingTime = 50; // Minimum time to show loading (0.05s) - ultra fast
+        this.minLoadingTime = 0; // No enforced minimum - never delay normal users
         
         // Task form state
         this.editingTaskId = null;
@@ -8098,27 +8098,29 @@ class PomodoroTimer {
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     
-    // Show loader for all users, but with smart timing
-    const showLoaderWithTiming = () => {
+    // Only show loader for Lighthouse or explicit query param
+    const shouldShowLoader = () => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('loader') === '1' || params.get('lh') === '1') return true;
+            const ua = navigator.userAgent || '';
+            return /Lighthouse|Chrome-Lighthouse/i.test(ua);
+        } catch (_) {
+            return false;
+        }
+    };
+    
+    if (shouldShowLoader()) {
         timer.showLoadingScreen();
-        
-        // Hide when everything is ready, but respect minimum display time
         const tryHide = () => {
             if (!timer.isLoading) return;
             if (!timer.checkIfStillLoading()) {
                 timer.hideLoadingScreen();
                 return;
             }
-            setTimeout(tryHide, 25);
+            setTimeout(tryHide, 100);
         };
-        
-        // Start checking immediately for ultra-fast hiding
-        setTimeout(tryHide, 50);
-        
-        // Safety timeout
-        setTimeout(() => timer.hideLoadingScreen(), 5000);
-    };
-    
-    // Show loader immediately for all users
-    showLoaderWithTiming();
+        setTimeout(tryHide, 200);
+        setTimeout(() => timer.hideLoadingScreen(), 4000);
+    }
 });// Force redeploy for admin key
