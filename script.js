@@ -45,6 +45,15 @@ class PomodoroTimer {
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
 
+		// Bury the Light music system
+		this.buryTheLightPlaying = false;
+		const savedBuryTheLightEnabled = localStorage.getItem('buryTheLightEnabled');
+		this.buryTheLightEnabled = savedBuryTheLightEnabled === null ? false : savedBuryTheLightEnabled === 'true';
+		this.buryTheLightPlaylist = [
+			"Bury the Light.mp3"
+		];
+		this.currentBuryTheLightTrackIndex = 0;
+
 
 		this.playlist = [
             "Chasing Clouds.mp3",
@@ -1784,6 +1793,20 @@ class PomodoroTimer {
                                 </label>
                             </div>
                         </div>
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
+                                    <h4>Bury the Light</h4>
+                                    <p>Epic orchestral music for intense focus</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="buryTheLightToggle" ${isEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
                             </div>
                 </div>
             </div>
@@ -1803,11 +1826,16 @@ class PomodoroTimer {
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
+        const buryTheLightToggle = modalOverlay.querySelector('#buryTheLightToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
         
         // Initialize controls with current state
         volumeSlider.disabled = !isEnabled;
 		if (previewBtn) previewBtn.disabled = !isEnabled;
+        
+        // Initialize toggle states
+        lofiToggle.checked = this.ambientEnabled;
+        buryTheLightToggle.checked = this.buryTheLightEnabled;
 
         // Toggle logic with persistence
         lofiToggle.addEventListener('change', (e) => {
@@ -1817,9 +1845,34 @@ class PomodoroTimer {
             volumeSlider.disabled = !enabled;
 			if (previewBtn) previewBtn.disabled = !enabled;
             
-            if (!enabled) {
+            if (enabled) {
+                // If lofi is enabled, disable Bury the Light
+                this.buryTheLightEnabled = false;
+                localStorage.setItem('buryTheLightEnabled', 'false');
+                buryTheLightToggle.checked = false;
+                this.stopBuryTheLightPlaylist();
+            } else {
                 this.stopPlaylist();
 				if (previewBtn) previewBtn.textContent = 'Preview';
+            }
+        });
+
+        // Bury the Light toggle logic
+        buryTheLightToggle.addEventListener('change', (e) => {
+            const enabled = e.target.checked;
+            this.buryTheLightEnabled = enabled;
+            localStorage.setItem('buryTheLightEnabled', String(enabled));
+            
+            if (enabled) {
+                // If Bury the Light is enabled, disable lofi
+                this.ambientEnabled = false;
+                localStorage.setItem('ambientEnabled', 'false');
+                lofiToggle.checked = false;
+                volumeSlider.disabled = true;
+                if (previewBtn) previewBtn.disabled = true;
+                this.stopPlaylist();
+            } else {
+                this.stopBuryTheLightPlaylist();
             }
         });
 
@@ -1964,6 +2017,50 @@ class PomodoroTimer {
         }
     }
 
+    // Bury the Light playlist functions
+    setBuryTheLightPlaylist(trackFilenames = []) {
+        if (!Array.isArray(trackFilenames)) return;
+        // Keep only .mp3 and .wav for safety
+        this.buryTheLightPlaylist = trackFilenames.filter(name => /\.(mp3|wav)$/i.test(name));
+        this.currentBuryTheLightTrackIndex = 0;
+    }
+
+    async playBuryTheLightPlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.buryTheLightPlaylist || this.buryTheLightPlaylist.length === 0) {
+            alert('No Bury the Light tracks available yet. Upload MP3s to /audio/Bury the Light/');
+            return;
+        }
+        this.backgroundAudio.src = '/audio/Bury the Light/' + this.buryTheLightPlaylist[this.currentBuryTheLightTrackIndex];
+        this.backgroundAudio.loop = false;
+        this.backgroundAudio.volume = this.ambientVolume;
+        try { await this.backgroundAudio.play(); } catch (_) {}
+        this.buryTheLightPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    stopBuryTheLightPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.buryTheLightPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseBuryTheLightPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.buryTheLightPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    resumeBuryTheLightPlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.buryTheLightEnabled) return;
+        try { this.backgroundAudio.play(); } catch (_) {}
+        this.buryTheLightPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
     updatePremiumUI() {
         const upgradeButton = document.getElementById('upgradeToProButton');
         const manageSubscriptionButton = document.getElementById('manageSubscriptionButton');
@@ -2065,13 +2162,21 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Resume background music if enabled (persisted flag)
-        if (this.ambientEnabled) {
+        if (this.ambientEnabled || this.buryTheLightEnabled) {
             if (this.backgroundAudio && this.backgroundAudio.src && this.backgroundAudio.currentTime > 0) {
                 // Music was paused, resume from where it left off
-                this.resumePlaylist();
+                if (this.buryTheLightEnabled) {
+                    this.resumeBuryTheLightPlaylist();
+                } else {
+                    this.resumePlaylist();
+                }
             } else {
                 // No music was playing, start fresh
-            this.playPlaylist();
+                if (this.buryTheLightEnabled) {
+                    this.playBuryTheLightPlaylist();
+                } else {
+                    this.playPlaylist();
+                }
             }
         }
         
