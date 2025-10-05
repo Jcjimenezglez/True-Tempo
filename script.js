@@ -211,7 +211,7 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
-        // Welcome modal is gated behind authReady to avoid false prompts
+        // Show welcome modal immediately; it will auto-hide if user is authenticated
         this.checkWelcomeModal();
         
         // Check for Pomodoro intro (after welcome modal)
@@ -3062,10 +3062,7 @@ class PomodoroTimer {
     }
     
     checkWelcomeModal() {
-        // Only evaluate welcome modal once auth system has declared readiness
-        if (!this.authReady) {
-            return;
-        }
+        // Show ASAP without waiting for auth hydration; we'll auto-hide if user is authenticated later
         // Double check auth state (instant)
         if (window.Clerk && window.Clerk.user) {
             this.isAuthenticated = true;
