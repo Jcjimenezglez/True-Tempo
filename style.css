@@ -5045,17 +5045,22 @@ input:checked + .toggle-slider:before {
 }
 
 .footer-links {
-    display: flex;
+    display: flex !important;
     gap: 2rem;
     align-items: center;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .footer-link {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.7) !important;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
     transition: color 0.2s ease;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .footer-link:hover {
