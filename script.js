@@ -184,7 +184,9 @@ class PomodoroTimer {
         
         // Loading screen management
         this.loadingScreen = document.getElementById('loadingScreen');
-        this.isLoading = true;
+        this.isLoading = false;
+        this.loadingStartTime = null;
+        this.minLoadingTime = 800; // Minimum time to show loading (800ms)
         
         // Task form state
         this.editingTaskId = null;
@@ -3373,17 +3375,79 @@ class PomodoroTimer {
         });
     }
 
+    showLoadingScreen() {
+        if (this.loadingScreen && !this.isLoading) {
+            this.loadingScreen.style.display = 'flex';
+            this.isLoading = true;
+            this.loadingStartTime = Date.now();
+        }
+    }
+
     hideLoadingScreen() {
         if (this.loadingScreen && this.isLoading) {
-            this.loadingScreen.classList.add('hidden');
-            this.isLoading = false;
-            // Remove from DOM after transition
-            setTimeout(() => {
-                if (this.loadingScreen && this.loadingScreen.parentNode) {
-                    this.loadingScreen.parentNode.removeChild(this.loadingScreen);
-                }
-            }, 500);
+            const elapsed = Date.now() - (this.loadingStartTime || 0);
+            
+            // Only hide if we've shown it for minimum time or if it's been too long
+            if (elapsed >= this.minLoadingTime || elapsed > 5000) {
+                this.loadingScreen.classList.add('hidden');
+                this.isLoading = false;
+                // Remove from DOM after transition
+                setTimeout(() => {
+                    if (this.loadingScreen && this.loadingScreen.parentNode) {
+                        this.loadingScreen.parentNode.removeChild(this.loadingScreen);
+                    }
+                }, 500);
+            } else {
+                // Wait for minimum time
+                setTimeout(() => this.hideLoadingScreen(), this.minLoadingTime - elapsed);
+            }
         }
+    }
+
+    checkConnectionSpeed() {
+        // Check if we have connection info
+        if ('connection' in navigator) {
+            const connection = navigator.connection;
+            // Show loading if connection is slow (2G, 3G, or slow 4G)
+            if (connection.effectiveType === '2g' || connection.effectiveType === '3g' || 
+                (connection.effectiveType === '4g' && connection.downlink < 1.5)) {
+                return true;
+            }
+        }
+        
+        // Check if page is taking too long to load
+        const loadTime = performance.now();
+        if (loadTime > 1000) { // If page takes more than 1 second to start loading
+            return true;
+        }
+        
+        // Check if DOMContentLoaded took too long
+        if (document.readyState === 'loading' && loadTime > 800) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    checkIfStillLoading() {
+        // Check if auth is still loading after a reasonable time
+        if (!this.authReady && !window.Clerk) {
+            return true;
+        }
+        
+        // Check if critical resources are still loading
+        const criticalElements = [
+            document.getElementById('timerDisplay'),
+            document.getElementById('startBtn'),
+            document.getElementById('techniqueDropdown')
+        ];
+        
+        const missingElements = criticalElements.filter(el => !el);
+        if (missingElements.length > 0) {
+            return true;
+        }
+        
+        return false;
     }
 
     hideWelcomeModal() {
@@ -8046,8 +8110,20 @@ class PomodoroTimer {
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     
+    // Check if we need to show loading screen based on connection speed
+    const checkIfLoadingNeeded = () => {
+        if (timer.checkConnectionSpeed() || timer.checkIfStillLoading()) {
+            timer.showLoadingScreen();
+        }
+    };
+    
+    // Check after a short delay to see if loading is slow
+    setTimeout(checkIfLoadingNeeded, 500);
+    
+    // Also check again after 1 second to catch slow auth loading
+    setTimeout(checkIfLoadingNeeded, 1000);
+    
     // Hide loading screen when everything is ready
-    // Wait for auth to load and then hide loading screen
     const hideLoadingWhenReady = () => {
         // Wait for auth state to be determined
         if (timer.authReady || (!timer.isLoading && window.Clerk)) {
@@ -8061,8 +8137,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start checking after a short delay
     setTimeout(hideLoadingWhenReady, 200);
     
-    // Force hide loading screen after 3 seconds maximum
+    // Force hide loading screen after 5 seconds maximum
     setTimeout(() => {
         timer.hideLoadingScreen();
-    }, 3000);
+    }, 5000);
 });// Force redeploy for admin key
