@@ -1938,7 +1938,7 @@ audio {
 /* Login buttons in dropdown */
 .login-btn {
     background: #666;
-    color: white;
+    color: #d0d0d0;
     border: none;
     border-radius: 6px;
     padding: 6px 12px;
