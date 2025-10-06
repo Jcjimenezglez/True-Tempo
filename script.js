@@ -45,14 +45,6 @@ class PomodoroTimer {
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
 
-		// Bury the Light music system
-		this.buryTheLightPlaying = false;
-		const savedBuryTheLightEnabled = localStorage.getItem('buryTheLightEnabled');
-		this.buryTheLightEnabled = savedBuryTheLightEnabled === null ? false : savedBuryTheLightEnabled === 'true';
-		this.buryTheLightPlaylist = [
-			"Bury the Light.mp3"
-		];
-		this.currentBuryTheLightTrackIndex = 0;
 
 		// Rain music system
 		this.rainPlaying = false;
@@ -135,13 +127,7 @@ class PomodoroTimer {
         if (this.backgroundAudio) {
             this.backgroundAudio.addEventListener('ended', () => {
                 // Advance according to the currently active source
-                if (this.buryTheLightPlaying || this.buryTheLightEnabled) {
-                    // Advance to next Bury the Light track if multiple exist; otherwise restart
-                    if (Array.isArray(this.buryTheLightPlaylist) && this.buryTheLightPlaylist.length > 0) {
-                        this.currentBuryTheLightTrackIndex = (this.currentBuryTheLightTrackIndex + 1) % this.buryTheLightPlaylist.length;
-                        this.playBuryTheLightPlaylist();
-                    }
-                } else if (this.rainPlaying || this.rainEnabled) {
+                if (this.rainPlaying || this.rainEnabled) {
                     // Advance to next Rain track if multiple exist; otherwise restart
                     if (Array.isArray(this.rainPlaylist) && this.rainPlaylist.length > 0) {
                         this.currentRainTrackIndex = (this.currentRainTrackIndex + 1) % this.rainPlaylist.length;
@@ -154,11 +140,9 @@ class PomodoroTimer {
             // Defensive: when play() resolves, mark the correct flags by inspecting src
             this.backgroundAudio.addEventListener('play', () => {
                 const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
-                const isBtl = /\/audio\/Bury the Light\//.test(src);
                 const isRain = /\/audio\/Rain\//.test(src);
-                this.buryTheLightPlaying = isBtl;
                 this.rainPlaying = isRain;
-                this.ambientPlaying = !isBtl && !isRain;
+                this.ambientPlaying = !isRain;
             });
         }
 
@@ -496,10 +480,6 @@ class PomodoroTimer {
                 if (savedAmbientEnabled !== null) {
                     this.ambientEnabled = savedAmbientEnabled === 'true';
                 }
-                const savedBuryTheLightEnabled = localStorage.getItem('buryTheLightEnabled');
-                if (savedBuryTheLightEnabled !== null) {
-                    this.buryTheLightEnabled = savedBuryTheLightEnabled === 'true';
-                }
                 const savedRainEnabled = localStorage.getItem('rainEnabled');
                 if (savedRainEnabled !== null) {
                     this.rainEnabled = savedRainEnabled === 'true';
@@ -541,10 +521,8 @@ class PomodoroTimer {
             
             // Ensure guest users always have Lofi Music selected by default
             this.ambientEnabled = true;
-            this.buryTheLightEnabled = false;
             this.rainEnabled = false;
             localStorage.setItem('ambientEnabled', 'true');
-            localStorage.setItem('buryTheLightEnabled', 'false');
             localStorage.setItem('rainEnabled', 'false');
             // reset already handled at top of branch
         }
@@ -1840,7 +1818,6 @@ class PomodoroTimer {
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
         const lofiEnabled = this.ambientEnabled;
-        const buryTheLightEnabled = this.buryTheLightEnabled;
         const rainEnabled = this.rainEnabled;
         const modalContent = `
             <div class="focus-stats-modal background-music-modal">
@@ -1868,34 +1845,6 @@ class PomodoroTimer {
                         <div class="music-header">
                             <div class="music-info">
                                 <div class="music-details">
-                                    <h4>Lofi Music</h4>
-                                    <p>Relaxing beats for deep focus</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>Bury the Light</h4>
-                                    <p>Epic orchestral music for intense focus</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="buryTheLightToggle" ${buryTheLightEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
                                     <h4>Rain Sounds</h4>
                                     <p>Natural rain and thunder for deep concentration</p>
                                 </div>
@@ -1903,6 +1852,20 @@ class PomodoroTimer {
                             <div class="toggle-container">
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="rainToggle" ${rainEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
+                                    <h4>Lofi Music</h4>
+                                    <p>Relaxing beats for deep focus</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -1926,28 +1889,24 @@ class PomodoroTimer {
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-        const buryTheLightToggle = modalOverlay.querySelector('#buryTheLightToggle');
         const rainToggle = modalOverlay.querySelector('#rainToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
         
         // Initialize controls with current state (volume applies to active source)
-        volumeSlider.disabled = !(lofiEnabled || buryTheLightEnabled || rainEnabled);
+        volumeSlider.disabled = !(lofiEnabled || rainEnabled);
         // The same slider controls the single <audio> element, regardless of source
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize toggle states
         lofiToggle.checked = this.ambientEnabled;
-        buryTheLightToggle.checked = this.buryTheLightEnabled;
         rainToggle.checked = this.rainEnabled;
 
         // Safety: ensure at least one category is active
-        if (!lofiToggle.checked && !buryTheLightToggle.checked && !rainToggle.checked) {
+        if (!lofiToggle.checked && !rainToggle.checked) {
             // Default to Lofi when all are off
             lofiToggle.checked = true;
             this.ambientEnabled = true;
             localStorage.setItem('ambientEnabled', 'true');
-            this.buryTheLightEnabled = false;
-            localStorage.setItem('buryTheLightEnabled', 'false');
             this.rainEnabled = false;
             localStorage.setItem('rainEnabled', 'false');
             volumeSlider.disabled = false;
@@ -1959,35 +1918,31 @@ class PomodoroTimer {
             const enabled = e.target.checked;
             this.ambientEnabled = enabled;
             localStorage.setItem('ambientEnabled', String(enabled));
-            volumeSlider.disabled = !(this.ambientEnabled || this.buryTheLightEnabled || this.rainEnabled);
+            volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (enabled) {
                 // If lofi is enabled, disable other music and switch
-                this.buryTheLightEnabled = false;
-                localStorage.setItem('buryTheLightEnabled', 'false');
-                buryTheLightToggle.checked = false;
                 this.rainEnabled = false;
                 localStorage.setItem('rainEnabled', 'false');
                 rainToggle.checked = false;
-                this.stopBuryTheLightPlaylist();
                 this.stopRainPlaylist();
                 // Start lofi music if timer is running
                 if (this.isRunning) {
                     this.playPlaylist();
                 }
             } else {
-                // If disabling lofi would leave all off, auto-enable Bury the Light
-                if (!buryTheLightToggle.checked && !rainToggle.checked) {
-                    this.buryTheLightEnabled = true;
-                    localStorage.setItem('buryTheLightEnabled', 'true');
-                    buryTheLightToggle.checked = true;
-                    // Auto-enabled Bury the Light should still allow volume control
+                // If disabling lofi would leave all off, auto-enable Rain
+                if (!rainToggle.checked) {
+                    this.rainEnabled = true;
+                    localStorage.setItem('rainEnabled', 'true');
+                    rainToggle.checked = true;
+                    // Auto-enabled Rain should still allow volume control
                     volumeSlider.disabled = false;
                     if (previewBtn) previewBtn.disabled = true;
                     this.stopPlaylist();
                     if (this.isRunning) {
-                        this.playBuryTheLightPlaylist();
+                        this.playRainPlaylist();
                     }
                 } else {
                     this.stopPlaylist();
@@ -1996,43 +1951,6 @@ class PomodoroTimer {
             }
         });
 
-        // Bury the Light toggle logic
-        buryTheLightToggle.addEventListener('change', (e) => {
-            const enabled = e.target.checked;
-            this.buryTheLightEnabled = enabled;
-            localStorage.setItem('buryTheLightEnabled', String(enabled));
-            
-            if (enabled) {
-                // If Bury the Light is enabled, disable other music and switch
-                this.ambientEnabled = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                lofiToggle.checked = false;
-                this.rainEnabled = false;
-                localStorage.setItem('rainEnabled', 'false');
-                rainToggle.checked = false;
-                volumeSlider.disabled = !(this.ambientEnabled || this.buryTheLightEnabled || this.rainEnabled);
-                if (previewBtn) previewBtn.disabled = true;
-                this.stopPlaylist();
-                this.stopRainPlaylist();
-                // Start Bury the Light music if timer is running
-                if (this.isRunning) {
-                    this.playBuryTheLightPlaylist();
-                }
-            } else {
-                this.stopBuryTheLightPlaylist();
-                // If disabling Bury the Light would leave all off, auto-enable Lofi
-                if (!lofiToggle.checked && !rainToggle.checked) {
-                    this.ambientEnabled = true;
-                    localStorage.setItem('ambientEnabled', 'true');
-                    lofiToggle.checked = true;
-                    volumeSlider.disabled = false;
-                    if (previewBtn) previewBtn.disabled = false;
-                    if (this.isRunning) {
-                        this.playPlaylist();
-                    }
-                }
-            }
-        });
 
         // Rain toggle logic
         rainToggle.addEventListener('change', (e) => {
@@ -2049,16 +1967,15 @@ class PomodoroTimer {
                 this.buryTheLightEnabled = false;
                 localStorage.setItem('buryTheLightEnabled', 'false');
                 buryTheLightToggle.checked = false;
-                volumeSlider.disabled = !(this.ambientEnabled || this.buryTheLightEnabled || this.rainEnabled);
+                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
-                this.stopBuryTheLightPlaylist();
                 // Start Rain music immediately on toggle (counts as user gesture)
                 this.playRainPlaylist();
             } else {
                 this.stopRainPlaylist();
                 // If disabling Rain would leave all off, auto-enable Lofi
-                if (!lofiToggle.checked && !buryTheLightToggle.checked) {
+                if (!lofiToggle.checked) {
                     this.ambientEnabled = true;
                     localStorage.setItem('ambientEnabled', 'true');
                     lofiToggle.checked = true;
@@ -2291,7 +2208,7 @@ class PomodoroTimer {
         const rainSrc = '/audio/Rain/' + this.rainPlaylist[this.currentRainTrackIndex];
         console.log('🎵 Setting Rain source:', rainSrc);
         this.backgroundAudio.src = rainSrc;
-        this.backgroundAudio.loop = false;
+        this.backgroundAudio.loop = true;
         this.backgroundAudio.volume = this.ambientVolume;
         console.log('🎵 Volume set to:', this.ambientVolume);
         try { 
