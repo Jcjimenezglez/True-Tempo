@@ -2011,10 +2011,7 @@ class PomodoroTimer {
                 // If Rain is enabled, disable other music and switch
                 this.ambientEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
-                lofiToggle.checked = false;
-                this.buryTheLightEnabled = false;
-                localStorage.setItem('buryTheLightEnabled', 'false');
-                buryTheLightToggle.checked = false;
+                if (lofiToggle) lofiToggle.checked = false;
                 volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
