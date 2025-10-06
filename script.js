@@ -1431,8 +1431,21 @@ class PomodoroTimer {
         if (settingsResetButton) {
             settingsResetButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.resetFocusStats();
-                this.hideSettingsModal();
+                if (confirm('Are you sure you want to reset all your focus data? This action cannot be undone.')) {
+                    this.resetAllData();
+                    this.hideSettingsModal();
+                }
+            });
+        }
+        
+        // Manage Account button (from settings modal)
+        const manageAccountBtn = document.getElementById('manageAccountBtn');
+        if (manageAccountBtn) {
+            manageAccountBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.Clerk && window.Clerk.user) {
+                    window.Clerk.openUserProfile();
+                }
             });
         }
 
@@ -1629,6 +1642,21 @@ class PomodoroTimer {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
             settingsModal.style.display = 'flex';
+            
+            // Populate user info
+            const emailElement = document.getElementById('settingsUserEmail');
+            const planElement = document.getElementById('settingsUserPlan');
+            
+            if (emailElement && window.Clerk && window.Clerk.user) {
+                const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
+                                window.Clerk.user.emailAddresses?.[0]?.emailAddress || 
+                                'Not available';
+                emailElement.textContent = userEmail;
+            }
+            
+            if (planElement) {
+                planElement.textContent = this.isPremium ? 'Pro' : 'Free';
+            }
         }
     }
 
@@ -6668,9 +6696,6 @@ class PomodoroTimer {
                         <div style="font-size: 14px; color: #a3a3a3;">Completed Cycles</div>
                     </div>
                 </div>
-                
-                <button class="upgrade-btn" id="resetDataBtn" style="background: #dc2626; margin-bottom: 12px; width: 100%;">Reset All Data</button>
-                <button class="upgrade-secondary-btn" id="closeReportBtn" style="width: 100%;">Close</button>
             </div>
         `;
         
@@ -6680,17 +6705,6 @@ class PomodoroTimer {
         // Add event listeners
         document.getElementById('closeReportX').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-        });
-        
-        document.getElementById('closeReportBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        document.getElementById('resetDataBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset all your focus data? This action cannot be undone.')) {
-                this.resetAllData();
-                document.body.removeChild(modalOverlay);
-            }
         });
         
         // Close on overlay click

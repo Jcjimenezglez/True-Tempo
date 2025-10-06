@@ -293,7 +293,7 @@
                             </svg>
                             <span>Manage subscription</span>
                         </div>
-                        <div class="dropdown-item" id="settingsButton" style="display: none;">
+                        <div class="dropdown-item" id="settingsButton">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
                                 <circle cx="12" cy="12" r="3"/>
@@ -615,117 +615,62 @@
             <div class="settings-container">
                 <!-- Left Navigation -->
                 <div class="settings-nav">
-                    <div class="settings-nav-item active" data-tab="general" style="display: none;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings">
-                            <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        <span>General</span>
-                    </div>
-                    <div class="settings-nav-item" data-tab="account" style="display: none;">
+                    <div class="settings-nav-item active" data-tab="account">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                         <span>Account</span>
                     </div>
-                    <div class="settings-nav-item" data-tab="integrations">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug-icon lucide-plug">
-                            <path d="M12 22v-5"/>
-                            <path d="M9 8V2"/>
-                            <path d="M15 8V2"/>
-                            <path d="M18 8v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V8"/>
+                    <div class="settings-nav-item" data-tab="data">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        <span>Integrations</span>
+                        <span>Data</span>
                     </div>
                 </div>
                 
                 <!-- Right Content -->
                 <div class="settings-content">
-                    <!-- General Tab -->
-                    <div class="settings-tab active" id="general-tab">
-                        <h3>General</h3>
-                        <div class="settings-section">
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Theme</span>
-                                    <span class="settings-description">Choose your preferred theme</span>
-                                </div>
-                                <select class="settings-select">
-                                    <option value="dark">Dark</option>
-                                    <option value="light">Light</option>
-                                    <option value="auto">Auto</option>
-                                </select>
-                            </div>
-                            
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Language</span>
-                                    <span class="settings-description">Select your preferred language</span>
-                                </div>
-                                <select class="settings-select">
-                                    <option value="en">English</option>
-                                    <option value="es">Spanish</option>
-                                    <option value="fr">French</option>
-                                </select>
-                            </div>
-                            
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Notifications</span>
-                                    <span class="settings-description">Enable session completion notifications</span>
-                                </div>
-                                <label class="settings-toggle">
-                                    <input type="checkbox" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Account Tab -->
-                    <div class="settings-tab" id="account-tab">
+                    <div class="settings-tab active" id="account-tab">
                         <h3>Account</h3>
                         <div class="settings-section">
                             <div class="settings-item">
                                 <div class="settings-label-group">
-                                    <span class="settings-label">Reset Focus Stats</span>
-                                    <span class="settings-description">Clear all your focus statistics and start fresh</span>
+                                    <span class="settings-label">Email</span>
+                                    <span class="settings-description" id="settingsUserEmail">Loading...</span>
                                 </div>
-                                <button id="settingsResetButton" class="settings-reset-btn">Reset</button>
                             </div>
                             
                             <div class="settings-item">
                                 <div class="settings-label-group">
-                                    <span class="settings-label">Export Data</span>
-                                    <span class="settings-description">Download your focus data as CSV</span>
+                                    <span class="settings-label">Plan</span>
+                                    <span class="settings-description" id="settingsUserPlan">Free</span>
                                 </div>
-                                <button class="settings-export-btn">Export</button>
+                            </div>
+                            
+                            <div class="settings-item">
+                                <div class="settings-label-group">
+                                    <span class="settings-label">Manage Account</span>
+                                    <span class="settings-description">Update your account settings</span>
+                                </div>
+                                <button id="manageAccountBtn" class="settings-export-btn">Manage</button>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Integrations Tab -->
-                    <div class="settings-tab" id="integrations-tab">
-                        <h3>Integrations</h3>
+                    <!-- Data Tab -->
+                    <div class="settings-tab" id="data-tab">
+                        <h3>Data</h3>
                         <div class="settings-section">
                             <div class="settings-item">
                                 <div class="settings-label-group">
-                                    <span class="settings-label">Todoist</span>
-                                    <span class="settings-description">Connect your Todoist account to sync tasks</span>
+                                    <span class="settings-label">Reset All Data</span>
+                                    <span class="settings-description">Clear all your focus statistics and streaks. This action cannot be undone.</span>
                                 </div>
-                                <div class="integration-controls">
-                                    <div class="integration-status">
-                                        <span id="todoistStatusText" class="status-text">Disconnected</span>
-                                    </div>
-                                    <div class="integration-actions">
-                                        <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
-                                        <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
-                                    </div>
-                                </div>
+                                <button id="settingsResetButton" class="settings-reset-btn">Reset All Data</button>
                             </div>
-
-                            
                         </div>
                     </div>
                     
