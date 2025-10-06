@@ -39,8 +39,8 @@ class PomodoroTimer {
         
 		// Ambient sounds system
 		this.ambientPlaying = false;
-		// Default guest volume starts at 50% (0.5). Authenticated users will load saved volume in updateAuthState()
-		this.ambientVolume = 0.5;
+		// Default guest volume starts at 25% (0.25). Authenticated users will load saved volume in updateAuthState()
+		this.ambientVolume = 0.25;
 		// Persisted enable flag (default On for guests, load saved for authenticated users)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
@@ -515,8 +515,8 @@ class PomodoroTimer {
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
             }
-            // Ensure guest default volume (50%) when not authenticated
-            this.ambientVolume = 0.5;
+            // Ensure guest default volume (25%) when not authenticated
+            this.ambientVolume = 0.25;
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             
             // Ensure guest users always have Rain Sounds selected by default
@@ -1828,8 +1828,8 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <div class="modal-header">
-                    <h3>Background Music</h3>
-                    <p class="modal-subtitle">Enhance your focus with ambient sounds</p>
+                    <h3>Focus Sounds</h3>
+                    <p class="modal-subtitle">Set the mood for deep concentration</p>
                 </div>
                 <div class="music-controls">
                     <div class="volume-section">
