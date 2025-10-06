@@ -739,7 +739,6 @@ class PomodoroTimer {
             this.feedbackModalOverlay.style.display = 'none';
         }
     }
-
     async submitFeedback() {
         const feedbackText = this.feedbackText?.value?.trim();
         
@@ -1173,7 +1172,6 @@ class PomodoroTimer {
             }
         });
     }
-    
     bindEvents() {
         this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
         this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
@@ -2055,10 +2053,8 @@ class PomodoroTimer {
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
                 this.stopBuryTheLightPlaylist();
-                // Start Rain music if timer is running
-                if (this.isRunning) {
-                    this.playRainPlaylist();
-                }
+                // Start Rain music immediately on toggle (counts as user gesture)
+                this.playRainPlaylist();
             } else {
                 this.stopRainPlaylist();
                 // If disabling Rain would leave all off, auto-enable Lofi
@@ -2689,7 +2685,6 @@ class PomodoroTimer {
             this.goToNextSection();
         }
     }
-    
     completeSession() {
         // Always stop ticking immediately
         this.pauseTimer();
@@ -3462,7 +3457,6 @@ class PomodoroTimer {
             console.log('Could not load audio buffer:', error);
         }
     }
-
     playUiSound(type) {
         // Try to use real cassette sounds with pitch/speed control first
         if (this.audioBuffer && this.audioContext) {
@@ -3490,93 +3484,6 @@ class PomodoroTimer {
         
         // Fallback to synthetic sounds
         this.playSyntheticSound(type);
-    }
-    
-    playProcessedCassetteSound(type) {
-        const source = this.audioContext.createBufferSource();
-        const gainNode = this.audioContext.createGain();
-        
-        source.buffer = this.audioBuffer;
-        source.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        // Adjust pitch and speed only for pause
-        if (type === 'play') {
-            // Play: Original sound - no adjustments
-            source.playbackRate.value = 1.0; // Normal speed
-            source.detune.value = 0; // Original pitch
-        } else {
-            // Pause: Higher pitch and slower speed
-            source.playbackRate.value = 0.6; // Slower
-            source.detune.value = 500; // Higher pitch (cents)
-        }
-        
-        // Set volume
-        gainNode.gain.value = 0.3;
-        
-        // Play the sound
-        source.start();
-    }
-    
-    playSyntheticSound(type) {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            if (type === 'play') {
-                // Play: Cassette deck mechanical click - sharp and metallic
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                const filter = audioContext.createBiquadFilter();
-                
-                oscillator.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Cassette play click: 800Hz with metallic resonance
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.type = 'square'; // More metallic than sine
-                
-                // Band-pass filter for metallic sound
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(800, audioContext.currentTime);
-                filter.Q.setValueAtTime(3, audioContext.currentTime);
-                
-                // Sharp attack, quick decay - like mechanical click
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.005);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.06);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.06);
-                
-            } else {
-                // Pause: Cassette deck thunk - deeper mechanical sound
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                const filter = audioContext.createBiquadFilter();
-                
-                oscillator.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Cassette pause thunk: 200Hz with mechanical resonance
-                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-                oscillator.type = 'square'; // More mechanical than sine
-                
-                // Low-pass filter for deeper mechanical sound
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(400, audioContext.currentTime);
-                filter.Q.setValueAtTime(2, audioContext.currentTime);
-                
-                // Slower attack, longer decay - like mechanical thunk
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.18, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.12);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.12);
-            }
-        } catch (_) { /* no-op */ }
     }
     
     loadAudio() {
@@ -3916,7 +3823,6 @@ class PomodoroTimer {
             }
         })();
     }
-
     showTaskListModal() {
         // Build modal for task list only (no integration controls)
         const overlay = document.createElement('div');
@@ -4691,7 +4597,6 @@ class PomodoroTimer {
             }
         }
     }
-
     async loadTodoistTasks(modal) {
         const loadingState = modal.querySelector('#todoistImportLoadingState');
         const tasksList = modal.querySelector('#todoistImportTasksList');
@@ -5356,7 +5261,6 @@ class PomodoroTimer {
         // Re-setup event listeners for the new elements
         this.setupTaskEventListeners(modal);
     }
-
     showEditTaskInline(taskId, modal) {
         const task = this.getLocalTasks().find(t => t.id === taskId);
         if (!task) return;
@@ -6152,7 +6056,6 @@ class PomodoroTimer {
         // Load projects and tasks
         this.loadImportData(modal);
     }
-
     async loadImportData(modal) {
         const projectsList = modal.querySelector('#projectsList');
         
@@ -6947,7 +6850,6 @@ class PomodoroTimer {
             console.error('Error during premium sync:', error);
         }
     }
-
     showPremiumSyncSuccessMessage() {
         // Show success notification for premium sync
         const notification = document.createElement('div');
@@ -7689,8 +7591,6 @@ class PomodoroTimer {
         // Initial validation
         validateAll();
     }
-
-
     saveCustomTimerConfig() {
         const name = document.getElementById('customName').value.trim();
         const focusTime = parseInt(document.getElementById('focusTime').value);
