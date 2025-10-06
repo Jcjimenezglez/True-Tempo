@@ -6302,6 +6302,11 @@ class PomodoroTimer {
     }
 
     updateCycleCounter() {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         // Increment completed cycles counter without adding hours here
         // Focus time is already tracked in real-time during sessions
         const stats = this.getFocusStats();
@@ -6324,6 +6329,11 @@ class PomodoroTimer {
     }
 
     addFocusTime(seconds) {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         const hours = seconds / 3600; // Convert seconds to hours
         const now = new Date();
         const today = now.toDateString();
@@ -6358,6 +6368,11 @@ class PomodoroTimer {
     }
 
     addTechniqueTime(seconds) {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         // Track total technique time (focus + breaks) for Most Used Technique
         const hours = seconds / 3600;
         const stats = this.getFocusStats();
@@ -6370,6 +6385,11 @@ class PomodoroTimer {
     }
 
     addFocusHours(hours) {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         const today = new Date().toDateString();
         const stats = this.getFocusStats();
         
@@ -6429,6 +6449,11 @@ class PomodoroTimer {
     }
 
     updateStreak() {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         const today = new Date().toDateString();
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -6505,8 +6530,8 @@ class PomodoroTimer {
                         <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
                     </svg>
                 </div>
-                <h3>Focus Streak</h3>
-                <p>Track your daily focus sessions and build a consistent habit. Your streak shows how many consecutive days you've completed focus sessions.</p>
+                <h3>Focus Report</h3>
+                <p>Track your daily focus sessions and build a consistent habit. View detailed statistics about your focus streaks, total hours, and completed cycles.</p>
                 <div class="upgrade-features">
                     <div class="upgrade-feature">
                         <span class="upgrade-feature-icon">
@@ -6578,112 +6603,94 @@ class PomodoroTimer {
         const minutes = Math.round((totalHours - hours) * 60);
         const timeString = `${hours}h ${minutes}m`;
         
-        // Create statistics modal
+        // Create statistics modal using upgrade modal styling
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'statistics-modal-overlay';
-        modalOverlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        `;
+        modalOverlay.className = 'upgrade-modal-overlay';
         
         const modal = document.createElement('div');
-        modal.className = 'statistics-modal';
-        modal.style.cssText = `
-            background: #1a1a1a;
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 500px;
-            width: 90%;
-            color: white;
-            border: 1px solid #333;
-        `;
+        modal.className = 'upgrade-modal';
         
         modal.innerHTML = `
-            <div style="text-align: center; margin-bottom: 32px;">
-                <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600;">Focus Report</h3>
-                <p style="margin: 0; color: #a3a3a3; font-size: 14px;">Your productivity summary</p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                <!-- Day Streak -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
-                    <div style="color: #f59e0b; margin-bottom: 12px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v20M12 12H2"/>
-                            <path d="M22 12H12"/>
-                            <path d="M8.5 8.5l-5-5"/>
-                            <path d="M20.5 3.5l-5 5"/>
-                            <path d="M8.5 15.5l-5 5"/>
-                            <path d="M20.5 20.5l-5-5"/>
-                        </svg>
+            <button class="close-upgrade-x" id="closeReportX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3>Focus Report</h3>
+                <p>Your productivity summary</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0;">
+                    <!-- Day Streak -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
                     </div>
-                    <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
-                    <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    
+                    <!-- Longest Streak -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${longestStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
+                    </div>
+                    
+                    <!-- Total Focus Hours -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                    </div>
+                    
+                    <!-- Completed Cycles -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${completedCycles}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Completed Cycles</div>
+                    </div>
                 </div>
                 
-                <!-- Longest Streak -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
-                    <div style="color: #8b5cf6; margin-bottom: 12px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${longestStreak}</div>
-                    <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
-                </div>
-                
-                <!-- Total Focus Hours -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
-                    <div style="color: #10b981; margin-bottom: 12px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
-                    <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
-                </div>
-                
-                <!-- Completed Cycles -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
-                    <div style="color: #3b82f6; margin-bottom: 12px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                    </div>
-                    <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${completedCycles}</div>
-                    <div style="font-size: 14px; color: #a3a3a3;">Completed Cycles</div>
-                </div>
-            </div>
-            
-            <div style="text-align: center;">
-                <button id="closeStatsBtn" style="
-                    background: transparent;
-                    color: #a3a3a3;
-                    border: 1px solid #333;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                ">Close</button>
+                <button class="upgrade-btn" id="resetDataBtn" style="background: #dc2626; margin-bottom: 12px; width: 100%;">Reset All Data</button>
+                <button class="upgrade-secondary-btn" id="closeReportBtn" style="width: 100%;">Close</button>
             </div>
         `;
         
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
         
-        // Add event listener for close button
-        document.getElementById('closeStatsBtn').addEventListener('click', () => {
+        // Add event listeners
+        document.getElementById('closeReportX').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
+        });
+        
+        document.getElementById('closeReportBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        document.getElementById('resetDataBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all your focus data? This action cannot be undone.')) {
+                this.resetAllData();
+                document.body.removeChild(modalOverlay);
+            }
         });
         
         // Close on overlay click
@@ -6692,6 +6699,26 @@ class PomodoroTimer {
                 document.body.removeChild(modalOverlay);
             }
         });
+    }
+    
+    resetAllData() {
+        // Reset focus stats
+        localStorage.removeItem('focusStats');
+        
+        // Reset streak data
+        this.streakData = {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastActiveDate: null
+        };
+        localStorage.removeItem('streakData');
+        
+        // Update displays
+        this.updateFocusHoursDisplay();
+        this.updateStreakDisplay();
+        
+        // Show confirmation
+        alert('All focus data has been reset.');
     }
 
     updateConsecutiveDays(stats) {
