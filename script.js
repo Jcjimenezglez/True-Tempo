@@ -235,8 +235,7 @@ class PomodoroTimer {
         this.applySavedTechniqueOnce();
         // Welcome modal removed
         
-        // Check Pomodoro intro without depending on welcome modal timing
-        this.checkPomodoroIntro();
+        // Pomodoro intro modal removed
         
         // Additional check when page is fully loaded
         if (document.readyState === 'complete') {
@@ -3097,127 +3096,9 @@ class PomodoroTimer {
     
     // checkWelcomeModal() - REMOVED
     
-    checkPomodoroIntro() {
-        // Only show for first-time users (not authenticated and haven't seen intro)
-        if (this.isAuthenticated) {
-            return;
-        }
-
-        // Check if user has seen the intro before
-        const hasSeenIntro = localStorage.getItem('pomodoro_intro_seen');
-        if (hasSeenIntro) {
-            return;
-        }
-
-        // Check if user has visited before - if so, they'll see welcome back modal instead
-        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-        if (hasVisitedBefore) {
-            return; // Don't show Pomodoro intro for returning users
-        }
-
-        // Show intro modal only for completely new users
-        this.showPomodoroIntro();
-    }
-
-    showPomodoroIntro() {
-        // Create modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'pomodoro-intro-modal-overlay';
-        
-        const modal = document.createElement('div');
-        modal.className = 'pomodoro-intro-modal';
-        
-        modal.innerHTML = `
-            <button class="close-intro-modal" id="closeIntroModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
-                        <path d="M10 2v2"/>
-                        <path d="M14 2v2"/>
-                        <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
-                        <path d="M6 2v2"/>
-                    </svg>
-                </div>
-                <h3>Welcome to Superfocus</h3>
-                <p>You're about to try the Pomodoro Technique: 25 minutes of focused work, then a 5-minute break. Repeat this cycle to build consistent focus habits.</p>
-                
-                <div class="cycle-visual">
-                    <div class="cycle-step">Focus (25min)</div>
-                    <div class="cycle-arrow">→</div>
-                    <div class="cycle-step">Break (5min)</div>
-                    <div class="cycle-arrow">→</div>
-                    <div class="cycle-step">Repeat</div>
-                </div>
-                
-                <div class="upgrade-features">
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Build consistent focus habits</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Avoid burnout with regular breaks</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Stay productive throughout the day</span>
-                    </div>
-                </div>
-                
-                <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="startFirstSession">Start your first session</button>
-                </div>
-            </div>
-        `;
-        
-        modalOverlay.appendChild(modal);
-        document.body.appendChild(modalOverlay);
-        
-        // Event listeners
-        document.getElementById('closeIntroModal').addEventListener('click', () => {
-            this.closePomodoroIntro();
-        });
-        
-        document.getElementById('startFirstSession').addEventListener('click', () => {
-            this.closePomodoroIntro();
-            // Optionally start the timer automatically
-            // this.startTimer();
-        });
-        
-        // Close on overlay click
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                this.closePomodoroIntro();
-            }
-        });
-    }
-
-    closePomodoroIntro() {
-        const modal = document.querySelector('.pomodoro-intro-modal-overlay');
-        if (modal) {
-            modal.remove();
-        }
-        // Mark as seen
-        localStorage.setItem('pomodoro_intro_seen', 'true');
-    }
+    // checkPomodoroIntro() - REMOVED
+    // showPomodoroIntro() - REMOVED  
+    // closePomodoroIntro() - REMOVED
 
     showLoginRequiredModal(technique) {
         // Get technique information
