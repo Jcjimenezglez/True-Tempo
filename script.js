@@ -2039,6 +2039,7 @@ class PomodoroTimer {
         // Rain toggle logic
         rainToggle.addEventListener('change', (e) => {
             const enabled = e.target.checked;
+            console.log('🌧️ Rain toggle changed:', enabled);
             this.rainEnabled = enabled;
             localStorage.setItem('rainEnabled', String(enabled));
             
@@ -2279,17 +2280,30 @@ class PomodoroTimer {
     }
 
     async playRainPlaylist() {
-        if (!this.backgroundAudio) return;
+        console.log('🎵 playRainPlaylist called');
+        if (!this.backgroundAudio) {
+            console.log('❌ No backgroundAudio element found');
+            return;
+        }
         if (!this.rainPlaylist || this.rainPlaylist.length === 0) {
+            console.log('❌ No Rain tracks available');
             alert('No Rain tracks available yet. Upload MP3s to /audio/Rain/');
             return;
         }
         // Ensure we stop any other playback and swap source cleanly
         this.backgroundAudio.pause();
-        this.backgroundAudio.src = '/audio/Rain/' + this.rainPlaylist[this.currentRainTrackIndex];
+        const rainSrc = '/audio/Rain/' + this.rainPlaylist[this.currentRainTrackIndex];
+        console.log('🎵 Setting Rain source:', rainSrc);
+        this.backgroundAudio.src = rainSrc;
         this.backgroundAudio.loop = false;
         this.backgroundAudio.volume = this.ambientVolume;
-        try { await this.backgroundAudio.play(); } catch (_) {}
+        console.log('🎵 Volume set to:', this.ambientVolume);
+        try { 
+            await this.backgroundAudio.play(); 
+            console.log('✅ Rain music started playing');
+        } catch (error) {
+            console.log('❌ Error playing Rain music:', error);
+        }
         this.rainPlaying = true;
         this.ambientPlaying = false; // Ensure only one flag is set
         this.buryTheLightPlaying = false; // Ensure only one flag is set
