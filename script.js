@@ -3286,7 +3286,7 @@ class PomodoroTimer {
         const signupBtn = modal.querySelector('#lofiSignupBtn');
         signupBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
         });
         
         const cancelBtn = modal.querySelector('#lofiMaybeLaterBtn');
