@@ -1872,22 +1872,16 @@ class PomodoroTimer {
                             </div>
                         </div>
                         ` : `
-                        <div class="music-header">
+                        <div class="music-header disabled">
                             <div class="music-info">
                                 <div class="music-details">
-                                    <h4>Lofi Music</h4>
-                                    <p>Relaxing beats for deep focus</p>
+                                    <h4 style="color: #666;">Lofi Music</h4>
+                                    <p style="color: #888;">Relaxing beats for deep focus</p>
                                 </div>
                             </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch disabled">
-                                    <input type="checkbox" id="lofiToggle" disabled>
-                                    <span class="toggle-slider"></span>
-                                </label>
+                            <div class="login-container">
+                                <button id="lofiLoginBtn" class="login-btn">Login</button>
                             </div>
-                            <div class="upgrade-prompt">
-                                <p>Sign up to unlock Lofi Music</p>
-                        </div>
                         </div>
                         `}
                             </div>
@@ -1911,6 +1905,7 @@ class PomodoroTimer {
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
         const rainToggle = modalOverlay.querySelector('#rainToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
+        const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
         
         // Initialize controls with current state (volume applies to active source)
         volumeSlider.disabled = !(lofiEnabled || rainEnabled);
@@ -1982,6 +1977,16 @@ class PomodoroTimer {
         });
         }
 
+
+        // Lofi Login button (for guests)
+        if (lofiLoginBtn) {
+            lofiLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.body.removeChild(modalOverlay);
+                this.showLofiLoginModal();
+            });
+        }
 
         // Rain toggle logic
         rainToggle.addEventListener('change', (e) => {
@@ -3202,6 +3207,63 @@ class PomodoroTimer {
     // checkPomodoroIntro() - REMOVED
     // showPomodoroIntro() - REMOVED  
     // closePomodoroIntro() - REMOVED
+
+    showLofiLoginModal() {
+        const modalContent = `
+            <div class="focus-stats-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="modal-header">
+                    <h3>🎵 Lofi Music</h3>
+                    <p class="modal-subtitle">Unlock premium background music</p>
+                </div>
+                <div class="modal-content">
+                    <div class="feature-description">
+                        <h4>Relaxing beats for deep focus</h4>
+                        <p>Access curated lofi music playlists designed to enhance your concentration and productivity during focus sessions.</p>
+                    </div>
+                    <div class="benefits-list">
+                        <h5>Benefits:</h5>
+                        <ul>
+                            <li>🎧 Curated lofi beats for optimal focus</li>
+                            <li>🎵 Multiple playlists to match your mood</li>
+                            <li>🔊 High-quality audio for immersive experience</li>
+                            <li>⚡ Seamless integration with all focus techniques</li>
+                        </ul>
+                    </div>
+                    <div class="modal-actions">
+                        <button id="lofiLoginBtn" class="btn-primary">Sign Up / Login</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+
+        // Event listeners
+        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+
+        modalOverlay.querySelector('#lofiLoginBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
 
     showLoginRequiredModal(technique) {
         // Get technique information
