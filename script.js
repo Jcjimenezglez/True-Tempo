@@ -1978,8 +1978,20 @@ class PomodoroTimer {
         }
 
 
-        // Lofi Login button (for guests)
+        // Lofi Login button and card (for guests)
         if (lofiLoginBtn) {
+            // Make the entire disabled card clickable
+            const disabledLofiCard = modalOverlay.querySelector('.music-header.disabled');
+            if (disabledLofiCard) {
+                disabledLofiCard.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    document.body.removeChild(modalOverlay);
+                    this.showLofiLoginModal();
+                });
+            }
+            
+            // Keep button click handler for backwards compatibility
             lofiLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();

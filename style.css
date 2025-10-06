@@ -4823,12 +4823,6 @@ input:checked + .toggle-slider:before {
 }
 
 .music-header.disabled {
-    cursor: default;
-    pointer-events: none;
-}
-
-.music-header.disabled .login-btn {
-    pointer-events: auto;
     cursor: pointer;
 }
 
