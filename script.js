@@ -1957,7 +1957,10 @@ class PomodoroTimer {
                 localStorage.setItem('rainEnabled', 'false');
                 rainToggle.checked = false;
                 this.stopRainPlaylist();
-                // Music will start when timer starts
+                // Start lofi music if timer is running
+                if (this.isRunning) {
+                    this.playPlaylist();
+                }
             } else {
                 // If disabling lofi would leave all off, auto-enable Rain
                 if (!rainToggle.checked) {
@@ -1968,7 +1971,10 @@ class PomodoroTimer {
                     volumeSlider.disabled = false;
                     if (previewBtn) previewBtn.disabled = true;
                     this.stopPlaylist();
-                    // Music will start when timer starts
+                    // Start Rain music if timer is running
+                    if (this.isRunning) {
+                        this.playRainPlaylist();
+                    }
                 } else {
                     this.stopPlaylist();
 					if (previewBtn) previewBtn.textContent = 'Preview';
@@ -2015,7 +2021,10 @@ class PomodoroTimer {
                 volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
-                // Music will start when timer starts
+                // Start Rain music if timer is running
+                if (this.isRunning) {
+                    this.playRainPlaylist();
+                }
             } else {
                 this.stopRainPlaylist();
                 // If disabling Rain would leave all off, auto-enable Lofi (if authenticated)
@@ -2025,7 +2034,10 @@ class PomodoroTimer {
                     lofiToggle.checked = true;
                     volumeSlider.disabled = false;
                     if (previewBtn) previewBtn.disabled = false;
-                    // Music will start when timer starts
+                    // Start Lofi music if timer is running
+                    if (this.isRunning) {
+                        this.playPlaylist();
+                    }
                 }
             }
         });
