@@ -1880,7 +1880,7 @@ class PomodoroTimer {
                                 </div>
                             </div>
                             <div class="login-container">
-                                <button id="lofiLoginBtn" class="login-btn">Login</button>
+                                <button id="lofiLoginBtn" class="login-btn">Sign up</button>
                             </div>
                         </div>
                         `}
@@ -3218,25 +3218,28 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <div class="modal-header">
-                    <h3>🎵 Lofi Music</h3>
-                    <p class="modal-subtitle">Unlock premium background music</p>
+                    <div class="technique-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                        </svg>
+                    </div>
+                    <h3>Lofi Music</h3>
+                    <p class="modal-subtitle">Curated beats for deep focus. Create a free account to unlock this premium background music.</p>
                 </div>
                 <div class="modal-content">
-                    <div class="feature-description">
-                        <h4>Relaxing beats for deep focus</h4>
-                        <p>Access curated lofi music playlists designed to enhance your concentration and productivity during focus sessions.</p>
-                    </div>
                     <div class="benefits-list">
-                        <h5>Benefits:</h5>
                         <ul>
-                            <li>🎧 Curated lofi beats for optimal focus</li>
-                            <li>🎵 Multiple playlists to match your mood</li>
-                            <li>🔊 High-quality audio for immersive experience</li>
-                            <li>⚡ Seamless integration with all focus techniques</li>
+                            <li>Curated lofi beats for optimal focus</li>
+                            <li>Multiple playlists to match your mood</li>
+                            <li>High-quality audio for immersive experience</li>
+                            <li>Seamless integration with all focus techniques</li>
                         </ul>
                     </div>
                     <div class="modal-actions">
-                        <button id="lofiLoginBtn" class="btn-primary">Sign Up / Login</button>
+                        <button id="lofiLoginBtn" class="btn-primary">Sign up for free</button>
+                        <button id="lofiMaybeLaterBtn" class="btn-secondary">Maybe later</button>
                     </div>
                 </div>
             </div>
@@ -3256,6 +3259,10 @@ class PomodoroTimer {
         modalOverlay.querySelector('#lofiLoginBtn').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
             window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+        });
+
+        modalOverlay.querySelector('#lofiMaybeLaterBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
         });
 
         modalOverlay.addEventListener('click', (e) => {
