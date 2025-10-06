@@ -1957,10 +1957,8 @@ class PomodoroTimer {
                 localStorage.setItem('rainEnabled', 'false');
                 rainToggle.checked = false;
                 this.stopRainPlaylist();
-                // Start lofi music if timer is running
-                if (this.isRunning) {
-                    this.playPlaylist();
-                }
+                // Start lofi music immediately on toggle (counts as user gesture)
+                this.playPlaylist();
             } else {
                 // If disabling lofi would leave all off, auto-enable Rain
                 if (!rainToggle.checked) {
