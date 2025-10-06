@@ -6568,13 +6568,15 @@ class PomodoroTimer {
     showStatisticsModal() {
         // Get user statistics
         const stats = this.getFocusStats();
-        const streakDays = this.streakData.currentStreak;
-        const longestStreak = this.streakData.longestStreak || streakDays;
-        const totalSessions = stats.totalSessions || 0;
-        const totalTime = stats.totalTime || 0;
-        const averageSession = totalSessions > 0 ? Math.round(totalTime / totalSessions / 60) : 0;
-        const longestSession = Math.round((stats.longestSession || 0) / 60);
-        const daysMeditated = stats.daysMeditated || 0;
+        const currentStreak = this.streakData.currentStreak || 0;
+        const longestStreak = this.streakData.longestStreak || currentStreak;
+        const totalHours = stats.totalHours || 0;
+        const completedCycles = stats.completedCycles || 0;
+        
+        // Format total hours
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
         
         // Create statistics modal
         const modalOverlay = document.createElement('div');
@@ -6606,22 +6608,60 @@ class PomodoroTimer {
         
         modal.innerHTML = `
             <div style="text-align: center; margin-bottom: 32px;">
-                <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600;">Report</h3>
-                <p style="margin: 0; color: #a3a3a3; font-size: 16px;">We're working on something amazing for you.</p>
+                <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600;">Focus Report</h3>
+                <p style="margin: 0; color: #a3a3a3; font-size: 14px;">Your productivity summary</p>
             </div>
             
-            <div style="text-align: center; margin-bottom: 32px;">
-                <div style="background: #2a2a2a; border-radius: 16px; padding: 40px 20px; margin-bottom: 24px;">
-                    <div style="color: #10b981; margin-bottom: 16px; display: flex; justify-content: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <!-- Day Streak -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                    <div style="color: #f59e0b; margin-bottom: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v20M12 12H2"/>
+                            <path d="M22 12H12"/>
+                            <path d="M8.5 8.5l-5-5"/>
+                            <path d="M20.5 3.5l-5 5"/>
+                            <path d="M8.5 15.5l-5 5"/>
+                            <path d="M20.5 20.5l-5-5"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                    <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                </div>
+                
+                <!-- Longest Streak -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                    <div style="color: #8b5cf6; margin-bottom: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
                     </div>
-                    <h4 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #ffffff;">Coming Soon</h4>
-                    <p style="margin: 0; color: #a3a3a3; font-size: 14px; line-height: 1.5;">
-                        We're building detailed analytics and insights to help you track your focus journey. 
-                        Stay tuned for personalized reports, streak tracking, and progress visualization.
-                    </p>
+                    <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${longestStreak}</div>
+                    <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
+                </div>
+                
+                <!-- Total Focus Hours -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                    <div style="color: #10b981; margin-bottom: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                    <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                </div>
+                
+                <!-- Completed Cycles -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                    <div style="color: #3b82f6; margin-bottom: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${completedCycles}</div>
+                    <div style="font-size: 14px; color: #a3a3a3;">Completed Cycles</div>
                 </div>
             </div>
             
