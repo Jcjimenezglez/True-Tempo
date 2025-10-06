@@ -2772,10 +2772,10 @@ class PomodoroTimer {
     }
 
     getCurrentTaskLabel() {
-        if (!this.taskQueue || this.taskQueue.length === 0) return 'Focus';
+        if (!this.taskQueue || this.taskQueue.length === 0) return 'Add Task';
         const current = this.taskQueue[this.currentTaskIndex] || null;
-        // Return "Focus" for empty slots (sessions without assigned tasks)
-        if (!current || current.source === 'empty' || !current.content) return 'Focus';
+        // Return "Add Task" for empty slots (sessions without assigned tasks)
+        if (!current || current.source === 'empty' || !current.content) return 'Add Task';
         return current.content;
     }
 
@@ -2912,8 +2912,8 @@ class PomodoroTimer {
                 this.currentTaskElement.textContent = this.currentTaskName;
                 this.currentTaskElement.style.display = 'block';
             } else {
-                // Show "Focus" when no task is assigned
-                this.currentTaskElement.textContent = 'Focus';
+                // Show "Add Task" when no task is assigned
+                this.currentTaskElement.textContent = 'Add Task';
                 this.currentTaskElement.style.display = 'block';
             }
         }
