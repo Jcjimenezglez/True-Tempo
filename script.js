@@ -39,8 +39,9 @@ class PomodoroTimer {
         
 		// Ambient sounds system
 		this.ambientPlaying = false;
-		// Default guest volume starts at 25% (0.25). Authenticated users will load saved volume in updateAuthState()
-		this.ambientVolume = 0.25;
+		// Load saved volume if exists, otherwise default to 25% for guests
+		const savedVolume = localStorage.getItem('ambientVolume');
+		this.ambientVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
 		// Persisted enable flag (default On for guests, load saved for authenticated users)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
 		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
@@ -516,8 +517,12 @@ class PomodoroTimer {
                 this.achievementCounter.textContent = '00h:00m';
             }
             // Ensure guest default volume (25%) when not authenticated
-            this.ambientVolume = 0.25;
-            if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+            // Don't override if user has a saved volume (they might logout and login again)
+            const savedVolume = localStorage.getItem('ambientVolume');
+            if (savedVolume === null) {
+                this.ambientVolume = 0.25;
+                if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+            }
             
             // Ensure guest users always have Rain Sounds selected by default
             this.ambientEnabled = false;
