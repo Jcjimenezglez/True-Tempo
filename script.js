@@ -233,10 +233,7 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
-        // Show welcome modal with a delay to allow auth to load
-        setTimeout(() => {
-            this.checkWelcomeModal();
-        }, 500);
+        // Welcome modal removed
         
         // Check Pomodoro intro without depending on welcome modal timing
         this.checkPomodoroIntro();
@@ -460,8 +457,7 @@ class PomodoroTimer {
             this.updatePremiumUI();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
-            // Hide welcome modal if user is authenticated
-            this.hideWelcomeModal();
+            // Welcome modal removed
             // Hide loading screen when user is authenticated
             this.hideLoadingScreen();
             console.log('User is authenticated, showing profile avatar');
@@ -3099,48 +3095,7 @@ class PomodoroTimer {
         }
     }
     
-    checkWelcomeModal() {
-        // Show ASAP without waiting for auth hydration; we'll auto-hide if user is authenticated later
-        // Double check auth state (instant)
-        if (window.Clerk && window.Clerk.user) {
-            this.isAuthenticated = true;
-            return; // Don't show for authenticated users
-        }
-        if (this.isAuthenticated) {
-            return; // Don't show for authenticated users
-        }
-
-        // If this navigation is a plain reload, do not show modal
-        try {
-            const nav = performance.getEntriesByType('navigation')[0];
-            const isReload = nav && nav.type === 'reload';
-            if (isReload) {
-                return; // Refresh/F5 → never show
-            }
-        } catch (_) {}
-
-        // Check if user just logged out - don't show modal after logout
-        const justLoggedOut = sessionStorage.getItem('just_logged_out');
-        if (justLoggedOut === 'true') {
-            sessionStorage.removeItem('just_logged_out');
-            return; // Don't show modal after logout
-        }
-
-        // First visit? mark and skip
-        const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-        if (!hasVisitedBefore) {
-            try { localStorage.setItem('truetempo_has_visited', 'true'); } catch (_) {}
-            return;
-        }
-
-        // Prevent duplicate overlays
-        if (document.querySelector('.upgrade-modal-overlay.signup-reminder')) {
-            return;
-        }
-
-        // User has visited before and is returning - show signup reminder modal
-        this.showSignupReminderModal();
-    }
+    // checkWelcomeModal() - REMOVED
     
     checkPomodoroIntro() {
         // Only show for first-time users (not authenticated and haven't seen intro)
@@ -3438,181 +3393,8 @@ class PomodoroTimer {
         return false;
     }
 
-    hideWelcomeModal() {
-        // Hide any existing upgrade modals (both the main one and signup reminder)
-        const upgradeModal = document.getElementById('upgradeModal');
-        if (upgradeModal) {
-            upgradeModal.style.display = 'none';
-        }
-        
-        // Hide any dynamically created signup reminder modals
-        const signupReminderModals = document.querySelectorAll('.upgrade-modal-overlay.signup-reminder');
-        signupReminderModals.forEach(modal => {
-            if (modal.parentNode) {
-                modal.parentNode.removeChild(modal);
-            }
-        });
-        
-        // Also hide any upgrade modal overlays
-        const upgradeModalOverlays = document.querySelectorAll('.upgrade-modal-overlay');
-        upgradeModalOverlays.forEach(overlay => {
-            if (overlay.id !== 'upgradeModal') { // Don't remove the main upgrade modal, just hide it
-                if (overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                }
-            }
-        });
-    }
-
-    showSignupReminderModal() {
-        // Double-check authentication state before showing modal
-        if (window.Clerk && window.Clerk.user) {
-            this.isAuthenticated = true;
-            return; // Don't show for authenticated users
-        }
-        if (this.isAuthenticated) {
-            return; // Don't show for authenticated users
-        }
-        
-        // Create signup reminder modal using upgrade modal styling
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay';
-        
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal';
-        
-        // Add a continuous check to hide modal if user becomes authenticated
-        const authCheckInterval = setInterval(() => {
-            if (window.Clerk && window.Clerk.user) {
-                this.isAuthenticated = true;
-                this.hideWelcomeModal();
-                clearInterval(authCheckInterval);
-            } else if (this.isAuthenticated) {
-                this.hideWelcomeModal();
-                clearInterval(authCheckInterval);
-            }
-        }, 100);
-        
-        modal.innerHTML = `
-            <button class="close-upgrade-x" id="closeSignupReminderModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
-                        <path d="M10 2v2"/>
-                        <path d="M14 2v2"/>
-                        <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
-                        <path d="M6 2v2"/>
-                    </svg>
-                </div>
-                <h3>Welcome back!</h3>
-                <p>Create a free account to unlock your full focus potential and track your progress.</p>
-                <div class="upgrade-features">
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Track your daily focus streak</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Save your focus statistics</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Sync tasks with Todoist</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Access advanced techniques</span>
-                    </div>
-                </div>
-                <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="signupReminderBtn">Sign up for free</button>
-                    <button class="cancel-btn" id="dismissSignupReminderBtn">Maybe later</button>
-                </div>
-            </div>
-        `;
-        
-        modalOverlay.appendChild(modal);
-        document.body.appendChild(modalOverlay);
-        
-        // Add event listeners scoped to this modal (no delay)
-        const signupBtn = modal.querySelector('#signupReminderBtn');
-        const dismissBtn = modal.querySelector('#dismissSignupReminderBtn');
-        const closeBtn = modal.querySelector('#closeSignupReminderModal');
-
-        const closeModal = () => {
-            try { document.body.removeChild(modalOverlay); } catch (_) {}
-            document.removeEventListener('keydown', onKeyDown, true);
-            document.body.style.overflow = previousOverflow || '';
-            // Clear the auth check interval
-            clearInterval(authCheckInterval);
-        };
-
-        const onKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        };
-        document.addEventListener('keydown', onKeyDown, true);
-
-        if (signupBtn) {
-            signupBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // Trigger the exact same flow as the header button
-                if (this.signupButton && this.signupButton.click) {
-                    this.signupButton.click();
-                } else {
-                    this.handleSignup();
-                }
-                // Close modal after triggering navigation
-                setTimeout(() => closeModal(), 0);
-            });
-        }
-
-        if (dismissBtn) {
-            dismissBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-            });
-        }
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-            });
-        }
-        
-        // Close on overlay click
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
-    }
+    // hideWelcomeModal() - REMOVED
+    // showSignupReminderModal() - REMOVED
 
     loadCassetteSounds() {
         try {
