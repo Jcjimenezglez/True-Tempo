@@ -1957,8 +1957,7 @@ class PomodoroTimer {
                 localStorage.setItem('rainEnabled', 'false');
                 rainToggle.checked = false;
                 this.stopRainPlaylist();
-                // Start lofi music immediately on toggle (counts as user gesture)
-                this.playPlaylist();
+                // Music will start when timer starts
             } else {
                 // If disabling lofi would leave all off, auto-enable Rain
                 if (!rainToggle.checked) {
@@ -1969,9 +1968,7 @@ class PomodoroTimer {
                     volumeSlider.disabled = false;
                     if (previewBtn) previewBtn.disabled = true;
                     this.stopPlaylist();
-                    if (this.isRunning) {
-                        this.playRainPlaylist();
-                    }
+                    // Music will start when timer starts
                 } else {
                     this.stopPlaylist();
 					if (previewBtn) previewBtn.textContent = 'Preview';
@@ -2018,8 +2015,7 @@ class PomodoroTimer {
                 volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
                 if (previewBtn) previewBtn.disabled = true;
                 this.stopPlaylist();
-                // Start Rain music immediately on toggle (counts as user gesture)
-                this.playRainPlaylist();
+                // Music will start when timer starts
             } else {
                 this.stopRainPlaylist();
                 // If disabling Rain would leave all off, auto-enable Lofi (if authenticated)
@@ -2029,9 +2025,7 @@ class PomodoroTimer {
                     lofiToggle.checked = true;
                     volumeSlider.disabled = false;
                     if (previewBtn) previewBtn.disabled = false;
-                    if (this.isRunning) {
-                        this.playPlaylist();
-                    }
+                    // Music will start when timer starts
                 }
             }
         });
