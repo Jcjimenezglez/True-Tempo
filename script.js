@@ -3209,62 +3209,92 @@ class PomodoroTimer {
     // closePomodoroIntro() - REMOVED
 
     showLofiLoginModal() {
-        const modalContent = `
-            <div class="focus-stats-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
+        // Create login required modal using upgrade modal styling (same as techniques)
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeLofiLoginModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
                     </svg>
-                </button>
-                <div class="modal-header">
-                    <div class="technique-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 18V5l12-2v13"/>
-                            <circle cx="6" cy="18" r="3"/>
-                            <circle cx="18" cy="16" r="3"/>
-                        </svg>
-                    </div>
-                    <h3>Lofi Music</h3>
-                    <p class="modal-subtitle">Curated beats for deep focus. Create a free account to unlock this premium background music.</p>
                 </div>
-                <div class="modal-content">
-                    <div class="benefits-list">
-                        <ul>
-                            <li>Curated lofi beats for optimal focus</li>
-                            <li>Multiple playlists to match your mood</li>
-                            <li>High-quality audio for immersive experience</li>
-                            <li>Seamless integration with all focus techniques</li>
-                        </ul>
+                <h3>Lofi Music</h3>
+                <p>Curated beats for deep focus. Create a free account to unlock this premium background music.</p>
+                <div class="upgrade-features">
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Curated lofi beats for optimal focus</span>
                     </div>
-                    <div class="modal-actions">
-                        <button id="lofiLoginBtn" class="btn-primary">Sign up for free</button>
-                        <button id="lofiMaybeLaterBtn" class="btn-secondary">Maybe later</button>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Multiple playlists to match your mood</span>
                     </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">High-quality audio for immersive experience</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Seamless integration with all focus techniques</span>
+                    </div>
+                </div>
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="lofiSignupBtn">Sign up for free</button>
+                    <button class="cancel-btn" id="lofiMaybeLaterBtn">Maybe later</button>
                 </div>
             </div>
         `;
-
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
-        modalOverlay.innerHTML = modalContent;
+        
+        modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
-        modalOverlay.style.display = 'flex';
-
+        
         // Event listeners
-        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
+        const closeBtn = modal.querySelector('#closeLofiLoginModal');
+        closeBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
-
-        modalOverlay.querySelector('#lofiLoginBtn').addEventListener('click', () => {
+        
+        const signupBtn = modal.querySelector('#lofiSignupBtn');
+        signupBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
             window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
         });
-
-        modalOverlay.querySelector('#lofiMaybeLaterBtn').addEventListener('click', () => {
+        
+        const cancelBtn = modal.querySelector('#lofiMaybeLaterBtn');
+        cancelBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
-
+        
+        // Close on overlay click
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 document.body.removeChild(modalOverlay);
