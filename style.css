@@ -4822,6 +4822,16 @@ input:checked + .toggle-slider:before {
     padding: 1.5rem;
 }
 
+.music-header.disabled {
+    cursor: default;
+    pointer-events: none;
+}
+
+.music-header.disabled .login-btn {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
 .music-info {
     display: flex;
     align-items: center;
