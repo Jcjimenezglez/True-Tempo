@@ -985,7 +985,7 @@ body.is-scrolling .streak-fire {
         margin-top: auto;
         width: 100%;
         box-sizing: border-box;
-        justify-content: space-between;
+        justify-content: center;
     }
     
     .start-btn {
