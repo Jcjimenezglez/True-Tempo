@@ -1132,6 +1132,12 @@ class PomodoroTimer {
             streakInfo.addEventListener('click', () => this.showStreakInfo());
         }
         
+        // Timer Settings button event listener
+        const timerSettingsBtn = document.getElementById('timerSettingsBtn');
+        if (timerSettingsBtn) {
+            timerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
+        }
+        
         // Custom timer event listeners
         if (this.closeCustomTimer) this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
         if (this.cancelCustomTimer) this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
@@ -1690,6 +1696,244 @@ class PomodoroTimer {
     // Simple ambient sounds system
     toggleMusic() {
         this.showAmbientModal();
+    }
+    
+    showTimerSettingsModal() {
+        // Get current durations in minutes
+        const pomodoroMin = Math.floor(this.workTime / 60);
+        const shortBreakMin = Math.floor(this.shortBreakTime / 60);
+        const longBreakMin = Math.floor(this.longBreakTime / 60);
+        
+        // Get current music settings
+        const initialVolumePct = Math.round(this.ambientVolume * 100);
+        const lofiEnabled = this.ambientEnabled;
+        const rainEnabled = this.rainEnabled;
+        
+        const modalContent = `
+            <div class="focus-stats-modal timer-settings-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="modal-header">
+                    <h3>Timer Settings</h3>
+                    <p class="modal-subtitle">Customize your focus sessions</p>
+                </div>
+                
+                <!-- Timer Durations -->
+                <div class="settings-section">
+                    <h4 class="section-title">Duration</h4>
+                    <div class="duration-controls">
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Pomodoro</label>
+                                <span class="duration-value" id="pomodoroValue">${pomodoroMin} min</span>
+                            </div>
+                            <input type="range" id="pomodoroSlider" min="1" max="90" value="${pomodoroMin}" class="duration-slider">
+                        </div>
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Short Break</label>
+                                <span class="duration-value" id="shortBreakValue">${shortBreakMin} min</span>
+                            </div>
+                            <input type="range" id="shortBreakSlider" min="1" max="30" value="${shortBreakMin}" class="duration-slider">
+                        </div>
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Long Break</label>
+                                <span class="duration-value" id="longBreakValue">${longBreakMin} min</span>
+                            </div>
+                            <input type="range" id="longBreakSlider" min="1" max="60" value="${longBreakMin}" class="duration-slider">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Focus Sounds -->
+                <div class="settings-section">
+                    <h4 class="section-title">Focus Sounds</h4>
+                    <div class="volume-section">
+                        <div class="volume-header">
+                            <label class="volume-label">Volume</label>
+                            <span class="volume-value" id="ambientVolumeValue">${initialVolumePct}%</span>
+                        </div>
+                        <div class="volume-control">
+                            <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}" class="volume-slider">
+                        </div>
+                    </div>
+                    <div class="music-section">
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
+                                    <h4>Rain Sounds</h4>
+                                    <p>Natural rain and thunder</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="rainToggle" ${rainEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        ${this.isAuthenticated ? `
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
+                                    <h4>Lofi Music</h4>
+                                    <p>Relaxing beats for deep focus</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="music-header disabled">
+                            <div class="music-info">
+                                <div class="music-details">
+                                    <h4 style="color: #666;">Lofi Music</h4>
+                                    <p style="color: #888;">Sign up to unlock</p>
+                                </div>
+                            </div>
+                            <div class="login-container">
+                                <button id="lofiLoginBtn" class="login-btn">Sign up</button>
+                            </div>
+                        </div>
+                        `}
+                    </div>
+                </div>
+                
+                <!-- Save Button -->
+                <div class="modal-actions">
+                    <button class="save-settings-btn" id="saveTimerSettings">Save Changes</button>
+                </div>
+            </div>
+        `;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+        
+        // Duration sliders
+        const pomodoroSlider = modalOverlay.querySelector('#pomodoroSlider');
+        const shortBreakSlider = modalOverlay.querySelector('#shortBreakSlider');
+        const longBreakSlider = modalOverlay.querySelector('#longBreakSlider');
+        const pomodoroValue = modalOverlay.querySelector('#pomodoroValue');
+        const shortBreakValue = modalOverlay.querySelector('#shortBreakValue');
+        const longBreakValue = modalOverlay.querySelector('#longBreakValue');
+        
+        pomodoroSlider.addEventListener('input', (e) => {
+            pomodoroValue.textContent = `${e.target.value} min`;
+        });
+        shortBreakSlider.addEventListener('input', (e) => {
+            shortBreakValue.textContent = `${e.target.value} min`;
+        });
+        longBreakSlider.addEventListener('input', (e) => {
+            longBreakValue.textContent = `${e.target.value} min`;
+        });
+        
+        // Volume and music controls (same as showAmbientModal)
+        const volumeSlider = modalOverlay.querySelector('#ambientVolume');
+        const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
+        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
+        const rainToggle = modalOverlay.querySelector('#rainToggle');
+        const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
+        
+        volumeSlider.disabled = !(lofiEnabled || rainEnabled);
+        if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
+        rainToggle.checked = this.rainEnabled;
+        
+        volumeSlider.addEventListener('input', (e) => {
+            const newVolume = parseInt(e.target.value) / 100;
+            this.setAmbientVolume(newVolume);
+            volumeValue.textContent = `${e.target.value}%`;
+        });
+        
+        if (lofiToggle) {
+            lofiToggle.addEventListener('change', (e) => {
+                this.ambientEnabled = e.target.checked;
+                localStorage.setItem('ambientEnabled', String(this.ambientEnabled));
+                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
+                
+                if (this.ambientEnabled) {
+                    this.rainEnabled = false;
+                    rainToggle.checked = false;
+                    localStorage.setItem('rainEnabled', 'false');
+                    this.stopRainPlaylist();
+                    if (this.isRunning) this.playPlaylist();
+                } else {
+                    this.stopPlaylist();
+                }
+            });
+        }
+        
+        rainToggle.addEventListener('change', (e) => {
+            this.rainEnabled = e.target.checked;
+            localStorage.setItem('rainEnabled', String(this.rainEnabled));
+            volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
+            
+            if (this.rainEnabled) {
+                this.ambientEnabled = false;
+                if (lofiToggle) lofiToggle.checked = false;
+                localStorage.setItem('ambientEnabled', 'false');
+                this.stopPlaylist();
+                if (this.isRunning) this.playRainPlaylist();
+            } else {
+                this.stopRainPlaylist();
+            }
+        });
+        
+        if (lofiLoginBtn) {
+            lofiLoginBtn.addEventListener('click', () => {
+                document.body.removeChild(modalOverlay);
+                this.showLofiLoginModal();
+            });
+        }
+        
+        // Close button
+        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Save button
+        modalOverlay.querySelector('#saveTimerSettings').addEventListener('click', () => {
+            // Save new durations
+            this.workTime = parseInt(pomodoroSlider.value) * 60;
+            this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
+            this.longBreakTime = parseInt(longBreakSlider.value) * 60;
+            
+            // Save to localStorage
+            localStorage.setItem('pomodoroTime', String(this.workTime));
+            localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
+            localStorage.setItem('longBreakTime', String(this.longBreakTime));
+            
+            // Update cycle sections
+            this.cycleSections = [
+                { type: 'work', duration: this.workTime, name: 'Work 1' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                { type: 'work', duration: this.workTime, name: 'Work 2' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                { type: 'work', duration: this.workTime, name: 'Work 3' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                { type: 'work', duration: this.workTime, name: 'Work 4' },
+                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+            ];
+            
+            // Reset timer to first section
+            this.pauseTimerSilent();
+            this.currentSection = 1;
+            this.loadCurrentSection();
+            this.updateProgressRing();
+            
+            // Close modal
+            document.body.removeChild(modalOverlay);
+        });
     }
 
     showAmbientLoginModal() {
