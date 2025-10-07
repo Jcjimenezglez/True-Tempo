@@ -539,15 +539,16 @@ class PomodoroTimer {
             // Clear Todoist tasks when user is not authenticated
             this.clearTodoistTasks();
             
-            if (this.authContainer) this.authContainer.style.display = 'flex';
+            if (this.authContainer) this.authContainer.style.display = 'none'; // Always hidden, use settings menu instead
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             if (this.loginButton) this.loginButton.textContent = 'Login';
-            // Don't force display of signup button - let CSS handle mobile visibility
-            if (this.signupButton) this.signupButton.style.display = '';
-            console.log('User is not authenticated, showing login/signup buttons');
+            // Keep header buttons hidden - they're now in the settings menu
+            if (this.signupButton) this.signupButton.style.display = 'none';
+            if (this.loginButton) this.loginButton.style.display = 'none';
+            console.log('User is not authenticated, showing settings menu with login/signup options');
             
             // Update settings dropdown for non-authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
