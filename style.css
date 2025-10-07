@@ -251,7 +251,9 @@ body.is-scrolling .streak-fire {
     backdrop-filter: none;
     width: 100%;
     box-sizing: border-box;
-    pointer-events: none; /* prevent intercepting scroll */
+    /* Allow clicks inside the header; we handle scroll elsewhere */
+    pointer-events: auto;
+    z-index: 10000;
 }
 
 .main-header * { pointer-events: auto; }
@@ -658,6 +660,30 @@ body.is-scrolling .streak-fire {
     padding: 1.5rem 2rem;
     position: relative;
     z-index: 10;
+}
+
+/* Site Footer */
+.site-footer {
+    margin-top: 48px;
+    padding: 24px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.site-footer-inner {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-link:hover {
+    color: #ffffff;
 }
 
 .start-btn {
