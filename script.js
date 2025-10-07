@@ -105,6 +105,7 @@ class PomodoroTimer {
         this.timeElement = document.getElementById('time');
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.currentTaskElement = document.getElementById('currentTask');
+        this.sessionLabelElement = document.getElementById('sessionLabel');
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
         this.nextSectionBtn = document.getElementById('nextSectionBtn');
@@ -3235,9 +3236,8 @@ class PomodoroTimer {
     showTaskCompletedModal() {}
     
     updateSessionInfo() {
-        // Show simple counter for Pomodoros only (not breaks)
-        // Count work sessions: 1/4, 2/4, 3/4, 4/4
-        if (this.sessionInfoElement) {
+        // Tesla-style: Combined label "Pomodoro 1/4"
+        if (this.sessionLabelElement) {
             const workSessions = this.cycleSections.filter(s => s.type === 'work');
             const totalWorkSessions = workSessions.length;
             
@@ -3249,12 +3249,31 @@ class PomodoroTimer {
                 }
             }
             
-            // Show counter: 1/4, 2/4, etc.
-            this.sessionInfoElement.textContent = `${currentWorkSession}/${totalWorkSessions}`;
-            this.sessionInfoElement.style.display = 'block';
+            // Get session type
+            const sessionLabel = this.getCurrentTaskLabel();
+            
+            // Combine: "Pomodoro 1/4", "Short Break", "Long Break"
+            if (this.isWorkSession) {
+                this.sessionLabelElement.textContent = `${sessionLabel} ${currentWorkSession}/${totalWorkSessions}`;
+            } else {
+                this.sessionLabelElement.textContent = sessionLabel;
+            }
         }
         
-        // Update current task display
+        // Keep for backward compatibility (hidden via CSS)
+        if (this.sessionInfoElement) {
+            const workSessions = this.cycleSections.filter(s => s.type === 'work');
+            const totalWorkSessions = workSessions.length;
+            let currentWorkSession = 0;
+            for (let i = 0; i < this.currentSection; i++) {
+                if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                    currentWorkSession++;
+                }
+            }
+            this.sessionInfoElement.textContent = `${currentWorkSession}/${totalWorkSessions}`;
+        }
+        
+        // Update current task display (hidden via CSS)
         this.updateCurrentTaskDisplay();
     }
     
