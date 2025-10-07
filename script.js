@@ -1057,91 +1057,50 @@ class PomodoroTimer {
     }
 
     updateProgressRing() {
-        // Get the progress segments container
+        // SIMPLIFIED (Tesla style): ONE complete circle for background, ONE for progress
         const progressSegments = document.querySelector('.progress-segments');
-        if (!progressSegments) return;
-        
-        // Clear existing segments
-        progressSegments.innerHTML = '';
-        
-        // SIMPLIFIED: Create only ONE full circle as background (Tesla style)
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('class', 'progress-segment');
-        circle.setAttribute('cx', '50');
-        circle.setAttribute('cy', '50');
-        circle.setAttribute('r', '45');
-        circle.setAttribute('fill', 'none');
-        circle.setAttribute('stroke-width', '4');
-        circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-        // Don't set stroke-dasharray - let it be a complete circle
-        
-        progressSegments.appendChild(circle);
-        
-        // Update overlays
         const progressOverlays = document.querySelector('.progress-overlays');
-        if (progressOverlays) {
-            progressOverlays.innerHTML = '';
-            
-            this.cycleSections.forEach((section, index) => {
-                const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                overlay.setAttribute('class', 'progress-overlay');
-                overlay.setAttribute('data-ol', index + 1);
-                overlay.setAttribute('cx', '50');
-                overlay.setAttribute('cy', '50');
-                overlay.setAttribute('r', '45');
-                overlay.setAttribute('fill', 'none');
-                overlay.setAttribute('stroke-width', '4');
-                overlay.setAttribute('stroke-linecap', 'round');
-                overlay.setAttribute('stroke-linejoin', 'round');
-                overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-                
-                progressOverlays.appendChild(overlay);
-            });
-        }
         
-        // Refresh cached NodeLists so subsequent layout uses the new elements
+        if (!progressSegments || !progressOverlays) return;
+        
+        // Clear everything
+        progressSegments.innerHTML = '';
+        progressOverlays.innerHTML = '';
+        
+        // Create background circle (full circle, always visible)
+        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        bgCircle.setAttribute('class', 'progress-segment');
+        bgCircle.setAttribute('cx', '50');
+        bgCircle.setAttribute('cy', '50');
+        bgCircle.setAttribute('r', '45');
+        bgCircle.setAttribute('fill', 'none');
+        bgCircle.setAttribute('stroke-width', '4');
+        bgCircle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+        progressSegments.appendChild(bgCircle);
+        
+        // Create progress overlay (fills as time progresses)
+        const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        progressCircle.setAttribute('class', 'progress-overlay');
+        progressCircle.setAttribute('cx', '50');
+        progressCircle.setAttribute('cy', '50');
+        progressCircle.setAttribute('r', '45');
+        progressCircle.setAttribute('fill', 'none');
+        progressCircle.setAttribute('stroke-width', '4');
+        progressCircle.setAttribute('stroke-linecap', 'round');
+        progressCircle.setAttribute('stroke', '#ffffff');
+        progressOverlays.appendChild(progressCircle);
+        
+        // Cache references
         this.progressSegments = document.querySelectorAll('.progress-segment');
         this.progressOverlays = document.querySelectorAll('.progress-overlay');
-
-        // Re-layout segments with new configuration and update progress visuals
-        this.layoutSegments();
+        
+        // Update progress display
         this.updateProgress();
     }
 
-    // Layout segments proportionally starting from 12 o'clock, with small gaps
-    layoutSegments() {
-        const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
-        // Target visible gap 2px → with round caps and width 4, use GAP ≈ 6
-        const GAP = 6;
+    // REMOVED: layoutSegments() - no longer needed for simplified Tesla-style progress
+    
 
-        // Use cycleSections data instead of DOM
-        const minutes = this.cycleSections.map(section => section.duration / 60); // Convert seconds to minutes
-        const totalMinutes = minutes.reduce((a, b) => a + b, 0);
-
-        // Compute raw lengths proportionally based on actual duration
-        const lengths = minutes.map(m => (m / totalMinutes) * CIRCUMFERENCE);
-
-        // Apply gaps: ensure each gap is GAP length, subtract proportionally from each segment
-        const totalGaps = GAP * this.cycleSections.length;
-        const scale = (CIRCUMFERENCE - totalGaps) / CIRCUMFERENCE;
-        const scaledLengths = lengths.map(len => Math.max(6, len * scale)); // min length
-        this._segmentMeta = { CIRCUMFERENCE, GAP, scaledLengths };
-
-        // Set dasharray and offsets so the first segment starts at 12 o'clock.
-        // Because we rotate the group and indicator -90deg in CSS, here we start at 0.
-        let offset = 0;
-        this.progressSegments.forEach((seg, idx) => {
-            if (idx < scaledLengths.length) {
-                const segLen = scaledLengths[idx];
-                seg.setAttribute('stroke-dasharray', `${segLen} ${CIRCUMFERENCE}`);
-                seg.setAttribute('stroke-dashoffset', `${-offset}`);
-                offset += segLen + GAP;
-            } else {
-                // Hide extra segments if current technique has fewer sections
-                seg.style.display = 'none';
-            }
-        });
-    }
     bindEvents() {
         this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
         this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
@@ -2804,67 +2763,7 @@ class PomodoroTimer {
         });
     }
     
-    updateSegmentedProgress(totalProgress) {
-        const { CIRCUMFERENCE, GAP, scaledLengths } = this._segmentMeta;
-        
-        // Update each overlay to match its own segment completion
-        let cursor = 0;
-        this.progressOverlays.forEach((ol, i) => {
-            if (i < scaledLengths.length) {
-                const segLen = scaledLengths[i];
-                let fillLen = 0;
-
-                // Set overlay color based on section type
-                // Color-coded indicators per segment type
-                const section = this.cycleSections[i];
-                if (section) {
-                    switch (section.type) {
-                        case 'work':
-                            ol.style.stroke = '#ffffff'; // White for work
-                            break;
-                        case 'break':
-                            ol.style.stroke = '#ffffff'; // White for short breaks
-                            break;
-                        case 'long-break':
-                            ol.style.stroke = '#ffffff'; // White for long breaks
-                            break;
-                        default:
-                            ol.style.stroke = '#ffffff';
-                    }
-                }
-                
-                // Check if this segment should be visible
-                if (totalProgress > cursor) {
-                    // This segment has started
-                    if (totalProgress >= cursor + segLen) {
-                        // Segment is fully filled
-                        fillLen = segLen;
-                    } else {
-                        // Segment is partially filled
-                        const progressInSegment = totalProgress - cursor;
-                        if (progressInSegment > 0) {
-                            fillLen = Math.min(progressInSegment, segLen);
-                        }
-                    }
-                }
-
-                if (fillLen > 0) {
-                    ol.style.display = 'inline';
-                    ol.setAttribute('stroke-dasharray', `${fillLen} ${CIRCUMFERENCE}`);
-                    ol.setAttribute('stroke-dashoffset', `${-cursor}`);
-                } else {
-                    // Hide completely to avoid small round-cap dots at segment start
-                    ol.style.display = 'none';
-                }
-
-                // Move cursor to next segment position (including gap)
-                cursor += segLen + GAP;
-            } else {
-                // Hide extra overlays if current technique has fewer sections
-                ol.style.display = 'none';
-            }
-        });
-    }
+    // REMOVED: updateSegmentedProgress() - no longer needed for simplified Tesla-style progress
     
     updateSections() {
         // No highlight: segments remain uniform per type
