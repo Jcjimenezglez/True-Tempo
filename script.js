@@ -1116,15 +1116,15 @@ class PomodoroTimer {
     bindEvents() {
         // Primary binding for Play/Pause button (original behavior)
         if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
-        this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
-        this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
-        this.musicToggleBtn.addEventListener('click', (e) => {
+        if (this.prevSectionBtn) this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
+        if (this.nextSectionBtn) this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
+        if (this.musicToggleBtn) this.musicToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.toggleMusic();
         });
-        this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
-        this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
+        if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
+        if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
         // Streak button event listener
         const streakInfo = document.getElementById('streakInfo');
@@ -1133,9 +1133,9 @@ class PomodoroTimer {
         }
         
         // Custom timer event listeners
-        this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
-        this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
-        this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
+        if (this.closeCustomTimer) this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        if (this.cancelCustomTimer) this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        if (this.saveCustomTimer) this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
         
         // Custom timer form inputs
         const customInputs = ['customName', 'focusTime', 'breakTime', 'longBreakTime', 'cycles'];
@@ -1154,7 +1154,7 @@ class PomodoroTimer {
             const inTechniqueInfo = e.target.closest && e.target.closest('.technique-info-overlay');
             if (inTechniqueInfo) return;
 
-            if (!this.techniqueDropdown.contains(e.target)) {
+            if (this.techniqueDropdown && !this.techniqueDropdown.contains(e.target)) {
                 this.closeDropdown();
             }
         });
