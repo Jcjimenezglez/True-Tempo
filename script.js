@@ -1065,7 +1065,6 @@ class PomodoroTimer {
         progressSegments.innerHTML = '';
         
         // SIMPLIFIED: Create only ONE full circle as background (Tesla style)
-        const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('class', 'progress-segment');
         circle.setAttribute('cx', '50');
@@ -1073,11 +1072,8 @@ class PomodoroTimer {
         circle.setAttribute('r', '45');
         circle.setAttribute('fill', 'none');
         circle.setAttribute('stroke-width', '4');
-        circle.setAttribute('stroke-linecap', 'round');
-        circle.setAttribute('stroke-linejoin', 'round');
         circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-        circle.setAttribute('stroke-dasharray', `${CIRCUMFERENCE} 0`); // Full circle
-        circle.setAttribute('stroke-dashoffset', '0');
+        // Don't set stroke-dasharray - let it be a complete circle
         
         progressSegments.appendChild(circle);
         
