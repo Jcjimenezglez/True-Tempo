@@ -937,7 +937,7 @@ body.is-scrolling .streak-fire {
     }
     
     .signup-button {
-        display: none;
+        display: inline-block;
     }
     
     .achievement-icon {
