@@ -521,7 +521,7 @@ body.is-scrolling .streak-fire {
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
-    opacity: 0.15; /* Subtle background circle (Tesla style) */
+    opacity: 0.3; /* Visible background circle (Tesla style) */
 }
 
 .work-segment {
