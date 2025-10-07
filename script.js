@@ -1133,10 +1133,14 @@ class PomodoroTimer {
             streakInfo.addEventListener('click', () => this.showStreakInfo());
         }
         
-        // Timer Settings button event listener
+        // Timer Settings button event listeners (footer legacy + header new)
         const timerSettingsBtn = document.getElementById('timerSettingsBtn');
         if (timerSettingsBtn) {
             timerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
+        }
+        const headerSettingsBtn = document.getElementById('headerSettingsBtn');
+        if (headerSettingsBtn) {
+            headerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
         }
         
         // Custom timer event listeners
