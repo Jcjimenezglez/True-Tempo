@@ -576,7 +576,7 @@ body.is-scrolling .streak-fire {
 
 /* Combined Session Label (Tesla-style: "Pomodoro 1/4") */
 .session-label {
-    font-size: 1rem;
+    font-size: 2rem;
     color: #a3a3a3;
     font-weight: 500;
     margin: 0 auto 0rem auto;
