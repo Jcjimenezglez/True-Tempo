@@ -159,9 +159,18 @@ class PomodoroTimer {
         // Settings dropdown elements
         this.headerSettingsBtn = document.getElementById('headerSettingsBtn');
         this.settingsDropdown = document.getElementById('settingsDropdown');
+        this.settingsUserInfo = document.getElementById('settingsUserInfo');
+        this.settingsUserEmail = document.getElementById('settingsUserEmail');
+        this.settingsProBadge = document.getElementById('settingsProBadge');
         this.settingsAuthSection = document.getElementById('settingsAuthSection');
         this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
         this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
+        this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
+        this.settingsManageSubscriptionBtn = document.getElementById('settingsManageSubscriptionBtn');
+        this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
+        this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
+        this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
+        this.settingsUserDivider = document.getElementById('settingsUserDivider');
         this.timerSettingsItem = document.getElementById('timerSettingsItem');
         this.shortcutsItem = document.getElementById('shortcutsItem');
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
@@ -476,9 +485,19 @@ class PomodoroTimer {
             console.log('User is authenticated, showing profile avatar');
             
             // Update settings dropdown for authenticated user
+            if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
+            if (this.settingsUserDivider) this.settingsUserDivider.style.display = 'block';
+            if (this.settingsAccountBtn) this.settingsAccountBtn.style.display = 'flex';
+            if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
+            if (this.settingsFeedbackBtn) this.settingsFeedbackBtn.style.display = 'flex';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
+            
+            // Update user email in settings dropdown
+            if (this.settingsUserEmail && this.user) {
+                this.settingsUserEmail.textContent = this.user.primaryEmailAddress?.emailAddress || 'User';
+            }
 
 
             // Apply saved technique now that auth is ready
@@ -531,7 +550,14 @@ class PomodoroTimer {
             console.log('User is not authenticated, showing login/signup buttons');
             
             // Update settings dropdown for non-authenticated user
+            if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
+            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
+            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'none';
+            if (this.settingsAccountBtn) this.settingsAccountBtn.style.display = 'none';
+            if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
+            if (this.settingsFeedbackBtn) this.settingsFeedbackBtn.style.display = 'none';
+            if (this.settingsUserDivider) this.settingsUserDivider.style.display = 'none';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             // Reset badge to zero time for guests
@@ -1212,12 +1238,57 @@ class PomodoroTimer {
             });
         }
         
+        // Settings dropdown - Upgrade to Pro
+        if (this.settingsUpgradeToProBtn) {
+            this.settingsUpgradeToProBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.handleUpgrade();
+            });
+        }
+        
+        // Settings dropdown - Manage Subscription
+        if (this.settingsManageSubscriptionBtn) {
+            this.settingsManageSubscriptionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.handleManageSubscription();
+            });
+        }
+        
+        // Settings dropdown - Account
+        if (this.settingsAccountBtn) {
+            this.settingsAccountBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showSettingsModal();
+            });
+        }
+        
+        // Settings dropdown - Integrations
+        if (this.settingsIntegrationsBtn) {
+            this.settingsIntegrationsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showIntegrationsModal();
+            });
+        }
+        
+        // Settings dropdown - Feedback
+        if (this.settingsFeedbackBtn) {
+            this.settingsFeedbackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showFeedbackModal();
+            });
+        }
+        
         // Settings dropdown - Logout
         if (this.settingsLogoutBtn) {
             this.settingsLogoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
-                this.confirmLogout();
+                this.showLogoutModal();
             });
         }
         
@@ -2717,12 +2788,24 @@ class PomodoroTimer {
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
             if (userProBadge) userProBadge.style.display = 'inline-block';
             if (integrationsButton) integrationsButton.style.display = 'flex';
+            
+            // Settings dropdown elements
+            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
+            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'flex';
+            if (this.settingsProBadge) this.settingsProBadge.style.display = 'inline-block';
+            if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
         } else {
             // Show Upgrade, hide Manage subscription, hide Pro badge, hide Integrations
             if (upgradeButton) upgradeButton.style.display = 'flex';
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'none';
             if (userProBadge) userProBadge.style.display = 'none';
             if (integrationsButton) integrationsButton.style.display = 'none';
+            
+            // Settings dropdown elements
+            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'flex';
+            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'none';
+            if (this.settingsProBadge) this.settingsProBadge.style.display = 'none';
+            if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
         }
     }
 

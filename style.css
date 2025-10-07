@@ -743,6 +743,31 @@ body.is-scrolling .streak-fire {
     font-weight: 500;
 }
 
+.settings-user-info {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-user-info .user-email {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.settings-user-info .pro-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
 /* Timer Settings Button (legacy footer, now hidden) */
 .timer-settings-btn {
     display: none;
