@@ -670,6 +670,79 @@ body.is-scrolling .streak-fire {
     stroke: currentColor;
 }
 
+/* Settings Menu Container */
+.settings-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Settings Dropdown */
+.settings-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+}
+
+.settings-dropdown-menu {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    min-width: 200px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.settings-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+}
+
+.settings-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.settings-dropdown-item .dropdown-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.settings-dropdown-item span {
+    flex: 1;
+}
+
+.settings-auth-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-auth-section .settings-dropdown-item:first-child {
+    padding-top: 1rem;
+}
+
+.settings-auth-section .settings-dropdown-item:last-of-type {
+    padding-bottom: 1rem;
+}
+
+.settings-login-btn,
+.settings-signup-btn {
+    font-weight: 500;
+}
+
 /* Timer Settings Button (legacy footer, now hidden) */
 .timer-settings-btn {
     display: none;
@@ -5142,6 +5215,47 @@ input:checked + .toggle-slider:before {
 
 .settings-section {
     margin-bottom: 2rem;
+}
+
+/* Shortcuts Modal Styles */
+.shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.shortcut-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.shortcut-description {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.shortcut-key {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    color: #ffffff;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    min-width: 50px;
+    text-align: center;
 }
 
 .section-title {

@@ -156,6 +156,17 @@ class PomodoroTimer {
         this.loginButton = document.getElementById('loginButton');
         this.signupButton = document.getElementById('signupButton');
         
+        // Settings dropdown elements
+        this.headerSettingsBtn = document.getElementById('headerSettingsBtn');
+        this.settingsDropdown = document.getElementById('settingsDropdown');
+        this.settingsAuthSection = document.getElementById('settingsAuthSection');
+        this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
+        this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
+        this.timerSettingsItem = document.getElementById('timerSettingsItem');
+        this.shortcutsItem = document.getElementById('shortcutsItem');
+        this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
+        this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
+        
         // Logo and achievement elements
         this.logoIcon = document.getElementById('logoIcon');
         this.achievementIcon = document.getElementById('achievementIcon');
@@ -463,6 +474,11 @@ class PomodoroTimer {
             // Hide loading screen when user is authenticated
             this.hideLoadingScreen();
             console.log('User is authenticated, showing profile avatar');
+            
+            // Update settings dropdown for authenticated user
+            if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
+            if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
+            if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
 
 
             // Apply saved technique now that auth is ready
@@ -513,6 +529,11 @@ class PomodoroTimer {
             // Don't force display of signup button - let CSS handle mobile visibility
             if (this.signupButton) this.signupButton.style.display = '';
             console.log('User is not authenticated, showing login/signup buttons');
+            
+            // Update settings dropdown for non-authenticated user
+            if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
+            if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
+            if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             // Reset badge to zero time for guests
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
@@ -1133,14 +1154,71 @@ class PomodoroTimer {
             streakInfo.addEventListener('click', () => this.showStreakInfo());
         }
         
-        // Timer Settings button event listeners (footer legacy + header new)
+        // Timer Settings button event listeners (footer legacy)
         const timerSettingsBtn = document.getElementById('timerSettingsBtn');
         if (timerSettingsBtn) {
             timerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
         }
-        const headerSettingsBtn = document.getElementById('headerSettingsBtn');
-        if (headerSettingsBtn) {
-            headerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
+        
+        // Header Settings dropdown toggle
+        if (this.headerSettingsBtn) {
+            this.headerSettingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.settingsDropdown) {
+                    const isShown = this.settingsDropdown.style.display === 'block';
+                    // Close user profile dropdown if open
+                    if (this.userProfileDropdown) {
+                        this.userProfileDropdown.style.display = 'none';
+                    }
+                    this.settingsDropdown.style.display = isShown ? 'none' : 'block';
+                }
+            });
+        }
+        
+        // Settings dropdown - Login button
+        if (this.settingsLoginBtn) {
+            this.settingsLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.handleLogin();
+            });
+        }
+        
+        // Settings dropdown - Signup button
+        if (this.settingsSignupBtn) {
+            this.settingsSignupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.handleSignup();
+            });
+        }
+        
+        // Settings dropdown - Timer Settings
+        if (this.timerSettingsItem) {
+            this.timerSettingsItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showTimerSettingsModal();
+            });
+        }
+        
+        // Settings dropdown - Shortcuts
+        if (this.shortcutsItem) {
+            this.shortcutsItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showShortcutsModal();
+            });
+        }
+        
+        // Settings dropdown - Logout
+        if (this.settingsLogoutBtn) {
+            this.settingsLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.confirmLogout();
+            });
         }
         
         // Custom timer event listeners
@@ -1386,6 +1464,7 @@ class PomodoroTimer {
         // Close dropdown when clicking outside
         document.addEventListener('click', () => {
             if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+            if (this.settingsDropdown) this.settingsDropdown.style.display = 'none';
         });
         
         // Logout action
@@ -2052,6 +2131,72 @@ class PomodoroTimer {
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+    
+    showShortcutsModal() {
+        const modalContent = `
+            <div class="focus-stats-modal timer-settings-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="modal-header">
+                    <h3>Keyboard Shortcuts</h3>
+                    <p class="modal-subtitle">Quick actions to boost your productivity</p>
+                </div>
+                
+                <div class="settings-section">
+                    <div class="shortcuts-list">
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Start/Pause Timer</span>
+                            <kbd class="shortcut-key">Space</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Reset Timer</span>
+                            <kbd class="shortcut-key">R</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Next Section</span>
+                            <kbd class="shortcut-key">→</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Previous Section</span>
+                            <kbd class="shortcut-key">←</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Toggle Music</span>
+                            <kbd class="shortcut-key">M</kbd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+        
+        // Close button
+        const closeBtn = modalOverlay.querySelector('.close-focus-stats-x');
+        closeBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            if (modalOverlay.parentNode) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+                if (modalOverlay.parentNode) {
+                    document.body.removeChild(modalOverlay);
+                }
             }
         });
     }
