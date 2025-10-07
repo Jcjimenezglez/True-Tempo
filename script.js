@@ -2887,11 +2887,14 @@ class PomodoroTimer {
     }
 
     getCurrentTaskLabel() {
-        if (!this.taskQueue || this.taskQueue.length === 0) return 'Add Task';
-        const current = this.taskQueue[this.currentTaskIndex] || null;
-        // Return "Add Task" for empty slots (sessions without assigned tasks)
-        if (!current || current.source === 'empty' || !current.content) return 'Add Task';
-        return current.content;
+        // Show session type instead of "Add Task"
+        if (this.isWorkSession) {
+            return 'Pomodoro';
+        } else if (this.isLongBreak) {
+            return 'Long Break';
+        } else {
+            return 'Short Break';
+        }
     }
 
     // Advance to next task slot after finishing a focus session
@@ -2988,24 +2991,24 @@ class PomodoroTimer {
     showTaskCompletedModal() {}
     
     updateSessionInfo() {
-        const currentSectionInfo = this.cycleSections[this.currentSection - 1];
-        
-        // Calculate progress percentage
-        let totalCycleProgress = 0;
-        for (let i = 0; i < this.currentSection - 1; i++) {
-            totalCycleProgress += this.cycleSections[i].duration;
+        // Show simple counter for Pomodoros only (not breaks)
+        // Count work sessions: 1/4, 2/4, 3/4, 4/4
+        if (this.sessionInfoElement) {
+            const workSessions = this.cycleSections.filter(s => s.type === 'work');
+            const totalWorkSessions = workSessions.length;
+            
+            // Calculate current work session number
+            let currentWorkSession = 0;
+            for (let i = 0; i < this.currentSection; i++) {
+                if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                    currentWorkSession++;
+                }
+            }
+            
+            // Show counter: 1/4, 2/4, etc.
+            this.sessionInfoElement.textContent = `${currentWorkSession}/${totalWorkSessions}`;
+            this.sessionInfoElement.style.display = 'block';
         }
-        totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
-        
-        // Calculate total cycle time dynamically
-        const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
-        const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
-        
-        // Format as "X/Y Sessions (Z%)"
-        const sessionNumber = this.currentSection;
-        const totalSessions = this.cycleSections.length;
-        let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
-        this.sessionInfoElement.textContent = text;
         
         // Update current task display
         this.updateCurrentTaskDisplay();
@@ -3023,14 +3026,10 @@ class PomodoroTimer {
     
     updateCurrentTaskDisplay() {
         if (this.currentTaskElement) {
-            if (this.currentTaskName) {
-                this.currentTaskElement.textContent = this.currentTaskName;
-                this.currentTaskElement.style.display = 'block';
-            } else {
-                // Show "Add Task" when no task is assigned
-                this.currentTaskElement.textContent = 'Add Task';
-                this.currentTaskElement.style.display = 'block';
-            }
+            // Show session type: Pomodoro, Short Break, or Long Break
+            const sessionLabel = this.getCurrentTaskLabel();
+            this.currentTaskElement.textContent = sessionLabel;
+            this.currentTaskElement.style.display = 'block';
         }
     }
 
