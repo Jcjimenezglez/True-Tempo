@@ -2730,22 +2730,7 @@ class PomodoroTimer {
         this.updateSessionInfo();
         
         // Update title to show paused state
-        const minutes = Math.floor(this.timeLeft / 60);
-        const seconds = this.timeLeft % 60;
-        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        // Use current task content for title
-        let titleText;
-        if (this.currentTaskName) {
-            titleText = this.currentTaskName;
-        } else {
-            // Fallback to session type if no current task
-            if (this.isWorkSession) {
-                titleText = 'Focus';
-            } else {
-                titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
-            }
-        }
-        document.title = `${timeString} - ${titleText} (Paused)`;
+        this.updateDocumentTitle(true);
     }
     
     pauseTimerSilent() {
@@ -2764,22 +2749,7 @@ class PomodoroTimer {
         // No sound - silent pause
         
         // Update title to show paused state
-        const minutes = Math.floor(this.timeLeft / 60);
-        const seconds = this.timeLeft % 60;
-        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        // Use current task content for title
-        let titleText;
-        if (this.currentTaskName) {
-            titleText = this.currentTaskName;
-        } else {
-            // Fallback to session type if no current task
-            if (this.isWorkSession) {
-                titleText = 'Focus';
-            } else {
-                titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
-            }
-        }
-        document.title = `${timeString} - ${titleText} (Paused)`;
+        this.updateDocumentTitle(true);
     }
     
     goToPreviousSection() {
@@ -2977,6 +2947,52 @@ class PomodoroTimer {
         }, 600);
     }
     
+    updateDocumentTitle(isPaused = false) {
+        // Get time string
+        const minutes = Math.floor(this.timeLeft / 60);
+        const seconds = this.timeLeft % 60;
+        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Check if should show "Ready to focus?"
+        const isAtInitialTime = this.timeLeft === this.cycleSections[this.currentSection - 1]?.duration;
+        const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime;
+        
+        let titleText;
+        
+        if (shouldShowReadyToFocus) {
+            // Show "Ready to focus?" in tab
+            document.title = `${timeString} - Ready to focus?`;
+            return;
+        }
+        
+        // Priority 1: Use task name if available
+        if (this.currentTaskName) {
+            titleText = this.currentTaskName;
+        } else {
+            // Priority 2: Use session type
+            const workSessions = this.cycleSections.filter(s => s.type === 'work');
+            const totalWorkSessions = workSessions.length;
+            let currentWorkSession = 0;
+            for (let i = 0; i < this.currentSection; i++) {
+                if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                    currentWorkSession++;
+                }
+            }
+            
+            if (this.isWorkSession) {
+                titleText = `Pomodoro ${currentWorkSession}/${totalWorkSessions}`;
+            } else if (this.isLongBreak) {
+                titleText = 'Long Break';
+            } else {
+                titleText = 'Short Break';
+            }
+        }
+        
+        // Set document title with optional (Paused) suffix
+        const pausedSuffix = isPaused ? ' (Paused)' : '';
+        document.title = `${timeString} - ${titleText}${pausedSuffix}`;
+    }
+    
     updateDisplay() {
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
@@ -2985,19 +3001,8 @@ class PomodoroTimer {
         // Update main display
         this.timeElement.textContent = timeString;
         
-        // Update browser tab title with current task content
-        let titleText;
-        if (this.currentTaskName) {
-            titleText = this.currentTaskName;
-        } else {
-            // Fallback to session type if no current task
-            if (this.isWorkSession) {
-                titleText = 'Focus';
-            } else {
-                titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
-            }
-        }
-        document.title = `${timeString} - ${titleText}`;
+        // Update browser tab title
+        this.updateDocumentTitle(false);
     }
     
     updateProgress() {
@@ -8277,4 +8282,5 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(tryHide, 200);
         setTimeout(() => timer.hideLoadingScreen(), 4000);
     }
+});// Force redeploy for admin key
 });// Force redeploy for admin key
