@@ -2726,6 +2726,9 @@ class PomodoroTimer {
             this.pausePlaylist();
         }
         
+        // Update session info to potentially show "Ready to focus?"
+        this.updateSessionInfo();
+        
         // Update title to show paused state
         const minutes = Math.floor(this.timeLeft / 60);
         const seconds = this.timeLeft % 60;
@@ -3240,27 +3243,39 @@ class PomodoroTimer {
     showTaskCompletedModal() {}
     
     updateSessionInfo() {
-        // Tesla-style: Combined label "Pomodoro 1/4"
+        // Tesla-style: Combined label "Pomodoro 1/4" OR "Ready to focus?"
         if (this.sessionLabelElement) {
-            const workSessions = this.cycleSections.filter(s => s.type === 'work');
-            const totalWorkSessions = workSessions.length;
+            // Show "Ready to focus?" when:
+            // 1. Timer hasn't been started (!isRunning)
+            // 2. Timer is at initial time (fresh state)
+            // 3. Cycle completed and no more tasks
+            const isAtInitialTime = this.timeLeft === this.cycleSections[this.currentSection - 1]?.duration;
+            const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime;
             
-            // Calculate current work session number
-            let currentWorkSession = 0;
-            for (let i = 0; i < this.currentSection; i++) {
-                if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
-                    currentWorkSession++;
-                }
-            }
-            
-            // Get session type
-            const sessionLabel = this.getCurrentTaskLabel();
-            
-            // Combine: "Pomodoro 1/4", "Short Break", "Long Break"
-            if (this.isWorkSession) {
-                this.sessionLabelElement.textContent = `${sessionLabel} ${currentWorkSession}/${totalWorkSessions}`;
+            if (shouldShowReadyToFocus) {
+                this.sessionLabelElement.textContent = 'Ready to focus?';
             } else {
-                this.sessionLabelElement.textContent = sessionLabel;
+                // Show session info: "Pomodoro 1/4", "Short Break", etc.
+                const workSessions = this.cycleSections.filter(s => s.type === 'work');
+                const totalWorkSessions = workSessions.length;
+                
+                // Calculate current work session number
+                let currentWorkSession = 0;
+                for (let i = 0; i < this.currentSection; i++) {
+                    if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                        currentWorkSession++;
+                    }
+                }
+                
+                // Get session type
+                const sessionLabel = this.getCurrentTaskLabel();
+                
+                // Combine: "Pomodoro 1/4", "Short Break", "Long Break"
+                if (this.isWorkSession) {
+                    this.sessionLabelElement.textContent = `${sessionLabel} ${currentWorkSession}/${totalWorkSessions}`;
+                } else {
+                    this.sessionLabelElement.textContent = sessionLabel;
+                }
             }
         }
         
@@ -3296,7 +3311,7 @@ class PomodoroTimer {
             // Show session type: Pomodoro, Short Break, or Long Break
             const sessionLabel = this.getCurrentTaskLabel();
             this.currentTaskElement.textContent = sessionLabel;
-            this.currentTaskElement.style.display = 'block';
+                this.currentTaskElement.style.display = 'block';
         }
     }
 
