@@ -1081,17 +1081,17 @@ class PomodoroTimer {
         const progressOverlays = document.querySelector('.progress-overlays');
         if (progressOverlays) {
             progressOverlays.innerHTML = '';
-            const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            overlay.setAttribute('class', 'progress-overlay');
-            overlay.setAttribute('cx', '50');
-            overlay.setAttribute('cy', '50');
-            overlay.setAttribute('r', '45');
-            overlay.setAttribute('fill', 'none');
-            overlay.setAttribute('stroke-width', '4');
-            overlay.setAttribute('stroke-linecap', 'round');
-            overlay.setAttribute('stroke-linejoin', 'round');
-            overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            progressOverlays.appendChild(overlay);
+                const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                overlay.setAttribute('class', 'progress-overlay');
+                overlay.setAttribute('cx', '50');
+                overlay.setAttribute('cy', '50');
+                overlay.setAttribute('r', '45');
+                overlay.setAttribute('fill', 'none');
+                overlay.setAttribute('stroke-width', '4');
+                overlay.setAttribute('stroke-linecap', 'round');
+                overlay.setAttribute('stroke-linejoin', 'round');
+                overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+                progressOverlays.appendChild(overlay);
         }
         
         // Refresh cached NodeLists so subsequent layout uses the new elements
@@ -1117,7 +1117,19 @@ class PomodoroTimer {
         });
     }
     bindEvents() {
-        this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+        // Primary binding for Play/Pause button
+        if (this.startPauseBtn) {
+            this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+        }
+        // Defensive: delegate in case the direct binding fails or the button is re-rendered
+        document.addEventListener('click', (e) => {
+            const playPause = e.target && e.target.closest && e.target.closest('#startPause');
+            if (playPause) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleTimer();
+            }
+        });
         this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
         this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
         this.musicToggleBtn.addEventListener('click', (e) => {
