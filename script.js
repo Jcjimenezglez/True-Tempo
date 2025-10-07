@@ -521,7 +521,7 @@ class PomodoroTimer {
             const savedVolume = localStorage.getItem('ambientVolume');
             if (savedVolume === null) {
                 this.ambientVolume = 0.25;
-                if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+            if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             }
             
             // Ensure guest users always have Rain Sounds selected by default
@@ -1057,50 +1057,65 @@ class PomodoroTimer {
     }
 
     updateProgressRing() {
-        // SIMPLIFIED (Tesla style): ONE complete circle for background, ONE for progress
+        // Get the progress segments container
         const progressSegments = document.querySelector('.progress-segments');
-        const progressOverlays = document.querySelector('.progress-overlays');
+        if (!progressSegments) return;
         
-        if (!progressSegments || !progressOverlays) return;
-        
-        // Clear everything
+        // Clear existing segments
         progressSegments.innerHTML = '';
-        progressOverlays.innerHTML = '';
         
-        // Create background circle (full circle, always visible)
-        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        bgCircle.setAttribute('class', 'progress-segment');
-        bgCircle.setAttribute('cx', '50');
-        bgCircle.setAttribute('cy', '50');
-        bgCircle.setAttribute('r', '45');
-        bgCircle.setAttribute('fill', 'none');
-        bgCircle.setAttribute('stroke-width', '4');
-        bgCircle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-        progressSegments.appendChild(bgCircle);
+        // SIMPLIFIED: Create only ONE full circle as background (Tesla style)
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('class', 'progress-segment');
+            circle.setAttribute('cx', '50');
+            circle.setAttribute('cy', '50');
+            circle.setAttribute('r', '45');
+            circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke-width', '4');
+                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+        // Don't set stroke-dasharray - let it be a complete circle
+            
+            progressSegments.appendChild(circle);
         
-        // Create progress overlay (fills as time progresses)
-        const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        progressCircle.setAttribute('class', 'progress-overlay');
-        progressCircle.setAttribute('cx', '50');
-        progressCircle.setAttribute('cy', '50');
-        progressCircle.setAttribute('r', '45');
-        progressCircle.setAttribute('fill', 'none');
-        progressCircle.setAttribute('stroke-width', '4');
-        progressCircle.setAttribute('stroke-linecap', 'round');
-        progressCircle.setAttribute('stroke', '#ffffff');
-        progressOverlays.appendChild(progressCircle);
+        // Update overlays: create ONLY ONE overlay used for current-section progress
+        const progressOverlays = document.querySelector('.progress-overlays');
+        if (progressOverlays) {
+            progressOverlays.innerHTML = '';
+            const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            overlay.setAttribute('class', 'progress-overlay');
+            overlay.setAttribute('cx', '50');
+            overlay.setAttribute('cy', '50');
+            overlay.setAttribute('r', '45');
+            overlay.setAttribute('fill', 'none');
+            overlay.setAttribute('stroke-width', '4');
+            overlay.setAttribute('stroke-linecap', 'round');
+            overlay.setAttribute('stroke-linejoin', 'round');
+            overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+            progressOverlays.appendChild(overlay);
+        }
         
-        // Cache references
+        // Refresh cached NodeLists so subsequent layout uses the new elements
         this.progressSegments = document.querySelectorAll('.progress-segment');
         this.progressOverlays = document.querySelectorAll('.progress-overlay');
-        
-        // Update progress display
+
+        // Re-layout segments with new configuration and update progress visuals
+        this.layoutSegments();
         this.updateProgress();
     }
 
-    // REMOVED: layoutSegments() - no longer needed for simplified Tesla-style progress
-    
+    // Minimal layout: ensure background circle is full and store circumference
+    layoutSegments() {
+        const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
+        this._segmentMeta = { CIRCUMFERENCE };
 
+        // Ensure any existing background circle is a FULL circle (no dasharray)
+        const bgSegments = document.querySelectorAll('.progress-segment');
+        bgSegments.forEach(seg => {
+            seg.removeAttribute('stroke-dasharray');
+            seg.removeAttribute('stroke-dashoffset');
+            seg.style.display = 'inline';
+        });
+    }
     bindEvents() {
         this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
         this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
@@ -1379,7 +1394,7 @@ class PomodoroTimer {
                 e.preventDefault();
                 if (confirm('Are you sure you want to reset all your focus data? This action cannot be undone.')) {
                     this.resetAllData();
-                    this.hideSettingsModal();
+                this.hideSettingsModal();
                 }
             });
         }
@@ -2736,8 +2751,6 @@ class PomodoroTimer {
     }
     
     updateProgress() {
-        if (!this.progressOverlays || this.progressOverlays.length === 0) return;
-        
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         const totalTime = currentSectionInfo.duration;
         
@@ -2746,20 +2759,86 @@ class PomodoroTimer {
         const sectionProgress = Math.max(0, Math.min(1, elapsedInSection / totalTime));
         
         // SIMPLIFIED: Only show current section progress (Tesla style)
+        // Show a simple circular progress for the current session only
         const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
         const progressLength = CIRCUMFERENCE * sectionProgress;
         
-        // Update the single progress overlay
-        const progressOverlay = this.progressOverlays[0];
-        if (progressOverlay) {
-            progressOverlay.style.display = 'inline';
-            progressOverlay.style.stroke = '#ffffff';
-            progressOverlay.setAttribute('stroke-dasharray', `${progressLength} ${CIRCUMFERENCE}`);
-            progressOverlay.setAttribute('stroke-dashoffset', '0');
-        }
+        // Hide all overlays except the first one (we'll use it for current progress)
+        this.progressOverlays.forEach((ol, i) => {
+            if (i === 0) {
+                // Show only the current section progress
+                ol.style.display = 'inline';
+                ol.style.stroke = '#ffffff';
+                ol.setAttribute('stroke-dasharray', `${progressLength} ${CIRCUMFERENCE}`);
+                ol.setAttribute('stroke-dashoffset', '0');
+            } else {
+                // Hide all other overlays
+                ol.style.display = 'none';
+            }
+        });
     }
     
-    // REMOVED: updateSegmentedProgress() - no longer needed for simplified Tesla-style progress
+    updateSegmentedProgress(totalProgress) {
+        const { CIRCUMFERENCE, GAP, scaledLengths } = this._segmentMeta;
+        
+        // Update each overlay to match its own segment completion
+        let cursor = 0;
+        this.progressOverlays.forEach((ol, i) => {
+            if (i < scaledLengths.length) {
+                const segLen = scaledLengths[i];
+                let fillLen = 0;
+
+                // Set overlay color based on section type
+                // Color-coded indicators per segment type
+                const section = this.cycleSections[i];
+                if (section) {
+                    switch (section.type) {
+                        case 'work':
+                            ol.style.stroke = '#ffffff'; // White for work
+                            break;
+                        case 'break':
+                            ol.style.stroke = '#ffffff'; // White for short breaks
+                            break;
+                        case 'long-break':
+                            ol.style.stroke = '#ffffff'; // White for long breaks
+                            break;
+                        default:
+                            ol.style.stroke = '#ffffff';
+                    }
+                }
+                
+                // Check if this segment should be visible
+                if (totalProgress > cursor) {
+                    // This segment has started
+                    if (totalProgress >= cursor + segLen) {
+                        // Segment is fully filled
+                        fillLen = segLen;
+                    } else {
+                        // Segment is partially filled
+                        const progressInSegment = totalProgress - cursor;
+                        if (progressInSegment > 0) {
+                            fillLen = Math.min(progressInSegment, segLen);
+                        }
+                    }
+                }
+
+                if (fillLen > 0) {
+                    ol.style.display = 'inline';
+                    ol.setAttribute('stroke-dasharray', `${fillLen} ${CIRCUMFERENCE}`);
+                    ol.setAttribute('stroke-dashoffset', `${-cursor}`);
+                } else {
+                    // Hide completely to avoid small round-cap dots at segment start
+                    ol.style.display = 'none';
+                }
+
+                // Move cursor to next segment position (including gap)
+                cursor += segLen + GAP;
+            } else {
+                // Hide extra overlays if current technique has fewer sections
+                ol.style.display = 'none';
+            }
+        });
+    }
     
     updateSections() {
         // No highlight: segments remain uniform per type
@@ -3196,7 +3275,7 @@ class PomodoroTimer {
                             </svg>
                         </span>
                         <span class="upgrade-feature-text">Seamless integration with all focus techniques</span>
-                    </div>
+                </div>
                 </div>
                 <div class="upgrade-required-buttons">
                     <button class="upgrade-btn" id="lofiSignupBtn">Sign up for free</button>
@@ -6544,18 +6623,18 @@ class PomodoroTimer {
                         </div>
                         <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
                         <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
-                    </div>
-                    
+            </div>
+            
                     <!-- Longest Streak -->
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
                         <div style="color: #a3a3a3; margin-bottom: 12px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                        </div>
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
                         <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${longestStreak}</div>
                         <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
-                    </div>
+                </div>
                     
                     <!-- Total Focus Hours -->
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
@@ -6567,8 +6646,8 @@ class PomodoroTimer {
                         </div>
                         <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
                         <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
-                    </div>
-                    
+            </div>
+            
                     <!-- Completed Cycles -->
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
                         <div style="color: #a3a3a3; margin-bottom: 12px;">
