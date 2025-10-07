@@ -579,7 +579,7 @@ body.is-scrolling .streak-fire {
     font-size: 1rem;
     color: #a3a3a3;
     font-weight: 500;
-    margin: 0 auto 2rem auto;
+    margin: 0 auto 0rem auto;
     text-align: center;
     opacity: 0.9;
     min-height: 64px;
