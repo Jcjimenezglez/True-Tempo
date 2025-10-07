@@ -2881,6 +2881,31 @@ class PomodoroTimer {
         }
     }
     
+    resetTimer() {
+        // Pause timer if running
+        if (this.isRunning) {
+            this.pauseTimer();
+        }
+        
+        // Reset to first section
+        this.currentSection = 1;
+        
+        // Reload the current section (now section 1)
+        this.loadCurrentSection();
+        
+        // Update navigation buttons
+        this.updateNavigationButtons();
+        
+        // Update session info display
+        this.updateSessionInfo();
+        
+        // Update progress ring
+        this.updateProgressRing();
+        
+        // Play UI sound for feedback
+        this.playUiSound('click');
+    }
+    
     startTimer() {
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
@@ -3110,6 +3135,18 @@ class PomodoroTimer {
         if (e.code === 'Space' || e.code === 'Enter') {
             e.preventDefault(); // Prevent page scroll on space
             this.toggleTimer();
+        }
+        
+        // R to reset timer
+        if (e.code === 'KeyR') {
+            e.preventDefault();
+            this.resetTimer();
+        }
+        
+        // M to toggle music
+        if (e.code === 'KeyM') {
+            e.preventDefault();
+            this.toggleMusic();
         }
         
         // A or ArrowLeft for previous section
