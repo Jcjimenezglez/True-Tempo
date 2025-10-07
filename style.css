@@ -736,6 +736,7 @@ body.is-scrolling .streak-fire {
     align-items: center;
     justify-content: center;
     text-align: center;
+    margin: 1.5rem auto 0 auto;
 }
 
 .start-btn:hover {
