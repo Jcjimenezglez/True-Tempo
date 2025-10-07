@@ -395,6 +395,15 @@
                     <span class="streak-days" id="streakDays">0</span>
                 </button>
                 
+                <!-- Current session label (Pomodoro/Break) -->
+                <div class="current-task" id="currentTask">Pomodoro</div>
+                
+                <!-- Session counter (1/4) -->
+                <div class="session-info" id="sessionInfo">1/4</div>
+                
+                <!-- Time display -->
+                <div class="time" id="time">25:00</div>
+                
                 <!-- Timer Settings Button (subtle) -->
                 <button class="timer-settings-btn" id="timerSettingsBtn" title="Timer Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -404,20 +413,22 @@
                     <span>Settings</span>
                 </button>
                 
-                <!-- Time display -->
-                <div class="time" id="time">25:00</div>
-                
-                <!-- Current session label (Pomodoro/Break) -->
-                <div class="current-task" id="currentTask">Pomodoro</div>
-                
-                <!-- Session counter (1/4) -->
-                <div class="session-info" id="sessionInfo">1/4</div>
+                <!-- Play/Pause Button -->
+                <button id="startPause" class="start-btn" title="Start/Pause Timer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause pause-icon">
+                        <rect x="14" y="3" width="5" height="18" rx="1"/>
+                        <rect x="5" y="3" width="5" height="18" rx="1"/>
+                    </svg>
+                </button>
             </div>
             </div>
         </div>
         
-    <!-- Footer with Start/Pause, Reset, and Navigation buttons -->
-    <footer class="timer-footer">
+    <!-- Footer - Empty (all controls moved to timer center) -->
+    <footer class="timer-footer" style="display: none;">
         <button id="musicToggleBtn" class="nav-btn music-btn" title="Background Music" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 18V5l12-2v13"/>
@@ -428,16 +439,6 @@
         <button id="prevSectionBtn" class="nav-btn prev-btn" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15 18l-6-6 6-6"/>
-            </svg>
-        </button>
-        <!-- ORIGINAL Play/Pause stays in footer for now -->
-        <button id="startPause" class="start-btn" title="Start/Pause Timer">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
-                <polygon points="5,3 19,12 5,21"/>
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause pause-icon">
-                <rect x="14" y="3" width="5" height="18" rx="1"/>
-                <rect x="5" y="3" width="5" height="18" rx="1"/>
             </svg>
         </button>
         <button id="nextSectionBtn" class="nav-btn next-btn" style="display: none;">
