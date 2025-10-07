@@ -2736,6 +2736,8 @@ class PomodoroTimer {
     }
     
     updateProgress() {
+        if (!this.progressOverlays || this.progressOverlays.length === 0) return;
+        
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         const totalTime = currentSectionInfo.duration;
         
@@ -2744,23 +2746,17 @@ class PomodoroTimer {
         const sectionProgress = Math.max(0, Math.min(1, elapsedInSection / totalTime));
         
         // SIMPLIFIED: Only show current section progress (Tesla style)
-        // Show a simple circular progress for the current session only
         const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
         const progressLength = CIRCUMFERENCE * sectionProgress;
         
-        // Hide all overlays except the first one (we'll use it for current progress)
-        this.progressOverlays.forEach((ol, i) => {
-            if (i === 0) {
-                // Show only the current section progress
-                ol.style.display = 'inline';
-                ol.style.stroke = '#ffffff';
-                ol.setAttribute('stroke-dasharray', `${progressLength} ${CIRCUMFERENCE}`);
-                ol.setAttribute('stroke-dashoffset', '0');
-            } else {
-                // Hide all other overlays
-                ol.style.display = 'none';
-            }
-        });
+        // Update the single progress overlay
+        const progressOverlay = this.progressOverlays[0];
+        if (progressOverlay) {
+            progressOverlay.style.display = 'inline';
+            progressOverlay.style.stroke = '#ffffff';
+            progressOverlay.setAttribute('stroke-dasharray', `${progressLength} ${CIRCUMFERENCE}`);
+            progressOverlay.setAttribute('stroke-dashoffset', '0');
+        }
     }
     
     // REMOVED: updateSegmentedProgress() - no longer needed for simplified Tesla-style progress
