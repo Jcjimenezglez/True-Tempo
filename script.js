@@ -466,7 +466,7 @@ class PomodoroTimer {
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
-            if (this.userProfileContainer) this.userProfileContainer.style.display = 'flex';
+            if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
