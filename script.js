@@ -869,15 +869,7 @@ class PomodoroTimer {
                 this.showLogoutModal();
             } else {
                 console.log('Redirecting to Clerk hosted Sign In...');
-                // Wait for Clerk to be loaded before redirecting
-                await this.waitForClerk();
-                if (window.Clerk && window.Clerk.redirectToSignIn) {
-                    window.Clerk.redirectToSignIn({
-                        fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                    });
-                } else {
-                    console.error('Clerk not available for redirect');
-                }
+                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
             }
         } catch (error) {
             console.error('Login/logout failed:', error);
@@ -887,15 +879,7 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
-            // Wait for Clerk to be loaded before redirecting
-            await this.waitForClerk();
-            if (window.Clerk && window.Clerk.redirectToSignUp) {
-                window.Clerk.redirectToSignUp({
-                    fallbackRedirectUrl: 'https://www.superfocus.live/?signup=success',
-                });
-            } else {
-                console.error('Clerk not available for redirect');
-            }
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
