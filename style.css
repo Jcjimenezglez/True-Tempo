@@ -578,7 +578,7 @@ body.is-scrolling .streak-fire {
     font-size: 0.875rem;
     color: #a3a3a3;
     font-weight: 400;
-    margin: 0 auto 0.5rem auto;
+    margin: 0 auto 0.25rem auto;
     text-align: center;
 }
 
@@ -637,7 +637,7 @@ body.is-scrolling .streak-fire {
     font-size: 18px;
     color: #a3a3a3;
     font-weight: 500;
-    margin: 0 auto 1.5rem auto;
+    margin: 0 auto 0.75rem auto;
     text-align: center;
     opacity: 0.9;
     transition: all 0.2s ease;
