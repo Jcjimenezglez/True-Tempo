@@ -1064,31 +1064,22 @@ class PomodoroTimer {
         // Clear existing segments
         progressSegments.innerHTML = '';
         
-        // Create segments based on current technique
-        this.cycleSections.forEach((section, index) => {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('class', `progress-segment ${section.type}-segment`);
-            circle.setAttribute('data-section', index + 1);
-            circle.setAttribute('data-minutes', section.duration / 60);
-            circle.setAttribute('cx', '50');
-            circle.setAttribute('cy', '50');
-            circle.setAttribute('r', '45');
-            circle.setAttribute('fill', 'none');
-            circle.setAttribute('stroke-width', '4');
-            circle.setAttribute('stroke-linecap', 'round');
-            circle.setAttribute('stroke-linejoin', 'round');
-            
-            // Set stroke color based on section type
-            if (section.type === 'work') {
-                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            } else if (section.type === 'break') {
-                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            } else if (section.type === 'long-break') {
-                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            }
-            
-            progressSegments.appendChild(circle);
-        });
+        // SIMPLIFIED: Create only ONE full circle as background (Tesla style)
+        const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('class', 'progress-segment');
+        circle.setAttribute('cx', '50');
+        circle.setAttribute('cy', '50');
+        circle.setAttribute('r', '45');
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke-width', '4');
+        circle.setAttribute('stroke-linecap', 'round');
+        circle.setAttribute('stroke-linejoin', 'round');
+        circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+        circle.setAttribute('stroke-dasharray', `${CIRCUMFERENCE} 0`); // Full circle
+        circle.setAttribute('stroke-dashoffset', '0');
+        
+        progressSegments.appendChild(circle);
         
         // Update overlays
         const progressOverlays = document.querySelector('.progress-overlays');
