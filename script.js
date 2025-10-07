@@ -3245,12 +3245,12 @@ class PomodoroTimer {
     updateSessionInfo() {
         // Tesla-style: Combined label "Pomodoro 1/4" OR "Ready to focus?"
         if (this.sessionLabelElement) {
-            // Show "Ready to focus?" when:
+            // Show "Ready to focus?" ONLY for Pomodoro/Focus sessions when:
             // 1. Timer hasn't been started (!isRunning)
             // 2. Timer is at initial time (fresh state)
-            // 3. Cycle completed and no more tasks
+            // 3. Currently in a work session (not break)
             const isAtInitialTime = this.timeLeft === this.cycleSections[this.currentSection - 1]?.duration;
-            const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime;
+            const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime && this.isWorkSession;
             
             if (shouldShowReadyToFocus) {
                 this.sessionLabelElement.textContent = 'Ready to focus?';
