@@ -126,7 +126,7 @@
                 "text": "After 4 Pomodoros, take a longer 15-30 minute break"
             }
         ]
-    }
+        }
     </script>
     
     <!-- Structured Data - FAQ -->
@@ -169,7 +169,7 @@
     <script
         async
         crossorigin="anonymous"
-        data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA"
+            data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA" 
         onload="window.Clerk.load()"
         src="https://accounts.superfocus.live/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
         type="text/javascript"
@@ -244,14 +244,16 @@
         <div class="header-right">
             <!-- Auth Buttons -->
             <div class="auth-container" id="authContainer">
-                <button class="login-button" id="loginButton">Login</button>
-                <button class="signup-button" id="signupButton">Sign up for free</button>
                 <button class="header-settings-btn" id="headerSettingsBtn" title="Timer Settings">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                        <circle cx="12" cy="12" r="3"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings2-icon lucide-settings-2">
+                        <path d="M14 17H5"/>
+                        <path d="M19 7h-9"/>
+                        <circle cx="17" cy="17" r="3"/>
+                        <circle cx="7" cy="7" r="3"/>
                     </svg>
                 </button>
+                <button class="login-button" id="loginButton">Login</button>
+                <button class="signup-button" id="signupButton">Sign up for free</button>
             </div>
             
             <!-- User Profile (shown when authenticated) -->
@@ -701,7 +703,7 @@
             <p>Don't wait—start your first pomodoro session today. Set the timer for 25 minutes, focus on your most important task, and experience the power of structured, focused work. Join thousands of productive individuals who use our pomodoro time management tool daily to achieve their goals and build lasting focus habits.</p>
         </div>
     </section>
-
+    
     <!-- Site Footer -->
     <footer class="site-footer">
         <div class="site-footer-inner">
@@ -710,7 +712,7 @@
             <a href="/terms" class="footer-link">Terms</a>
         </div>
     </footer>
-
+    
     <script src="script.js"></script>
 </body>
 </html>

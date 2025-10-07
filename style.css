@@ -651,12 +651,12 @@ body.is-scrolling .streak-fire {
     justify-content: center;
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.7);
+    color: #ffffff;
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
-    margin-left: 0.5rem;
+    margin-right: 0.75rem;
 }
 
 .header-settings-btn:hover {
@@ -665,8 +665,8 @@ body.is-scrolling .streak-fire {
 }
 
 .header-settings-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     stroke: currentColor;
 }
 
