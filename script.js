@@ -3555,6 +3555,48 @@ class PomodoroTimer {
         this.playSyntheticSound(type);
     }
     
+    // Minimal implementation: play decoded buffer with slight rate differences
+    playProcessedCassetteSound(type) {
+        if (!this.audioContext || !this.audioBuffer) throw new Error('No audio buffer');
+        const source = this.audioContext.createBufferSource();
+        source.buffer = this.audioBuffer;
+        // Slightly different pitch for play vs pause
+        try {
+            source.playbackRate.value = type === 'play' ? 1.05 : 0.9;
+        } catch (_) {}
+        source.connect(this.audioContext.destination);
+        try { if (this.audioContext.state === 'suspended') this.audioContext.resume(); } catch (_) {}
+        source.start(0);
+        // Auto stop after 200ms to avoid lingering
+        try { source.stop(this.audioContext.currentTime + 0.2); } catch (_) {}
+    }
+    
+    // Synthetic short beep as last-resort feedback
+    playSyntheticSound(type) {
+        try {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = type === 'play' ? 880 : 440;
+            // Short envelope
+            const now = ctx.currentTime;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.08, now + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
+            if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
+        } catch (_) {
+            // As a final fallback, do nothing silently
+        }
+    }
+    
     loadAudio() {
         // Simple audio loading - no complex audio options for now
         const savedAudio = localStorage.getItem('selectedAudio') || 'none';
