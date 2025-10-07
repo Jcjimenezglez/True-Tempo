@@ -1117,19 +1117,8 @@ class PomodoroTimer {
         });
     }
     bindEvents() {
-        // Primary binding for Play/Pause button
-        if (this.startPauseBtn) {
-            this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
-        }
-        // Defensive: delegate in case the direct binding fails or the button is re-rendered
-        document.addEventListener('click', (e) => {
-            const playPause = e.target && e.target.closest && e.target.closest('#startPause');
-            if (playPause) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.toggleTimer();
-            }
-        });
+        // Primary binding for Play/Pause button (original behavior)
+        if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
         this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
         this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
         this.musicToggleBtn.addEventListener('click', (e) => {
