@@ -2797,21 +2797,24 @@ class PomodoroTimer {
         const elapsedInSection = currentSectionInfo.duration - this.timeLeft;
         const sectionProgress = Math.max(0, Math.min(1, elapsedInSection / totalTime));
         
-        // Build progress distance in SVG units INCLUDING gaps so that
-        // segment starts line up perfectly with visual gaps.
-        const { GAP, scaledLengths } = this._segmentMeta;
-        let distanceWithGaps = 0;
-        // Sum fully completed previous segments (length + gap each)
-        for (let i = 0; i < this.currentSection - 1 && i < scaledLengths.length; i++) {
-            distanceWithGaps += scaledLengths[i] + GAP;
-        }
-        // Add partial length within current segment
-        const currentSegIndex = Math.min(this.currentSection - 1, scaledLengths.length - 1);
-        const currentSegLen = scaledLengths[currentSegIndex] || 0;
-        distanceWithGaps += currentSegLen * sectionProgress;
+        // SIMPLIFIED: Only show current section progress (Tesla style)
+        // Show a simple circular progress for the current session only
+        const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
+        const progressLength = CIRCUMFERENCE * sectionProgress;
         
-        // Update overlays based on computed distance along whole ring (with gaps)
-        this.updateSegmentedProgress(distanceWithGaps);
+        // Hide all overlays except the first one (we'll use it for current progress)
+        this.progressOverlays.forEach((ol, i) => {
+            if (i === 0) {
+                // Show only the current section progress
+                ol.style.display = 'inline';
+                ol.style.stroke = '#ffffff';
+                ol.setAttribute('stroke-dasharray', `${progressLength} ${CIRCUMFERENCE}`);
+                ol.setAttribute('stroke-dashoffset', '0');
+            } else {
+                // Hide all other overlays
+                ol.style.display = 'none';
+            }
+        });
     }
     
     updateSegmentedProgress(totalProgress) {
