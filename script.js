@@ -869,9 +869,7 @@ class PomodoroTimer {
                 this.showLogoutModal();
             } else {
                 console.log('Redirecting to Clerk hosted Sign In...');
-                window.Clerk.redirectToSignIn({
-                    fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                });
+                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
             }
         } catch (error) {
             console.error('Login/logout failed:', error);
@@ -881,10 +879,7 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
-            // Redirect to signup success page after successful signup (force www domain)
-            const successUrl = 'https://www.superfocus.live/?signup=success';
-            const signupUrl = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
-            window.location.assign(signupUrl);
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
