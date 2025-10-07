@@ -5341,3 +5341,46 @@ input:checked + .toggle-slider:before {
         font-size: 1.1rem;
     }
 }
+
+/* Center Play/Pause button */
+.start-btn-center {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin: 24px auto;
+}
+
+.start-btn-center:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.start-btn-center svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Hide original start button in footer for now */
+#startPause {
+    display: none;
+}
+
+/* Update current-task to be more prominent above time */
+.current-task {
+    font-size: 18px;
+    color: #a3a3a3;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.current-task:hover {
+    color: #fff;
+}
