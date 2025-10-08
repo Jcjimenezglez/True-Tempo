@@ -185,22 +185,18 @@ body.is-scrolling .streak-fire {
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Video link */
-.video-link-container {
-    text-align: center;
-    margin: 1.5rem 0;
+/* Inline text link */
+.inline-text-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
 
-.video-link {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.2s ease;
-    display: inline-block;
-}
-
-.video-link:hover {
+.inline-text-link:hover {
     color: #ffffff;
+    text-decoration-thickness: 2px;
 }
 
 /* Mobile adjustments for content section */
