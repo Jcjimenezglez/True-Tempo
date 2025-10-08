@@ -830,7 +830,7 @@ body.is-scrolling .streak-fire {
     color: #000000;
     border: none;
     border-radius: 100px;
-    padding: 1rem;
+    padding: 1rem 2rem;
     font-size: 1.125rem;
     font-weight: 600;
     cursor: pointer;
@@ -840,13 +840,13 @@ body.is-scrolling .streak-fire {
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
     text-transform: none;
     letter-spacing: normal;
-    width: 64px;
-    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.75rem;
     text-align: center;
     margin: 1rem auto 0 auto;
+    min-width: 140px;
 }
 
 .start-btn:hover {
@@ -987,11 +987,33 @@ body.is-scrolling .streak-fire {
     stroke: #ffffff;
 }
 
+.start-btn .btn-text {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.start-btn .play-text {
+    color: #000000;
+}
+
+.start-btn .pause-text {
+    display: none;
+    color: #ffffff;
+}
+
 .start-btn.running .play-icon {
     display: none;
 }
 
 .start-btn.running .pause-icon {
+    display: block;
+}
+
+.start-btn.running .play-text {
+    display: none;
+}
+
+.start-btn.running .pause-text {
     display: block;
 }
 
