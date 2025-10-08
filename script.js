@@ -173,6 +173,8 @@ class PomodoroTimer {
         this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
         this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
         this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
+        this.settingsStatisticsBtn = document.getElementById('settingsStatisticsBtn');
+        this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
         this.settingsUserDivider = document.getElementById('settingsUserDivider');
         this.timerSettingsItem = document.getElementById('timerSettingsItem');
         this.shortcutsItem = document.getElementById('shortcutsItem');
@@ -496,6 +498,8 @@ class PomodoroTimer {
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
             if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'block';
+            if (this.settingsStatisticsBtn) this.settingsStatisticsBtn.style.display = 'flex';
+            if (this.settingsStatsDivider) this.settingsStatsDivider.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
             
@@ -563,6 +567,8 @@ class PomodoroTimer {
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
             if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'none';
+            if (this.settingsStatisticsBtn) this.settingsStatisticsBtn.style.display = 'none';
+            if (this.settingsStatsDivider) this.settingsStatsDivider.style.display = 'none';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             // Reset badge to zero time for guests
@@ -1296,6 +1302,15 @@ class PomodoroTimer {
         //         this.showIntegrationsModal();
         //     });
         // }
+        
+        // Settings dropdown - Statistics
+        if (this.settingsStatisticsBtn) {
+            this.settingsStatisticsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showStatisticsModal();
+            });
+        }
         
         // Settings dropdown - Feedback
         if (this.settingsFeedbackBtn) {
