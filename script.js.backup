@@ -42,9 +42,9 @@ class PomodoroTimer {
 		// Load saved volume if exists, otherwise default to 25% for guests
 		const savedVolume = localStorage.getItem('ambientVolume');
 		this.ambientVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
-		// Persisted enable flag (default None/off for guests, load saved for authenticated users)
+		// Persisted enable flag (default On for guests, load saved for authenticated users)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
-		this.ambientEnabled = savedAmbientEnabled === null ? false : savedAmbientEnabled === 'true';
+		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
 
 
 		// Rain music system
@@ -105,7 +105,6 @@ class PomodoroTimer {
         this.timeElement = document.getElementById('time');
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.currentTaskElement = document.getElementById('currentTask');
-        this.sessionLabelElement = document.getElementById('sessionLabel');
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
         this.nextSectionBtn = document.getElementById('nextSectionBtn');
@@ -155,26 +154,6 @@ class PomodoroTimer {
         this.authContainer = document.getElementById('authContainer');
         this.loginButton = document.getElementById('loginButton');
         this.signupButton = document.getElementById('signupButton');
-        
-        // Settings dropdown elements
-        this.headerSettingsBtn = document.getElementById('headerSettingsBtn');
-        this.settingsDropdown = document.getElementById('settingsDropdown');
-        this.settingsUserInfo = document.getElementById('settingsUserInfo');
-        this.settingsUserEmail = document.getElementById('settingsUserEmail');
-        this.settingsProBadge = document.getElementById('settingsProBadge');
-        this.settingsAuthSection = document.getElementById('settingsAuthSection');
-        this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
-        this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
-        this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
-        this.settingsManageSubscriptionBtn = document.getElementById('settingsManageSubscriptionBtn');
-        this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
-        this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
-        this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
-        this.settingsUserDivider = document.getElementById('settingsUserDivider');
-        this.timerSettingsItem = document.getElementById('timerSettingsItem');
-        this.shortcutsItem = document.getElementById('shortcutsItem');
-        this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
-        this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
         
         // Logo and achievement elements
         this.logoIcon = document.getElementById('logoIcon');
@@ -282,11 +261,6 @@ class PomodoroTimer {
 
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
-
-        // Try to load saved timer state (must be last to ensure all UI is ready)
-        setTimeout(() => {
-            this.loadTimerState();
-        }, 500);
     }
 
     // Clerk Authentication Methods
@@ -471,7 +445,7 @@ class PomodoroTimer {
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
-            if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
+            if (this.userProfileContainer) this.userProfileContainer.style.display = 'flex';
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
@@ -488,22 +462,6 @@ class PomodoroTimer {
             // Hide loading screen when user is authenticated
             this.hideLoadingScreen();
             console.log('User is authenticated, showing profile avatar');
-            
-            // Update settings dropdown for authenticated user
-            if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
-            if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
-            if (this.settingsUserDivider) this.settingsUserDivider.style.display = 'block';
-            if (this.settingsAccountBtn) this.settingsAccountBtn.style.display = 'flex';
-            // Integrations removed from menu - now only in Account section
-            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
-            if (this.settingsFeedbackBtn) this.settingsFeedbackBtn.style.display = 'flex';
-            if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
-            if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
-            
-            // Update user email in settings dropdown
-            if (this.settingsUserEmail && this.user) {
-                this.settingsUserEmail.textContent = this.user.primaryEmailAddress?.emailAddress || 'User';
-            }
 
 
             // Apply saved technique now that auth is ready
@@ -545,29 +503,15 @@ class PomodoroTimer {
             // Clear Todoist tasks when user is not authenticated
             this.clearTodoistTasks();
             
-            if (this.authContainer) this.authContainer.style.display = 'none'; // Always hidden, use settings menu instead
+            if (this.authContainer) this.authContainer.style.display = 'flex';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             if (this.loginButton) this.loginButton.textContent = 'Login';
-            // Keep header buttons hidden - they're now in the settings menu
-            if (this.signupButton) this.signupButton.style.display = 'none';
-            if (this.loginButton) this.loginButton.style.display = 'none';
-            console.log('User is not authenticated, showing settings menu with login/signup options');
-            
-            // Update settings dropdown for non-authenticated user
-            if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
-            if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
-            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
-            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'none';
-            if (this.settingsAccountBtn) this.settingsAccountBtn.style.display = 'none';
-            // Integrations removed from menu
-            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
-            if (this.settingsFeedbackBtn) this.settingsFeedbackBtn.style.display = 'none';
-            if (this.settingsUserDivider) this.settingsUserDivider.style.display = 'none';
-            if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
-            if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
+            // Don't force display of signup button - let CSS handle mobile visibility
+            if (this.signupButton) this.signupButton.style.display = '';
+            console.log('User is not authenticated, showing login/signup buttons');
             // Reset badge to zero time for guests
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
@@ -580,11 +524,11 @@ class PomodoroTimer {
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             }
             
-            // Ensure guest users always have None (no sound) selected by default
+            // Ensure guest users always have Rain Sounds selected by default
             this.ambientEnabled = false;
-            this.rainEnabled = false;
+            this.rainEnabled = true;
             localStorage.setItem('ambientEnabled', 'false');
-            localStorage.setItem('rainEnabled', 'false');
+            localStorage.setItem('rainEnabled', 'true');
             // reset already handled at top of branch
         }
         
@@ -925,8 +869,9 @@ class PomodoroTimer {
                 this.showLogoutModal();
             } else {
                 console.log('Redirecting to Clerk hosted Sign In...');
-                // Fixed redirect to homepage as requested
-                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent('https://www.superfocus.live/');
+                window.Clerk.redirectToSignIn({
+                    fallbackRedirectUrl: window.location.origin + window.location.pathname,
+                });
             }
         } catch (error) {
             console.error('Login/logout failed:', error);
@@ -936,8 +881,10 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
-            // Fixed redirect to homepage as requested
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent('https://www.superfocus.live/');
+            // Redirect to signup success page after successful signup (force www domain)
+            const successUrl = 'https://www.superfocus.live/?signup=success';
+            const signupUrl = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
+            window.location.assign(signupUrl);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
@@ -1134,17 +1081,17 @@ class PomodoroTimer {
         const progressOverlays = document.querySelector('.progress-overlays');
         if (progressOverlays) {
             progressOverlays.innerHTML = '';
-                const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                overlay.setAttribute('class', 'progress-overlay');
-                overlay.setAttribute('cx', '50');
-                overlay.setAttribute('cy', '50');
-                overlay.setAttribute('r', '45');
-                overlay.setAttribute('fill', 'none');
-                overlay.setAttribute('stroke-width', '4');
-                overlay.setAttribute('stroke-linecap', 'round');
-                overlay.setAttribute('stroke-linejoin', 'round');
-                overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-                progressOverlays.appendChild(overlay);
+            const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            overlay.setAttribute('class', 'progress-overlay');
+            overlay.setAttribute('cx', '50');
+            overlay.setAttribute('cy', '50');
+            overlay.setAttribute('r', '45');
+            overlay.setAttribute('fill', 'none');
+            overlay.setAttribute('stroke-width', '4');
+            overlay.setAttribute('stroke-linecap', 'round');
+            overlay.setAttribute('stroke-linejoin', 'round');
+            overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+            progressOverlays.appendChild(overlay);
         }
         
         // Refresh cached NodeLists so subsequent layout uses the new elements
@@ -1170,18 +1117,16 @@ class PomodoroTimer {
         });
     }
     bindEvents() {
-        // Primary binding for Play/Pause button (original behavior)
-        if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
-        if (this.prevSectionBtn) this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
-        if (this.nextSectionBtn) this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
-        if (this.musicToggleBtn) this.musicToggleBtn.addEventListener('click', (e) => {
+        this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+        this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
+        this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
+        this.musicToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.toggleMusic();
         });
-        if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
-        if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
-        if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
+        this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
+        this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
         // Streak button event listener
         const streakInfo = document.getElementById('streakInfo');
@@ -1189,122 +1134,10 @@ class PomodoroTimer {
             streakInfo.addEventListener('click', () => this.showStreakInfo());
         }
         
-        // Timer Settings button event listeners (footer legacy)
-        const timerSettingsBtn = document.getElementById('timerSettingsBtn');
-        if (timerSettingsBtn) {
-            timerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
-        }
-        
-        // Header Settings dropdown toggle
-        if (this.headerSettingsBtn) {
-            this.headerSettingsBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (this.settingsDropdown) {
-                    const isShown = this.settingsDropdown.style.display === 'block';
-                    // Close user profile dropdown if open
-                    if (this.userProfileDropdown) {
-                        this.userProfileDropdown.style.display = 'none';
-                    }
-                    this.settingsDropdown.style.display = isShown ? 'none' : 'block';
-                }
-            });
-        }
-        
-        // Settings dropdown - Login button
-        if (this.settingsLoginBtn) {
-            this.settingsLoginBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.handleLogin();
-            });
-        }
-        
-        // Settings dropdown - Signup button
-        if (this.settingsSignupBtn) {
-            this.settingsSignupBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.handleSignup();
-            });
-        }
-        
-        // Settings dropdown - Timer Settings
-        if (this.timerSettingsItem) {
-            this.timerSettingsItem.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showTimerSettingsModal();
-            });
-        }
-        
-        // Settings dropdown - Shortcuts
-        if (this.shortcutsItem) {
-            this.shortcutsItem.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showShortcutsModal();
-            });
-        }
-        
-        // Settings dropdown - Upgrade to Pro
-        if (this.settingsUpgradeToProBtn) {
-            this.settingsUpgradeToProBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.handleUpgrade();
-            });
-        }
-        
-        // Settings dropdown - Manage Subscription
-        if (this.settingsManageSubscriptionBtn) {
-            this.settingsManageSubscriptionBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.handleManageSubscription();
-            });
-        }
-        
-        // Settings dropdown - Account
-        if (this.settingsAccountBtn) {
-            this.settingsAccountBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showSettingsModal();
-            });
-        }
-        
-        // Settings dropdown - Integrations (removed from menu, now only in Account)
-        // if (this.settingsIntegrationsBtn) {
-        //     this.settingsIntegrationsBtn.addEventListener('click', (e) => {
-        //         e.preventDefault();
-        //         this.settingsDropdown.style.display = 'none';
-        //         this.showIntegrationsModal();
-        //     });
-        // }
-        
-        // Settings dropdown - Feedback
-        if (this.settingsFeedbackBtn) {
-            this.settingsFeedbackBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showFeedbackModal();
-            });
-        }
-        
-        // Settings dropdown - Logout
-        if (this.settingsLogoutBtn) {
-            this.settingsLogoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showLogoutModal();
-            });
-        }
-        
         // Custom timer event listeners
-        if (this.closeCustomTimer) this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
-        if (this.cancelCustomTimer) this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
-        if (this.saveCustomTimer) this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
+        this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
         
         // Custom timer form inputs
         const customInputs = ['customName', 'focusTime', 'breakTime', 'longBreakTime', 'cycles'];
@@ -1323,7 +1156,7 @@ class PomodoroTimer {
             const inTechniqueInfo = e.target.closest && e.target.closest('.technique-info-overlay');
             if (inTechniqueInfo) return;
 
-            if (this.techniqueDropdown && !this.techniqueDropdown.contains(e.target)) {
+            if (!this.techniqueDropdown.contains(e.target)) {
                 this.closeDropdown();
             }
         });
@@ -1544,7 +1377,6 @@ class PomodoroTimer {
         // Close dropdown when clicking outside
         document.addEventListener('click', () => {
             if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-            if (this.settingsDropdown) this.settingsDropdown.style.display = 'none';
         });
         
         // Logout action
@@ -1861,283 +1693,6 @@ class PomodoroTimer {
     toggleMusic() {
         this.showAmbientModal();
     }
-    
-    showTimerSettingsModal() {
-        // Get current durations in minutes
-        const pomodoroMin = Math.floor(this.workTime / 60);
-        const shortBreakMin = Math.floor(this.shortBreakTime / 60);
-        const longBreakMin = Math.floor(this.longBreakTime / 60);
-        
-        // Get current music settings
-        const initialVolumePct = Math.round(this.ambientVolume * 100);
-        const lofiEnabled = this.ambientEnabled;
-        const rainEnabled = this.rainEnabled;
-        
-        const modalContent = `
-            <div class="focus-stats-modal timer-settings-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <div class="modal-header">
-                    <h3>Timer Settings</h3>
-                    <p class="modal-subtitle">Customize your focus sessions</p>
-                </div>
-                
-                <!-- Timer Durations -->
-                <div class="settings-section">
-                    <h4 class="section-title">Duration</h4>
-                    <div class="duration-controls">
-                        <div class="duration-item">
-                            <div class="duration-header">
-                                <label>Pomodoro</label>
-                                <span class="duration-value" id="pomodoroValue">${pomodoroMin} min</span>
-                            </div>
-                            <input type="range" id="pomodoroSlider" min="1" max="90" value="${pomodoroMin}" class="duration-slider">
-                        </div>
-                        <div class="duration-item">
-                            <div class="duration-header">
-                                <label>Short Break</label>
-                                <span class="duration-value" id="shortBreakValue">${shortBreakMin} min</span>
-                            </div>
-                            <input type="range" id="shortBreakSlider" min="1" max="30" value="${shortBreakMin}" class="duration-slider">
-                        </div>
-                        <div class="duration-item">
-                            <div class="duration-header">
-                                <label>Long Break</label>
-                                <span class="duration-value" id="longBreakValue">${longBreakMin} min</span>
-                            </div>
-                            <input type="range" id="longBreakSlider" min="1" max="60" value="${longBreakMin}" class="duration-slider">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Focus Sounds -->
-                <div class="settings-section">
-                    <h4 class="section-title">Focus Sounds</h4>
-                    <div class="volume-section">
-                        <div class="volume-header">
-                            <label class="volume-label">Volume</label>
-                            <span class="volume-value" id="ambientVolumeValue">${initialVolumePct}%</span>
-                        </div>
-                        <div class="volume-control">
-                            <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}" class="volume-slider">
-                        </div>
-                    </div>
-                    <div class="music-section">
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>None</h4>
-                                    <p>No sound</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="noneToggle" ${!rainEnabled && !lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>Rain Sounds</h4>
-                                    <p>Natural rain and thunder</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="rainToggle" ${rainEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        ${this.isAuthenticated ? `
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>Lofi Music</h4>
-                                    <p>Relaxing beats for deep focus</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        ` : `
-                        <div class="music-header disabled">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4 style="color: #666;">Lofi Music</h4>
-                                    <p style="color: #888;">Sign up to unlock</p>
-                                </div>
-                            </div>
-                            <div class="login-container">
-                                <button id="lofiLoginBtn" class="login-btn">Sign up</button>
-                            </div>
-                        </div>
-                        `}
-                    </div>
-                </div>
-                
-                <!-- Save Button -->
-                <div class="modal-actions">
-                    <button class="save-settings-btn" id="saveTimerSettings">Save Changes</button>
-                </div>
-            </div>
-        `;
-        
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
-        modalOverlay.innerHTML = modalContent;
-        document.body.appendChild(modalOverlay);
-        modalOverlay.style.display = 'flex';
-        
-        // Duration sliders
-        const pomodoroSlider = modalOverlay.querySelector('#pomodoroSlider');
-        const shortBreakSlider = modalOverlay.querySelector('#shortBreakSlider');
-        const longBreakSlider = modalOverlay.querySelector('#longBreakSlider');
-        const pomodoroValue = modalOverlay.querySelector('#pomodoroValue');
-        const shortBreakValue = modalOverlay.querySelector('#shortBreakValue');
-        const longBreakValue = modalOverlay.querySelector('#longBreakValue');
-        
-        pomodoroSlider.addEventListener('input', (e) => {
-            pomodoroValue.textContent = `${e.target.value} min`;
-        });
-        shortBreakSlider.addEventListener('input', (e) => {
-            shortBreakValue.textContent = `${e.target.value} min`;
-        });
-        longBreakSlider.addEventListener('input', (e) => {
-            longBreakValue.textContent = `${e.target.value} min`;
-        });
-        
-        // Volume and music controls (same as showAmbientModal)
-        const volumeSlider = modalOverlay.querySelector('#ambientVolume');
-        const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const noneToggle = modalOverlay.querySelector('#noneToggle');
-        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-        const rainToggle = modalOverlay.querySelector('#rainToggle');
-        const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
-        
-        volumeSlider.disabled = !(lofiEnabled || rainEnabled);
-        noneToggle.checked = !this.ambientEnabled && !this.rainEnabled;
-        if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
-        rainToggle.checked = this.rainEnabled;
-        
-        volumeSlider.addEventListener('input', (e) => {
-            const newVolume = parseInt(e.target.value) / 100;
-            this.setAmbientVolume(newVolume);
-            volumeValue.textContent = `${e.target.value}%`;
-        });
-        
-        // None toggle logic
-        noneToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                this.ambientEnabled = false;
-                this.rainEnabled = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                localStorage.setItem('rainEnabled', 'false');
-                if (lofiToggle) lofiToggle.checked = false;
-                rainToggle.checked = false;
-                volumeSlider.disabled = true;
-                this.stopPlaylist();
-                this.stopRainPlaylist();
-            }
-        });
-        
-        if (lofiToggle) {
-            lofiToggle.addEventListener('change', (e) => {
-                this.ambientEnabled = e.target.checked;
-                localStorage.setItem('ambientEnabled', String(this.ambientEnabled));
-                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
-                
-                if (this.ambientEnabled) {
-                    noneToggle.checked = false;
-                    this.rainEnabled = false;
-                    rainToggle.checked = false;
-                    localStorage.setItem('rainEnabled', 'false');
-                    this.stopRainPlaylist();
-                    if (this.isRunning) this.playPlaylist();
-                } else {
-                    if (!rainToggle.checked) {
-                        noneToggle.checked = true;
-                    }
-                    this.stopPlaylist();
-                }
-            });
-        }
-        
-        rainToggle.addEventListener('change', (e) => {
-            this.rainEnabled = e.target.checked;
-            localStorage.setItem('rainEnabled', String(this.rainEnabled));
-            volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
-            
-            if (this.rainEnabled) {
-                noneToggle.checked = false;
-                this.ambientEnabled = false;
-                if (lofiToggle) lofiToggle.checked = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                this.stopPlaylist();
-                if (this.isRunning) this.playRainPlaylist();
-            } else {
-                if (!lofiToggle?.checked) {
-                    noneToggle.checked = true;
-                }
-                this.stopRainPlaylist();
-            }
-        });
-        
-        if (lofiLoginBtn) {
-            lofiLoginBtn.addEventListener('click', () => {
-                document.body.removeChild(modalOverlay);
-                this.showLofiLoginModal();
-            });
-        }
-        
-        // Close button
-        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        // Save button
-        modalOverlay.querySelector('#saveTimerSettings').addEventListener('click', () => {
-            // Save new durations
-            this.workTime = parseInt(pomodoroSlider.value) * 60;
-            this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
-            this.longBreakTime = parseInt(longBreakSlider.value) * 60;
-            
-            // Save to localStorage
-            localStorage.setItem('pomodoroTime', String(this.workTime));
-            localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
-            localStorage.setItem('longBreakTime', String(this.longBreakTime));
-            
-            // Update cycle sections
-            this.cycleSections = [
-                { type: 'work', duration: this.workTime, name: 'Work 1' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                { type: 'work', duration: this.workTime, name: 'Work 2' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                { type: 'work', duration: this.workTime, name: 'Work 3' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                { type: 'work', duration: this.workTime, name: 'Work 4' },
-                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-            ];
-            
-            // Reset timer to first section
-            this.pauseTimerSilent();
-            this.currentSection = 1;
-            this.loadCurrentSection();
-            this.updateProgressRing();
-            
-            // Close modal
-            document.body.removeChild(modalOverlay);
-        });
-    }
 
     showAmbientLoginModal() {
         const modalContent = `
@@ -2253,72 +1808,6 @@ class PomodoroTimer {
             }
         });
     }
-    
-    showShortcutsModal() {
-        const modalContent = `
-            <div class="focus-stats-modal timer-settings-modal">
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <div class="modal-header">
-                    <h3>Keyboard Shortcuts</h3>
-                    <p class="modal-subtitle">Quick actions to boost your productivity</p>
-                </div>
-                
-                <div class="settings-section">
-                    <div class="shortcuts-list">
-                        <div class="shortcut-item">
-                            <span class="shortcut-description">Start/Pause Timer</span>
-                            <kbd class="shortcut-key">Space</kbd>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-description">Reset Timer</span>
-                            <kbd class="shortcut-key">R</kbd>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-description">Next Section</span>
-                            <kbd class="shortcut-key">→</kbd>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-description">Previous Section</span>
-                            <kbd class="shortcut-key">←</kbd>
-                        </div>
-                        <div class="shortcut-item">
-                            <span class="shortcut-description">Toggle Music</span>
-                            <kbd class="shortcut-key">M</kbd>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
-        modalOverlay.innerHTML = modalContent;
-        document.body.appendChild(modalOverlay);
-        modalOverlay.style.display = 'flex';
-        
-        // Close button
-        const closeBtn = modalOverlay.querySelector('.close-focus-stats-x');
-        closeBtn.addEventListener('click', () => {
-            modalOverlay.style.display = 'none';
-            if (modalOverlay.parentNode) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
-        
-        // Close on overlay click
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                modalOverlay.style.display = 'none';
-                if (modalOverlay.parentNode) {
-                    document.body.removeChild(modalOverlay);
-                }
-            }
-        });
-    }
 
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
@@ -2347,20 +1836,6 @@ class PomodoroTimer {
                         </div>
                     </div>
                     <div class="music-section">
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>None</h4>
-                                    <p>No sound</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="noneToggle" ${!rainEnabled && !lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
                         <div class="music-header">
                             <div class="music-info">
                                 <div class="music-details">
@@ -2421,7 +1896,6 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const noneToggle = modalOverlay.querySelector('#noneToggle');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
         const rainToggle = modalOverlay.querySelector('#rainToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
@@ -2433,26 +1907,29 @@ class PomodoroTimer {
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize toggle states
-        noneToggle.checked = !this.ambientEnabled && !this.rainEnabled;
         if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
         rainToggle.checked = this.rainEnabled;
 
-        // None toggle logic
-        noneToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                // Disable all sounds
-                this.ambientEnabled = false;
+        // Safety: ensure at least one category is active
+        if (!lofiToggle?.checked && !rainToggle.checked) {
+            if (this.isAuthenticated) {
+                // Default to Lofi when all are off (authenticated users)
+            lofiToggle.checked = true;
+            this.ambientEnabled = true;
+            localStorage.setItem('ambientEnabled', 'true');
                 this.rainEnabled = false;
-                localStorage.setItem('ambientEnabled', 'false');
                 localStorage.setItem('rainEnabled', 'false');
-                if (lofiToggle) lofiToggle.checked = false;
-                rainToggle.checked = false;
-                volumeSlider.disabled = true;
-                if (previewBtn) previewBtn.disabled = true;
-                this.stopPlaylist();
-                this.stopRainPlaylist();
+            } else {
+                // Default to Rain for guests
+                rainToggle.checked = true;
+                this.rainEnabled = true;
+                localStorage.setItem('rainEnabled', 'true');
+                this.ambientEnabled = false;
+                localStorage.setItem('ambientEnabled', 'false');
             }
-        });
+            volumeSlider.disabled = false;
+            if (previewBtn) previewBtn.disabled = false;
+        }
 
         // Toggle logic with persistence
         if (lofiToggle) {
@@ -2464,8 +1941,7 @@ class PomodoroTimer {
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (enabled) {
-                // If lofi is enabled, disable other options
-                noneToggle.checked = false;
+                // If lofi is enabled, disable other music and switch
                 this.rainEnabled = false;
                 localStorage.setItem('rainEnabled', 'false');
                 rainToggle.checked = false;
@@ -2475,12 +1951,23 @@ class PomodoroTimer {
                     this.playPlaylist();
                 }
             } else {
-                // If disabling lofi, check if None should be enabled
+                // If disabling lofi would leave all off, auto-enable Rain
                 if (!rainToggle.checked) {
-                    noneToggle.checked = true;
+                    this.rainEnabled = true;
+                    localStorage.setItem('rainEnabled', 'true');
+                    rainToggle.checked = true;
+                    // Auto-enabled Rain should still allow volume control
+                    volumeSlider.disabled = false;
+                    if (previewBtn) previewBtn.disabled = true;
+                    this.stopPlaylist();
+                    // Start Rain music if timer is running
+                    if (this.isRunning) {
+                        this.playRainPlaylist();
+                    }
+                } else {
+                    this.stopPlaylist();
+					if (previewBtn) previewBtn.textContent = 'Preview';
                 }
-                this.stopPlaylist();
-                if (previewBtn) previewBtn.textContent = 'Preview';
             }
         });
         }
@@ -2516,8 +2003,7 @@ class PomodoroTimer {
             localStorage.setItem('rainEnabled', String(enabled));
             
             if (enabled) {
-                // If Rain is enabled, disable other options
-                noneToggle.checked = false;
+                // If Rain is enabled, disable other music and switch
                 this.ambientEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
                 if (lofiToggle) lofiToggle.checked = false;
@@ -2530,9 +2016,17 @@ class PomodoroTimer {
                 }
             } else {
                 this.stopRainPlaylist();
-                // If disabling Rain, check if None should be enabled
-                if (!lofiToggle?.checked) {
-                    noneToggle.checked = true;
+                // If disabling Rain would leave all off, auto-enable Lofi (if authenticated)
+                if (!lofiToggle?.checked && this.isAuthenticated) {
+                    this.ambientEnabled = true;
+                    localStorage.setItem('ambientEnabled', 'true');
+                    lofiToggle.checked = true;
+                    volumeSlider.disabled = false;
+                    if (previewBtn) previewBtn.disabled = false;
+                    // Start Lofi music if timer is running
+                    if (this.isRunning) {
+                        this.playPlaylist();
+                    }
                 }
             }
         });
@@ -2831,26 +2325,12 @@ class PomodoroTimer {
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
             if (userProBadge) userProBadge.style.display = 'inline-block';
             if (integrationsButton) integrationsButton.style.display = 'flex';
-            
-            // Settings dropdown elements
-            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
-            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'flex';
-            if (this.settingsProBadge) this.settingsProBadge.style.display = 'inline-block';
-            // Integrations removed from menu
-            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
         } else {
-            // Show Upgrade, hide Manage subscription, hide Pro badge
+            // Show Upgrade, hide Manage subscription, hide Pro badge, hide Integrations
             if (upgradeButton) upgradeButton.style.display = 'flex';
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'none';
             if (userProBadge) userProBadge.style.display = 'none';
             if (integrationsButton) integrationsButton.style.display = 'none';
-            
-            // Settings dropdown elements
-            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'flex';
-            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'none';
-            if (this.settingsProBadge) this.settingsProBadge.style.display = 'none';
-            // Integrations removed from menu
-            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
         }
     }
 
@@ -2925,41 +2405,10 @@ class PomodoroTimer {
         }
     }
     
-    resetTimer() {
-        // Pause timer if running
-        if (this.isRunning) {
-            this.pauseTimer();
-        }
-        
-        // Reset to first section
-        this.currentSection = 1;
-        
-        // Reload the current section (now section 1)
-        this.loadCurrentSection();
-        
-        // Update navigation buttons
-        this.updateNavigationButtons();
-        
-        // Update session info display
-        this.updateSessionInfo();
-        
-        // Update progress ring
-        this.updateProgressRing();
-        
-        // Clear saved timer state
-        this.clearTimerState();
-        
-        // Play UI sound for feedback
-        this.playUiSound('click');
-    }
-    
     startTimer() {
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
-        
-        // Show keyboard shortcut hint on first play
-        this.showKeyboardHint();
         
         // Close all open modals to focus on timer
         this.closeAllModals();
@@ -2996,10 +2445,6 @@ class PomodoroTimer {
             this.updateProgress();
             this.updateSections();
             this.updateSessionInfo();
-            
-            // Save timer state every second
-            this.saveTimerState();
-            
             // Music ducking: fade out 2s before end of section to prioritize alerts
             if (this.timeLeft === 2) {
                 this.fadeMusicOut(2000);
@@ -3033,9 +2478,6 @@ class PomodoroTimer {
         if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying) {
             this.pausePlaylist();
         }
-        
-        // Update session info to potentially show "Ready to focus?"
-        this.updateSessionInfo();
         
         // Update title to show paused state
         const minutes = Math.floor(this.timeLeft / 60);
@@ -3191,18 +2633,6 @@ class PomodoroTimer {
             this.toggleTimer();
         }
         
-        // R to reset timer (with confirmation)
-        if (e.code === 'KeyR') {
-            e.preventDefault();
-            this.showResetConfirmationModal();
-        }
-        
-        // M to toggle music
-        if (e.code === 'KeyM') {
-            e.preventDefault();
-            this.toggleMusic();
-        }
-        
         // A or ArrowLeft for previous section
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
             e.preventDefault();
@@ -3280,8 +2710,6 @@ class PomodoroTimer {
             this.pauseTimerSilent();
             this.startPauseBtn.classList.remove('running');
             this.isRunning = false;
-            // Clear saved timer state when cycle completes
-            this.clearTimerState();
             // No modal, just stop at end of cycle
             return;
         }
@@ -3461,14 +2889,11 @@ class PomodoroTimer {
     }
 
     getCurrentTaskLabel() {
-        // Show session type instead of "Add Task"
-        if (this.isWorkSession) {
-            return 'Pomodoro';
-        } else if (this.isLongBreak) {
-            return 'Long Break';
-        } else {
-            return 'Short Break';
-        }
+        if (!this.taskQueue || this.taskQueue.length === 0) return 'Add Task';
+        const current = this.taskQueue[this.currentTaskIndex] || null;
+        // Return "Add Task" for empty slots (sessions without assigned tasks)
+        if (!current || current.source === 'empty' || !current.content) return 'Add Task';
+        return current.content;
     }
 
     // Advance to next task slot after finishing a focus session
@@ -3565,72 +2990,26 @@ class PomodoroTimer {
     showTaskCompletedModal() {}
     
     updateSessionInfo() {
-        // Tesla-style: Combined label "Pomodoro 1/4" OR "Ready to focus?"
-        if (this.sessionLabelElement) {
-            // Show "Ready to focus?" ONLY for Pomodoro/Focus sessions when:
-            // 1. Timer hasn't been started (!isRunning)
-            // 2. Timer is at initial time (fresh state)
-            // 3. Currently in a work session (not break)
-            const isAtInitialTime = this.timeLeft === this.cycleSections[this.currentSection - 1]?.duration;
-            const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime && this.isWorkSession;
-            
-            // Helper function to add chevron icon to session label
-            const createSessionLabelHTML = (text) => {
-                return `<span>${text}</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="session-label-icon"><path d="m9 18 6-6-6-6"/></svg>`;
-            };
-            
-            if (shouldShowReadyToFocus) {
-                this.sessionLabelElement.innerHTML = createSessionLabelHTML('Ready to focus?');
-            } else {
-                // Show session info: "Pomodoro 1/4", "Short Break", etc.
-                const workSessions = this.cycleSections.filter(s => s.type === 'work');
-                const totalWorkSessions = workSessions.length;
-                
-                // Calculate current work session number
-                let currentWorkSession = 0;
-                for (let i = 0; i < this.currentSection; i++) {
-                    if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
-                        currentWorkSession++;
-                    }
-                }
-                
-                // Get session type
-                const sessionLabel = this.getCurrentTaskLabel();
-                
-                // Helper function to truncate text to max 15 characters
-                const truncateText = (text, maxLength = 15) => {
-                    if (!text) return text;
-                    // Count actual characters including emojis, spaces, etc.
-                    const chars = Array.from(text);
-                    if (chars.length <= maxLength) return text;
-                    return chars.slice(0, maxLength).join('') + '...';
-                };
-                
-                // Combine: "Task Name 1/4" or "Pomodoro 1/4", "Short Break", "Long Break"
-                if (this.isWorkSession) {
-                    // Use task name if available, otherwise use session label (Pomodoro)
-                    const displayName = this.currentTaskName ? truncateText(this.currentTaskName) : sessionLabel;
-                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(`${displayName} ${currentWorkSession}/${totalWorkSessions}`);
-                } else {
-                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(sessionLabel);
-                }
-            }
-        }
+        const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         
-        // Keep for backward compatibility (hidden via CSS)
-        if (this.sessionInfoElement) {
-            const workSessions = this.cycleSections.filter(s => s.type === 'work');
-            const totalWorkSessions = workSessions.length;
-            let currentWorkSession = 0;
-            for (let i = 0; i < this.currentSection; i++) {
-                if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
-                    currentWorkSession++;
-                }
-            }
-            this.sessionInfoElement.textContent = `${currentWorkSession}/${totalWorkSessions}`;
+        // Calculate progress percentage
+        let totalCycleProgress = 0;
+        for (let i = 0; i < this.currentSection - 1; i++) {
+            totalCycleProgress += this.cycleSections[i].duration;
         }
+        totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
         
-        // Update current task display (hidden via CSS)
+        // Calculate total cycle time dynamically
+        const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+        const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
+        
+        // Format as "X/Y Sessions (Z%)"
+        const sessionNumber = this.currentSection;
+        const totalSessions = this.cycleSections.length;
+        let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
+        this.sessionInfoElement.textContent = text;
+        
+        // Update current task display
         this.updateCurrentTaskDisplay();
     }
     
@@ -3646,10 +3025,14 @@ class PomodoroTimer {
     
     updateCurrentTaskDisplay() {
         if (this.currentTaskElement) {
-            // Show session type: Pomodoro, Short Break, or Long Break
-            const sessionLabel = this.getCurrentTaskLabel();
-            this.currentTaskElement.textContent = sessionLabel;
+            if (this.currentTaskName) {
+                this.currentTaskElement.textContent = this.currentTaskName;
                 this.currentTaskElement.style.display = 'block';
+            } else {
+                // Show "Add Task" when no task is assigned
+                this.currentTaskElement.textContent = 'Add Task';
+                this.currentTaskElement.style.display = 'block';
+            }
         }
     }
 
@@ -4109,7 +3492,7 @@ class PomodoroTimer {
     loadCassetteSounds() {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
-            this.cassetteSounds.volume = 0.75; // Set volume to 75%
+            this.cassetteSounds.volume = 0.3; // Set volume to 30%
             this.cassetteSounds.preload = 'auto';
             
             // Create audio context for pitch and speed control
@@ -4158,60 +3541,6 @@ class PomodoroTimer {
         
         // Fallback to synthetic sounds
         this.playSyntheticSound(type);
-    }
-    
-    // Minimal implementation: play decoded buffer with slight rate differences
-    playProcessedCassetteSound(type) {
-        if (!this.audioContext || !this.audioBuffer) throw new Error('No audio buffer');
-        const source = this.audioContext.createBufferSource();
-        source.buffer = this.audioBuffer;
-        
-        // Create gain node for volume control
-        const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = 0.75; // 75% volume
-        
-        // Original speed for play, slower for pause
-        try {
-            source.playbackRate.value = type === 'play' ? 1.0 : 0.75;
-        } catch (_) {}
-        
-        source.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        try { if (this.audioContext.state === 'suspended') this.audioContext.resume(); } catch (_) {}
-        source.start(0);
-        // Full duration for original sound
-        try { source.stop(this.audioContext.currentTime + 0.5); } catch (_) {}
-    }
-    
-    // Synthetic short beep as last-resort feedback
-    playSyntheticSound(type) {
-        try {
-            if (!this.audioContext) {
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            const ctx = this.audioContext;
-            const oscillator = ctx.createOscillator();
-            const gain = ctx.createGain();
-            
-            // Subtle click sound
-            oscillator.type = 'sine';
-            oscillator.frequency.value = type === 'play' ? 1200 : 800;
-            
-            // Very short, quick envelope for a subtle click
-            const now = ctx.currentTime;
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.05, now + 0.005);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-            
-            oscillator.connect(gain);
-            gain.connect(ctx.destination);
-            if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-            oscillator.start(now);
-            oscillator.stop(now + 0.1);
-        } catch (_) {
-            // As a final fallback, do nothing silently
-        }
     }
     
     loadAudio() {
@@ -5065,9 +4394,6 @@ class PomodoroTimer {
                     // Refresh task list
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
-                    // Update header to reflect changes immediately
-                    this.updateCurrentTaskFromQueue();
-                    this.updateSessionInfo();
                     // Enable button now that there is at least one task, and hide form
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
@@ -5671,10 +4997,8 @@ class PomodoroTimer {
                 taskItem.classList.toggle('selected', newSelected);
                 btn.classList.toggle('active', newSelected);
                 
-                // Update task button state and header
+                // Update task button state
                 this.updateTaskButtonState();
-                this.updateCurrentTaskFromQueue();
-                this.updateSessionInfo();
             });
         });
     }
@@ -5726,11 +5050,9 @@ class PomodoroTimer {
                 // Update visual state
                 this.updateTaskSelectionVisual(modal, taskId, newSelected);
                 
-                // Update the main timer banner and header
+                // Update the main timer banner
                 this.updateCurrentTaskBanner();
                 this.rebuildTaskQueue();
-                this.updateCurrentTaskFromQueue();
-                this.updateSessionInfo();
             });
         });
 
@@ -6216,9 +5538,6 @@ class PomodoroTimer {
                     };
                     
                     renderTasks();
-                    // Update header to reflect changes immediately
-                    this.updateCurrentTaskFromQueue();
-                    this.updateSessionInfo();
                 }
             });
         }
@@ -7478,6 +6797,16 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
+            // Track Google Ads conversion for signup
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17614436696',
+                    'value': 1.0,
+                    'currency': 'USD'
+                });
+                console.log('Google Ads conversion tracked for signup');
+            }
+            
             // Show success message for signup - DISABLED
             // setTimeout(() => {
             //     this.showSignupSuccessMessage();
@@ -8594,290 +7923,6 @@ class PomodoroTimer {
     playSpotifyUri(uri) {
         // Implement logic to play a specific Spotify URI
         console.log('Playing Spotify URI:', uri);
-    }
-
-    // Show keyboard shortcut hint (only once per session)
-    showKeyboardHint() {
-        // Only show hint once per session
-        if (sessionStorage.getItem('keyboardHintShown')) return;
-        
-        // Create hint tooltip
-        const hint = document.createElement('div');
-        hint.className = 'keyboard-hint';
-        hint.innerHTML = `
-            <span>💡 Tip: Press <kbd>R</kbd> to reset timer</span>
-        `;
-        
-        document.body.appendChild(hint);
-        
-        // Show with animation
-        setTimeout(() => hint.classList.add('show'), 100);
-        
-        // Hide after 4 seconds
-        setTimeout(() => {
-            hint.classList.remove('show');
-            setTimeout(() => hint.remove(), 300);
-        }, 4000);
-        
-        // Mark as shown for this session
-        sessionStorage.setItem('keyboardHintShown', 'true');
-    }
-
-    // Save timer state to localStorage
-    saveTimerState() {
-        // Save state as soon as timer has any progress
-        const section = this.cycleSections[this.currentSection - 1];
-        if (!section) return;
-        
-        const sectionDuration = section.duration;
-        const timeElapsed = sectionDuration - this.timeLeft;
-        
-        // Don't save if less than 1 second has elapsed
-        if (timeElapsed < 1) return;
-        
-        // Don't save if in "Ready to focus" state
-        const isAtInitialTime = this.timeLeft === sectionDuration;
-        if (!this.isRunning && isAtInitialTime && this.isWorkSession) return;
-        
-        const state = {
-            currentSection: this.currentSection,
-            timeLeft: this.timeLeft,
-            isRunning: false, // Always save as paused
-            isWorkSession: this.isWorkSession,
-            isLongBreak: this.isLongBreak,
-            currentTaskIndex: this.currentTaskIndex,
-            currentTaskName: this.currentTaskName,
-            selectedTechnique: this.selectedTechnique?.name || 'Pomodoro',
-            timestamp: Date.now(),
-            sectionDuration: sectionDuration,
-            timeElapsed: timeElapsed
-        };
-        
-        localStorage.setItem('timerState', JSON.stringify(state));
-    }
-
-    // Load timer state from localStorage
-    loadTimerState() {
-        const savedState = localStorage.getItem('timerState');
-        if (!savedState) return false;
-        
-        try {
-            const state = JSON.parse(savedState);
-            
-            // Check if state is recent (within last 30 minutes)
-            const timeDiff = Date.now() - state.timestamp;
-            if (timeDiff > 30 * 60 * 1000) {
-                localStorage.removeItem('timerState');
-                return false;
-            }
-            
-            // Check if at least 1 second had elapsed when saved
-            if (state.timeElapsed < 1) {
-                localStorage.removeItem('timerState');
-                return false;
-            }
-            
-            // Show confirmation modal
-            this.showRestoreSessionModal(state, timeDiff);
-            
-            return true;
-        } catch (error) {
-            console.error('Error loading timer state:', error);
-            localStorage.removeItem('timerState');
-            return false;
-        }
-    }
-
-    // Show modal to confirm restoring session
-    showRestoreSessionModal(state, timeDiff) {
-        console.log('Showing restore session modal with state:', state);
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'upgrade-modal-overlay';
-        overlay.style.display = 'flex';
-        
-        const minutesAgo = Math.floor(timeDiff / 60000);
-        const timeString = minutesAgo < 1 ? 'just now' : `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
-        
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal restore-session-modal';
-        modal.innerHTML = `
-            <button class="close-upgrade-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                </div>
-                <h3>Resume Session?</h3>
-                <p>You have a paused ${state.isWorkSession ? 'focus' : 'break'} session from ${timeString}.</p>
-                <div class="restore-session-time-card">
-                    <div class="restore-time">${Math.floor(state.timeLeft / 60)}:${(state.timeLeft % 60).toString().padStart(2, '0')}</div>
-                    <div class="restore-technique">${state.selectedTechnique}</div>
-                </div>
-                <div class="upgrade-buttons">
-                    <button class="upgrade-btn" id="continueSessionBtn">Continue Session</button>
-                    <button class="cancel-btn" id="startFreshBtn">Start Fresh</button>
-                </div>
-            </div>
-        `;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-        
-        // Event listeners - use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-            const closeBtn = modal.querySelector('.close-upgrade-x');
-            const startFreshBtn = modal.querySelector('#startFreshBtn');
-            const continueBtn = modal.querySelector('#continueSessionBtn');
-            
-            const close = () => {
-                overlay.remove();
-                localStorage.removeItem('timerState');
-            };
-            
-            const continueSession = () => {
-                try {
-                    this.restoreTimerState(state);
-                    overlay.remove();
-                } catch (error) {
-                    console.error('Error restoring timer state:', error);
-                }
-            };
-            
-            if (closeBtn) closeBtn.addEventListener('click', close);
-            if (startFreshBtn) startFreshBtn.addEventListener('click', close);
-            if (continueBtn) continueBtn.addEventListener('click', continueSession);
-            
-            // Close on overlay click
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) close();
-            });
-        }, 100);
-    }
-
-    // Restore timer state
-    restoreTimerState(state) {
-        // Restore technique if different
-        if (state.selectedTechnique !== this.selectedTechnique?.name) {
-            const techniqueItem = Array.from(document.querySelectorAll('.technique-item'))
-                .find(item => item.dataset.technique === state.selectedTechnique);
-            if (techniqueItem) {
-                this.selectTechnique(techniqueItem);
-            }
-        }
-        
-        // Restore state
-        this.currentSection = state.currentSection;
-        this.timeLeft = state.timeLeft;
-        this.isWorkSession = state.isWorkSession;
-        this.isLongBreak = state.isLongBreak;
-        this.currentTaskIndex = state.currentTaskIndex;
-        this.currentTaskName = state.currentTaskName;
-        
-        // Don't auto-start
-        this.isRunning = false;
-        
-        // Update UI
-        this.updateDisplay();
-        this.updateProgress();
-        this.updateProgressRing();
-        this.updateSessionInfo();
-        this.updateNavigationButtons();
-        this.updateCurrentTaskFromQueue();
-        
-        // Clear saved state
-        localStorage.removeItem('timerState');
-        
-        console.log('Timer state restored successfully:', {
-            section: this.currentSection,
-            timeLeft: this.timeLeft,
-            technique: state.selectedTechnique
-        });
-    }
-
-    // Clear timer state from localStorage
-    clearTimerState() {
-        localStorage.removeItem('timerState');
-    }
-
-    // Show reset confirmation modal
-    showResetConfirmationModal() {
-        // Don't show if timer is at initial state
-        const section = this.cycleSections[this.currentSection - 1];
-        if (!section) return;
-        
-        const sectionDuration = section.duration;
-        const timeElapsed = sectionDuration - this.timeLeft;
-        
-        // If less than 1 second elapsed, just reset without confirmation
-        if (timeElapsed < 1) {
-            this.resetTimer();
-            return;
-        }
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'upgrade-modal-overlay';
-        overlay.style.display = 'flex';
-        
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal reset-confirmation-modal';
-        modal.innerHTML = `
-            <button class="close-upgrade-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                        <path d="M3 3v5h5"/>
-                    </svg>
-                </div>
-                <h3>Reset Timer?</h3>
-                <p>Are you sure you want to reset the timer? Your current progress will be lost.</p>
-                <div class="upgrade-buttons">
-                    <button class="upgrade-btn" id="confirmResetBtn">Yes, Reset</button>
-                    <button class="cancel-btn" id="cancelResetBtn">Cancel</button>
-                </div>
-            </div>
-        `;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-        
-        // Event listeners
-        setTimeout(() => {
-            const closeBtn = modal.querySelector('.close-upgrade-x');
-            const confirmBtn = modal.querySelector('#confirmResetBtn');
-            const cancelBtn = modal.querySelector('#cancelResetBtn');
-            
-            const close = () => {
-                overlay.remove();
-            };
-            
-            const confirmReset = () => {
-                this.resetTimer();
-                overlay.remove();
-            };
-            
-            if (closeBtn) closeBtn.addEventListener('click', close);
-            if (cancelBtn) cancelBtn.addEventListener('click', close);
-            if (confirmBtn) confirmBtn.addEventListener('click', confirmReset);
-            
-            // Close on overlay click
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) close();
-            });
-        }, 100);
     }
 
 }
