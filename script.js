@@ -1173,6 +1173,7 @@ class PomodoroTimer {
             this.toggleMusic();
         });
         if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
+        if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
         // Streak button event listener
@@ -3518,8 +3519,13 @@ class PomodoroTimer {
             const isAtInitialTime = this.timeLeft === this.cycleSections[this.currentSection - 1]?.duration;
             const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime && this.isWorkSession;
             
+            // Helper function to add chevron icon to session label
+            const createSessionLabelHTML = (text) => {
+                return `<span>${text}</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="session-label-icon"><path d="m9 18 6-6-6-6"/></svg>`;
+            };
+            
             if (shouldShowReadyToFocus) {
-                this.sessionLabelElement.textContent = 'Ready to focus?';
+                this.sessionLabelElement.innerHTML = createSessionLabelHTML('Ready to focus?');
             } else {
                 // Show session info: "Pomodoro 1/4", "Short Break", etc.
                 const workSessions = this.cycleSections.filter(s => s.type === 'work');
@@ -3538,9 +3544,9 @@ class PomodoroTimer {
                 
                 // Combine: "Pomodoro 1/4", "Short Break", "Long Break"
                 if (this.isWorkSession) {
-                    this.sessionLabelElement.textContent = `${sessionLabel} ${currentWorkSession}/${totalWorkSessions}`;
+                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(`${sessionLabel} ${currentWorkSession}/${totalWorkSessions}`);
                 } else {
-                    this.sessionLabelElement.textContent = sessionLabel;
+                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(sessionLabel);
                 }
             }
         }

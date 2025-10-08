@@ -586,6 +586,27 @@ body.is-scrolling .streak-fire {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.session-label:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+}
+
+.session-label-icon {
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+.session-label:hover .session-label-icon {
+    opacity: 1;
+    transform: translateX(2px);
 }
 
 /* Hidden legacy elements */
