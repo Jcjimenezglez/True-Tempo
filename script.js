@@ -1303,7 +1303,7 @@ class PomodoroTimer {
         //     });
         // }
         
-        // Settings dropdown - Statistics
+        // Settings dropdown - Focus Report
         if (this.settingsStatisticsBtn) {
             this.settingsStatisticsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
