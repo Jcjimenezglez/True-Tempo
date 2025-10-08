@@ -382,33 +382,6 @@
                             </svg>
                         </div>
                         
-                        <!-- Help Submenu -->
-                        <div class="help-submenu" id="helpSubmenu" style="display: none;">
-                            <div class="settings-dropdown-item submenu-item" id="shortcutsItem">
-                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                    <path d="M6 8h.001"/>
-                                    <path d="M10 8h.001"/>
-                                    <path d="M14 8h.001"/>
-                                    <path d="M18 8h.001"/>
-                                    <path d="M8 12h.001"/>
-                                    <path d="M12 12h.001"/>
-                                    <path d="M16 12h.001"/>
-                                    <path d="M7 16h10"/>
-                                </svg>
-                                <span>Shortcuts</span>
-                                <kbd class="shortcut-hint">⌘K</kbd>
-                            </div>
-                            <div class="settings-dropdown-item submenu-item" id="settingsFeedbackBtn">
-                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                    <path d="M13 8H7"/>
-                                    <path d="M17 12H7"/>
-                                </svg>
-                                <span>Feedback</span>
-                            </div>
-                        </div>
-                        
                         <!-- Logout (shown when logged in) -->
                         <div class="dropdown-divider" id="settingsLogoutDivider" style="display: none;"></div>
                         <div class="settings-dropdown-item" id="settingsLogoutBtn" style="display: none;">
@@ -418,6 +391,35 @@
                                 <line x1="21" y1="12" x2="9" y2="12"/>
                             </svg>
                             <span>Log out</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Help Panel (shown when Help is clicked) -->
+                <div class="help-panel" id="helpPanel" style="display: none;">
+                    <div class="help-panel-menu">
+                        <div class="settings-dropdown-item" id="shortcutsItem">
+                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                <path d="M6 8h.001"/>
+                                <path d="M10 8h.001"/>
+                                <path d="M14 8h.001"/>
+                                <path d="M18 8h.001"/>
+                                <path d="M8 12h.001"/>
+                                <path d="M12 12h.001"/>
+                                <path d="M16 12h.001"/>
+                                <path d="M7 16h10"/>
+                            </svg>
+                            <span>Shortcuts</span>
+                            <kbd class="shortcut-hint">⌘K</kbd>
+                        </div>
+                        <div class="settings-dropdown-item" id="settingsFeedbackBtn">
+                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                <path d="M13 8H7"/>
+                                <path d="M17 12H7"/>
+                            </svg>
+                            <span>Feedback</span>
                         </div>
                     </div>
                 </div>

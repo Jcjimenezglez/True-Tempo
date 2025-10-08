@@ -182,7 +182,7 @@ class PomodoroTimer {
         this.timerSettingsItemGuest = document.getElementById('timerSettingsItemGuest');
         this.shortcutsItem = document.getElementById('shortcutsItem');
         this.helpToggle = document.getElementById('helpToggle');
-        this.helpSubmenu = document.getElementById('helpSubmenu');
+        this.helpPanel = document.getElementById('helpPanel');
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
         
@@ -1237,6 +1237,10 @@ class PomodoroTimer {
                     if (this.userProfileDropdown) {
                         this.userProfileDropdown.style.display = 'none';
                     }
+                    // Close help panel when closing settings dropdown
+                    if (!isShown && this.helpPanel) {
+                        this.helpPanel.style.display = 'none';
+                    }
                     this.settingsDropdown.style.display = isShown ? 'none' : 'block';
                 }
             });
@@ -1336,12 +1340,22 @@ class PomodoroTimer {
         if (this.helpToggle) {
             this.helpToggle.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (this.helpSubmenu) {
-                    const isOpen = this.helpSubmenu.style.display === 'block';
-                    this.helpSubmenu.style.display = isOpen ? 'none' : 'block';
+                e.stopPropagation();
+                if (this.helpPanel) {
+                    const isOpen = this.helpPanel.style.display === 'block';
+                    this.helpPanel.style.display = isOpen ? 'none' : 'block';
                 }
             });
         }
+        
+        // Close help panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (this.helpPanel && this.helpPanel.style.display === 'block') {
+                if (!this.helpPanel.contains(e.target) && !this.helpToggle.contains(e.target)) {
+                    this.helpPanel.style.display = 'none';
+                }
+            }
+        });
         
         // Settings dropdown - Timer Settings for Guest users
         if (this.timerSettingsItemGuest) {
@@ -1605,6 +1619,7 @@ class PomodoroTimer {
         document.addEventListener('click', () => {
             if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
             if (this.settingsDropdown) this.settingsDropdown.style.display = 'none';
+            if (this.helpPanel) this.helpPanel.style.display = 'none';
         });
         
         // Logout action

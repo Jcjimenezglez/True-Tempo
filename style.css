@@ -792,15 +792,32 @@ body.is-scrolling .streak-fire {
     margin-left: auto;
 }
 
-.help-submenu {
-    background: rgba(255, 255, 255, 0.03);
-    border-left: 2px solid rgba(255, 255, 255, 0.1);
-    margin-left: 1rem;
+/* Help Panel - Appears next to main menu */
+.help-panel {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 8px;
+    z-index: 1001;
 }
 
-.help-submenu .submenu-item {
-    padding-left: 2rem;
-    font-size: 13px;
+.help-panel-menu {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    min-width: 200px;
+    overflow: hidden;
+}
+
+.help-panel-menu .settings-dropdown-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.help-panel-menu .settings-dropdown-item:last-child {
+    border-bottom: none;
 }
 
 .settings-auth-section {
