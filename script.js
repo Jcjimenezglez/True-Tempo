@@ -42,9 +42,9 @@ class PomodoroTimer {
 		// Load saved volume if exists, otherwise default to 25% for guests
 		const savedVolume = localStorage.getItem('ambientVolume');
 		this.ambientVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
-		// Persisted enable flag (default On for guests, load saved for authenticated users)
+		// Persisted enable flag (default None/off for guests, load saved for authenticated users)
 		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
-		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
+		this.ambientEnabled = savedAmbientEnabled === null ? false : savedAmbientEnabled === 'true';
 
 
 		// Rain music system
@@ -573,11 +573,11 @@ class PomodoroTimer {
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             }
             
-            // Ensure guest users always have Rain Sounds selected by default
+            // Ensure guest users always have None (no sound) selected by default
             this.ambientEnabled = false;
-            this.rainEnabled = true;
+            this.rainEnabled = false;
             localStorage.setItem('ambientEnabled', 'false');
-            localStorage.setItem('rainEnabled', 'true');
+            localStorage.setItem('rainEnabled', 'false');
             // reset already handled at top of branch
         }
         
@@ -1922,6 +1922,20 @@ class PomodoroTimer {
                         <div class="music-header">
                             <div class="music-info">
                                 <div class="music-details">
+                                    <h4>None</h4>
+                                    <p>No sound</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="noneToggle" ${!rainEnabled && !lofiEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
                                     <h4>Rain Sounds</h4>
                                     <p>Natural rain and thunder</p>
                                 </div>
@@ -1998,11 +2012,13 @@ class PomodoroTimer {
         // Volume and music controls (same as showAmbientModal)
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
+        const noneToggle = modalOverlay.querySelector('#noneToggle');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
         const rainToggle = modalOverlay.querySelector('#rainToggle');
         const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
         
         volumeSlider.disabled = !(lofiEnabled || rainEnabled);
+        noneToggle.checked = !this.ambientEnabled && !this.rainEnabled;
         if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
         rainToggle.checked = this.rainEnabled;
         
@@ -2012,6 +2028,21 @@ class PomodoroTimer {
             volumeValue.textContent = `${e.target.value}%`;
         });
         
+        // None toggle logic
+        noneToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                this.ambientEnabled = false;
+                this.rainEnabled = false;
+                localStorage.setItem('ambientEnabled', 'false');
+                localStorage.setItem('rainEnabled', 'false');
+                if (lofiToggle) lofiToggle.checked = false;
+                rainToggle.checked = false;
+                volumeSlider.disabled = true;
+                this.stopPlaylist();
+                this.stopRainPlaylist();
+            }
+        });
+        
         if (lofiToggle) {
             lofiToggle.addEventListener('change', (e) => {
                 this.ambientEnabled = e.target.checked;
@@ -2019,12 +2050,16 @@ class PomodoroTimer {
                 volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
                 
                 if (this.ambientEnabled) {
+                    noneToggle.checked = false;
                     this.rainEnabled = false;
                     rainToggle.checked = false;
                     localStorage.setItem('rainEnabled', 'false');
                     this.stopRainPlaylist();
                     if (this.isRunning) this.playPlaylist();
                 } else {
+                    if (!rainToggle.checked) {
+                        noneToggle.checked = true;
+                    }
                     this.stopPlaylist();
                 }
             });
@@ -2036,12 +2071,16 @@ class PomodoroTimer {
             volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
             
             if (this.rainEnabled) {
+                noneToggle.checked = false;
                 this.ambientEnabled = false;
                 if (lofiToggle) lofiToggle.checked = false;
                 localStorage.setItem('ambientEnabled', 'false');
                 this.stopPlaylist();
                 if (this.isRunning) this.playRainPlaylist();
             } else {
+                if (!lofiToggle?.checked) {
+                    noneToggle.checked = true;
+                }
                 this.stopRainPlaylist();
             }
         });
@@ -2304,6 +2343,20 @@ class PomodoroTimer {
                         <div class="music-header">
                             <div class="music-info">
                                 <div class="music-details">
+                                    <h4>None</h4>
+                                    <p>No sound</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="noneToggle" ${!rainEnabled && !lofiEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
                                     <h4>Rain Sounds</h4>
                                     <p>Natural rain and thunder for deep concentration</p>
                                 </div>
@@ -2361,6 +2414,7 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
+        const noneToggle = modalOverlay.querySelector('#noneToggle');
         const lofiToggle = modalOverlay.querySelector('#lofiToggle');
         const rainToggle = modalOverlay.querySelector('#rainToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
@@ -2372,29 +2426,26 @@ class PomodoroTimer {
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize toggle states
+        noneToggle.checked = !this.ambientEnabled && !this.rainEnabled;
         if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
         rainToggle.checked = this.rainEnabled;
 
-        // Safety: ensure at least one category is active
-        if (!lofiToggle?.checked && !rainToggle.checked) {
-            if (this.isAuthenticated) {
-                // Default to Lofi when all are off (authenticated users)
-            lofiToggle.checked = true;
-            this.ambientEnabled = true;
-            localStorage.setItem('ambientEnabled', 'true');
-                this.rainEnabled = false;
-                localStorage.setItem('rainEnabled', 'false');
-            } else {
-                // Default to Rain for guests
-                rainToggle.checked = true;
-                this.rainEnabled = true;
-                localStorage.setItem('rainEnabled', 'true');
+        // None toggle logic
+        noneToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                // Disable all sounds
                 this.ambientEnabled = false;
+                this.rainEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
+                localStorage.setItem('rainEnabled', 'false');
+                if (lofiToggle) lofiToggle.checked = false;
+                rainToggle.checked = false;
+                volumeSlider.disabled = true;
+                if (previewBtn) previewBtn.disabled = true;
+                this.stopPlaylist();
+                this.stopRainPlaylist();
             }
-            volumeSlider.disabled = false;
-            if (previewBtn) previewBtn.disabled = false;
-        }
+        });
 
         // Toggle logic with persistence
         if (lofiToggle) {
@@ -2406,7 +2457,8 @@ class PomodoroTimer {
 			if (previewBtn) previewBtn.disabled = !enabled;
             
             if (enabled) {
-                // If lofi is enabled, disable other music and switch
+                // If lofi is enabled, disable other options
+                noneToggle.checked = false;
                 this.rainEnabled = false;
                 localStorage.setItem('rainEnabled', 'false');
                 rainToggle.checked = false;
@@ -2416,23 +2468,12 @@ class PomodoroTimer {
                     this.playPlaylist();
                 }
             } else {
-                // If disabling lofi would leave all off, auto-enable Rain
+                // If disabling lofi, check if None should be enabled
                 if (!rainToggle.checked) {
-                    this.rainEnabled = true;
-                    localStorage.setItem('rainEnabled', 'true');
-                    rainToggle.checked = true;
-                    // Auto-enabled Rain should still allow volume control
-                    volumeSlider.disabled = false;
-                    if (previewBtn) previewBtn.disabled = true;
-                    this.stopPlaylist();
-                    // Start Rain music if timer is running
-                    if (this.isRunning) {
-                        this.playRainPlaylist();
-                    }
-                } else {
-                    this.stopPlaylist();
-					if (previewBtn) previewBtn.textContent = 'Preview';
+                    noneToggle.checked = true;
                 }
+                this.stopPlaylist();
+                if (previewBtn) previewBtn.textContent = 'Preview';
             }
         });
         }
@@ -2468,7 +2509,8 @@ class PomodoroTimer {
             localStorage.setItem('rainEnabled', String(enabled));
             
             if (enabled) {
-                // If Rain is enabled, disable other music and switch
+                // If Rain is enabled, disable other options
+                noneToggle.checked = false;
                 this.ambientEnabled = false;
                 localStorage.setItem('ambientEnabled', 'false');
                 if (lofiToggle) lofiToggle.checked = false;
@@ -2481,17 +2523,9 @@ class PomodoroTimer {
                 }
             } else {
                 this.stopRainPlaylist();
-                // If disabling Rain would leave all off, auto-enable Lofi (if authenticated)
-                if (!lofiToggle?.checked && this.isAuthenticated) {
-                    this.ambientEnabled = true;
-                    localStorage.setItem('ambientEnabled', 'true');
-                    lofiToggle.checked = true;
-                    volumeSlider.disabled = false;
-                    if (previewBtn) previewBtn.disabled = false;
-                    // Start Lofi music if timer is running
-                    if (this.isRunning) {
-                        this.playPlaylist();
-                    }
+                // If disabling Rain, check if None should be enabled
+                if (!lofiToggle?.checked) {
+                    noneToggle.checked = true;
                 }
             }
         });
