@@ -4077,7 +4077,7 @@ class PomodoroTimer {
     loadCassetteSounds() {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
-            this.cassetteSounds.volume = 0.15; // Set volume to 15% (more subtle)
+            this.cassetteSounds.volume = 0.5; // Set volume to 50%
             this.cassetteSounds.preload = 'auto';
             
             // Create audio context for pitch and speed control
@@ -4136,11 +4136,11 @@ class PomodoroTimer {
         
         // Create gain node for volume control
         const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = 0.15; // 15% volume
+        gainNode.gain.value = 0.5; // 50% volume
         
-        // Faster playback rate for shorter, snappier sound
+        // Original speed for play, slower for pause
         try {
-            source.playbackRate.value = type === 'play' ? 1.8 : 1.5;
+            source.playbackRate.value = type === 'play' ? 1.0 : 0.75;
         } catch (_) {}
         
         source.connect(gainNode);
@@ -4148,8 +4148,8 @@ class PomodoroTimer {
         
         try { if (this.audioContext.state === 'suspended') this.audioContext.resume(); } catch (_) {}
         source.start(0);
-        // Auto stop after 100ms for a quick, subtle click
-        try { source.stop(this.audioContext.currentTime + 0.1); } catch (_) {}
+        // Full duration for original sound
+        try { source.stop(this.audioContext.currentTime + 0.5); } catch (_) {}
     }
     
     // Synthetic short beep as last-resort feedback
