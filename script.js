@@ -8686,6 +8686,8 @@ class PomodoroTimer {
 
     // Show modal to confirm restoring session
     showRestoreSessionModal(state, timeDiff) {
+        console.log('Showing restore session modal with state:', state);
+        
         const overlay = document.createElement('div');
         overlay.className = 'focus-stats-overlay';
         overlay.style.display = 'flex';
@@ -8728,25 +8730,57 @@ class PomodoroTimer {
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
         
-        // Event listeners
-        const close = () => {
-            overlay.remove();
-            localStorage.removeItem('timerState');
-        };
-        
-        const continueSession = () => {
-            this.restoreTimerState(state);
-            overlay.remove();
-        };
-        
-        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
-        modal.querySelector('#startFreshBtn').addEventListener('click', close);
-        modal.querySelector('#continueSessionBtn').addEventListener('click', continueSession);
-        
-        // Close on overlay click
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
+        // Event listeners - use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            const closeBtn = modal.querySelector('.close-focus-stats-x');
+            const startFreshBtn = modal.querySelector('#startFreshBtn');
+            const continueBtn = modal.querySelector('#continueSessionBtn');
+            
+            console.log('Modal buttons found:', {
+                closeBtn: !!closeBtn,
+                startFreshBtn: !!startFreshBtn,
+                continueBtn: !!continueBtn
+            });
+            
+            const close = () => {
+                console.log('Closing modal and clearing state');
+                overlay.remove();
+                localStorage.removeItem('timerState');
+            };
+            
+            const continueSession = () => {
+                console.log('Continue session clicked, restoring state');
+                try {
+                    this.restoreTimerState(state);
+                    overlay.remove();
+                } catch (error) {
+                    console.error('Error restoring timer state:', error);
+                }
+            };
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', close);
+                console.log('Close button bound');
+            }
+            if (startFreshBtn) {
+                startFreshBtn.addEventListener('click', close);
+                console.log('Start Fresh button bound');
+            }
+            if (continueBtn) {
+                continueBtn.addEventListener('click', continueSession);
+                console.log('Continue Session button bound successfully');
+            } else {
+                console.error('Continue session button not found in modal');
+            }
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    console.log('Overlay clicked, closing modal');
+                    close();
+                }
+            });
+        }, 100); // Increased timeout to 100ms to ensure DOM is ready
     }
 
     // Restore timer state
@@ -8772,7 +8806,8 @@ class PomodoroTimer {
         this.isRunning = false;
         
         // Update UI
-        this.updateTimer();
+        this.updateDisplay();
+        this.updateProgress();
         this.updateProgressRing();
         this.updateSessionInfo();
         this.updateNavigationButtons();
@@ -8780,6 +8815,12 @@ class PomodoroTimer {
         
         // Clear saved state
         localStorage.removeItem('timerState');
+        
+        console.log('Timer state restored successfully:', {
+            section: this.currentSection,
+            timeLeft: this.timeLeft,
+            technique: state.selectedTechnique
+        });
     }
 
     // Clear timer state from localStorage
