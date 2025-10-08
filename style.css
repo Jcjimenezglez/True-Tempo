@@ -702,6 +702,13 @@ body.is-scrolling .streak-fire {
     stroke: currentColor;
 }
 
+.header-settings-btn img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 /* Settings Menu Container */
 .settings-menu-container {
     position: relative;

@@ -158,6 +158,8 @@ class PomodoroTimer {
         
         // Settings dropdown elements
         this.headerSettingsBtn = document.getElementById('headerSettingsBtn');
+        this.headerSettingsIcon = document.getElementById('headerSettingsIcon');
+        this.headerSettingsAvatar = document.getElementById('headerSettingsAvatar');
         this.settingsDropdown = document.getElementById('settingsDropdown');
         this.settingsUserInfo = document.getElementById('settingsUserInfo');
         this.settingsUserEmail = document.getElementById('settingsUserEmail');
@@ -556,6 +558,10 @@ class PomodoroTimer {
             if (this.loginButton) this.loginButton.style.display = 'none';
             console.log('User is not authenticated, showing settings menu with login/signup options');
             
+            // Reset header settings button to show user icon (not logged in)
+            if (this.headerSettingsIcon) this.headerSettingsIcon.style.display = 'block';
+            if (this.headerSettingsAvatar) this.headerSettingsAvatar.style.display = 'none';
+            
             // Update settings dropdown for non-authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
@@ -740,6 +746,23 @@ class PomodoroTimer {
                     <text x="18" y="22" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">${initials}</text>
                 </svg>`;
             this.userAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+        }
+        
+        // Update header settings button with user profile image
+        if (this.user.imageUrl && this.headerSettingsAvatar && this.headerSettingsIcon) {
+            this.headerSettingsAvatar.src = this.user.imageUrl;
+            this.headerSettingsAvatar.style.display = 'block';
+            this.headerSettingsIcon.style.display = 'none';
+        } else if (this.headerSettingsAvatar && this.headerSettingsIcon) {
+            const initials = this.getInitials(this.user.fullName || this.user.firstName || (this.user.emailAddresses?.[0]?.emailAddress || 'U'));
+            const svg = `
+                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" fill="#555" rx="16"/>
+                    <text x="16" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="11" font-weight="bold">${initials}</text>
+                </svg>`;
+            this.headerSettingsAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+            this.headerSettingsAvatar.style.display = 'block';
+            this.headerSettingsIcon.style.display = 'none';
         }
     }
 
