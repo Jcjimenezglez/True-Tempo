@@ -1591,6 +1591,24 @@ class PomodoroTimer {
                 }
             });
         }
+        
+        // Upgrade to Pro button (from settings modal)
+        const upgradeToProModalBtn = document.getElementById('upgradeToProModalBtn');
+        if (upgradeToProModalBtn) {
+            upgradeToProModalBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleUpgrade();
+            });
+        }
+        
+        // Manage Subscription button (from settings modal)
+        const manageSubscriptionModalBtn = document.getElementById('manageSubscriptionModalBtn');
+        if (manageSubscriptionModalBtn) {
+            manageSubscriptionModalBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleManageSubscription();
+            });
+        }
 
 
         // Manage subscription button
@@ -1787,8 +1805,10 @@ class PomodoroTimer {
             settingsModal.style.display = 'flex';
             
             // Populate user info
-            const emailElement = document.getElementById('settingsUserEmail');
+            const emailElement = document.getElementById('settingsModalUserEmail');
             const planElement = document.getElementById('settingsUserPlan');
+            const upgradeBtn = document.getElementById('upgradeToProModalBtn');
+            const manageSubBtn = document.getElementById('manageSubscriptionModalBtn');
             
             if (emailElement && window.Clerk && window.Clerk.user) {
                 const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
@@ -1799,6 +1819,17 @@ class PomodoroTimer {
             
             if (planElement) {
                 planElement.textContent = this.isPremium ? 'Pro' : 'Free';
+            }
+            
+            // Show/hide buttons based on premium status
+            if (upgradeBtn && manageSubBtn) {
+                if (this.isPremium) {
+                    upgradeBtn.style.display = 'none';
+                    manageSubBtn.style.display = 'block';
+                } else {
+                    upgradeBtn.style.display = 'block';
+                    manageSubBtn.style.display = 'none';
+                }
             }
         }
     }
