@@ -8621,15 +8621,15 @@ class PomodoroTimer {
 
     // Save timer state to localStorage
     saveTimerState() {
-        // Only save if timer has been running for at least 2 minutes
+        // Save state as soon as timer has any progress
         const section = this.cycleSections[this.currentSection - 1];
         if (!section) return;
         
         const sectionDuration = section.duration;
         const timeElapsed = sectionDuration - this.timeLeft;
         
-        // Don't save if less than 2 minutes have elapsed
-        if (timeElapsed < 120) return;
+        // Don't save if less than 1 second has elapsed
+        if (timeElapsed < 1) return;
         
         // Don't save if in "Ready to focus" state
         const isAtInitialTime = this.timeLeft === sectionDuration;
@@ -8667,8 +8667,8 @@ class PomodoroTimer {
                 return false;
             }
             
-            // Check if at least 2 minutes had elapsed when saved
-            if (state.timeElapsed < 120) {
+            // Check if at least 1 second had elapsed when saved
+            if (state.timeElapsed < 1) {
                 localStorage.removeItem('timerState');
                 return false;
             }
