@@ -2303,6 +2303,10 @@ class PomodoroTimer {
                             <span class="shortcut-description">Toggle Music</span>
                             <kbd class="shortcut-key">M</kbd>
                         </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Open Shortcuts</span>
+                            <kbd class="shortcut-key">⌘K</kbd>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3194,7 +3198,14 @@ class PomodoroTimer {
     }
     
     handleKeydown(e) {
-        // Only handle shortcuts if no input/textarea is focused
+        // Command+K or Ctrl+K to open shortcuts modal (handle before input check)
+        if ((e.metaKey || e.ctrlKey) && e.code === 'KeyK') {
+            e.preventDefault();
+            this.showShortcutsModal();
+            return;
+        }
+        
+        // Only handle other shortcuts if no input/textarea is focused
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
