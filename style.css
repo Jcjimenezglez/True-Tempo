@@ -143,22 +143,23 @@ body.is-scrolling .streak-fire {
     color: #ffffff;
 }
 
-.content-hero-icon {
+.content-hero-image {
     display: flex;
     justify-content: center;
-    margin: 2rem auto 3rem auto;
+    margin: 2.5rem auto 3rem auto;
 }
 
-.content-hero-icon svg {
-    width: 80px;
-    height: 80px;
-    color: rgba(255, 255, 255, 0.6);
-    transition: all 0.3s ease;
+.content-hero-image img {
+    max-width: 400px;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
 }
 
-.content-hero-icon svg:hover {
-    color: rgba(255, 255, 255, 0.9);
-    transform: scale(1.05);
+@media (max-width: 768px) {
+    .content-hero-image img {
+        max-width: 300px;
+    }
 }
 
 .content-section h2 {
