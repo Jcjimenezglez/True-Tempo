@@ -141,17 +141,15 @@ body.is-scrolling .streak-fire {
     margin-bottom: 1rem;
     text-align: center;
     color: #ffffff;
-    line-height: 1.3;
 }
 
-/* Hide desktop break on mobile */
-.content-section h1 .desktop-break {
+/* Desktop break - hide on mobile, show on desktop */
+.desktop-break {
     display: none;
 }
 
-/* Show desktop break on desktop */
 @media (min-width: 768px) {
-    .content-section h1 .desktop-break {
+    .desktop-break {
         display: inline;
     }
 }
