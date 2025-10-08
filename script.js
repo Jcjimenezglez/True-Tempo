@@ -4077,7 +4077,7 @@ class PomodoroTimer {
     loadCassetteSounds() {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
-            this.cassetteSounds.volume = 0.3; // Set volume to 30%
+            this.cassetteSounds.volume = 0.15; // Set volume to 15% (more subtle)
             this.cassetteSounds.preload = 'auto';
             
             // Create audio context for pitch and speed control
@@ -4133,15 +4133,23 @@ class PomodoroTimer {
         if (!this.audioContext || !this.audioBuffer) throw new Error('No audio buffer');
         const source = this.audioContext.createBufferSource();
         source.buffer = this.audioBuffer;
-        // Slightly different pitch for play vs pause
+        
+        // Create gain node for volume control
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = 0.15; // 15% volume
+        
+        // Faster playback rate for shorter, snappier sound
         try {
-            source.playbackRate.value = type === 'play' ? 1.05 : 0.9;
+            source.playbackRate.value = type === 'play' ? 1.8 : 1.5;
         } catch (_) {}
-        source.connect(this.audioContext.destination);
+        
+        source.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
         try { if (this.audioContext.state === 'suspended') this.audioContext.resume(); } catch (_) {}
         source.start(0);
-        // Auto stop after 200ms to avoid lingering
-        try { source.stop(this.audioContext.currentTime + 0.2); } catch (_) {}
+        // Auto stop after 100ms for a quick, subtle click
+        try { source.stop(this.audioContext.currentTime + 0.1); } catch (_) {}
     }
     
     // Synthetic short beep as last-resort feedback
@@ -4153,18 +4161,22 @@ class PomodoroTimer {
             const ctx = this.audioContext;
             const oscillator = ctx.createOscillator();
             const gain = ctx.createGain();
+            
+            // Subtle click sound
             oscillator.type = 'sine';
-            oscillator.frequency.value = type === 'play' ? 880 : 440;
-            // Short envelope
+            oscillator.frequency.value = type === 'play' ? 1200 : 800;
+            
+            // Very short, quick envelope for a subtle click
             const now = ctx.currentTime;
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.08, now + 0.01);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+            gain.gain.linearRampToValueAtTime(0.05, now + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            
             oscillator.connect(gain);
             gain.connect(ctx.destination);
             if (ctx.state === 'suspended') ctx.resume().catch(() => {});
             oscillator.start(now);
-            oscillator.stop(now + 0.15);
+            oscillator.stop(now + 0.1);
         } catch (_) {
             // As a final fallback, do nothing silently
         }
