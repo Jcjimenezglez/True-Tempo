@@ -3576,9 +3576,20 @@ class PomodoroTimer {
                 // Get session type
                 const sessionLabel = this.getCurrentTaskLabel();
                 
-                // Combine: "Pomodoro 1/4", "Short Break", "Long Break"
+                // Helper function to truncate text to max 15 characters
+                const truncateText = (text, maxLength = 15) => {
+                    if (!text) return text;
+                    // Count actual characters including emojis, spaces, etc.
+                    const chars = Array.from(text);
+                    if (chars.length <= maxLength) return text;
+                    return chars.slice(0, maxLength).join('') + '...';
+                };
+                
+                // Combine: "Task Name 1/4" or "Pomodoro 1/4", "Short Break", "Long Break"
                 if (this.isWorkSession) {
-                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(`${sessionLabel} ${currentWorkSession}/${totalWorkSessions}`);
+                    // Use task name if available, otherwise use session label (Pomodoro)
+                    const displayName = this.currentTaskName ? truncateText(this.currentTaskName) : sessionLabel;
+                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(`${displayName} ${currentWorkSession}/${totalWorkSessions}`);
                 } else {
                     this.sessionLabelElement.innerHTML = createSessionLabelHTML(sessionLabel);
                 }
