@@ -172,34 +172,22 @@ body.is-scrolling .streak-fire {
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Technique video embeds */
-.technique-video {
-    margin: 2rem auto;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    height: 0;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+/* Video link */
+.video-link-container {
+    text-align: center;
+    margin: 1.5rem 0;
 }
 
-.technique-video iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 12px;
+.video-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+    display: inline-block;
 }
 
-@media (max-width: 768px) {
-    .technique-video {
-        margin: 1.5rem auto;
-        max-width: 100%;
-    }
+.video-link:hover {
+    color: #ffffff;
 }
 
 /* Mobile adjustments for content section */
