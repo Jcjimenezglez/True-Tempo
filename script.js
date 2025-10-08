@@ -3187,10 +3187,10 @@ class PomodoroTimer {
             this.toggleTimer();
         }
         
-        // R to reset timer
+        // R to reset timer (with confirmation)
         if (e.code === 'KeyR') {
             e.preventDefault();
-            this.resetTimer();
+            this.showResetConfirmationModal();
         }
         
         // M to toggle music
@@ -8689,40 +8689,37 @@ class PomodoroTimer {
         console.log('Showing restore session modal with state:', state);
         
         const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
+        overlay.className = 'upgrade-modal-overlay';
         overlay.style.display = 'flex';
-        overlay.style.zIndex = '10001';
         
         const minutesAgo = Math.floor(timeDiff / 60000);
         const timeString = minutesAgo < 1 ? 'just now' : `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
         
         const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal restore-session-modal';
+        modal.className = 'upgrade-modal restore-session-modal';
         modal.innerHTML = `
-            <div class="focus-stats-header">
-                <h2>Resume Session?</h2>
-                <button class="close-focus-stats-x">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="restore-session-content">
-                <div class="restore-session-info">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="restore-icon">
+            <button class="close-upgrade-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
-                    <p>You have a paused ${state.isWorkSession ? 'focus' : 'break'} session from ${timeString}.</p>
-                    <div class="restore-session-details">
-                        <span class="restore-time">${Math.floor(state.timeLeft / 60)}:${(state.timeLeft % 60).toString().padStart(2, '0')}</span>
-                        <span class="restore-technique">${state.selectedTechnique}</span>
-                    </div>
                 </div>
-                <div class="restore-session-actions">
-                    <button class="btn-secondary" id="startFreshBtn">Start Fresh</button>
-                    <button class="btn-primary" id="continueSessionBtn">Continue Session</button>
+                <h3>Resume Session?</h3>
+                <p>You have a paused ${state.isWorkSession ? 'focus' : 'break'} session from ${timeString}.</p>
+                <div class="restore-session-time-card">
+                    <div class="restore-time">${Math.floor(state.timeLeft / 60)}:${(state.timeLeft % 60).toString().padStart(2, '0')}</div>
+                    <div class="restore-technique">${state.selectedTechnique}</div>
+                </div>
+                <div class="upgrade-buttons">
+                    <button class="upgrade-btn" id="continueSessionBtn">Continue Session</button>
+                    <button class="cancel-btn" id="startFreshBtn">Start Fresh</button>
                 </div>
             </div>
         `;
@@ -8732,24 +8729,16 @@ class PomodoroTimer {
         
         // Event listeners - use setTimeout to ensure DOM is ready
         setTimeout(() => {
-            const closeBtn = modal.querySelector('.close-focus-stats-x');
+            const closeBtn = modal.querySelector('.close-upgrade-x');
             const startFreshBtn = modal.querySelector('#startFreshBtn');
             const continueBtn = modal.querySelector('#continueSessionBtn');
             
-            console.log('Modal buttons found:', {
-                closeBtn: !!closeBtn,
-                startFreshBtn: !!startFreshBtn,
-                continueBtn: !!continueBtn
-            });
-            
             const close = () => {
-                console.log('Closing modal and clearing state');
                 overlay.remove();
                 localStorage.removeItem('timerState');
             };
             
             const continueSession = () => {
-                console.log('Continue session clicked, restoring state');
                 try {
                     this.restoreTimerState(state);
                     overlay.remove();
@@ -8758,29 +8747,15 @@ class PomodoroTimer {
                 }
             };
             
-            if (closeBtn) {
-                closeBtn.addEventListener('click', close);
-                console.log('Close button bound');
-            }
-            if (startFreshBtn) {
-                startFreshBtn.addEventListener('click', close);
-                console.log('Start Fresh button bound');
-            }
-            if (continueBtn) {
-                continueBtn.addEventListener('click', continueSession);
-                console.log('Continue Session button bound successfully');
-            } else {
-                console.error('Continue session button not found in modal');
-            }
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (startFreshBtn) startFreshBtn.addEventListener('click', close);
+            if (continueBtn) continueBtn.addEventListener('click', continueSession);
             
             // Close on overlay click
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    console.log('Overlay clicked, closing modal');
-                    close();
-                }
+                if (e.target === overlay) close();
             });
-        }, 100); // Increased timeout to 100ms to ensure DOM is ready
+        }, 100);
     }
 
     // Restore timer state
@@ -8826,6 +8801,79 @@ class PomodoroTimer {
     // Clear timer state from localStorage
     clearTimerState() {
         localStorage.removeItem('timerState');
+    }
+
+    // Show reset confirmation modal
+    showResetConfirmationModal() {
+        // Don't show if timer is at initial state
+        const section = this.cycleSections[this.currentSection - 1];
+        if (!section) return;
+        
+        const sectionDuration = section.duration;
+        const timeElapsed = sectionDuration - this.timeLeft;
+        
+        // If less than 1 second elapsed, just reset without confirmation
+        if (timeElapsed < 1) {
+            this.resetTimer();
+            return;
+        }
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'upgrade-modal-overlay';
+        overlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal reset-confirmation-modal';
+        modal.innerHTML = `
+            <button class="close-upgrade-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                </div>
+                <h3>Reset Timer?</h3>
+                <p>Are you sure you want to reset the timer? Your current progress will be lost.</p>
+                <div class="upgrade-buttons">
+                    <button class="upgrade-btn" id="confirmResetBtn">Yes, Reset</button>
+                    <button class="cancel-btn" id="cancelResetBtn">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // Event listeners
+        setTimeout(() => {
+            const closeBtn = modal.querySelector('.close-upgrade-x');
+            const confirmBtn = modal.querySelector('#confirmResetBtn');
+            const cancelBtn = modal.querySelector('#cancelResetBtn');
+            
+            const close = () => {
+                overlay.remove();
+            };
+            
+            const confirmReset = () => {
+                this.resetTimer();
+                overlay.remove();
+            };
+            
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (cancelBtn) cancelBtn.addEventListener('click', close);
+            if (confirmBtn) confirmBtn.addEventListener('click', confirmReset);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close();
+            });
+        }, 100);
     }
 
 }

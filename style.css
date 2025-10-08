@@ -5707,7 +5707,8 @@ input:checked + .toggle-slider:before {
     bottom: 100px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: rgba(163, 163, 163, 0.95);
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
     color: #ffffff;
     padding: 12px 20px;
@@ -5718,7 +5719,7 @@ input:checked + .toggle-slider:before {
     opacity: 0;
     pointer-events: none;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .keyboard-hint.show {
@@ -5729,72 +5730,49 @@ input:checked + .toggle-slider:before {
 .keyboard-hint kbd {
     display: inline-block;
     padding: 4px 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 4px;
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     margin: 0 4px;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ===== Restore Session Modal ===== */
 .restore-session-modal {
-    max-width: 480px;
+    max-width: 420px;
 }
 
-.restore-session-content {
-    padding: 24px;
-}
-
-.restore-session-info {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-.restore-icon {
-    color: rgba(163, 163, 163, 0.8);
-    margin-bottom: 16px;
-}
-
-.restore-session-info p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 0 0 20px 0;
-}
-
-.restore-session-details {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 16px;
-    background: rgba(163, 163, 163, 0.1);
-    border: 1px solid rgba(163, 163, 163, 0.2);
+.restore-session-time-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    text-align: center;
 }
 
 .restore-time {
-    font-size: 32px;
+    font-size: 48px;
     font-weight: 600;
     color: #ffffff;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
 }
 
 .restore-technique {
-    font-size: 14px;
+    font-size: 15px;
     color: rgba(255, 255, 255, 0.7);
     font-weight: 500;
 }
 
-.restore-session-actions {
-    display: flex;
-    gap: 12px;
-}
-
-.restore-session-actions button {
-    flex: 1;
+/* ===== Reset Confirmation Modal ===== */
+.reset-confirmation-modal {
+    max-width: 400px;
 }
 
 /* Mobile responsiveness for keyboard hint */
