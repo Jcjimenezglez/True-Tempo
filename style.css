@@ -519,7 +519,7 @@ body.is-scrolling .streak-fire {
 }
 
 .progress-segment {
-    stroke-width: 4;
+    stroke-width: 1;
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
