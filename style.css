@@ -120,7 +120,7 @@ body.is-scrolling .streak-fire {
 
 /* Content Section - Below Timer */
 .content-section {
-    background: #1a1a1a;
+    background: #000000;
     color: rgba(255, 255, 255, 0.9);
     padding: 60px 20px 100px 20px;
     min-height: 100vh;
@@ -168,7 +168,7 @@ body.is-scrolling .streak-fire {
 
 .content-section strong {
     font-weight: normal;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Technique video embeds */
