@@ -143,6 +143,24 @@ body.is-scrolling .streak-fire {
     color: #ffffff;
 }
 
+.content-hero-icon {
+    display: flex;
+    justify-content: center;
+    margin: 2rem auto 3rem auto;
+}
+
+.content-hero-icon svg {
+    width: 80px;
+    height: 80px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.content-hero-icon svg:hover {
+    color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
+}
+
 .content-section h2 {
     font-size: 1.8rem;
     font-weight: 500;
