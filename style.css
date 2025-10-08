@@ -126,6 +126,7 @@ body.is-scrolling .streak-fire {
     min-height: 100vh;
     content-visibility: auto;
     contain-intrinsic-size: 1000px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .content-container {
