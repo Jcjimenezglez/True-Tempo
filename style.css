@@ -2418,6 +2418,13 @@ audio {
 }
 
 /* Generic button styles for upgrade modals */
+.upgrade-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
 .upgrade-btn {
     background: #ffffff;
     color: #1a1a1a;
