@@ -768,6 +768,18 @@ body.is-scrolling .streak-fire {
     flex: 1;
 }
 
+.settings-dropdown-item .chevron-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.settings-dropdown-item:hover .chevron-icon {
+    opacity: 0.8;
+}
+
 .settings-dropdown-item .shortcut-hint {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-size: 11px;
@@ -778,6 +790,17 @@ body.is-scrolling .streak-fire {
     color: rgba(255, 255, 255, 0.7);
     font-weight: 500;
     margin-left: auto;
+}
+
+.help-submenu {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+    margin-left: 1rem;
+}
+
+.help-submenu .submenu-item {
+    padding-left: 2rem;
+    font-size: 13px;
 }
 
 .settings-auth-section {

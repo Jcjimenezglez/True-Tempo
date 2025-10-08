@@ -313,15 +313,6 @@
                         
                         <!-- Account Section (shown when logged in) -->
                         <div class="settings-account-section" id="settingsAccountSection" style="display: none;">
-                            <!-- Account Settings -->
-                            <div class="settings-dropdown-item" id="settingsAccountBtn">
-                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
-                                <span>Account</span>
-                            </div>
-                            
                             <!-- Upgrade to Pro / Manage Subscription -->
                             <div class="settings-dropdown-item" id="settingsUpgradeToProBtn">
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -335,56 +326,87 @@
                                 </svg>
                                 <span>Manage subscription</span>
                             </div>
+                            
+                            <!-- Account Settings -->
+                            <div class="settings-dropdown-item" id="settingsAccountBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                <span>Account</span>
+                            </div>
                             <div class="dropdown-divider"></div>
                         </div>
                         
-                        <!-- Focus Report (shown when logged in) -->
-                        <div class="settings-dropdown-item" id="settingsStatisticsBtn" style="display: none;">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 3v18h18"/>
-                                <path d="m19 9-5 5-4-4-3 3"/>
-                            </svg>
-                            <span>Focus Report</span>
+                        <!-- Focus Report Section (shown when logged in) -->
+                        <div class="settings-report-section" id="settingsReportSection" style="display: none;">
+                            <div class="settings-dropdown-item" id="settingsStatisticsBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 3v18h18"/>
+                                    <path d="m19 9-5 5-4-4-3 3"/>
+                                </svg>
+                                <span>Focus Report</span>
+                            </div>
+                            <div class="settings-dropdown-item" id="timerSettingsItem">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span>Settings</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
                         </div>
                         
-                        <div class="dropdown-divider" id="settingsStatsDivider" style="display: none;"></div>
-                        
-                        <!-- App Settings (always visible) -->
-                        <div class="settings-dropdown-item" id="timerSettingsItem">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                            <span>Settings</span>
+                        <!-- Settings Section (shown when not logged in) -->
+                        <div class="settings-settings-section" id="settingsSettingsSection">
+                            <div class="settings-dropdown-item" id="timerSettingsItemGuest">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span>Settings</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
                         </div>
                         
-                        <!-- Shortcuts (always visible) -->
-                        <div class="settings-dropdown-item" id="shortcutsItem">
+                        <!-- Help Section (always visible) -->
+                        <div class="settings-dropdown-item" id="helpToggle">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                <path d="M6 8h.001"/>
-                                <path d="M10 8h.001"/>
-                                <path d="M14 8h.001"/>
-                                <path d="M18 8h.001"/>
-                                <path d="M8 12h.001"/>
-                                <path d="M12 12h.001"/>
-                                <path d="M16 12h.001"/>
-                                <path d="M7 16h10"/>
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
                             </svg>
-                            <span>Shortcuts</span>
-                            <kbd class="shortcut-hint">⌘K</kbd>
+                            <span>Help</span>
+                            <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m9 18 6-6-6-6"/>
+                            </svg>
                         </div>
                         
-                        <div class="dropdown-divider"></div>
-                        
-                        <!-- Feedback (always visible) -->
-                        <div class="settings-dropdown-item" id="settingsFeedbackBtn">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                <path d="M13 8H7"/>
-                                <path d="M17 12H7"/>
-                            </svg>
-                            <span>Feedback</span>
+                        <!-- Help Submenu -->
+                        <div class="help-submenu" id="helpSubmenu" style="display: none;">
+                            <div class="settings-dropdown-item submenu-item" id="shortcutsItem">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                    <path d="M6 8h.001"/>
+                                    <path d="M10 8h.001"/>
+                                    <path d="M14 8h.001"/>
+                                    <path d="M18 8h.001"/>
+                                    <path d="M8 12h.001"/>
+                                    <path d="M12 12h.001"/>
+                                    <path d="M16 12h.001"/>
+                                    <path d="M7 16h10"/>
+                                </svg>
+                                <span>Shortcuts</span>
+                                <kbd class="shortcut-hint">⌘K</kbd>
+                            </div>
+                            <div class="settings-dropdown-item submenu-item" id="settingsFeedbackBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    <path d="M13 8H7"/>
+                                    <path d="M17 12H7"/>
+                                </svg>
+                                <span>Feedback</span>
+                            </div>
                         </div>
                         
                         <!-- Logout (shown when logged in) -->

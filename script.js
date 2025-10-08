@@ -166,6 +166,8 @@ class PomodoroTimer {
         this.settingsProBadge = document.getElementById('settingsProBadge');
         this.settingsAuthSection = document.getElementById('settingsAuthSection');
         this.settingsAccountSection = document.getElementById('settingsAccountSection');
+        this.settingsReportSection = document.getElementById('settingsReportSection');
+        this.settingsSettingsSection = document.getElementById('settingsSettingsSection');
         this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
         this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
         this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
@@ -177,7 +179,10 @@ class PomodoroTimer {
         this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
         this.settingsUserDivider = document.getElementById('settingsUserDivider');
         this.timerSettingsItem = document.getElementById('timerSettingsItem');
+        this.timerSettingsItemGuest = document.getElementById('timerSettingsItemGuest');
         this.shortcutsItem = document.getElementById('shortcutsItem');
+        this.helpToggle = document.getElementById('helpToggle');
+        this.helpSubmenu = document.getElementById('helpSubmenu');
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
         
@@ -502,8 +507,8 @@ class PomodoroTimer {
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
             if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'block';
-            if (this.settingsStatisticsBtn) this.settingsStatisticsBtn.style.display = 'flex';
-            if (this.settingsStatsDivider) this.settingsStatsDivider.style.display = 'block';
+            if (this.settingsReportSection) this.settingsReportSection.style.display = 'block';
+            if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'none';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
             
@@ -573,8 +578,8 @@ class PomodoroTimer {
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
             if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'none';
-            if (this.settingsStatisticsBtn) this.settingsStatisticsBtn.style.display = 'none';
-            if (this.settingsStatsDivider) this.settingsStatsDivider.style.display = 'none';
+            if (this.settingsReportSection) this.settingsReportSection.style.display = 'none';
+            if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             // Reset badge to zero time for guests
@@ -1324,6 +1329,26 @@ class PomodoroTimer {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
                 this.showFeedbackModal();
+            });
+        }
+        
+        // Settings dropdown - Help Toggle
+        if (this.helpToggle) {
+            this.helpToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (this.helpSubmenu) {
+                    const isOpen = this.helpSubmenu.style.display === 'block';
+                    this.helpSubmenu.style.display = isOpen ? 'none' : 'block';
+                }
+            });
+        }
+        
+        // Settings dropdown - Timer Settings for Guest users
+        if (this.timerSettingsItemGuest) {
+            this.timerSettingsItemGuest.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showTimerSettingsModal();
             });
         }
         
