@@ -165,6 +165,7 @@ class PomodoroTimer {
         this.settingsUserEmail = document.getElementById('settingsUserEmail');
         this.settingsProBadge = document.getElementById('settingsProBadge');
         this.settingsAuthSection = document.getElementById('settingsAuthSection');
+        this.settingsAccountSection = document.getElementById('settingsAccountSection');
         this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
         this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
         this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
@@ -494,11 +495,7 @@ class PomodoroTimer {
             // Update settings dropdown for authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
-            if (this.settingsUserDivider) this.settingsUserDivider.style.display = 'block';
-            if (this.settingsAccountBtn) this.settingsAccountBtn.style.display = 'flex';
-            // Integrations removed from menu - now only in Account section
-            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
-            if (this.settingsFeedbackBtn) this.settingsFeedbackBtn.style.display = 'flex';
+            if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
             
@@ -565,13 +562,7 @@ class PomodoroTimer {
             // Update settings dropdown for non-authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
-            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
-            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'none';
-            if (this.settingsAccountBtn) this.settingsAccountBtn.style.display = 'none';
-            // Integrations removed from menu
-            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
-            if (this.settingsFeedbackBtn) this.settingsFeedbackBtn.style.display = 'none';
-            if (this.settingsUserDivider) this.settingsUserDivider.style.display = 'none';
+            if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'none';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             // Reset badge to zero time for guests
