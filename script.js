@@ -7436,16 +7436,6 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
-            // Track Google Ads conversion for signup
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'conversion', {
-                    'send_to': 'AW-17614436696',
-                    'value': 1.0,
-                    'currency': 'USD'
-                });
-                console.log('Google Ads conversion tracked for signup');
-            }
-            
             // Show success message for signup - DISABLED
             // setTimeout(() => {
             //     this.showSignupSuccessMessage();
