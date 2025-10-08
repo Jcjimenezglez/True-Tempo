@@ -795,9 +795,9 @@ body.is-scrolling .streak-fire {
 /* Help Panel - Appears next to main menu */
 .help-panel {
     position: absolute;
-    top: 0;
-    right: 100%;
-    margin-right: 8px;
+    top: auto;
+    bottom: 0;
+    right: calc(100% + 4px);
     z-index: 1001;
 }
 
