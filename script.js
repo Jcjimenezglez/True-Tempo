@@ -5044,6 +5044,9 @@ class PomodoroTimer {
                     // Refresh task list
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
+                    // Update header to reflect changes immediately
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
                     // Enable button now that there is at least one task, and hide form
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
@@ -5647,8 +5650,10 @@ class PomodoroTimer {
                 taskItem.classList.toggle('selected', newSelected);
                 btn.classList.toggle('active', newSelected);
                 
-                // Update task button state
+                // Update task button state and header
                 this.updateTaskButtonState();
+                this.updateCurrentTaskFromQueue();
+                this.updateSessionInfo();
             });
         });
     }
@@ -5700,9 +5705,11 @@ class PomodoroTimer {
                 // Update visual state
                 this.updateTaskSelectionVisual(modal, taskId, newSelected);
                 
-                // Update the main timer banner
+                // Update the main timer banner and header
                 this.updateCurrentTaskBanner();
                 this.rebuildTaskQueue();
+                this.updateCurrentTaskFromQueue();
+                this.updateSessionInfo();
             });
         });
 
@@ -6188,6 +6195,9 @@ class PomodoroTimer {
                     };
                     
                     renderTasks();
+                    // Update header to reflect changes immediately
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
                 }
             });
         }
