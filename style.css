@@ -150,16 +150,10 @@ body.is-scrolling .streak-fire {
 }
 
 .content-hero-image img {
-    max-width: 400px;
+    max-width: 800px;
     width: 100%;
     height: auto;
     border-radius: 12px;
-}
-
-@media (max-width: 768px) {
-    .content-hero-image img {
-        max-width: 300px;
-    }
 }
 
 .content-section h2 {
