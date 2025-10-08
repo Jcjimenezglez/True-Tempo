@@ -4077,7 +4077,7 @@ class PomodoroTimer {
     loadCassetteSounds() {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
-            this.cassetteSounds.volume = 0.5; // Set volume to 50%
+            this.cassetteSounds.volume = 0.75; // Set volume to 75%
             this.cassetteSounds.preload = 'auto';
             
             // Create audio context for pitch and speed control
@@ -4136,7 +4136,7 @@ class PomodoroTimer {
         
         // Create gain node for volume control
         const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = 0.5; // 50% volume
+        gainNode.gain.value = 0.75; // 75% volume
         
         // Original speed for play, slower for pause
         try {
