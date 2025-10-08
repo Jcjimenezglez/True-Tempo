@@ -185,6 +185,8 @@ class PomodoroTimer {
         this.logoIcon = document.getElementById('logoIcon');
         this.achievementIcon = document.getElementById('achievementIcon');
         this.achievementCounter = document.getElementById('achievementCounter');
+        this.streakInfo = document.getElementById('streakInfo');
+        this.streakDays = document.getElementById('streakDays');
         // User profile elements (shown when authenticated)
         this.userProfileContainer = document.getElementById('userProfileContainer');
         this.userProfileButton = document.getElementById('userProfileButton');
@@ -480,6 +482,8 @@ class PomodoroTimer {
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
+            // Show streak info for authenticated users
+            if (this.streakInfo) this.streakInfo.style.display = 'flex';
             this.updateUserProfile();
             // Initialize cycle counter for authenticated users
             this.initializeCycleCounter();
@@ -553,6 +557,8 @@ class PomodoroTimer {
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
+            // Hide streak info for non-authenticated users
+            if (this.streakInfo) this.streakInfo.style.display = 'none';
             if (this.loginButton) this.loginButton.textContent = 'Login';
             // Keep header buttons hidden - they're now in the settings menu
             if (this.signupButton) this.signupButton.style.display = 'none';
