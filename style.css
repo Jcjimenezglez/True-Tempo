@@ -5700,3 +5700,113 @@ input:checked + .toggle-slider:before {
         font-size: 1.1rem;
     }
 }
+
+/* ===== Keyboard Hint Tooltip ===== */
+.keyboard-hint {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(163, 163, 163, 0.95);
+    backdrop-filter: blur(10px);
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.keyboard-hint.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.keyboard-hint kbd {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 4px;
+}
+
+/* ===== Restore Session Modal ===== */
+.restore-session-modal {
+    max-width: 480px;
+}
+
+.restore-session-content {
+    padding: 24px;
+}
+
+.restore-session-info {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.restore-icon {
+    color: rgba(163, 163, 163, 0.8);
+    margin-bottom: 16px;
+}
+
+.restore-session-info p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+}
+
+.restore-session-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: rgba(163, 163, 163, 0.1);
+    border: 1px solid rgba(163, 163, 163, 0.2);
+    border-radius: 12px;
+}
+
+.restore-time {
+    font-size: 32px;
+    font-weight: 600;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+}
+
+.restore-technique {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.restore-session-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.restore-session-actions button {
+    flex: 1;
+}
+
+/* Mobile responsiveness for keyboard hint */
+@media (max-width: 768px) {
+    .keyboard-hint {
+        bottom: 80px;
+        font-size: 13px;
+        padding: 10px 16px;
+    }
+    
+    .keyboard-hint kbd {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+}

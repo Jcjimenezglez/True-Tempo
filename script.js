@@ -282,6 +282,11 @@ class PomodoroTimer {
 
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
+
+        // Try to load saved timer state (must be last to ensure all UI is ready)
+        setTimeout(() => {
+            this.loadTimerState();
+        }, 500);
     }
 
     // Clerk Authentication Methods
@@ -2937,6 +2942,9 @@ class PomodoroTimer {
         // Update progress ring
         this.updateProgressRing();
         
+        // Clear saved timer state
+        this.clearTimerState();
+        
         // Play UI sound for feedback
         this.playUiSound('click');
     }
@@ -2945,6 +2953,9 @@ class PomodoroTimer {
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
+        
+        // Show keyboard shortcut hint on first play
+        this.showKeyboardHint();
         
         // Close all open modals to focus on timer
         this.closeAllModals();
@@ -2981,6 +2992,10 @@ class PomodoroTimer {
             this.updateProgress();
             this.updateSections();
             this.updateSessionInfo();
+            
+            // Save timer state every second
+            this.saveTimerState();
+            
             // Music ducking: fade out 2s before end of section to prioritize alerts
             if (this.timeLeft === 2) {
                 this.fadeMusicOut(2000);
@@ -3261,6 +3276,8 @@ class PomodoroTimer {
             this.pauseTimerSilent();
             this.startPauseBtn.classList.remove('running');
             this.isRunning = false;
+            // Clear saved timer state when cycle completes
+            this.clearTimerState();
             // No modal, just stop at end of cycle
             return;
         }
@@ -8573,6 +8590,201 @@ class PomodoroTimer {
     playSpotifyUri(uri) {
         // Implement logic to play a specific Spotify URI
         console.log('Playing Spotify URI:', uri);
+    }
+
+    // Show keyboard shortcut hint (only once per session)
+    showKeyboardHint() {
+        // Only show hint once per session
+        if (sessionStorage.getItem('keyboardHintShown')) return;
+        
+        // Create hint tooltip
+        const hint = document.createElement('div');
+        hint.className = 'keyboard-hint';
+        hint.innerHTML = `
+            <span>💡 Tip: Press <kbd>R</kbd> to reset timer</span>
+        `;
+        
+        document.body.appendChild(hint);
+        
+        // Show with animation
+        setTimeout(() => hint.classList.add('show'), 100);
+        
+        // Hide after 4 seconds
+        setTimeout(() => {
+            hint.classList.remove('show');
+            setTimeout(() => hint.remove(), 300);
+        }, 4000);
+        
+        // Mark as shown for this session
+        sessionStorage.setItem('keyboardHintShown', 'true');
+    }
+
+    // Save timer state to localStorage
+    saveTimerState() {
+        // Only save if timer has been running for at least 2 minutes
+        const section = this.cycleSections[this.currentSection - 1];
+        if (!section) return;
+        
+        const sectionDuration = section.duration;
+        const timeElapsed = sectionDuration - this.timeLeft;
+        
+        // Don't save if less than 2 minutes have elapsed
+        if (timeElapsed < 120) return;
+        
+        // Don't save if in "Ready to focus" state
+        const isAtInitialTime = this.timeLeft === sectionDuration;
+        if (!this.isRunning && isAtInitialTime && this.isWorkSession) return;
+        
+        const state = {
+            currentSection: this.currentSection,
+            timeLeft: this.timeLeft,
+            isRunning: false, // Always save as paused
+            isWorkSession: this.isWorkSession,
+            isLongBreak: this.isLongBreak,
+            currentTaskIndex: this.currentTaskIndex,
+            currentTaskName: this.currentTaskName,
+            selectedTechnique: this.selectedTechnique?.name || 'Pomodoro',
+            timestamp: Date.now(),
+            sectionDuration: sectionDuration,
+            timeElapsed: timeElapsed
+        };
+        
+        localStorage.setItem('timerState', JSON.stringify(state));
+    }
+
+    // Load timer state from localStorage
+    loadTimerState() {
+        const savedState = localStorage.getItem('timerState');
+        if (!savedState) return false;
+        
+        try {
+            const state = JSON.parse(savedState);
+            
+            // Check if state is recent (within last 30 minutes)
+            const timeDiff = Date.now() - state.timestamp;
+            if (timeDiff > 30 * 60 * 1000) {
+                localStorage.removeItem('timerState');
+                return false;
+            }
+            
+            // Check if at least 2 minutes had elapsed when saved
+            if (state.timeElapsed < 120) {
+                localStorage.removeItem('timerState');
+                return false;
+            }
+            
+            // Show confirmation modal
+            this.showRestoreSessionModal(state, timeDiff);
+            
+            return true;
+        } catch (error) {
+            console.error('Error loading timer state:', error);
+            localStorage.removeItem('timerState');
+            return false;
+        }
+    }
+
+    // Show modal to confirm restoring session
+    showRestoreSessionModal(state, timeDiff) {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        overlay.style.zIndex = '10001';
+        
+        const minutesAgo = Math.floor(timeDiff / 60000);
+        const timeString = minutesAgo < 1 ? 'just now' : `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
+        
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal restore-session-modal';
+        modal.innerHTML = `
+            <div class="focus-stats-header">
+                <h2>Resume Session?</h2>
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="restore-session-content">
+                <div class="restore-session-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="restore-icon">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <p>You have a paused ${state.isWorkSession ? 'focus' : 'break'} session from ${timeString}.</p>
+                    <div class="restore-session-details">
+                        <span class="restore-time">${Math.floor(state.timeLeft / 60)}:${(state.timeLeft % 60).toString().padStart(2, '0')}</span>
+                        <span class="restore-technique">${state.selectedTechnique}</span>
+                    </div>
+                </div>
+                <div class="restore-session-actions">
+                    <button class="btn-secondary" id="startFreshBtn">Start Fresh</button>
+                    <button class="btn-primary" id="continueSessionBtn">Continue Session</button>
+                </div>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // Event listeners
+        const close = () => {
+            overlay.remove();
+            localStorage.removeItem('timerState');
+        };
+        
+        const continueSession = () => {
+            this.restoreTimerState(state);
+            overlay.remove();
+        };
+        
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        modal.querySelector('#startFreshBtn').addEventListener('click', close);
+        modal.querySelector('#continueSessionBtn').addEventListener('click', continueSession);
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+    }
+
+    // Restore timer state
+    restoreTimerState(state) {
+        // Restore technique if different
+        if (state.selectedTechnique !== this.selectedTechnique?.name) {
+            const techniqueItem = Array.from(document.querySelectorAll('.technique-item'))
+                .find(item => item.dataset.technique === state.selectedTechnique);
+            if (techniqueItem) {
+                this.selectTechnique(techniqueItem);
+            }
+        }
+        
+        // Restore state
+        this.currentSection = state.currentSection;
+        this.timeLeft = state.timeLeft;
+        this.isWorkSession = state.isWorkSession;
+        this.isLongBreak = state.isLongBreak;
+        this.currentTaskIndex = state.currentTaskIndex;
+        this.currentTaskName = state.currentTaskName;
+        
+        // Don't auto-start
+        this.isRunning = false;
+        
+        // Update UI
+        this.updateTimer();
+        this.updateProgressRing();
+        this.updateSessionInfo();
+        this.updateNavigationButtons();
+        this.updateCurrentTaskFromQueue();
+        
+        // Clear saved state
+        localStorage.removeItem('timerState');
+    }
+
+    // Clear timer state from localStorage
+    clearTimerState() {
+        localStorage.removeItem('timerState');
     }
 
 }
