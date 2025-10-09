@@ -563,8 +563,8 @@ class PomodoroTimer {
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
-            // Hide streak info for non-authenticated users
-            if (this.streakInfo) this.streakInfo.style.display = 'none';
+            // Show streak info for guest users too (removed hide)
+            if (this.streakInfo) this.streakInfo.style.display = 'flex';
             if (this.loginButton) this.loginButton.textContent = 'Login';
             // Keep header buttons hidden - they're now in the settings menu
             if (this.signupButton) this.signupButton.style.display = 'none';
@@ -1328,14 +1328,15 @@ class PomodoroTimer {
             });
         }
         
-        // Settings dropdown - Focus Report (Guest)
-        if (this.settingsStatisticsGuestBtn) {
-            this.settingsStatisticsGuestBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showGuestFocusReportTeaser();
-            });
-        }
+        // Settings dropdown - Focus Report (Guest) - REMOVED
+        // Guest users can now use the streak-info button directly
+        // if (this.settingsStatisticsGuestBtn) {
+        //     this.settingsStatisticsGuestBtn.addEventListener('click', (e) => {
+        //         e.preventDefault();
+        //         this.settingsDropdown.style.display = 'none';
+        //         this.showGuestFocusReportTeaser();
+        //     });
+        // }
         
         // Settings dropdown - Feedback
         if (this.settingsFeedbackBtn) {
