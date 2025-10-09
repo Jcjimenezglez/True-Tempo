@@ -305,11 +305,9 @@ body.is-scrolling .streak-fire {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
     color: #ffffff;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
 }
@@ -1165,8 +1163,7 @@ body.is-scrolling .streak-fire {
     }
     
     .logo-icon {
-        width: 24px;
-        height: 24px;
+        padding: 0.5rem;
     }
     
     .logo-icon svg {
