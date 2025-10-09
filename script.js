@@ -4893,8 +4893,7 @@ class PomodoroTimer {
             const upgradeBtn = modal.querySelector('#upgradeFromTasksBtn');
             if (upgradeBtn) {
                 upgradeBtn.addEventListener('click', () => {
-                    close();
-                    this.showUpgradeModal();
+                    window.location.href = '/pricing';
                 });
             }
         }

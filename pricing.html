@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PWPTLLHZ');</script>
+    <!-- End Google Tag Manager -->
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T3T0PES8C0"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-T3T0PES8C0');
+    </script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Pricing - Superfocus</title>
+    <meta name="title" content="Pricing - Superfocus">
+    <meta name="description" content="Choose the perfect plan for your productivity needs. Get started with Superfocus for free or upgrade to Pro for advanced features.">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://superfocus.live/pricing">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Clerk -->
+    <script
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA" 
+        onload="window.Clerk.load()"
+        src="https://accounts.superfocus.live/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript"
+    ></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .pricing-page-header {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pricing-page-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .pricing-page-header .logo img {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .pricing-page-header .logo span {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .pricing-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            flex: 1;
+        }
+        
+        .pricing-page-header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .pricing-page-header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+        }
+        
+        .pricing-page-header-section p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        @media (min-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.05));
+            border: 2px solid rgba(79, 70, 229, 0.5);
+            position: relative;
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .pricing-card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-card-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+        }
+        
+        .pricing-price {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .pricing-price .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .pricing-price .period {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .pricing-features {
+            flex: 1;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+        
+        .pricing-feature svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .pricing-feature.enabled svg {
+            stroke: #10b981;
+        }
+        
+        .pricing-feature.disabled {
+            opacity: 0.4;
+        }
+        
+        .pricing-feature.disabled svg {
+            stroke: #ef4444;
+        }
+        
+        .pricing-feature.highlight {
+            color: #a78bfa;
+            font-weight: 500;
+        }
+        
+        .pricing-feature span {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .pricing-cta {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.875rem 1.5rem;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .pricing-cta:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .pricing-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .pricing-cta.featured {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+        }
+        
+        .pricing-cta.featured:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+        
+        .pricing-cta.free {
+            background: white;
+            color: #1a1a1a;
+            border: none;
+        }
+        
+        .pricing-cta.free:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWPTLLHZ"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header -->
+    <header class="pricing-page-header">
+        <a href="/" class="logo">
+            <img src="Superfocus-logo-header.svg" alt="Superfocus Logo">
+            <span>Superfocus</span>
+        </a>
+        <a href="/" class="close-btn">Close</a>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="pricing-page-container">
+        <div class="pricing-page-header-section">
+            <h1>Choose Your Plan</h1>
+            <p>Compare features and find the perfect plan for you</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <!-- Guest Plan -->
+            <div class="pricing-card">
+                <div class="pricing-card-header">
+                    <h3>Guest</h3>
+                    <div class="pricing-price">
+                        <span class="price">$0</span>
+                        <span class="period">No account needed</span>
+                    </div>
+                </div>
+                
+                <div class="pricing-features">
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Basic timer</span>
+                    </div>
+                    <div class="pricing-feature disabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        <span>Progress saved</span>
+                    </div>
+                    <div class="pricing-feature disabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        <span>Sync across devices</span>
+                    </div>
+                    <div class="pricing-feature disabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        <span>Task management</span>
+                    </div>
+                    <div class="pricing-feature disabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        <span>Statistics & insights</span>
+                    </div>
+                    <div class="pricing-feature disabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        <span>Todoist integration</span>
+                    </div>
+                </div>
+                
+                <button class="pricing-cta" disabled>Current</button>
+            </div>
+            
+            <!-- Free Plan -->
+            <div class="pricing-card">
+                <div class="pricing-card-header">
+                    <h3>Free</h3>
+                    <div class="pricing-price">
+                        <span class="price">$0</span>
+                        <span class="period">Forever free</span>
+                    </div>
+                </div>
+                
+                <div class="pricing-features">
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Basic timer</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Progress saved</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Sync across devices</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Task management</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Statistics & insights</span>
+                    </div>
+                    <div class="pricing-feature disabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        <span>Todoist integration</span>
+                    </div>
+                </div>
+                
+                <button class="pricing-cta free" id="signupFromPricing">Sign up</button>
+            </div>
+            
+            <!-- Pro Plan -->
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Most Popular</div>
+                <div class="pricing-card-header">
+                    <h3>Pro</h3>
+                    <div class="pricing-price">
+                        <span class="price">$2.99</span>
+                        <span class="period">per month</span>
+                    </div>
+                </div>
+                
+                <div class="pricing-features">
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Basic timer</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Progress saved</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Sync across devices</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Task management</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Statistics & insights</span>
+                    </div>
+                    <div class="pricing-feature enabled highlight">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Todoist integration</span>
+                    </div>
+                </div>
+                
+                <button class="pricing-cta featured" id="upgradeToProFromPricing">Upgrade to Pro</button>
+            </div>
+        </div>
+    </main>
+    
+    <script src="script.js"></script>
+</body>
+</html>
+
