@@ -93,7 +93,7 @@
         .close-btn {
             background: none;
             border: none;
-            color: var(--onyx-dark, #064e3b);
+            color: #ffffff;
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
@@ -106,7 +106,7 @@
         }
         
         .close-btn:hover {
-            background: rgba(6, 78, 59, 0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .pricing-page-container {
@@ -153,7 +153,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 2rem;
+            padding: 2rem 2.5rem;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
@@ -344,6 +344,12 @@
                         </svg>
                         <span>Basic timer</span>
                     </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Task management</span>
+                    </div>
                     <div class="pricing-feature disabled">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -357,12 +363,6 @@
                             <line x1="6" y1="6" x2="18" y2="18"/>
                         </svg>
                         <span>Sync across devices</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Task management</span>
                     </div>
                     <div class="pricing-feature disabled">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -404,6 +404,12 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
+                        <span>Task management</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
                         <span>Progress saved</span>
                     </div>
                     <div class="pricing-feature enabled">
@@ -411,12 +417,6 @@
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
                         <span>Sync across devices</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Task management</span>
                     </div>
                     <div class="pricing-feature enabled">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -458,6 +458,12 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
+                        <span>Task management</span>
+                    </div>
+                    <div class="pricing-feature enabled">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
                         <span>Progress saved</span>
                     </div>
                     <div class="pricing-feature enabled">
@@ -465,12 +471,6 @@
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
                         <span>Sync across devices</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Task management</span>
                     </div>
                     <div class="pricing-feature enabled">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -513,6 +513,7 @@
             const guestButton = document.querySelector('.pricing-card:first-child .pricing-cta');
             if (isAuthenticated) {
                 guestButton.textContent = 'Logout';
+                guestButton.disabled = false;
                 guestButton.onclick = () => {
                     if (window.Clerk) {
                         window.Clerk.signOut();
@@ -526,36 +527,43 @@
             // Update Free plan button
             const freeButton = document.querySelector('.pricing-card:nth-child(2) .pricing-cta');
             if (isAuthenticated && !isPremium) {
+                // User is logged in and has Free plan
                 freeButton.textContent = 'Current';
                 freeButton.disabled = true;
             } else if (!isAuthenticated) {
+                // User is not logged in (Guest)
                 freeButton.textContent = 'Sign up';
+                freeButton.disabled = false;
                 freeButton.onclick = () => {
-                    window.location.href = '/signup';
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
                 };
             } else {
+                // User is logged in but has Pro plan
                 freeButton.textContent = 'Sign up';
-                freeButton.onclick = () => {
-                    window.location.href = '/signup';
-                };
+                freeButton.disabled = true;
             }
 
             // Update Pro plan button
             const proButton = document.querySelector('.pricing-card:last-child .pricing-cta');
             if (isPremium) {
+                // User has Pro plan
                 proButton.textContent = 'Current';
                 proButton.disabled = true;
             } else if (isAuthenticated) {
+                // User is logged in but has Free plan
                 proButton.textContent = 'Upgrade to Pro';
+                proButton.disabled = false;
                 proButton.onclick = () => {
                     createCheckoutSession();
                 };
             } else {
+                // User is not logged in (Guest)
                 proButton.textContent = 'Upgrade to Pro';
+                proButton.disabled = false;
                 proButton.onclick = () => {
                     // Store the intent to upgrade after login
                     localStorage.setItem('upgradeAfterLogin', 'true');
-                    window.location.href = '/signup';
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
                 };
             }
         }
