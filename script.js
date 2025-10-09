@@ -176,6 +176,7 @@ class PomodoroTimer {
         this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
         this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
         this.settingsStatisticsBtn = document.getElementById('settingsStatisticsBtn');
+        this.settingsStatisticsGuestBtn = document.getElementById('settingsStatisticsGuestBtn');
         this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
         this.settingsUserDivider = document.getElementById('settingsUserDivider');
         this.timerSettingsItem = document.getElementById('timerSettingsItem');
@@ -1324,6 +1325,15 @@ class PomodoroTimer {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
                 this.showStatisticsModal();
+            });
+        }
+        
+        // Settings dropdown - Focus Report (Guest)
+        if (this.settingsStatisticsGuestBtn) {
+            this.settingsStatisticsGuestBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showGuestFocusReportTeaser();
             });
         }
         
@@ -4760,6 +4770,22 @@ class PomodoroTimer {
                     </div>
                 </div>
             ` : ''}
+            ${isGuest ? `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                    <div style="flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">💡 Did you know?</div>
+                        <div style="color: rgba(255,255,255,0.9); font-size: 13px;">You can connect Todoist and sync your tasks. Sign up for free!</div>
+                    </div>
+                    <button id="guestTaskSignupBtn" style="background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
+                </div>
+            ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
             
             <!-- Add Task Form (initially hidden) -->
@@ -4827,6 +4853,17 @@ class PomodoroTimer {
                 upgradeBtn.addEventListener('click', () => {
                     close();
                     this.showUpgradeModal();
+                });
+            }
+        }
+        
+        // Guest signup button from Todoist banner
+        if (isGuest) {
+            const guestTaskSignupBtn = modal.querySelector('#guestTaskSignupBtn');
+            if (guestTaskSignupBtn) {
+                guestTaskSignupBtn.addEventListener('click', () => {
+                    close();
+                    this.signupButton.click();
                 });
             }
         }
@@ -7373,6 +7410,161 @@ class PomodoroTimer {
         });
         
         // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showGuestFocusReportTeaser() {
+        // Get current session stats from localStorage
+        const stats = this.getFocusStats();
+        const totalHours = stats.totalHours || 0;
+        const completedCycles = stats.completedCycles || 0;
+        
+        // Format hours
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeGuestReportX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3>Your Focus Progress</h3>
+                <p style="color: #a3a3a3; margin-bottom: 24px;">Here's what you've accomplished so far</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;">
+                    <!-- Total Focus Hours -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; opacity: 1;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Focus Time</div>
+                    </div>
+                    
+                    <!-- Completed Cycles -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; opacity: 1;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${completedCycles}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Cycles Done</div>
+                    </div>
+                    
+                    <!-- Day Streak - BLURRED -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; position: relative; overflow: hidden;">
+                        <div style="filter: blur(5px); opacity: 0.3;">
+                            <div style="color: #a3a3a3; margin-bottom: 12px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">12</div>
+                            <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                        </div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Longest Streak - BLURRED -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; position: relative; overflow: hidden;">
+                        <div style="filter: blur(5px); opacity: 0.3;">
+                            <div style="color: #a3a3a3; margin-bottom: 12px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">25</div>
+                            <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
+                        </div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
+                    <div style="font-weight: 600; color: #fff; margin-bottom: 8px;">🔒 Sign up to unlock full tracking</div>
+                    <div style="font-size: 14px; color: rgba(255,255,255,0.9);">Save your progress forever • Track daily streaks • Never lose your stats</div>
+                </div>
+                
+                <div class="upgrade-features" style="margin-bottom: 24px;">
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Persist stats across devices</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Build and track daily streaks</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">View detailed analytics</span>
+                    </div>
+                </div>
+                
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="guestReportSignupBtn">Sign up for free</button>
+                    <button class="cancel-btn" id="guestReportCloseBtn">Continue as guest</button>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Event listeners
+        document.getElementById('guestReportSignupBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            this.signupButton.click();
+        });
+        
+        document.getElementById('guestReportCloseBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        document.getElementById('closeGuestReportX').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 document.body.removeChild(modalOverlay);
