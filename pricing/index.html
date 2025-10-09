@@ -156,11 +156,9 @@
             padding: 2rem 4rem;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
         }
         
         .pricing-card:hover {
-            transform: translateY(-5px);
             border-color: rgba(255, 255, 255, 0.2);
         }
         
@@ -263,27 +261,24 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s ease;
             width: 100%;
             text-align: center;
         }
         
         .pricing-cta:hover {
             background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
         }
         
         .pricing-cta:disabled,
         .pricing-cta.disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
         
         .pricing-cta:disabled:hover,
         .pricing-cta.disabled:hover {
             background: rgba(255, 255, 255, 0.1);
-            transform: none;
         }
         
         .pricing-cta.featured {
@@ -304,7 +299,6 @@
         .pricing-cta.featured:disabled:hover,
         .pricing-cta.featured.disabled:hover {
             background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
-            transform: none;
         }
         
         .pricing-cta.free {
@@ -326,7 +320,6 @@
         .pricing-cta.free:disabled:hover,
         .pricing-cta.free.disabled:hover {
             background: white;
-            transform: none;
         }
     </style>
 </head>
