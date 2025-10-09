@@ -1286,7 +1286,7 @@ class PomodoroTimer {
             this.settingsUpgradeToProBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
-                this.handleUpgrade();
+                window.location.href = '/pricing';
             });
         }
         
@@ -1701,7 +1701,7 @@ class PomodoroTimer {
             upgradeToProModalBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideSettingsModal();
-                this.showUpgradeModal();
+                window.location.href = '/pricing';
             });
         }
         
