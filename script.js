@@ -7436,42 +7436,26 @@ class PomodoroTimer {
                         <div style="font-size: 14px; color: #a3a3a3;">Cycles Done</div>
                     </div>
                     
-                    <!-- Day Streak - BLURRED -->
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; position: relative; overflow: hidden;">
-                        <div style="filter: blur(5px); opacity: 0.3;">
-                            <div style="color: #a3a3a3; margin-bottom: 12px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-                                </svg>
-                            </div>
-                            <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">12</div>
-                            <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
-                        </div>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
-                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    <!-- Day Streak - DISABLED -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; opacity: 0.5;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
                             </svg>
                         </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">0</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
                     </div>
                     
-                    <!-- Longest Streak - BLURRED -->
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; position: relative; overflow: hidden;">
-                        <div style="filter: blur(5px); opacity: 0.3;">
-                            <div style="color: #a3a3a3; margin-bottom: 12px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                </svg>
-                            </div>
-                            <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">25</div>
-                            <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
-                        </div>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
-                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    <!-- Longest Streak - DISABLED -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; opacity: 0.5;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                             </svg>
                         </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">0</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
                     </div>
                 </div>
                 
@@ -7490,38 +7474,6 @@ class PomodoroTimer {
                         <div style="font-size: 14px; color: white; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
                     </div>
                 </div>
-                
-                <div class="upgrade-features" style="margin-bottom: 24px;">
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Persist stats across devices</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Build and track daily streaks</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">View detailed analytics</span>
-                    </div>
-                </div>
-                
-                <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="guestReportSignupBtn">Sign up for free</button>
-                    <button class="cancel-btn" id="guestReportCloseBtn">Continue as guest</button>
-                </div>
             </div>
         `;
         
@@ -7529,15 +7481,6 @@ class PomodoroTimer {
         document.body.appendChild(modalOverlay);
         
         // Event listeners
-        document.getElementById('guestReportSignupBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            this.signupButton.click();
-        });
-        
-        document.getElementById('guestReportCloseBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
         document.getElementById('closeGuestReportX').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
         });
