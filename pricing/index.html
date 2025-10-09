@@ -153,7 +153,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 2rem 2.5rem;
+            padding: 2rem 4rem;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
@@ -581,7 +581,15 @@
             setTimeout(updatePricingPage, 100);
         });
 
+        let pricingPageUpdated = false;
+        
         function updatePricingPage() {
+            // Prevent multiple updates
+            if (pricingPageUpdated) {
+                console.log('Pricing page already updated, skipping');
+                return;
+            }
+            
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
             
@@ -601,6 +609,11 @@
                 return;
             }
             
+            // Clear any existing onclick handlers
+            guestButton.onclick = null;
+            freeButton.onclick = null;
+            proButton.onclick = null;
+            
             // Update Guest plan button
             if (isAuthenticated) {
                 guestButton.textContent = 'Logout';
@@ -608,6 +621,7 @@
                 guestButton.classList.remove('disabled');
                 guestButton.onclick = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     if (window.Clerk) {
                         window.Clerk.signOut().then(() => {
                             window.location.href = '/';
@@ -627,7 +641,6 @@
                 freeButton.textContent = 'Current';
                 freeButton.disabled = true;
                 freeButton.classList.add('disabled');
-                freeButton.onclick = null;
             } else if (!isAuthenticated) {
                 // User is not logged in (Guest)
                 console.log('User is GUEST - showing Sign up');
@@ -636,6 +649,7 @@
                 freeButton.classList.remove('disabled');
                 freeButton.onclick = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     // Free plan signup goes to main tool, not back to pricing
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
                 };
@@ -654,7 +668,6 @@
                 proButton.textContent = 'Current';
                 proButton.disabled = true;
                 proButton.classList.add('disabled');
-                proButton.onclick = null;
             } else if (isAuthenticated) {
                 // User is logged in but has Free plan
                 console.log('User is FREE - showing Upgrade to Pro with Stripe');
@@ -663,6 +676,7 @@
                 proButton.classList.remove('disabled');
                 proButton.onclick = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     console.log('Creating checkout session...');
                     createCheckoutSession();
                 };
@@ -674,11 +688,15 @@
                 proButton.classList.remove('disabled');
                 proButton.onclick = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     // Store the intent to upgrade after login
                     localStorage.setItem('upgradeAfterLogin', 'true');
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 };
             }
+            
+            // Mark as updated
+            pricingPageUpdated = true;
         }
 
         async function createCheckoutSession() {
