@@ -488,8 +488,7 @@ class PomodoroTimer {
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
-            // Show streak info for authenticated users
-            if (this.streakInfo) this.streakInfo.style.display = 'flex';
+            // Streak info is now always visible via CSS
             this.updateUserProfile();
             // Initialize cycle counter for authenticated users
             this.initializeCycleCounter();
@@ -563,8 +562,7 @@ class PomodoroTimer {
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
-            // Show streak info for guest users too (removed hide)
-            if (this.streakInfo) this.streakInfo.style.display = 'flex';
+            // Streak info is now always visible via CSS
             if (this.loginButton) this.loginButton.textContent = 'Login';
             // Keep header buttons hidden - they're now in the settings menu
             if (this.signupButton) this.signupButton.style.display = 'none';

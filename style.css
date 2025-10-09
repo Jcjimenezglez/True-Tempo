@@ -627,7 +627,7 @@ body.is-scrolling .streak-fire {
 }
 
 .streak-info {
-    display: none; /* Shown only for authenticated users */
+    display: flex; /* Visible for all users (authenticated and guest) */
     
     position: absolute;
     top: -50px;
