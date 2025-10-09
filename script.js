@@ -4763,26 +4763,26 @@ class PomodoroTimer {
                 </div>
                         <div class="pro-banner-text">
                             <h4>Upgrade to Pro</h4>
-                            <p>Connect Todoist and sync your tasks across devices</p>
+                            <p>Connect Todoist and unlock advanced integrations</p>
             </div>
                         <button class="pro-banner-btn" id="upgradeFromTasksBtn">Upgrade</button>
                     </div>
                 </div>
             ` : ''}
             ${isGuest ? `
-                <div style="background: #6366f1; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                <div style="background: #4f46e5; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
                     <div style="flex-shrink: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4"/>
+                            <path d="M12 8h.01"/>
                         </svg>
                     </div>
                     <div style="flex: 1;">
-                        <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">💡 Did you know?</div>
-                        <div style="color: rgba(255,255,255,0.9); font-size: 13px;">Connect Todoist and sync your tasks with the Pro plan!</div>
+                        <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Save your progress</div>
+                        <div style="color: white; font-size: 13px; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
                     </div>
-                    <button id="guestTaskSignupBtn" style="background: white; color: #6366f1; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
+                    <button id="guestTaskSignupBtn" style="background: white; color: #4f46e5; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
                 </div>
             ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
