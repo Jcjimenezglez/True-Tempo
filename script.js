@@ -4770,7 +4770,7 @@ class PomodoroTimer {
                 </div>
             ` : ''}
             ${isGuest ? `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                <div style="background: #6366f1; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
                     <div style="flex-shrink: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -4780,9 +4780,9 @@ class PomodoroTimer {
                     </div>
                     <div style="flex: 1;">
                         <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">💡 Did you know?</div>
-                        <div style="color: rgba(255,255,255,0.9); font-size: 13px;">You can connect Todoist and sync your tasks. Sign up for free!</div>
+                        <div style="color: rgba(255,255,255,0.9); font-size: 13px;">Connect Todoist and sync your tasks with the Pro plan!</div>
                     </div>
-                    <button id="guestTaskSignupBtn" style="background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
+                    <button id="guestTaskSignupBtn" style="background: white; color: #6366f1; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
                 </div>
             ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
