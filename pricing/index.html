@@ -273,9 +273,16 @@
             transform: translateY(-2px);
         }
         
-        .pricing-cta:disabled {
+        .pricing-cta:disabled,
+        .pricing-cta.disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+        }
+        
+        .pricing-cta:disabled:hover,
+        .pricing-cta.disabled:hover {
+            background: rgba(255, 255, 255, 0.1);
             transform: none;
         }
         
@@ -288,6 +295,18 @@
             background: linear-gradient(135deg, var(--onyx-light, #065f46), #047857);
         }
         
+        .pricing-cta.featured:disabled,
+        .pricing-cta.featured.disabled {
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
+            opacity: 0.5;
+        }
+        
+        .pricing-cta.featured:disabled:hover,
+        .pricing-cta.featured.disabled:hover {
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
+            transform: none;
+        }
+        
         .pricing-cta.free {
             background: white;
             color: #1a1a1a;
@@ -296,6 +315,18 @@
         
         .pricing-cta.free:hover {
             background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .pricing-cta.free:disabled,
+        .pricing-cta.free.disabled {
+            background: white;
+            opacity: 0.5;
+        }
+        
+        .pricing-cta.free:disabled:hover,
+        .pricing-cta.free.disabled:hover {
+            background: white;
+            transform: none;
         }
     </style>
 </head>
@@ -493,74 +524,140 @@
     
     <script>
         // Pricing page logic
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for Clerk to load
-            if (window.Clerk) {
-                window.Clerk.load().then(() => {
-                    updatePricingPage();
-                });
-            } else {
-                // Fallback if Clerk doesn't load
+        let updateAttempts = 0;
+        const maxAttempts = 20;
+        
+        function tryUpdatePricingPage() {
+            updateAttempts++;
+            
+            // Check if Clerk is loaded and user is available
+            if (window.Clerk && window.Clerk.user) {
+                console.log('Clerk user found:', window.Clerk.user);
+                updatePricingPage();
+                return;
+            }
+            
+            // If Clerk exists but no user yet, wait for it
+            if (window.Clerk && !window.Clerk.user && updateAttempts < maxAttempts) {
+                setTimeout(tryUpdatePricingPage, 200);
+                return;
+            }
+            
+            // If no Clerk or max attempts reached, show guest state
+            if (updateAttempts >= maxAttempts || !window.Clerk) {
+                console.log('No Clerk user found, showing guest state');
                 updatePricingPage();
             }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start trying to update the page
+            setTimeout(tryUpdatePricingPage, 100);
+        });
+        
+        // Also listen for Clerk's session loaded event
+        window.addEventListener('clerk:loaded', function() {
+            console.log('Clerk loaded event fired');
+            setTimeout(updatePricingPage, 100);
+        });
+        
+        window.addEventListener('clerk:session', function() {
+            console.log('Clerk session event fired');
+            setTimeout(updatePricingPage, 100);
         });
 
         function updatePricingPage() {
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
             
-            // Update Guest plan button
+            console.log('Updating pricing page:', {
+                isAuthenticated,
+                isPremium,
+                user: window.Clerk?.user
+            });
+            
+            // Get all buttons
             const guestButton = document.querySelector('.pricing-card:first-child .pricing-cta');
+            const freeButton = document.querySelector('.pricing-card:nth-child(2) .pricing-cta');
+            const proButton = document.querySelector('.pricing-card:last-child .pricing-cta');
+            
+            if (!guestButton || !freeButton || !proButton) {
+                console.error('Could not find pricing buttons');
+                return;
+            }
+            
+            // Update Guest plan button
             if (isAuthenticated) {
                 guestButton.textContent = 'Logout';
                 guestButton.disabled = false;
-                guestButton.onclick = () => {
+                guestButton.classList.remove('disabled');
+                guestButton.onclick = (e) => {
+                    e.preventDefault();
                     if (window.Clerk) {
-                        window.Clerk.signOut();
+                        window.Clerk.signOut().then(() => {
+                            window.location.href = '/';
+                        });
                     }
                 };
             } else {
                 guestButton.textContent = 'Current';
                 guestButton.disabled = true;
+                guestButton.classList.add('disabled');
             }
 
             // Update Free plan button
-            const freeButton = document.querySelector('.pricing-card:nth-child(2) .pricing-cta');
             if (isAuthenticated && !isPremium) {
                 // User is logged in and has Free plan
+                console.log('User is FREE - showing Current');
                 freeButton.textContent = 'Current';
                 freeButton.disabled = true;
+                freeButton.classList.add('disabled');
+                freeButton.onclick = null;
             } else if (!isAuthenticated) {
                 // User is not logged in (Guest)
+                console.log('User is GUEST - showing Sign up');
                 freeButton.textContent = 'Sign up';
                 freeButton.disabled = false;
-                freeButton.onclick = () => {
+                freeButton.classList.remove('disabled');
+                freeButton.onclick = (e) => {
+                    e.preventDefault();
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
                 };
             } else {
                 // User is logged in but has Pro plan
+                console.log('User is PRO - Free plan disabled');
                 freeButton.textContent = 'Sign up';
                 freeButton.disabled = true;
+                freeButton.classList.add('disabled');
             }
 
             // Update Pro plan button
-            const proButton = document.querySelector('.pricing-card:last-child .pricing-cta');
             if (isPremium) {
                 // User has Pro plan
+                console.log('User is PRO - showing Current');
                 proButton.textContent = 'Current';
                 proButton.disabled = true;
+                proButton.classList.add('disabled');
+                proButton.onclick = null;
             } else if (isAuthenticated) {
                 // User is logged in but has Free plan
+                console.log('User is FREE - showing Upgrade to Pro with Stripe');
                 proButton.textContent = 'Upgrade to Pro';
                 proButton.disabled = false;
-                proButton.onclick = () => {
+                proButton.classList.remove('disabled');
+                proButton.onclick = (e) => {
+                    e.preventDefault();
+                    console.log('Creating checkout session...');
                     createCheckoutSession();
                 };
             } else {
                 // User is not logged in (Guest)
+                console.log('User is GUEST - showing Upgrade to Pro with signup');
                 proButton.textContent = 'Upgrade to Pro';
                 proButton.disabled = false;
-                proButton.onclick = () => {
+                proButton.classList.remove('disabled');
+                proButton.onclick = (e) => {
+                    e.preventDefault();
                     // Store the intent to upgrade after login
                     localStorage.setItem('upgradeAfterLogin', 'true');
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
