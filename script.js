@@ -1259,7 +1259,7 @@ class PomodoroTimer {
             this.settingsSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
-                this.handleSignup();
+                window.location.href = '/pricing';
             });
         }
         
@@ -4904,7 +4904,7 @@ class PomodoroTimer {
             if (guestTaskSignupBtn) {
                 guestTaskSignupBtn.addEventListener('click', () => {
                     close();
-                    this.signupButton.click();
+                    window.location.href = '/pricing';
                 });
             }
         }
@@ -7483,7 +7483,7 @@ class PomodoroTimer {
         // Event listeners
         document.getElementById('guestReportSignupBtn').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-            this.signupButton.click();
+            window.location.href = '/pricing';
         });
         
         document.getElementById('closeGuestReportX').addEventListener('click', () => {
