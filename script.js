@@ -4811,7 +4811,7 @@ class PomodoroTimer {
                 </div>
             ` : ''}
             ${isGuest ? `
-                <div style="background: #4f46e5; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                <div style="background: #064e3b; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
                     <div style="flex-shrink: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
@@ -4825,7 +4825,7 @@ class PomodoroTimer {
                         <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Save your progress</div>
                         <div style="color: white; font-size: 13px; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
                     </div>
-                    <button id="guestTaskSignupBtn" style="background: white; color: #4f46e5; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
+                    <button id="guestTaskSignupBtn" style="background: white; color: #064e3b; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
                 </div>
             ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
