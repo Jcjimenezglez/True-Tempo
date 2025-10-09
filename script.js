@@ -1536,12 +1536,45 @@ class PomodoroTimer {
             closeSettingsX.addEventListener('click', () => this.hideSettingsModal());
         }
 
+        const closePricingX = document.querySelector('.close-pricing-x');
+        if (closePricingX) {
+            closePricingX.addEventListener('click', () => this.hidePricingModal());
+        }
+
         // Close modals when clicking overlay
         const upgradeModal = document.getElementById('upgradeModal');
         if (upgradeModal) {
             upgradeModal.addEventListener('click', (e) => {
                 if (e.target === upgradeModal) {
                     this.hideUpgradeModal();
+                }
+            });
+        }
+
+        const pricingModal = document.getElementById('pricingModal');
+        if (pricingModal) {
+            pricingModal.addEventListener('click', (e) => {
+                if (e.target === pricingModal) {
+                    this.hidePricingModal();
+                }
+            });
+        }
+
+        // Pricing modal buttons
+        const upgradeToProFromPricing = document.getElementById('upgradeToProFromPricing');
+        if (upgradeToProFromPricing) {
+            upgradeToProFromPricing.addEventListener('click', async () => {
+                this.hidePricingModal();
+                await this.handleUpgrade();
+            });
+        }
+
+        const signupFromPricing = document.getElementById('signupFromPricing');
+        if (signupFromPricing) {
+            signupFromPricing.addEventListener('click', () => {
+                this.hidePricingModal();
+                if (this.signupButton) {
+                    this.signupButton.click();
                 }
             });
         }
@@ -1667,7 +1700,8 @@ class PomodoroTimer {
         if (upgradeToProModalBtn) {
             upgradeToProModalBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.handleUpgrade();
+                this.hideSettingsModal();
+                this.showUpgradeModal();
             });
         }
         
@@ -1835,9 +1869,16 @@ class PomodoroTimer {
     }
 
     showUpgradeModal() {
-        const upgradeModal = document.getElementById('upgradeModal');
-        if (upgradeModal) {
-            upgradeModal.style.display = 'flex';
+        const pricingModal = document.getElementById('pricingModal');
+        if (pricingModal) {
+            pricingModal.style.display = 'flex';
+        }
+    }
+    
+    hidePricingModal() {
+        const pricingModal = document.getElementById('pricingModal');
+        if (pricingModal) {
+            pricingModal.style.display = 'none';
         }
     }
 
