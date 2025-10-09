@@ -621,7 +621,7 @@
                 freeButton.classList.remove('disabled');
                 freeButton.onclick = (e) => {
                     e.preventDefault();
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 };
             } else {
                 // User is logged in but has Pro plan
@@ -660,7 +660,7 @@
                     e.preventDefault();
                     // Store the intent to upgrade after login
                     localStorage.setItem('upgradeAfterLogin', 'true');
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 };
             }
         }
@@ -692,15 +692,31 @@
         }
 
         // Check if user came from login with upgrade intent
-        document.addEventListener('DOMContentLoaded', function() {
+        function checkUpgradeIntent() {
             const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
             if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
+                console.log('User returned after login with upgrade intent');
                 localStorage.removeItem('upgradeAfterLogin');
-                // Small delay to ensure page is fully loaded
+                // Small delay to ensure page is fully loaded and buttons are updated
                 setTimeout(() => {
+                    console.log('Opening Stripe checkout...');
                     createCheckoutSession();
-                }, 1000);
+                }, 1500);
             }
+        }
+        
+        // Check upgrade intent when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkUpgradeIntent, 500);
+        });
+        
+        // Also check when Clerk loads
+        window.addEventListener('clerk:loaded', function() {
+            setTimeout(checkUpgradeIntent, 500);
+        });
+        
+        window.addEventListener('clerk:session', function() {
+            setTimeout(checkUpgradeIntent, 500);
         });
     </script>
     <script src="script.js"></script>
