@@ -551,6 +551,12 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Pricing page loaded:', {
+                url: window.location.href,
+                pathname: window.location.pathname,
+                search: window.location.search
+            });
+            
             // Start trying to update the page
             setTimeout(tryUpdatePricingPage, 100);
         });
@@ -694,6 +700,13 @@
         // Check if user came from login with upgrade intent
         function checkUpgradeIntent() {
             const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
+            console.log('Checking upgrade intent:', {
+                upgradeAfterLogin,
+                hasClerk: !!window.Clerk,
+                hasUser: !!window.Clerk?.user,
+                currentUrl: window.location.href
+            });
+            
             if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
                 console.log('User returned after login with upgrade intent');
                 localStorage.removeItem('upgradeAfterLogin');
