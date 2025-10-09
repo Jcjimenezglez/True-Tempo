@@ -4811,7 +4811,7 @@ class PomodoroTimer {
                 </div>
             ` : ''}
             ${isGuest ? `
-                <div style="background: #064e3b; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                <div style="background: var(--onyx-dark, #064e3b); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
                     <div style="flex-shrink: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
@@ -4825,7 +4825,7 @@ class PomodoroTimer {
                         <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Save your progress</div>
                         <div style="color: white; font-size: 13px; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
                     </div>
-                    <button id="guestTaskSignupBtn" style="background: white; color: #064e3b; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
+                    <button id="guestTaskSignupBtn" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
                 </div>
             ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
@@ -7551,9 +7551,20 @@ class PomodoroTimer {
                     </div>
                 </div>
                 
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
-                    <div style="font-weight: 600; color: #fff; margin-bottom: 8px;">🔒 Sign up to unlock full tracking</div>
-                    <div style="font-size: 14px; color: rgba(255,255,255,0.9);">Save your progress forever • Track daily streaks • Never lose your stats</div>
+                <div style="background: var(--onyx-dark, #064e3b); border-radius: 12px; padding: 20px; margin: 24px 0; display: flex; align-items: center; gap: 16px;">
+                    <div style="flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                            <line x1="6" x2="6" y1="2" y2="4"/>
+                            <line x1="10" x2="10" y1="2" y2="4"/>
+                            <line x1="14" x2="14" y1="2" y2="4"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1; text-align: left;">
+                        <div style="font-weight: 600; color: #fff; margin-bottom: 4px; font-size: 16px;">Save your progress</div>
+                        <div style="font-size: 14px; color: white; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
+                    </div>
                 </div>
                 
                 <div class="upgrade-features" style="margin-bottom: 24px;">

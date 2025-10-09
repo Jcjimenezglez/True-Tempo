@@ -1,3 +1,9 @@
+/* CSS Variables */
+:root {
+    --onyx-dark: #064e3b;
+    --onyx-light: #065f46;
+}
+
 /* Reset and base styles */
 * {
     margin: 0;
