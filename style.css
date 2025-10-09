@@ -5979,8 +5979,8 @@ input:checked + .toggle-slider:before {
 }
 
 .pricing-plan.featured {
-    background: rgba(79, 70, 229, 0.1);
-    border: 2px solid #4f46e5;
+    background: rgba(6, 78, 59, 0.1);
+    border: 2px solid var(--onyx-dark, #064e3b);
 }
 
 .plan-badge {
@@ -5988,7 +5988,7 @@ input:checked + .toggle-slider:before {
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: #4f46e5;
+    background: var(--onyx-dark, #064e3b);
     color: white;
     font-size: 0.75rem;
     font-weight: 600;
@@ -6087,12 +6087,12 @@ input:checked + .toggle-slider:before {
 }
 
 .plan-button.pro {
-    background: #4f46e5;
+    background: var(--onyx-dark, #064e3b);
     color: white;
 }
 
 .plan-button.pro:hover {
-    background: #4338ca;
+    background: var(--onyx-light, #065f46);
     transform: translateY(-2px);
 }
 

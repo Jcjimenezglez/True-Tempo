@@ -91,22 +91,22 @@
         }
         
         .close-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 0.5rem 1.25rem;
-            color: #ffffff;
-            font-size: 0.9rem;
-            font-weight: 500;
+            background: none;
+            border: none;
+            color: var(--onyx-dark, #064e3b);
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
         }
         
         .close-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
+            background: rgba(6, 78, 59, 0.1);
         }
         
         .pricing-page-container {
@@ -136,7 +136,7 @@
         
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
@@ -144,6 +144,8 @@
         @media (min-width: 768px) {
             .pricing-grid {
                 grid-template-columns: repeat(3, 1fr);
+                max-width: 1000px;
+                margin: 0 auto 3rem auto;
             }
         }
         
@@ -163,8 +165,8 @@
         }
         
         .pricing-card.featured {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.05));
-            border: 2px solid rgba(79, 70, 229, 0.5);
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.15), rgba(6, 78, 59, 0.05));
+            border: 2px solid rgba(6, 78, 59, 0.5);
             position: relative;
         }
         
@@ -173,7 +175,7 @@
             top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
             color: white;
             padding: 6px 16px;
             border-radius: 20px;
@@ -278,12 +280,12 @@
         }
         
         .pricing-cta.featured {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
             border: none;
         }
         
         .pricing-cta.featured:hover {
-            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            background: linear-gradient(135deg, var(--onyx-light, #065f46), #047857);
         }
         
         .pricing-cta.free {
@@ -309,7 +311,12 @@
             <img src="Superfocus-logo-header.svg" alt="Superfocus Logo">
             <span>Superfocus</span>
         </a>
-        <a href="/" class="close-btn">Close</a>
+        <a href="/" class="close-btn" title="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"/>
+                <path d="m6 6 12 12"/>
+            </svg>
+        </a>
     </header>
     
     <!-- Main Content -->
@@ -351,10 +358,9 @@
                         </svg>
                         <span>Sync across devices</span>
                     </div>
-                    <div class="pricing-feature disabled">
+                    <div class="pricing-feature enabled">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
+                            <polyline points="20 6 9 17 4 12"/>
                         </svg>
                         <span>Task management</span>
                     </div>
@@ -485,6 +491,113 @@
         </div>
     </main>
     
+    <script>
+        // Pricing page logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for Clerk to load
+            if (window.Clerk) {
+                window.Clerk.load().then(() => {
+                    updatePricingPage();
+                });
+            } else {
+                // Fallback if Clerk doesn't load
+                updatePricingPage();
+            }
+        });
+
+        function updatePricingPage() {
+            const isAuthenticated = window.Clerk && window.Clerk.user;
+            const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
+            
+            // Update Guest plan button
+            const guestButton = document.querySelector('.pricing-card:first-child .pricing-cta');
+            if (isAuthenticated) {
+                guestButton.textContent = 'Logout';
+                guestButton.onclick = () => {
+                    if (window.Clerk) {
+                        window.Clerk.signOut();
+                    }
+                };
+            } else {
+                guestButton.textContent = 'Current';
+                guestButton.disabled = true;
+            }
+
+            // Update Free plan button
+            const freeButton = document.querySelector('.pricing-card:nth-child(2) .pricing-cta');
+            if (isAuthenticated && !isPremium) {
+                freeButton.textContent = 'Current';
+                freeButton.disabled = true;
+            } else if (!isAuthenticated) {
+                freeButton.textContent = 'Sign up';
+                freeButton.onclick = () => {
+                    window.location.href = '/signup';
+                };
+            } else {
+                freeButton.textContent = 'Sign up';
+                freeButton.onclick = () => {
+                    window.location.href = '/signup';
+                };
+            }
+
+            // Update Pro plan button
+            const proButton = document.querySelector('.pricing-card:last-child .pricing-cta');
+            if (isPremium) {
+                proButton.textContent = 'Current';
+                proButton.disabled = true;
+            } else if (isAuthenticated) {
+                proButton.textContent = 'Upgrade to Pro';
+                proButton.onclick = () => {
+                    createCheckoutSession();
+                };
+            } else {
+                proButton.textContent = 'Upgrade to Pro';
+                proButton.onclick = () => {
+                    // Store the intent to upgrade after login
+                    localStorage.setItem('upgradeAfterLogin', 'true');
+                    window.location.href = '/signup';
+                };
+            }
+        }
+
+        async function createCheckoutSession() {
+            try {
+                const response = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-clerk-userid': window.Clerk?.user?.id || ''
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create checkout session');
+                }
+
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    throw new Error('No checkout URL received');
+                }
+            } catch (error) {
+                console.error('Error creating checkout session:', error);
+                alert('Error creating checkout session. Please try again.');
+            }
+        }
+
+        // Check if user came from login with upgrade intent
+        document.addEventListener('DOMContentLoaded', function() {
+            const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
+            if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
+                localStorage.removeItem('upgradeAfterLogin');
+                // Small delay to ensure page is fully loaded
+                setTimeout(() => {
+                    createCheckoutSession();
+                }, 1000);
+            }
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
