@@ -7379,91 +7379,15 @@ class PomodoroTimer {
     }
 
     showGuestStreakModal() {
-        // Create guest streak modal using upgrade modal styling
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay';
-        
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal';
-        
-        modal.innerHTML = `
-            <button class="close-upgrade-x" id="closeGuestModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
-                    </svg>
-                </div>
-                <h3>Focus Report</h3>
-                <p>Track your daily focus sessions and build a consistent habit. View detailed statistics about your focus streaks, total hours, and completed cycles.</p>
-                <div class="upgrade-features">
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Track your daily focus progress</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Build consistent focus habits</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">See detailed focus statistics</span>
-                    </div>
-                </div>
-                <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="guestSignupBtn">Sign up for free</button>
-                    <button class="cancel-btn" id="guestCloseBtn">Maybe later</button>
-                </div>
-            </div>
-        `;
-        
-        modalOverlay.appendChild(modal);
-        document.body.appendChild(modalOverlay);
-        
-        // Add event listeners
-        document.getElementById('guestSignupBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            this.signupButton.click();
-        });
-        
-        document.getElementById('guestCloseBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        document.getElementById('closeGuestModal').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
-        
-        // Close on overlay click
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
+        // Redirect to the full guest focus report teaser with 4 graphs
+        this.showGuestFocusReportTeaser();
     }
 
     showGuestFocusReportTeaser() {
-        // Get current session stats from localStorage
-        const stats = this.getFocusStats();
-        const totalHours = stats.totalHours || 0;
-        const completedCycles = stats.completedCycles || 0;
+        // For guests, show 0 values since stats are not saved
+        // Stats are only tracked for authenticated users
+        const totalHours = 0;
+        const completedCycles = 0;
         
         // Format hours
         const hours = Math.floor(totalHours);
