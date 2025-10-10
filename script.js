@@ -7715,13 +7715,20 @@ class PomodoroTimer {
     checkProRequiredError() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('error') === 'pro_required') {
-            // Show upgrade modal
-            setTimeout(() => {
-                this.showProRequiredModal();
-                // Clean URL
+            // Only show modal if user is actually not Pro
+            // If they're in Developer Mode as Pro, don't show it
+            if (!this.isPremiumUser()) {
+                setTimeout(() => {
+                    this.showProRequiredModal();
+                    // Clean URL
+                    const newUrl = window.location.origin + window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }, 500);
+            } else {
+                // User is Pro in frontend but backend rejected - just clean URL
                 const newUrl = window.location.origin + window.location.pathname;
                 window.history.replaceState({}, document.title, newUrl);
-            }, 500);
+            }
         }
     }
 
@@ -8060,15 +8067,9 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
-            const isPro = this.isPremiumUser();
-            console.log('Connecting Todoist:', { userId, isPro, clerkUser: window.Clerk?.user });
+            console.log('Connecting Todoist:', { userId, clerkUser: window.Clerk?.user });
             
-            if (!isPro) {
-                console.warn('User is not Pro, showing upgrade modal');
-                this.showProRequiredModal();
-                return;
-            }
-            
+            // Let the server verify Pro status - it will redirect with error if not Pro
             window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
@@ -8119,15 +8120,9 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
-            const isPro = this.isPremiumUser();
-            console.log('Connecting Google Calendar:', { userId, isPro, clerkUser: window.Clerk?.user });
+            console.log('Connecting Google Calendar:', { userId, clerkUser: window.Clerk?.user });
             
-            if (!isPro) {
-                console.warn('User is not Pro, showing upgrade modal');
-                this.showProRequiredModal();
-                return;
-            }
-            
+            // Let the server verify Pro status - it will redirect with error if not Pro
             window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
@@ -8175,15 +8170,9 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
-            const isPro = this.isPremiumUser();
-            console.log('Connecting Notion:', { userId, isPro, clerkUser: window.Clerk?.user });
+            console.log('Connecting Notion:', { userId, clerkUser: window.Clerk?.user });
             
-            if (!isPro) {
-                console.warn('User is not Pro, showing upgrade modal');
-                this.showProRequiredModal();
-                return;
-            }
-            
+            // Let the server verify Pro status - it will redirect with error if not Pro
             window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
