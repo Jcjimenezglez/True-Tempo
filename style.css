@@ -135,29 +135,35 @@ body::-webkit-scrollbar {
     min-height: 80px;
 }
 
-.sidebar-logo-toggle {
+.sidebar-logo {
     display: flex;
     align-items: center;
     gap: 12px;
     color: var(--sidebar-text-active);
     font-weight: 600;
     font-size: 18px;
+}
+
+.sidebar-logo img {
+    filter: brightness(1.2);
+}
+
+.sidebar-close {
     background: none;
     border: none;
+    color: var(--sidebar-text);
     cursor: pointer;
     padding: 8px;
     border-radius: 6px;
-    transition: background-color 0.2s ease;
-    width: 100%;
-    text-align: left;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.sidebar-logo-toggle:hover {
+.sidebar-close:hover {
     background: var(--sidebar-hover);
-}
-
-.sidebar-logo-toggle img {
-    filter: brightness(1.2);
+    color: var(--sidebar-text-active);
 }
 
 .sidebar-title {
@@ -376,28 +382,32 @@ body::-webkit-scrollbar {
 
 /* Mobile Menu Toggle Button */
 .mobile-menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.8);
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1002;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--sidebar-border);
+    color: var(--sidebar-text);
     cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     transition: background-color 0.2s ease, color 0.2s ease;
-    margin-right: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-menu-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
 }
 
 /* Mobile Styles */
 @media (max-width: 768px) {
     .mobile-menu-toggle {
         display: flex;
-        align-items: center;
-        justify-content: center;
     }
     
     .sidebar {
@@ -413,7 +423,7 @@ body::-webkit-scrollbar {
         margin-left: 0;
     }
     
-    .sidebar-toggle {
+    .sidebar-close {
         display: flex;
     }
 }

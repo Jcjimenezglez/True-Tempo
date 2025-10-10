@@ -9539,14 +9539,11 @@ class SidebarManager {
     constructor() {
         this.sidebar = document.getElementById('sidebar');
         this.mainContent = document.getElementById('mainContent');
-        this.sidebarToggle = document.getElementById('sidebarToggle');
-        this.sidebarLogoToggle = document.getElementById('sidebarLogoToggle');
+        this.sidebarClose = document.getElementById('sidebarClose');
         this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
         
-        this.isCollapsed = false;
-        this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
         
         this.init();
@@ -9559,24 +9556,17 @@ class SidebarManager {
     }
     
     bindEvents() {
-        // Toggle sidebar collapse/expand
-        if (this.sidebarToggle) {
-            this.sidebarToggle.addEventListener('click', () => {
-                this.toggleCollapse();
-            });
-        }
-        
-        // Logo toggle (same functionality as sidebar toggle)
-        if (this.sidebarLogoToggle) {
-            this.sidebarLogoToggle.addEventListener('click', () => {
-                this.toggleCollapse();
-            });
-        }
-        
         // Mobile menu toggle
         if (this.mobileMenuToggle) {
             this.mobileMenuToggle.addEventListener('click', () => {
-                this.toggleMobile();
+                this.showMobile();
+            });
+        }
+        
+        // Sidebar close button
+        if (this.sidebarClose) {
+            this.sidebarClose.addEventListener('click', () => {
+                this.hideMobile();
             });
         }
         
@@ -9610,7 +9600,6 @@ class SidebarManager {
     setupResponsive() {
         if (this.isMobile) {
             this.sidebar.classList.add('hidden');
-            this.sidebar.classList.remove('collapsed');
             this.mainContent.style.marginLeft = '0';
         } else {
             this.sidebar.classList.remove('hidden');
@@ -9629,32 +9618,11 @@ class SidebarManager {
             // Reset mobile state
             if (!this.isMobile) {
                 this.sidebar.classList.remove('open');
+                if (this.sidebarOverlay) {
+                    this.sidebarOverlay.classList.remove('active');
+                }
+                document.body.style.overflow = '';
             }
-        }
-    }
-    
-    toggleCollapse() {
-        if (this.isMobile) {
-            this.toggleMobile();
-            return;
-        }
-        
-        this.isCollapsed = !this.isCollapsed;
-        
-        if (this.isCollapsed) {
-            this.sidebar.classList.add('collapsed');
-            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
-        } else {
-            this.sidebar.classList.remove('collapsed');
-            this.mainContent.style.marginLeft = 'var(--sidebar-width)';
-        }
-    }
-    
-    toggleMobile() {
-        if (this.sidebar.classList.contains('open')) {
-            this.hideMobile();
-        } else {
-            this.showMobile();
         }
     }
     
