@@ -1,53 +1,47 @@
-// Admin endpoint to get all users
-const { createClerkClient } = require('@clerk/clerk-sdk-node');
+// Admin API - Get all users
+export default async function handler(req, res) {
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
 
-module.exports = async (req, res) => {
-  if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
+    try {
+        // Get all users from Clerk
+        const clerkResponse = await fetch('https://api.clerk.com/v1/users', {
+            headers: {
+                'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-  // Admin authentication disabled for now
-  // const adminKey = req.headers['x-admin-key'];
-  // if (adminKey !== process.env.ADMIN_SECRET_KEY) {
-  //   res.status(401).json({ error: 'Unauthorized' });
-  //   return;
-  // }
+        if (!clerkResponse.ok) {
+            throw new Error('Failed to fetch users from Clerk');
+        }
 
-  const clerkSecret = process.env.CLERK_SECRET_KEY;
-  if (!clerkSecret) {
-    res.status(500).json({ error: 'CLERK_SECRET_KEY not configured' });
-    return;
-  }
+        const clerkData = await clerkResponse.json();
+        
+        // Process users data
+        const users = clerkData.map(user => ({
+            id: user.id,
+            email: user.email_addresses[0]?.email_address || 'No email',
+            createdAt: user.created_at,
+            isPremium: user.public_metadata?.isPremium === true
+        }));
 
-  try {
-    const clerk = createClerkClient({ secretKey: clerkSecret });
-    
-    // Get all users
-    const users = await clerk.users.getUserList({ limit: 100 });
-    
-    // Format user data
-    const formattedUsers = users.data.map(user => ({
-      id: user.id,
-      email: user.emailAddresses?.[0]?.emailAddress || 'No email',
-      isPremium: user.publicMetadata?.isPremium || false,
-      stripeCustomerId: user.publicMetadata?.stripeCustomerId || null,
-      premiumSince: user.publicMetadata?.premiumSince || null,
-      createdAt: user.createdAt,
-      lastSignInAt: user.lastSignInAt
-    }));
+        // Calculate stats
+        const stats = {
+            total: users.length,
+            pro: users.filter(user => user.isPremium).length,
+            free: users.filter(user => !user.isPremium).length,
+            conversionRate: users.length > 0 ? Math.round((users.filter(user => user.isPremium).length / users.length) * 100) : 0
+        };
 
-    res.status(200).json({
-      success: true,
-      users: formattedUsers,
-      total: formattedUsers.length
-    });
+        res.status(200).json({
+            users,
+            stats
+        });
 
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-};
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
