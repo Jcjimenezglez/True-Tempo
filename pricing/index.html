@@ -321,6 +321,157 @@
         .pricing-cta.free.disabled:hover {
             background: white;
         }
+        
+        /* Comparison Section Styles */
+        .comparison-section {
+            margin-top: 4rem;
+            padding: 0 2rem;
+        }
+        
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .comparison-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+        }
+        
+        .comparison-header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
+        .comparison-table-container {
+            overflow-x: auto;
+            margin-bottom: 3rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table .highlight-column {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1));
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .comparison-table .feature-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .comparison-table .highlight-cell {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.2), rgba(6, 78, 59, 0.1));
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        .comparison-table .check {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .comparison-table .check.unique {
+            color: #a78bfa;
+            font-weight: 700;
+        }
+        
+        .comparison-table .cross {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .comparison-table .partial {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        
+        .comparison-summary {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .summary-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 1.5rem 0;
+            color: #ffffff;
+            text-align: center;
+        }
+        
+        .summary-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .summary-card li {
+            padding: 0.75rem 0;
+            color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .summary-card li:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-card strong {
+            color: #ffffff;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-section {
+                padding: 0 1rem;
+            }
+            
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .summary-card {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -511,6 +662,120 @@
                 </div>
                 
                 <button class="pricing-cta featured" id="pricingPageUpgrade">Upgrade to Pro</button>
+            </div>
+        </div>
+        
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <div class="comparison-header">
+                <h2>How Superfocus Compares</h2>
+                <p>See why users choose Superfocus over other Pomodoro timers</p>
+            </div>
+            
+            <div class="comparison-table-container">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight-column">Superfocus</th>
+                            <th>Pomofocus</th>
+                            <th>Flocus</th>
+                            <th>WonderSpace</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="feature-name">Price (Pro)</td>
+                            <td class="highlight-cell">$9/year</td>
+                            <td>$18/year</td>
+                            <td>$4.99/month</td>
+                            <td>$9.99/month</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Web App</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Task Management</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Statistics & Reports</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Cross-device Sync</td>
+                            <td class="check">✓</td>
+                            <td class="cross">✗</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Todoist Integration</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="cross">✗</td>
+                            <td class="cross">✗</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Custom Timer Lengths</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Soundscapes</td>
+                            <td class="check">✓</td>
+                            <td class="cross">✗</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Guest Mode</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="cross">✗</td>
+                            <td class="cross">✗</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Privacy-first</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="partial">?</td>
+                            <td class="partial">?</td>
+                        </tr>
+                        <tr>
+                            <td class="feature-name">Free Plan</td>
+                            <td class="check">✓ Full features</td>
+                            <td class="check">✓ Limited</td>
+                            <td class="check">✓ Limited</td>
+                            <td class="check">✓ Limited</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="comparison-summary">
+                <div class="summary-card">
+                    <h3>Why Choose Superfocus?</h3>
+                    <ul>
+                        <li><strong>50% less expensive</strong> than Pomofocus Pro</li>
+                        <li><strong>Only timer with Todoist integration</strong> - sync your tasks seamlessly</li>
+                        <li><strong>Built-in soundscapes</strong> for better focus</li>
+                        <li><strong>Privacy-first approach</strong> - no tracking, your data stays yours</li>
+                        <li><strong>Full-featured free plan</strong> - try everything before upgrading</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </main>
