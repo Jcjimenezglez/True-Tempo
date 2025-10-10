@@ -206,7 +206,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <button class="sidebar-logo-toggle" id="sidebarLogoToggle">
+            <button class="sidebar-logo-toggle" id="sidebarLogoToggle" data-tooltip="Superfocus">
                 <img src="Superfocus-logo-header.svg" alt="Superfocus Logo" width="24" height="24">
                 <span class="sidebar-title">Superfocus</span>
             </button>
@@ -214,7 +214,7 @@
         
         <!-- Focus Status Indicator -->
         <div class="sidebar-focus-status">
-            <div class="focus-indicator" id="focusIndicator">
+            <div class="focus-indicator" id="focusIndicator" data-tooltip="Ready to focus">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12,6 12,12 16,14"/>
@@ -225,21 +225,21 @@
         
         <nav class="sidebar-nav">
             <div class="nav-section">
-                <div class="nav-item active" data-section="timer">
+                <div class="nav-item active" data-section="timer" data-tooltip="Timer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12,6 12,12 16,14"/>
                     </svg>
                     <span>Timer</span>
                 </div>
-                <div class="nav-item" data-section="statistics">
+                <div class="nav-item" data-section="statistics" data-tooltip="Statistics">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 3v18h18"/>
                         <path d="m19 9-5 5-4-4-3 3"/>
                     </svg>
                     <span>Statistics</span>
                 </div>
-                <div class="nav-item" data-section="tasks">
+                <div class="nav-item" data-section="tasks" data-tooltip="Tasks">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 12l2 2 4-4"/>
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
@@ -249,14 +249,14 @@
             </div>
             
             <div class="nav-section">
-                <div class="nav-item" data-section="settings">
+                <div class="nav-item" data-section="settings" data-tooltip="Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
                         <circle cx="12" cy="12" r="3"/>
                     </svg>
                     <span>Settings</span>
                 </div>
-                <div class="nav-item" data-section="help">
+                <div class="nav-item" data-section="help" data-tooltip="Help">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
@@ -271,7 +271,7 @@
         <div class="sidebar-user-section">
             <!-- Settings Menu (always visible) -->
             <div class="settings-menu-container">
-                <button class="header-settings-btn" id="headerSettingsBtn" title="Settings Menu">
+                <button class="header-settings-btn" id="headerSettingsBtn" title="Settings Menu" data-tooltip="Account">
                     <svg id="headerSettingsIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>

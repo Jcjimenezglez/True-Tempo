@@ -9544,7 +9544,7 @@ class SidebarManager {
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
         
-        this.isCollapsed = false;
+        this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
         
@@ -9571,7 +9571,8 @@ class SidebarManager {
                 // Don't expand if clicking on interactive elements
                 if (e.target.closest('.nav-item') || 
                     e.target.closest('.sidebar-user-section') ||
-                    e.target.closest('.sidebar-logo-toggle')) {
+                    e.target.closest('.sidebar-logo-toggle') ||
+                    e.target.closest('.focus-indicator')) {
                     return;
                 }
                 this.toggleCollapse();
@@ -9615,12 +9616,14 @@ class SidebarManager {
     setupResponsive() {
         if (this.isMobile) {
             this.sidebar.classList.add('hidden');
-            this.sidebar.classList.remove('collapsed');
+            this.sidebar.classList.remove('collapsed', 'expanded');
             this.mainContent.style.marginLeft = '0';
         } else {
             this.sidebar.classList.remove('hidden');
             this.sidebar.classList.remove('open');
-            this.mainContent.style.marginLeft = 'var(--sidebar-width)';
+            this.sidebar.classList.add('collapsed');
+            this.sidebar.classList.remove('expanded');
+            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
         }
     }
     
@@ -9652,9 +9655,11 @@ class SidebarManager {
         
         if (this.isCollapsed) {
             this.sidebar.classList.add('collapsed');
+            this.sidebar.classList.remove('expanded');
             this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
         } else {
             this.sidebar.classList.remove('collapsed');
+            this.sidebar.classList.add('expanded');
             this.mainContent.style.marginLeft = 'var(--sidebar-width)';
         }
     }

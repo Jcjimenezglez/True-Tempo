@@ -118,6 +118,59 @@ body::-webkit-scrollbar {
     flex-direction: column;
 }
 
+/* Tooltip Styles */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 8px;
+    padding: 6px 12px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text-active);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 1003;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease-out forwards;
+}
+
+[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 2px;
+    border: 6px solid transparent;
+    border-right-color: var(--sidebar-border);
+    z-index: 1004;
+    pointer-events: none;
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
 /* Cursor for collapsed sidebar */
 .sidebar.collapsed {
     cursor: e-resize;
@@ -141,6 +194,11 @@ body::-webkit-scrollbar {
 }
 
 .sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+/* Always collapsed by default */
+.sidebar {
     width: var(--sidebar-collapsed-width);
 }
 
@@ -366,13 +424,13 @@ body::-webkit-scrollbar {
 
 /* Main Content Layout */
 .main-content {
-    margin-left: var(--sidebar-width);
+    margin-left: var(--sidebar-collapsed-width);
     transition: margin-left 0.3s ease;
     min-height: 100vh;
 }
 
-.sidebar.collapsed + .main-content {
-    margin-left: var(--sidebar-collapsed-width);
+.sidebar.expanded + .main-content {
+    margin-left: var(--sidebar-width);
 }
 
 .sidebar.hidden + .main-content {
