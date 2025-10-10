@@ -9532,4 +9532,177 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(tryHide, 200);
         setTimeout(() => timer.hideLoadingScreen(), 4000);
     }
+});
+
+// Sidebar functionality
+class SidebarManager {
+    constructor() {
+        this.sidebar = document.getElementById('sidebar');
+        this.mainContent = document.getElementById('mainContent');
+        this.sidebarToggle = document.getElementById('sidebarToggle');
+        this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        this.navItems = document.querySelectorAll('.nav-item');
+        
+        this.isCollapsed = false;
+        this.isHidden = false;
+        this.isMobile = window.innerWidth <= 768;
+        
+        this.init();
+    }
+    
+    init() {
+        this.bindEvents();
+        this.setupResponsive();
+        this.setActiveNavItem('timer');
+    }
+    
+    bindEvents() {
+        // Toggle sidebar collapse/expand
+        if (this.sidebarToggle) {
+            this.sidebarToggle.addEventListener('click', () => {
+                this.toggleCollapse();
+            });
+        }
+        
+        // Mobile menu toggle
+        if (this.mobileMenuToggle) {
+            this.mobileMenuToggle.addEventListener('click', () => {
+                this.toggleMobile();
+            });
+        }
+        
+        // Navigation items
+        this.navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                this.setActiveNavItem(section);
+                this.handleNavigation(section);
+                
+                // Close mobile sidebar after navigation
+                if (this.isMobile) {
+                    this.hideMobile();
+                }
+            });
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (this.isMobile && this.sidebar.classList.contains('open')) {
+                if (!this.sidebar.contains(e.target) && !this.mobileMenuToggle.contains(e.target)) {
+                    this.hideMobile();
+                }
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+    }
+    
+    setupResponsive() {
+        if (this.isMobile) {
+            this.sidebar.classList.add('hidden');
+            this.mainContent.style.marginLeft = '0';
+        } else {
+            this.sidebar.classList.remove('hidden');
+            this.mainContent.style.marginLeft = 'var(--sidebar-width)';
+        }
+    }
+    
+    handleResize() {
+        const wasMobile = this.isMobile;
+        this.isMobile = window.innerWidth <= 768;
+        
+        if (wasMobile !== this.isMobile) {
+            this.setupResponsive();
+            
+            // Reset mobile state
+            if (!this.isMobile) {
+                this.sidebar.classList.remove('open');
+            }
+        }
+    }
+    
+    toggleCollapse() {
+        if (this.isMobile) {
+            this.toggleMobile();
+            return;
+        }
+        
+        this.isCollapsed = !this.isCollapsed;
+        
+        if (this.isCollapsed) {
+            this.sidebar.classList.add('collapsed');
+        } else {
+            this.sidebar.classList.remove('collapsed');
+        }
+    }
+    
+    toggleMobile() {
+        if (this.sidebar.classList.contains('open')) {
+            this.hideMobile();
+        } else {
+            this.showMobile();
+        }
+    }
+    
+    showMobile() {
+        this.sidebar.classList.add('open');
+        this.sidebar.classList.remove('hidden');
+    }
+    
+    hideMobile() {
+        this.sidebar.classList.remove('open');
+        this.sidebar.classList.add('hidden');
+    }
+    
+    setActiveNavItem(section) {
+        this.navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === section) {
+                item.classList.add('active');
+            }
+        });
+    }
+    
+    handleNavigation(section) {
+        switch (section) {
+            case 'timer':
+                // Scroll to timer section
+                const timerSection = document.querySelector('.timer-section');
+                if (timerSection) {
+                    timerSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                break;
+            case 'statistics':
+                // Open statistics modal or navigate to stats
+                console.log('Navigate to statistics');
+                break;
+            case 'tasks':
+                // Open task management
+                console.log('Navigate to tasks');
+                break;
+            case 'settings':
+                // Open settings modal
+                const settingsBtn = document.getElementById('timerSettingsItem') || 
+                                  document.getElementById('timerSettingsItemGuest');
+                if (settingsBtn) {
+                    settingsBtn.click();
+                }
+                break;
+            case 'help':
+                // Open help
+                const helpToggle = document.getElementById('helpToggle');
+                if (helpToggle) {
+                    helpToggle.click();
+                }
+                break;
+        }
+    }
+}
+
+// Initialize sidebar when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new SidebarManager();
 });// Force redeploy for admin key
