@@ -1595,6 +1595,9 @@ class PomodoroTimer {
         
         // Check if user is admin and show/hide Developer tab
         this.checkAdminAccess();
+        
+        // Initialize tasks sidebar
+        this.initTasksSidebar();
 
         // Upgrade button
         const upgradeBtn = document.querySelector('.upgrade-btn');
@@ -3068,6 +3071,14 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
+        // Toggle sidebar instead of modal
+        if (this.sidebarOpen) {
+            this.closeSidebar();
+        } else {
+            this.openSidebar();
+        }
+        
+        // Keep the original modal functionality as backup
         // Check user type and subscription level
         if (!this.isAuthenticated || !this.user) {
             // Guest users: show local tasks only
@@ -6707,6 +6718,11 @@ class PomodoroTimer {
             this.fetchTodoistData().catch(() => {
                 this.todoistTasks = [];
                 this.todoistProjectsById = {};
+            }).finally(() => {
+                // Update sidebar content after loading tasks
+                if (this.sidebarContent) {
+                    this.loadSidebarContent();
+                }
             });
         } else {
             this.todoistTasks = [];
@@ -7252,6 +7268,11 @@ class PomodoroTimer {
         // Update session info line to include current task if any
         // Reuse updateSessionInfo to centralize rendering
         this.updateSessionInfo();
+        
+        // Update sidebar to show current task selection
+        if (this.sidebarContent) {
+            this.loadSidebarContent();
+        }
     }
 
     updateCycleCounter() {
@@ -8381,6 +8402,279 @@ class PomodoroTimer {
         } else {
             developerNavItem.style.display = 'none';
             console.log('❌ Developer tab hidden for non-admin');
+        }
+    }
+
+    initTasksSidebar() {
+        this.sidebarOpen = false;
+        this.sidebarElement = document.getElementById('tasksSidebar');
+        this.sidebarToggleBtn = document.getElementById('tasksToggleBtn');
+        this.sidebarCloseBtn = document.getElementById('sidebarClose');
+        this.sidebarContent = document.getElementById('sidebarContent');
+        
+        if (!this.sidebarElement || !this.sidebarToggleBtn) return;
+        
+        // Toggle button click
+        this.sidebarToggleBtn.addEventListener('click', () => {
+            this.toggleSidebar();
+        });
+        
+        // Close button click
+        if (this.sidebarCloseBtn) {
+            this.sidebarCloseBtn.addEventListener('click', () => {
+                this.closeSidebar();
+            });
+        }
+        
+        // Load sidebar content
+        this.loadSidebarContent();
+        
+        console.log('✅ Tasks sidebar initialized');
+    }
+
+    toggleSidebar() {
+        if (this.sidebarOpen) {
+            this.closeSidebar();
+        } else {
+            this.openSidebar();
+        }
+    }
+
+    openSidebar() {
+        if (!this.sidebarElement) return;
+        
+        this.sidebarElement.classList.add('open');
+        this.sidebarOpen = true;
+        this.sidebarToggleBtn.classList.add('hidden');
+        
+        // Load content when opening
+        this.loadSidebarContent();
+        
+        console.log('✅ Sidebar opened');
+    }
+
+    closeSidebar() {
+        if (!this.sidebarElement) return;
+        
+        this.sidebarElement.classList.remove('open');
+        this.sidebarOpen = false;
+        this.sidebarToggleBtn.classList.remove('hidden');
+        
+        console.log('✅ Sidebar closed');
+    }
+
+    loadSidebarContent() {
+        if (!this.sidebarContent) return;
+        
+        // Get all tasks (local + Todoist)
+        const allTasks = this.getAllTasks();
+        
+        if (allTasks.length === 0) {
+            this.renderSidebarEmptyState();
+            return;
+        }
+        
+        this.renderSidebarTasks(allTasks);
+    }
+
+    getAllTasks() {
+        const tasks = [];
+        
+        // Add local tasks
+        if (this.localTasks && this.localTasks.length > 0) {
+            this.localTasks.forEach(task => {
+                tasks.push({
+                    ...task,
+                    source: 'local',
+                    id: `local_${task.id}`
+                });
+            });
+        }
+        
+        // Add Todoist tasks
+        if (this.todoistTasks && this.todoistTasks.length > 0) {
+            this.todoistTasks.forEach(task => {
+                tasks.push({
+                    ...task,
+                    source: 'todoist',
+                    id: `todoist_${task.id}`
+                });
+            });
+        }
+        
+        return tasks;
+    }
+
+    renderSidebarEmptyState() {
+        if (!this.sidebarContent) return;
+        
+        this.sidebarContent.innerHTML = `
+            <div class="sidebar-empty-state">
+                <div class="sidebar-empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4m0-7v7m0-7h10a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2H9m0-7V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </div>
+                <div class="sidebar-empty-text">No tasks yet</div>
+                <div class="sidebar-empty-subtext">Add tasks to get started</div>
+            </div>
+        `;
+    }
+
+    renderSidebarTasks(tasks) {
+        if (!this.sidebarContent) return;
+        
+        let html = '';
+        
+        // Import section (only for Pro users)
+        if (this.isPremiumUser()) {
+            html += `
+                <div class="sidebar-import-section">
+                    <button class="sidebar-import-btn" id="sidebarImportBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                        Import from Todoist
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Tasks list
+        tasks.forEach(task => {
+            const isCompleted = task.completed || false;
+            const isSelected = this.currentTask && this.currentTask.id === task.id;
+            
+            html += `
+                <div class="sidebar-task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
+                    <div class="sidebar-task-content">
+                        <div class="sidebar-task-checkbox ${isCompleted ? 'checked' : ''}" data-task-id="${task.id}"></div>
+                        <div class="sidebar-task-text ${isCompleted ? 'completed' : ''}">${task.content}</div>
+                        <div class="sidebar-task-actions">
+                            <button class="sidebar-task-action" data-action="focus" data-task-id="${task.id}" title="Focus on this task">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                                </svg>
+                            </button>
+                            <button class="sidebar-task-action" data-action="delete" data-task-id="${task.id}" title="Delete task">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3,6 5,6 21,6"/>
+                                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        this.sidebarContent.innerHTML = html;
+        
+        // Bind events
+        this.bindSidebarEvents();
+    }
+
+    bindSidebarEvents() {
+        if (!this.sidebarContent) return;
+        
+        // Checkbox clicks
+        this.sidebarContent.querySelectorAll('.sidebar-task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const taskId = e.target.dataset.taskId;
+                this.toggleTaskCompletion(taskId);
+            });
+        });
+        
+        // Task item clicks (for selection)
+        this.sidebarContent.querySelectorAll('.sidebar-task-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.sidebar-task-checkbox') || e.target.closest('.sidebar-task-actions')) {
+                    return; // Don't select if clicking checkbox or actions
+                }
+                const taskId = e.currentTarget.dataset.taskId;
+                this.selectTaskFromSidebar(taskId);
+            });
+        });
+        
+        // Action buttons
+        this.sidebarContent.querySelectorAll('.sidebar-task-action').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = e.target.closest('[data-action]').dataset.action;
+                const taskId = e.target.closest('[data-task-id]').dataset.taskId;
+                this.handleSidebarTaskAction(action, taskId);
+            });
+        });
+        
+        // Import button
+        const importBtn = this.sidebarContent.querySelector('#sidebarImportBtn');
+        if (importBtn) {
+            importBtn.addEventListener('click', () => {
+                this.closeSidebar();
+                this.showImportModal();
+            });
+        }
+    }
+
+    toggleTaskCompletion(taskId) {
+        if (taskId.startsWith('local_')) {
+            const localId = taskId.replace('local_', '');
+            this.markLocalTaskAsCompleted(localId);
+        } else if (taskId.startsWith('todoist_')) {
+            const todoistId = taskId.replace('todoist_', '');
+            this.completeTodoistTaskInTodoist(todoistId);
+        }
+        
+        // Refresh sidebar content
+        setTimeout(() => {
+            this.loadSidebarContent();
+        }, 100);
+    }
+
+    selectTaskFromSidebar(taskId) {
+        if (taskId.startsWith('local_')) {
+            const localId = taskId.replace('local_', '');
+            const task = this.localTasks.find(t => t.id === localId);
+            if (task) {
+                this.currentTask = { id: task.id, content: task.content, source: 'local' };
+                this.updateCurrentTaskBanner();
+            }
+        } else if (taskId.startsWith('todoist_')) {
+            const todoistId = taskId.replace('todoist_', '');
+            const task = this.todoistTasks.find(t => t.id === todoistId);
+            if (task) {
+                this.currentTask = { id: task.id, content: task.content, source: 'todoist', project_id: task.project_id };
+                this.updateCurrentTaskBanner();
+            }
+        }
+        
+        // Refresh sidebar to show selection
+        this.loadSidebarContent();
+    }
+
+    handleSidebarTaskAction(action, taskId) {
+        if (action === 'focus') {
+            this.selectTaskFromSidebar(taskId);
+            this.closeSidebar();
+        } else if (action === 'delete') {
+            if (confirm('Are you sure you want to delete this task?')) {
+                if (taskId.startsWith('local_')) {
+                    const localId = taskId.replace('local_', '');
+                    this.deleteLocalTask(localId);
+                } else if (taskId.startsWith('todoist_')) {
+                    // Todoist tasks can't be deleted from here, only completed
+                    alert('Todoist tasks can only be completed, not deleted from here.');
+                }
+                
+                // Refresh sidebar
+                setTimeout(() => {
+                    this.loadSidebarContent();
+                }, 100);
+            }
         }
     }
 
