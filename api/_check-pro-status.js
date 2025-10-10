@@ -4,22 +4,39 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 async function checkProStatus(req) {
   const clerkSecret = process.env.CLERK_SECRET_KEY;
+  
   if (!clerkSecret) {
     return { isPro: false, error: 'Clerk not configured' };
   }
 
-  // Extract Clerk user ID from headers or cookies
-  const clerkUserId = (req.headers['x-clerk-userid'] || '').toString().trim();
-  
-  if (!clerkUserId) {
-    return { isPro: false, error: 'Not authenticated' };
-  }
-
   try {
     const clerk = createClerkClient({ secretKey: clerkSecret });
-    const user = await clerk.users.getUser(clerkUserId);
     
+    // Try to get user ID from multiple sources
+    let clerkUserId = '';
+    
+    // 1. From header (used by some endpoints)
+    clerkUserId = (req.headers['x-clerk-userid'] || '').toString().trim();
+    
+    // 2. From query parameter (used by OAuth redirects)
+    if (!clerkUserId && req.url) {
+      const url = new URL(req.url, `https://${req.headers.host}`);
+      clerkUserId = url.searchParams.get('uid') || '';
+    }
+    
+    // 3. From query object (Vercel serverless format)
+    if (!clerkUserId && req.query && req.query.uid) {
+      clerkUserId = req.query.uid;
+    }
+    
+    if (!clerkUserId) {
+      return { isPro: false, error: 'Not authenticated' };
+    }
+    
+    const user = await clerk.users.getUser(clerkUserId);
     const isPremium = user?.publicMetadata?.isPremium === true;
+    
+    console.log(`Pro status check for ${user.emailAddresses?.[0]?.emailAddress}: ${isPremium ? 'PRO' : 'FREE'}`);
     
     return { 
       isPro: isPremium, 

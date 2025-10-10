@@ -8043,7 +8043,9 @@ class PomodoroTimer {
         if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
-            window.location.href = '/api/todoist-auth-start';
+            // Add user ID to URL for server-side verification
+            const userId = window.Clerk?.user?.id || '';
+            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
@@ -8091,7 +8093,9 @@ class PomodoroTimer {
         if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
-            window.location.href = '/api/google-calendar-auth-start';
+            // Add user ID to URL for server-side verification
+            const userId = window.Clerk?.user?.id || '';
+            window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
@@ -8136,7 +8140,9 @@ class PomodoroTimer {
         if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
-            window.location.href = '/api/notion-auth-start';
+            // Add user ID to URL for server-side verification
+            const userId = window.Clerk?.user?.id || '';
+            window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
