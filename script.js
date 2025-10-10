@@ -7178,11 +7178,16 @@ class PomodoroTimer {
             
             // Build query params
             const params = new URLSearchParams();
-            if (viewMode === 'pro') params.append('devMode', 'pro');
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true'); // Extra bypass flag for testing
+            }
             if (userId) params.append('uid', userId);
             const queryString = params.toString() ? `?${params.toString()}` : '';
             
-            console.log('Fetching Todoist data with params:', queryString);
+            console.log('🚀 Fetching Todoist data with params:', queryString);
+            console.log('🚀 viewMode:', viewMode);
+            console.log('🚀 userId:', userId);
             
             // Fetch projects via proxy
             const projRes = await fetch(`/api/todoist-projects${queryString}`);
@@ -8096,11 +8101,16 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
-            console.log('Connecting Todoist:', { userId, clerkUser: window.Clerk?.user });
+            const viewMode = localStorage.getItem('viewMode');
+            
+            console.log('🔗 Connecting Todoist:', { 
+                userId, 
+                viewMode,
+                clerkUser: window.Clerk?.user 
+            });
             
             // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
             
             // Let the server verify Pro status - it will redirect with error if not Pro
             window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;

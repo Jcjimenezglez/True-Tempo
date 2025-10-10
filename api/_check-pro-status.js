@@ -7,21 +7,34 @@ async function checkProStatus(req) {
   // This allows testing integrations without admin panel
   try {
     let devMode = '';
-    console.log('🔍 Checking Pro status - URL:', req.url);
-    console.log('🔍 Checking Pro status - Query:', req.query);
+    let devModeBypass = false;
     
+    console.log('🔍 Full request URL:', req.url);
+    console.log('🔍 Request headers:', JSON.stringify(req.headers, null, 2));
+    
+    // Method 1: Parse from req.url (most reliable for Vercel)
     if (req.url) {
-      const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
-      devMode = url.searchParams.get('devMode') || '';
-      console.log('🔍 devMode from URL:', devMode);
-    }
-    if (!devMode && req.query && req.query.devMode) {
-      devMode = req.query.devMode;
-      console.log('🔍 devMode from query object:', devMode);
+      try {
+        const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+        devMode = url.searchParams.get('devMode') || '';
+        devModeBypass = url.searchParams.get('bypass') === 'true';
+        console.log('🔍 devMode from URL parsing:', devMode);
+        console.log('🔍 bypass from URL parsing:', devModeBypass);
+      } catch (e) {
+        console.log('❌ Error parsing URL:', e);
+      }
     }
     
-    if (devMode === 'pro') {
-      console.log('✅ Developer Mode: Pro access granted (bypass Clerk verification)');
+    // Method 2: Check req.query (Vercel sometimes populates this)
+    if (!devMode && req.query) {
+      devMode = req.query.devMode || req.query.devmode || '';
+      devModeBypass = req.query.bypass === 'true';
+      console.log('🔍 devMode from req.query:', devMode);
+    }
+    
+    // Developer bypass mode (temporary for testing)
+    if (devModeBypass || devMode === 'pro') {
+      console.log('✅ ✅ ✅ Developer Mode: Pro access GRANTED (bypass active)');
       return { 
         isPro: true, 
         userId: 'dev-mode-user',
@@ -29,10 +42,10 @@ async function checkProStatus(req) {
         devMode: true
       };
     } else {
-      console.log('❌ devMode not set to "pro", checking Clerk...');
+      console.log('❌ devMode:', devMode, '- Not bypassing, checking Clerk...');
     }
   } catch (e) {
-    console.log('❌ Error checking devMode:', e);
+    console.log('❌ Error in devMode check:', e.message, e.stack);
   }
 
   const clerkSecret = process.env.CLERK_SECRET_KEY;
