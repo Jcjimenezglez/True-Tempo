@@ -463,7 +463,7 @@
                             </svg>
                             <span>Settings</span>
                         </div>
-                        <div class="dropdown-item" id="integrationsButton">
+                        <div class="dropdown-item" id="integrationsButton" style="display: none;">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 22v-5"/>
                                 <path d="M9 8V2"/>
@@ -731,6 +731,76 @@
                                 <button id="manageSubscriptionModalBtn" class="settings-action-btn" style="display: none;">Manage Subscription</button>
                             </div>
                         </div>
+                        
+                        <!-- Integrations Section (Pro Only) -->
+                        <div class="settings-section" id="integrationsSection" style="display: none;">
+                            <h4 class="settings-section-title">Integrations</h4>
+                            
+                            <!-- Todoist -->
+                            <div class="settings-item integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-icon-small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 12l2 2 4-4"/>
+                                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="settings-label-group">
+                                        <span class="settings-label">Todoist</span>
+                                        <span class="settings-description integration-status-text" id="todoistStatusText">Not connected</span>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button id="connectTodoistBtn" class="settings-action-btn">Connect</button>
+                                    <button id="disconnectTodoistBtn" class="settings-action-btn-secondary" style="display:none;">Disconnect</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Google Calendar -->
+                            <div class="settings-item integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-icon-small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/>
+                                            <line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </div>
+                                    <div class="settings-label-group">
+                                        <span class="settings-label">Google Calendar</span>
+                                        <span class="settings-description integration-status-text" id="googleCalendarStatusText">Not connected</span>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button id="connectGoogleCalendarBtn" class="settings-action-btn">Connect</button>
+                                    <button id="disconnectGoogleCalendarBtn" class="settings-action-btn-secondary" style="display:none;">Disconnect</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Notion -->
+                            <div class="settings-item integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-icon-small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10,9 9,9 8,9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="settings-label-group">
+                                        <span class="settings-label">Notion</span>
+                                        <span class="settings-description integration-status-text" id="notionStatusText">Not connected</span>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button id="connectNotionBtn" class="settings-action-btn">Connect</button>
+                                    <button id="disconnectNotionBtn" class="settings-action-btn-secondary" style="display:none;">Disconnect</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Data Tab -->
@@ -968,6 +1038,18 @@
                                 <polyline points="20 6 9 17 4 12"/>
                             </svg>
                             <span>Todoist integration</span>
+                        </div>
+                        <div class="feature highlight">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Google Calendar integration</span>
+                        </div>
+                        <div class="feature highlight">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Notion integration</span>
                         </div>
                     </div>
                     <button class="plan-button pro" id="upgradeToProFromPricing">Upgrade to Pro</button>

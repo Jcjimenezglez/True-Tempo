@@ -31,11 +31,17 @@ class PomodoroTimer {
         this.currentTaskIndex = 0;
         this.currentTask = null;
         
-        // Todoist integration (free users beta)
+        // Todoist integration (Pro feature)
         this.todoistToken = localStorage.getItem('todoistToken') || '';
         this.todoistTasks = [];
         this.todoistProjectsById = {};
         this.currentTask = null; // { id, content, project_id }
+        
+        // Google Calendar integration (Pro feature)
+        this.googleCalendarEvents = [];
+        
+        // Notion integration (Pro feature)
+        this.notionPages = [];
         
 		// Ambient sounds system
 		this.ambientPlaying = false;
@@ -2984,6 +2990,7 @@ class PomodoroTimer {
         const manageSubscriptionButton = document.getElementById('manageSubscriptionButton');
         const userProBadge = document.getElementById('userProBadge');
         const integrationsButton = document.getElementById('integrationsButton');
+        const integrationsSection = document.getElementById('integrationsSection');
         
         if (this.isPremiumUser()) {
             // Show Manage subscription, hide Upgrade, show Pro badge, show Integrations
@@ -2991,6 +2998,7 @@ class PomodoroTimer {
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
             if (userProBadge) userProBadge.style.display = 'inline-block';
             if (integrationsButton) integrationsButton.style.display = 'flex';
+            if (integrationsSection) integrationsSection.style.display = 'block';
             
             // Settings dropdown elements
             if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
@@ -3004,6 +3012,7 @@ class PomodoroTimer {
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'none';
             if (userProBadge) userProBadge.style.display = 'none';
             if (integrationsButton) integrationsButton.style.display = 'none';
+            if (integrationsSection) integrationsSection.style.display = 'none';
             
             // Settings dropdown elements
             if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'flex';
@@ -7673,16 +7682,87 @@ class PomodoroTimer {
             });
         });
         
-        // Setup Todoist integration controls in settings
+        // Setup integration controls in settings
         this.setupTodoistIntegrationControls();
+        this.setupGoogleCalendarIntegrationControls();
+        this.setupNotionIntegrationControls();
         
         // Check if user just connected to Todoist and should open task list
         this.checkTodoistConnectionRedirect();
         
         // Check if user just signed up successfully
         this.checkSignupSuccessRedirect();
+        
+        // Check if user tried to access Pro feature without subscription
+        this.checkProRequiredError();
     }
     
+    checkProRequiredError() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') === 'pro_required') {
+            // Show upgrade modal
+            setTimeout(() => {
+                this.showProRequiredModal();
+                // Clean URL
+                const newUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }, 500);
+        }
+    }
+
+    showProRequiredModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '450px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div style="text-align: center; padding: 20px;">
+                <div style="width: 60px; height: 60px; background: rgba(255, 193, 7, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h3 style="color: #ffffff; margin: 0 0 12px 0; font-size: 1.5rem;">Pro Feature</h3>
+                <p style="color: rgba(255, 255, 255, 0.8); margin: 0 0 24px 0; line-height: 1.6;">
+                    Integrations with Todoist, Google Calendar, and Notion are exclusive to Pro members.
+                </p>
+                <p style="color: rgba(255, 255, 255, 0.7); margin: 0 0 24px 0; font-size: 0.9rem;">
+                    Upgrade to Pro for just <strong style="color: #ffffff;">$9/year</strong> to unlock all integrations and premium features.
+                </p>
+                <button id="upgradeFromProRequiredModal" style="width: 100%; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px; color: #ffffff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Upgrade to Pro
+                </button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        const upgradeBtn = modal.querySelector('#upgradeFromProRequiredModal');
+        upgradeBtn.addEventListener('click', () => {
+            close();
+            this.showPricingModal();
+        });
+    }
+
     checkTodoistConnectionRedirect() {
         // Check if user just connected to Todoist
         const urlParams = new URLSearchParams(window.location.search);
@@ -7970,7 +8050,7 @@ class PomodoroTimer {
             try {
                 await fetch('/api/todoist-disconnect', { method: 'POST' });
             } catch (_) {}
-            statusText.textContent = 'Disconnected';
+            statusText.textContent = 'Not connected';
             disconnectBtn.style.display = 'none';
             connectBtn.style.display = '';
             this.todoistTasks = [];
@@ -7986,21 +8066,147 @@ class PomodoroTimer {
                 const json = await resp.json();
                 const connected = !!json.connected;
                 if (connected) {
-                    statusText.textContent = 'Connected to Todoist';
+                    statusText.textContent = 'Connected';
                     connectBtn.style.display = 'none';
                     disconnectBtn.style.display = '';
                     this.fetchTodoistData();
                 } else {
-                    statusText.textContent = 'Disconnected';
+                    statusText.textContent = 'Not connected';
                     connectBtn.style.display = '';
                     disconnectBtn.style.display = 'none';
                 }
             } catch (_) {
-                statusText.textContent = 'Disconnected';
+                statusText.textContent = 'Not connected';
                 connectBtn.style.display = '';
                 disconnectBtn.style.display = 'none';
             }
         })();
+    }
+
+    setupGoogleCalendarIntegrationControls() {
+        const connectBtn = document.getElementById('connectGoogleCalendarBtn');
+        const disconnectBtn = document.getElementById('disconnectGoogleCalendarBtn');
+        const statusText = document.getElementById('googleCalendarStatusText');
+        
+        if (!connectBtn || !disconnectBtn || !statusText) return;
+        
+        connectBtn.addEventListener('click', () => {
+            window.location.href = '/api/google-calendar-auth-start';
+        });
+
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/google-calendar-disconnect', { method: 'POST' });
+            } catch (_) {}
+            statusText.textContent = 'Not connected';
+            disconnectBtn.style.display = 'none';
+            connectBtn.style.display = '';
+            this.googleCalendarEvents = [];
+        });
+
+        // Check connection status and update UI
+        (async () => {
+            try {
+                const resp = await fetch('/api/google-calendar-status');
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusText.textContent = 'Connected';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    this.fetchGoogleCalendarData();
+                } else {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                }
+            } catch (_) {
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+            }
+        })();
+    }
+
+    setupNotionIntegrationControls() {
+        const connectBtn = document.getElementById('connectNotionBtn');
+        const disconnectBtn = document.getElementById('disconnectNotionBtn');
+        const statusText = document.getElementById('notionStatusText');
+        
+        if (!connectBtn || !disconnectBtn || !statusText) return;
+        
+        connectBtn.addEventListener('click', () => {
+            window.location.href = '/api/notion-auth-start';
+        });
+
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/notion-disconnect', { method: 'POST' });
+            } catch (_) {}
+            statusText.textContent = 'Not connected';
+            disconnectBtn.style.display = 'none';
+            connectBtn.style.display = '';
+            this.notionPages = [];
+        });
+
+        // Check connection status and update UI
+        (async () => {
+            try {
+                const resp = await fetch('/api/notion-status');
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusText.textContent = 'Connected';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    this.fetchNotionData();
+                } else {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                }
+            } catch (_) {
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+            }
+        })();
+    }
+
+    async fetchGoogleCalendarData() {
+        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
+            this.googleCalendarEvents = [];
+            return;
+        }
+        try {
+            const resp = await fetch('/api/google-calendar-events');
+            if (resp.ok) {
+                const events = await resp.json();
+                this.googleCalendarEvents = events;
+            } else {
+                this.googleCalendarEvents = [];
+            }
+        } catch (_) {
+            this.googleCalendarEvents = [];
+        }
+    }
+
+    async fetchNotionData() {
+        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
+            this.notionPages = [];
+            return;
+        }
+        try {
+            const resp = await fetch('/api/notion-pages');
+            if (resp.ok) {
+                const pages = await resp.json();
+                this.notionPages = pages;
+            } else {
+                this.notionPages = [];
+            }
+        } catch (_) {
+            this.notionPages = [];
+        }
     }
 
     setupViewModeButtons() {

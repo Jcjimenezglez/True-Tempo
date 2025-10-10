@@ -2718,6 +2718,78 @@ audio {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+.settings-action-btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    color: rgba(255, 59, 48, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.settings-action-btn-secondary:hover {
+    background: rgba(255, 59, 48, 0.1);
+    border-color: rgba(255, 59, 48, 0.5);
+}
+
+/* Integrations Section */
+.settings-section-title {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.integration-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.integration-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.integration-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.integration-icon-small {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+
+.integration-status-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.85rem !important;
+}
+
+.integration-actions {
+    display: flex;
+    gap: 8px;
+}
+
 /* Sound Controls */
 .sound-controls {
     display: flex;
