@@ -11,12 +11,17 @@ module.exports = async (req, res) => {
   try {
     // Verify Pro status
     const proCheck = await checkProStatus(req);
+    console.log('todoist-projects: Pro check result:', proCheck);
+    
     if (!proCheck.isPro) {
+      console.log('❌ todoist-projects: Access denied - not Pro');
       res.statusCode = 403;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Pro subscription required' }));
+      res.end(JSON.stringify({ error: 'Pro subscription required', debug: proCheck }));
       return;
     }
+    
+    console.log('✅ todoist-projects: Pro verified, fetching projects...');
 
     const token = getToken(req);
     const r = await fetch('https://api.todoist.com/rest/v2/projects', {

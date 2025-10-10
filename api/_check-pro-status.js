@@ -7,12 +7,17 @@ async function checkProStatus(req) {
   // This allows testing integrations without admin panel
   try {
     let devMode = '';
+    console.log('🔍 Checking Pro status - URL:', req.url);
+    console.log('🔍 Checking Pro status - Query:', req.query);
+    
     if (req.url) {
       const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
       devMode = url.searchParams.get('devMode') || '';
+      console.log('🔍 devMode from URL:', devMode);
     }
     if (!devMode && req.query && req.query.devMode) {
       devMode = req.query.devMode;
+      console.log('🔍 devMode from query object:', devMode);
     }
     
     if (devMode === 'pro') {
@@ -23,9 +28,11 @@ async function checkProStatus(req) {
         email: 'developer@mode.local',
         devMode: true
       };
+    } else {
+      console.log('❌ devMode not set to "pro", checking Clerk...');
     }
   } catch (e) {
-    console.log('Error checking devMode:', e);
+    console.log('❌ Error checking devMode:', e);
   }
 
   const clerkSecret = process.env.CLERK_SECRET_KEY;
