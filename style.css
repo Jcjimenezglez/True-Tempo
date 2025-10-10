@@ -2790,6 +2790,85 @@ audio {
     gap: 8px;
 }
 
+/* Developer Mode Controls */
+.view-mode-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.view-mode-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.view-mode-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-mode-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.view-mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    color: #ffffff;
+}
+
+.apply-view-mode-btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: #10b981;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.apply-view-mode-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.dev-info {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dev-info p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.dev-info strong {
+    color: #ffffff;
+}
+
+#currentViewMode {
+    color: #10b981;
+    font-weight: 600;
+}
+
 /* Sound Controls */
 .sound-controls {
     display: flex;

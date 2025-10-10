@@ -706,6 +706,13 @@
                         </svg>
                         <span>Data</span>
                     </div>
+                    <div class="settings-nav-item" data-tab="developer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16,18 22,12 16,6"/>
+                            <polyline points="8,6 2,12 8,18"/>
+                        </svg>
+                        <span>Developer</span>
+                    </div>
                 </div>
                 
                 <!-- Right Content -->
@@ -813,6 +820,33 @@
                                     <span class="settings-description">Clear all your focus statistics and streaks. This action cannot be undone.</span>
                                 </div>
                                 <button id="settingsResetButton" class="settings-reset-btn">Reset All Data</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Developer Tab -->
+                    <div class="settings-tab" id="developer-tab">
+                        <h3>Developer Mode</h3>
+                        <div class="settings-section">
+                            <div class="settings-item">
+                                <div class="settings-label-group">
+                                    <span class="settings-label">View Mode Toggle</span>
+                                    <span class="settings-description">Switch between different user views for testing. Click a mode, then Apply.</span>
+                                </div>
+                                <div class="view-mode-controls">
+                                    <div class="view-mode-buttons">
+                                        <button id="guestModeBtn" class="view-mode-btn">Guest</button>
+                                        <button id="freeModeBtn" class="view-mode-btn">Free</button>
+                                        <button id="proModeBtn" class="view-mode-btn active">Pro</button>
+                                    </div>
+                                    <button id="applyViewModeBtn" class="apply-view-mode-btn">Apply & Reload</button>
+                                </div>
+                            </div>
+                            <div class="dev-info">
+                                <p><strong>Current Mode:</strong> <span id="currentViewMode">Pro</span></p>
+                                <p style="margin-top: 8px; color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">
+                                    This allows you to test the app as different user types without creating multiple accounts.
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -8347,6 +8347,12 @@ class PomodoroTimer {
         const guestModeBtn = document.getElementById('guestModeBtn');
         const freeModeBtn = document.getElementById('freeModeBtn');
         const proModeBtn = document.getElementById('proModeBtn');
+        const currentViewModeText = document.getElementById('currentViewMode');
+        
+        // Update current mode text
+        if (currentViewModeText) {
+            currentViewModeText.textContent = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+        }
         
         // Remove active class from all buttons
         [guestModeBtn, freeModeBtn, proModeBtn].forEach(btn => {
