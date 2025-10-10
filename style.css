@@ -6301,11 +6301,13 @@ body.sidebar-open {
 }
 
 /* Ensure header also moves with the page */
-.header {
+.header,
+.main-header {
     transition: margin-left 0.3s ease;
 }
 
-body.sidebar-open .header {
+body.sidebar-open .header,
+body.sidebar-open .main-header {
     margin-left: 0; /* Header inherits from body */
 }
 
@@ -6435,6 +6437,36 @@ body.sidebar-open .header {
     margin-top: 2px;
 }
 
+/* Sidebar task progress */
+.sidebar-task-progress {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-right: 8px;
+}
+
+/* Sidebar task menu */
+.sidebar-task-menu {
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.sidebar-task-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-task-menu svg {
+    color: #9ca3af;
+}
+
+/* Sidebar tasks list */
+.sidebar-tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .sidebar-task-actions {
     display: flex;
     gap: 8px;
@@ -6529,7 +6561,8 @@ body.sidebar-open .header {
         margin-left: 0; /* No margin on mobile - sidebar is full width */
     }
     
-    body.sidebar-open .header {
+    body.sidebar-open .header,
+    body.sidebar-open .main-header {
         margin-left: 0; /* Header also no margin on mobile */
     }
     

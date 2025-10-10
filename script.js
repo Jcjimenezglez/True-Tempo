@@ -8448,18 +8448,116 @@ class PomodoroTimer {
     loadSidebarContent() {
         if (!this.sidebarContent) return;
         
-        // Get all tasks (local + Todoist) - same logic as modal
+        // Use the EXACT same logic as the modal
         const allTasks = this.getAllTasks();
         
-        // Filter to show only incomplete tasks by default
-        const incompleteTasks = allTasks.filter(task => !task.completed);
+        // Show only incomplete tasks (same as modal's 'todo' tab)
+        const filteredTasks = allTasks.filter(task => !task.completed);
         
-        if (incompleteTasks.length === 0) {
-            this.renderSidebarEmptyState();
+        if (filteredTasks.length === 0) {
+            // Empty state
+            this.sidebarContent.innerHTML = `
+                ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
+                <div class="sidebar-import-section">
+                    <button class="sidebar-import-btn" id="sidebarImportBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                        Import from Todoist
+                    </button>
+                </div>
+                ` : ''}
+                <div class="sidebar-empty-state">
+                    <div class="sidebar-empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4m0-7v7m0-7h10a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2H9m0-7V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-empty-text">No tasks yet</div>
+                    <div class="sidebar-empty-subtext">Add tasks to get started</div>
+                </div>
+            `;
+            this.bindSidebarEvents();
             return;
         }
         
-        this.renderSidebarTasks(incompleteTasks);
+        // Apply saved task order (same as modal)
+        const savedOrder = this.getTaskOrder();
+        let orderedTasks = filteredTasks;
+        
+        if (savedOrder.length > 0) {
+            const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+            orderedTasks = [];
+            savedOrder.forEach(orderItem => {
+                if (taskMap.has(orderItem.id)) {
+                    orderedTasks.push(taskMap.get(orderItem.id));
+                    taskMap.delete(orderItem.id);
+                }
+            });
+            taskMap.forEach(task => orderedTasks.push(task));
+        }
+        
+        // Build HTML using the same structure as modal
+        let html = '';
+        
+        // Import section (only for Pro users)
+        if (this.isPremiumUser()) {
+            html += `
+                <div class="sidebar-import-section">
+                    <button class="sidebar-import-btn" id="sidebarImportBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                        Import from Todoist
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Tasks list container
+        html += '<div class="sidebar-tasks-list">';
+        
+        orderedTasks.forEach((task, index) => {
+            const taskConfig = this.getTaskConfig(task.id);
+            const sessions = taskConfig.sessions || 1;
+            const completedSessions = taskConfig.completedSessions || 0;
+            const totalSessions = taskConfig.sessions || 1;
+            const isCompleted = task.completed || (completedSessions >= totalSessions);
+            const isSelected = taskConfig.selected || false;
+            
+            html += `
+                <div class="sidebar-task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
+                    <div class="sidebar-task-content">
+                        <div class="sidebar-task-checkbox ${isCompleted ? 'checked' : ''}" data-task-id="${task.id}">
+                            <input type="checkbox" id="sidebar-task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                            <label for="sidebar-task-${task.id}"></label>
+                        </div>
+                        <div class="sidebar-task-text ${isCompleted ? 'completed' : ''}">
+                            <div class="task-content">${task.content || '(untitled)'}</div>
+                        </div>
+                        <div class="sidebar-task-progress">
+                            <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                        </div>
+                        <div class="sidebar-task-menu" data-task-id="${task.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        
+        this.sidebarContent.innerHTML = html;
+        this.bindSidebarEvents();
     }
 
     getAllTasks() {
@@ -8575,33 +8673,32 @@ class PomodoroTimer {
     bindSidebarEvents() {
         if (!this.sidebarContent) return;
         
-        // Checkbox clicks
-        this.sidebarContent.querySelectorAll('.sidebar-task-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const taskId = e.target.dataset.taskId;
-                this.toggleTaskCompletion(taskId);
-            });
-        });
-        
-        // Task item clicks (for selection)
-        this.sidebarContent.querySelectorAll('.sidebar-task-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if (e.target.closest('.sidebar-task-checkbox') || e.target.closest('.sidebar-task-actions')) {
-                    return; // Don't select if clicking checkbox or actions
+        // Checkbox clicks - same logic as modal
+        this.sidebarContent.querySelectorAll('.sidebar-task-checkbox input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const taskId = e.target.closest('.sidebar-task-checkbox').dataset.taskId;
+                const task = this.getAllTasks().find(t => t.id === taskId);
+                if (task) {
+                    task.completed = e.target.checked;
+                    if (task.source === 'local') {
+                        const localTasks = this.getLocalTasks();
+                        const localTask = localTasks.find(t => t.id === taskId);
+                        if (localTask) {
+                            localTask.completed = e.target.checked;
+                            this.setLocalTasks(localTasks);
+                        }
+                    }
+                    this.loadSidebarContent();
+                    this.updateCurrentTaskBanner();
                 }
-                const taskId = e.currentTarget.dataset.taskId;
-                this.selectTaskFromSidebar(taskId);
             });
         });
         
-        // Action buttons
-        this.sidebarContent.querySelectorAll('.sidebar-task-action').forEach(button => {
-            button.addEventListener('click', (e) => {
+        // Task menu clicks - open full modal
+        this.sidebarContent.querySelectorAll('.sidebar-task-menu').forEach(menu => {
+            menu.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const action = e.target.closest('[data-action]').dataset.action;
-                const taskId = e.target.closest('[data-task-id]').dataset.taskId;
-                this.handleSidebarTaskAction(action, taskId);
+                this.showTaskListModal();
             });
         });
         
@@ -8609,8 +8706,7 @@ class PomodoroTimer {
         const importBtn = this.sidebarContent.querySelector('#sidebarImportBtn');
         if (importBtn) {
             importBtn.addEventListener('click', () => {
-                this.closeSidebar();
-                this.showImportModal();
+                this.loadTodoistTasks();
             });
         }
     }
