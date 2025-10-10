@@ -8394,7 +8394,6 @@ class PomodoroTimer {
         this.sidebarElement = document.getElementById('tasksSidebar');
         this.sidebarCloseBtn = document.getElementById('sidebarClose');
         this.sidebarContent = document.getElementById('sidebarContent');
-        this.timerSection = document.querySelector('.timer-section');
         
         if (!this.sidebarElement) return;
         
@@ -8425,10 +8424,8 @@ class PomodoroTimer {
         this.sidebarElement.classList.add('open');
         this.sidebarOpen = true;
         
-        // Move main content to the right
-        if (this.timerSection) {
-            this.timerSection.classList.add('sidebar-open');
-        }
+        // Move entire page to the right
+        document.body.classList.add('sidebar-open');
         
         // Load content when opening
         this.loadSidebarContent();
@@ -8442,10 +8439,8 @@ class PomodoroTimer {
         this.sidebarElement.classList.remove('open');
         this.sidebarOpen = false;
         
-        // Move main content back to original position
-        if (this.timerSection) {
-            this.timerSection.classList.remove('sidebar-open');
-        }
+        // Move entire page back to original position
+        document.body.classList.remove('sidebar-open');
         
         console.log('✅ Sidebar closed');
     }
@@ -8453,27 +8448,32 @@ class PomodoroTimer {
     loadSidebarContent() {
         if (!this.sidebarContent) return;
         
-        // Get all tasks (local + Todoist)
+        // Get all tasks (local + Todoist) - same logic as modal
         const allTasks = this.getAllTasks();
         
-        if (allTasks.length === 0) {
+        // Filter to show only incomplete tasks by default
+        const incompleteTasks = allTasks.filter(task => !task.completed);
+        
+        if (incompleteTasks.length === 0) {
             this.renderSidebarEmptyState();
             return;
         }
         
-        this.renderSidebarTasks(allTasks);
+        this.renderSidebarTasks(incompleteTasks);
     }
 
     getAllTasks() {
         const tasks = [];
         
-        // Add local tasks
-        if (this.localTasks && this.localTasks.length > 0) {
-            this.localTasks.forEach(task => {
+        // Add local tasks - use the same logic as the modal
+        const localTasks = this.getLocalTasks();
+        if (localTasks && localTasks.length > 0) {
+            localTasks.forEach(task => {
                 tasks.push({
                     ...task,
                     source: 'local',
-                    id: `local_${task.id}`
+                    content: task.description || task.content,
+                    id: task.id
                 });
             });
         }
@@ -8484,7 +8484,8 @@ class PomodoroTimer {
                 tasks.push({
                     ...task,
                     source: 'todoist',
-                    id: `todoist_${task.id}`
+                    content: task.content,
+                    id: task.id
                 });
             });
         }
@@ -8533,19 +8534,26 @@ class PomodoroTimer {
         tasks.forEach(task => {
             const isCompleted = task.completed || false;
             const isSelected = this.currentTask && this.currentTask.id === task.id;
+            const taskContent = task.content || task.description || 'Untitled Task';
+            const pomodoros = task.pomodoros || 1;
             
             html += `
                 <div class="sidebar-task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
                     <div class="sidebar-task-content">
                         <div class="sidebar-task-checkbox ${isCompleted ? 'checked' : ''}" data-task-id="${task.id}"></div>
-                        <div class="sidebar-task-text ${isCompleted ? 'completed' : ''}">${task.content}</div>
+                        <div class="sidebar-task-text ${isCompleted ? 'completed' : ''}">
+                            <div class="task-content">${taskContent}</div>
+                            ${pomodoros > 1 ? `<div class="task-pomodoros">${pomodoros} pomodoros</div>` : ''}
+                        </div>
                         <div class="sidebar-task-actions">
-                            <button class="sidebar-task-action" data-action="focus" data-task-id="${task.id}" title="Focus on this task">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
-                                </svg>
-                            </button>
+                            ${!isCompleted ? `
+                                <button class="sidebar-task-action" data-action="focus" data-task-id="${task.id}" title="Focus on this task">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
                             <button class="sidebar-task-action" data-action="delete" data-task-id="${task.id}" title="Delete task">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="3,6 5,6 21,6"/>

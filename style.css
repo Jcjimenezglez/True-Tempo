@@ -6291,12 +6291,12 @@ input:checked + .toggle-slider:before {
     left: 0;
 }
 
-/* Main content responsive adjustment */
-.timer-section {
+/* Main content responsive adjustment - move entire page */
+body {
     transition: margin-left 0.3s ease;
 }
 
-.timer-section.sidebar-open {
+body.sidebar-open {
     margin-left: 400px;
 }
 
@@ -6416,6 +6416,16 @@ input:checked + .toggle-slider:before {
     opacity: 0.6;
 }
 
+.sidebar-task-text .task-content {
+    font-weight: 500;
+}
+
+.sidebar-task-text .task-pomodoros {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
 .sidebar-task-actions {
     display: flex;
     gap: 8px;
@@ -6506,7 +6516,7 @@ input:checked + .toggle-slider:before {
         left: -100vw;
     }
     
-    .timer-section.sidebar-open {
+    body.sidebar-open {
         margin-left: 0; /* No margin on mobile - sidebar is full width */
     }
     
