@@ -9539,11 +9539,13 @@ class SidebarManager {
     constructor() {
         this.sidebar = document.getElementById('sidebar');
         this.mainContent = document.getElementById('mainContent');
-        this.sidebarClose = document.getElementById('sidebarClose');
+        this.sidebarLogoToggle = document.getElementById('sidebarLogoToggle');
         this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
         
+        this.isCollapsed = false;
+        this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
         
         this.init();
@@ -9556,17 +9558,30 @@ class SidebarManager {
     }
     
     bindEvents() {
-        // Mobile menu toggle
-        if (this.mobileMenuToggle) {
-            this.mobileMenuToggle.addEventListener('click', () => {
-                this.showMobile();
+        // Logo toggle
+        if (this.sidebarLogoToggle) {
+            this.sidebarLogoToggle.addEventListener('click', () => {
+                this.toggleCollapse();
             });
         }
         
-        // Sidebar close button
-        if (this.sidebarClose) {
-            this.sidebarClose.addEventListener('click', () => {
-                this.hideMobile();
+        // Click on collapsed sidebar to expand
+        this.sidebar.addEventListener('click', (e) => {
+            if (this.isCollapsed && !this.isMobile) {
+                // Don't expand if clicking on interactive elements
+                if (e.target.closest('.nav-item') || 
+                    e.target.closest('.sidebar-user-section') ||
+                    e.target.closest('.sidebar-logo-toggle')) {
+                    return;
+                }
+                this.toggleCollapse();
+            }
+        });
+        
+        // Mobile menu toggle
+        if (this.mobileMenuToggle) {
+            this.mobileMenuToggle.addEventListener('click', () => {
+                this.toggleMobile();
             });
         }
         
@@ -9600,6 +9615,7 @@ class SidebarManager {
     setupResponsive() {
         if (this.isMobile) {
             this.sidebar.classList.add('hidden');
+            this.sidebar.classList.remove('collapsed');
             this.mainContent.style.marginLeft = '0';
         } else {
             this.sidebar.classList.remove('hidden');
@@ -9623,6 +9639,31 @@ class SidebarManager {
                 }
                 document.body.style.overflow = '';
             }
+        }
+    }
+    
+    toggleCollapse() {
+        if (this.isMobile) {
+            this.toggleMobile();
+            return;
+        }
+        
+        this.isCollapsed = !this.isCollapsed;
+        
+        if (this.isCollapsed) {
+            this.sidebar.classList.add('collapsed');
+            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
+        } else {
+            this.sidebar.classList.remove('collapsed');
+            this.mainContent.style.marginLeft = 'var(--sidebar-width)';
+        }
+    }
+    
+    toggleMobile() {
+        if (this.sidebar.classList.contains('open')) {
+            this.hideMobile();
+        } else {
+            this.showMobile();
         }
     }
     
