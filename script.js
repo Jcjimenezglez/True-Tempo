@@ -504,6 +504,8 @@ class PomodoroTimer {
             this.updatePremiumUI();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
+            // Check admin access for Developer tab
+            this.checkAdminAccess();
             // Welcome modal removed
             // Hide loading screen when user is authenticated
             this.hideLoadingScreen();
@@ -1590,6 +1592,9 @@ class PomodoroTimer {
         
         // View mode toggle buttons
         this.setupViewModeButtons();
+        
+        // Check if user is admin and show/hide Developer tab
+        this.checkAdminAccess();
 
         // Upgrade button
         const upgradeBtn = document.querySelector('.upgrade-btn');
@@ -8346,6 +8351,36 @@ class PomodoroTimer {
         } catch (e) {
             console.error('Error fetching Notion data:', e);
             this.notionPages = [];
+        }
+    }
+
+    checkAdminAccess() {
+        // Only show Developer tab for admin email
+        const adminEmail = 'jcjimenezglez@gmail.com';
+        const developerNavItem = document.getElementById('developerNavItem');
+        
+        if (!developerNavItem) return;
+        
+        // Check if user is authenticated and has admin email
+        let isAdmin = false;
+        try {
+            if (window.Clerk && window.Clerk.user) {
+                const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
+                                 window.Clerk.user.emailAddresses?.[0]?.emailAddress || '';
+                isAdmin = userEmail.toLowerCase() === adminEmail.toLowerCase();
+                console.log('Admin check:', { userEmail, isAdmin });
+            }
+        } catch (e) {
+            console.log('Error checking admin access:', e);
+        }
+        
+        // Show/hide Developer tab based on admin status
+        if (isAdmin) {
+            developerNavItem.style.display = 'flex';
+            console.log('✅ Developer tab shown for admin');
+        } else {
+            developerNavItem.style.display = 'none';
+            console.log('❌ Developer tab hidden for non-admin');
         }
     }
 
