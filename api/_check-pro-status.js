@@ -3,6 +3,31 @@
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 async function checkProStatus(req) {
+  // Developer Mode: Check for devMode=pro parameter to bypass Clerk verification
+  // This allows testing integrations without admin panel
+  try {
+    let devMode = '';
+    if (req.url) {
+      const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+      devMode = url.searchParams.get('devMode') || '';
+    }
+    if (!devMode && req.query && req.query.devMode) {
+      devMode = req.query.devMode;
+    }
+    
+    if (devMode === 'pro') {
+      console.log('✅ Developer Mode: Pro access granted (bypass Clerk verification)');
+      return { 
+        isPro: true, 
+        userId: 'dev-mode-user',
+        email: 'developer@mode.local',
+        devMode: true
+      };
+    }
+  } catch (e) {
+    console.log('Error checking devMode:', e);
+  }
+
   const clerkSecret = process.env.CLERK_SECRET_KEY;
   
   if (!clerkSecret) {
@@ -29,14 +54,8 @@ async function checkProStatus(req) {
       clerkUserId = req.query.uid;
     }
     
-    // Developer Mode: Check if user has viewMode=pro or isPremium/hasPaidSubscription in localStorage
-    // This won't be accessible from cookies but we can trust the frontend for dev mode
-    // For production, we rely on Clerk metadata
-    
     if (!clerkUserId) {
-      console.log('No Clerk user ID found, checking if developer mode is active');
-      // For developer mode, we'll allow if the request comes from an authenticated session
-      // The frontend will only send requests if localStorage has the right flags
+      console.log('No Clerk user ID found');
       return { isPro: false, error: 'Not authenticated' };
     }
     

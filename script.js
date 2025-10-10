@@ -3709,7 +3709,11 @@ class PomodoroTimer {
             // Extract original Todoist ID if we used a local prefix
             const originalId = String(current.id).startsWith('todoist_') ? String(current.id).replace('todoist_', '') : current.id;
             
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, {
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
+            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}${devModeParam}`, {
                 method: 'POST'
             });
         } catch (_) {}
@@ -3744,8 +3748,12 @@ class PomodoroTimer {
             // Extract original Todoist ID if we used a local prefix
             const originalId = String(taskId).startsWith('todoist_') ? String(taskId).replace('todoist_', '') : taskId;
             
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
             // Call the API to mark task as completed in Todoist (using query parameter)
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, {
+            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}${devModeParam}`, {
                 method: 'POST'
             });
         } catch (error) {
@@ -4677,7 +4685,11 @@ class PomodoroTimer {
                 completeBtn.title = 'Mark as completed';
                 completeBtn.addEventListener('click', async () => {
                     try {
-                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}`, { method: 'POST' });
+                        // Check if Developer Mode is active
+                        const viewMode = localStorage.getItem('viewMode');
+                        const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+                        
+                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}${devModeParam}`, { method: 'POST' });
                     } catch (_) {}
                     await this.fetchTodoistData();
                     renderTasks();
@@ -7160,8 +7172,12 @@ class PomodoroTimer {
             return;
         }
         try {
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '?devMode=pro' : '';
+            
             // Fetch projects via proxy
-            const projRes = await fetch('/api/todoist-projects');
+            const projRes = await fetch(`/api/todoist-projects${devModeParam}`);
             if (projRes.ok) {
                 const projects = await projRes.json();
                 this.todoistProjectsById = {};
@@ -7171,7 +7187,7 @@ class PomodoroTimer {
             }
 
             // Fetch tasks via proxy
-            const tasksRes = await fetch('/api/todoist-tasks');
+            const tasksRes = await fetch(`/api/todoist-tasks${devModeParam}`);
             if (tasksRes.ok) {
                 const tasks = await tasksRes.json();
                 this.todoistTasks = tasks;
@@ -8069,8 +8085,12 @@ class PomodoroTimer {
             const userId = window.Clerk?.user?.id || '';
             console.log('Connecting Todoist:', { userId, clerkUser: window.Clerk?.user });
             
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
             // Let the server verify Pro status - it will redirect with error if not Pro
-            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}`;
+            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
@@ -8122,8 +8142,12 @@ class PomodoroTimer {
             const userId = window.Clerk?.user?.id || '';
             console.log('Connecting Google Calendar:', { userId, clerkUser: window.Clerk?.user });
             
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
             // Let the server verify Pro status - it will redirect with error if not Pro
-            window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}`;
+            window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
@@ -8172,8 +8196,12 @@ class PomodoroTimer {
             const userId = window.Clerk?.user?.id || '';
             console.log('Connecting Notion:', { userId, clerkUser: window.Clerk?.user });
             
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
             // Let the server verify Pro status - it will redirect with error if not Pro
-            window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}`;
+            window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
@@ -8216,7 +8244,11 @@ class PomodoroTimer {
             return;
         }
         try {
-            const resp = await fetch('/api/google-calendar-events');
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '?devMode=pro' : '';
+            
+            const resp = await fetch(`/api/google-calendar-events${devModeParam}`);
             if (resp.ok) {
                 const events = await resp.json();
                 this.googleCalendarEvents = events;
@@ -8234,7 +8266,11 @@ class PomodoroTimer {
             return;
         }
         try {
-            const resp = await fetch('/api/notion-pages');
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '?devMode=pro' : '';
+            
+            const resp = await fetch(`/api/notion-pages${devModeParam}`);
             if (resp.ok) {
                 const pages = await resp.json();
                 this.notionPages = pages;
