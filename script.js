@@ -3071,28 +3071,12 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
-        // Toggle sidebar instead of modal
+        // Only toggle sidebar - no more modal
         if (this.sidebarOpen) {
             this.closeSidebar();
         } else {
             this.openSidebar();
         }
-        
-        // Keep the original modal functionality as backup
-        // Check user type and subscription level
-        if (!this.isAuthenticated || !this.user) {
-            // Guest users: show local tasks only
-            this.clearTodoistTasks();
-        this.showTaskListModal();
-        } else if (this.user && !this.isPro) {
-            // Free users: show local tasks only
-            this.clearTodoistTasks();
-            this.showTaskListModal();
-        } else if (this.user && this.isPro) {
-            // Pro users: show Todoist integration modal
-            this.showTodoistModal();
-        }
-        // Don't toggle active state - keep button in normal state
     }
 
     // Clear Todoist tasks and related data
@@ -8408,16 +8392,11 @@ class PomodoroTimer {
     initTasksSidebar() {
         this.sidebarOpen = false;
         this.sidebarElement = document.getElementById('tasksSidebar');
-        this.sidebarToggleBtn = document.getElementById('tasksToggleBtn');
         this.sidebarCloseBtn = document.getElementById('sidebarClose');
         this.sidebarContent = document.getElementById('sidebarContent');
+        this.timerSection = document.querySelector('.timer-section');
         
-        if (!this.sidebarElement || !this.sidebarToggleBtn) return;
-        
-        // Toggle button click
-        this.sidebarToggleBtn.addEventListener('click', () => {
-            this.toggleSidebar();
-        });
+        if (!this.sidebarElement) return;
         
         // Close button click
         if (this.sidebarCloseBtn) {
@@ -8445,7 +8424,11 @@ class PomodoroTimer {
         
         this.sidebarElement.classList.add('open');
         this.sidebarOpen = true;
-        this.sidebarToggleBtn.classList.add('hidden');
+        
+        // Move main content to the right
+        if (this.timerSection) {
+            this.timerSection.classList.add('sidebar-open');
+        }
         
         // Load content when opening
         this.loadSidebarContent();
@@ -8458,7 +8441,11 @@ class PomodoroTimer {
         
         this.sidebarElement.classList.remove('open');
         this.sidebarOpen = false;
-        this.sidebarToggleBtn.classList.remove('hidden');
+        
+        // Move main content back to original position
+        if (this.timerSection) {
+            this.timerSection.classList.remove('sidebar-open');
+        }
         
         console.log('✅ Sidebar closed');
     }

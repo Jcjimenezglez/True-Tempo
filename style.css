@@ -6291,6 +6291,15 @@ input:checked + .toggle-slider:before {
     left: 0;
 }
 
+/* Main content responsive adjustment */
+.timer-section {
+    transition: margin-left 0.3s ease;
+}
+
+.timer-section.sidebar-open {
+    margin-left: 400px;
+}
+
 /* Sidebar Header */
 .sidebar-header {
     display: flex;
@@ -6342,38 +6351,6 @@ input:checked + .toggle-slider:before {
     gap: 16px;
 }
 
-/* Tasks Toggle Button */
-.tasks-toggle-btn {
-    position: fixed;
-    top: 50%;
-    left: 20px;
-    transform: translateY(-50%);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    transition: all 0.3s ease;
-    opacity: 0.9;
-}
-
-.tasks-toggle-btn:hover {
-    opacity: 1;
-    transform: translateY(-50%) scale(1.05);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.tasks-toggle-btn.hidden {
-    display: none;
-}
 
 /* Sidebar Task Items */
 .sidebar-task-item {
@@ -6529,10 +6506,8 @@ input:checked + .toggle-slider:before {
         left: -100vw;
     }
     
-    .tasks-toggle-btn {
-        left: 16px;
-        padding: 10px 14px;
-        font-size: 13px;
+    .timer-section.sidebar-open {
+        margin-left: 0; /* No margin on mobile - sidebar is full width */
     }
     
     .sidebar-header {
@@ -6545,13 +6520,11 @@ input:checked + .toggle-slider:before {
 }
 
 @media (max-width: 480px) {
-    .tasks-toggle-btn {
-        left: 12px;
-        padding: 8px 12px;
-        font-size: 12px;
+    .sidebar-header {
+        padding: 12px;
     }
     
-    .tasks-toggle-btn span {
-        display: none;
+    .sidebar-content {
+        padding: 12px;
     }
 }
