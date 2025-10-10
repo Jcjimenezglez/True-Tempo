@@ -230,6 +230,8 @@ body::-webkit-scrollbar {
     transition: background-color 0.2s ease;
     width: 100%;
     text-align: left;
+    text-decoration: none;
+    outline: none;
 }
 
 .sidebar-logo-toggle:hover {

@@ -9560,7 +9560,10 @@ class SidebarManager {
     bindEvents() {
         // Logo toggle
         if (this.sidebarLogoToggle) {
-            this.sidebarLogoToggle.addEventListener('click', () => {
+            this.sidebarLogoToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Logo clicked, toggling sidebar');
                 this.toggleCollapse();
             });
         }
@@ -9575,6 +9578,7 @@ class SidebarManager {
                     e.target.closest('.focus-indicator')) {
                     return;
                 }
+                console.log('Sidebar area clicked, toggling');
                 this.toggleCollapse();
             }
         });
@@ -9646,6 +9650,8 @@ class SidebarManager {
     }
     
     toggleCollapse() {
+        console.log('toggleCollapse called, isMobile:', this.isMobile, 'isCollapsed:', this.isCollapsed);
+        
         if (this.isMobile) {
             this.toggleMobile();
             return;
@@ -9657,10 +9663,12 @@ class SidebarManager {
             this.sidebar.classList.add('collapsed');
             this.sidebar.classList.remove('expanded');
             this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
+            console.log('Sidebar collapsed');
         } else {
             this.sidebar.classList.remove('collapsed');
             this.sidebar.classList.add('expanded');
             this.mainContent.style.marginLeft = 'var(--sidebar-width)';
+            console.log('Sidebar expanded');
         }
     }
     
