@@ -8394,6 +8394,7 @@ class PomodoroTimer {
         this.sidebarElement = document.getElementById('tasksSidebar');
         this.sidebarCloseBtn = document.getElementById('sidebarClose');
         this.sidebarContent = document.getElementById('sidebarContent');
+        this.sidebarProfile = document.getElementById('sidebarProfile');
         
         if (!this.sidebarElement) return;
         
@@ -8406,6 +8407,7 @@ class PomodoroTimer {
         
         // Load sidebar content
         this.loadSidebarContent();
+        this.loadSidebarProfile();
         
         console.log('✅ Tasks sidebar initialized');
     }
@@ -8429,6 +8431,7 @@ class PomodoroTimer {
         
         // Load content when opening
         this.loadSidebarContent();
+        this.loadSidebarProfile();
         
         console.log('✅ Sidebar opened');
     }
@@ -8570,6 +8573,44 @@ class PomodoroTimer {
         
         // Bind events
         this.bindSidebarEvents();
+    }
+
+    loadSidebarProfile() {
+        if (!this.sidebarProfile) return;
+        
+        // Get user info
+        const userEmail = this.user?.emailAddresses?.[0]?.emailAddress || 
+                         this.user?.primaryEmailAddress?.emailAddress || 
+                         'Guest User';
+        const isPro = this.isPremiumUser();
+        
+        this.sidebarProfile.innerHTML = `
+            <div class="sidebar-profile-content">
+                <div class="sidebar-profile-info">
+                    <div class="sidebar-profile-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-profile-details">
+                        <div class="sidebar-profile-name">${userEmail}</div>
+                        <div class="sidebar-profile-plan ${isPro ? 'pro' : 'free'}">
+                            ${isPro ? 'Pro Plan' : 'Free Plan'}
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-profile-actions">
+                    <button class="sidebar-profile-btn" onclick="app.showSettingsModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                        </svg>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        `;
     }
 
     bindSidebarEvents() {
