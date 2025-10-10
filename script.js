@@ -9541,6 +9541,7 @@ class SidebarManager {
         this.mainContent = document.getElementById('mainContent');
         this.sidebarToggle = document.getElementById('sidebarToggle');
         this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
         
         this.isCollapsed = false;
@@ -9585,14 +9586,12 @@ class SidebarManager {
             });
         });
         
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (this.isMobile && this.sidebar.classList.contains('open')) {
-                if (!this.sidebar.contains(e.target) && !this.mobileMenuToggle.contains(e.target)) {
-                    this.hideMobile();
-                }
-            }
-        });
+        // Overlay click to close sidebar
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.addEventListener('click', () => {
+                this.hideMobile();
+            });
+        }
         
         // Handle window resize
         window.addEventListener('resize', () => {
@@ -9603,9 +9602,11 @@ class SidebarManager {
     setupResponsive() {
         if (this.isMobile) {
             this.sidebar.classList.add('hidden');
+            this.sidebar.classList.remove('collapsed');
             this.mainContent.style.marginLeft = '0';
         } else {
             this.sidebar.classList.remove('hidden');
+            this.sidebar.classList.remove('open');
             this.mainContent.style.marginLeft = 'var(--sidebar-width)';
         }
     }
@@ -9634,8 +9635,10 @@ class SidebarManager {
         
         if (this.isCollapsed) {
             this.sidebar.classList.add('collapsed');
+            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
         } else {
             this.sidebar.classList.remove('collapsed');
+            this.mainContent.style.marginLeft = 'var(--sidebar-width)';
         }
     }
     
@@ -9650,11 +9653,21 @@ class SidebarManager {
     showMobile() {
         this.sidebar.classList.add('open');
         this.sidebar.classList.remove('hidden');
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.classList.add('active');
+        }
+        // Prevent body scroll when sidebar is open on mobile
+        document.body.style.overflow = 'hidden';
     }
     
     hideMobile() {
         this.sidebar.classList.remove('open');
         this.sidebar.classList.add('hidden');
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.classList.remove('active');
+        }
+        // Restore body scroll
+        document.body.style.overflow = '';
     }
     
     setActiveNavItem(section) {

@@ -111,7 +111,7 @@ body::-webkit-scrollbar {
     height: 100vh;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
-    z-index: 1000;
+    z-index: 1001;
     transition: transform 0.3s ease, width 0.3s ease;
     overflow: hidden;
     display: flex;
@@ -251,6 +251,25 @@ body::-webkit-scrollbar {
 
 .sidebar.hidden + .main-content {
     margin-left: 0;
+}
+
+/* Mobile Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Mobile Menu Toggle Button */
@@ -472,11 +491,11 @@ body.is-scrolling .streak-fire {
 
 /* Main Header */
 .main-header {
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 10000;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -488,7 +507,6 @@ body.is-scrolling .streak-fire {
     box-sizing: border-box;
     /* Allow clicks inside the header; we handle scroll elsewhere */
     pointer-events: auto;
-    z-index: 10000;
 }
 
 .main-header * { pointer-events: auto; }
