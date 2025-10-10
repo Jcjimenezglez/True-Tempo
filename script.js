@@ -1996,13 +1996,21 @@ class PomodoroTimer {
         try {
             if (window.Clerk && window.Clerk.user) {
                 const meta = window.Clerk.user.publicMetadata || {};
+                console.log('Checking Pro status from Clerk:', {
+                    isPremium: meta.isPremium,
+                    metadata: meta,
+                    userId: window.Clerk.user.id
+                });
                 if (meta.isPremium === true) return true;
             }
         } catch (_) {}
 
         // 2) Then check if a forced view mode exists (legacy/dev only)
         const forcedMode = localStorage.getItem('viewMode');
-        if (forcedMode === 'pro') return true;
+        if (forcedMode === 'pro') {
+            console.log('Pro status from forced viewMode');
+            return true;
+        }
         if (forcedMode === 'free' || forcedMode === 'guest') return false;
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -2016,7 +2024,14 @@ class PomodoroTimer {
             localStorage.setItem('hasPaidSubscription', 'true');
             return true;
         }
-        return hasPremiumStorage || hasPaidSubscription;
+        
+        const result = hasPremiumStorage || hasPaidSubscription;
+        console.log('Pro status from localStorage:', {
+            isPremium: hasPremiumStorage,
+            hasPaidSubscription: hasPaidSubscription,
+            result: result
+        });
+        return result;
     }
 
     // Simple ambient sounds system
@@ -8045,6 +8060,15 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
+            const isPro = this.isPremiumUser();
+            console.log('Connecting Todoist:', { userId, isPro, clerkUser: window.Clerk?.user });
+            
+            if (!isPro) {
+                console.warn('User is not Pro, showing upgrade modal');
+                this.showProRequiredModal();
+                return;
+            }
+            
             window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
@@ -8095,6 +8119,15 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
+            const isPro = this.isPremiumUser();
+            console.log('Connecting Google Calendar:', { userId, isPro, clerkUser: window.Clerk?.user });
+            
+            if (!isPro) {
+                console.warn('User is not Pro, showing upgrade modal');
+                this.showProRequiredModal();
+                return;
+            }
+            
             window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
@@ -8142,6 +8175,15 @@ class PomodoroTimer {
         connectBtn.addEventListener('click', () => {
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
+            const isPro = this.isPremiumUser();
+            console.log('Connecting Notion:', { userId, isPro, clerkUser: window.Clerk?.user });
+            
+            if (!isPro) {
+                console.warn('User is not Pro, showing upgrade modal');
+                this.showProRequiredModal();
+                return;
+            }
+            
             window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}`;
         });
 
