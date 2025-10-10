@@ -1595,9 +1595,6 @@ class PomodoroTimer {
         
         // Check if user is admin and show/hide Developer tab
         this.checkAdminAccess();
-        
-        // Initialize tasks sidebar
-        this.initTasksSidebar();
 
         // Upgrade button
         const upgradeBtn = document.querySelector('.upgrade-btn');
@@ -3071,12 +3068,20 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
-        // Only toggle sidebar - no more modal
-        if (this.sidebarOpen) {
-            this.closeSidebar();
-        } else {
-            this.openSidebar();
+        // Check user type and subscription level
+        if (!this.isAuthenticated || !this.user) {
+            // Guest users: show local tasks only
+            this.clearTodoistTasks();
+        this.showTaskListModal();
+        } else if (this.user && !this.isPro) {
+            // Free users: show local tasks only
+            this.clearTodoistTasks();
+            this.showTaskListModal();
+        } else if (this.user && this.isPro) {
+            // Pro users: show Todoist integration modal
+            this.showTodoistModal();
         }
+        // Don't toggle active state - keep button in normal state
     }
 
     // Clear Todoist tasks and related data
@@ -6702,11 +6707,6 @@ class PomodoroTimer {
             this.fetchTodoistData().catch(() => {
                 this.todoistTasks = [];
                 this.todoistProjectsById = {};
-            }).finally(() => {
-                // Update sidebar content after loading tasks
-                if (this.sidebarContent) {
-                    this.loadSidebarContent();
-                }
             });
         } else {
             this.todoistTasks = [];
@@ -7252,11 +7252,6 @@ class PomodoroTimer {
         // Update session info line to include current task if any
         // Reuse updateSessionInfo to centralize rendering
         this.updateSessionInfo();
-        
-        // Update sidebar to show current task selection
-        if (this.sidebarContent) {
-            this.loadSidebarContent();
-        }
     }
 
     updateCycleCounter() {
@@ -8386,386 +8381,6 @@ class PomodoroTimer {
         } else {
             developerNavItem.style.display = 'none';
             console.log('❌ Developer tab hidden for non-admin');
-        }
-    }
-
-    initTasksSidebar() {
-        this.sidebarOpen = false;
-        this.sidebarElement = document.getElementById('tasksSidebar');
-        this.sidebarCloseBtn = document.getElementById('sidebarClose');
-        this.sidebarContent = document.getElementById('sidebarContent');
-        
-        if (!this.sidebarElement) return;
-        
-        // Close button click
-        if (this.sidebarCloseBtn) {
-            this.sidebarCloseBtn.addEventListener('click', () => {
-                this.closeSidebar();
-            });
-        }
-        
-        // Load sidebar content
-        this.loadSidebarContent();
-        
-        console.log('✅ Tasks sidebar initialized');
-    }
-
-    toggleSidebar() {
-        if (this.sidebarOpen) {
-            this.closeSidebar();
-        } else {
-            this.openSidebar();
-        }
-    }
-
-    openSidebar() {
-        if (!this.sidebarElement) return;
-        
-        this.sidebarElement.classList.add('open');
-        this.sidebarOpen = true;
-        
-        // Move entire page to the right
-        document.body.classList.add('sidebar-open');
-        
-        // Load content when opening
-        this.loadSidebarContent();
-        
-        console.log('✅ Sidebar opened');
-    }
-
-    closeSidebar() {
-        if (!this.sidebarElement) return;
-        
-        this.sidebarElement.classList.remove('open');
-        this.sidebarOpen = false;
-        
-        // Move entire page back to original position
-        document.body.classList.remove('sidebar-open');
-        
-        console.log('✅ Sidebar closed');
-    }
-
-    loadSidebarContent() {
-        if (!this.sidebarContent) return;
-        
-        // Use the EXACT same logic as the modal
-        const allTasks = this.getAllTasks();
-        
-        // Show only incomplete tasks (same as modal's 'todo' tab)
-        const filteredTasks = allTasks.filter(task => !task.completed);
-        
-        if (filteredTasks.length === 0) {
-            // Empty state
-            this.sidebarContent.innerHTML = `
-                ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
-                <div class="sidebar-import-section">
-                    <button class="sidebar-import-btn" id="sidebarImportBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12"/>
-                        </svg>
-                        Import from Todoist
-                    </button>
-                </div>
-                ` : ''}
-                <div class="sidebar-empty-state">
-                    <div class="sidebar-empty-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4m0-7v7m0-7h10a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2H9m0-7V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                    </div>
-                    <div class="sidebar-empty-text">No tasks yet</div>
-                    <div class="sidebar-empty-subtext">Add tasks to get started</div>
-                </div>
-            `;
-            this.bindSidebarEvents();
-            return;
-        }
-        
-        // Apply saved task order (same as modal)
-        const savedOrder = this.getTaskOrder();
-        let orderedTasks = filteredTasks;
-        
-        if (savedOrder.length > 0) {
-            const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
-            orderedTasks = [];
-            savedOrder.forEach(orderItem => {
-                if (taskMap.has(orderItem.id)) {
-                    orderedTasks.push(taskMap.get(orderItem.id));
-                    taskMap.delete(orderItem.id);
-                }
-            });
-            taskMap.forEach(task => orderedTasks.push(task));
-        }
-        
-        // Build HTML using the same structure as modal
-        let html = '';
-        
-        // Import section (only for Pro users)
-        if (this.isPremiumUser()) {
-            html += `
-                <div class="sidebar-import-section">
-                    <button class="sidebar-import-btn" id="sidebarImportBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12"/>
-                        </svg>
-                        Import from Todoist
-                    </button>
-                </div>
-            `;
-        }
-        
-        // Tasks list container
-        html += '<div class="sidebar-tasks-list">';
-        
-        orderedTasks.forEach((task, index) => {
-            const taskConfig = this.getTaskConfig(task.id);
-            const sessions = taskConfig.sessions || 1;
-            const completedSessions = taskConfig.completedSessions || 0;
-            const totalSessions = taskConfig.sessions || 1;
-            const isCompleted = task.completed || (completedSessions >= totalSessions);
-            const isSelected = taskConfig.selected || false;
-            
-            html += `
-                <div class="sidebar-task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
-                    <div class="sidebar-task-content">
-                        <div class="sidebar-task-checkbox ${isCompleted ? 'checked' : ''}" data-task-id="${task.id}">
-                            <input type="checkbox" id="sidebar-task-${task.id}" ${isCompleted ? 'checked' : ''}>
-                            <label for="sidebar-task-${task.id}"></label>
-                        </div>
-                        <div class="sidebar-task-text ${isCompleted ? 'completed' : ''}">
-                            <div class="task-content">${task.content || '(untitled)'}</div>
-                        </div>
-                        <div class="sidebar-task-progress">
-                            <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                        </div>
-                        <div class="sidebar-task-menu" data-task-id="${task.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"/>
-                                <circle cx="19" cy="12" r="1"/>
-                                <circle cx="5" cy="12" r="1"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        html += '</div>';
-        
-        this.sidebarContent.innerHTML = html;
-        this.bindSidebarEvents();
-    }
-
-    getAllTasks() {
-        const tasks = [];
-        
-        // Add local tasks - use the same logic as the modal
-        const localTasks = this.getLocalTasks();
-        if (localTasks && localTasks.length > 0) {
-            localTasks.forEach(task => {
-                tasks.push({
-                    ...task,
-                    source: 'local',
-                    content: task.description || task.content,
-                    id: task.id
-                });
-            });
-        }
-        
-        // Add Todoist tasks
-        if (this.todoistTasks && this.todoistTasks.length > 0) {
-            this.todoistTasks.forEach(task => {
-                tasks.push({
-                    ...task,
-                    source: 'todoist',
-                    content: task.content,
-                    id: task.id
-                });
-            });
-        }
-        
-        return tasks;
-    }
-
-    renderSidebarEmptyState() {
-        if (!this.sidebarContent) return;
-        
-        this.sidebarContent.innerHTML = `
-            <div class="sidebar-empty-state">
-                <div class="sidebar-empty-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4m0-7v7m0-7h10a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2H9m0-7V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                </div>
-                <div class="sidebar-empty-text">No tasks yet</div>
-                <div class="sidebar-empty-subtext">Add tasks to get started</div>
-            </div>
-        `;
-    }
-
-    renderSidebarTasks(tasks) {
-        if (!this.sidebarContent) return;
-        
-        let html = '';
-        
-        // Import section (only for Pro users)
-        if (this.isPremiumUser()) {
-            html += `
-                <div class="sidebar-import-section">
-                    <button class="sidebar-import-btn" id="sidebarImportBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12"/>
-                        </svg>
-                        Import from Todoist
-                    </button>
-                </div>
-            `;
-        }
-        
-        // Tasks list
-        tasks.forEach(task => {
-            const isCompleted = task.completed || false;
-            const isSelected = this.currentTask && this.currentTask.id === task.id;
-            const taskContent = task.content || task.description || 'Untitled Task';
-            const pomodoros = task.pomodoros || 1;
-            
-            html += `
-                <div class="sidebar-task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
-                    <div class="sidebar-task-content">
-                        <div class="sidebar-task-checkbox ${isCompleted ? 'checked' : ''}" data-task-id="${task.id}"></div>
-                        <div class="sidebar-task-text ${isCompleted ? 'completed' : ''}">
-                            <div class="task-content">${taskContent}</div>
-                            ${pomodoros > 1 ? `<div class="task-pomodoros">${pomodoros} pomodoros</div>` : ''}
-                        </div>
-                        <div class="sidebar-task-actions">
-                            ${!isCompleted ? `
-                                <button class="sidebar-task-action" data-action="focus" data-task-id="${task.id}" title="Focus on this task">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="3"/>
-                                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
-                                    </svg>
-                                </button>
-                            ` : ''}
-                            <button class="sidebar-task-action" data-action="delete" data-task-id="${task.id}" title="Delete task">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3,6 5,6 21,6"/>
-                                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        this.sidebarContent.innerHTML = html;
-        
-        // Bind events
-        this.bindSidebarEvents();
-    }
-
-    bindSidebarEvents() {
-        if (!this.sidebarContent) return;
-        
-        // Checkbox clicks - same logic as modal
-        this.sidebarContent.querySelectorAll('.sidebar-task-checkbox input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const taskId = e.target.closest('.sidebar-task-checkbox').dataset.taskId;
-                const task = this.getAllTasks().find(t => t.id === taskId);
-                if (task) {
-                    task.completed = e.target.checked;
-                    if (task.source === 'local') {
-                        const localTasks = this.getLocalTasks();
-                        const localTask = localTasks.find(t => t.id === taskId);
-                        if (localTask) {
-                            localTask.completed = e.target.checked;
-                            this.setLocalTasks(localTasks);
-                        }
-                    }
-                    this.loadSidebarContent();
-                    this.updateCurrentTaskBanner();
-                }
-            });
-        });
-        
-        // Task menu clicks - open full modal
-        this.sidebarContent.querySelectorAll('.sidebar-task-menu').forEach(menu => {
-            menu.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.showTaskListModal();
-            });
-        });
-        
-        // Import button
-        const importBtn = this.sidebarContent.querySelector('#sidebarImportBtn');
-        if (importBtn) {
-            importBtn.addEventListener('click', () => {
-                this.loadTodoistTasks();
-            });
-        }
-    }
-
-    toggleTaskCompletion(taskId) {
-        if (taskId.startsWith('local_')) {
-            const localId = taskId.replace('local_', '');
-            this.markLocalTaskAsCompleted(localId);
-        } else if (taskId.startsWith('todoist_')) {
-            const todoistId = taskId.replace('todoist_', '');
-            this.completeTodoistTaskInTodoist(todoistId);
-        }
-        
-        // Refresh sidebar content
-        setTimeout(() => {
-            this.loadSidebarContent();
-        }, 100);
-    }
-
-    selectTaskFromSidebar(taskId) {
-        if (taskId.startsWith('local_')) {
-            const localId = taskId.replace('local_', '');
-            const task = this.localTasks.find(t => t.id === localId);
-            if (task) {
-                this.currentTask = { id: task.id, content: task.content, source: 'local' };
-                this.updateCurrentTaskBanner();
-            }
-        } else if (taskId.startsWith('todoist_')) {
-            const todoistId = taskId.replace('todoist_', '');
-            const task = this.todoistTasks.find(t => t.id === todoistId);
-            if (task) {
-                this.currentTask = { id: task.id, content: task.content, source: 'todoist', project_id: task.project_id };
-                this.updateCurrentTaskBanner();
-            }
-        }
-        
-        // Refresh sidebar to show selection
-        this.loadSidebarContent();
-    }
-
-    handleSidebarTaskAction(action, taskId) {
-        if (action === 'focus') {
-            this.selectTaskFromSidebar(taskId);
-            this.closeSidebar();
-        } else if (action === 'delete') {
-            if (confirm('Are you sure you want to delete this task?')) {
-                if (taskId.startsWith('local_')) {
-                    const localId = taskId.replace('local_', '');
-                    this.deleteLocalTask(localId);
-                } else if (taskId.startsWith('todoist_')) {
-                    // Todoist tasks can't be deleted from here, only completed
-                    alert('Todoist tasks can only be completed, not deleted from here.');
-                }
-                
-                // Refresh sidebar
-                setTimeout(() => {
-                    this.loadSidebarContent();
-                }, 100);
-            }
         }
     }
 
