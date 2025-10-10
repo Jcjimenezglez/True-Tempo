@@ -5564,12 +5564,23 @@ class PomodoroTimer {
         const tasksList = modal.querySelector('#todoistImportTasksList');
         const importActions = modal.querySelector('#todoistImportActions');
         
-            try {
-                // Fetch both tasks and projects
-                const [tasksResponse, projectsResponse] = await Promise.all([
-                    fetch('/api/todoist-tasks'),
-                    fetch('/api/todoist-projects')
-                ]);
+        try {
+            // Build query params (Developer Mode + uid) just like other flows
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+
+            // Fetch both tasks and projects
+            const [tasksResponse, projectsResponse] = await Promise.all([
+                fetch(`/api/todoist-tasks${qs}`),
+                fetch(`/api/todoist-projects${qs}`)
+            ]);
 
                 if (!tasksResponse.ok || !projectsResponse.ok) {
                     throw new Error('Failed to fetch data');
@@ -7029,12 +7040,23 @@ class PomodoroTimer {
         const projectsList = modal.querySelector('#projectsList');
         
         try {
+            // Build query params (Developer Mode + uid) just like other flows
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+
             // Load projects
-            const projectsRes = await fetch('/api/todoist-projects');
+            const projectsRes = await fetch(`/api/todoist-projects${qs}`);
             const projects = projectsRes.ok ? await projectsRes.json() : [];
             
             // Load tasks
-            const tasksRes = await fetch('/api/todoist-tasks');
+            const tasksRes = await fetch(`/api/todoist-tasks${qs}`);
             const tasks = tasksRes.ok ? await tasksRes.json() : [];
             
             // Group tasks by project
