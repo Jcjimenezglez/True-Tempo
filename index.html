@@ -206,10 +206,10 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo">
+            <button class="sidebar-logo-toggle" id="sidebarLogoToggle">
                 <img src="Superfocus-logo-header.svg" alt="Superfocus Logo" width="24" height="24">
                 <span class="sidebar-title">Superfocus</span>
-            </div>
+            </button>
             <button class="sidebar-toggle" id="sidebarToggle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 6h18"/>
@@ -217,6 +217,17 @@
                     <path d="M3 18h18"/>
                 </svg>
             </button>
+        </div>
+        
+        <!-- Focus Status Indicator -->
+        <div class="sidebar-focus-status">
+            <div class="focus-indicator" id="focusIndicator">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                <span class="focus-text">Ready to focus</span>
+            </div>
         </div>
         
         <nav class="sidebar-nav">
@@ -262,96 +273,9 @@
                 </div>
             </div>
         </nav>
-    </aside>
-
-    <!-- Mobile Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- Main Content Wrapper -->
-    <div class="main-content" id="mainContent">
-        <!-- Timer Section - Full Viewport -->
-        <section class="timer-section">
-    <!-- Unified Header -->
-    <header class="main-header">
-        <div class="header-left">
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 6h18"/>
-                    <path d="M3 12h18"/>
-                    <path d="M3 18h18"/>
-                </svg>
-            </button>
-            <div class="logo-icon" id="logoIcon">
-                <img src="Superfocus-logo-header.svg" alt="Superfocus Logo" width="24" height="24">
-            </div>
-        </div>
         
-        <div class="header-center">
-            <!-- Session Label in Header -->
-            <div class="session-label" id="sessionLabel">
-                <span>Pomodoro 1/4</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="session-label-icon">
-                    <path d="m9 18 6-6-6-6"/>
-                </svg>
-            </div>
-            
-            <!-- Technique Dropdown (hidden) -->
-            <div class="technique-dropdown" id="techniqueDropdown" style="display: none;">
-                <button class="technique-title" id="techniqueTitle" title="Select Focus Technique">
-                    Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <!-- All techniques available without restrictions -->
-                    <div class="dropdown-item" data-technique="pomodoro">
-                        <div class="item-content">
-                            <div class="item-title">Pomodoro</div>
-                            <div class="item-description">25 min focus, 5 min break, 15 min long break</div>
-                            <div class="item-link" style="display: none;">
-                                <a href="#" class="learn-more-link" data-technique="pomodoro">Learn more</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown-item" data-technique="pomodoro-plus">
-                        <div class="item-content">
-                            <div class="item-title">Long Pomodoro</div>
-                            <div class="item-description">50 min focus, 10 min break</div>
-                            <div class="item-link" style="display: none;">
-                                <a href="#" class="learn-more-link" data-technique="pomodoro-plus">Learn more</a>
-                            </div>
-                        </div>
-                        <button class="login-btn" id="loginPomodoroPlusBtn" style="display: none;">Sign up</button>
-                    </div>
-                    <div class="dropdown-item" data-technique="ultradian-rhythm">
-                        <div class="item-content">
-                            <div class="item-title">Ultradian Rhythm</div>
-                            <div class="item-description">90 min focus, 20 min break</div>
-                            <div class="item-link" style="display: none;">
-                                <a href="#" class="learn-more-link" data-technique="ultradian-rhythm">Learn more</a>
-                            </div>
-                        </div>
-                        <button class="login-btn" id="loginUltradianBtn" style="display: none;">Sign up</button>
-                    </div>
-                    <div class="dropdown-item" data-technique="custom">
-                        <div class="item-content">
-                            <div class="item-title">Custom Timer</div>
-                            <div class="item-description">Create your own focus technique</div>
-                            <div class="item-link">
-                                <a href="#" class="learn-more-link" data-technique="custom">Configure</a>
-                            </div>
-                        </div>
-                        <button class="login-btn" id="loginCustomBtn" style="display: none;">Sign up</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="header-right">
-            <!-- Auth Buttons (hidden, now in settings menu) -->
-            <div class="auth-container" id="authContainer" style="display: none;">
-                <button class="login-button" id="loginButton" style="display: none;">Login</button>
-                <button class="signup-button" id="signupButton" style="display: none;">Sign up for free</button>
-            </div>
-            
+        <!-- User Profile Section -->
+        <div class="sidebar-user-section">
             <!-- Settings Menu (always visible) -->
             <div class="settings-menu-container">
                 <button class="header-settings-btn" id="headerSettingsBtn" title="Settings Menu">
@@ -505,68 +429,15 @@
                 </div>
             </div>
         </div>
-            
-            <!-- User Profile (shown when authenticated) -->
-            <div class="user-profile-container" id="userProfileContainer" style="display: none;">
-                <button class="user-profile-button" id="userProfileButton" aria-label="Account">
-                    <img id="userAvatar" alt="User avatar" />
-                </button>
-                <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
-                    <div class="user-dropdown-menu" id="userDropdownMenu">
-                        <div class="user-info">
-                            <div class="user-email" id="userEmail">Loading...</div>
-                            <div class="pro-badge" id="userProBadge" style="display: none;">PRO</div>
-                        </div>
-                        <div class="dropdown-item" id="upgradeToProButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                            <span>Upgrade to Pro</span>
-                        </div>
-                        <div class="dropdown-item" id="manageSubscriptionButton" style="display: none;">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                            <span>Manage subscription</span>
-                        </div>
-                        <div class="dropdown-item" id="settingsButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                            <span>Settings</span>
-                        </div>
-                        <div class="dropdown-item" id="integrationsButton" style="display: none;">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22v-5"/>
-                                <path d="M9 8V2"/>
-                                <path d="M15 8V2"/>
-                                <path d="M18 8v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V8"/>
-                            </svg>
-                            <span>Integrations</span>
-                        </div>
-                        <div class="dropdown-item" id="feedbackButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                <path d="M13 8H7"/>
-                                <path d="M17 12H7"/>
-                            </svg>
-                            <span>Feedback</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" id="logoutButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                                <polyline points="16,17 21,12 16,7"/>
-                                <line x1="21" y1="12" x2="9" y2="12"/>
-                            </svg>
-                            <span>Log out</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content" id="mainContent">
+        <!-- Timer Section - Full Viewport -->
+        <section class="timer-section">
     
     
     <div class="container">

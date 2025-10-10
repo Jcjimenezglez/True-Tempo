@@ -9540,6 +9540,7 @@ class SidebarManager {
         this.sidebar = document.getElementById('sidebar');
         this.mainContent = document.getElementById('mainContent');
         this.sidebarToggle = document.getElementById('sidebarToggle');
+        this.sidebarLogoToggle = document.getElementById('sidebarLogoToggle');
         this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
@@ -9561,6 +9562,13 @@ class SidebarManager {
         // Toggle sidebar collapse/expand
         if (this.sidebarToggle) {
             this.sidebarToggle.addEventListener('click', () => {
+                this.toggleCollapse();
+            });
+        }
+        
+        // Logo toggle (same functionality as sidebar toggle)
+        if (this.sidebarLogoToggle) {
+            this.sidebarLogoToggle.addEventListener('click', () => {
                 this.toggleCollapse();
             });
         }
