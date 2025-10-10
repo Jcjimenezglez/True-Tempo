@@ -7174,27 +7174,40 @@ class PomodoroTimer {
         try {
             // Check if Developer Mode is active
             const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '?devMode=pro' : '';
+            const userId = window.Clerk?.user?.id || '';
+            
+            // Build query params
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') params.append('devMode', 'pro');
+            if (userId) params.append('uid', userId);
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            console.log('Fetching Todoist data with params:', queryString);
             
             // Fetch projects via proxy
-            const projRes = await fetch(`/api/todoist-projects${devModeParam}`);
+            const projRes = await fetch(`/api/todoist-projects${queryString}`);
             if (projRes.ok) {
                 const projects = await projRes.json();
                 this.todoistProjectsById = {};
                 projects.forEach(p => { this.todoistProjectsById[p.id] = p; });
+                console.log('Todoist projects loaded:', projects.length);
             } else {
+                console.error('Failed to fetch projects:', projRes.status, await projRes.text());
                 this.todoistProjectsById = {};
             }
 
             // Fetch tasks via proxy
-            const tasksRes = await fetch(`/api/todoist-tasks${devModeParam}`);
+            const tasksRes = await fetch(`/api/todoist-tasks${queryString}`);
             if (tasksRes.ok) {
                 const tasks = await tasksRes.json();
                 this.todoistTasks = tasks;
+                console.log('Todoist tasks loaded:', tasks.length);
             } else {
+                console.error('Failed to fetch tasks:', tasksRes.status, await tasksRes.text());
                 this.todoistTasks = [];
             }
-        } catch (_) {
+        } catch (e) {
+            console.error('Error fetching Todoist data:', e);
             this.todoistTasks = [];
             this.todoistProjectsById = {};
         }
@@ -8246,16 +8259,27 @@ class PomodoroTimer {
         try {
             // Check if Developer Mode is active
             const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '?devMode=pro' : '';
+            const userId = window.Clerk?.user?.id || '';
             
-            const resp = await fetch(`/api/google-calendar-events${devModeParam}`);
+            // Build query params
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') params.append('devMode', 'pro');
+            if (userId) params.append('uid', userId);
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            console.log('Fetching Google Calendar data with params:', queryString);
+            
+            const resp = await fetch(`/api/google-calendar-events${queryString}`);
             if (resp.ok) {
                 const events = await resp.json();
                 this.googleCalendarEvents = events;
+                console.log('Google Calendar events loaded:', events.length);
             } else {
+                console.error('Failed to fetch calendar events:', resp.status, await resp.text());
                 this.googleCalendarEvents = [];
             }
-        } catch (_) {
+        } catch (e) {
+            console.error('Error fetching Google Calendar data:', e);
             this.googleCalendarEvents = [];
         }
     }
@@ -8268,16 +8292,27 @@ class PomodoroTimer {
         try {
             // Check if Developer Mode is active
             const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '?devMode=pro' : '';
+            const userId = window.Clerk?.user?.id || '';
             
-            const resp = await fetch(`/api/notion-pages${devModeParam}`);
+            // Build query params
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') params.append('devMode', 'pro');
+            if (userId) params.append('uid', userId);
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            console.log('Fetching Notion data with params:', queryString);
+            
+            const resp = await fetch(`/api/notion-pages${queryString}`);
             if (resp.ok) {
                 const pages = await resp.json();
                 this.notionPages = pages;
+                console.log('Notion pages loaded:', pages.length);
             } else {
+                console.error('Failed to fetch Notion pages:', resp.status, await resp.text());
                 this.notionPages = [];
             }
-        } catch (_) {
+        } catch (e) {
+            console.error('Error fetching Notion data:', e);
             this.notionPages = [];
         }
     }
