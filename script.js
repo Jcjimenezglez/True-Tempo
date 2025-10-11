@@ -5476,20 +5476,25 @@ class PomodoroTimer {
         if (taskInput) {
             const newTaskInput = taskInput.cloneNode(true);
             taskInput.replaceWith(newTaskInput);
+            
+            // Get fresh references after all replacements
             const finalTaskInput = panel.querySelector('#taskDescription');
             const finalSaveBtn = panel.querySelector('#saveTask');
             
-            finalTaskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && finalSaveBtn) {
-                    finalSaveBtn.click();
-                }
-            });
-            
-            finalTaskInput.addEventListener('input', () => {
-                if (finalSaveBtn) {
+            if (finalTaskInput && finalSaveBtn) {
+                finalTaskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        finalSaveBtn.click();
+                    }
+                });
+                
+                finalTaskInput.addEventListener('input', () => {
                     finalSaveBtn.disabled = !finalTaskInput.value.trim();
-                }
-            });
+                });
+                
+                // Set initial state
+                finalSaveBtn.disabled = !finalTaskInput.value.trim();
+            }
         }
     }
 
