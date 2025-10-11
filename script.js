@@ -5964,12 +5964,112 @@ class PomodoroTimer {
         }
     }
 
+    // Show integration upgrade modal for Guest users
+    showIntegrationUpgradeModal(integrationType) {
+        const integrationData = {
+            todoist: {
+                title: 'Todoist Integration',
+                subtitle: 'Sync your tasks seamlessly',
+                icon: '<img src="/images/todoist.svg" alt="Todoist" style="width: 64px; height: 64px;">',
+                benefits: [
+                    'Import tasks from Todoist projects',
+                    'Two-way sync keeps everything updated',
+                    'Focus on tasks with Pomodoro timer',
+                    'Track productivity across platforms'
+                ]
+            },
+            notion: {
+                title: 'Notion Integration',
+                subtitle: 'Connect your workspace',
+                icon: '<img src="/images/notion.svg" alt="Notion" style="width: 64px; height: 64px;">',
+                benefits: [
+                    'Import tasks from Notion databases',
+                    'Keep your workflow centralized',
+                    'Sync task progress automatically',
+                    'Boost productivity with seamless integration'
+                ]
+            },
+            googleCalendar: {
+                title: 'Google Calendar Integration',
+                subtitle: 'Time-block your tasks',
+                icon: '<img src="/images/google-calendar.svg" alt="Google Calendar" style="width: 64px; height: 64px;">',
+                benefits: [
+                    'Import events as focus tasks',
+                    'Schedule Pomodoro sessions',
+                    'Sync calendar with timer',
+                    'Manage time effectively'
+                ]
+            }
+        };
+        
+        const data = integrationData[integrationType];
+        if (!data) return;
+        
+        const modal = document.getElementById('integrationUpgradeModal');
+        const iconContainer = document.getElementById('integrationIconContainer');
+        const title = document.getElementById('integrationTitle');
+        const subtitle = document.getElementById('integrationSubtitle');
+        const benefitsList = document.getElementById('integrationBenefitsList');
+        
+        // Set content
+        iconContainer.innerHTML = data.icon;
+        title.textContent = data.title;
+        subtitle.textContent = data.subtitle;
+        
+        // Build benefits list
+        benefitsList.innerHTML = data.benefits.map(benefit => `
+            <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span style="color: rgba(255,255,255,0.9); font-size: 14px;">${benefit}</span>
+            </div>
+        `).join('');
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Setup event listeners
+        const closeBtn = document.getElementById('closeIntegrationModal');
+        const signupBtn = document.getElementById('integrationSignupBtn');
+        const cancelBtn = document.getElementById('integrationCancelBtn');
+        
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+        
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+        signupBtn.onclick = () => {
+            window.location.href = '/pricing';
+        };
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+    }
+
     // Wrapper functions for integration buttons
     showTodoistProjects() {
+        // Check if user is Guest
+        const isGuest = !this.isAuthenticated || !this.user;
+        
+        if (isGuest) {
+            this.showIntegrationUpgradeModal('todoist');
+            return;
+        }
+        
         this.showTodoistProjectsModal();
     }
     
     showNotionIntegration() {
+        // Check if user is Guest
+        const isGuest = !this.isAuthenticated || !this.user;
+        
+        if (isGuest) {
+            this.showIntegrationUpgradeModal('notion');
+            return;
+        }
+        
         // Check if already connected
         fetch('/api/notion-status')
             .then(res => res.json())
@@ -5991,6 +6091,14 @@ class PomodoroTimer {
     }
     
     showGoogleCalendarIntegration() {
+        // Check if user is Guest
+        const isGuest = !this.isAuthenticated || !this.user;
+        
+        if (isGuest) {
+            this.showIntegrationUpgradeModal('googleCalendar');
+            return;
+        }
+        
         // Check if already connected
         fetch('/api/google-calendar-status')
             .then(res => res.json())
