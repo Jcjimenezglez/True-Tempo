@@ -7554,6 +7554,9 @@ class PomodoroTimer {
             this.rebuildTaskQueue();
             this.updateCurrentTaskFromQueue();
             
+            // Re-render Task Sidebar immediately
+            this.renderTasksInSidePanel();
+            
             close();
         });
         
@@ -7616,6 +7619,9 @@ class PomodoroTimer {
             this.updateCurrentTaskBanner();
             this.rebuildTaskQueue();
             this.updateCurrentTaskFromQueue();
+            
+            // Re-render Task Sidebar immediately
+            this.renderTasksInSidePanel();
             
             close();
         });
