@@ -3837,8 +3837,6 @@ audio {
 }
 
 .tasks-list {
-    max-height: 300px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -4613,14 +4611,6 @@ input:checked + .toggle-slider:before {
     margin-bottom: 1rem;
 }
 
-.tasks-list {
-    max-height: 400px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 1rem;
-}
 
 .task-item {
     background: rgba(255, 255, 255, 0.03);
