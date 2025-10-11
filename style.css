@@ -333,9 +333,9 @@ body::-webkit-scrollbar {
 
 .sidebar-user-section .settings-dropdown {
     position: absolute;
-    top: 50%;
+    top: 100%;
     left: calc(100% + 8px);
-    transform: translateY(-50%);
+    transform: translateY(-100%);
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
