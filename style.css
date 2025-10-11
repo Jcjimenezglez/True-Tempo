@@ -323,11 +323,16 @@ body::-webkit-scrollbar {
     color: var(--sidebar-text-active);
 }
 
-.sidebar-user-section .header-settings-btn svg,
+.sidebar-user-section .header-settings-btn svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
 .sidebar-user-section .header-settings-btn img {
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
 }
 
