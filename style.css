@@ -113,7 +113,7 @@ body::-webkit-scrollbar {
     border-right: 1px solid var(--sidebar-border);
     z-index: 1001;
     transition: transform 0.3s ease, width 0.3s ease;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     /* Ensure no scrollbars anywhere */
@@ -294,6 +294,8 @@ body::-webkit-scrollbar {
     margin-top: auto;
     padding: 12px;
     border-top: 1px solid var(--sidebar-border);
+    overflow: visible;
+    position: relative;
 }
 
 .sidebar-user-section .settings-menu-container {
@@ -325,8 +327,8 @@ body::-webkit-scrollbar {
 .sidebar-user-section .header-settings-btn svg,
 .sidebar-user-section .header-settings-btn img {
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
 }
 
