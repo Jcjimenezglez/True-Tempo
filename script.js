@@ -10088,6 +10088,51 @@ class PomodoroTimer {
             
             this.setupTaskEventListeners(panel);
             this.setupDragAndDrop(panel);
+            
+            // Setup task menu (3 dots) click handlers for editing
+            const taskMenus = panel.querySelectorAll('.task-menu');
+            taskMenus.forEach(menu => {
+                menu.replaceWith(menu.cloneNode(true));
+            });
+            const newTaskMenus = panel.querySelectorAll('.task-menu');
+            newTaskMenus.forEach(menu => {
+                menu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    console.log('Task menu clicked');
+                    const taskId = menu.dataset.taskId;
+                    const addTaskForm = panel.querySelector('#addTaskForm');
+                    const addTaskBtn = panel.querySelector('#showAddTaskForm');
+                    if (!addTaskForm || !addTaskBtn) return;
+                    
+                    // Get task data
+                    const task = this.getLocalTasks().find(t => t.id === taskId);
+                    if (!task) return; // Only local tasks can be edited
+                    
+                    const config = this.getTaskConfig(taskId);
+                    
+                    // Enter edit mode
+                    this.editingTaskId = taskId;
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                    
+                    // Fill form with task data
+                    const taskInput = addTaskForm.querySelector('#taskDescription');
+                    const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                    const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                    const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
+                    
+                    if (taskInput) taskInput.value = task.content || '';
+                    if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
+                    if (deleteBtn) deleteBtn.style.display = '';
+                    if (cancelBtn) cancelBtn.style.display = '';
+                    if (taskInput) taskInput.focus();
+                    
+                    // Scroll form into view
+                    try { 
+                        addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
+                    } catch (_) {}
+                });
+            });
         };
         
         // Setup add task button
