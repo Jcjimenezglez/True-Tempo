@@ -435,6 +435,32 @@ body::-webkit-scrollbar {
     gap: 16px;
 }
 
+/* Custom scrollbar for task panel */
+.task-side-panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.task-side-panel-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.task-side-panel-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.task-side-panel-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar styling */
+.task-side-panel-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
 /* Main content pushes when panel opens */
 .main-content {
     margin-left: var(--sidebar-collapsed-width);
