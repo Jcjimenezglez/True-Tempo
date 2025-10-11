@@ -4814,11 +4814,11 @@ input:checked + .toggle-slider:before {
     object-fit: contain;
 }
 
-/* Tooltips for integration buttons - appear above */
+/* Tooltips for integration buttons - appear below */
 .integration-btn[data-tooltip]:hover::after {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: calc(100% + 8px);
+    top: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
     padding: 4px 8px;
@@ -4831,28 +4831,28 @@ input:checked + .toggle-slider:before {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     pointer-events: none;
     opacity: 0;
-    animation: tooltipFadeInTop 0.15s ease-out forwards;
+    animation: tooltipFadeInBottom 0.15s ease-out forwards;
     z-index: 100000;
 }
 
 .integration-btn[data-tooltip]:hover::before {
     content: '';
     position: absolute;
-    bottom: calc(100% + 2px);
+    top: calc(100% + 2px);
     left: 50%;
     transform: translateX(-50%);
     border: 4px solid transparent;
-    border-top-color: #000000;
+    border-bottom-color: #000000;
     z-index: 100001;
     pointer-events: none;
     opacity: 0;
-    animation: tooltipFadeInTop 0.15s ease-out forwards;
+    animation: tooltipFadeInBottom 0.15s ease-out forwards;
 }
 
-@keyframes tooltipFadeInTop {
+@keyframes tooltipFadeInBottom {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(2px);
+        transform: translateX(-50%) translateY(-2px);
     }
     to {
         opacity: 1;
