@@ -9539,7 +9539,6 @@ class SidebarManager {
     constructor() {
         this.sidebar = document.getElementById('sidebar');
         this.mainContent = document.getElementById('mainContent');
-        this.sidebarLogoToggle = document.getElementById('sidebarLogoToggle');
         this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
@@ -9558,15 +9557,7 @@ class SidebarManager {
     }
     
     bindEvents() {
-        // Logo - no toggle functionality, just visual
-        if (this.sidebarLogoToggle) {
-            this.sidebarLogoToggle.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Logo clicked - no action');
-                // No toggle functionality - sidebar stays collapsed
-            });
-        }
+        // Logo is just visual - no functionality needed
         
         // No click to expand functionality - sidebar always stays collapsed
         
