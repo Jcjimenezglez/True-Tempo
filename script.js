@@ -6032,8 +6032,7 @@ class PomodoroTimer {
                 <p style="color: rgba(255,255,255,0.7); font-size: 14px;">${data.subtitle}</p>
             </div>
             
-            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: white;">Benefits:</h4>
+            <div style="margin-bottom: 24px;">
                 ${data.benefits.map(benefit => `
                     <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
@@ -6044,22 +6043,9 @@ class PomodoroTimer {
                 `).join('')}
             </div>
             
-            <div style="background: #064e3b; border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
-                <div style="flex-shrink: 0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                    </svg>
-                </div>
-                <div style="flex: 1;">
-                    <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Pro Feature</div>
-                    <div style="color: white; font-size: 13px; opacity: 0.95;">Upgrade to Pro to unlock integrations</div>
-                </div>
-                <button id="integrationSignupBtnTop" style="background: white; color: #064e3b; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Upgrade</button>
-            </div>
-            
-            <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button class="btn-secondary" id="integrationCancelBtn">Cancel</button>
-                <button class="btn-primary" id="integrationSignupBtn">Upgrade to Pro</button>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-primary" id="integrationSignupBtn" style="width: 100%;">Upgrade to Pro</button>
+                <button class="btn-secondary" id="integrationCancelBtn" style="width: 100%;">Cancel</button>
             </div>
         `;
         
@@ -6079,9 +6065,6 @@ class PomodoroTimer {
         // Button handlers
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
-            window.location.href = '/pricing';
-        });
-        modal.querySelector('#integrationSignupBtnTop').addEventListener('click', () => {
             window.location.href = '/pricing';
         });
     }
