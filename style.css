@@ -433,6 +433,7 @@ body::-webkit-scrollbar {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    overscroll-behavior: contain;
 }
 
 /* Custom scrollbar for task panel */
@@ -459,6 +460,11 @@ body::-webkit-scrollbar {
 .task-side-panel-content {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+/* Task Side Panel - Prevent scroll blocking when no content */
+.task-side-panel {
+    pointer-events: auto;
 }
 
 /* Main content pushes when panel opens */
