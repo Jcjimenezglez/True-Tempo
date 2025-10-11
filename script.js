@@ -193,7 +193,8 @@ class PomodoroTimer {
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
         
-        // Achievement elements
+        // Logo and achievement elements
+        this.logoIcon = document.getElementById('logoIcon');
         this.achievementIcon = document.getElementById('achievementIcon');
         this.achievementCounter = document.getElementById('achievementCounter');
         this.streakInfo = document.getElementById('streakInfo');
@@ -490,7 +491,8 @@ class PomodoroTimer {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
-            // Always show achievement icon as hidden
+            // Always show logo, never show achievement icon
+            if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             // Streak info is now always visible via CSS
             this.updateUserProfile();
@@ -565,7 +567,8 @@ class PomodoroTimer {
             
             if (this.authContainer) this.authContainer.style.display = 'none'; // Always hidden, use settings menu instead
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
-            // Always show achievement icon as hidden
+            // Always show logo, never show achievement icon
+            if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             // Streak info is now always visible via CSS
             if (this.loginButton) this.loginButton.textContent = 'Login';
@@ -1522,7 +1525,13 @@ class PomodoroTimer {
             });
         }
 
-        // Logo is just visual - no click functionality
+        // Logo click - redirect to home
+        if (this.logoIcon) {
+            this.logoIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'https://superfocus.live';
+            });
+        }
 
         // Modal close buttons
         const closeUpgradeX = document.querySelector('.close-upgrade-x');
@@ -9491,6 +9500,179 @@ class PomodoroTimer {
             });
         }, 100);
     }
+    
+    // Render tasks in side panel (same as modal but for side panel)
+    renderTasksInSidePanel() {
+        const panel = document.getElementById('taskSidePanel');
+        if (!panel) return;
+        
+        // Get current tab
+        const activeTab = panel.querySelector('.task-tab.active');
+        const currentTab = activeTab && activeTab.dataset ? activeTab.dataset.tab : 'todo';
+        
+        // Show/hide sections based on user status
+        const importSection = document.getElementById('importTodoistSection');
+        const proUpgradeBanner = document.getElementById('proUpgradeBanner');
+        
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
+        const isProUser = this.isAuthenticated && this.user && this.isPremiumUser();
+        
+        if (importSection) {
+            importSection.style.display = isProUser ? 'block' : 'none';
+        }
+        
+        if (proUpgradeBanner) {
+            proUpgradeBanner.style.display = isFreeUser ? 'block' : 'none';
+        }
+        
+        // Render tasks
+        this.renderTasksInPanelList(panel, currentTab);
+        
+        // Setup tab switching
+        const tabs = panel.querySelectorAll('.task-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const newTab = tab.dataset.tab;
+                this.renderTasksInPanelList(panel, newTab);
+            });
+        });
+        
+        // Setup task options dropdown
+        const taskOptionsBtn = panel.querySelector('#taskOptionsBtn');
+        const taskOptionsDropdown = panel.querySelector('#taskOptionsDropdown');
+        
+        if (taskOptionsBtn && taskOptionsDropdown) {
+            taskOptionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isVisible = taskOptionsDropdown.style.display === 'block';
+                taskOptionsDropdown.style.display = isVisible ? 'none' : 'block';
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                if (taskOptionsDropdown) {
+                    taskOptionsDropdown.style.display = 'none';
+                }
+            });
+        }
+        
+        // Setup clear buttons
+        const clearAllBtn = panel.querySelector('#clearAllTasksBtn');
+        const clearDoneBtn = panel.querySelector('#clearDoneTasksBtn');
+        
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                this.clearAllTasks();
+                this.renderTasksInPanelList(panel, currentTab);
+                if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
+            });
+        }
+        
+        if (clearDoneBtn) {
+            clearDoneBtn.addEventListener('click', () => {
+                this.clearCompletedTasks();
+                this.renderTasksInPanelList(panel, currentTab);
+                if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
+            });
+        }
+        
+        // Setup add task functionality
+        const addTaskInput = panel.querySelector('#newTaskInput');
+        const addTaskBtn = panel.querySelector('#addTaskBtn');
+        
+        if (addTaskInput && addTaskBtn) {
+            addTaskBtn.addEventListener('click', () => {
+                const taskName = addTaskInput.value.trim();
+                if (taskName) {
+                    this.addManualTask(taskName);
+                    addTaskInput.value = '';
+                    this.renderTasksInPanelList(panel, currentTab);
+                }
+            });
+            
+            addTaskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTaskBtn.click();
+                }
+            });
+        }
+        
+        // Setup upgrade button
+        const upgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', () => {
+                window.location.href = '/pricing';
+            });
+        }
+        
+        // Setup import button
+        const importBtn = panel.querySelector('#importTodoistMainBtn');
+        if (importBtn) {
+            importBtn.addEventListener('click', () => {
+                this.showTodoistProjects();
+            });
+        }
+    }
+    
+    renderTasksInPanelList(panel, currentTab) {
+        const listEl = panel.querySelector('#todoistTasksList');
+        if (!listEl) return;
+        
+        listEl.innerHTML = '';
+        const allTasks = this.getAllTasks();
+        
+        // Filter tasks based on current tab
+        let filteredTasks = allTasks;
+        if (currentTab === 'todo') {
+            filteredTasks = allTasks.filter(task => !task.completed);
+        } else if (currentTab === 'done') {
+            filteredTasks = allTasks.filter(task => task.completed);
+        }
+        
+        if (filteredTasks.length === 0) {
+            if (currentTab === 'done') {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
+                    </div>
+                `;
+            }
+            return;
+        }
+        
+        // Apply saved task order
+        const savedOrder = this.getTaskOrder();
+        let orderedTasks = filteredTasks;
+        
+        if (savedOrder.length > 0) {
+            orderedTasks = filteredTasks.sort((a, b) => {
+                const indexA = savedOrder.indexOf(a.id);
+                const indexB = savedOrder.indexOf(b.id);
+                if (indexA === -1 && indexB === -1) return 0;
+                if (indexA === -1) return 1;
+                if (indexB === -1) return -1;
+                return indexA - indexB;
+            });
+        }
+        
+        // Render tasks
+        orderedTasks.forEach((task, index) => {
+            const taskEl = this.createTaskElement(task, index, orderedTasks);
+            listEl.appendChild(taskEl);
+        });
+        
+        // Make tasks draggable (for reordering)
+        this.makeTasksDraggable(listEl);
+    }
 
 }
 
@@ -9533,10 +9715,12 @@ class SidebarManager {
         this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
+        this.taskSidePanel = document.getElementById('taskSidePanel');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
+        this.isTaskPanelOpen = false;
         
         this.init();
     }
@@ -9573,12 +9757,22 @@ class SidebarManager {
             });
         });
         
-        // Overlay click to close sidebar
+        // Overlay click to close sidebar AND task panel
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
                 this.hideMobile();
+                this.closeTaskPanel();
             });
         }
+        
+        // Click outside task panel to close it
+        document.addEventListener('click', (e) => {
+            if (this.isTaskPanelOpen && 
+                !this.taskSidePanel.contains(e.target) && 
+                !e.target.closest('.nav-item[data-section="tasks"]')) {
+                this.closeTaskPanel();
+            }
+        });
         
         // Handle window resize
         window.addEventListener('resize', () => {
@@ -9670,6 +9864,10 @@ class SidebarManager {
     
     handleNavigation(section) {
         switch (section) {
+            case 'tasks':
+                // Toggle task side panel
+                this.toggleTaskPanel();
+                break;
             case 'timer':
                 // Scroll to timer section
                 const timerSection = document.querySelector('.timer-section');
@@ -9680,10 +9878,6 @@ class SidebarManager {
             case 'statistics':
                 // Open statistics modal or navigate to stats
                 console.log('Navigate to statistics');
-                break;
-            case 'tasks':
-                // Open task management
-                console.log('Navigate to tasks');
                 break;
             case 'settings':
                 // Open settings modal
@@ -9700,6 +9894,33 @@ class SidebarManager {
                     helpToggle.click();
                 }
                 break;
+        }
+    }
+    
+    toggleTaskPanel() {
+        if (this.isTaskPanelOpen) {
+            this.closeTaskPanel();
+        } else {
+            this.openTaskPanel();
+        }
+    }
+    
+    openTaskPanel() {
+        if (this.taskSidePanel) {
+            this.taskSidePanel.classList.add('open');
+            this.isTaskPanelOpen = true;
+            
+            // Trigger rendering of tasks
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.renderTasksInSidePanel();
+            }
+        }
+    }
+    
+    closeTaskPanel() {
+        if (this.taskSidePanel) {
+            this.taskSidePanel.classList.remove('open');
+            this.isTaskPanelOpen = false;
         }
     }
 }
