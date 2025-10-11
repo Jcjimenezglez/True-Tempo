@@ -10036,6 +10036,7 @@ class PomodoroTimer {
 // Initialize the timer when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
+    window.pomodoroTimer = timer; // Make it globally accessible
     
     // Only show loader for Lighthouse or explicit query param
     const shouldShowLoader = () => {
