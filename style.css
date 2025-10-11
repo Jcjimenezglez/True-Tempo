@@ -417,7 +417,7 @@ body::-webkit-scrollbar {
     z-index: 999;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: visible;
+    overflow: hidden;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
 }
 
@@ -428,7 +428,7 @@ body::-webkit-scrollbar {
 .task-side-panel-content {
     height: 100%;
     overflow-y: auto;
-    overflow-x: visible;
+    overflow-x: hidden;
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -4784,7 +4784,6 @@ input:checked + .toggle-slider:before {
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
-    overflow: visible;
     position: relative;
 }
 
@@ -4813,6 +4812,55 @@ input:checked + .toggle-slider:before {
     width: 24px;
     height: 24px;
     object-fit: contain;
+}
+
+/* Tooltips for integration buttons - appear above */
+.integration-btn[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    opacity: 0;
+    animation: tooltipFadeInTop 0.2s ease-out forwards;
+    z-index: 100000;
+}
+
+.integration-btn[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+    border: 6px solid transparent;
+    border-top-color: #1a1a1a;
+    z-index: 100001;
+    pointer-events: none;
+    opacity: 0;
+    animation: tooltipFadeInTop 0.2s ease-out forwards;
+}
+
+@keyframes tooltipFadeInTop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* Inline Add Task Form */
