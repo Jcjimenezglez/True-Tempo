@@ -1039,38 +1039,7 @@ body.is-scrolling .streak-fire {
     }
 }
 
-/* Header Settings Button (Tesla-style icon-only) */
-.header-settings-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.6);
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    margin-left: 0.75rem;
-}
-
-.header-settings-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-}
-
-.header-settings-btn svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-
-.header-settings-btn img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
+/* Removed duplicate header-settings-btn rules */
 
 /* Settings Menu Container */
 .settings-menu-container {
