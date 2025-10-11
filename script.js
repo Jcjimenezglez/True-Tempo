@@ -520,6 +520,10 @@ class PomodoroTimer {
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
             
+            // Hide timer header auth buttons when authenticated
+            const timerHeaderAuth = document.getElementById('timerHeaderAuth');
+            if (timerHeaderAuth) timerHeaderAuth.style.display = 'none';
+            
             // Update user email in settings dropdown
             if (this.settingsUserEmail && this.user) {
                 this.settingsUserEmail.textContent = this.user.primaryEmailAddress?.emailAddress || 'User';
@@ -589,6 +593,10 @@ class PomodoroTimer {
             if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
+            
+            // Show timer header auth buttons when not authenticated
+            const timerHeaderAuth = document.getElementById('timerHeaderAuth');
+            if (timerHeaderAuth) timerHeaderAuth.style.display = 'block';
             // Reset badge to zero time for guests
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
