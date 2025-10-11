@@ -5409,14 +5409,19 @@ class PomodoroTimer {
         if (saveBtn) {
             const newSaveBtn = saveBtn.cloneNode(true);
             saveBtn.replaceWith(newSaveBtn);
-            newSaveBtn.addEventListener('click', () => {
+            const finalSaveBtn = panel.querySelector('#saveTask');
+            finalSaveBtn.addEventListener('click', () => {
                 console.log('💾 Save button clicked');
-                const description = taskInput ? taskInput.value.trim() : '';
-                const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
-                console.log('💾 Task data:', { description, pomodoros });
+                const finalTaskInput = panel.querySelector('#taskDescription');
+                const finalPomodorosInput = panel.querySelector('#pomodorosCount');
+                const description = finalTaskInput ? finalTaskInput.value.trim() : '';
+                const pomodoros = finalPomodorosInput ? parseInt(finalPomodorosInput.value) : 1;
+                
+                console.log('💾 Task description:', description, 'Pomodoros:', pomodoros);
                 
                 if (description) {
                     if (this.editingTaskId) {
+                        console.log('💾 Editing task:', this.editingTaskId);
                         const tasks = this.getLocalTasks();
                         const idx = tasks.findIndex(t => t.id === this.editingTaskId);
                         if (idx !== -1) {
@@ -5425,21 +5430,24 @@ class PomodoroTimer {
                             this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
                         }
                         this.editingTaskId = null;
-                        const listEl = panel.querySelector('#todoistTasksList');
-                        const addSection = panel.querySelector('.add-task-section');
-                        if (listEl) listEl.style.display = '';
-                        if (addSection) addSection.style.display = '';
                     } else {
+                        console.log('💾 Adding new task');
                         this.addLocalTask(description, pomodoros);
                     }
-                    if (taskInput) taskInput.value = '';
-                    if (pomodorosInput) pomodorosInput.value = '1';
+                    if (finalTaskInput) finalTaskInput.value = '';
+                    if (finalPomodorosInput) finalPomodorosInput.value = '1';
                     this.loadAllTasks();
-                    if (typeof renderTasks === 'function') renderTasks();
+                    if (typeof renderTasks === 'function') {
+                        console.log('💾 Calling renderTasks');
+                        renderTasks();
+                    }
                     this.updateCurrentTaskFromQueue();
                     this.updateSessionInfo();
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
+                    console.log('💾 Task saved successfully');
+                } else {
+                    console.warn('⚠️ No description provided');
                 }
             });
         }
@@ -9750,11 +9758,7 @@ class PomodoroTimer {
         const renderTasks = () => {
             console.log('🔵 renderTasks called, currentTab:', currentTab);
             
-            // Preserve the add task form (it's now inside listEl)
-            const addTaskForm = listEl.querySelector('#addTaskForm');
-            const formParent = addTaskForm ? addTaskForm.cloneNode(true) : null;
-            
-            // Clear only task items, not the form
+            // Clear only task items, preserve the form
             const taskItems = listEl.querySelectorAll('.task-item, .empty-state');
             taskItems.forEach(item => item.remove());
             
@@ -9803,6 +9807,9 @@ class PomodoroTimer {
                 taskMap.forEach(task => orderedTasks.push(task));
             }
             
+            // Get the form element to insert before it (if it exists)
+            const addTaskFormEl = listEl.querySelector('#addTaskForm');
+            
             orderedTasks.forEach((task, index) => {
                 const item = document.createElement('div');
                 item.className = 'task-item';
@@ -9844,7 +9851,12 @@ class PomodoroTimer {
                     item.classList.add('selected');
                 }
                 
-                listEl.appendChild(item);
+                // Insert before the form if it exists, otherwise append
+                if (addTaskFormEl) {
+                    listEl.insertBefore(item, addTaskFormEl);
+                } else {
+                    listEl.appendChild(item);
+                }
             });
             
             this.setupTaskEventListeners(panel);
