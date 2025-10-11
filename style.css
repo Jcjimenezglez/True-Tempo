@@ -362,6 +362,11 @@ body::-webkit-scrollbar {
     background: rgba(255, 255, 255, 0.1);
 }
 
+.sidebar-user-section .settings-login-btn {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
 /* Removed unnecessary span hiding rule */
 
 /* Main Content Layout */
