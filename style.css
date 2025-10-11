@@ -366,13 +366,8 @@ body::-webkit-scrollbar {
 
 /* Main Content Layout */
 .main-content {
-    margin-left: var(--sidebar-collapsed-width) !important;
-    transition: none; /* No transitions since sidebar never changes width */
     min-height: 100vh;
-}
-
-.sidebar.hidden + .main-content {
-    margin-left: 0 !important;
+    /* margin-left and transition defined below for task panel behavior */
 }
 
 /* Mobile Sidebar Overlay */
@@ -469,11 +464,20 @@ body::-webkit-scrollbar {
     }
     
     .main-content {
-        margin-left: 0;
+        margin-left: 0 !important;
+    }
+    
+    .main-content.task-panel-open {
+        margin-left: 0 !important;
     }
     
     .sidebar-toggle {
         display: flex;
+    }
+    
+    /* Task panel overlay on mobile instead of pushing */
+    .task-side-panel {
+        left: 0;
     }
 }
 
