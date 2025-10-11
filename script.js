@@ -9688,8 +9688,13 @@ class PomodoroTimer {
     
     // Render tasks in side panel - use exact same logic as showTaskListModal
     renderTasksInSidePanel() {
+        console.log('🔵 renderTasksInSidePanel called');
         const panel = document.getElementById('taskSidePanel');
-        if (!panel) return;
+        if (!panel) {
+            console.error('❌ Panel not found!');
+            return;
+        }
+        console.log('✅ Panel found:', panel);
         
         // Check if user is authenticated and show/hide sections accordingly
         const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
@@ -9737,9 +9742,11 @@ class PomodoroTimer {
         }
         
         const listEl = panel.querySelector('#todoistTasksList');
+        console.log('🔵 listEl:', listEl);
         let currentTab = 'todo'; // Default to todo tab
         
         const renderTasks = () => {
+            console.log('🔵 renderTasks called, currentTab:', currentTab);
             listEl.innerHTML = '';
             const allTasks = this.getAllTasks();
             
@@ -9879,6 +9886,7 @@ class PomodoroTimer {
         
         // Setup tabs FIRST - remove all old listeners
         const tabs = panel.querySelectorAll('.task-tab');
+        console.log('🔵 Found tabs:', tabs.length);
         tabs.forEach(tab => {
             const newTab = tab.cloneNode(true);
             tab.parentNode.replaceChild(newTab, tab);
@@ -9886,6 +9894,7 @@ class PomodoroTimer {
         
         // Add new listeners to fresh tabs
         const newTabs = panel.querySelectorAll('.task-tab');
+        console.log('🔵 Setting up listeners for', newTabs.length, 'tabs');
         newTabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -9983,13 +9992,17 @@ class PomodoroTimer {
         
         // Setup integration buttons
         const todoistBtn = panel.querySelector('#importTodoistMainBtn');
+        console.log('🔵 Todoist button:', todoistBtn);
         if (todoistBtn) {
             todoistBtn.replaceWith(todoistBtn.cloneNode(true));
             const newTodoistBtn = panel.querySelector('#importTodoistMainBtn');
+            console.log('🔵 Adding click listener to Todoist button');
             newTodoistBtn.addEventListener('click', () => {
                 console.log('Todoist button clicked');
                 this.showTodoistProjects();
             });
+        } else {
+            console.warn('⚠️ Todoist button not found');
         }
         
         const notionBtn = panel.querySelector('#importNotionMainBtn');
@@ -10013,7 +10026,9 @@ class PomodoroTimer {
         }
         
         // Initial render
+        console.log('🔵 Calling initial renderTasks');
         renderTasks();
+        console.log('✅ renderTasksInSidePanel completed successfully');
     }
 
 }
@@ -10267,8 +10282,12 @@ class SidebarManager {
             }
             
             // Trigger rendering of tasks
+            console.log('🟢 openTaskPanel - checking pomodoroTimer:', window.pomodoroTimer);
             if (window.pomodoroTimer) {
+                console.log('🟢 Calling renderTasksInSidePanel');
                 window.pomodoroTimer.renderTasksInSidePanel();
+            } else {
+                console.error('❌ window.pomodoroTimer not found!');
             }
         }
     }
