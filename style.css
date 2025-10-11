@@ -364,11 +364,7 @@ body::-webkit-scrollbar {
 
 /* Removed unnecessary span hiding rule */
 
-/* Main Content Layout */
-.main-content {
-    min-height: 100vh;
-    /* margin-left and transition defined below for task panel behavior */
-}
+/* Main Content Layout - Removed duplicate, defined below with task panel behavior */
 
 /* Mobile Sidebar Overlay */
 .sidebar-overlay {
@@ -422,6 +418,7 @@ body::-webkit-scrollbar {
 .main-content {
     margin-left: var(--sidebar-collapsed-width);
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
 }
 
 .main-content.task-panel-open {
