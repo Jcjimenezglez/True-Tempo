@@ -9999,7 +9999,10 @@ class PomodoroTimer {
         
         const listEl = panel.querySelector('#todoistTasksList');
         console.log('🔵 listEl:', listEl);
-        let currentTab = 'todo'; // Default to todo tab
+        
+        // Detect current active tab from DOM
+        const activeTabEl = panel.querySelector('.task-tab.active');
+        let currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo'; // Default to todo tab
         
         const renderTasks = () => {
             console.log('🔵 renderTasks called, currentTab:', currentTab);
