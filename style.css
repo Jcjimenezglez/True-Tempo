@@ -4643,6 +4643,12 @@ input:checked + .toggle-slider:before {
     border-left-color: #a3a3a3;
 }
 
+/* Onyx green border when dragging */
+.task-item.dragging,
+.task-item.selected.dragging {
+    border-left-color: #10b981;
+}
+
 .task-item.completed {
     opacity: 0.6;
     background: rgba(163, 163, 163, 0.1);
@@ -6217,6 +6223,7 @@ input:checked + .toggle-slider:before {
     transform: rotate(5deg);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     z-index: 1000;
+    border-left-color: #10b981;
 }
 
 .task-item:hover {
