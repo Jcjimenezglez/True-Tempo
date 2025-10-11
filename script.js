@@ -9501,177 +9501,287 @@ class PomodoroTimer {
         }, 100);
     }
     
-    // Render tasks in side panel (same as modal but for side panel)
+    // Render tasks in side panel - use exact same logic as showTaskListModal
     renderTasksInSidePanel() {
         const panel = document.getElementById('taskSidePanel');
         if (!panel) return;
         
-        // Get current tab
-        const activeTab = panel.querySelector('.task-tab.active');
-        const currentTab = activeTab && activeTab.dataset ? activeTab.dataset.tab : 'todo';
+        // Check if user is authenticated and show/hide sections accordingly
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
+        const isGuest = !this.isAuthenticated || !this.user;
         
         // Show/hide sections based on user status
         const importSection = document.getElementById('importTodoistSection');
         const proUpgradeBanner = document.getElementById('proUpgradeBanner');
-        
-        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
-        const isProUser = this.isAuthenticated && this.user && this.isPremiumUser();
+        const guestBanner = document.getElementById('guestTaskBanner');
         
         if (importSection) {
-            importSection.style.display = isProUser ? 'block' : 'none';
+            importSection.style.display = (this.isAuthenticated && this.user && this.isPremiumUser()) ? 'block' : 'none';
         }
         
         if (proUpgradeBanner) {
             proUpgradeBanner.style.display = isFreeUser ? 'block' : 'none';
         }
         
-        // Render tasks
-        this.renderTasksInPanelList(panel, currentTab);
+        if (guestBanner) {
+            guestBanner.style.display = isGuest ? 'flex' : 'none';
+        }
         
-        // Setup tab switching
+        // Setup upgrade button for free users
+        if (isFreeUser) {
+            const upgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
+            if (upgradeBtn) {
+                upgradeBtn.replaceWith(upgradeBtn.cloneNode(true)); // Remove old listeners
+                const newUpgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
+                newUpgradeBtn.addEventListener('click', () => {
+                    window.location.href = '/pricing';
+                });
+            }
+        }
+        
+        // Setup guest signup button
+        if (isGuest) {
+            const guestSignupBtn = panel.querySelector('#guestTaskSignupBtn');
+            if (guestSignupBtn) {
+                guestSignupBtn.replaceWith(guestSignupBtn.cloneNode(true));
+                const newGuestSignupBtn = panel.querySelector('#guestTaskSignupBtn');
+                newGuestSignupBtn.addEventListener('click', () => {
+                    window.location.href = '/pricing';
+                });
+            }
+        }
+        
+        const listEl = panel.querySelector('#todoistTasksList');
+        let currentTab = 'todo'; // Default to todo tab
+        
+        const renderTasks = () => {
+            listEl.innerHTML = '';
+            const allTasks = this.getAllTasks();
+            
+            // Filter tasks based on current tab
+            let filteredTasks = allTasks;
+            if (currentTab === 'todo') {
+                filteredTasks = allTasks.filter(task => !task.completed);
+            } else if (currentTab === 'done') {
+                filteredTasks = allTasks.filter(task => task.completed);
+            }
+            
+            if (filteredTasks.length === 0) {
+                if (currentTab === 'done') {
+                    listEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                </svg>
+                            </div>
+                            <div class="empty-text">No completed tasks yet</div>
+                            <div class="empty-subtext">Complete some tasks to see them here</div>
+                        </div>
+                    `;
+                }
+                return;
+            }
+            
+            // Apply saved task order
+            const savedOrder = this.getTaskOrder();
+            let orderedTasks = filteredTasks;
+            
+            if (savedOrder.length > 0) {
+                const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+                orderedTasks = [];
+                savedOrder.forEach(orderItem => {
+                    if (taskMap.has(orderItem.id)) {
+                        orderedTasks.push(taskMap.get(orderItem.id));
+                        taskMap.delete(orderItem.id);
+                    }
+                });
+                taskMap.forEach(task => orderedTasks.push(task));
+            }
+            
+            orderedTasks.forEach((task, index) => {
+                const item = document.createElement('div');
+                item.className = 'task-item';
+                item.draggable = true;
+                item.dataset.taskId = task.id;
+                item.dataset.index = index;
+                
+                const taskConfig = this.getTaskConfig(task.id);
+                const sessions = taskConfig.sessions || 1;
+                const completedSessions = taskConfig.completedSessions || 0;
+                const totalSessions = taskConfig.sessions || 1;
+                const isCompleted = task.completed || (completedSessions >= totalSessions);
+                
+                const itemContent = `
+                    <div class="task-checkbox">
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                        <label for="task-${task.id}"></label>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">
+                            ${task.content || '(untitled)'}
+                        </div>
+                    </div>
+                    <div class="task-progress">
+                        <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                    </div>
+                    <div class="task-menu" data-task-id="${task.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="19" cy="12" r="1"/>
+                            <circle cx="5" cy="12" r="1"/>
+                        </svg>
+                    </div>
+                `;
+                
+                item.innerHTML = itemContent;
+                
+                if (taskConfig.selected) {
+                    item.classList.add('selected');
+                }
+                
+                listEl.appendChild(item);
+            });
+            
+            this.setupTaskEventListeners(panel);
+            this.setupDragAndDrop(panel);
+        };
+        
+        // Setup add task button
+        const addTaskBtn = panel.querySelector('#showAddTaskForm');
+        const addTaskForm = panel.querySelector('#addTaskForm');
+        if (addTaskBtn && addTaskForm) {
+            addTaskBtn.replaceWith(addTaskBtn.cloneNode(true));
+            const newAddTaskBtn = panel.querySelector('#showAddTaskForm');
+            newAddTaskBtn.addEventListener('click', () => {
+                this.editingTaskId = null;
+                addTaskForm.style.display = 'block';
+                newAddTaskBtn.disabled = true;
+                const taskInput = addTaskForm.querySelector('#taskDescription');
+                const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
+                const saveBtn = addTaskForm.querySelector('#saveTask');
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+                if (deleteBtn) deleteBtn.style.display = 'none';
+                const count = (this.getAllTasks() || []).length;
+                if (cancelBtn) cancelBtn.style.display = count === 0 ? 'none' : '';
+                if (saveBtn) saveBtn.disabled = !taskInput || !taskInput.value.trim();
+                if (taskInput) taskInput.focus();
+            });
+        }
+        
+        // Initial UI state
+        if (addTaskBtn && addTaskForm) {
+            const initialTasks = this.getAllTasks();
+            if (Array.isArray(initialTasks) && initialTasks.length === 0) {
+                addTaskForm.style.display = 'block';
+                addTaskBtn.disabled = true;
+                const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
+                const saveBtn0 = addTaskForm.querySelector('#saveTask');
+                const taskInput0 = addTaskForm.querySelector('#taskDescription');
+                if (cancelBtn0) cancelBtn0.style.display = 'none';
+                if (saveBtn0) saveBtn0.disabled = true;
+                if (taskInput0) taskInput0.focus();
+            } else {
+                addTaskForm.style.display = 'none';
+                addTaskBtn.disabled = false;
+            }
+        }
+        
+        // Setup form controls
+        this.setupAddTaskFormControls(panel, renderTasks);
+        
+        // Setup tabs
         const tabs = panel.querySelectorAll('.task-tab');
         tabs.forEach(tab => {
+            tab.replaceWith(tab.cloneNode(true));
+        });
+        const newTabs = panel.querySelectorAll('.task-tab');
+        newTabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
+                newTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                const newTab = tab.dataset.tab;
-                this.renderTasksInPanelList(panel, newTab);
+                currentTab = tab.dataset.tab;
+                
+                const addTaskForm = panel.querySelector('#addTaskForm');
+                const addTaskBtn = panel.querySelector('#showAddTaskForm');
+                const addTaskSection = panel.querySelector('.add-task-section');
+                
+                if (currentTab === 'done') {
+                    if (addTaskForm) addTaskForm.style.display = 'none';
+                    if (addTaskSection) addTaskSection.style.display = 'none';
+                } else {
+                    if (addTaskSection) addTaskSection.style.display = 'block';
+                    if (addTaskForm && addTaskBtn) {
+                        const tasks = this.getAllTasks();
+                        if (Array.isArray(tasks) && tasks.length === 0) {
+                            addTaskForm.style.display = 'block';
+                            addTaskBtn.disabled = true;
+                        } else {
+                            addTaskForm.style.display = 'none';
+                            addTaskBtn.disabled = false;
+                        }
+                    }
+                }
+                
+                renderTasks();
             });
         });
         
         // Setup task options dropdown
         const taskOptionsBtn = panel.querySelector('#taskOptionsBtn');
         const taskOptionsDropdown = panel.querySelector('#taskOptionsDropdown');
-        
-        if (taskOptionsBtn && taskOptionsDropdown) {
-            taskOptionsBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isVisible = taskOptionsDropdown.style.display === 'block';
-                taskOptionsDropdown.style.display = isVisible ? 'none' : 'block';
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', () => {
-                if (taskOptionsDropdown) {
-                    taskOptionsDropdown.style.display = 'none';
-                }
-            });
-        }
-        
-        // Setup clear buttons
         const clearAllBtn = panel.querySelector('#clearAllTasksBtn');
         const clearDoneBtn = panel.querySelector('#clearDoneTasksBtn');
         
+        if (taskOptionsBtn && taskOptionsDropdown) {
+            taskOptionsBtn.replaceWith(taskOptionsBtn.cloneNode(true));
+            const newTaskOptionsBtn = panel.querySelector('#taskOptionsBtn');
+            newTaskOptionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                taskOptionsDropdown.style.display = taskOptionsDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            document.addEventListener('click', () => {
+                if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
+            });
+        }
+        
         if (clearAllBtn) {
-            clearAllBtn.addEventListener('click', () => {
+            clearAllBtn.replaceWith(clearAllBtn.cloneNode(true));
+            const newClearAllBtn = panel.querySelector('#clearAllTasksBtn');
+            newClearAllBtn.addEventListener('click', () => {
                 this.clearAllTasks();
-                this.renderTasksInPanelList(panel, currentTab);
+                renderTasks();
                 if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
             });
         }
         
         if (clearDoneBtn) {
-            clearDoneBtn.addEventListener('click', () => {
+            clearDoneBtn.replaceWith(clearDoneBtn.cloneNode(true));
+            const newClearDoneBtn = panel.querySelector('#clearDoneTasksBtn');
+            newClearDoneBtn.addEventListener('click', () => {
                 this.clearCompletedTasks();
-                this.renderTasksInPanelList(panel, currentTab);
+                renderTasks();
                 if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
-            });
-        }
-        
-        // Setup add task functionality
-        const addTaskInput = panel.querySelector('#newTaskInput');
-        const addTaskBtn = panel.querySelector('#addTaskBtn');
-        
-        if (addTaskInput && addTaskBtn) {
-            addTaskBtn.addEventListener('click', () => {
-                const taskName = addTaskInput.value.trim();
-                if (taskName) {
-                    this.addManualTask(taskName);
-                    addTaskInput.value = '';
-                    this.renderTasksInPanelList(panel, currentTab);
-                }
-            });
-            
-            addTaskInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    addTaskBtn.click();
-                }
-            });
-        }
-        
-        // Setup upgrade button
-        const upgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
-        if (upgradeBtn) {
-            upgradeBtn.addEventListener('click', () => {
-                window.location.href = '/pricing';
             });
         }
         
         // Setup import button
         const importBtn = panel.querySelector('#importTodoistMainBtn');
         if (importBtn) {
-            importBtn.addEventListener('click', () => {
+            importBtn.replaceWith(importBtn.cloneNode(true));
+            const newImportBtn = panel.querySelector('#importTodoistMainBtn');
+            newImportBtn.addEventListener('click', () => {
                 this.showTodoistProjects();
             });
         }
-    }
-    
-    renderTasksInPanelList(panel, currentTab) {
-        const listEl = panel.querySelector('#todoistTasksList');
-        if (!listEl) return;
         
-        listEl.innerHTML = '';
-        const allTasks = this.getAllTasks();
-        
-        // Filter tasks based on current tab
-        let filteredTasks = allTasks;
-        if (currentTab === 'todo') {
-            filteredTasks = allTasks.filter(task => !task.completed);
-        } else if (currentTab === 'done') {
-            filteredTasks = allTasks.filter(task => task.completed);
-        }
-        
-        if (filteredTasks.length === 0) {
-            if (currentTab === 'done') {
-                listEl.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 12l2 2 4-4"/>
-                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
-                            </svg>
-                        </div>
-                        <div class="empty-text">No completed tasks yet</div>
-                        <div class="empty-subtext">Complete some tasks to see them here</div>
-                    </div>
-                `;
-            }
-            return;
-        }
-        
-        // Apply saved task order
-        const savedOrder = this.getTaskOrder();
-        let orderedTasks = filteredTasks;
-        
-        if (savedOrder.length > 0) {
-            orderedTasks = filteredTasks.sort((a, b) => {
-                const indexA = savedOrder.indexOf(a.id);
-                const indexB = savedOrder.indexOf(b.id);
-                if (indexA === -1 && indexB === -1) return 0;
-                if (indexA === -1) return 1;
-                if (indexB === -1) return -1;
-                return indexA - indexB;
-            });
-        }
-        
-        // Render tasks
-        orderedTasks.forEach((task, index) => {
-            const taskEl = this.createTaskElement(task, index, orderedTasks);
-            listEl.appendChild(taskEl);
-        });
-        
-        // Make tasks draggable (for reordering)
-        this.makeTasksDraggable(listEl);
+        // Initial render
+        renderTasks();
     }
 
 }

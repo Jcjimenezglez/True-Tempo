@@ -407,6 +407,7 @@ body::-webkit-scrollbar {
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
 }
 
 .task-side-panel.open {
@@ -417,13 +418,12 @@ body::-webkit-scrollbar {
     height: 100%;
     overflow-y: auto;
     padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-/* Adjust main content when task panel is open */
-.task-side-panel.open ~ .main-content {
-    margin-left: calc(var(--sidebar-collapsed-width) + 400px);
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* NO push main content - panel floats over it */
 
 /* Mobile Menu Toggle Button */
 .mobile-menu-toggle {
