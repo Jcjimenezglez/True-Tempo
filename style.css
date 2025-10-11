@@ -272,16 +272,6 @@ body::-webkit-scrollbar {
     color: var(--sidebar-text-active);
 }
 
-.nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--sidebar-text-active);
-}
-
 .nav-item span {
     transition: opacity 0.3s ease;
 }
