@@ -5950,6 +5950,53 @@ class PomodoroTimer {
         }
     }
 
+    // Wrapper functions for integration buttons
+    showTodoistProjects() {
+        this.showTodoistProjectsModal();
+    }
+    
+    showNotionIntegration() {
+        // Check if already connected
+        fetch('/api/notion-status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.connected) {
+                    // Already connected, could show pages modal or settings
+                    alert('Notion is already connected! Manage it in Settings.');
+                } else {
+                    // Not connected, initiate connection
+                    const userId = window.Clerk?.user?.id || '';
+                    const viewMode = localStorage.getItem('viewMode');
+                    const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+                    window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                }
+            })
+            .catch(() => {
+                alert('Error checking Notion connection. Please try again.');
+            });
+    }
+    
+    showGoogleCalendarIntegration() {
+        // Check if already connected
+        fetch('/api/google-calendar-status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.connected) {
+                    // Already connected
+                    alert('Google Calendar is already connected! Manage it in Settings.');
+                } else {
+                    // Not connected, initiate connection
+                    const userId = window.Clerk?.user?.id || '';
+                    const viewMode = localStorage.getItem('viewMode');
+                    const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+                    window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                }
+            })
+            .catch(() => {
+                alert('Error checking Google Calendar connection. Please try again.');
+            });
+    }
+
     refreshTaskModalIfOpen() {
         // Check if task modal is currently open
         const taskModal = document.querySelector('.focus-stats-overlay');
@@ -9908,13 +9955,31 @@ class PomodoroTimer {
             });
         }
         
-        // Setup import button
-        const importBtn = panel.querySelector('#importTodoistMainBtn');
-        if (importBtn) {
-            importBtn.replaceWith(importBtn.cloneNode(true));
-            const newImportBtn = panel.querySelector('#importTodoistMainBtn');
-            newImportBtn.addEventListener('click', () => {
+        // Setup integration buttons
+        const todoistBtn = panel.querySelector('#importTodoistMainBtn');
+        if (todoistBtn) {
+            todoistBtn.replaceWith(todoistBtn.cloneNode(true));
+            const newTodoistBtn = panel.querySelector('#importTodoistMainBtn');
+            newTodoistBtn.addEventListener('click', () => {
                 this.showTodoistProjects();
+            });
+        }
+        
+        const notionBtn = panel.querySelector('#importNotionMainBtn');
+        if (notionBtn) {
+            notionBtn.replaceWith(notionBtn.cloneNode(true));
+            const newNotionBtn = panel.querySelector('#importNotionMainBtn');
+            newNotionBtn.addEventListener('click', () => {
+                this.showNotionIntegration();
+            });
+        }
+        
+        const calendarBtn = panel.querySelector('#importGoogleCalendarMainBtn');
+        if (calendarBtn) {
+            calendarBtn.replaceWith(calendarBtn.cloneNode(true));
+            const newCalendarBtn = panel.querySelector('#importGoogleCalendarMainBtn');
+            newCalendarBtn.addEventListener('click', () => {
+                this.showGoogleCalendarIntegration();
             });
         }
         
