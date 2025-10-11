@@ -4553,7 +4553,6 @@ input:checked + .toggle-slider:before {
 /* New Task Modal Styles */
 .tasks-header {
     text-align: left;
-    margin-bottom: 1rem;
 }
 
 .tasks-header h3 {
@@ -4807,8 +4806,10 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
 }
 
-.integration-btn svg {
-    flex-shrink: 0;
+.integration-btn img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 /* Inline Add Task Form */
