@@ -10226,6 +10226,23 @@ class SidebarManager {
         this.setupResponsive();
         this.setupTaskPanelScrollBehavior();
         // Don't set any nav item as active by default
+        
+        // Auto-open task panel for guest users
+        this.checkAndOpenForGuest();
+    }
+    
+    checkAndOpenForGuest() {
+        // Wait for pomodoroTimer to be initialized
+        setTimeout(() => {
+            if (window.pomodoroTimer) {
+                const isGuest = !window.pomodoroTimer.isAuthenticated || !window.pomodoroTimer.user;
+                
+                if (isGuest) {
+                    console.log('🎯 Guest user detected, opening task panel automatically');
+                    this.openTaskPanel();
+                }
+            }
+        }, 500); // Small delay to ensure pomodoroTimer is initialized
     }
     
     setupTaskPanelScrollBehavior() {
