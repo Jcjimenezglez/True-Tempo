@@ -6023,8 +6023,10 @@ class PomodoroTimer {
             </button>
             
             <div style="text-align: center; margin-bottom: 24px;">
-                <div style="margin-bottom: 16px;">
-                    <img src="${data.icon}" alt="${data.title}" style="width: 64px; height: 64px;">
+                <div style="margin-bottom: 16px; display: flex; justify-content: center;">
+                    <div style="background: white; border-radius: 12px; padding: 12px; display: inline-flex; align-items: center; justify-content: center;">
+                        <img src="${data.icon}" alt="${data.title}" style="width: 64px; height: 64px; display: block;">
+                    </div>
                 </div>
                 <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 8px; color: white;">${data.title}</h3>
                 <p style="color: rgba(255,255,255,0.7); font-size: 14px;">${data.subtitle}</p>
@@ -6050,13 +6052,14 @@ class PomodoroTimer {
                 </div>
                 <div style="flex: 1;">
                     <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Pro Feature</div>
-                    <div style="color: white; font-size: 13px; opacity: 0.95;">Sign up to unlock integrations</div>
+                    <div style="color: white; font-size: 13px; opacity: 0.95;">Upgrade to Pro to unlock integrations</div>
                 </div>
+                <button id="integrationSignupBtnTop" style="background: white; color: #064e3b; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Upgrade</button>
             </div>
             
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
                 <button class="btn-secondary" id="integrationCancelBtn">Cancel</button>
-                <button class="btn-primary" id="integrationSignupBtn">Sign Up</button>
+                <button class="btn-primary" id="integrationSignupBtn">Upgrade to Pro</button>
             </div>
         `;
         
@@ -6076,6 +6079,9 @@ class PomodoroTimer {
         // Button handlers
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
+            window.location.href = '/pricing';
+        });
+        modal.querySelector('#integrationSignupBtnTop').addEventListener('click', () => {
             window.location.href = '/pricing';
         });
     }
