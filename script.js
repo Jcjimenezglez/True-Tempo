@@ -7495,18 +7495,15 @@ class PomodoroTimer {
         
         // Create modal
         const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal';
-        modal.style.maxWidth = '400px';
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 440px; padding: 32px;';
         modal.innerHTML = `
-            <div style="padding: 24px;">
-                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: white;">Clear All Tasks</h3>
-                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
-                    Are you sure you want to clear all tasks? This action cannot be undone.
-                </p>
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button class="btn-secondary" id="cancelClearAll" style="min-width: 80px;">Cancel</button>
-                    <button class="btn-primary" id="confirmClearAll" style="min-width: 80px; background: #dc2626;">OK</button>
-                </div>
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; color: white; line-height: 1.3;">
+                Are you sure you want to clear all tasks?
+            </h3>
+            <div class="logout-modal-buttons" style="margin-top: 24px;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelClearAll">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmClearAll">OK</button>
             </div>
         `;
         
