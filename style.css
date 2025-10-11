@@ -333,9 +333,8 @@ body::-webkit-scrollbar {
 
 .sidebar-user-section .settings-dropdown {
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: calc(100% + 8px);
-    transform: translateY(-100%);
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
@@ -360,11 +359,6 @@ body::-webkit-scrollbar {
 
 .sidebar-user-section .settings-dropdown-item:hover {
     background: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-user-section .settings-login-btn {
-    justify-content: flex-end;
-    align-items: flex-end;
 }
 
 /* Removed unnecessary span hiding rule */
