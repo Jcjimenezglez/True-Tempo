@@ -308,7 +308,7 @@ body::-webkit-scrollbar {
     justify-content: center;
     gap: 12px;
     padding: 14px;
-    margin: 4px 8px;
+    margin: 0px 2px;
     color: var(--sidebar-text);
     cursor: pointer;
     transition: all 0.2s ease;
