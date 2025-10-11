@@ -5964,13 +5964,13 @@ class PomodoroTimer {
         }
     }
 
-    // Show integration upgrade modal for Guest users
+    // Show integration upgrade modal for Guest users - Dynamic modal like showTaskListModal
     showIntegrationUpgradeModal(integrationType) {
         const integrationData = {
             todoist: {
                 title: 'Todoist Integration',
                 subtitle: 'Sync your tasks seamlessly',
-                icon: '<img src="/images/todoist.svg" alt="Todoist" style="width: 64px; height: 64px;">',
+                icon: '/images/todoist.svg',
                 benefits: [
                     'Import tasks from Todoist projects',
                     'Two-way sync keeps everything updated',
@@ -5981,7 +5981,7 @@ class PomodoroTimer {
             notion: {
                 title: 'Notion Integration',
                 subtitle: 'Connect your workspace',
-                icon: '<img src="/images/notion.svg" alt="Notion" style="width: 64px; height: 64px;">',
+                icon: '/images/notion.svg',
                 benefits: [
                     'Import tasks from Notion databases',
                     'Keep your workflow centralized',
@@ -5992,7 +5992,7 @@ class PomodoroTimer {
             googleCalendar: {
                 title: 'Google Calendar Integration',
                 subtitle: 'Time-block your tasks',
-                icon: '<img src="/images/google-calendar.svg" alt="Google Calendar" style="width: 64px; height: 64px;">',
+                icon: '/images/google-calendar.svg',
                 benefits: [
                     'Import events as focus tasks',
                     'Schedule Pomodoro sessions',
@@ -6005,47 +6005,79 @@ class PomodoroTimer {
         const data = integrationData[integrationType];
         if (!data) return;
         
-        const modal = document.getElementById('integrationUpgradeModal');
-        const iconContainer = document.getElementById('integrationIconContainer');
-        const title = document.getElementById('integrationTitle');
-        const subtitle = document.getElementById('integrationSubtitle');
-        const benefitsList = document.getElementById('integrationBenefitsList');
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
         
-        // Set content
-        iconContainer.innerHTML = data.icon;
-        title.textContent = data.title;
-        subtitle.textContent = data.subtitle;
-        
-        // Build benefits list
-        benefitsList.innerHTML = data.benefits.map(benefit => `
-            <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
-                    <polyline points="20 6 9 17 4 12"/>
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '500px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
                 </svg>
-                <span style="color: rgba(255,255,255,0.9); font-size: 14px;">${benefit}</span>
+            </button>
+            
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div style="margin-bottom: 16px;">
+                    <img src="${data.icon}" alt="${data.title}" style="width: 64px; height: 64px;">
+                </div>
+                <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 8px; color: white;">${data.title}</h3>
+                <p style="color: rgba(255,255,255,0.7); font-size: 14px;">${data.subtitle}</p>
             </div>
-        `).join('');
+            
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: white;">Benefits:</h4>
+                ${data.benefits.map(benefit => `
+                    <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span style="color: rgba(255,255,255,0.9); font-size: 14px;">${benefit}</span>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                    </svg>
+                    <div>
+                        <div style="font-weight: 600; color: #FFD700; font-size: 14px;">Pro Feature</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.7);">Sign up to unlock integrations</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn-secondary" id="integrationCancelBtn">Cancel</button>
+                <button class="btn-primary" id="integrationSignupBtn">Sign Up</button>
+            </div>
+        `;
         
-        // Show modal
-        modal.style.display = 'flex';
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
         
-        // Setup event listeners
-        const closeBtn = document.getElementById('closeIntegrationModal');
-        const signupBtn = document.getElementById('integrationSignupBtn');
-        const cancelBtn = document.getElementById('integrationCancelBtn');
-        
-        const closeModal = () => {
-            modal.style.display = 'none';
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
         };
         
-        closeBtn.onclick = closeModal;
-        cancelBtn.onclick = closeModal;
-        signupBtn.onclick = () => {
+        // Close handlers
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+        
+        // Button handlers
+        modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
+        modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
             window.location.href = '/pricing';
-        };
-        modal.onclick = (e) => {
-            if (e.target === modal) closeModal();
-        };
+        });
     }
 
     // Wrapper functions for integration buttons
