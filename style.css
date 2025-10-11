@@ -971,6 +971,53 @@ body.is-scrolling .streak-fire {
     margin-top: 6rem;
 }
 
+/* Timer Header with Auth Buttons */
+.timer-header {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.timer-auth-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.timer-login-btn,
+.timer-signup-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.timer-login-btn {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.timer-login-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.timer-signup-btn {
+    background: #10b981;
+    color: white;
+}
+
+.timer-signup-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
 /* Timer Container */
 .timer-container {
     position: relative;
@@ -1521,6 +1568,17 @@ body.is-scrolling .streak-fire {
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
+    }
+    
+    .timer-header {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .timer-login-btn,
+    .timer-signup-btn {
+        padding: 8px 16px;
+        font-size: 13px;
     }
     
     .timer-container {

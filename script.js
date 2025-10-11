@@ -10372,6 +10372,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     window.pomodoroTimer = timer; // Make it globally accessible
     
+    // Show timer header auth buttons for guest users
+    const timerHeaderAuth = document.getElementById('timerHeaderAuth');
+    const timerLoginBtn = document.getElementById('timerLoginBtn');
+    const timerSignupBtn = document.getElementById('timerSignupBtn');
+    
+    if (timerHeaderAuth && !timer.isAuthenticated) {
+        timerHeaderAuth.style.display = 'block';
+        
+        if (timerLoginBtn) {
+            timerLoginBtn.addEventListener('click', () => {
+                window.location.href = '/login.html';
+            });
+        }
+        
+        if (timerSignupBtn) {
+            timerSignupBtn.addEventListener('click', () => {
+                window.location.href = '/signup.html';
+            });
+        }
+    }
+    
     // Only show loader for Lighthouse or explicit query param
     const shouldShowLoader = () => {
         try {
