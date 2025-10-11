@@ -5362,6 +5362,14 @@ class PomodoroTimer {
             const newCancelBtn = cancelBtn.cloneNode(true);
             cancelBtn.replaceWith(newCancelBtn);
             newCancelBtn.addEventListener('click', () => {
+                // Show back the hidden task item if we were editing
+                if (this.editingTaskId) {
+                    const hiddenTaskItem = panel.querySelector(`[data-task-id="${this.editingTaskId}"]`);
+                    if (hiddenTaskItem) {
+                        hiddenTaskItem.style.display = '';
+                    }
+                }
+                
                 const tasks = this.getAllTasks();
                 if (!tasks || tasks.length === 0) {
                     addTaskForm.style.display = 'block';
@@ -10109,9 +10117,18 @@ class PomodoroTimer {
                     if (!task) return; // Only local tasks can be edited
                     
                     const config = this.getTaskConfig(taskId);
+                    const taskItem = menu.closest('.task-item');
                     
                     // Enter edit mode
                     this.editingTaskId = taskId;
+                    
+                    // Hide the task item being edited
+                    if (taskItem) {
+                        taskItem.style.display = 'none';
+                        // Move form right after the hidden task item
+                        taskItem.parentNode.insertBefore(addTaskForm, taskItem.nextSibling);
+                    }
+                    
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
                     
