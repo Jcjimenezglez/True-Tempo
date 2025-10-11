@@ -237,7 +237,7 @@ body::-webkit-scrollbar {
 .sidebar-nav {
     flex: 1;
     padding: 12px 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .nav-section {

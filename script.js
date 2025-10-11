@@ -9976,7 +9976,7 @@ class SidebarManager {
     init() {
         this.bindEvents();
         this.setupResponsive();
-        this.setActiveNavItem('timer');
+        // Don't set any nav item as active by default
     }
     
     bindEvents() {
@@ -9995,7 +9995,13 @@ class SidebarManager {
         this.navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const section = item.dataset.section;
-                this.setActiveNavItem(section);
+                
+                // For tasks, only set active if it opens the panel
+                // The active state is handled in openTaskPanel/closeTaskPanel
+                if (section !== 'tasks') {
+                    this.setActiveNavItem(section);
+                }
+                
                 this.handleNavigation(section);
                 
                 // Close mobile sidebar after navigation
@@ -10158,6 +10164,9 @@ class SidebarManager {
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
             
+            // Set Tasks nav item as active
+            this.setActiveNavItem('tasks');
+            
             // Push main content to the right
             if (this.mainContent) {
                 this.mainContent.classList.add('task-panel-open');
@@ -10174,6 +10183,12 @@ class SidebarManager {
         if (this.taskSidePanel) {
             this.taskSidePanel.classList.remove('open');
             this.isTaskPanelOpen = false;
+            
+            // Remove active state from Tasks nav item
+            const tasksNavItem = document.querySelector('.nav-item[data-section="tasks"]');
+            if (tasksNavItem) {
+                tasksNavItem.classList.remove('active');
+            }
             
             // Reset main content position
             if (this.mainContent) {
