@@ -6299,6 +6299,11 @@ class PomodoroTimer {
                     return;
                 }
                 
+                // Don't allow selecting completed tasks
+                if (item.classList.contains('completed')) {
+                    return;
+                }
+                
                 const taskId = item.dataset.taskId;
                 const currentConfig = this.getTaskConfig(taskId);
                 const newSelected = !currentConfig.selected;
@@ -10082,13 +10087,14 @@ class PomodoroTimer {
                 
                 item.innerHTML = itemContent;
                 
-                if (taskConfig.selected) {
-                    item.classList.add('selected');
-                }
-                
                 // Add completed class if task is completed
                 if (isCompleted) {
                     item.classList.add('completed');
+                }
+                
+                // Only apply 'selected' class if task is NOT completed
+                if (taskConfig.selected && !isCompleted) {
+                    item.classList.add('selected');
                 }
                 
                 // Insert before the form if it exists, otherwise append
