@@ -10086,6 +10086,11 @@ class PomodoroTimer {
                     item.classList.add('selected');
                 }
                 
+                // Add completed class if task is completed
+                if (isCompleted) {
+                    item.classList.add('completed');
+                }
+                
                 // Insert before the form if it exists, otherwise append
                 if (addTaskFormEl) {
                     listEl.insertBefore(item, addTaskFormEl);
