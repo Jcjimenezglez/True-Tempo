@@ -10020,23 +10020,22 @@ class SidebarManager {
         }
         
         // Click outside task panel to close it
-        document.addEventListener('click', (e) => {
-            if (!this.isTaskPanelOpen) return;
-            
-            // Check if click is inside the task panel
-            const isInsidePanel = this.taskSidePanel && this.taskSidePanel.contains(e.target);
-            
-            // Check if click is on the tasks nav button
-            const isTasksButton = e.target.closest('.nav-item[data-section="tasks"]');
-            
-            // Check if click is on the sidebar (but not the tasks button)
-            const isOnSidebar = this.sidebar && this.sidebar.contains(e.target) && !isTasksButton;
-            
-            // Close panel if click is outside panel, not on tasks button, and not on other sidebar elements
-            if (!isInsidePanel && !isTasksButton) {
-                this.closeTaskPanel();
-            }
-        });
+        setTimeout(() => {
+            document.addEventListener('click', (e) => {
+                if (!this.isTaskPanelOpen) return;
+                
+                // Check if click is inside the task panel
+                const isInsidePanel = this.taskSidePanel && this.taskSidePanel.contains(e.target);
+                
+                // Check if click is on the tasks nav button
+                const isTasksButton = e.target.closest('.nav-item[data-section="tasks"]');
+                
+                // Close panel if click is outside panel and not on tasks button
+                if (!isInsidePanel && !isTasksButton) {
+                    this.closeTaskPanel();
+                }
+            }, true); // Use capture phase
+        }, 100);
         
         // Handle window resize
         window.addEventListener('resize', () => {
