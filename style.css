@@ -4648,6 +4648,15 @@ input:checked + .toggle-slider:before {
     background: rgba(163, 163, 163, 0.1);
 }
 
+/* Remove green border for completed tasks */
+.task-item.completed.selected {
+    border-left: 4px solid rgba(255, 255, 255, 0.1);
+}
+
+.task-item.completed.selected:hover {
+    border-left-color: rgba(255, 255, 255, 0.1);
+}
+
 .task-item.completed .task-title {
     text-decoration: line-through;
     color: rgba(255, 255, 255, 0.5);
