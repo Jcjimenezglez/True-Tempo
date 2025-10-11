@@ -423,7 +423,15 @@ body::-webkit-scrollbar {
     gap: 16px;
 }
 
-/* NO push main content - panel floats over it */
+/* Main content pushes when panel opens */
+.main-content {
+    margin-left: var(--sidebar-collapsed-width);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.task-panel-open {
+    margin-left: calc(var(--sidebar-collapsed-width) + 400px);
+}
 
 /* Mobile Menu Toggle Button */
 .mobile-menu-toggle {

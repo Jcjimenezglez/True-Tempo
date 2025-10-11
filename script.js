@@ -5346,6 +5346,144 @@ class PomodoroTimer {
         }
     }
 
+    setupAddTaskFormControlsForPanel(panel, renderTasks) {
+        const addTaskForm = panel.querySelector('#addTaskForm');
+        const addTaskBtn = panel.querySelector('#showAddTaskForm');
+        const cancelBtn = panel.querySelector('#cancelAddTask');
+        const saveBtn = panel.querySelector('#saveTask');
+        const deleteBtn = panel.querySelector('#deleteTask');
+        const taskInput = panel.querySelector('#taskDescription');
+        const pomodorosInput = panel.querySelector('#pomodorosCount');
+        const decreaseBtn = panel.querySelector('#decreasePomodoros');
+        const increaseBtn = panel.querySelector('#increasePomodoros');
+
+        // Remove old event listeners by cloning
+        if (cancelBtn) {
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.replaceWith(newCancelBtn);
+            newCancelBtn.addEventListener('click', () => {
+                const tasks = this.getAllTasks();
+                if (!tasks || tasks.length === 0) {
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                } else {
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                }
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+                this.editingTaskId = null;
+                const listEl = panel.querySelector('#todoistTasksList');
+                const addSection = panel.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = '';
+                if (addSection) addSection.style.display = '';
+            });
+        }
+
+        if (deleteBtn) {
+            const newDeleteBtn = deleteBtn.cloneNode(true);
+            deleteBtn.replaceWith(newDeleteBtn);
+            newDeleteBtn.addEventListener('click', () => {
+                if (!this.editingTaskId) return;
+                const tasks = this.getLocalTasks().filter(t => t.id !== this.editingTaskId);
+                this.setLocalTasks(tasks);
+                const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+                delete configs[this.editingTaskId];
+                localStorage.setItem('taskConfigs', JSON.stringify(configs));
+                this.editingTaskId = null;
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+                addTaskForm.style.display = 'none';
+                addTaskBtn.disabled = false;
+                const listEl = panel.querySelector('#todoistTasksList');
+                const addSection = panel.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = '';
+                if (addSection) addSection.style.display = '';
+                this.loadAllTasks();
+                if (typeof renderTasks === 'function') renderTasks();
+                this.updateCurrentTaskBanner();
+                this.rebuildTaskQueue();
+            });
+        }
+
+        if (saveBtn) {
+            const newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.replaceWith(newSaveBtn);
+            newSaveBtn.addEventListener('click', () => {
+                const description = taskInput ? taskInput.value.trim() : '';
+                const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
+                
+                if (description) {
+                    if (this.editingTaskId) {
+                        const tasks = this.getLocalTasks();
+                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                        if (idx !== -1) {
+                            tasks[idx].content = description;
+                            this.setLocalTasks(tasks);
+                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
+                        }
+                        this.editingTaskId = null;
+                        const listEl = panel.querySelector('#todoistTasksList');
+                        const addSection = panel.querySelector('.add-task-section');
+                        if (listEl) listEl.style.display = '';
+                        if (addSection) addSection.style.display = '';
+                    } else {
+                        this.addLocalTask(description, pomodoros);
+                    }
+                    if (taskInput) taskInput.value = '';
+                    if (pomodorosInput) pomodorosInput.value = '1';
+                    this.loadAllTasks();
+                    if (typeof renderTasks === 'function') renderTasks();
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                }
+            });
+        }
+
+        if (decreaseBtn && pomodorosInput) {
+            const newDecreaseBtn = decreaseBtn.cloneNode(true);
+            decreaseBtn.replaceWith(newDecreaseBtn);
+            newDecreaseBtn.addEventListener('click', () => {
+                const current = parseInt(pomodorosInput.value);
+                if (current > 1) {
+                    pomodorosInput.value = current - 1;
+                }
+            });
+        }
+
+        if (increaseBtn && pomodorosInput) {
+            const newIncreaseBtn = increaseBtn.cloneNode(true);
+            increaseBtn.replaceWith(newIncreaseBtn);
+            newIncreaseBtn.addEventListener('click', () => {
+                const current = parseInt(pomodorosInput.value);
+                if (current < 10) {
+                    pomodorosInput.value = current + 1;
+                }
+            });
+        }
+
+        if (taskInput) {
+            const newTaskInput = taskInput.cloneNode(true);
+            taskInput.replaceWith(newTaskInput);
+            const finalTaskInput = panel.querySelector('#taskDescription');
+            const finalSaveBtn = panel.querySelector('#saveTask');
+            
+            finalTaskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && finalSaveBtn) {
+                    finalSaveBtn.click();
+                }
+            });
+            
+            finalTaskInput.addEventListener('input', () => {
+                if (finalSaveBtn) {
+                    finalSaveBtn.disabled = !finalTaskInput.value.trim();
+                }
+            });
+        }
+    }
+
     setupTaskOptions(modal, renderTasks) {
         const optionsBtn = modal.querySelector('#taskOptionsBtn');
         const optionsDropdown = modal.querySelector('#taskOptionsDropdown');
@@ -9691,8 +9829,8 @@ class PomodoroTimer {
             }
         }
         
-        // Setup form controls
-        this.setupAddTaskFormControls(panel, renderTasks);
+        // Setup form controls for the panel
+        this.setupAddTaskFormControlsForPanel(panel, renderTasks);
         
         // Setup tabs
         const tabs = panel.querySelectorAll('.task-tab');
@@ -10020,6 +10158,11 @@ class SidebarManager {
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
             
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
             // Trigger rendering of tasks
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.renderTasksInSidePanel();
@@ -10031,6 +10174,11 @@ class SidebarManager {
         if (this.taskSidePanel) {
             this.taskSidePanel.classList.remove('open');
             this.isTaskPanelOpen = false;
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
         }
     }
 }
