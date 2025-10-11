@@ -326,8 +326,8 @@ body::-webkit-scrollbar {
 .sidebar-user-section .header-settings-btn svg,
 .sidebar-user-section .header-settings-btn img {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
 }
 
