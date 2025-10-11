@@ -5410,8 +5410,10 @@ class PomodoroTimer {
             const newSaveBtn = saveBtn.cloneNode(true);
             saveBtn.replaceWith(newSaveBtn);
             newSaveBtn.addEventListener('click', () => {
+                console.log('💾 Save button clicked');
                 const description = taskInput ? taskInput.value.trim() : '';
                 const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
+                console.log('💾 Task data:', { description, pomodoros });
                 
                 if (description) {
                     if (this.editingTaskId) {
@@ -9747,7 +9749,15 @@ class PomodoroTimer {
         
         const renderTasks = () => {
             console.log('🔵 renderTasks called, currentTab:', currentTab);
-            listEl.innerHTML = '';
+            
+            // Preserve the add task form (it's now inside listEl)
+            const addTaskForm = listEl.querySelector('#addTaskForm');
+            const formParent = addTaskForm ? addTaskForm.cloneNode(true) : null;
+            
+            // Clear only task items, not the form
+            const taskItems = listEl.querySelectorAll('.task-item, .empty-state');
+            taskItems.forEach(item => item.remove());
+            
             const allTasks = this.getAllTasks();
             
             // Filter tasks based on current tab
@@ -9760,18 +9770,19 @@ class PomodoroTimer {
             
             if (filteredTasks.length === 0) {
                 if (currentTab === 'done') {
-                    listEl.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9 12l2 2 4-4"/>
-                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
-                                </svg>
-                            </div>
-                            <div class="empty-text">No completed tasks yet</div>
-                            <div class="empty-subtext">Complete some tasks to see them here</div>
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
                         </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
                     `;
+                    listEl.appendChild(emptyState);
                 }
                 return;
             }

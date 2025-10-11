@@ -477,34 +477,34 @@
             </div>
             
             <!-- Tasks List -->
-            <div id="todoistTasksList" class="tasks-list"></div>
-            
-            <!-- Add Task Form (initially hidden) -->
-            <div id="addTaskForm" class="add-task-form" style="display: none;">
-                <div class="form-group">
-                    <label>What are you working on?</label>
-                    <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
-                </div>
-                <div class="form-group">
-                    <label>Sessions</label>
-                    <div class="pomodoros-control">
-                        <button class="pomodoros-btn" id="decreasePomodoros">-</button>
-                        <input type="number" id="pomodorosCount" value="1" min="1" max="10">
-                        <button class="pomodoros-btn" id="increasePomodoros">+</button>
+            <div id="todoistTasksList" class="tasks-list">
+                <!-- Add Task Form (initially hidden) -->
+                <div id="addTaskForm" class="add-task-form" style="display: none;">
+                    <div class="form-group">
+                        <label>What are you working on?</label>
+                        <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
                     </div>
-                </div>
-                <div class="form-actions">
-                    <button id="deleteTask" title="Delete task" style="display:none; margin-right: auto; background: none; border: none; padding: 8px; color: rgba(255,255,255,0.6);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <path d="M10 11v6"/>
-                            <path d="M14 11v6"/>
-                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                        </svg>
-                    </button>
-                    <button class="btn-secondary" id="cancelAddTask">Cancel</button>
-                    <button class="btn-primary" id="saveTask">Save</button>
+                    <div class="form-group">
+                        <label>Sessions</label>
+                        <div class="pomodoros-control">
+                            <button class="pomodoros-btn" id="decreasePomodoros">-</button>
+                            <input type="number" id="pomodorosCount" value="1" min="1" max="10">
+                            <button class="pomodoros-btn" id="increasePomodoros">+</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button id="deleteTask" title="Delete task" style="display:none; margin-right: auto; background: none; border: none; padding: 8px; color: rgba(255,255,255,0.6);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6"/>
+                                <path d="M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                        </button>
+                        <button class="btn-secondary" id="cancelAddTask">Cancel</button>
+                        <button class="btn-primary" id="saveTask">Save</button>
+                    </div>
                 </div>
             </div>
             
