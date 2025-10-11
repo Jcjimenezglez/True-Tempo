@@ -7488,7 +7488,40 @@ class PomodoroTimer {
     }
 
     clearAllTasks() {
-        if (confirm('Are you sure you want to clear all tasks?')) {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '400px';
+        modal.innerHTML = `
+            <div style="padding: 24px;">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: white;">Clear All Tasks</h3>
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+                    Are you sure you want to clear all tasks? This action cannot be undone.
+                </p>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn-secondary" id="cancelClearAll" style="min-width: 80px;">Cancel</button>
+                    <button class="btn-primary" id="confirmClearAll" style="min-width: 80px; background: #dc2626;">OK</button>
+                </div>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Cancel button
+        modal.querySelector('#cancelClearAll').addEventListener('click', close);
+        
+        // Confirm button
+        modal.querySelector('#confirmClearAll').addEventListener('click', () => {
             this.setLocalTasks([]);
             // Explicit clear is OK here since the user is clearing everything
             localStorage.removeItem('taskConfigs');
@@ -7497,7 +7530,14 @@ class PomodoroTimer {
             this.updateCurrentTaskBanner();
             this.rebuildTaskQueue();
             this.updateCurrentTaskFromQueue();
-        }
+            
+            close();
+        });
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
     }
 
     clearActPomodoros() {
