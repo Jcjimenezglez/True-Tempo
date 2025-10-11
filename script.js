@@ -6034,7 +6034,7 @@ class PomodoroTimer {
                 <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: white;">Benefits:</h4>
                 ${data.benefits.map(benefit => `
                     <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#064e3b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
                         <span style="color: rgba(255,255,255,0.9); font-size: 14px;">${benefit}</span>
@@ -6042,15 +6042,15 @@ class PomodoroTimer {
                 `).join('')}
             </div>
             
-            <div style="background: rgba(6, 78, 59, 0.1); border: 2px solid rgba(6, 78, 59, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#064e3b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div style="background: #064e3b; border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                <div style="flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
                     </svg>
-                    <div>
-                        <div style="font-weight: 600; color: #064e3b; font-size: 14px;">Pro Feature</div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.7);">Sign up to unlock integrations</div>
-                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Pro Feature</div>
+                    <div style="color: white; font-size: 13px; opacity: 0.95;">Sign up to unlock integrations</div>
                 </div>
             </div>
             
