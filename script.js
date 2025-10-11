@@ -10114,7 +10114,36 @@ class SidebarManager {
     init() {
         this.bindEvents();
         this.setupResponsive();
+        this.setupTaskPanelScrollBehavior();
         // Don't set any nav item as active by default
+    }
+    
+    setupTaskPanelScrollBehavior() {
+        // Handle scroll propagation when sidebar has no scrollable content
+        if (this.taskSidePanel) {
+            const panelContent = this.taskSidePanel.querySelector('.task-side-panel-content');
+            if (panelContent) {
+                panelContent.addEventListener('wheel', (e) => {
+                    const hasScroll = panelContent.scrollHeight > panelContent.clientHeight;
+                    
+                    if (!hasScroll) {
+                        // No scroll available, let it propagate to main page
+                        return;
+                    }
+                    
+                    const isAtTop = panelContent.scrollTop === 0;
+                    const isAtBottom = panelContent.scrollTop + panelContent.clientHeight >= panelContent.scrollHeight - 1;
+                    
+                    // Allow propagation only if scrolling beyond boundaries
+                    if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                        return; // Let it propagate
+                    }
+                    
+                    // Otherwise, prevent propagation (normal scroll within panel)
+                    e.stopPropagation();
+                }, { passive: true });
+            }
+        }
     }
     
     bindEvents() {
