@@ -116,6 +116,13 @@ body::-webkit-scrollbar {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* Ensure no scrollbars anywhere */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 /* Tooltip Styles */
@@ -135,10 +142,10 @@ body::-webkit-scrollbar {
     color: var(--sidebar-text-active);
     border: 1px solid var(--sidebar-border);
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
-    z-index: 1003;
+    z-index: 10000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     pointer-events: none;
     opacity: 0;
@@ -154,7 +161,7 @@ body::-webkit-scrollbar {
     margin-left: 2px;
     border: 6px solid transparent;
     border-right-color: var(--sidebar-border);
-    z-index: 1004;
+    z-index: 10001;
     pointer-events: none;
     opacity: 0;
     animation: tooltipFadeIn 0.2s ease-out forwards;
@@ -209,6 +216,16 @@ body::-webkit-scrollbar {
     overflow: hidden !important;
 }
 
+/* Ensure no scrollbars in any sidebar element */
+.sidebar * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.sidebar *::-webkit-scrollbar {
+    display: none !important;
+}
+
 .sidebar.hidden {
     transform: translateX(-100%);
 }
@@ -257,7 +274,7 @@ body::-webkit-scrollbar {
 .sidebar-nav {
     flex: 1;
     padding: 20px 0;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 .nav-section {
