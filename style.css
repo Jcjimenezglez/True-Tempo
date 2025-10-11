@@ -1126,7 +1126,7 @@ body.is-scrolling .streak-fire {
     position: absolute;
     top: auto;
     bottom: 0;
-    right: calc(100% + 4px);
+    left: calc(100% + 8px);
     z-index: 1001;
 }
 
