@@ -197,9 +197,18 @@ body::-webkit-scrollbar {
     width: var(--sidebar-collapsed-width);
 }
 
-/* Always collapsed by default */
+/* Always collapsed by default - never expand */
 .sidebar {
-    width: var(--sidebar-collapsed-width);
+    width: var(--sidebar-collapsed-width) !important;
+}
+
+/* Ensure text is always hidden */
+.sidebar .sidebar-title,
+.sidebar .focus-text,
+.sidebar .nav-item span {
+    opacity: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
 }
 
 .sidebar.hidden {
@@ -426,17 +435,13 @@ body::-webkit-scrollbar {
 
 /* Main Content Layout */
 .main-content {
-    margin-left: var(--sidebar-collapsed-width);
-    transition: margin-left 0.3s ease;
+    margin-left: var(--sidebar-collapsed-width) !important;
+    transition: none; /* No transitions since sidebar never changes width */
     min-height: 100vh;
 }
 
-.sidebar.expanded + .main-content {
-    margin-left: var(--sidebar-width);
-}
-
 .sidebar.hidden + .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
 }
 
 /* Mobile Sidebar Overlay */

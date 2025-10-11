@@ -9558,30 +9558,17 @@ class SidebarManager {
     }
     
     bindEvents() {
-        // Logo toggle
+        // Logo - no toggle functionality, just visual
         if (this.sidebarLogoToggle) {
             this.sidebarLogoToggle.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Logo clicked, toggling sidebar');
-                this.toggleCollapse();
+                console.log('Logo clicked - no action');
+                // No toggle functionality - sidebar stays collapsed
             });
         }
         
-        // Click on collapsed sidebar to expand
-        this.sidebar.addEventListener('click', (e) => {
-            if (this.isCollapsed && !this.isMobile) {
-                // Don't expand if clicking on interactive elements
-                if (e.target.closest('.nav-item') || 
-                    e.target.closest('.sidebar-user-section') ||
-                    e.target.closest('.sidebar-logo-toggle') ||
-                    e.target.closest('.focus-indicator')) {
-                    return;
-                }
-                console.log('Sidebar area clicked, toggling');
-                this.toggleCollapse();
-            }
-        });
+        // No click to expand functionality - sidebar always stays collapsed
         
         // Mobile menu toggle
         if (this.mobileMenuToggle) {
@@ -9625,6 +9612,7 @@ class SidebarManager {
         } else {
             this.sidebar.classList.remove('hidden');
             this.sidebar.classList.remove('open');
+            // Always keep sidebar collapsed on desktop
             this.sidebar.classList.add('collapsed');
             this.sidebar.classList.remove('expanded');
             this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
@@ -9650,26 +9638,15 @@ class SidebarManager {
     }
     
     toggleCollapse() {
-        console.log('toggleCollapse called, isMobile:', this.isMobile, 'isCollapsed:', this.isCollapsed);
+        console.log('toggleCollapse called, isMobile:', this.isMobile);
         
         if (this.isMobile) {
             this.toggleMobile();
             return;
         }
         
-        this.isCollapsed = !this.isCollapsed;
-        
-        if (this.isCollapsed) {
-            this.sidebar.classList.add('collapsed');
-            this.sidebar.classList.remove('expanded');
-            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
-            console.log('Sidebar collapsed');
-        } else {
-            this.sidebar.classList.remove('collapsed');
-            this.sidebar.classList.add('expanded');
-            this.mainContent.style.marginLeft = 'var(--sidebar-width)';
-            console.log('Sidebar expanded');
-        }
+        // On desktop, do nothing - sidebar always stays collapsed
+        console.log('Desktop mode - sidebar stays collapsed');
     }
     
     toggleMobile() {
