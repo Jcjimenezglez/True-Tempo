@@ -385,7 +385,7 @@ body::-webkit-scrollbar {
     visibility: visible;
 }
 
-/* Task Panel Overlay */
+/* Task Panel Overlay - Visual only, no interaction */
 .task-panel-overlay {
     position: fixed;
     top: 0;
@@ -402,7 +402,7 @@ body::-webkit-scrollbar {
 .task-panel-overlay.active {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto;
+    pointer-events: none; /* Allow clicks to pass through */
 }
 
 /* Task Side Panel */

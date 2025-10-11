@@ -10020,12 +10020,8 @@ class SidebarManager {
             });
         }
         
-        // Click on overlay to close task panel
-        if (this.taskPanelOverlay) {
-            this.taskPanelOverlay.addEventListener('click', () => {
-                this.closeTaskPanel();
-            });
-        }
+        // Overlay is present but doesn't close panel on click
+        // Panel only closes when clicking the Tasks button
         
         // Handle window resize
         window.addEventListener('resize', () => {
