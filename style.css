@@ -136,20 +136,22 @@ body::-webkit-scrollbar {
     left: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-left: 8px;
-    padding: 6px 12px;
-    background: var(--sidebar-bg);
-    color: var(--sidebar-text-active);
-    border: 1px solid var(--sidebar-border);
-    border-radius: 6px;
+    margin-left: 12px;
+    padding: 8px 12px;
+    background: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333333;
+    border-radius: 8px;
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
     z-index: 10000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     pointer-events: none;
     opacity: 0;
     animation: tooltipFadeIn 0.2s ease-out forwards;
+    min-width: 60px;
+    text-align: center;
 }
 
 [data-tooltip]:hover::before {
@@ -158,9 +160,9 @@ body::-webkit-scrollbar {
     left: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-left: 2px;
+    margin-left: 6px;
     border: 6px solid transparent;
-    border-right-color: var(--sidebar-border);
+    border-right-color: #1a1a1a;
     z-index: 10001;
     pointer-events: none;
     opacity: 0;
@@ -178,27 +180,7 @@ body::-webkit-scrollbar {
     }
 }
 
-/* Cursor for collapsed sidebar */
-.sidebar.collapsed {
-    cursor: e-resize;
-}
-
-.sidebar.collapsed:hover {
-    cursor: e-resize;
-}
-
-/* Override cursor for interactive elements */
-.sidebar.collapsed .nav-item,
-.sidebar.collapsed .sidebar-user-section,
-.sidebar.collapsed .sidebar-logo-toggle {
-    cursor: pointer;
-}
-
-.sidebar.collapsed .nav-item:hover,
-.sidebar.collapsed .sidebar-user-section:hover,
-.sidebar.collapsed .sidebar-logo-toggle:hover {
-    cursor: pointer;
-}
+/* Removed cursor rules for collapsed sidebar */
 
 .sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
