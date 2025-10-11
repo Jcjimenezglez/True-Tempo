@@ -7487,6 +7487,69 @@ class PomodoroTimer {
         this.showTaskListModal();
     }
 
+    clearCompletedTasks() {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeClearDoneModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+                Clear Done Tasks
+            </h3>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
+                Are you sure you want to clear all completed tasks? This action cannot be undone.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelClearDone">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmClearDone">OK</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Close X button
+        modal.querySelector('#closeClearDoneModal').addEventListener('click', close);
+        
+        // Cancel button
+        modal.querySelector('#cancelClearDone').addEventListener('click', close);
+        
+        // Confirm button
+        modal.querySelector('#confirmClearDone').addEventListener('click', () => {
+            const tasks = this.getLocalTasks();
+            const activeTasks = tasks.filter(task => !task.completed);
+            this.setLocalTasks(activeTasks);
+            
+            // Update UI immediately
+            this.updateCurrentTaskBanner();
+            this.rebuildTaskQueue();
+            this.updateCurrentTaskFromQueue();
+            
+            close();
+        });
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+    }
+
     clearAllTasks() {
         // Create overlay
         const overlay = document.createElement('div');
