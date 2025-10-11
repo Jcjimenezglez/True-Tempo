@@ -973,9 +973,8 @@ class PomodoroTimer {
 
     async handleSignup() {
         try {
-            console.log('Redirecting to Clerk hosted Sign Up...');
-            // Fixed redirect to homepage as requested
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent('https://www.superfocus.live/');
+            console.log('Redirecting to pricing page...');
+            window.location.href = '/pricing/';
         } catch (error) {
             console.error('Sign up failed:', error);
         }
@@ -10382,13 +10381,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (timerLoginBtn) {
             timerLoginBtn.addEventListener('click', () => {
-                window.location.href = '/login.html';
+                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
             });
         }
         
         if (timerSignupBtn) {
             timerSignupBtn.addEventListener('click', () => {
-                window.location.href = '/signup.html';
+                window.location.href = '/pricing/';
             });
         }
     }
