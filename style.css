@@ -292,7 +292,7 @@ body::-webkit-scrollbar {
 /* User Profile Section */
 .sidebar-user-section {
     margin-top: auto;
-    padding: 12px;
+    padding: 12px 0;
     border-top: 1px solid var(--sidebar-border);
     overflow: visible;
     position: relative;
@@ -316,8 +316,6 @@ body::-webkit-scrollbar {
     position: relative;
     background: none;
     border: none;
-    font-size: 14px;
-    font-weight: 500;
 }
 
 .sidebar-user-section .header-settings-btn:hover {
@@ -337,7 +335,7 @@ body::-webkit-scrollbar {
     position: absolute;
     bottom: 100%;
     left: calc(100% + 8px);
-    margin-bottom: 8px;
+    margin-bottom: -44px;
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
