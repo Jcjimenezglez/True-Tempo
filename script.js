@@ -5409,8 +5409,7 @@ class PomodoroTimer {
         if (saveBtn) {
             const newSaveBtn = saveBtn.cloneNode(true);
             saveBtn.replaceWith(newSaveBtn);
-            const finalSaveBtn = panel.querySelector('#saveTask');
-            finalSaveBtn.addEventListener('click', () => {
+            newSaveBtn.addEventListener('click', () => {
                 console.log('💾 Save button clicked');
                 const finalTaskInput = panel.querySelector('#taskDescription');
                 const finalPomodorosInput = panel.querySelector('#pomodorosCount');
