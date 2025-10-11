@@ -4635,17 +4635,11 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: 4px solid #a3a3a3;
+    border-left: 4px solid #10b981;
 }
 
-/* Preserve selected blue accent on hover */
+/* Preserve selected green accent on hover */
 .task-item.selected:hover {
-    border-left-color: #a3a3a3;
-}
-
-/* Onyx green border when dragging */
-.task-item.dragging,
-.task-item.selected.dragging {
     border-left-color: #10b981;
 }
 
@@ -6223,7 +6217,6 @@ input:checked + .toggle-slider:before {
     transform: rotate(5deg);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    border-left-color: #10b981;
 }
 
 .task-item:hover {
