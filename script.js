@@ -9844,7 +9844,6 @@ class PomodoroTimer {
         // Show/hide sections based on user status
         const importSection = document.getElementById('importTodoistSection');
         const proUpgradeBanner = document.getElementById('proUpgradeBanner');
-        const guestBanner = document.getElementById('guestTaskBanner');
         
         if (importSection) {
             importSection.style.display = (this.isAuthenticated && this.user && this.isPremiumUser()) ? 'block' : 'none';
@@ -9854,10 +9853,6 @@ class PomodoroTimer {
             proUpgradeBanner.style.display = isFreeUser ? 'block' : 'none';
         }
         
-        if (guestBanner) {
-            guestBanner.style.display = isGuest ? 'flex' : 'none';
-        }
-        
         // Setup upgrade button for free users
         if (isFreeUser) {
             const upgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
@@ -9865,18 +9860,6 @@ class PomodoroTimer {
                 upgradeBtn.replaceWith(upgradeBtn.cloneNode(true)); // Remove old listeners
                 const newUpgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
                 newUpgradeBtn.addEventListener('click', () => {
-                    window.location.href = '/pricing';
-                });
-            }
-        }
-        
-        // Setup guest signup button
-        if (isGuest) {
-            const guestSignupBtn = panel.querySelector('#guestTaskSignupBtn');
-            if (guestSignupBtn) {
-                guestSignupBtn.replaceWith(guestSignupBtn.cloneNode(true));
-                const newGuestSignupBtn = panel.querySelector('#guestTaskSignupBtn');
-                newGuestSignupBtn.addEventListener('click', () => {
                     window.location.href = '/pricing';
                 });
             }
