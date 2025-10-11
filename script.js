@@ -7496,12 +7496,22 @@ class PomodoroTimer {
         // Create modal
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
-        modal.style.cssText = 'max-width: 440px; padding: 32px;';
+        modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         modal.innerHTML = `
-            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; color: white; line-height: 1.3;">
-                Are you sure you want to clear all tasks?
+            <button class="close-modal-x" id="closeClearAllModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+                Clear All Tasks
             </h3>
-            <div class="logout-modal-buttons" style="margin-top: 24px;">
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
+                Are you sure you want to clear all tasks? This action cannot be undone.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
                 <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelClearAll">Cancel</button>
                 <button class="logout-modal-btn logout-modal-btn-primary" id="confirmClearAll">OK</button>
             </div>
@@ -7513,6 +7523,9 @@ class PomodoroTimer {
         const close = () => {
             try { document.body.removeChild(overlay); } catch (_) {}
         };
+        
+        // Close X button
+        modal.querySelector('#closeClearAllModal').addEventListener('click', close);
         
         // Cancel button
         modal.querySelector('#cancelClearAll').addEventListener('click', close);
