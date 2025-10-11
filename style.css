@@ -333,14 +333,31 @@ body::-webkit-scrollbar {
 .sidebar-user-section .settings-dropdown {
     position: absolute;
     bottom: 0;
-    left: 100%;
-    margin-left: 8px;
-    background: var(--sidebar-bg);
-    border: 1px solid var(--sidebar-border);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    z-index: 1002;
-    min-width: 200px;
+    left: calc(100% + 8px);
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 10000;
+    min-width: 240px;
+    overflow: visible;
+}
+
+.sidebar-user-section .settings-dropdown-menu {
+    margin-top: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.sidebar-user-section .settings-dropdown-item {
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.sidebar-user-section .settings-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Removed unnecessary span hiding rule */
