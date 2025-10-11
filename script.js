@@ -10376,19 +10376,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerLoginBtn = document.getElementById('timerLoginBtn');
     const timerSignupBtn = document.getElementById('timerSignupBtn');
     
-    if (timerHeaderAuth && !timer.isAuthenticated) {
-        timerHeaderAuth.style.display = 'block';
-        
-        if (timerLoginBtn) {
-            timerLoginBtn.addEventListener('click', () => {
-                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
-            });
-        }
-        
-        if (timerSignupBtn) {
-            timerSignupBtn.addEventListener('click', () => {
-                window.location.href = '/pricing/';
-            });
+    if (timerHeaderAuth) {
+        if (!timer.isAuthenticated) {
+            timerHeaderAuth.style.display = 'block';
+            
+            if (timerLoginBtn) {
+                timerLoginBtn.addEventListener('click', () => {
+                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                });
+            }
+            
+            if (timerSignupBtn) {
+                timerSignupBtn.addEventListener('click', () => {
+                    window.location.href = '/pricing/';
+                });
+            }
+        } else {
+            // Hide buttons when user is authenticated
+            timerHeaderAuth.style.display = 'none';
         }
     }
     
