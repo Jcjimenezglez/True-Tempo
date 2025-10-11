@@ -9964,6 +9964,7 @@ class SidebarManager {
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.navItems = document.querySelectorAll('.nav-item');
         this.taskSidePanel = document.getElementById('taskSidePanel');
+        this.taskPanelOverlay = document.getElementById('taskPanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -10019,23 +10020,12 @@ class SidebarManager {
             });
         }
         
-        // Click outside task panel to close it
-        setTimeout(() => {
-            document.addEventListener('click', (e) => {
-                if (!this.isTaskPanelOpen) return;
-                
-                // Check if click is inside the task panel
-                const isInsidePanel = this.taskSidePanel && this.taskSidePanel.contains(e.target);
-                
-                // Check if click is on the tasks nav button
-                const isTasksButton = e.target.closest('.nav-item[data-section="tasks"]');
-                
-                // Close panel if click is outside panel and not on tasks button
-                if (!isInsidePanel && !isTasksButton) {
-                    this.closeTaskPanel();
-                }
-            }, true); // Use capture phase
-        }, 100);
+        // Click on overlay to close task panel
+        if (this.taskPanelOverlay) {
+            this.taskPanelOverlay.addEventListener('click', () => {
+                this.closeTaskPanel();
+            });
+        }
         
         // Handle window resize
         window.addEventListener('resize', () => {
@@ -10173,6 +10163,11 @@ class SidebarManager {
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
             
+            // Show overlay
+            if (this.taskPanelOverlay) {
+                this.taskPanelOverlay.classList.add('active');
+            }
+            
             // Set Tasks nav item as active
             this.setActiveNavItem('tasks');
             
@@ -10192,6 +10187,11 @@ class SidebarManager {
         if (this.taskSidePanel) {
             this.taskSidePanel.classList.remove('open');
             this.isTaskPanelOpen = false;
+            
+            // Hide overlay
+            if (this.taskPanelOverlay) {
+                this.taskPanelOverlay.classList.remove('active');
+            }
             
             // Remove active state from Tasks nav item
             const tasksNavItem = document.querySelector('.nav-item[data-section="tasks"]');
