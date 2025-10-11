@@ -193,8 +193,7 @@ class PomodoroTimer {
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
         
-        // Logo and achievement elements
-        this.logoIcon = document.getElementById('logoIcon');
+        // Achievement elements
         this.achievementIcon = document.getElementById('achievementIcon');
         this.achievementCounter = document.getElementById('achievementCounter');
         this.streakInfo = document.getElementById('streakInfo');
@@ -491,8 +490,7 @@ class PomodoroTimer {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
-            // Always show logo, never show achievement icon
-            if (this.logoIcon) this.logoIcon.style.display = 'flex';
+            // Always show achievement icon as hidden
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             // Streak info is now always visible via CSS
             this.updateUserProfile();
@@ -567,8 +565,7 @@ class PomodoroTimer {
             
             if (this.authContainer) this.authContainer.style.display = 'none'; // Always hidden, use settings menu instead
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
-            // Always show logo, never show achievement icon
-            if (this.logoIcon) this.logoIcon.style.display = 'flex';
+            // Always show achievement icon as hidden
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
             // Streak info is now always visible via CSS
             if (this.loginButton) this.loginButton.textContent = 'Login';
@@ -1525,13 +1522,7 @@ class PomodoroTimer {
             });
         }
 
-        // Logo click - redirect to home
-        if (this.logoIcon) {
-            this.logoIcon.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.location.href = 'https://superfocus.live';
-            });
-        }
+        // Logo is just visual - no click functionality
 
         // Modal close buttons
         const closeUpgradeX = document.querySelector('.close-upgrade-x');
