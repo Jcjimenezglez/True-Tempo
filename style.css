@@ -145,13 +145,13 @@ body::-webkit-scrollbar {
     font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
-    z-index: 10000;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     pointer-events: none;
     opacity: 0;
     animation: tooltipFadeIn 0.2s ease-out forwards;
     min-width: 60px;
     text-align: center;
+    z-index: 99999;
 }
 
 [data-tooltip]:hover::before {
@@ -163,7 +163,7 @@ body::-webkit-scrollbar {
     margin-left: 6px;
     border: 6px solid transparent;
     border-right-color: #1a1a1a;
-    z-index: 10001;
+    z-index: 100000;
     pointer-events: none;
     opacity: 0;
     animation: tooltipFadeIn 0.2s ease-out forwards;
