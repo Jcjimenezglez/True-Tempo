@@ -9840,6 +9840,7 @@ class PomodoroTimer {
             addTaskBtn.replaceWith(addTaskBtn.cloneNode(true));
             const newAddTaskBtn = panel.querySelector('#showAddTaskForm');
             newAddTaskBtn.addEventListener('click', () => {
+                console.log('Add Task button clicked');
                 this.editingTaskId = null;
                 addTaskForm.style.display = 'block';
                 newAddTaskBtn.disabled = true;
@@ -9876,10 +9877,7 @@ class PomodoroTimer {
             }
         }
         
-        // Setup form controls for the panel
-        this.setupAddTaskFormControlsForPanel(panel, renderTasks);
-        
-        // Setup tabs - remove all old listeners first
+        // Setup tabs FIRST - remove all old listeners
         const tabs = panel.querySelectorAll('.task-tab');
         tabs.forEach(tab => {
             const newTab = tab.cloneNode(true);
@@ -9892,6 +9890,8 @@ class PomodoroTimer {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                console.log('Tab clicked:', tab.dataset.tab);
                 
                 // Update active states
                 newTabs.forEach(t => t.classList.remove('active'));
@@ -9926,6 +9926,9 @@ class PomodoroTimer {
             });
         });
         
+        // Setup form controls for the panel
+        this.setupAddTaskFormControlsForPanel(panel, renderTasks);
+        
         // Setup task options dropdown
         const taskOptionsBtn = panel.querySelector('#taskOptionsBtn');
         const taskOptionsDropdown = panel.querySelector('#taskOptionsDropdown');
@@ -9937,12 +9940,25 @@ class PomodoroTimer {
             const newTaskOptionsBtn = panel.querySelector('#taskOptionsBtn');
             newTaskOptionsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                taskOptionsDropdown.style.display = taskOptionsDropdown.style.display === 'block' ? 'none' : 'block';
+                console.log('Options button clicked');
+                const isVisible = taskOptionsDropdown.style.display === 'block';
+                taskOptionsDropdown.style.display = isVisible ? 'none' : 'block';
             });
             
-            document.addEventListener('click', () => {
-                if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
-            });
+            // Close dropdown when clicking outside
+            setTimeout(() => {
+                const closeDropdown = (e) => {
+                    if (!newTaskOptionsBtn.contains(e.target) && !taskOptionsDropdown.contains(e.target)) {
+                        taskOptionsDropdown.style.display = 'none';
+                    }
+                };
+                document.addEventListener('click', closeDropdown);
+                
+                // Store reference to remove later if needed
+                if (!panel.dataset.hasOptionsListener) {
+                    panel.dataset.hasOptionsListener = 'true';
+                }
+            }, 100);
         }
         
         if (clearAllBtn) {
@@ -9971,6 +9987,7 @@ class PomodoroTimer {
             todoistBtn.replaceWith(todoistBtn.cloneNode(true));
             const newTodoistBtn = panel.querySelector('#importTodoistMainBtn');
             newTodoistBtn.addEventListener('click', () => {
+                console.log('Todoist button clicked');
                 this.showTodoistProjects();
             });
         }
@@ -9980,6 +9997,7 @@ class PomodoroTimer {
             notionBtn.replaceWith(notionBtn.cloneNode(true));
             const newNotionBtn = panel.querySelector('#importNotionMainBtn');
             newNotionBtn.addEventListener('click', () => {
+                console.log('Notion button clicked');
                 this.showNotionIntegration();
             });
         }
@@ -9989,6 +10007,7 @@ class PomodoroTimer {
             calendarBtn.replaceWith(calendarBtn.cloneNode(true));
             const newCalendarBtn = panel.querySelector('#importGoogleCalendarMainBtn');
             newCalendarBtn.addEventListener('click', () => {
+                console.log('Google Calendar button clicked');
                 this.showGoogleCalendarIntegration();
             });
         }
