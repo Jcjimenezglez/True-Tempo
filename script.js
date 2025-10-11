@@ -9879,14 +9879,21 @@ class PomodoroTimer {
         // Setup form controls for the panel
         this.setupAddTaskFormControlsForPanel(panel, renderTasks);
         
-        // Setup tabs
+        // Setup tabs - remove all old listeners first
         const tabs = panel.querySelectorAll('.task-tab');
         tabs.forEach(tab => {
-            tab.replaceWith(tab.cloneNode(true));
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
         });
+        
+        // Add new listeners to fresh tabs
         const newTabs = panel.querySelectorAll('.task-tab');
         newTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Update active states
                 newTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentTab = tab.dataset.tab;
@@ -9896,9 +9903,11 @@ class PomodoroTimer {
                 const addTaskSection = panel.querySelector('.add-task-section');
                 
                 if (currentTab === 'done') {
+                    // Hide add task elements in Done tab
                     if (addTaskForm) addTaskForm.style.display = 'none';
                     if (addTaskSection) addTaskSection.style.display = 'none';
                 } else {
+                    // Show add task elements in To-do tab
                     if (addTaskSection) addTaskSection.style.display = 'block';
                     if (addTaskForm && addTaskBtn) {
                         const tasks = this.getAllTasks();
@@ -9912,6 +9921,7 @@ class PomodoroTimer {
                     }
                 }
                 
+                // Re-render tasks for the selected tab
                 renderTasks();
             });
         });
