@@ -213,12 +213,12 @@ body::-webkit-scrollbar {
 }
 
 .sidebar-header {
-    padding: 20px;
+    padding: 16px;
     border-bottom: 1px solid var(--sidebar-border);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    min-height: 80px;
+    justify-content: center;
+    min-height: 64px;
 }
 
 .sidebar-logo {
@@ -234,33 +234,14 @@ body::-webkit-scrollbar {
     filter: brightness(1.2);
 }
 
-
-.sidebar-toggle {
-    background: none;
-    border: none;
-    color: var(--sidebar-text);
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sidebar-toggle:hover {
-    background: var(--sidebar-hover);
-    color: var(--sidebar-text-active);
-}
-
 .sidebar-nav {
     flex: 1;
-    padding: 20px 0;
+    padding: 12px 0;
     overflow: hidden;
 }
 
 .nav-section {
-    margin-bottom: 32px;
+    margin-bottom: 8px;
 }
 
 .nav-section:last-child {
@@ -270,12 +251,14 @@ body::-webkit-scrollbar {
 .nav-item {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
-    padding: 12px 20px;
+    padding: 14px;
+    margin: 4px 8px;
     color: var(--sidebar-text);
     cursor: pointer;
     transition: all 0.2s ease;
-    border-radius: 0;
+    border-radius: 8px;
     position: relative;
 }
 
@@ -319,7 +302,7 @@ body::-webkit-scrollbar {
 /* User Profile Section */
 .sidebar-user-section {
     margin-top: auto;
-    padding: 20px;
+    padding: 12px;
     border-top: 1px solid var(--sidebar-border);
 }
 
@@ -331,15 +314,15 @@ body::-webkit-scrollbar {
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
-    padding: 12px;
+    padding: 14px;
     background: none;
     border: none;
     color: var(--sidebar-text);
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 8px;
     transition: background-color 0.2s ease, color 0.2s ease;
-    text-align: left;
     font-size: 14px;
     font-weight: 500;
 }
@@ -370,11 +353,7 @@ body::-webkit-scrollbar {
     min-width: 200px;
 }
 
-.sidebar.collapsed .sidebar-user-section .header-settings-btn span {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-}
+/* Removed unnecessary span hiding rule */
 
 /* Main Content Layout */
 .main-content {
