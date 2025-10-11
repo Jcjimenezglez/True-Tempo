@@ -7508,8 +7508,6 @@ class PomodoroTimer {
             this.updateCurrentTaskBanner();
             this.rebuildTaskQueue();
             this.updateCurrentTaskFromQueue();
-            
-            this.showTaskListModal();
         }
     }
 
