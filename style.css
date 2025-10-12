@@ -550,6 +550,24 @@ body::-webkit-scrollbar {
     .task-side-panel {
         left: 0;
     }
+    
+    /* Adjust timer header to not conflict with hamburger menu */
+    .timer-header {
+        top: 20px;
+        right: 20px;
+        left: auto;
+    }
+    
+    /* Ensure hamburger and header buttons don't overlap */
+    .timer-auth-buttons {
+        gap: 8px;
+    }
+    
+    .timer-login-btn,
+    .timer-signup-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
 }
 
 /* Desktop Styles */
@@ -1580,17 +1598,6 @@ body.is-scrolling .streak-fire {
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
-    }
-    
-    .timer-header {
-        top: 10px;
-        right: 10px;
-    }
-    
-    .timer-login-btn,
-    .timer-signup-btn {
-        padding: 8px 16px;
-        font-size: 13px;
     }
     
     .timer-container {
