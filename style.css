@@ -306,8 +306,9 @@ body::-webkit-scrollbar {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 14px;
+    width: 60px;
+    height: 60px;
+    padding: 0;
     margin: 0px 2px;
     color: var(--sidebar-text);
     cursor: pointer;
