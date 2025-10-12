@@ -5981,9 +5981,6 @@ class PomodoroTimer {
             // Refresh task modal if it's open
             this.refreshTaskModalIfOpen();
             
-            // Show success message
-            alert(`Successfully imported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}!`);
-            
         } catch (error) {
             console.error('Error importing Todoist tasks:', error);
             throw error;
