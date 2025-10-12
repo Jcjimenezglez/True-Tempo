@@ -7492,10 +7492,13 @@ class PomodoroTimer {
 
     // Local task management
     getLocalTasks() {
-        return JSON.parse(localStorage.getItem('localTasks') || '[]');
+        const tasks = JSON.parse(localStorage.getItem('localTasks') || '[]');
+        console.log('🔍 getLocalTasks - Raw from localStorage:', tasks);
+        return tasks;
     }
 
     setLocalTasks(tasks) {
+        console.log('🔍 setLocalTasks - Saving to localStorage:', tasks);
         localStorage.setItem('localTasks', JSON.stringify(tasks));
     }
 
@@ -7521,9 +7524,9 @@ class PomodoroTimer {
         // Get local completion state for Todoist tasks
         const todoistCompletionState = this.getTodoistTaskCompletionState();
         
-        // Combine and mark source
+        // Combine and mark source (preserve existing source if present)
         const allTasks = [
-            ...localTasks.map(task => ({ ...task, source: 'local' })),
+            ...localTasks.map(task => ({ ...task, source: task.source || 'local' })),
             ...todoistTasks.map(task => ({ 
                 ...task, 
                 source: 'todoist',
