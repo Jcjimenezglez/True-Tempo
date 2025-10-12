@@ -3158,6 +3158,9 @@ class PomodoroTimer {
         // Show keyboard shortcut hint on first play
         this.showKeyboardHint();
         
+        // Show tasks hint for guest users
+        this.showTasksHintForGuest();
+        
         // Close all open modals to focus on timer
         this.closeAllModals();
         
@@ -9732,6 +9735,63 @@ class PomodoroTimer {
         
         // Mark as shown for this session
         sessionStorage.setItem('keyboardHintShown', 'true');
+    }
+
+    // Show tasks hint for guest users (only once per session)
+    showTasksHintForGuest() {
+        // Only show for guest users
+        if (this.isAuthenticated) return;
+        
+        // Only show hint once per session
+        if (sessionStorage.getItem('tasksHintShown')) return;
+        
+        // Find the tasks button in sidebar
+        const tasksButton = document.querySelector('.nav-item[data-section="tasks"]');
+        if (!tasksButton) return;
+        
+        // Create hint tooltip
+        const hint = document.createElement('div');
+        hint.className = 'keyboard-hint tasks-hint';
+        hint.innerHTML = `
+            <span>💡 Tip: Click here to manage tasks</span>
+        `;
+        
+        document.body.appendChild(hint);
+        
+        // Function to position hint next to tasks button
+        const positionHint = () => {
+            const buttonRect = tasksButton.getBoundingClientRect();
+            const hintRect = hint.getBoundingClientRect();
+            
+            // Position to the right of the button
+            const left = buttonRect.right + 20; // 20px gap
+            const top = buttonRect.top + (buttonRect.height / 2) - (hintRect.height / 2); // Center vertically
+            
+            hint.style.left = `${left}px`;
+            hint.style.top = `${top}px`;
+        };
+        
+        // Position initially (delay to show after keyboard hint)
+        setTimeout(() => {
+            positionHint();
+            hint.classList.add('show');
+        }, 4500); // Show 500ms after keyboard hint disappears
+        
+        // Update position on window resize
+        const resizeHandler = () => positionHint();
+        window.addEventListener('resize', resizeHandler);
+        
+        // Hide after 4 seconds
+        setTimeout(() => {
+            hint.classList.remove('show');
+            setTimeout(() => {
+                hint.remove();
+                window.removeEventListener('resize', resizeHandler);
+            }, 300);
+        }, 8500); // Total: 4.5s delay + 4s show = 8.5s
+        
+        // Mark as shown for this session
+        sessionStorage.setItem('tasksHintShown', 'true');
     }
 
     // Save timer state to sessionStorage (persists on reload/navigation but not on tab close)
