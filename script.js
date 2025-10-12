@@ -9772,11 +9772,11 @@ class PomodoroTimer {
             hint.style.top = `${top}px`;
         };
         
-        // Position initially (show shortly after page loads)
+        // Position immediately
         setTimeout(() => {
             positionHint();
             hint.classList.add('show');
-        }, 1000); // Show 1 second after page load
+        }, 100); // Show immediately (small delay for DOM to be ready)
         
         // Update position on window resize
         const resizeHandler = () => positionHint();
@@ -9789,7 +9789,7 @@ class PomodoroTimer {
                 hint.remove();
                 window.removeEventListener('resize', resizeHandler);
             }, 300);
-        }, 6000); // Total: 1s delay + 5s show = 6s
+        }, 5100); // Total: 100ms delay + 5s show
         
         // Mark as shown for this session
         sessionStorage.setItem('tasksHintShown', 'true');
