@@ -3919,6 +3919,35 @@ audio {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
+.task-source-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px 8px 8px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.task-source-header:first-child {
+    margin-top: 0;
+}
+
+.task-source-header .source-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.3px;
+}
+
+.task-source-header .source-count {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
 .task-content {
     flex: 1;
     display: flex;

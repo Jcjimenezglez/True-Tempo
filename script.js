@@ -6468,8 +6468,8 @@ class PomodoroTimer {
                 const activeTabEl = taskSidePanel.querySelector('.task-tab.active');
                 const currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo';
                 
-                // Clear only task items, preserve the form
-                const taskItems = listEl.querySelectorAll('.task-item, .empty-state');
+                // Clear only task items and headers, preserve the form
+                const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
                 taskItems.forEach(item => item.remove());
                 
                 const allTasks = this.getAllTasks();
@@ -6499,79 +6499,131 @@ class PomodoroTimer {
                         listEl.appendChild(emptyState);
                     }
                 } else {
-                    // Apply saved task order
-                    const savedOrder = this.getTaskOrder();
-                    let orderedTasks = filteredTasks;
+                    // Group tasks by source
+                    const tasksBySource = {
+                        'local': [],
+                        'todoist': [],
+                        'notion': [],
+                        'google-calendar': []
+                    };
                     
-                    if (savedOrder.length > 0) {
-                        const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
-                        orderedTasks = [];
-                        savedOrder.forEach(orderItem => {
-                            if (taskMap.has(orderItem.id)) {
-                                orderedTasks.push(taskMap.get(orderItem.id));
-                                taskMap.delete(orderItem.id);
-                            }
-                        });
-                        taskMap.forEach(task => orderedTasks.push(task));
-                    }
+                    filteredTasks.forEach(task => {
+                        const source = task.source || 'local';
+                        if (tasksBySource[source]) {
+                            tasksBySource[source].push(task);
+                        } else {
+                            tasksBySource['local'].push(task);
+                        }
+                    });
+                    
+                    // Apply saved task order within each source
+                    const savedOrder = this.getTaskOrder();
+                    Object.keys(tasksBySource).forEach(source => {
+                        const tasks = tasksBySource[source];
+                        if (savedOrder.length > 0 && tasks.length > 0) {
+                            const taskMap = new Map(tasks.map(task => [task.id, task]));
+                            const orderedTasks = [];
+                            savedOrder.forEach(orderItem => {
+                                if (taskMap.has(orderItem.id)) {
+                                    orderedTasks.push(taskMap.get(orderItem.id));
+                                    taskMap.delete(orderItem.id);
+                                }
+                            });
+                            taskMap.forEach(task => orderedTasks.push(task));
+                            tasksBySource[source] = orderedTasks;
+                        }
+                    });
                     
                     // Get the form element to insert before it (if it exists)
                     const addTaskFormEl = listEl.querySelector('#addTaskForm');
                     
-                    orderedTasks.forEach((task, index) => {
-                        const item = document.createElement('div');
-                        item.className = 'task-item';
-                        item.draggable = true;
-                        item.dataset.taskId = task.id;
-                        item.dataset.index = index;
+                    // Source labels and icons
+                    const sourceConfig = {
+                        'local': { label: 'My Tasks', icon: '📝' },
+                        'todoist': { label: 'From Todoist', icon: '✅' },
+                        'notion': { label: 'From Notion', icon: '📄' },
+                        'google-calendar': { label: 'From Google Calendar', icon: '📅' }
+                    };
+                    
+                    // Render tasks grouped by source
+                    let globalIndex = 0;
+                    ['local', 'todoist', 'notion', 'google-calendar'].forEach(source => {
+                        const tasks = tasksBySource[source];
+                        if (tasks.length === 0) return;
                         
-                        const taskConfig = this.getTaskConfig(task.id);
-                        const completedSessions = taskConfig.completedSessions || 0;
-                        const totalSessions = taskConfig.sessions || 1;
-                        const isCompleted = task.completed || (completedSessions >= totalSessions);
-                        
-                        const itemContent = `
-                            <div class="task-checkbox">
-                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
-                                <label for="task-${task.id}"></label>
-                            </div>
-                            <div class="task-content">
-                                <div class="task-title">
-                                    ${task.content || '(untitled)'}
-                                </div>
-                            </div>
-                            <div class="task-progress">
-                                <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                            </div>
-                            ${!isCompleted ? `
-                            <div class="task-menu" data-task-id="${task.id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="1"/>
-                                    <circle cx="19" cy="12" r="1"/>
-                                    <circle cx="5" cy="12" r="1"/>
-                                </svg>
-                            </div>
-                            ` : ''}
+                        // Create source header
+                        const sourceHeader = document.createElement('div');
+                        sourceHeader.className = 'task-source-header';
+                        const config = sourceConfig[source];
+                        sourceHeader.innerHTML = `
+                            <span class="source-label">${config.icon} ${config.label}</span>
+                            <span class="source-count">${tasks.length}</span>
                         `;
-                        
-                        item.innerHTML = itemContent;
-                        
-                        // Add completed class if task is completed
-                        if (isCompleted) {
-                            item.classList.add('completed');
-                        }
-                        
-                        // Only apply 'selected' class if task is NOT completed
-                        if (taskConfig.selected && !isCompleted) {
-                            item.classList.add('selected');
-                        }
                         
                         // Insert before the form if it exists, otherwise append
                         if (addTaskFormEl) {
-                            listEl.insertBefore(item, addTaskFormEl);
+                            listEl.insertBefore(sourceHeader, addTaskFormEl);
                         } else {
-                            listEl.appendChild(item);
+                            listEl.appendChild(sourceHeader);
                         }
+                        
+                        // Render tasks for this source
+                        tasks.forEach((task) => {
+                            const item = document.createElement('div');
+                            item.className = 'task-item';
+                            item.draggable = true;
+                            item.dataset.taskId = task.id;
+                            item.dataset.index = globalIndex++;
+                            item.dataset.source = source;
+                            
+                            const taskConfig = this.getTaskConfig(task.id);
+                            const completedSessions = taskConfig.completedSessions || 0;
+                            const totalSessions = taskConfig.sessions || 1;
+                            const isCompleted = task.completed || (completedSessions >= totalSessions);
+                            
+                            const itemContent = `
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                                    <label for="task-${task.id}"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        ${task.content || '(untitled)'}
+                                    </div>
+                                </div>
+                                <div class="task-progress">
+                                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                                </div>
+                                ${!isCompleted ? `
+                                <div class="task-menu" data-task-id="${task.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="1"/>
+                                        <circle cx="19" cy="12" r="1"/>
+                                        <circle cx="5" cy="12" r="1"/>
+                                    </svg>
+                                </div>
+                                ` : ''}
+                            `;
+                            
+                            item.innerHTML = itemContent;
+                            
+                            // Add completed class if task is completed
+                            if (isCompleted) {
+                                item.classList.add('completed');
+                            }
+                            
+                            // Only apply 'selected' class if task is NOT completed
+                            if (taskConfig.selected && !isCompleted) {
+                                item.classList.add('selected');
+                            }
+                            
+                            // Insert before the form if it exists, otherwise append
+                            if (addTaskFormEl) {
+                                listEl.insertBefore(item, addTaskFormEl);
+                            } else {
+                                listEl.appendChild(item);
+                            }
+                        });
                     });
                     
                     // Re-setup event listeners after rendering
@@ -10491,8 +10543,8 @@ class PomodoroTimer {
         const renderTasks = () => {
             console.log('🔵 renderTasks called, currentTab:', currentTab);
             
-            // Clear only task items, preserve the form
-            const taskItems = listEl.querySelectorAll('.task-item, .empty-state');
+            // Clear only task items and headers, preserve the form
+            const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
             taskItems.forEach(item => item.remove());
             
             const allTasks = this.getAllTasks();
@@ -10524,80 +10576,132 @@ class PomodoroTimer {
                 return;
             }
             
-            // Apply saved task order
-            const savedOrder = this.getTaskOrder();
-            let orderedTasks = filteredTasks;
+            // Group tasks by source
+            const tasksBySource = {
+                'local': [],
+                'todoist': [],
+                'notion': [],
+                'google-calendar': []
+            };
             
-            if (savedOrder.length > 0) {
-                const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
-                orderedTasks = [];
-                savedOrder.forEach(orderItem => {
-                    if (taskMap.has(orderItem.id)) {
-                        orderedTasks.push(taskMap.get(orderItem.id));
-                        taskMap.delete(orderItem.id);
-                    }
-                });
-                taskMap.forEach(task => orderedTasks.push(task));
-            }
+            filteredTasks.forEach(task => {
+                const source = task.source || 'local';
+                if (tasksBySource[source]) {
+                    tasksBySource[source].push(task);
+                } else {
+                    tasksBySource['local'].push(task);
+                }
+            });
+            
+            // Apply saved task order within each source
+            const savedOrder = this.getTaskOrder();
+            Object.keys(tasksBySource).forEach(source => {
+                const tasks = tasksBySource[source];
+                if (savedOrder.length > 0 && tasks.length > 0) {
+                    const taskMap = new Map(tasks.map(task => [task.id, task]));
+                    const orderedTasks = [];
+                    savedOrder.forEach(orderItem => {
+                        if (taskMap.has(orderItem.id)) {
+                            orderedTasks.push(taskMap.get(orderItem.id));
+                            taskMap.delete(orderItem.id);
+                        }
+                    });
+                    taskMap.forEach(task => orderedTasks.push(task));
+                    tasksBySource[source] = orderedTasks;
+                }
+            });
             
             // Get the form element to insert before it (if it exists)
             const addTaskFormEl = listEl.querySelector('#addTaskForm');
             
-            orderedTasks.forEach((task, index) => {
-                const item = document.createElement('div');
-                item.className = 'task-item';
-                item.draggable = true;
-                item.dataset.taskId = task.id;
-                item.dataset.index = index;
+            // Source labels and icons
+            const sourceConfig = {
+                'local': { label: 'My Tasks', icon: '📝' },
+                'todoist': { label: 'From Todoist', icon: '✅' },
+                'notion': { label: 'From Notion', icon: '📄' },
+                'google-calendar': { label: 'From Google Calendar', icon: '📅' }
+            };
+            
+            // Render tasks grouped by source
+            let globalIndex = 0;
+            ['local', 'todoist', 'notion', 'google-calendar'].forEach(source => {
+                const tasks = tasksBySource[source];
+                if (tasks.length === 0) return;
                 
-                const taskConfig = this.getTaskConfig(task.id);
-                const sessions = taskConfig.sessions || 1;
-                const completedSessions = taskConfig.completedSessions || 0;
-                const totalSessions = taskConfig.sessions || 1;
-                const isCompleted = task.completed || (completedSessions >= totalSessions);
-                
-                const itemContent = `
-                    <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
-                        <label for="task-${task.id}"></label>
-                    </div>
-                    <div class="task-content">
-                        <div class="task-title">
-                            ${task.content || '(untitled)'}
-                        </div>
-                    </div>
-                    <div class="task-progress">
-                        <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                    </div>
-                    ${!isCompleted ? `
-                    <div class="task-menu" data-task-id="${task.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"/>
-                            <circle cx="19" cy="12" r="1"/>
-                            <circle cx="5" cy="12" r="1"/>
-                        </svg>
-                    </div>
-                    ` : ''}
+                // Create source header
+                const sourceHeader = document.createElement('div');
+                sourceHeader.className = 'task-source-header';
+                const config = sourceConfig[source];
+                sourceHeader.innerHTML = `
+                    <span class="source-label">${config.icon} ${config.label}</span>
+                    <span class="source-count">${tasks.length}</span>
                 `;
-                
-                item.innerHTML = itemContent;
-                
-                // Add completed class if task is completed
-                if (isCompleted) {
-                    item.classList.add('completed');
-                }
-                
-                // Only apply 'selected' class if task is NOT completed
-                if (taskConfig.selected && !isCompleted) {
-                    item.classList.add('selected');
-                }
                 
                 // Insert before the form if it exists, otherwise append
                 if (addTaskFormEl) {
-                    listEl.insertBefore(item, addTaskFormEl);
+                    listEl.insertBefore(sourceHeader, addTaskFormEl);
                 } else {
-                    listEl.appendChild(item);
+                    listEl.appendChild(sourceHeader);
                 }
+                
+                // Render tasks for this source
+                tasks.forEach((task) => {
+                    const item = document.createElement('div');
+                    item.className = 'task-item';
+                    item.draggable = true;
+                    item.dataset.taskId = task.id;
+                    item.dataset.index = globalIndex++;
+                    item.dataset.source = source;
+                    
+                    const taskConfig = this.getTaskConfig(task.id);
+                    const sessions = taskConfig.sessions || 1;
+                    const completedSessions = taskConfig.completedSessions || 0;
+                    const totalSessions = taskConfig.sessions || 1;
+                    const isCompleted = task.completed || (completedSessions >= totalSessions);
+                    
+                    const itemContent = `
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                            <label for="task-${task.id}"></label>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">
+                                ${task.content || '(untitled)'}
+                            </div>
+                        </div>
+                        <div class="task-progress">
+                            <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                        </div>
+                        ${!isCompleted ? `
+                        <div class="task-menu" data-task-id="${task.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </div>
+                        ` : ''}
+                    `;
+                    
+                    item.innerHTML = itemContent;
+                    
+                    // Add completed class if task is completed
+                    if (isCompleted) {
+                        item.classList.add('completed');
+                    }
+                    
+                    // Only apply 'selected' class if task is NOT completed
+                    if (taskConfig.selected && !isCompleted) {
+                        item.classList.add('selected');
+                    }
+                    
+                    // Insert before the form if it exists, otherwise append
+                    if (addTaskFormEl) {
+                        listEl.insertBefore(item, addTaskFormEl);
+                    } else {
+                        listEl.appendChild(item);
+                    }
+                });
             });
             
             this.setupTaskEventListeners(panel);
