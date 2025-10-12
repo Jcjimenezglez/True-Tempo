@@ -303,9 +303,12 @@ class PomodoroTimer {
         this.updateFocusHoursDisplay();
 
         // Try to load saved timer state (must be last to ensure all UI is ready)
-        setTimeout(() => {
-            this.loadTimerState();
-        }, 500);
+        // DISABLED: User wants fresh start when closing/reopening window
+        // Clear any existing saved state to ensure fresh start
+        localStorage.removeItem('timerState');
+        // setTimeout(() => {
+        //     this.loadTimerState();
+        // }, 500);
     }
 
     // Clerk Authentication Methods
@@ -3194,7 +3197,8 @@ class PomodoroTimer {
             this.updateSessionInfo();
             
             // Save timer state every second
-            this.saveTimerState();
+            // DISABLED: User wants fresh start when closing/reopening window
+            // this.saveTimerState();
             
             // Music ducking: fade out 2s before end of section to prioritize alerts
             if (this.timeLeft === 2) {
