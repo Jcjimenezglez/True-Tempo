@@ -6509,6 +6509,7 @@ class PomodoroTimer {
                     
                     filteredTasks.forEach(task => {
                         const source = task.source || 'local';
+                        console.log('Task:', task.content, 'Source:', source, 'Full task:', task);
                         if (tasksBySource[source]) {
                             tasksBySource[source].push(task);
                         } else {
@@ -6537,13 +6538,17 @@ class PomodoroTimer {
                     // Get the form element to insert before it (if it exists)
                     const addTaskFormEl = listEl.querySelector('#addTaskForm');
                     
-                    // Source labels and icons
+                    // Source labels
                     const sourceConfig = {
-                        'local': { label: 'My Tasks', icon: '📝' },
-                        'todoist': { label: 'From Todoist', icon: '✅' },
-                        'notion': { label: 'From Notion', icon: '📄' },
-                        'google-calendar': { label: 'From Google Calendar', icon: '📅' }
+                        'local': { label: 'My Tasks' },
+                        'todoist': { label: 'From Todoist' },
+                        'notion': { label: 'From Notion' },
+                        'google-calendar': { label: 'From Google Calendar' }
                     };
+                    
+                    // Check how many sources have tasks
+                    const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
+                    const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
                     
                     // Render tasks grouped by source
                     let globalIndex = 0;
@@ -6551,20 +6556,22 @@ class PomodoroTimer {
                         const tasks = tasksBySource[source];
                         if (tasks.length === 0) return;
                         
-                        // Create source header
-                        const sourceHeader = document.createElement('div');
-                        sourceHeader.className = 'task-source-header';
-                        const config = sourceConfig[source];
-                        sourceHeader.innerHTML = `
-                            <span class="source-label">${config.icon} ${config.label}</span>
-                            <span class="source-count">${tasks.length}</span>
-                        `;
-                        
-                        // Insert before the form if it exists, otherwise append
-                        if (addTaskFormEl) {
-                            listEl.insertBefore(sourceHeader, addTaskFormEl);
-                        } else {
-                            listEl.appendChild(sourceHeader);
+                        // Create source header (only if needed)
+                        if (showHeaders) {
+                            const sourceHeader = document.createElement('div');
+                            sourceHeader.className = 'task-source-header';
+                            const config = sourceConfig[source];
+                            sourceHeader.innerHTML = `
+                                <span class="source-label">${config.label}</span>
+                                <span class="source-count">${tasks.length}</span>
+                            `;
+                            
+                            // Insert before the form if it exists, otherwise append
+                            if (addTaskFormEl) {
+                                listEl.insertBefore(sourceHeader, addTaskFormEl);
+                            } else {
+                                listEl.appendChild(sourceHeader);
+                            }
                         }
                         
                         // Render tasks for this source
@@ -10586,6 +10593,7 @@ class PomodoroTimer {
             
             filteredTasks.forEach(task => {
                 const source = task.source || 'local';
+                console.log('Task:', task.content, 'Source:', source, 'Full task:', task);
                 if (tasksBySource[source]) {
                     tasksBySource[source].push(task);
                 } else {
@@ -10614,13 +10622,17 @@ class PomodoroTimer {
             // Get the form element to insert before it (if it exists)
             const addTaskFormEl = listEl.querySelector('#addTaskForm');
             
-            // Source labels and icons
+            // Source labels
             const sourceConfig = {
-                'local': { label: 'My Tasks', icon: '📝' },
-                'todoist': { label: 'From Todoist', icon: '✅' },
-                'notion': { label: 'From Notion', icon: '📄' },
-                'google-calendar': { label: 'From Google Calendar', icon: '📅' }
+                'local': { label: 'My Tasks' },
+                'todoist': { label: 'From Todoist' },
+                'notion': { label: 'From Notion' },
+                'google-calendar': { label: 'From Google Calendar' }
             };
+            
+            // Check how many sources have tasks
+            const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
+            const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
             
             // Render tasks grouped by source
             let globalIndex = 0;
@@ -10628,20 +10640,22 @@ class PomodoroTimer {
                 const tasks = tasksBySource[source];
                 if (tasks.length === 0) return;
                 
-                // Create source header
-                const sourceHeader = document.createElement('div');
-                sourceHeader.className = 'task-source-header';
-                const config = sourceConfig[source];
-                sourceHeader.innerHTML = `
-                    <span class="source-label">${config.icon} ${config.label}</span>
-                    <span class="source-count">${tasks.length}</span>
-                `;
-                
-                // Insert before the form if it exists, otherwise append
-                if (addTaskFormEl) {
-                    listEl.insertBefore(sourceHeader, addTaskFormEl);
-                } else {
-                    listEl.appendChild(sourceHeader);
+                // Create source header (only if needed)
+                if (showHeaders) {
+                    const sourceHeader = document.createElement('div');
+                    sourceHeader.className = 'task-source-header';
+                    const config = sourceConfig[source];
+                    sourceHeader.innerHTML = `
+                        <span class="source-label">${config.label}</span>
+                        <span class="source-count">${tasks.length}</span>
+                    `;
+                    
+                    // Insert before the form if it exists, otherwise append
+                    if (addTaskFormEl) {
+                        listEl.insertBefore(sourceHeader, addTaskFormEl);
+                    } else {
+                        listEl.appendChild(sourceHeader);
+                    }
                 }
                 
                 // Render tasks for this source
