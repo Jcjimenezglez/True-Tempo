@@ -10482,8 +10482,9 @@ class SidebarManager {
         this.setupTaskPanelScrollBehavior();
         // Don't set any nav item as active by default
         
-        // Auto-open task panel for guest users
-        this.checkAndOpenForGuest();
+        // Auto-open task panel for guest users - DISABLED
+        // Keep task panel closed by default, user can open it manually
+        // this.checkAndOpenForGuest();
     }
     
     checkAndOpenForGuest() {
