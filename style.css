@@ -6485,9 +6485,6 @@ input:checked + .toggle-slider:before {
 /* ===== Keyboard Hint Tooltip ===== */
 .keyboard-hint {
     position: fixed;
-    bottom: 140px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
     background: #2a2a2a;
     border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
@@ -6499,14 +6496,13 @@ input:checked + .toggle-slider:before {
     z-index: 10000;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     white-space: nowrap;
 }
 
 .keyboard-hint.show {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
 }
 
 .keyboard-hint kbd {
@@ -6560,7 +6556,6 @@ input:checked + .toggle-slider:before {
 /* Mobile responsiveness for keyboard hint */
 @media (max-width: 768px) {
     .keyboard-hint {
-        bottom: 120px;
         font-size: 13px;
         padding: 10px 16px;
     }

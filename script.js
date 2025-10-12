@@ -9696,13 +9696,37 @@ class PomodoroTimer {
         
         document.body.appendChild(hint);
         
-        // Show with animation
-        setTimeout(() => hint.classList.add('show'), 100);
+        // Function to position hint above Play/Pause button
+        const positionHint = () => {
+            if (!this.startPauseButton) return;
+            const buttonRect = this.startPauseButton.getBoundingClientRect();
+            const hintRect = hint.getBoundingClientRect();
+            
+            // Position above the button, centered horizontally
+            const left = buttonRect.left + (buttonRect.width / 2) - (hintRect.width / 2);
+            const top = buttonRect.top - hintRect.height - 20; // 20px gap above button
+            
+            hint.style.left = `${left}px`;
+            hint.style.top = `${top}px`;
+        };
+        
+        // Position initially
+        setTimeout(() => {
+            positionHint();
+            hint.classList.add('show');
+        }, 100);
+        
+        // Update position on window resize
+        const resizeHandler = () => positionHint();
+        window.addEventListener('resize', resizeHandler);
         
         // Hide after 4 seconds
         setTimeout(() => {
             hint.classList.remove('show');
-            setTimeout(() => hint.remove(), 300);
+            setTimeout(() => {
+                hint.remove();
+                window.removeEventListener('resize', resizeHandler);
+            }, 300);
         }, 4000);
         
         // Mark as shown for this session
