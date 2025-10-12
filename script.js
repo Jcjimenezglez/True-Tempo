@@ -6164,6 +6164,131 @@ class PomodoroTimer {
     }
 
     refreshTaskModalIfOpen() {
+        // Check if task sidebar panel is open
+        const taskSidePanel = document.getElementById('taskSidePanel');
+        if (taskSidePanel && taskSidePanel.classList.contains('open')) {
+            console.log('🔄 Refreshing Task sidebar panel');
+            // Get the tasks list element
+            const listEl = taskSidePanel.querySelector('#todoistTasksList');
+            if (listEl) {
+                // Get current active tab
+                const activeTabEl = taskSidePanel.querySelector('.task-tab.active');
+                const currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo';
+                
+                // Clear only task items, preserve the form
+                const taskItems = listEl.querySelectorAll('.task-item, .empty-state');
+                taskItems.forEach(item => item.remove());
+                
+                const allTasks = this.getAllTasks();
+                
+                // Filter tasks based on current tab
+                let filteredTasks = allTasks;
+                if (currentTab === 'todo') {
+                    filteredTasks = allTasks.filter(task => !task.completed);
+                } else if (currentTab === 'done') {
+                    filteredTasks = allTasks.filter(task => task.completed);
+                }
+                
+                if (filteredTasks.length === 0) {
+                    if (currentTab === 'done') {
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'empty-state';
+                        emptyState.innerHTML = `
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                </svg>
+                            </div>
+                            <div class="empty-text">No completed tasks yet</div>
+                            <div class="empty-subtext">Complete some tasks to see them here</div>
+                        `;
+                        listEl.appendChild(emptyState);
+                    }
+                } else {
+                    // Apply saved task order
+                    const savedOrder = this.getTaskOrder();
+                    let orderedTasks = filteredTasks;
+                    
+                    if (savedOrder.length > 0) {
+                        const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+                        orderedTasks = [];
+                        savedOrder.forEach(orderItem => {
+                            if (taskMap.has(orderItem.id)) {
+                                orderedTasks.push(taskMap.get(orderItem.id));
+                                taskMap.delete(orderItem.id);
+                            }
+                        });
+                        taskMap.forEach(task => orderedTasks.push(task));
+                    }
+                    
+                    // Get the form element to insert before it (if it exists)
+                    const addTaskFormEl = listEl.querySelector('#addTaskForm');
+                    
+                    orderedTasks.forEach((task, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'task-item';
+                        item.draggable = true;
+                        item.dataset.taskId = task.id;
+                        item.dataset.index = index;
+                        
+                        const taskConfig = this.getTaskConfig(task.id);
+                        const completedSessions = taskConfig.completedSessions || 0;
+                        const totalSessions = taskConfig.sessions || 1;
+                        const isCompleted = task.completed || (completedSessions >= totalSessions);
+                        
+                        const itemContent = `
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                                <label for="task-${task.id}"></label>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title">
+                                    ${task.content || '(untitled)'}
+                                </div>
+                            </div>
+                            <div class="task-progress">
+                                <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                            </div>
+                            ${!isCompleted ? `
+                            <div class="task-menu" data-task-id="${task.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="1"/>
+                                    <circle cx="19" cy="12" r="1"/>
+                                    <circle cx="5" cy="12" r="1"/>
+                                </svg>
+                            </div>
+                            ` : ''}
+                        `;
+                        
+                        item.innerHTML = itemContent;
+                        
+                        // Add completed class if task is completed
+                        if (isCompleted) {
+                            item.classList.add('completed');
+                        }
+                        
+                        // Only apply 'selected' class if task is NOT completed
+                        if (taskConfig.selected && !isCompleted) {
+                            item.classList.add('selected');
+                        }
+                        
+                        // Insert before the form if it exists, otherwise append
+                        if (addTaskFormEl) {
+                            listEl.insertBefore(item, addTaskFormEl);
+                        } else {
+                            listEl.appendChild(item);
+                        }
+                    });
+                    
+                    // Re-setup event listeners after rendering
+                    this.setupTaskEventListeners(taskSidePanel);
+                    this.setupDragAndDrop(taskSidePanel);
+                }
+            }
+            return;
+        }
+        
         // Check if task modal is currently open
         const taskModal = document.querySelector('.focus-stats-overlay');
         if (taskModal) {
