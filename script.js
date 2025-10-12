@@ -9698,8 +9698,8 @@ class PomodoroTimer {
         
         // Function to position hint above Play/Pause button
         const positionHint = () => {
-            if (!this.startPauseButton) return;
-            const buttonRect = this.startPauseButton.getBoundingClientRect();
+            if (!this.startPauseBtn) return;
+            const buttonRect = this.startPauseBtn.getBoundingClientRect();
             const hintRect = hint.getBoundingClientRect();
             
             // Position above the button, centered horizontally
