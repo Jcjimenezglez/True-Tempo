@@ -6867,8 +6867,13 @@ class PomodoroTimer {
         const allTasks = this.getAllTasks();
         const task = allTasks.find(t => t.id === taskId);
         
+        console.log('🔍 toggleTaskCompletion - taskId:', taskId, 'isCompleted:', isCompleted);
+        console.log('🔍 Task found:', task);
+        console.log('🔍 Task source:', task ? task.source : 'NOT FOUND');
+        
         if (task) {
             if (task.source === 'local') {
+                console.log('🔍 Handling LOCAL task');
                 // Update local task completion status
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
@@ -6877,7 +6882,17 @@ class PomodoroTimer {
                     this.setLocalTasks(localTasks);
                 }
             } else if (task.source === 'todoist') {
-                // For Todoist tasks, track completion state locally
+                console.log('🔍 Handling TODOIST task');
+                // For Todoist tasks imported to local storage, update them there
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    console.log('🔍 Found Todoist task in localStorage, updating completion');
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
+                
+                // Also track completion state for live Todoist tasks
                 this.updateTodoistTaskCompletionState(taskId, isCompleted);
                 
                 // If completing, also call the API
@@ -6885,6 +6900,7 @@ class PomodoroTimer {
                     this.completeTodoistTaskInTodoist(taskId);
                 }
             } else if (task.source === 'notion' || task.source === 'google-calendar') {
+                console.log('🔍 Handling NOTION/CALENDAR task');
                 // For Notion and Google Calendar tasks, update in local tasks
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
