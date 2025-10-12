@@ -3814,6 +3814,11 @@ audio {
     text-align: center;
 }
 
+/* Task sidebar specific alignment */
+.task-side-panel .tasks-subtitle {
+    text-align: left;
+}
+
 .connection-section {
     display: flex;
     flex-direction: column;
@@ -4689,6 +4694,11 @@ input:checked + .toggle-slider:before {
     font-weight: 400;
     margin: 0.25rem 0 0 0;
     text-align: center;
+}
+
+/* Task sidebar specific alignment */
+.task-side-panel .tasks-subtitle {
+    text-align: left;
 }
 
 .tasks-menu {
