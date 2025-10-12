@@ -24,10 +24,19 @@ module.exports = async (req, res) => {
     console.log('✅ todoist-tasks: Pro verified, fetching tasks...');
 
     const token = getToken(req);
-    const r = await fetch('https://api.todoist.com/rest/v2/tasks', {
+    // Fetch all active (non-completed) tasks with filter
+    const r = await fetch('https://api.todoist.com/rest/v2/tasks?filter=all', {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
+    if (!r.ok) {
+      const errorText = await r.text();
+      console.error('❌ Todoist API error:', r.status, errorText);
+      throw new Error(`Todoist API returned ${r.status}`);
+    }
+    
     const json = await r.json();
+    console.log('✅ Fetched tasks from Todoist API:', json.length);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(json));
   } catch (e) {
