@@ -6004,17 +6004,6 @@ class PomodoroTimer {
                     'Sync task progress automatically',
                     'Boost productivity with seamless integration'
                 ]
-            },
-            googleCalendar: {
-                title: 'Google Calendar Integration',
-                subtitle: 'Time-block your tasks',
-                icon: '/images/google-calendar.svg',
-                benefits: [
-                    'Import events as focus tasks',
-                    'Schedule Pomodoro sessions',
-                    'Sync calendar with timer',
-                    'Manage time effectively'
-                ]
             }
         };
         
@@ -6607,8 +6596,7 @@ class PomodoroTimer {
                     const tasksBySource = {
                         'local': [],
                         'todoist': [],
-                        'notion': [],
-                        'google-calendar': []
+                        'notion': []
                     };
                     
                     filteredTasks.forEach(task => {
@@ -6645,8 +6633,7 @@ class PomodoroTimer {
                     const sourceConfig = {
                         'local': { label: 'My Tasks' },
                         'todoist': { label: 'From Todoist' },
-                        'notion': { label: 'From Notion' },
-                        'google-calendar': { label: 'From Google Calendar' }
+                        'notion': { label: 'From Notion' }
                     };
                     
                     // Check how many sources have tasks
@@ -6655,7 +6642,7 @@ class PomodoroTimer {
                     
                     // Render tasks grouped by source
                     let globalIndex = 0;
-                    ['local', 'todoist', 'notion', 'google-calendar'].forEach(source => {
+                    ['local', 'todoist', 'notion'].forEach(source => {
                         const tasks = tasksBySource[source];
                         if (tasks.length === 0) return;
                         
@@ -8871,7 +8858,7 @@ class PomodoroTimer {
                 </div>
                 <h3 style="color: #ffffff; margin: 0 0 12px 0; font-size: 1.5rem;">Pro Feature</h3>
                 <p style="color: rgba(255, 255, 255, 0.8); margin: 0 0 24px 0; line-height: 1.6;">
-                    Integrations with Todoist, Google Calendar, and Notion are exclusive to Pro members.
+                    Integrations with Todoist and Notion are exclusive to Pro members.
                 </p>
                 <p style="color: rgba(255, 255, 255, 0.7); margin: 0 0 24px 0; font-size: 0.9rem;">
                     Upgrade to Pro for just <strong style="color: #ffffff;">$9/year</strong> to unlock all integrations and premium features.
@@ -10705,8 +10692,7 @@ class PomodoroTimer {
             const tasksBySource = {
                 'local': [],
                 'todoist': [],
-                'notion': [],
-                'google-calendar': []
+                'notion': []
             };
             
             filteredTasks.forEach(task => {
@@ -10743,8 +10729,7 @@ class PomodoroTimer {
             const sourceConfig = {
                 'local': { label: 'My Tasks' },
                 'todoist': { label: 'From Todoist' },
-                'notion': { label: 'From Notion' },
-                'google-calendar': { label: 'From Google Calendar' }
+                'notion': { label: 'From Notion' }
             };
             
             // Check how many sources have tasks
@@ -10753,7 +10738,7 @@ class PomodoroTimer {
             
             // Render tasks grouped by source
             let globalIndex = 0;
-            ['local', 'todoist', 'notion', 'google-calendar'].forEach(source => {
+            ['local', 'todoist', 'notion'].forEach(source => {
                 const tasks = tasksBySource[source];
                 if (tasks.length === 0) return;
                 
@@ -11065,16 +11050,6 @@ class PomodoroTimer {
             newNotionBtn.addEventListener('click', () => {
                 console.log('Notion button clicked');
                 this.showNotionIntegration();
-            });
-        }
-        
-        const calendarBtn = panel.querySelector('#importGoogleCalendarMainBtn');
-        if (calendarBtn) {
-            calendarBtn.replaceWith(calendarBtn.cloneNode(true));
-            const newCalendarBtn = panel.querySelector('#importGoogleCalendarMainBtn');
-            newCalendarBtn.addEventListener('click', () => {
-                console.log('Google Calendar button clicked');
-                this.showGoogleCalendarIntegration();
             });
         }
         
