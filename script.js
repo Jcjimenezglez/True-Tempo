@@ -5872,7 +5872,18 @@ class PomodoroTimer {
         taskItems.forEach(item => {
             const checkbox = item.querySelector('.task-checkbox-input');
             if (checkbox) {
-                // Only handle native checkbox change
+                // Toggle checkbox when clicking anywhere on the task item
+                item.addEventListener('click', (e) => {
+                    // Don't toggle if clicking directly on the checkbox or label (let native behavior handle it)
+                    if (e.target === checkbox || e.target.classList.contains('task-checkbox-label')) {
+                        return;
+                    }
+                    checkbox.checked = !checkbox.checked;
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateTodoistImportButton(modal);
+                });
+                
+                // Also handle native checkbox change
                 checkbox.addEventListener('change', () => {
                     item.classList.toggle('selected', checkbox.checked);
                     this.updateTodoistImportButton(modal);
@@ -6301,7 +6312,18 @@ class PomodoroTimer {
         pageItems.forEach(item => {
             const checkbox = item.querySelector('.task-checkbox-input');
             if (checkbox) {
-                // Only handle native checkbox change
+                // Toggle checkbox when clicking anywhere on the page item
+                item.addEventListener('click', (e) => {
+                    // Don't toggle if clicking directly on the checkbox or label (let native behavior handle it)
+                    if (e.target === checkbox || e.target.classList.contains('task-checkbox-label')) {
+                        return;
+                    }
+                    checkbox.checked = !checkbox.checked;
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateNotionImportButton(modal);
+                });
+                
+                // Also handle native checkbox change
                 checkbox.addEventListener('change', () => {
                     item.classList.toggle('selected', checkbox.checked);
                     this.updateNotionImportButton(modal);
@@ -6862,6 +6884,14 @@ class PomodoroTimer {
                 if (isCompleted) {
                     this.completeTodoistTaskInTodoist(taskId);
                 }
+            } else if (task.source === 'notion' || task.source === 'google-calendar') {
+                // For Notion and Google Calendar tasks, update in local tasks
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
             }
         }
         
@@ -6901,6 +6931,12 @@ class PomodoroTimer {
     }
 
     rerenderTaskList() {
+        // Update the task sidebar panel if it's open
+        const taskSidePanel = document.getElementById('taskSidePanel');
+        if (taskSidePanel && taskSidePanel.classList.contains('open')) {
+            this.refreshTaskModalIfOpen();
+        }
+        
         // Find the tasks modal and re-render the task list
         // The modal uses the class 'focus-stats-overlay'/'focus-stats-modal' for the tasks UI
         const modal = document.querySelector('.focus-stats-modal');
