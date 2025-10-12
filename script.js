@@ -303,12 +303,10 @@ class PomodoroTimer {
         this.updateFocusHoursDisplay();
 
         // Try to load saved timer state (must be last to ensure all UI is ready)
-        // DISABLED: User wants fresh start when closing/reopening window
-        // Clear any existing saved state to ensure fresh start
-        localStorage.removeItem('timerState');
-        // setTimeout(() => {
-        //     this.loadTimerState();
-        // }, 500);
+        // Uses sessionStorage so state persists on reload/navigation but not when closing tab
+        setTimeout(() => {
+            this.loadTimerState();
+        }, 500);
     }
 
     // Clerk Authentication Methods
@@ -3196,9 +3194,8 @@ class PomodoroTimer {
             this.updateSections();
             this.updateSessionInfo();
             
-            // Save timer state every second
-            // DISABLED: User wants fresh start when closing/reopening window
-            // this.saveTimerState();
+            // Save timer state every second (uses sessionStorage - persists on reload but not on tab close)
+            this.saveTimerState();
             
             // Music ducking: fade out 2s before end of section to prioritize alerts
             if (this.timeLeft === 2) {
@@ -9737,7 +9734,7 @@ class PomodoroTimer {
         sessionStorage.setItem('keyboardHintShown', 'true');
     }
 
-    // Save timer state to localStorage
+    // Save timer state to sessionStorage (persists on reload/navigation but not on tab close)
     saveTimerState() {
         // Save state as soon as timer has any progress
         const section = this.cycleSections[this.currentSection - 1];
@@ -9767,12 +9764,12 @@ class PomodoroTimer {
             timeElapsed: timeElapsed
         };
         
-        localStorage.setItem('timerState', JSON.stringify(state));
+        sessionStorage.setItem('timerState', JSON.stringify(state));
     }
 
-    // Load timer state from localStorage
+    // Load timer state from sessionStorage (persists on reload/navigation but not on tab close)
     loadTimerState() {
-        const savedState = localStorage.getItem('timerState');
+        const savedState = sessionStorage.getItem('timerState');
         if (!savedState) return false;
         
         try {
@@ -9781,13 +9778,13 @@ class PomodoroTimer {
             // Check if state is recent (within last 30 minutes)
             const timeDiff = Date.now() - state.timestamp;
             if (timeDiff > 30 * 60 * 1000) {
-                localStorage.removeItem('timerState');
+                sessionStorage.removeItem('timerState');
                 return false;
             }
             
             // Check if at least 1 second had elapsed when saved
             if (state.timeElapsed < 1) {
-                localStorage.removeItem('timerState');
+                sessionStorage.removeItem('timerState');
                 return false;
             }
             
@@ -9797,7 +9794,7 @@ class PomodoroTimer {
             return true;
         } catch (error) {
             console.error('Error loading timer state:', error);
-            localStorage.removeItem('timerState');
+            sessionStorage.removeItem('timerState');
             return false;
         }
     }
@@ -9853,7 +9850,7 @@ class PomodoroTimer {
             
             const close = () => {
                 overlay.remove();
-                localStorage.removeItem('timerState');
+                sessionStorage.removeItem('timerState');
             };
             
             const continueSession = () => {
@@ -9907,7 +9904,7 @@ class PomodoroTimer {
         this.updateCurrentTaskFromQueue();
         
         // Clear saved state
-        localStorage.removeItem('timerState');
+        sessionStorage.removeItem('timerState');
         
         console.log('Timer state restored successfully:', {
             section: this.currentSection,
@@ -9916,9 +9913,9 @@ class PomodoroTimer {
         });
     }
 
-    // Clear timer state from localStorage
+    // Clear timer state from sessionStorage
     clearTimerState() {
-        localStorage.removeItem('timerState');
+        sessionStorage.removeItem('timerState');
     }
 
     // Show reset confirmation modal
