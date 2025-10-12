@@ -598,6 +598,10 @@ class PomodoroTimer {
             // Show timer header auth buttons when not authenticated
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'block';
+            
+            // Show tasks hint for guest users (once per session)
+            this.showTasksHintForGuest();
+            
             // Reset badge to zero time for guests
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
@@ -3157,9 +3161,6 @@ class PomodoroTimer {
         
         // Show keyboard shortcut hint on first play
         this.showKeyboardHint();
-        
-        // Show tasks hint for guest users
-        this.showTasksHintForGuest();
         
         // Close all open modals to focus on timer
         this.closeAllModals();
@@ -9771,24 +9772,24 @@ class PomodoroTimer {
             hint.style.top = `${top}px`;
         };
         
-        // Position initially (delay to show after keyboard hint)
+        // Position initially (show shortly after page loads)
         setTimeout(() => {
             positionHint();
             hint.classList.add('show');
-        }, 4500); // Show 500ms after keyboard hint disappears
+        }, 1000); // Show 1 second after page load
         
         // Update position on window resize
         const resizeHandler = () => positionHint();
         window.addEventListener('resize', resizeHandler);
         
-        // Hide after 4 seconds
+        // Hide after 5 seconds
         setTimeout(() => {
             hint.classList.remove('show');
             setTimeout(() => {
                 hint.remove();
                 window.removeEventListener('resize', resizeHandler);
             }, 300);
-        }, 8500); // Total: 4.5s delay + 4s show = 8.5s
+        }, 6000); // Total: 1s delay + 5s show = 6s
         
         // Mark as shown for this session
         sessionStorage.setItem('tasksHintShown', 'true');
