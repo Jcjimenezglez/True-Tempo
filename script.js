@@ -6119,8 +6119,8 @@ class PomodoroTimer {
             .then(res => res.json())
             .then(data => {
                 if (data.connected) {
-                    // Already connected, could show pages modal or settings
-                    alert('Notion is already connected! Manage it in Settings.');
+                    // Already connected, show import modal
+                    this.showNotionPagesModal();
                 } else {
                     // Not connected, initiate connection
                     const userId = window.Clerk?.user?.id || '';
@@ -6132,6 +6132,299 @@ class PomodoroTimer {
             .catch(() => {
                 alert('Error checking Notion connection. Please try again.');
             });
+    }
+    
+    async showNotionPagesModal() {
+        // Create overlay (ensure on top of Tasks modal)
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        overlay.style.zIndex = '100001';
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '600px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x" id="closeNotionPagesModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="tasks-header">
+                <h3>Import Tasks from Notion</h3>
+                <p class="tasks-subtitle">Select pages to import as tasks</p>
+            </div>
+            
+            <div class="todoist-projects-container">
+                <div class="loading-state" id="notionImportLoadingState">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your Notion pages...</p>
+                </div>
+                <div class="todoist-tasks-list" id="notionImportPagesList" style="display: none;">
+                    <!-- Pages will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="todoist-import-actions" id="notionImportActions" style="display: none;">
+                <button class="btn-secondary" id="clearNotionSelection">Clear Selection</button>
+                <button class="btn-primary" id="importSelectedPages">Import Selected</button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Close modal function
+        const closeModal = () => {
+            try {
+                document.body.removeChild(overlay);
+            } catch (_) {}
+        };
+
+        // Event listeners
+        const closeBtn = modal.querySelector('#closeNotionPagesModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+
+        // Close on overlay click (but not when clicking inside modal)
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
+
+        // Load Notion pages
+        try {
+            await this.loadNotionPages(modal);
+        } catch (error) {
+            console.error('Error loading Notion pages:', error);
+            // Show error state
+            const pagesList = modal.querySelector('#notionImportPagesList');
+            const loadingState = modal.querySelector('#notionImportLoadingState');
+            if (loadingState) loadingState.style.display = 'none';
+            if (pagesList) {
+                pagesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">Error loading pages</div>
+                        <div class="empty-subtext">Please check your Notion connection and try again</div>
+                    </div>
+                `;
+                pagesList.style.display = 'block';
+            }
+        }
+    }
+    
+    async loadNotionPages(modal) {
+        const loadingState = modal.querySelector('#notionImportLoadingState');
+        const pagesList = modal.querySelector('#notionImportPagesList');
+        const importActions = modal.querySelector('#notionImportActions');
+        
+        try {
+            // Build query params (Developer Mode + uid)
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+
+            // Fetch pages from Notion
+            const response = await fetch(`/api/notion-pages${qs}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch Notion pages');
+            }
+
+            const pages = await response.json();
+            
+            // Hide loading state
+            if (loadingState) loadingState.style.display = 'none';
+        
+            if (pages.length === 0) {
+                // Show empty state
+                pagesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No pages found</div>
+                        <div class="empty-subtext">Create some pages in Notion to import them</div>
+                    </div>
+                `;
+            } else {
+                // Render pages as tasks
+                pagesList.innerHTML = `
+                    <div class="todoist-project-section">
+                        <div class="project-header">
+                            <h4 class="project-title">Notion Pages</h4>
+                            <span class="project-task-count">${pages.length} page${pages.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="project-tasks">
+                            ${pages.map(page => `
+                                <div class="todoist-task-item" data-task-id="${page.id}">
+                                    <div class="task-checkbox">
+                                        <input type="checkbox" id="page-${page.id}" class="task-checkbox-input">
+                                        <label for="page-${page.id}" class="task-checkbox-label"></label>
+                                    </div>
+                                    <div class="task-info">
+                                        <div class="task-content">${page.content}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        
+            pagesList.style.display = 'block';
+            importActions.style.display = 'flex';
+        
+            // Setup page selection handlers
+            this.setupNotionPageSelection(modal);
+        
+        } catch (error) {
+            console.error('Error in loadNotionPages:', error);
+            throw error;
+        }
+    }
+    
+    setupNotionPageSelection(modal) {
+        const pageItems = modal.querySelectorAll('.todoist-task-item');
+        const clearSelectionBtn = modal.querySelector('#clearNotionSelection');
+        const importBtn = modal.querySelector('#importSelectedPages');
+        
+        // Handle page selection
+        pageItems.forEach(item => {
+            const checkbox = item.querySelector('.task-checkbox-input');
+            if (checkbox) {
+                // Toggle checkbox when clicking anywhere on the page item
+                item.addEventListener('click', (e) => {
+                    // Don't toggle if clicking directly on the checkbox or label (let native behavior handle it)
+                    if (e.target === checkbox || e.target.classList.contains('task-checkbox-label')) {
+                        return;
+                    }
+                    checkbox.checked = !checkbox.checked;
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateNotionImportButton(modal);
+                });
+                
+                // Also handle native checkbox change
+                checkbox.addEventListener('change', () => {
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateNotionImportButton(modal);
+                });
+            }
+        });
+
+        // Clear selection
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', () => {
+                pageItems.forEach(item => {
+                    const checkbox = item.querySelector('.task-checkbox-input');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        item.classList.remove('selected');
+                    }
+                });
+                this.updateNotionImportButton(modal);
+            });
+        }
+
+        // Import selected pages
+        if (importBtn) {
+            importBtn.addEventListener('click', async () => {
+                const selectedPages = Array.from(pageItems)
+                    .filter(item => item.classList.contains('selected'))
+                    .map(item => ({
+                        id: item.dataset.taskId,
+                        content: item.querySelector('.task-content').textContent
+                    }));
+
+                if (selectedPages.length === 0) {
+                    alert('Please select at least one page to import.');
+                    return;
+                }
+
+                try {
+                    await this.importNotionPages(selectedPages);
+                    // Close modal
+                    const overlay = modal.closest('.focus-stats-overlay');
+                    if (overlay) {
+                        document.body.removeChild(overlay);
+                    }
+                } catch (error) {
+                    console.error('Error importing pages:', error);
+                    alert('Error importing pages. Please try again.');
+                }
+            });
+        }
+    }
+
+    updateNotionImportButton(modal) {
+        const importBtn = modal.querySelector('#importSelectedPages');
+        const selectedCount = modal.querySelectorAll('.todoist-task-item.selected').length;
+        
+        if (importBtn) {
+            if (selectedCount > 0) {
+                importBtn.textContent = `Import ${selectedCount} Page${selectedCount > 1 ? 's' : ''}`;
+                importBtn.disabled = false;
+            } else {
+                importBtn.textContent = 'Import Selected';
+                importBtn.disabled = true;
+            }
+        }
+    }
+
+    async importNotionPages(selectedPages) {
+        try {
+            // Add selected pages to local tasks
+            const localTasks = this.getLocalTasks();
+            const newTasks = selectedPages.map(page => ({
+                id: `notion_${page.id}`,
+                content: page.content,
+                completed: false,
+                source: 'notion'
+            }));
+            
+            // Add new tasks to existing local tasks
+            this.setLocalTasks([...localTasks, ...newTasks]);
+            
+            // Set task config for each new task (selected by default)
+            newTasks.forEach(task => {
+                this.setTaskConfig(task.id, { 
+                    sessions: 1, 
+                    selected: true, 
+                    completedSessions: 0 
+                });
+            });
+            
+            // Refresh the task list
+            this.loadAllTasks();
+            this.updateCurrentTaskBanner();
+            this.rebuildTaskQueue();
+            
+            // Refresh task modal if it's open
+            this.refreshTaskModalIfOpen();
+            
+        } catch (error) {
+            console.error('Error importing Notion pages:', error);
+            throw error;
+        }
     }
     
     showGoogleCalendarIntegration() {
