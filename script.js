@@ -5748,57 +5748,27 @@ class PomodoroTimer {
             const qs = params.toString() ? `?${params.toString()}` : '';
 
             // Fetch both tasks and projects
-            console.log('🔍 Fetching Todoist data with params:', qs);
             const [tasksResponse, projectsResponse] = await Promise.all([
                 fetch(`/api/todoist-tasks${qs}`),
                 fetch(`/api/todoist-projects${qs}`)
             ]);
 
-            console.log('🔍 Tasks response status:', tasksResponse.status);
-            console.log('🔍 Projects response status:', projectsResponse.status);
-
             if (!tasksResponse.ok || !projectsResponse.ok) {
-                const tasksError = !tasksResponse.ok ? await tasksResponse.text() : '';
-                const projectsError = !projectsResponse.ok ? await projectsResponse.text() : '';
-                console.error('🔍 Tasks error:', tasksError);
-                console.error('🔍 Projects error:', projectsError);
                 throw new Error('Failed to fetch data');
             }
 
             const tasks = await tasksResponse.json();
             const projects = await projectsResponse.json();
             
-            console.log('🔍 ===== RAW API DATA =====');
-            console.log('🔍 Total tasks fetched:', tasks.length);
-            console.log('🔍 Total projects fetched:', projects.length);
-            console.log('🔍 Raw projects data:', JSON.stringify(projects, null, 2));
-            console.log('🔍 Raw tasks data:', JSON.stringify(tasks, null, 2));
-            
             // Create project ID to name mapping
             const projectMap = {};
             projects.forEach(project => {
                 projectMap[project.id] = project.name;
-                console.log(`🔍 Mapping project: ID=${project.id} -> Name="${project.name}"`);
             });
-            
-            console.log('🔍 ===== PROJECT MAPPING =====');
-            console.log('🔍 Project map:', projectMap);
             
             // Add project_name to each task
             tasks.forEach(task => {
-                const projectName = projectMap[task.project_id] || 'Inbox';
-                task.project_name = projectName;
-                console.log(`🔍 Task "${task.content}" -> project_id=${task.project_id} -> "${projectName}"`);
-            });
-            
-            console.log('🔍 ===== FINAL TASK COUNT BY PROJECT =====');
-            const countByProject = {};
-            tasks.forEach(task => {
-                const proj = task.project_name || 'Inbox';
-                countByProject[proj] = (countByProject[proj] || 0) + 1;
-            });
-            Object.entries(countByProject).forEach(([proj, count]) => {
-                console.log(`🔍 "${proj}": ${count} tasks`);
+                task.project_name = projectMap[task.project_id] || 'Inbox';
             });
             
             // Hide loading state
@@ -5821,10 +5791,7 @@ class PomodoroTimer {
                 // Group tasks by project
                 const tasksByProject = this.groupTasksByProject(tasks);
                 
-                // Debug: Log grouped projects
-                console.log('Grouped projects:', Object.keys(tasksByProject));
-                
-                    // Render tasks grouped by project
+                // Render tasks grouped by project
                     const projectEntries = Object.entries(tasksByProject);
                     
                     // Sort projects: Inbox first, then others alphabetically
@@ -6893,13 +6860,8 @@ class PomodoroTimer {
         const allTasks = this.getAllTasks();
         const task = allTasks.find(t => t.id === taskId);
         
-        console.log('🔍 toggleTaskCompletion - taskId:', taskId, 'isCompleted:', isCompleted);
-        console.log('🔍 Task found:', task);
-        console.log('🔍 Task source:', task ? task.source : 'NOT FOUND');
-        
         if (task) {
             if (task.source === 'local') {
-                console.log('🔍 Handling LOCAL task');
                 // Update local task completion status
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
@@ -6908,12 +6870,10 @@ class PomodoroTimer {
                     this.setLocalTasks(localTasks);
                 }
             } else if (task.source === 'todoist') {
-                console.log('🔍 Handling TODOIST task');
                 // For Todoist tasks imported to local storage, update them there
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
-                    console.log('🔍 Found Todoist task in localStorage, updating completion');
                     localTasks[taskIndex].completed = isCompleted;
                     this.setLocalTasks(localTasks);
                 }
@@ -6926,7 +6886,6 @@ class PomodoroTimer {
                     this.completeTodoistTaskInTodoist(taskId);
                 }
             } else if (task.source === 'notion' || task.source === 'google-calendar') {
-                console.log('🔍 Handling NOTION/CALENDAR task');
                 // For Notion and Google Calendar tasks, update in local tasks
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
