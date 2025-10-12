@@ -3811,6 +3811,7 @@ audio {
     font-size: 0.85rem;
     margin: 8px 0 0 0;
     padding: 4px 0;
+    text-align: center;
 }
 
 .connection-section {
@@ -4687,6 +4688,7 @@ input:checked + .toggle-slider:before {
     font-size: 0.875rem;
     font-weight: 400;
     margin: 0.25rem 0 0 0;
+    text-align: center;
 }
 
 .tasks-menu {
