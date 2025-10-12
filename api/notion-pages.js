@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 
     const token = getToken(req);
     
-    // Search for pages that could be tasks
+    // Search for databases
     const response = await fetch('https://api.notion.com/v1/search', {
       method: 'POST',
       headers: { 
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         filter: {
           property: 'object',
-          value: 'page'
+          value: 'database'
         },
         sort: {
           direction: 'descending',
@@ -42,45 +42,39 @@ module.exports = async (req, res) => {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch Notion pages');
+      throw new Error('Failed to fetch Notion databases');
     }
     
     const data = await response.json();
     
-    // Transform pages to task-like format
-    const pages = (data.results || []).map(page => {
-      // Try different properties for the title
-      let title = 'Untitled Page';
+    // Transform databases to a simpler format
+    const databases = (data.results || []).map(db => {
+      // Get database title
+      let title = 'Untitled Database';
       
-      if (page.properties) {
-        // Check for title property
-        if (page.properties.title?.title?.[0]?.plain_text) {
-          title = page.properties.title.title[0].plain_text;
-        } else if (page.properties.Name?.title?.[0]?.plain_text) {
-          title = page.properties.Name.title[0].plain_text;
-        } else {
-          // Check for any property with a title type
-          for (const key in page.properties) {
-            if (page.properties[key].type === 'title' && page.properties[key].title?.[0]?.plain_text) {
-              title = page.properties[key].title[0].plain_text;
-              break;
-            }
-          }
-        }
+      if (db.title && db.title[0]?.plain_text) {
+        title = db.title[0].plain_text;
       }
       
+      // Check what properties this database has
+      const hasCheckbox = Object.values(db.properties || {}).some(prop => prop.type === 'checkbox');
+      const hasStatus = Object.values(db.properties || {}).some(prop => prop.type === 'status');
+      const hasSelect = Object.values(db.properties || {}).some(prop => prop.type === 'select');
+      
       return {
-        id: page.id,
-        content: title,
-        description: '',
-        url: page.url,
-        last_edited: page.last_edited_time,
-        source: 'Notion'
+        id: db.id,
+        name: title,
+        url: db.url,
+        last_edited: db.last_edited_time,
+        properties: db.properties,
+        hasCheckbox,
+        hasStatus,
+        hasSelect
       };
     });
 
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(pages));
+    res.end(JSON.stringify(databases));
   } catch (e) {
     res.statusCode = 401;
     res.setHeader('Content-Type', 'application/json');

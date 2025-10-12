@@ -6234,19 +6234,19 @@ class PomodoroTimer {
             if (userId) params.append('uid', userId);
             const qs = params.toString() ? `?${params.toString()}` : '';
 
-            // Fetch pages from Notion
+            // Fetch databases from Notion
             const response = await fetch(`/api/notion-pages${qs}`);
             
             if (!response.ok) {
-                throw new Error('Failed to fetch Notion pages');
+                throw new Error('Failed to fetch Notion databases');
             }
 
-            const pages = await response.json();
+            const databases = await response.json();
             
             // Hide loading state
             if (loadingState) loadingState.style.display = 'none';
         
-            if (pages.length === 0) {
+            if (databases.length === 0) {
                 // Show empty state
                 pagesList.innerHTML = `
                     <div class="empty-state">
@@ -6255,40 +6255,37 @@ class PomodoroTimer {
                                 <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
                             </svg>
                         </div>
-                        <div class="empty-text">No pages found</div>
-                        <div class="empty-subtext">Create some pages in Notion to import them</div>
+                        <div class="empty-text">No databases found</div>
+                        <div class="empty-subtext">Create a database in Notion to import tasks</div>
                     </div>
                 `;
             } else {
-                // Render pages as tasks
+                // Render databases as clickable items
                 pagesList.innerHTML = `
-                    <div class="todoist-project-section">
-                        <div class="project-header">
-                            <h4 class="project-title">Notion Pages</h4>
-                            <span class="project-task-count">${pages.length} page${pages.length > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="project-tasks">
-                            ${pages.map(page => `
-                                <div class="todoist-task-item" data-task-id="${page.id}">
-                                    <div class="task-checkbox">
-                                        <input type="checkbox" id="page-${page.id}" class="task-checkbox-input">
-                                        <label for="page-${page.id}" class="task-checkbox-label"></label>
-                                    </div>
-                                    <div class="task-info">
-                                        <div class="task-content">${page.content}</div>
+                    <div class="notion-database-list">
+                        <div class="notion-instruction">Select a database to view its tasks:</div>
+                        ${databases.map(db => `
+                            <div class="notion-database-item" data-database-id="${db.id}">
+                                <div class="database-info">
+                                    <div class="database-name">${db.name}</div>
+                                    <div class="database-meta">
+                                        ${db.hasCheckbox ? '<span class="db-feature">✓ Checkbox</span>' : ''}
+                                        ${db.hasStatus ? '<span class="db-feature">📊 Status</span>' : ''}
                                     </div>
                                 </div>
-                            `).join('')}
-                        </div>
+                                <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
+                
+                // Setup database selection
+                this.setupNotionDatabaseSelection(modal, databases, qs);
             }
         
             pagesList.style.display = 'block';
-            importActions.style.display = 'flex';
-        
-            // Setup page selection handlers
-            this.setupNotionPageSelection(modal);
         
         } catch (error) {
             console.error('Error in loadNotionPages:', error);
@@ -6296,27 +6293,127 @@ class PomodoroTimer {
         }
     }
     
-    setupNotionPageSelection(modal) {
-        const pageItems = modal.querySelectorAll('.todoist-task-item');
+    setupNotionDatabaseSelection(modal, databases, qs) {
+        const databaseItems = modal.querySelectorAll('.notion-database-item');
+        
+        databaseItems.forEach(item => {
+            item.addEventListener('click', async () => {
+                const databaseId = item.dataset.databaseId;
+                const database = databases.find(db => db.id === databaseId);
+                
+                if (!database) return;
+                
+                // Load tasks from this database
+                await this.loadNotionDatabaseItems(modal, database, qs);
+            });
+        });
+    }
+    
+    async loadNotionDatabaseItems(modal, database, qs) {
+        const pagesList = modal.querySelector('#notionImportPagesList');
+        const importActions = modal.querySelector('#notionImportActions');
+        
+        try {
+            // Show loading
+            pagesList.innerHTML = `
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Loading tasks...</div>
+                </div>
+            `;
+            
+            // Fetch items from the database
+            const response = await fetch(`/api/notion-database-items?databaseId=${database.id}&${qs}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch database items');
+            }
+            
+            const items = await response.json();
+            
+            // Filter out completed items (only show incomplete tasks)
+            const incompleteTasks = items.filter(item => !item.completed);
+            
+            if (incompleteTasks.length === 0) {
+                pagesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="back-button" onclick="window.pomodoroTimer.loadNotionPages(this.closest('.focus-stats-modal'))">
+                            ← Back to Databases
+                        </div>
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No incomplete tasks</div>
+                        <div class="empty-subtext">All tasks in this database are completed</div>
+                    </div>
+                `;
+                importActions.style.display = 'none';
+            } else {
+                // Render tasks
+                pagesList.innerHTML = `
+                    <div class="back-button" onclick="window.timerApp.loadNotionPages(this.closest('.focus-stats-modal'))">
+                        ← Back to Databases
+                    </div>
+                    <div class="todoist-project-section">
+                        <div class="project-header">
+                            <h4 class="project-title">${database.name}</h4>
+                            <span class="project-task-count">${incompleteTasks.length} task${incompleteTasks.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="project-tasks">
+                            ${incompleteTasks.map(task => `
+                                <div class="todoist-task-item" data-task-id="${task.id}" data-checkbox-property="${task.checkboxPropertyName || ''}" data-status-property="${task.statusPropertyName || ''}">
+                                    <div class="task-checkbox">
+                                        <input type="checkbox" id="notion-${task.id}" class="task-checkbox-input">
+                                        <label for="notion-${task.id}" class="task-checkbox-label"></label>
+                                    </div>
+                                    <div class="task-info">
+                                        <div class="task-content">${task.content}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                importActions.style.display = 'flex';
+                
+                // Setup task selection
+                this.setupNotionTaskSelection(modal);
+            }
+            
+        } catch (error) {
+            console.error('Error loading database items:', error);
+            pagesList.innerHTML = `
+                <div class="empty-state">
+                    <div class="back-button" onclick="window.timerApp.loadNotionPages(this.closest('.focus-stats-modal'))">
+                        ← Back to Databases
+                    </div>
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
+                    <div class="empty-text">Error loading tasks</div>
+                    <div class="empty-subtext">${error.message}</div>
+                </div>
+            `;
+        }
+    }
+    
+    setupNotionTaskSelection(modal) {
+        const taskItems = modal.querySelectorAll('.todoist-task-item');
         const clearSelectionBtn = modal.querySelector('#clearNotionSelection');
         const importBtn = modal.querySelector('#importSelectedPages');
         
-        // Handle page selection
-        pageItems.forEach(item => {
+        // Handle task selection
+        taskItems.forEach(item => {
             const checkbox = item.querySelector('.task-checkbox-input');
             if (checkbox) {
-                // Toggle checkbox when clicking anywhere on the page item
-                item.addEventListener('click', (e) => {
-                    // Don't toggle if clicking directly on the checkbox or label (let native behavior handle it)
-                    if (e.target === checkbox || e.target.classList.contains('task-checkbox-label')) {
-                        return;
-                    }
-                    checkbox.checked = !checkbox.checked;
-                    item.classList.toggle('selected', checkbox.checked);
-                    this.updateNotionImportButton(modal);
-                });
-                
-                // Also handle native checkbox change
+                // Only checkbox changes selection
                 checkbox.addEventListener('change', () => {
                     item.classList.toggle('selected', checkbox.checked);
                     this.updateNotionImportButton(modal);
@@ -6327,7 +6424,7 @@ class PomodoroTimer {
         // Clear selection
         if (clearSelectionBtn) {
             clearSelectionBtn.addEventListener('click', () => {
-                pageItems.forEach(item => {
+                taskItems.forEach(item => {
                     const checkbox = item.querySelector('.task-checkbox-input');
                     if (checkbox) {
                         checkbox.checked = false;
@@ -6338,34 +6435,50 @@ class PomodoroTimer {
             });
         }
 
-        // Import selected pages
+        // Import selected tasks
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
-                const selectedPages = Array.from(pageItems)
-                    .filter(item => item.classList.contains('selected'))
-                    .map(item => ({
-                        id: item.dataset.taskId,
-                        content: item.querySelector('.task-content').textContent
-                    }));
+                const selectedTasks = Array.from(taskItems)
+                    .filter(item => item.querySelector('.task-checkbox-input')?.checked)
+                    .map(item => {
+                        const taskId = item.dataset.taskId;
+                        const taskContent = item.querySelector('.task-content')?.textContent || '';
+                        const checkboxProperty = item.dataset.checkboxProperty;
+                        const statusProperty = item.dataset.statusProperty;
+                        return { 
+                            id: taskId, 
+                            content: taskContent,
+                            checkboxPropertyName: checkboxProperty,
+                            statusPropertyName: statusProperty
+                        };
+                    });
 
-                if (selectedPages.length === 0) {
-                    alert('Please select at least one page to import.');
-                    return;
-                }
+                if (selectedTasks.length === 0) return;
 
-                try {
-                    await this.importNotionPages(selectedPages);
-                    // Close modal
-                    const overlay = modal.closest('.focus-stats-overlay');
-                    if (overlay) {
-                        document.body.removeChild(overlay);
-                    }
-                } catch (error) {
-                    console.error('Error importing pages:', error);
-                    alert('Error importing pages. Please try again.');
-                }
+                // Import tasks as local tasks with notion source
+                const localTasks = this.getLocalTasks();
+                const newTasks = selectedTasks.map(task => ({
+                    id: `notion_${task.id}`,
+                    content: task.content,
+                    completed: false,
+                    source: 'notion',
+                    notionPageId: task.id,
+                    checkboxPropertyName: task.checkboxPropertyName,
+                    statusPropertyName: task.statusPropertyName
+                }));
+                
+                this.setLocalTasks([...localTasks, ...newTasks]);
+
+                // Close modal and refresh task list
+                modal.style.display = 'none';
+                this.refreshTaskModalIfOpen();
+
+                // Show success message
+                this.showNotification(`Imported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''} from Notion`);
             });
         }
+
+        this.updateNotionImportButton(modal);
     }
 
     updateNotionImportButton(modal) {
@@ -6383,40 +6496,38 @@ class PomodoroTimer {
         }
     }
 
-    async importNotionPages(selectedPages) {
+    async completeNotionTask(task, isCompleted) {
         try {
-            // Add selected pages to local tasks
-            const localTasks = this.getLocalTasks();
-            const newTasks = selectedPages.map(page => ({
-                id: `notion_${page.id}`,
-                content: page.content,
-                completed: false,
-                source: 'notion'
-            }));
+            // Build query params for Pro check
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
             
-            // Add new tasks to existing local tasks
-            this.setLocalTasks([...localTasks, ...newTasks]);
-            
-            // Set task config for each new task (selected by default)
-            newTasks.forEach(task => {
-                this.setTaskConfig(task.id, { 
-                    sessions: 1, 
-                    selected: true, 
-                    completedSessions: 0 
-                });
+            // Call the API to update the task in Notion
+            const response = await fetch(`/api/notion-complete-task${qs}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    pageId: task.notionPageId,
+                    checkboxPropertyName: task.checkboxPropertyName,
+                    statusPropertyName: task.statusPropertyName,
+                    completed: isCompleted
+                })
             });
             
-            // Refresh the task list
-            this.loadAllTasks();
-            this.updateCurrentTaskBanner();
-            this.rebuildTaskQueue();
-            
-            // Refresh task modal if it's open
-            this.refreshTaskModalIfOpen();
-            
+            if (!response.ok) {
+                console.error('Failed to update Notion task');
+            }
         } catch (error) {
-            console.error('Error importing Notion pages:', error);
-            throw error;
+            console.error('Error completing Notion task:', error);
         }
     }
     
@@ -6885,8 +6996,19 @@ class PomodoroTimer {
                 if (isCompleted) {
                     this.completeTodoistTaskInTodoist(taskId);
                 }
-            } else if (task.source === 'notion' || task.source === 'google-calendar') {
-                // For Notion and Google Calendar tasks, update in local tasks
+            } else if (task.source === 'notion') {
+                // For Notion tasks, update in local tasks
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
+                
+                // Update task in Notion
+                this.completeNotionTask(task, isCompleted);
+            } else if (task.source === 'google-calendar') {
+                // For Google Calendar tasks, update in local tasks
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
