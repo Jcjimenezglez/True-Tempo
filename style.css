@@ -4865,7 +4865,6 @@ input:checked + .toggle-slider:before {
 .integration-buttons {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
     position: relative;
 }
 
