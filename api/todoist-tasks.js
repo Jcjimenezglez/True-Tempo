@@ -24,9 +24,13 @@ module.exports = async (req, res) => {
     console.log('✅ todoist-tasks: Pro verified, fetching tasks...');
 
     const token = getToken(req);
+    console.log('🔍 Calling Todoist API with token:', token.substring(0, 10) + '...');
+    
     const r = await fetch('https://api.todoist.com/rest/v2/tasks', {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
+    console.log('🔍 Todoist API response status:', r.status);
     
     if (!r.ok) {
       const errorText = await r.text();
@@ -36,6 +40,8 @@ module.exports = async (req, res) => {
     
     const json = await r.json();
     console.log('✅ Fetched tasks from Todoist API:', json.length);
+    console.log('🔍 Raw tasks response:', JSON.stringify(json, null, 2));
+    
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(json));
   } catch (e) {
