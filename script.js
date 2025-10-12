@@ -5768,25 +5768,38 @@ class PomodoroTimer {
             const tasks = await tasksResponse.json();
             const projects = await projectsResponse.json();
             
-            console.log('🔍 Fetched tasks:', tasks.length);
-            console.log('🔍 Fetched projects:', projects.length, projects);
+            console.log('🔍 ===== RAW API DATA =====');
+            console.log('🔍 Total tasks fetched:', tasks.length);
+            console.log('🔍 Total projects fetched:', projects.length);
+            console.log('🔍 Raw projects data:', JSON.stringify(projects, null, 2));
+            console.log('🔍 Raw tasks data:', JSON.stringify(tasks, null, 2));
             
             // Create project ID to name mapping
             const projectMap = {};
             projects.forEach(project => {
                 projectMap[project.id] = project.name;
+                console.log(`🔍 Mapping project: ID=${project.id} -> Name="${project.name}"`);
             });
             
+            console.log('🔍 ===== PROJECT MAPPING =====');
             console.log('🔍 Project map:', projectMap);
             
             // Add project_name to each task
             tasks.forEach(task => {
-                task.project_name = projectMap[task.project_id] || 'Inbox';
+                const projectName = projectMap[task.project_id] || 'Inbox';
+                task.project_name = projectName;
+                console.log(`🔍 Task "${task.content}" -> project_id=${task.project_id} -> "${projectName}"`);
             });
             
-            // Debug: Log tasks to see project_name values
-            console.log('🔍 Todoist tasks with project names:', tasks);
-            console.log('🔍 Project names found:', [...new Set(tasks.map(t => t.project_name))]);
+            console.log('🔍 ===== FINAL TASK COUNT BY PROJECT =====');
+            const countByProject = {};
+            tasks.forEach(task => {
+                const proj = task.project_name || 'Inbox';
+                countByProject[proj] = (countByProject[proj] || 0) + 1;
+            });
+            Object.entries(countByProject).forEach(([proj, count]) => {
+                console.log(`🔍 "${proj}": ${count} tasks`);
+            });
             
             // Hide loading state
             if (loadingState) loadingState.style.display = 'none';
