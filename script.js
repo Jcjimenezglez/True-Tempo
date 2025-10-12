@@ -11066,6 +11066,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     window.pomodoroTimer = timer; // Make it globally accessible
     
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (mobileMenuToggle && sidebar) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+        
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+        
+        // Close sidebar when clicking on a nav item
+        const navItems = sidebar.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+    }
+    
     // Show timer header auth buttons for guest users
     const timerHeaderAuth = document.getElementById('timerHeaderAuth');
     const timerLoginBtn = document.getElementById('timerLoginBtn');
