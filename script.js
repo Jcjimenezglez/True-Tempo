@@ -6781,25 +6781,6 @@ class PomodoroTimer {
     }
 
     setupTaskEventListeners(modal) {
-        // Task item click listeners - toggle checkbox completion
-        const taskItems = modal.querySelectorAll('.task-item');
-        taskItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                // Don't trigger if clicking on the menu
-                if (e.target.closest('.task-menu')) {
-                    return;
-                }
-                
-                // Toggle the checkbox when clicking anywhere on the task (but not on checkbox itself)
-                const checkbox = item.querySelector('.task-checkbox input[type="checkbox"]');
-                if (checkbox && !e.target.closest('.task-checkbox')) {
-                    checkbox.checked = !checkbox.checked;
-                    // Trigger change event to update task state
-                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-        });
-
         // Task checkbox click listeners - manual completion toggle
         const taskCheckboxes = modal.querySelectorAll('.task-checkbox input[type="checkbox"]');
         taskCheckboxes.forEach(checkbox => {
@@ -6926,23 +6907,8 @@ class PomodoroTimer {
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
         
-        // Update visual state without moving the task between tabs
-        this.updateTaskVisualState(taskId, isCompleted);
-    }
-
-    updateTaskVisualState(taskId, isCompleted) {
-        // Update visual state in the task sidebar panel
-        const taskSidePanel = document.getElementById('taskSidePanel');
-        if (taskSidePanel) {
-            const taskItem = taskSidePanel.querySelector(`[data-task-id="${taskId}"]`);
-            if (taskItem) {
-                if (isCompleted) {
-                    taskItem.classList.add('completed');
-                } else {
-                    taskItem.classList.remove('completed');
-                }
-            }
-        }
+        // Re-render tasks to move between tabs
+        this.rerenderTaskList();
     }
 
     updateTaskCompletionVisual(modal, taskId, isCompleted) {
