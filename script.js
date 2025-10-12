@@ -525,6 +525,10 @@ class PomodoroTimer {
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'none';
             
+            // Show Focus Report header when authenticated
+            const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
+            if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'block';
+            
             // Update user email in settings dropdown
             if (this.settingsUserEmail && this.user) {
                 this.settingsUserEmail.textContent = this.user.primaryEmailAddress?.emailAddress || 'User';
@@ -598,6 +602,10 @@ class PomodoroTimer {
             // Show timer header auth buttons when not authenticated
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'block';
+            
+            // Hide Focus Report header when not authenticated
+            const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
+            if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'none';
             
             // Show tasks hint for guest users (once per session)
             this.showTasksHintForGuest();
