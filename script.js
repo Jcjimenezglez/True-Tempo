@@ -4867,22 +4867,6 @@ class PomodoroTimer {
                 </div>
             </div>
             
-            ${isFreeUser ? `
-                <div class="pro-upgrade-banner">
-                    <div class="pro-banner-content">
-                        <div class="pro-banner-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                </div>
-                        <div class="pro-banner-text">
-                            <h4>Upgrade to Pro</h4>
-                            <p>Connect Todoist and unlock advanced integrations</p>
-            </div>
-                        <button class="pro-banner-btn" id="upgradeFromTasksBtn">Upgrade</button>
-                    </div>
-                </div>
-            ` : ''}
             ${isGuest ? `
                 <div style="background: var(--onyx-dark, #064e3b); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
                     <div style="flex-shrink: 0;">
@@ -4961,16 +4945,6 @@ class PomodoroTimer {
             if (e.target === overlay) close();
         });
 
-        // Add upgrade button event listener for free users
-        if (isFreeUser) {
-            const upgradeBtn = modal.querySelector('#upgradeFromTasksBtn');
-            if (upgradeBtn) {
-                upgradeBtn.addEventListener('click', () => {
-                    window.location.href = '/pricing';
-                });
-            }
-        }
-        
         // Guest signup button from Todoist banner
         if (isGuest) {
             const guestTaskSignupBtn = modal.querySelector('#guestTaskSignupBtn');
@@ -10088,26 +10062,9 @@ class PomodoroTimer {
         
         // Show/hide sections based on user status
         const importSection = document.getElementById('importTodoistSection');
-        const proUpgradeBanner = document.getElementById('proUpgradeBanner');
         
         if (importSection) {
             importSection.style.display = (this.isAuthenticated && this.user && this.isPremiumUser()) ? 'block' : 'none';
-        }
-        
-        if (proUpgradeBanner) {
-            proUpgradeBanner.style.display = isFreeUser ? 'block' : 'none';
-        }
-        
-        // Setup upgrade button for free users
-        if (isFreeUser) {
-            const upgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
-            if (upgradeBtn) {
-                upgradeBtn.replaceWith(upgradeBtn.cloneNode(true)); // Remove old listeners
-                const newUpgradeBtn = panel.querySelector('#upgradeFromTasksBtn');
-                newUpgradeBtn.addEventListener('click', () => {
-                    window.location.href = '/pricing';
-                });
-            }
         }
         
         const listEl = panel.querySelector('#todoistTasksList');
