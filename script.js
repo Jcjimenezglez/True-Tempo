@@ -6353,7 +6353,7 @@ class PomodoroTimer {
             } else {
                 // Render tasks
                 pagesList.innerHTML = `
-                    <div class="back-button" onclick="window.timerApp.loadNotionPages(this.closest('.focus-stats-modal'))">
+                    <div class="back-button" onclick="window.pomodoroTimer.loadNotionPages(this.closest('.focus-stats-modal'))">
                         ← Back to Databases
                     </div>
                     <div class="todoist-project-section">
@@ -6387,7 +6387,7 @@ class PomodoroTimer {
             console.error('Error loading database items:', error);
             pagesList.innerHTML = `
                 <div class="empty-state">
-                    <div class="back-button" onclick="window.timerApp.loadNotionPages(this.closest('.focus-stats-modal'))">
+                    <div class="back-button" onclick="window.pomodoroTimer.loadNotionPages(this.closest('.focus-stats-modal'))">
                         ← Back to Databases
                     </div>
                     <div class="empty-icon">
