@@ -489,7 +489,7 @@ body::-webkit-scrollbar {
     display: none;
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 20px;
     z-index: 1002;
     width: 44px;
     height: 44px;
