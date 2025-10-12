@@ -1136,12 +1136,11 @@ body.is-scrolling .streak-fire {
     justify-content: center;
     gap: 0.25rem;
     font-size: 18px;
-    color: #a3a3a3;
+    color: rgba(255, 255, 255, 0.9);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 500;
-    opacity: 0.9;
-    background: rgba(163, 163, 163, 0.08);
-    border: 1px solid rgba(163, 163, 163, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
     padding: 0.5rem 1rem;
     border-radius: 1000px;
@@ -1150,30 +1149,29 @@ body.is-scrolling .streak-fire {
 }
 
 .streak-info:hover {
-    background: rgba(163, 163, 163, 0.15);
-    border-color: rgba(163, 163, 163, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     color: #ffffff;
-    opacity: 1;
 }
 
 .streak-fire {
     width: 16px;
     height: 16px;
-    color: #a3a3a3;
+    color: rgba(255, 255, 255, 0.9);
     animation: fireGlow 2s ease-in-out infinite alternate;
 }
 
 .streak-days {
     font-weight: 500;
-    color: #a3a3a3;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 @keyframes fireGlow {
     0% {
-        filter: drop-shadow(0 0 3px rgba(163, 163, 163, 0.3));
+        filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
     }
     100% {
-        filter: drop-shadow(0 0 8px rgba(163, 163, 163, 0.6));
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
     }
 }
 
