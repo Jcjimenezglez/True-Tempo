@@ -5961,8 +5961,16 @@ class PomodoroTimer {
                 source: 'todoist'
             }));
             
+            console.log('🔍 New Todoist tasks to import:', newTasks);
+            
             // Add new tasks to existing local tasks
-            this.setLocalTasks([...localTasks, ...newTasks]);
+            const allTasks = [...localTasks, ...newTasks];
+            console.log('🔍 All tasks before saving:', allTasks);
+            this.setLocalTasks(allTasks);
+            
+            // Verify what was saved
+            const verifyTasks = this.getLocalTasks();
+            console.log('🔍 Tasks after saving:', verifyTasks.filter(t => t.id.startsWith('todoist_')));
             
             // Set task config for each new task (selected by default)
             newTasks.forEach(task => {
@@ -6401,8 +6409,16 @@ class PomodoroTimer {
                 source: 'notion'
             }));
             
+            console.log('🔍 New Notion tasks to import:', newTasks);
+            
             // Add new tasks to existing local tasks
-            this.setLocalTasks([...localTasks, ...newTasks]);
+            const allTasks = [...localTasks, ...newTasks];
+            console.log('🔍 All tasks before saving:', allTasks);
+            this.setLocalTasks(allTasks);
+            
+            // Verify what was saved
+            const verifyTasks = this.getLocalTasks();
+            console.log('🔍 Tasks after saving:', verifyTasks.filter(t => t.id.startsWith('notion_')));
             
             // Set task config for each new task (selected by default)
             newTasks.forEach(task => {
@@ -7798,7 +7814,8 @@ class PomodoroTimer {
             content: description,
             pomodoros: pomodoros,
             created: new Date().toISOString(),
-            completed: false
+            completed: false,
+            source: 'local'
         };
         
         tasks.push(newTask);
