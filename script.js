@@ -5748,35 +5748,48 @@ class PomodoroTimer {
             const qs = params.toString() ? `?${params.toString()}` : '';
 
             // Fetch both tasks and projects
+            console.log('🔍 Fetching Todoist data with params:', qs);
             const [tasksResponse, projectsResponse] = await Promise.all([
                 fetch(`/api/todoist-tasks${qs}`),
                 fetch(`/api/todoist-projects${qs}`)
             ]);
 
-                if (!tasksResponse.ok || !projectsResponse.ok) {
-                    throw new Error('Failed to fetch data');
-                }
+            console.log('🔍 Tasks response status:', tasksResponse.status);
+            console.log('🔍 Projects response status:', projectsResponse.status);
 
-                const tasks = await tasksResponse.json();
-                const projects = await projectsResponse.json();
-                
-                // Create project ID to name mapping
-                const projectMap = {};
-                projects.forEach(project => {
-                    projectMap[project.id] = project.name;
-                });
-                
-                // Add project_name to each task
-                tasks.forEach(task => {
-                    task.project_name = projectMap[task.project_id] || 'Inbox';
-                });
-                
-                // Debug: Log tasks to see project_name values
-                console.log('Todoist tasks:', tasks);
-                console.log('Project names found:', [...new Set(tasks.map(t => t.project_name))]);
-                
-                // Hide loading state
-                if (loadingState) loadingState.style.display = 'none';
+            if (!tasksResponse.ok || !projectsResponse.ok) {
+                const tasksError = !tasksResponse.ok ? await tasksResponse.text() : '';
+                const projectsError = !projectsResponse.ok ? await projectsResponse.text() : '';
+                console.error('🔍 Tasks error:', tasksError);
+                console.error('🔍 Projects error:', projectsError);
+                throw new Error('Failed to fetch data');
+            }
+
+            const tasks = await tasksResponse.json();
+            const projects = await projectsResponse.json();
+            
+            console.log('🔍 Fetched tasks:', tasks.length);
+            console.log('🔍 Fetched projects:', projects.length, projects);
+            
+            // Create project ID to name mapping
+            const projectMap = {};
+            projects.forEach(project => {
+                projectMap[project.id] = project.name;
+            });
+            
+            console.log('🔍 Project map:', projectMap);
+            
+            // Add project_name to each task
+            tasks.forEach(task => {
+                task.project_name = projectMap[task.project_id] || 'Inbox';
+            });
+            
+            // Debug: Log tasks to see project_name values
+            console.log('🔍 Todoist tasks with project names:', tasks);
+            console.log('🔍 Project names found:', [...new Set(tasks.map(t => t.project_name))]);
+            
+            // Hide loading state
+            if (loadingState) loadingState.style.display = 'none';
             
             if (tasks.length === 0) {
                 // Show empty state
