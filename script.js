@@ -5961,16 +5961,8 @@ class PomodoroTimer {
                 source: 'todoist'
             }));
             
-            console.log('🔍 New Todoist tasks to import:', newTasks);
-            
             // Add new tasks to existing local tasks
-            const allTasks = [...localTasks, ...newTasks];
-            console.log('🔍 All tasks before saving:', allTasks);
-            this.setLocalTasks(allTasks);
-            
-            // Verify what was saved
-            const verifyTasks = this.getLocalTasks();
-            console.log('🔍 Tasks after saving:', verifyTasks.filter(t => t.id.startsWith('todoist_')));
+            this.setLocalTasks([...localTasks, ...newTasks]);
             
             // Set task config for each new task (selected by default)
             newTasks.forEach(task => {
@@ -6409,16 +6401,8 @@ class PomodoroTimer {
                 source: 'notion'
             }));
             
-            console.log('🔍 New Notion tasks to import:', newTasks);
-            
             // Add new tasks to existing local tasks
-            const allTasks = [...localTasks, ...newTasks];
-            console.log('🔍 All tasks before saving:', allTasks);
-            this.setLocalTasks(allTasks);
-            
-            // Verify what was saved
-            const verifyTasks = this.getLocalTasks();
-            console.log('🔍 Tasks after saving:', verifyTasks.filter(t => t.id.startsWith('notion_')));
+            this.setLocalTasks([...localTasks, ...newTasks]);
             
             // Set task config for each new task (selected by default)
             newTasks.forEach(task => {
@@ -6525,7 +6509,6 @@ class PomodoroTimer {
                     
                     filteredTasks.forEach(task => {
                         const source = task.source || 'local';
-                        console.log('Task:', task.content, 'Source:', source, 'Full task:', task);
                         if (tasksBySource[source]) {
                             tasksBySource[source].push(task);
                         } else {
@@ -6807,9 +6790,9 @@ class PomodoroTimer {
                     return;
                 }
                 
-                // Toggle the checkbox when clicking anywhere on the task
+                // Toggle the checkbox when clicking anywhere on the task (but not on checkbox itself)
                 const checkbox = item.querySelector('.task-checkbox input[type="checkbox"]');
-                if (checkbox && !e.target.closest('.task-checkbox input, .task-checkbox label')) {
+                if (checkbox && !e.target.closest('.task-checkbox')) {
                     checkbox.checked = !checkbox.checked;
                     // Trigger change event to update task state
                     checkbox.dispatchEvent(new Event('change', { bubbles: true }));
@@ -6943,8 +6926,23 @@ class PomodoroTimer {
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
         
-        // Re-render tasks to move between tabs
-        this.rerenderTaskList();
+        // Update visual state without moving the task between tabs
+        this.updateTaskVisualState(taskId, isCompleted);
+    }
+
+    updateTaskVisualState(taskId, isCompleted) {
+        // Update visual state in the task sidebar panel
+        const taskSidePanel = document.getElementById('taskSidePanel');
+        if (taskSidePanel) {
+            const taskItem = taskSidePanel.querySelector(`[data-task-id="${taskId}"]`);
+            if (taskItem) {
+                if (isCompleted) {
+                    taskItem.classList.add('completed');
+                } else {
+                    taskItem.classList.remove('completed');
+                }
+            }
+        }
     }
 
     updateTaskCompletionVisual(modal, taskId, isCompleted) {
@@ -7492,13 +7490,10 @@ class PomodoroTimer {
 
     // Local task management
     getLocalTasks() {
-        const tasks = JSON.parse(localStorage.getItem('localTasks') || '[]');
-        console.log('🔍 getLocalTasks - Raw from localStorage:', tasks);
-        return tasks;
+        return JSON.parse(localStorage.getItem('localTasks') || '[]');
     }
 
     setLocalTasks(tasks) {
-        console.log('🔍 setLocalTasks - Saving to localStorage:', tasks);
         localStorage.setItem('localTasks', JSON.stringify(tasks));
     }
 
@@ -10613,7 +10608,6 @@ class PomodoroTimer {
             
             filteredTasks.forEach(task => {
                 const source = task.source || 'local';
-                console.log('Task:', task.content, 'Source:', source, 'Full task:', task);
                 if (tasksBySource[source]) {
                     tasksBySource[source].push(task);
                 } else {

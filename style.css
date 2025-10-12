@@ -3953,6 +3953,8 @@ audio {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .task-title {
@@ -3960,6 +3962,9 @@ audio {
     font-size: 0.9rem;
     font-weight: 500;
     line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .task-project {
