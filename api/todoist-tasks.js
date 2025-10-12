@@ -24,8 +24,7 @@ module.exports = async (req, res) => {
     console.log('✅ todoist-tasks: Pro verified, fetching tasks...');
 
     const token = getToken(req);
-    // Fetch all active (non-completed) tasks with filter
-    const r = await fetch('https://api.todoist.com/rest/v2/tasks?filter=all', {
+    const r = await fetch('https://api.todoist.com/rest/v2/tasks', {
       headers: { Authorization: `Bearer ${token}` },
     });
     
