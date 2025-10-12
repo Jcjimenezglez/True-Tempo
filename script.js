@@ -5872,6 +5872,18 @@ class PomodoroTimer {
         taskItems.forEach(item => {
             const checkbox = item.querySelector('.task-checkbox-input');
             if (checkbox) {
+                // Toggle checkbox when clicking anywhere on the task item
+                item.addEventListener('click', (e) => {
+                    // Don't toggle if clicking directly on the checkbox or label (let native behavior handle it)
+                    if (e.target === checkbox || e.target.classList.contains('task-checkbox-label')) {
+                        return;
+                    }
+                    checkbox.checked = !checkbox.checked;
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateTodoistImportButton(modal);
+                });
+                
+                // Also handle native checkbox change
                 checkbox.addEventListener('change', () => {
                     item.classList.toggle('selected', checkbox.checked);
                     this.updateTodoistImportButton(modal);
@@ -6296,35 +6308,22 @@ class PomodoroTimer {
     }
 
     setupTaskEventListeners(modal) {
-        // Task item click listeners (select task, not checkbox)
+        // Task item click listeners - toggle checkbox completion
         const taskItems = modal.querySelectorAll('.task-item');
         taskItems.forEach(item => {
             item.addEventListener('click', (e) => {
-                // Don't trigger if clicking on the menu or checkbox
-                if (e.target.closest('.task-menu') || e.target.closest('.task-checkbox')) {
+                // Don't trigger if clicking on the menu
+                if (e.target.closest('.task-menu')) {
                     return;
                 }
                 
-                // Don't allow selecting completed tasks
-                if (item.classList.contains('completed')) {
-                    return;
+                // Toggle the checkbox when clicking anywhere on the task
+                const checkbox = item.querySelector('.task-checkbox input[type="checkbox"]');
+                if (checkbox && !e.target.closest('.task-checkbox input, .task-checkbox label')) {
+                    checkbox.checked = !checkbox.checked;
+                    // Trigger change event to update task state
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
                 }
-                
-                const taskId = item.dataset.taskId;
-                const currentConfig = this.getTaskConfig(taskId);
-                const newSelected = !currentConfig.selected;
-                
-                // Toggle selection
-                this.setTaskConfig(taskId, { ...currentConfig, selected: newSelected });
-                
-                // Update visual state
-                this.updateTaskSelectionVisual(modal, taskId, newSelected);
-                
-                // Update the main timer banner and header
-                this.updateCurrentTaskBanner();
-                this.rebuildTaskQueue();
-                this.updateCurrentTaskFromQueue();
-                this.updateSessionInfo();
             });
         });
 
