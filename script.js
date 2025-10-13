@@ -960,6 +960,27 @@ class PomodoroTimer {
         }
     }
     
+    resetThemeAndMusicForGuest() {
+        // Reset theme to minimalist if it's premium
+        const currentTheme = localStorage.getItem('selectedTheme');
+        if (currentTheme === 'rain' || currentTheme === 'lofi') {
+            localStorage.setItem('selectedTheme', 'minimalist');
+            this.applyTheme('minimalist');
+        }
+        
+        // Reset music to none if it's premium
+        if (this.rainEnabled || this.ambientEnabled) {
+            this.stopRainPlaylist();
+            this.stopAmbientPlaylist();
+            this.rainEnabled = false;
+            this.ambientEnabled = false;
+            localStorage.setItem('rainEnabled', 'false');
+            localStorage.setItem('ambientEnabled', 'false');
+        }
+        
+        console.log('🔄 Reset theme and music to guest defaults');
+    }
+
     async performLogout() {
         try {
             // Add loading state to confirm button
@@ -995,6 +1016,10 @@ class PomodoroTimer {
             this.user = null;
             // Clear Todoist tasks when user logs out
             this.clearTodoistTasks();
+            
+            // Reset theme and music to guest defaults
+            this.resetThemeAndMusicForGuest();
+            
             this.updateAuthState();
 
             // Clean Clerk params and hard reload the page without query string
@@ -11044,8 +11069,8 @@ class PomodoroTimer {
             
             // Click handler for music option
             option.addEventListener('click', async () => {
-                // Prevent action if music is locked for guests
-                if (!isAuthenticated && isPremium) {
+                // Prevent action if music is locked for guests (check current auth state)
+                if (!this.isAuthenticated && isPremium) {
                     return;
                 }
                 
@@ -11376,8 +11401,8 @@ class PomodoroTimer {
             
             // Click handler for theme option
             option.addEventListener('click', () => {
-                // Prevent action if theme is locked for guests
-                if (!isAuthenticated && isPremiumTheme) {
+                // Prevent action if theme is locked for guests (check current auth state)
+                if (!this.isAuthenticated && isPremiumTheme) {
                     return;
                 }
                 
@@ -11420,8 +11445,8 @@ class PomodoroTimer {
             
             // Slider input handler
             overlaySlider.addEventListener('input', (e) => {
-                // Prevent changes for guests
-                if (!isAuthenticated) {
+                // Prevent changes for guests (check current auth state)
+                if (!this.isAuthenticated) {
                     return;
                 }
                 
