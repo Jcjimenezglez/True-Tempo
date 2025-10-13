@@ -10893,6 +10893,28 @@ class PomodoroTimer {
             return;
         }
 
+        // Create preview audio element if it doesn't exist
+        if (!this.previewAudio) {
+            this.previewAudio = document.createElement('audio');
+            this.previewAudio.id = 'previewAudio';
+        }
+        
+        // Preview button handlers
+        const previewRainBtn = musicPanel.querySelector('#previewRainBtn');
+        const previewLofiBtn = musicPanel.querySelector('#previewLofiBtn');
+        
+        if (previewRainBtn) {
+            previewRainBtn.addEventListener('click', () => {
+                this.playPreview('rain', previewRainBtn);
+            });
+        }
+        
+        if (previewLofiBtn) {
+            previewLofiBtn.addEventListener('click', () => {
+                this.playPreview('lofi', previewLofiBtn);
+            });
+        }
+
         // Set initial volume value
         const volumeSlider = musicPanel.querySelector('#sidebarAmbientVolume');
         const volumeValue = musicPanel.querySelector('#sidebarVolumeValue');
@@ -10909,6 +10931,10 @@ class PomodoroTimer {
                 localStorage.setItem('ambientVolume', this.ambientVolume);
                 if (this.backgroundAudio) {
                     this.backgroundAudio.volume = this.ambientVolume;
+                }
+                // Update preview audio volume too
+                if (this.previewAudio) {
+                    this.previewAudio.volume = this.ambientVolume;
                 }
             });
         }
@@ -10999,6 +11025,66 @@ class PomodoroTimer {
                     lofiToggle.disabled = true;
                 }
             }
+        }
+    }
+
+    async playPreview(type, button) {
+        console.log(`🎵 Playing ${type} preview`);
+        
+        // Stop any existing preview
+        if (this.previewAudio) {
+            this.previewAudio.pause();
+            this.previewAudio.currentTime = 0;
+        }
+        
+        // Remove playing class from all preview buttons
+        document.querySelectorAll('.preview-sound-btn').forEach(btn => {
+            btn.classList.remove('playing');
+        });
+        
+        // Clear any existing preview timeout
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+        }
+        
+        // Set the source based on type
+        let source = '';
+        if (type === 'rain') {
+            source = '/audio/Rain/' + this.rainPlaylist[0];
+        } else if (type === 'lofi') {
+            source = '/audio/lofi/' + this.playlist[0];
+        }
+        
+        if (!source) {
+            console.error('No preview source available');
+            return;
+        }
+        
+        // Add playing class to button
+        button.classList.add('playing');
+        
+        // Set source and volume
+        this.previewAudio.src = source;
+        this.previewAudio.volume = this.ambientVolume;
+        
+        try {
+            // Play the preview
+            await this.previewAudio.play();
+            console.log(`✅ Preview playing for 5 seconds`);
+            
+            // Stop after 5 seconds
+            this.previewTimeout = setTimeout(() => {
+                if (this.previewAudio) {
+                    this.previewAudio.pause();
+                    this.previewAudio.currentTime = 0;
+                }
+                button.classList.remove('playing');
+                console.log('⏹️ Preview stopped');
+            }, 5000);
+            
+        } catch (error) {
+            console.error('Error playing preview:', error);
+            button.classList.remove('playing');
         }
     }
 

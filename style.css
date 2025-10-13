@@ -5424,6 +5424,47 @@ input:checked + .toggle-slider:before {
     margin-bottom: 24px;
 }
 
+.music-option-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.preview-sound-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.preview-sound-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
+}
+
+.preview-sound-btn:active {
+    transform: translateY(0);
+}
+
+.preview-sound-btn.playing {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.preview-sound-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
 .music-volume-section .volume-header {
     display: flex;
     justify-content: space-between;
