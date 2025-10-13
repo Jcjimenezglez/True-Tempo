@@ -11363,7 +11363,7 @@ class PomodoroTimer {
         console.log('🎨 Initializing theme panel');
         
         // Check if user is authenticated
-        const isAuthenticated = this.checkAuthStatus();
+        const isAuthenticated = this.isAuthenticated;
         
         // Get current theme from localStorage or default to 'minimalist'
         let savedTheme = localStorage.getItem('selectedTheme') || 'minimalist';
