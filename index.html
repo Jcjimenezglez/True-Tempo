@@ -228,6 +228,12 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                 </div>
+                <div class="nav-item" data-section="settings" data-tooltip="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
                 <div class="nav-item" data-section="music" data-tooltip="Music">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 18V5l12-2v13"/>
@@ -301,41 +307,11 @@
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
                                     <circle cx="12" cy="7" r="4"/>
                                 </svg>
-                                <span>Account</span>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                        </div>
-                        
-                        <!-- Focus Report Section (shown when logged in) -->
-                        <div class="settings-report-section" id="settingsReportSection" style="display: none;">
-                            <div class="settings-dropdown-item" id="settingsStatisticsBtn">
-                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 3v18h18"/>
-                                    <path d="m19 9-5 5-4-4-3 3"/>
-                                </svg>
-                                <span>Focus Report</span>
-                            </div>
-                            <div class="settings-dropdown-item" id="timerSettingsItem">
-                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
                                 <span>Settings</span>
                             </div>
                             <div class="dropdown-divider"></div>
                         </div>
                         
-                        <!-- Settings Section (shown when not logged in) -->
-                        <div class="settings-settings-section" id="settingsSettingsSection">
-                            <div class="settings-dropdown-item" id="timerSettingsItemGuest">
-                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                                <span>Settings</span>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                        </div>
                         
                         <!-- Help Section (always visible) -->
                         <div class="settings-dropdown-item" id="helpToggle">
@@ -400,6 +376,9 @@
     
     <!-- Music Panel Overlay -->
     <div class="task-panel-overlay" id="musicPanelOverlay"></div>
+    
+    <!-- Settings Panel Overlay -->
+    <div class="task-panel-overlay" id="settingsPanelOverlay"></div>
     
     <!-- Tasks Side Panel -->
     <div class="task-side-panel" id="taskSidePanel">
@@ -499,6 +478,49 @@
                     </svg>
                     Add Task
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Side Panel -->
+    <div class="task-side-panel" id="settingsSidePanel">
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Settings</h3>
+                <p class="tasks-subtitle">Customize your focus sessions</p>
+            </div>
+            
+            <!-- Duration Section -->
+            <div class="settings-duration-section">
+                <h4 class="settings-section-title">Duration</h4>
+                <div class="duration-controls">
+                    <div class="duration-item">
+                        <div class="duration-header">
+                            <label>Pomodoro</label>
+                            <span class="duration-value" id="sidebarPomodoroValue">25 min</span>
+                        </div>
+                        <input type="range" id="sidebarPomodoroSlider" min="1" max="90" value="25" class="duration-slider">
+                    </div>
+                    <div class="duration-item">
+                        <div class="duration-header">
+                            <label>Short Break</label>
+                            <span class="duration-value" id="sidebarShortBreakValue">5 min</span>
+                        </div>
+                        <input type="range" id="sidebarShortBreakSlider" min="1" max="30" value="5" class="duration-slider">
+                    </div>
+                    <div class="duration-item">
+                        <div class="duration-header">
+                            <label>Long Break</label>
+                            <span class="duration-value" id="sidebarLongBreakValue">15 min</span>
+                        </div>
+                        <input type="range" id="sidebarLongBreakSlider" min="1" max="60" value="15" class="duration-slider">
+                    </div>
+                </div>
+                
+                <!-- Save Button -->
+                <div class="settings-save-section">
+                    <button class="save-settings-btn" id="sidebarSaveSettings">Save Changes</button>
+                </div>
             </div>
         </div>
     </div>

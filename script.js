@@ -181,12 +181,8 @@ class PomodoroTimer {
         this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
         this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
         this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
-        this.settingsStatisticsBtn = document.getElementById('settingsStatisticsBtn');
-        this.settingsStatisticsGuestBtn = document.getElementById('settingsStatisticsGuestBtn');
         this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
         this.settingsUserDivider = document.getElementById('settingsUserDivider');
-        this.timerSettingsItem = document.getElementById('timerSettingsItem');
-        this.timerSettingsItemGuest = document.getElementById('timerSettingsItemGuest');
         this.shortcutsItem = document.getElementById('shortcutsItem');
         this.helpToggle = document.getElementById('helpToggle');
         this.helpPanel = document.getElementById('helpPanel');
@@ -1303,15 +1299,6 @@ class PomodoroTimer {
             });
         }
         
-        // Settings dropdown - Timer Settings
-        if (this.timerSettingsItem) {
-            this.timerSettingsItem.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showTimerSettingsModal();
-            });
-        }
-        
         // Settings dropdown - Shortcuts
         if (this.shortcutsItem) {
             this.shortcutsItem.addEventListener('click', (e) => {
@@ -1357,15 +1344,6 @@ class PomodoroTimer {
         //     });
         // }
         
-        // Settings dropdown - Focus Report
-        if (this.settingsStatisticsBtn) {
-            this.settingsStatisticsBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showStatisticsModal();
-            });
-        }
-        
         // Settings dropdown - Focus Report (Guest) - REMOVED
         // Guest users can now use the streak-info button directly
         // if (this.settingsStatisticsGuestBtn) {
@@ -1405,15 +1383,6 @@ class PomodoroTimer {
                 }
             }
         });
-        
-        // Settings dropdown - Timer Settings for Guest users
-        if (this.timerSettingsItemGuest) {
-            this.timerSettingsItemGuest.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.settingsDropdown.style.display = 'none';
-                this.showTimerSettingsModal();
-            });
-        }
         
         // Settings dropdown - Logout
         if (this.settingsLogoutBtn) {
@@ -11025,6 +10994,97 @@ class PomodoroTimer {
         }
     }
 
+    initializeSettingsSidePanel() {
+        console.log('⚙️ Initializing settings side panel');
+        const settingsPanel = document.getElementById('settingsSidePanel');
+        if (!settingsPanel) {
+            console.error('❌ Settings panel not found');
+            return;
+        }
+
+        // Get current durations
+        const pomodoroMin = Math.floor(this.workTime / 60);
+        const shortBreakMin = Math.floor(this.shortBreakTime / 60);
+        const longBreakMin = Math.floor(this.longBreakTime / 60);
+
+        // Set initial slider values
+        const pomodoroSlider = settingsPanel.querySelector('#sidebarPomodoroSlider');
+        const shortBreakSlider = settingsPanel.querySelector('#sidebarShortBreakSlider');
+        const longBreakSlider = settingsPanel.querySelector('#sidebarLongBreakSlider');
+        const pomodoroValue = settingsPanel.querySelector('#sidebarPomodoroValue');
+        const shortBreakValue = settingsPanel.querySelector('#sidebarShortBreakValue');
+        const longBreakValue = settingsPanel.querySelector('#sidebarLongBreakValue');
+
+        if (pomodoroSlider && pomodoroValue) {
+            pomodoroSlider.value = pomodoroMin;
+            pomodoroValue.textContent = `${pomodoroMin} min`;
+            
+            pomodoroSlider.addEventListener('input', (e) => {
+                pomodoroValue.textContent = `${e.target.value} min`;
+            });
+        }
+
+        if (shortBreakSlider && shortBreakValue) {
+            shortBreakSlider.value = shortBreakMin;
+            shortBreakValue.textContent = `${shortBreakMin} min`;
+            
+            shortBreakSlider.addEventListener('input', (e) => {
+                shortBreakValue.textContent = `${e.target.value} min`;
+            });
+        }
+
+        if (longBreakSlider && longBreakValue) {
+            longBreakSlider.value = longBreakMin;
+            longBreakValue.textContent = `${longBreakMin} min`;
+            
+            longBreakSlider.addEventListener('input', (e) => {
+                longBreakValue.textContent = `${e.target.value} min`;
+            });
+        }
+
+        // Save button handler
+        const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                // Save new durations
+                this.workTime = parseInt(pomodoroSlider.value) * 60;
+                this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
+                this.longBreakTime = parseInt(longBreakSlider.value) * 60;
+                
+                // Save to localStorage
+                localStorage.setItem('pomodoroTime', String(this.workTime));
+                localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
+                localStorage.setItem('longBreakTime', String(this.longBreakTime));
+                
+                // Update cycle sections
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                
+                // Reset timer to first section
+                this.pauseTimerSilent();
+                this.currentSection = 1;
+                this.loadCurrentSection();
+                this.updateProgressRing();
+                
+                // Close the settings panel
+                const sidebarManager = document.querySelector('.sidebar');
+                if (window.sidebarManager) {
+                    window.sidebarManager.closeSettingsPanel();
+                }
+                
+                console.log('✅ Settings saved successfully');
+            });
+        }
+    }
+
 }
 
 // Initialize the timer when the page loads
@@ -11126,12 +11186,15 @@ class SidebarManager {
         this.taskPanelOverlay = document.getElementById('taskPanelOverlay');
         this.musicSidePanel = document.getElementById('musicSidePanel');
         this.musicPanelOverlay = document.getElementById('musicPanelOverlay');
+        this.settingsSidePanel = document.getElementById('settingsSidePanel');
+        this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
         this.isTaskPanelOpen = false;
         this.isMusicPanelOpen = false;
+        this.isSettingsPanelOpen = false;
         
         this.init();
     }
@@ -11210,6 +11273,29 @@ class SidebarManager {
                 }, { passive: true });
             }
         }
+        
+        // Same for settings panel
+        if (this.settingsSidePanel) {
+            const panelContent = this.settingsSidePanel.querySelector('.task-side-panel-content');
+            if (panelContent) {
+                panelContent.addEventListener('wheel', (e) => {
+                    const hasScroll = panelContent.scrollHeight > panelContent.clientHeight;
+                    
+                    if (!hasScroll) {
+                        return;
+                    }
+                    
+                    const isAtTop = panelContent.scrollTop === 0;
+                    const isAtBottom = panelContent.scrollTop + panelContent.clientHeight >= panelContent.scrollHeight - 1;
+                    
+                    if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                        return;
+                    }
+                    
+                    e.stopPropagation();
+                }, { passive: true });
+            }
+        }
     }
     
     bindEvents() {
@@ -11229,8 +11315,8 @@ class SidebarManager {
             item.addEventListener('click', () => {
                 const section = item.dataset.section;
                 
-                // For tasks and music, active state is handled in their respective open/close methods
-                if (section !== 'tasks' && section !== 'music') {
+                // For tasks, settings, and music, active state is handled in their respective open/close methods
+                if (section !== 'tasks' && section !== 'settings' && section !== 'music') {
                     this.setActiveNavItem(section);
                 }
                 
@@ -11243,11 +11329,12 @@ class SidebarManager {
             });
         });
         
-        // Overlay click to close sidebar AND task panel
+        // Overlay click to close sidebar AND all panels
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
                 this.hideMobile();
                 this.closeTaskPanel();
+                this.closeSettingsPanel();
                 this.closeMusicPanel();
             });
         }
@@ -11256,6 +11343,13 @@ class SidebarManager {
         if (this.musicPanelOverlay) {
             this.musicPanelOverlay.addEventListener('click', () => {
                 this.closeMusicPanel();
+            });
+        }
+        
+        // Settings panel overlay click to close settings panel
+        if (this.settingsPanelOverlay) {
+            this.settingsPanelOverlay.addEventListener('click', () => {
+                this.closeSettingsPanel();
             });
         }
         
@@ -11363,6 +11457,10 @@ class SidebarManager {
                 // Toggle task side panel
                 this.toggleTaskPanel();
                 break;
+            case 'settings':
+                // Toggle settings side panel
+                this.toggleSettingsPanel();
+                break;
             case 'music':
                 // Toggle music side panel
                 this.toggleMusicPanel();
@@ -11377,14 +11475,6 @@ class SidebarManager {
             case 'statistics':
                 // Open statistics modal or navigate to stats
                 console.log('Navigate to statistics');
-                break;
-            case 'settings':
-                // Open settings modal
-                const settingsBtn = document.getElementById('timerSettingsItem') || 
-                                  document.getElementById('timerSettingsItemGuest');
-                if (settingsBtn) {
-                    settingsBtn.click();
-                }
                 break;
             case 'help':
                 // Open help
@@ -11406,9 +11496,12 @@ class SidebarManager {
     
     openTaskPanel() {
         if (this.taskSidePanel) {
-            // Close music panel if open
+            // Close other panels if open
             if (this.isMusicPanelOpen) {
                 this.closeMusicPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
             }
             
             this.taskSidePanel.classList.add('open');
@@ -11471,9 +11564,12 @@ class SidebarManager {
     
     openMusicPanel() {
         if (this.musicSidePanel) {
-            // Close task panel if open
+            // Close other panels if open
             if (this.isTaskPanelOpen) {
                 this.closeTaskPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
             }
             
             this.musicSidePanel.classList.add('open');
@@ -11521,9 +11617,73 @@ class SidebarManager {
             }
         }
     }
+    
+    toggleSettingsPanel() {
+        if (this.isSettingsPanelOpen) {
+            this.closeSettingsPanel();
+        } else {
+            this.openSettingsPanel();
+        }
+    }
+    
+    openSettingsPanel() {
+        if (this.settingsSidePanel) {
+            // Close other panels if open
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isMusicPanelOpen) {
+                this.closeMusicPanel();
+            }
+            
+            this.settingsSidePanel.classList.add('open');
+            this.isSettingsPanelOpen = true;
+            
+            // Show overlay
+            if (this.settingsPanelOverlay) {
+                this.settingsPanelOverlay.classList.add('active');
+            }
+            
+            // Set Settings nav item as active
+            this.setActiveNavItem('settings');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Initialize settings panel controls
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.initializeSettingsSidePanel();
+            }
+        }
+    }
+    
+    closeSettingsPanel() {
+        if (this.settingsSidePanel) {
+            this.settingsSidePanel.classList.remove('open');
+            this.isSettingsPanelOpen = false;
+            
+            // Hide overlay
+            if (this.settingsPanelOverlay) {
+                this.settingsPanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Settings nav item
+            const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
+            if (settingsNavItem) {
+                settingsNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
 }
 
 // Initialize sidebar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new SidebarManager();
+    window.sidebarManager = new SidebarManager();
 });// Force redeploy for admin key

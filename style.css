@@ -5287,6 +5287,117 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.8);
 }
 
+/* Settings Side Panel Specific Styles */
+.settings-duration-section {
+    margin-bottom: 24px;
+}
+
+.settings-section-title {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+}
+
+.settings-duration-section .duration-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.settings-duration-section .duration-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-duration-section .duration-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-duration-section .duration-header label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.settings-duration-section .duration-value {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.settings-duration-section .duration-slider {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.settings-duration-section .duration-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.settings-duration-section .duration-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.settings-duration-section .duration-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+.settings-duration-section .duration-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+.settings-save-section {
+    margin-top: 24px;
+}
+
+.settings-save-section .save-settings-btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settings-save-section .save-settings-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.settings-save-section .save-settings-btn:active {
+    transform: translateY(0);
+}
+
 /* Music Side Panel Specific Styles */
 .music-volume-section {
     margin-bottom: 24px;
