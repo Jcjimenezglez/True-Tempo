@@ -1760,7 +1760,7 @@ body.is-scrolling .streak-fire {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100001;
+    z-index: 10000;
     backdrop-filter: blur(3px);
 }
 
@@ -7369,7 +7369,6 @@ input:checked + .toggle-slider:before {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    isolation: isolate;
 }
 
 .timer-section.theme-minimalist {
@@ -7396,7 +7395,8 @@ input:checked + .toggle-slider:before {
 }
 
 /* Ensure timer content is above overlay */
-.timer-section > *:not(.theme-overlay) {
+.timer-section .container,
+.timer-section .timer-container {
     position: relative;
     z-index: 2;
 }
