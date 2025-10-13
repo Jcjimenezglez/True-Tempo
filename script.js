@@ -11456,7 +11456,7 @@ class PomodoroTimer {
                 overlaySlider.style.cursor = 'not-allowed';
                 if (overlayControl) {
                     overlayControl.style.opacity = '0.5';
-                    overlayControl.title = 'Sign up to customize background darkness';
+                    overlayControl.title = 'Sign up to customize contrast';
                 }
             }
             
