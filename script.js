@@ -11392,9 +11392,22 @@ class PomodoroTimer {
             
             // Disable premium themes for guests
             const isPremiumTheme = themeName === 'rain' || themeName === 'lofi';
+            const signupText = option.querySelector('.theme-signup-required');
+            
             if (!isAuthenticated && isPremiumTheme) {
                 option.classList.add('theme-locked');
                 if (radio) radio.disabled = true;
+                
+                // Show "Sign up required" text
+                if (signupText) {
+                    signupText.style.display = 'block';
+                }
+                
+                // Hide description text
+                const description = option.querySelector('.theme-info p:not(.theme-signup-required)');
+                if (description) {
+                    description.style.display = 'none';
+                }
             }
             
             // Set initial active state

@@ -7482,7 +7482,7 @@ input:checked + .toggle-slider:before {
     left: 50%;
     transform: translate(-50%, -50%);
     background: #1a1a1a;
-    border: 2px solid #10b981;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 16px;
     padding: 2rem;
     max-width: 400px;
@@ -7507,8 +7507,8 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-signup-btn {
-    background: #10b981;
-    color: #ffffff;
+    background: #ffffff;
+    color: #000000;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 2rem;
@@ -7520,9 +7520,18 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-signup-btn:hover {
-    background: #059669;
+    background: #f0f0f0;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+/* Sign up required text in theme cards */
+.theme-signup-required {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 4px;
+    display: block;
 }
 
 .theme-signup-message.fade-out {
