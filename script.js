@@ -1,9 +1,13 @@
 class PomodoroTimer {
     constructor() {
-        // Pomodoro Technique structure
-        this.workTime = 25 * 60; // 25 minutes
-        this.shortBreakTime = 5 * 60; // 5 minutes
-        this.longBreakTime = 15 * 60; // 15 minutes
+        // Pomodoro Technique structure - Load from localStorage if authenticated
+        const savedPomodoroTime = localStorage.getItem('pomodoroTime');
+        const savedShortBreakTime = localStorage.getItem('shortBreakTime');
+        const savedLongBreakTime = localStorage.getItem('longBreakTime');
+        
+        this.workTime = savedPomodoroTime ? parseInt(savedPomodoroTime) : 25 * 60; // 25 minutes default
+        this.shortBreakTime = savedShortBreakTime ? parseInt(savedShortBreakTime) : 5 * 60; // 5 minutes default
+        this.longBreakTime = savedLongBreakTime ? parseInt(savedLongBreakTime) : 15 * 60; // 15 minutes default
         this.sessionsPerCycle = 4; // 4 work sessions before long break
         
         // Current state
