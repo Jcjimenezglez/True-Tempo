@@ -1878,6 +1878,15 @@ class PomodoroTimer {
         }
 
         // Guest task limit modal actions
+        const closeGuestTaskLimitModalX = document.getElementById('closeGuestTaskLimitModalX');
+        
+        if (closeGuestTaskLimitModalX) {
+            closeGuestTaskLimitModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideGuestTaskLimitModal();
+            });
+        }
+        
         if (this.guestTaskLimitSignupBtn) {
             this.guestTaskLimitSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
