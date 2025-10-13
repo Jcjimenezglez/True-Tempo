@@ -218,6 +218,11 @@ class PomodoroTimer {
         this.confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
         this.cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
         
+        // Guest task limit modal elements
+        this.guestTaskLimitModalOverlay = document.getElementById('guestTaskLimitModalOverlay');
+        this.guestTaskLimitSignupBtn = document.getElementById('guestTaskLimitSignupBtn');
+        this.guestTaskLimitCancelBtn = document.getElementById('guestTaskLimitCancelBtn');
+        
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
@@ -849,6 +854,19 @@ class PomodoroTimer {
             this.feedbackModalOverlay.style.display = 'none';
         }
     }
+    
+    showGuestTaskLimitModal() {
+        if (this.guestTaskLimitModalOverlay) {
+            this.guestTaskLimitModalOverlay.style.display = 'flex';
+        }
+    }
+    
+    hideGuestTaskLimitModal() {
+        if (this.guestTaskLimitModalOverlay) {
+            this.guestTaskLimitModalOverlay.style.display = 'none';
+        }
+    }
+    
     async submitFeedback() {
         const feedbackText = this.feedbackText?.value?.trim();
         
@@ -1856,6 +1874,30 @@ class PomodoroTimer {
             submitFeedbackBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.submitFeedback();
+            });
+        }
+
+        // Guest task limit modal actions
+        if (this.guestTaskLimitSignupBtn) {
+            this.guestTaskLimitSignupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = '/signup.html';
+            });
+        }
+        
+        if (this.guestTaskLimitCancelBtn) {
+            this.guestTaskLimitCancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideGuestTaskLimitModal();
+            });
+        }
+        
+        // Close guest task limit modal when clicking overlay
+        if (this.guestTaskLimitModalOverlay) {
+            this.guestTaskLimitModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.guestTaskLimitModalOverlay) {
+                    this.hideGuestTaskLimitModal();
+                }
             });
         }
         
@@ -5128,8 +5170,17 @@ class PomodoroTimer {
                         if (listEl) listEl.style.display = '';
                         if (addSection) addSection.style.display = '';
                     } else {
-                        // Create new task
-                    this.addLocalTask(description, pomodoros);
+                        // Create new task - check guest limit
+                        const currentTasks = this.getLocalTasks();
+                        const MAX_GUEST_TASKS = 3;
+                        
+                        // Guest users can only have 3 active tasks
+                        if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
+                            this.showGuestTaskLimitModal();
+                            return;
+                        }
+                        
+                        this.addLocalTask(description, pomodoros);
                     }
                     // Clear form
                     taskInput.value = '';
@@ -5275,6 +5326,16 @@ class PomodoroTimer {
                         this.editingTaskId = null;
                     } else {
                         console.log('💾 Adding new task');
+                        // Create new task - check guest limit
+                        const currentTasks = this.getLocalTasks();
+                        const MAX_GUEST_TASKS = 3;
+                        
+                        // Guest users can only have 3 active tasks
+                        if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
+                            this.showGuestTaskLimitModal();
+                            return;
+                        }
+                        
                         this.addLocalTask(description, pomodoros);
                     }
                     if (finalTaskInput) finalTaskInput.value = '';
