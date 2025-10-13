@@ -1831,8 +1831,16 @@ class PomodoroTimer {
         }
 
         // Feedback modal actions
+        const closeFeedbackModalX = document.getElementById('closeFeedbackModalX');
         const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
         const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+        
+        if (closeFeedbackModalX) {
+            closeFeedbackModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideFeedbackModal();
+            });
+        }
         
         if (cancelFeedbackBtn) {
             cancelFeedbackBtn.addEventListener('click', (e) => {
