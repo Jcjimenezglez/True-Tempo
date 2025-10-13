@@ -645,12 +645,9 @@ class PomodoroTimer {
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
             }
             
-            // Ensure guest users always have None (no sound) selected by default
-            this.ambientEnabled = false;
-            this.rainEnabled = false;
-            localStorage.setItem('ambientEnabled', 'false');
-            localStorage.setItem('rainEnabled', 'false');
-            // reset already handled at top of branch
+            // Keep music state for logged-out users (they just can't change it)
+            // Only new users without saved preferences will have 'false' by default (from initialization)
+            // This allows logged-out users to maintain their previous music selection visually
         }
         
         // Update dropdown badges based on authentication state
@@ -1020,8 +1017,9 @@ class PomodoroTimer {
             // Clear Todoist tasks when user logs out
             this.clearTodoistTasks();
             
-            // Reset theme and music to guest defaults
-            this.resetThemeAndMusicForGuest();
+            // Don't reset theme and music - keep them visible but disabled for logged out users
+            // Only clear saved timer state (guests don't get session restore)
+            sessionStorage.removeItem('timerState');
             
             this.updateAuthState();
 
@@ -11381,11 +11379,9 @@ class PomodoroTimer {
         // Get current theme from localStorage or default to 'minimalist'
         let savedTheme = localStorage.getItem('selectedTheme') || 'minimalist';
         
-        // If user is not authenticated and tries to use premium themes, reset to minimalist
-        if (!isAuthenticated && (savedTheme === 'rain' || savedTheme === 'lofi' || savedTheme === 'winter')) {
-            savedTheme = 'minimalist';
-            localStorage.setItem('selectedTheme', 'minimalist');
-        }
+        // Keep the theme visual even for non-authenticated users (they just can't change it)
+        // This allows logged-out users to maintain their previous theme selection
+        // New users will have 'minimalist' by default from the || operator above
         
         this.currentTheme = savedTheme;
         
