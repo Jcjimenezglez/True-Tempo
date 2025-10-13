@@ -11030,6 +11030,8 @@ class PomodoroTimer {
                 volumeSlider.disabled = true;
                 volumeSlider.style.opacity = '0.4';
                 volumeSlider.style.cursor = 'not-allowed';
+                volumeValue.style.opacity = '0.5';
+                volumeValue.style.color = 'rgba(255, 255, 255, 0.4)';
                 if (volumeControl) {
                     volumeControl.style.opacity = '0.5';
                     volumeControl.title = 'Sign up to adjust volume';
@@ -11465,6 +11467,8 @@ class PomodoroTimer {
                 overlaySlider.disabled = true;
                 overlaySlider.style.opacity = '0.4';
                 overlaySlider.style.cursor = 'not-allowed';
+                overlayValue.style.opacity = '0.5';
+                overlayValue.style.color = 'rgba(255, 255, 255, 0.4)';
                 if (overlayControl) {
                     overlayControl.style.opacity = '0.5';
                     overlayControl.title = 'Sign up to customize contrast';
