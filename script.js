@@ -10977,7 +10977,11 @@ class PomodoroTimer {
                     
                     this.rainEnabled = true;
                     localStorage.setItem('rainEnabled', 'true');
-                    await this.playRainPlaylist();
+                    
+                    // Only play if timer is running
+                    if (this.isRunning) {
+                        await this.playRainPlaylist();
+                    }
                     updateToggles();
                 } else {
                     this.stopRainPlaylist();
@@ -11004,7 +11008,11 @@ class PomodoroTimer {
                         
                         this.ambientEnabled = true;
                         localStorage.setItem('ambientEnabled', 'true');
-                        await this.playAmbientPlaylist();
+                        
+                        // Only play if timer is running
+                        if (this.isRunning) {
+                            await this.playAmbientPlaylist();
+                        }
                         updateToggles();
                     } else {
                         this.stopAmbientPlaylist();
