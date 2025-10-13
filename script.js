@@ -11375,8 +11375,8 @@ class PomodoroTimer {
         this.applyTheme(this.currentTheme);
         this.applyOverlay(this.overlayOpacity);
         
-        // Get all theme options
-        const themeOptions = document.querySelectorAll('.theme-option');
+        // Get all theme options (not music options)
+        const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
         
         themeOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
