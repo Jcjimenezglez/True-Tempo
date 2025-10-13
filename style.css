@@ -435,7 +435,7 @@ body::-webkit-scrollbar {
 .close-side-panel-btn {
     position: absolute;
     top: 50%;
-    right: 0px;
+    right: -40px;
     transform: translateY(-50%);
     width: 40px;
     height: 80px;
@@ -456,7 +456,6 @@ body::-webkit-scrollbar {
 .close-side-panel-btn:hover {
     background: #252525;
     color: rgba(255, 255, 255, 0.9);
-    right: 2px;
 }
 
 .close-side-panel-btn svg {
