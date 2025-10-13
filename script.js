@@ -11017,13 +11017,32 @@ class PomodoroTimer {
         // Set initial volume value
         const volumeSlider = musicPanel.querySelector('#sidebarAmbientVolume');
         const volumeValue = musicPanel.querySelector('#sidebarVolumeValue');
+        const volumeControl = musicPanel.querySelector('.theme-overlay-control');
+        
         if (volumeSlider && volumeValue) {
             const currentVolume = Math.round(this.ambientVolume * 100);
             volumeSlider.value = currentVolume;
             volumeValue.textContent = `${currentVolume}%`;
             
+            // Disable volume slider for guests
+            const isAuthenticated = this.isAuthenticated;
+            if (!isAuthenticated) {
+                volumeSlider.disabled = true;
+                volumeSlider.style.opacity = '0.4';
+                volumeSlider.style.cursor = 'not-allowed';
+                if (volumeControl) {
+                    volumeControl.style.opacity = '0.5';
+                    volumeControl.title = 'Sign up to adjust volume';
+                }
+            }
+            
             // Volume slider event listener
             volumeSlider.addEventListener('input', (e) => {
+                // Prevent volume change for guests
+                if (!this.isAuthenticated) {
+                    return;
+                }
+                
                 const vol = parseInt(e.target.value);
                 volumeValue.textContent = `${vol}%`;
                 this.ambientVolume = vol / 100;
