@@ -7281,6 +7281,11 @@ input:checked + .toggle-slider:before {
     transition: all 0.2s ease;
 }
 
+/* Music options without preview images */
+.theme-option.music-option {
+    gap: 0;
+}
+
 .theme-option:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.1);
