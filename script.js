@@ -10969,32 +10969,55 @@ class PomodoroTimer {
 
         // Rain toggle event listener
         if (rainToggle) {
-            rainToggle.addEventListener('change', async (e) => {
-                if (e.target.checked) {
-                    this.stopAmbientPlaylist();
-                    this.ambientEnabled = false;
-                    localStorage.setItem('ambientEnabled', 'false');
-                    
-                    this.rainEnabled = true;
-                    localStorage.setItem('rainEnabled', 'true');
-                    
-                    // Only play if timer is running
-                    if (this.isRunning) {
-                        await this.playRainPlaylist();
+            const rainOption = musicPanel.querySelector('.music-option-item:has(#sidebarRainToggle)');
+            const previewRainBtn = musicPanel.querySelector('#previewRainBtn');
+            
+            // Show/hide rain option based on authentication
+            if (this.isAuthenticated) {
+                rainToggle.addEventListener('change', async (e) => {
+                    if (e.target.checked) {
+                        this.stopAmbientPlaylist();
+                        this.ambientEnabled = false;
+                        localStorage.setItem('ambientEnabled', 'false');
+                        
+                        this.rainEnabled = true;
+                        localStorage.setItem('rainEnabled', 'true');
+                        
+                        // Only play if timer is running
+                        if (this.isRunning) {
+                            await this.playRainPlaylist();
+                        }
+                        updateToggles();
+                    } else {
+                        this.stopRainPlaylist();
+                        this.rainEnabled = false;
+                        localStorage.setItem('rainEnabled', 'false');
+                        updateToggles();
                     }
-                    updateToggles();
-                } else {
-                    this.stopRainPlaylist();
-                    this.rainEnabled = false;
-                    localStorage.setItem('rainEnabled', 'false');
-                    updateToggles();
+                });
+            } else {
+                // For guests, show disabled state
+                if (rainOption) {
+                    rainOption.style.opacity = '0.5';
+                    rainOption.style.cursor = 'not-allowed';
+                    const rainInfo = rainOption.querySelector('.music-option-info h4');
+                    if (rainInfo) {
+                        rainInfo.innerHTML = 'Rain Sounds <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                    }
+                    rainToggle.disabled = true;
+                    if (previewRainBtn) {
+                        previewRainBtn.disabled = true;
+                        previewRainBtn.style.opacity = '0.5';
+                        previewRainBtn.style.cursor = 'not-allowed';
+                    }
                 }
-            });
+            }
         }
 
         // Lofi toggle event listener
         if (lofiToggle) {
             const lofiOption = musicPanel.querySelector('#sidebarLofiOption');
+            const previewLofiBtn = musicPanel.querySelector('#previewLofiBtn');
             
             // Show/hide lofi option based on authentication
             if (this.isAuthenticated) {
@@ -11022,7 +11045,7 @@ class PomodoroTimer {
                     }
                 });
             } else {
-                // For guests, show disabled state or hide
+                // For guests, show disabled state
                 if (lofiOption) {
                     lofiOption.style.opacity = '0.5';
                     lofiOption.style.cursor = 'not-allowed';
@@ -11031,6 +11054,11 @@ class PomodoroTimer {
                         lofiInfo.innerHTML = 'Lofi Music <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
                     }
                     lofiToggle.disabled = true;
+                    if (previewLofiBtn) {
+                        previewLofiBtn.disabled = true;
+                        previewLofiBtn.style.opacity = '0.5';
+                        previewLofiBtn.style.cursor = 'not-allowed';
+                    }
                 }
             }
         }
