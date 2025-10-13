@@ -11628,6 +11628,28 @@ class SidebarManager {
             });
         }
         
+        // Close panel buttons (arrow left buttons)
+        const closeTaskPanelBtn = document.getElementById('closeTaskPanel');
+        if (closeTaskPanelBtn) {
+            closeTaskPanelBtn.addEventListener('click', () => {
+                this.closeTaskPanel();
+            });
+        }
+        
+        const closeSettingsPanelBtn = document.getElementById('closeSettingsPanel');
+        if (closeSettingsPanelBtn) {
+            closeSettingsPanelBtn.addEventListener('click', () => {
+                this.closeSettingsPanel();
+            });
+        }
+        
+        const closeMusicPanelBtn = document.getElementById('closeMusicPanel');
+        if (closeMusicPanelBtn) {
+            closeMusicPanelBtn.addEventListener('click', () => {
+                this.closeMusicPanel();
+            });
+        }
+        
         // Overlay is present but doesn't close panel on click
         // Panel only closes when clicking the Tasks button
         
