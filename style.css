@@ -7314,11 +7314,6 @@ input:checked + .toggle-slider:before {
     background-image: url('/themes/winter.jpg');
 }
 
-.theme-preview-doordash {
-    background-image: url('/themes/Doordash.jpg');
-    background-position: center center;
-}
-
 .theme-preview-rain {
     background-image: url('/themes/rain.jpg');
 }
@@ -7400,37 +7395,6 @@ input:checked + .toggle-slider:before {
 
 .timer-section.theme-winter {
     background-image: url('/themes/winter.jpg');
-}
-
-.timer-section.theme-doordash {
-    position: relative;
-    background: #1a1a1a;
-}
-
-/* Blurred background layer */
-.timer-section.theme-doordash::before {
-    content: '';
-    position: absolute;
-    inset: -50px;
-    background-image: url('/themes/Doordash.jpg');
-    background-size: cover;
-    background-position: center;
-    filter: blur(120px) brightness(0.8) saturate(1.3);
-    transform: scale(1.5);
-    z-index: 0;
-}
-
-/* Original image layer */
-.timer-section.theme-doordash::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('/themes/Doordash.jpg');
-    background-size: auto 90%;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 1;
-    opacity: 0.95;
 }
 
 /* Dynamic overlay element for theme backgrounds */
