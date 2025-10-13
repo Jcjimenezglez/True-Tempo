@@ -7475,56 +7475,6 @@ input:checked + .toggle-slider:before {
     margin: 8px 0 0 0;
 }
 
-/* Theme Sign Up Message */
-.theme-signup-message {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #1a1a1a;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 16px;
-    padding: 2rem;
-    max-width: 400px;
-    width: 90%;
-    z-index: 100002;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    animation: slideInScale 0.3s ease-out;
-    text-align: center;
-}
-
-.theme-signup-message p {
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0 0 1rem 0;
-    line-height: 1.5;
-}
-
-.theme-signup-message p strong {
-    color: #ffffff;
-    font-size: 1.2rem;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.theme-signup-btn {
-    background: #ffffff;
-    color: #000000;
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-top: 1rem;
-}
-
-.theme-signup-btn:hover {
-    background: #f0f0f0;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-}
-
 /* Sign up required text in theme cards */
 .theme-signup-required {
     color: rgba(255, 255, 255, 0.7);
@@ -7532,30 +7482,6 @@ input:checked + .toggle-slider:before {
     font-weight: 500;
     margin-top: 4px;
     display: block;
-}
-
-.theme-signup-message.fade-out {
-    animation: fadeOut 0.3s ease-out forwards;
-}
-
-@keyframes slideInScale {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
 }
 
 /* Locked theme styling */
@@ -7579,14 +7505,4 @@ input:checked + .toggle-slider:before {
 .theme-option.theme-locked .theme-info h4,
 .theme-option.theme-locked .theme-info p {
     color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.theme-option.theme-locked::after {
-    content: '🔒';
-    position: absolute;
-    top: 50%;
-    right: 50px;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    opacity: 0.6;
 }

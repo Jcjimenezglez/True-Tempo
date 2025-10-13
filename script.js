@@ -11418,10 +11418,8 @@ class PomodoroTimer {
             
             // Click handler for theme option
             option.addEventListener('click', () => {
-                // Check if theme is locked for guests
+                // Prevent action if theme is locked for guests
                 if (!isAuthenticated && isPremiumTheme) {
-                    // Show sign up modal or message
-                    this.showThemeSignUpMessage();
                     return;
                 }
                 
@@ -11530,48 +11528,6 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    showThemeSignUpMessage() {
-        // Create and show a temporary tooltip/message
-        const message = document.createElement('div');
-        message.className = 'theme-signup-message';
-        message.innerHTML = `
-            <p><strong>Premium Theme</strong></p>
-            <p>Sign up to unlock Rain and Lofi Vibes themes</p>
-            <button class="theme-signup-btn" id="themeSignUpBtn">Sign up</button>
-        `;
-        
-        document.body.appendChild(message);
-        
-        // Add click handler to sign up button
-        const signUpBtn = message.querySelector('#themeSignUpBtn');
-        if (signUpBtn) {
-            signUpBtn.addEventListener('click', () => {
-                window.location.href = '/pricing/';
-            });
-        }
-        
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            message.classList.add('fade-out');
-            setTimeout(() => {
-                if (message.parentNode) {
-                    message.parentNode.removeChild(message);
-                }
-            }, 300);
-        }, 5000);
-        
-        // Click anywhere to dismiss
-        message.addEventListener('click', (e) => {
-            if (e.target === message) {
-                message.classList.add('fade-out');
-                setTimeout(() => {
-                    if (message.parentNode) {
-                        message.parentNode.removeChild(message);
-                    }
-                }, 300);
-            }
-        });
-    }
 
 }
 
