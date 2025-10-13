@@ -263,9 +263,11 @@ class PomodoroTimer {
         this.updateNavigationButtons();
         this.initClerk();
         
-        // Apply saved theme on init
+        // Apply saved theme and overlay on init
         this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
         this.applyTheme(this.currentTheme);
+        this.applyOverlay(this.overlayOpacity);
         
         // Initialize tasks for each focus session
         this.initializeSessionTasks();
@@ -11363,8 +11365,12 @@ class PomodoroTimer {
         // Get current theme from localStorage or default to 'minimalist'
         this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
         
-        // Apply the saved theme
+        // Get overlay opacity from localStorage or default to 65%
+        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
+        
+        // Apply the saved theme and overlay
         this.applyTheme(this.currentTheme);
+        this.applyOverlay(this.overlayOpacity);
         
         // Get all theme options
         const themeOptions = document.querySelectorAll('.theme-option');
@@ -11396,6 +11402,34 @@ class PomodoroTimer {
                 this.applyTheme(themeName);
             });
         });
+        
+        // Setup overlay slider
+        const overlaySlider = document.getElementById('overlaySlider');
+        const overlayValue = document.getElementById('overlayValue');
+        
+        if (overlaySlider && overlayValue) {
+            // Set initial slider value (convert 0.65 to 65)
+            overlaySlider.value = Math.round(this.overlayOpacity * 100);
+            overlayValue.textContent = `${Math.round(this.overlayOpacity * 100)}%`;
+            
+            // Slider input handler
+            overlaySlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                overlayValue.textContent = `${value}%`;
+                
+                // Convert percentage to decimal (65 -> 0.65)
+                const opacity = value / 100;
+                this.overlayOpacity = opacity;
+                
+                // Apply overlay in real-time
+                this.applyOverlay(opacity);
+                
+                // Save to localStorage
+                localStorage.setItem('themeOverlayOpacity', String(opacity));
+                
+                console.log(`🎨 Overlay opacity changed to: ${value}%`);
+            });
+        }
     }
 
     applyTheme(themeName) {
@@ -11416,6 +11450,19 @@ class PomodoroTimer {
         this.currentTheme = themeName;
         
         console.log(`🎨 Theme changed to: ${themeName}`);
+    }
+
+    applyOverlay(opacity) {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        // Set CSS custom property for overlay opacity
+        timerSection.style.setProperty('--theme-overlay-opacity', opacity);
+        
+        console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
 }
