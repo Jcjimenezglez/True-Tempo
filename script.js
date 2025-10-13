@@ -961,7 +961,7 @@ class PomodoroTimer {
     }
     
     resetThemeAndMusicForGuest() {
-        // Reset theme to minimalist if it's premium
+        // Reset theme to minimalist if it's premium (winter is free for everyone)
         const currentTheme = localStorage.getItem('selectedTheme');
         if (currentTheme === 'rain' || currentTheme === 'lofi') {
             localStorage.setItem('selectedTheme', 'minimalist');
@@ -11485,10 +11485,16 @@ class PomodoroTimer {
         }
         
         // Remove all theme classes
-        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain');
+        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain', 'theme-winter');
         
         // Add new theme class
         timerSection.classList.add(`theme-${themeName}`);
+        
+        // Show/hide Winter visit button
+        const winterVisitBtn = document.getElementById('winterVisitBtn');
+        if (winterVisitBtn) {
+            winterVisitBtn.style.display = themeName === 'winter' ? 'flex' : 'none';
+        }
         
         // Save preference to localStorage
         localStorage.setItem('selectedTheme', themeName);
