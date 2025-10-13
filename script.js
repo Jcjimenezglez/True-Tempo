@@ -264,7 +264,6 @@ class PomodoroTimer {
         this.initClerk();
         
         // Apply saved theme and overlay on init
-        // Note: For guests, theme will be reset to minimalist when mood panel initializes
         this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
         this.applyTheme(this.currentTheme);
@@ -10967,11 +10966,11 @@ class PomodoroTimer {
         console.log('✅ renderTasksInSidePanel completed successfully');
     }
 
-    initializeMoodPanel() {
-        console.log('🎭 Initializing mood panel');
-        const moodPanel = document.getElementById('moodSidePanel');
-        if (!moodPanel) {
-            console.error('❌ Mood panel not found');
+    initializeMusicSidePanel() {
+        console.log('🎵 Initializing music side panel');
+        const musicPanel = document.getElementById('musicSidePanel');
+        if (!musicPanel) {
+            console.error('❌ Music panel not found');
             return;
         }
 
@@ -10980,64 +10979,32 @@ class PomodoroTimer {
             this.previewAudio = document.createElement('audio');
             this.previewAudio.id = 'previewAudio';
         }
-
-        // Load sync preference (default ON)
-        this.moodSyncEnabled = localStorage.getItem('moodSyncEnabled') !== 'false';
         
-        // For guests, always use minimalist theme and clear any saved preferences
-        if (!this.isAuthenticated) {
-            this.currentTheme = 'minimalist';
-            this.currentMusic = 'none';
-            localStorage.removeItem('selectedTheme');
-            localStorage.removeItem('selectedMusic');
-        } else {
-            this.currentMusic = localStorage.getItem('selectedMusic') || 'none';
-            this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        // Preview button handlers
+        const previewRainBtn = musicPanel.querySelector('#previewRainBtn');
+        const previewLofiBtn = musicPanel.querySelector('#previewLofiBtn');
+        
+        if (previewRainBtn) {
+            previewRainBtn.addEventListener('click', () => {
+                this.playPreview('rain', previewRainBtn);
+            });
         }
         
-        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
-        
-        // Apply saved theme and overlay
-        this.applyTheme(this.currentTheme);
-        this.applyOverlay(this.overlayOpacity);
-
-        // Setup sync toggle
-        const syncToggle = moodPanel.querySelector('#moodSyncToggle');
-        if (syncToggle) {
-            syncToggle.checked = this.moodSyncEnabled;
-            
-            // Disable for guests
-            if (!this.isAuthenticated) {
-                syncToggle.disabled = true;
-                syncToggle.style.cursor = 'not-allowed';
-                const syncSection = moodPanel.querySelector('.mood-sync-section');
-                if (syncSection) {
-                    syncSection.style.opacity = '0.5';
-                }
-            } else {
-                syncToggle.addEventListener('change', (e) => {
-                    this.moodSyncEnabled = e.target.checked;
-                    localStorage.setItem('moodSyncEnabled', String(this.moodSyncEnabled));
-                    console.log(`🎭 Mood sync: ${this.moodSyncEnabled ? 'ON' : 'OFF'}`);
-                    
-                    // If turning on sync, sync current selections
-                    if (this.moodSyncEnabled) {
-                        if (this.currentMusic !== 'none') {
-                            this.applyTheme(this.currentMusic); // Sync background to music
-                        }
-                    }
-                });
-            }
+        if (previewLofiBtn) {
+            previewLofiBtn.addEventListener('click', () => {
+                this.playPreview('lofi', previewLofiBtn);
+            });
         }
 
         // Set initial volume value
-        const volumeSlider = moodPanel.querySelector('#moodVolumeSlider');
-        const volumeValue = moodPanel.querySelector('#moodVolumeValue');
+        const volumeSlider = musicPanel.querySelector('#sidebarAmbientVolume');
+        const volumeValue = musicPanel.querySelector('#sidebarVolumeValue');
         if (volumeSlider && volumeValue) {
             const currentVolume = Math.round(this.ambientVolume * 100);
             volumeSlider.value = currentVolume;
             volumeValue.textContent = `${currentVolume}%`;
             
+            // Volume slider event listener
             volumeSlider.addEventListener('input', (e) => {
                 const vol = parseInt(e.target.value);
                 volumeValue.textContent = `${vol}%`;
@@ -11046,225 +11013,133 @@ class PomodoroTimer {
                 if (this.backgroundAudio) {
                     this.backgroundAudio.volume = this.ambientVolume;
                 }
+                // Update preview audio volume too
                 if (this.previewAudio) {
                     this.previewAudio.volume = this.ambientVolume;
                 }
             });
         }
 
-        // MUSIC OPTIONS
-        const musicOptions = document.querySelectorAll('.mood-music-item');
-        
-        musicOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
-            const musicName = option.dataset.music;
-            
-            // Set initial active state
-            if (musicName === this.currentMusic) {
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-            }
-            
-            // Click handler for music option
-            option.addEventListener('click', () => {
-                // Check if user is authenticated for rain/lofi
-                if ((musicName === 'rain' || musicName === 'lofi') && !this.isAuthenticated) {
-                    console.log('🔒 Music requires authentication');
-                    return;
+        // Set initial toggle states
+        const noneToggle = musicPanel.querySelector('#sidebarNoneToggle');
+        const rainToggle = musicPanel.querySelector('#sidebarRainToggle');
+        const lofiToggle = musicPanel.querySelector('#sidebarLofiToggle');
+
+        // Update toggle states based on current playing state
+        const updateToggles = () => {
+            if (noneToggle) noneToggle.checked = !this.rainEnabled && !this.ambientEnabled;
+            if (rainToggle) rainToggle.checked = this.rainEnabled;
+            if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
+        };
+        updateToggles();
+
+        // None toggle event listener
+        if (noneToggle) {
+            noneToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.stopRainPlaylist();
+                    this.stopAmbientPlaylist();
+                    this.rainEnabled = false;
+                    this.ambientEnabled = false;
+                    localStorage.setItem('rainEnabled', 'false');
+                    localStorage.setItem('ambientEnabled', 'false');
+                    updateToggles();
                 }
-                
-                // Remove active from all options
-                musicOptions.forEach(opt => {
-                    opt.classList.remove('active');
-                    const optRadio = opt.querySelector('input[type="radio"]');
-                    if (optRadio) optRadio.checked = false;
+            });
+        }
+
+        // Rain toggle event listener
+        if (rainToggle) {
+            const rainOption = musicPanel.querySelector('.music-option-item:has(#sidebarRainToggle)');
+            const previewRainBtn = musicPanel.querySelector('#previewRainBtn');
+            
+            // Show/hide rain option based on authentication
+            if (this.isAuthenticated) {
+                rainToggle.addEventListener('change', async (e) => {
+                    if (e.target.checked) {
+                        this.stopAmbientPlaylist();
+                        this.ambientEnabled = false;
+                        localStorage.setItem('ambientEnabled', 'false');
+                        
+                        this.rainEnabled = true;
+                        localStorage.setItem('rainEnabled', 'true');
+                        
+                        // Only play if timer is running
+                        if (this.isRunning) {
+                            await this.playRainPlaylist();
+                        }
+                        updateToggles();
+                    } else {
+                        this.stopRainPlaylist();
+                        this.rainEnabled = false;
+                        localStorage.setItem('rainEnabled', 'false');
+                        updateToggles();
+                    }
                 });
-                
-                // Add active to clicked option
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-                
-                // Apply the selected music
-                this.applyMusic(musicName);
-            });
-        });
-
-        // BACKGROUND OPTIONS
-        const backgroundOptions = document.querySelectorAll('.mood-background-item');
-        
-        backgroundOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
-            const bgName = option.dataset.background;
-            
-            // Set initial active state
-            if (bgName === this.currentTheme) {
-                option.classList.add('active');
-                if (radio) radio.checked = true;
+            } else {
+                // For guests, show disabled state
+                if (rainOption) {
+                    rainOption.style.opacity = '0.5';
+                    rainOption.style.cursor = 'not-allowed';
+                    const rainInfo = rainOption.querySelector('.music-option-info h4');
+                    if (rainInfo) {
+                        rainInfo.innerHTML = 'Rain Sounds <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                    }
+                    rainToggle.disabled = true;
+                    if (previewRainBtn) {
+                        previewRainBtn.disabled = true;
+                        previewRainBtn.style.opacity = '0.5';
+                        previewRainBtn.style.cursor = 'not-allowed';
+                    }
+                }
             }
+        }
+
+        // Lofi toggle event listener
+        if (lofiToggle) {
+            const lofiOption = musicPanel.querySelector('#sidebarLofiOption');
+            const previewLofiBtn = musicPanel.querySelector('#previewLofiBtn');
             
-            // Click handler for background option
-            option.addEventListener('click', () => {
-                // Remove active from all options
-                backgroundOptions.forEach(opt => {
-                    opt.classList.remove('active');
-                    const optRadio = opt.querySelector('input[type="radio"]');
-                    if (optRadio) optRadio.checked = false;
+            // Show/hide lofi option based on authentication
+            if (this.isAuthenticated) {
+                if (lofiOption) lofiOption.style.display = 'flex';
+                
+                lofiToggle.addEventListener('change', async (e) => {
+                    if (e.target.checked) {
+                        this.stopRainPlaylist();
+                        this.rainEnabled = false;
+                        localStorage.setItem('rainEnabled', 'false');
+                        
+                        this.ambientEnabled = true;
+                        localStorage.setItem('ambientEnabled', 'true');
+                        
+                        // Only play if timer is running
+                        if (this.isRunning) {
+                            await this.playAmbientPlaylist();
+                        }
+                        updateToggles();
+                    } else {
+                        this.stopAmbientPlaylist();
+                        this.ambientEnabled = false;
+                        localStorage.setItem('ambientEnabled', 'false');
+                        updateToggles();
+                    }
                 });
-                
-                // Add active to clicked option
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-                
-                // Apply the selected background
-                this.applyBackground(bgName);
-            });
-        });
-
-        // Preview button handlers
-        const previewRainBtn = moodPanel.querySelector('#previewRainBtn');
-        const previewLofiBtn = moodPanel.querySelector('#previewLofiBtn');
-        
-        if (previewRainBtn) {
-            previewRainBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.playPreview('rain', previewRainBtn);
-            });
-        }
-        
-        if (previewLofiBtn) {
-            previewLofiBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.playPreview('lofi', previewLofiBtn);
-            });
-        }
-
-        // Disable rain/lofi for guest users
-        if (!this.isAuthenticated) {
-            const rainMusicOption = moodPanel.querySelector('[data-music="rain"]');
-            const lofiMusicOption = moodPanel.querySelector('[data-music="lofi"]');
-            
-            if (rainMusicOption) {
-                rainMusicOption.style.opacity = '0.5';
-                rainMusicOption.style.cursor = 'not-allowed';
-                const rainInfo = rainMusicOption.querySelector('.mood-music-info h4');
-                if (rainInfo) {
-                    rainInfo.innerHTML = 'Rain Sounds <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
-                }
-                if (previewRainBtn) {
-                    previewRainBtn.disabled = true;
-                    previewRainBtn.style.opacity = '0.5';
-                    previewRainBtn.style.cursor = 'not-allowed';
-                }
-            }
-            
-            if (lofiMusicOption) {
-                lofiMusicOption.style.opacity = '0.5';
-                lofiMusicOption.style.cursor = 'not-allowed';
-                const lofiInfo = lofiMusicOption.querySelector('.mood-music-info h4');
-                if (lofiInfo) {
-                    lofiInfo.innerHTML = 'Lofi Music <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
-                }
-                if (previewLofiBtn) {
-                    previewLofiBtn.disabled = true;
-                    previewLofiBtn.style.opacity = '0.5';
-                    previewLofiBtn.style.cursor = 'not-allowed';
-                }
-            }
-        }
-
-        // Setup overlay slider
-        const overlaySlider = moodPanel.querySelector('#moodOverlaySlider');
-        const overlayValue = moodPanel.querySelector('#moodOverlayValue');
-        
-        if (overlaySlider && overlayValue) {
-            overlaySlider.value = Math.round(this.overlayOpacity * 100);
-            overlayValue.textContent = `${Math.round(this.overlayOpacity * 100)}%`;
-            
-            overlaySlider.addEventListener('input', (e) => {
-                const value = parseInt(e.target.value);
-                overlayValue.textContent = `${value}%`;
-                const opacity = value / 100;
-                this.overlayOpacity = opacity;
-                this.applyOverlay(opacity);
-                localStorage.setItem('themeOverlayOpacity', String(opacity));
-            });
-        }
-    }
-
-    applyMusic(musicName) {
-        console.log(`🎵 Applying music: ${musicName}`);
-        
-        // Stop all audio
-        this.stopRainPlaylist();
-        this.stopAmbientPlaylist();
-        this.rainEnabled = false;
-        this.ambientEnabled = false;
-        
-        // Save music selection
-        this.currentMusic = musicName;
-        localStorage.setItem('selectedMusic', musicName);
-        
-        // Apply music
-        switch (musicName) {
-            case 'none':
-                // Already stopped above
-                break;
-            case 'rain':
-                this.rainEnabled = true;
-                localStorage.setItem('rainEnabled', 'true');
-                if (this.isRunning) {
-                    this.playRainPlaylist();
-                }
-                break;
-            case 'lofi':
-                this.ambientEnabled = true;
-                localStorage.setItem('ambientEnabled', 'true');
-                if (this.isRunning) {
-                    this.playAmbientPlaylist();
-                }
-                break;
-        }
-        
-        // If sync is enabled, also change background
-        if (this.moodSyncEnabled) {
-            const bgName = musicName === 'none' ? 'minimalist' : musicName;
-            this.applyBackground(bgName);
-            
-            // Update background radio selection
-            const bgRadio = document.querySelector(`input[name="background"][value="${bgName}"]`);
-            if (bgRadio) {
-                bgRadio.checked = true;
-                const bgOption = bgRadio.closest('.mood-background-item');
-                if (bgOption) {
-                    document.querySelectorAll('.mood-background-item').forEach(opt => opt.classList.remove('active'));
-                    bgOption.classList.add('active');
-                }
-            }
-        }
-        
-        localStorage.setItem('rainEnabled', String(this.rainEnabled));
-        localStorage.setItem('ambientEnabled', String(this.ambientEnabled));
-    }
-
-    applyBackground(bgName) {
-        console.log(`🖼️ Applying background: ${bgName}`);
-        
-        // Apply theme
-        this.applyTheme(bgName);
-        
-        // If sync is enabled, also change music
-        if (this.moodSyncEnabled) {
-            const musicName = bgName === 'minimalist' ? 'none' : bgName;
-            this.applyMusic(musicName);
-            
-            // Update music radio selection
-            const musicRadio = document.querySelector(`input[name="music"][value="${musicName}"]`);
-            if (musicRadio) {
-                musicRadio.checked = true;
-                const musicOption = musicRadio.closest('.mood-music-item');
-                if (musicOption) {
-                    document.querySelectorAll('.mood-music-item').forEach(opt => opt.classList.remove('active'));
-                    musicOption.classList.add('active');
+            } else {
+                // For guests, show disabled state
+                if (lofiOption) {
+                    lofiOption.style.opacity = '0.5';
+                    lofiOption.style.cursor = 'not-allowed';
+                    const lofiInfo = lofiOption.querySelector('.music-option-info h4');
+                    if (lofiInfo) {
+                        lofiInfo.innerHTML = 'Lofi Music <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                    }
+                    lofiToggle.disabled = true;
+                    if (previewLofiBtn) {
+                        previewLofiBtn.disabled = true;
+                        previewLofiBtn.style.opacity = '0.5';
+                        previewLofiBtn.style.cursor = 'not-allowed';
+                    }
                 }
             }
         }
@@ -11484,6 +11359,106 @@ class PomodoroTimer {
         }
     }
 
+    initializeThemePanel() {
+        console.log('🎨 Initializing theme panel');
+        
+        // Check if user is authenticated
+        const isAuthenticated = this.checkAuthStatus();
+        
+        // Get current theme from localStorage or default to 'minimalist'
+        let savedTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        
+        // If user is not authenticated and tries to use premium themes, reset to minimalist
+        if (!isAuthenticated && (savedTheme === 'rain' || savedTheme === 'lofi')) {
+            savedTheme = 'minimalist';
+            localStorage.setItem('selectedTheme', 'minimalist');
+        }
+        
+        this.currentTheme = savedTheme;
+        
+        // Get overlay opacity from localStorage or default to 65%
+        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
+        
+        // Apply the saved theme and overlay
+        this.applyTheme(this.currentTheme);
+        this.applyOverlay(this.overlayOpacity);
+        
+        // Get all theme options
+        const themeOptions = document.querySelectorAll('.theme-option');
+        
+        themeOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            const themeName = option.dataset.theme;
+            
+            // Disable premium themes for guests
+            const isPremiumTheme = themeName === 'rain' || themeName === 'lofi';
+            if (!isAuthenticated && isPremiumTheme) {
+                option.classList.add('theme-locked');
+                option.style.opacity = '0.5';
+                option.style.cursor = 'not-allowed';
+                if (radio) radio.disabled = true;
+            }
+            
+            // Set initial active state
+            if (themeName === this.currentTheme) {
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+            }
+            
+            // Click handler for theme option
+            option.addEventListener('click', () => {
+                // Check if theme is locked for guests
+                if (!isAuthenticated && isPremiumTheme) {
+                    // Show sign up modal or message
+                    this.showThemeSignUpMessage();
+                    return;
+                }
+                
+                // Remove active from all options
+                themeOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    const optRadio = opt.querySelector('input[type="radio"]');
+                    if (optRadio) optRadio.checked = false;
+                });
+                
+                // Add active to clicked option
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+                
+                // Apply the selected theme
+                this.applyTheme(themeName);
+            });
+        });
+        
+        // Setup overlay slider
+        const overlaySlider = document.getElementById('overlaySlider');
+        const overlayValue = document.getElementById('overlayValue');
+        
+        if (overlaySlider && overlayValue) {
+            // Set initial slider value (convert 0.65 to 65)
+            overlaySlider.value = Math.round(this.overlayOpacity * 100);
+            overlayValue.textContent = `${Math.round(this.overlayOpacity * 100)}%`;
+            
+            // Slider input handler
+            overlaySlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                overlayValue.textContent = `${value}%`;
+                
+                // Convert percentage to decimal (65 -> 0.65)
+                const opacity = value / 100;
+                this.overlayOpacity = opacity;
+                
+                // Apply overlay in real-time
+                this.applyOverlay(opacity);
+                
+                // Save to localStorage
+                localStorage.setItem('themeOverlayOpacity', String(opacity));
+                
+                console.log(`🎨 Overlay opacity changed to: ${value}%`);
+            });
+        }
+    }
+
     applyTheme(themeName) {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) {
@@ -11525,6 +11500,49 @@ class PomodoroTimer {
         overlayElement.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
         
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
+    }
+
+    showThemeSignUpMessage() {
+        // Create and show a temporary tooltip/message
+        const message = document.createElement('div');
+        message.className = 'theme-signup-message';
+        message.innerHTML = `
+            <p><strong>Premium Theme</strong></p>
+            <p>Sign up to unlock Rain and Lofi Vibes themes</p>
+            <button class="theme-signup-btn" id="themeSignUpBtn">Sign up</button>
+        `;
+        
+        document.body.appendChild(message);
+        
+        // Add click handler to sign up button
+        const signUpBtn = message.querySelector('#themeSignUpBtn');
+        if (signUpBtn) {
+            signUpBtn.addEventListener('click', () => {
+                window.location.href = '/pricing/';
+            });
+        }
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            message.classList.add('fade-out');
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.parentNode.removeChild(message);
+                }
+            }, 300);
+        }, 5000);
+        
+        // Click anywhere to dismiss
+        message.addEventListener('click', (e) => {
+            if (e.target === message) {
+                message.classList.add('fade-out');
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.parentNode.removeChild(message);
+                    }
+                }, 300);
+            }
+        });
     }
 
 }
@@ -11626,17 +11644,20 @@ class SidebarManager {
         this.navItems = document.querySelectorAll('.nav-item');
         this.taskSidePanel = document.getElementById('taskSidePanel');
         this.taskPanelOverlay = document.getElementById('taskPanelOverlay');
+        this.musicSidePanel = document.getElementById('musicSidePanel');
+        this.musicPanelOverlay = document.getElementById('musicPanelOverlay');
         this.settingsSidePanel = document.getElementById('settingsSidePanel');
         this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
-        this.moodSidePanel = document.getElementById('moodSidePanel');
-        this.moodPanelOverlay = document.getElementById('moodPanelOverlay');
+        this.themeSidePanel = document.getElementById('themeSidePanel');
+        this.themePanelOverlay = document.getElementById('themePanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
         this.isTaskPanelOpen = false;
+        this.isMusicPanelOpen = false;
         this.isSettingsPanelOpen = false;
-        this.isMoodPanelOpen = false;
+        this.isThemePanelOpen = false;
         
         this.init();
     }
@@ -11777,14 +11798,15 @@ class SidebarManager {
                 this.hideMobile();
                 this.closeTaskPanel();
                 this.closeSettingsPanel();
-                this.closeMoodPanel();
+                this.closeMusicPanel();
+                this.closeThemePanel();
             });
         }
         
-        // Mood panel overlay click to close mood panel
-        if (this.moodPanelOverlay) {
-            this.moodPanelOverlay.addEventListener('click', () => {
-                this.closeMoodPanel();
+        // Music panel overlay click to close music panel
+        if (this.musicPanelOverlay) {
+            this.musicPanelOverlay.addEventListener('click', () => {
+                this.closeMusicPanel();
             });
         }
         
@@ -11792,6 +11814,13 @@ class SidebarManager {
         if (this.settingsPanelOverlay) {
             this.settingsPanelOverlay.addEventListener('click', () => {
                 this.closeSettingsPanel();
+            });
+        }
+        
+        // Theme panel overlay click to close theme panel
+        if (this.themePanelOverlay) {
+            this.themePanelOverlay.addEventListener('click', () => {
+                this.closeThemePanel();
             });
         }
         
@@ -11817,10 +11846,17 @@ class SidebarManager {
             });
         }
         
-        const closeMoodPanelBtn = document.getElementById('closeMoodPanel');
-        if (closeMoodPanelBtn) {
-            closeMoodPanelBtn.addEventListener('click', () => {
-                this.closeMoodPanel();
+        const closeThemePanelBtn = document.getElementById('closeThemePanel');
+        if (closeThemePanelBtn) {
+            closeThemePanelBtn.addEventListener('click', () => {
+                this.closeThemePanel();
+            });
+        }
+        
+        const closeMusicPanelBtn = document.getElementById('closeMusicPanel');
+        if (closeMusicPanelBtn) {
+            closeMusicPanelBtn.addEventListener('click', () => {
+                this.closeMusicPanel();
             });
         }
         
@@ -11925,9 +11961,13 @@ class SidebarManager {
                 // Toggle settings side panel
                 this.toggleSettingsPanel();
                 break;
-            case 'mood':
-                // Toggle mood side panel
-                this.toggleMoodPanel();
+            case 'music':
+                // Toggle music side panel
+                this.toggleMusicPanel();
+                break;
+            case 'theme':
+                // Toggle theme side panel
+                this.toggleThemePanel();
                 break;
             case 'timer':
                 // Scroll to timer section
@@ -11961,11 +12001,14 @@ class SidebarManager {
     openTaskPanel() {
         if (this.taskSidePanel) {
             // Close other panels if open
-            if (this.isMoodPanelOpen) {
-                this.closeMoodPanel();
+            if (this.isMusicPanelOpen) {
+                this.closeMusicPanel();
             }
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
+            }
+            if (this.isThemePanelOpen) {
+                this.closeThemePanel();
             }
             
             this.taskSidePanel.classList.add('open');
@@ -12018,16 +12061,16 @@ class SidebarManager {
         }
     }
     
-    toggleMoodPanel() {
-        if (this.isMoodPanelOpen) {
-            this.closeMoodPanel();
+    toggleMusicPanel() {
+        if (this.isMusicPanelOpen) {
+            this.closeMusicPanel();
         } else {
-            this.openMoodPanel();
+            this.openMusicPanel();
         }
     }
     
-    openMoodPanel() {
-        if (this.moodSidePanel) {
+    openMusicPanel() {
+        if (this.musicSidePanel) {
             // Close other panels if open
             if (this.isTaskPanelOpen) {
                 this.closeTaskPanel();
@@ -12035,44 +12078,47 @@ class SidebarManager {
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
             }
-            
-            this.moodSidePanel.classList.add('open');
-            this.isMoodPanelOpen = true;
-            
-            // Show overlay
-            if (this.moodPanelOverlay) {
-                this.moodPanelOverlay.classList.add('active');
+            if (this.isThemePanelOpen) {
+                this.closeThemePanel();
             }
             
-            // Set Mood nav item as active
-            this.setActiveNavItem('mood');
+            this.musicSidePanel.classList.add('open');
+            this.isMusicPanelOpen = true;
+            
+            // Show overlay
+            if (this.musicPanelOverlay) {
+                this.musicPanelOverlay.classList.add('active');
+            }
+            
+            // Set Music nav item as active
+            this.setActiveNavItem('music');
             
             // Push main content to the right
             if (this.mainContent) {
                 this.mainContent.classList.add('task-panel-open');
             }
             
-            // Initialize mood panel controls
+            // Initialize music panel controls
             if (window.pomodoroTimer) {
-                window.pomodoroTimer.initializeMoodPanel();
+                window.pomodoroTimer.initializeMusicSidePanel();
             }
         }
     }
     
-    closeMoodPanel() {
-        if (this.moodSidePanel) {
-            this.moodSidePanel.classList.remove('open');
-            this.isMoodPanelOpen = false;
+    closeMusicPanel() {
+        if (this.musicSidePanel) {
+            this.musicSidePanel.classList.remove('open');
+            this.isMusicPanelOpen = false;
             
             // Hide overlay
-            if (this.moodPanelOverlay) {
-                this.moodPanelOverlay.classList.remove('active');
+            if (this.musicPanelOverlay) {
+                this.musicPanelOverlay.classList.remove('active');
             }
             
-            // Remove active state from Mood nav item
-            const moodNavItem = document.querySelector('.nav-item[data-section="mood"]');
-            if (moodNavItem) {
-                moodNavItem.classList.remove('active');
+            // Remove active state from Music nav item
+            const musicNavItem = document.querySelector('.nav-item[data-section="music"]');
+            if (musicNavItem) {
+                musicNavItem.classList.remove('active');
             }
             
             // Reset main content position
@@ -12096,8 +12142,11 @@ class SidebarManager {
             if (this.isTaskPanelOpen) {
                 this.closeTaskPanel();
             }
-            if (this.isMoodPanelOpen) {
-                this.closeMoodPanel();
+            if (this.isMusicPanelOpen) {
+                this.closeMusicPanel();
+            }
+            if (this.isThemePanelOpen) {
+                this.closeThemePanel();
             }
             
             this.settingsSidePanel.classList.add('open');
@@ -12137,6 +12186,73 @@ class SidebarManager {
             const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
             if (settingsNavItem) {
                 settingsNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+    
+    toggleThemePanel() {
+        if (this.isThemePanelOpen) {
+            this.closeThemePanel();
+        } else {
+            this.openThemePanel();
+        }
+    }
+    
+    openThemePanel() {
+        if (this.themeSidePanel) {
+            // Close other panels if open
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isMusicPanelOpen) {
+                this.closeMusicPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
+            }
+            
+            this.themeSidePanel.classList.add('open');
+            this.isThemePanelOpen = true;
+            
+            // Show overlay
+            if (this.themePanelOverlay) {
+                this.themePanelOverlay.classList.add('active');
+            }
+            
+            // Set Theme nav item as active
+            this.setActiveNavItem('theme');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Initialize theme panel controls
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.initializeThemePanel();
+            }
+        }
+    }
+    
+    closeThemePanel() {
+        if (this.themeSidePanel) {
+            this.themeSidePanel.classList.remove('open');
+            this.isThemePanelOpen = false;
+            
+            // Hide overlay
+            if (this.themePanelOverlay) {
+                this.themePanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Theme nav item
+            const themeNavItem = document.querySelector('.nav-item[data-section="theme"]');
+            if (themeNavItem) {
+                themeNavItem.classList.remove('active');
             }
             
             // Reset main content position
