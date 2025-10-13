@@ -11181,10 +11181,15 @@ class PomodoroTimer {
                 this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
                 this.longBreakTime = parseInt(longBreakSlider.value) * 60;
                 
-                // Save to localStorage
-                localStorage.setItem('pomodoroTime', String(this.workTime));
-                localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
-                localStorage.setItem('longBreakTime', String(this.longBreakTime));
+                // Save to localStorage ONLY if user is authenticated
+                if (this.isAuthenticated) {
+                    localStorage.setItem('pomodoroTime', String(this.workTime));
+                    localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
+                    localStorage.setItem('longBreakTime', String(this.longBreakTime));
+                    console.log('✅ Settings saved to localStorage (authenticated user)');
+                } else {
+                    console.log('ℹ️ Settings applied for this session only (guest user)');
+                }
                 
                 // Update cycle sections
                 this.cycleSections = [
@@ -11210,7 +11215,7 @@ class PomodoroTimer {
                     window.sidebarManager.closeSettingsPanel();
                 }
                 
-                console.log('✅ Settings saved successfully');
+                console.log('✅ Settings applied successfully');
             });
         }
     }
