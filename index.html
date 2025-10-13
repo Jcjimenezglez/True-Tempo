@@ -228,6 +228,13 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                 </div>
+                <div class="nav-item" data-section="music" data-tooltip="Music">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                </div>
             </div>
         </nav>
         
@@ -391,6 +398,9 @@
     <!-- Task Panel Overlay -->
     <div class="task-panel-overlay" id="taskPanelOverlay"></div>
     
+    <!-- Music Panel Overlay -->
+    <div class="task-panel-overlay" id="musicPanelOverlay"></div>
+    
     <!-- Tasks Side Panel -->
     <div class="task-side-panel" id="taskSidePanel">
         <div class="task-side-panel-content">
@@ -489,6 +499,69 @@
                     </svg>
                     Add Task
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Side Panel -->
+    <div class="task-side-panel" id="musicSidePanel">
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Focus Sounds</h3>
+                <p class="tasks-subtitle">Set the mood for deep concentration</p>
+            </div>
+            
+            <!-- Volume Section -->
+            <div class="music-volume-section">
+                <div class="volume-header">
+                    <label class="volume-label">Volume</label>
+                    <span class="volume-value" id="sidebarVolumeValue">25%</span>
+                </div>
+                <div class="volume-control">
+                    <input type="range" id="sidebarAmbientVolume" min="0" max="100" value="25" class="volume-slider">
+                </div>
+            </div>
+            
+            <!-- Music Options -->
+            <div class="music-options-section">
+                <div class="music-option-item">
+                    <div class="music-option-info">
+                        <h4>None</h4>
+                        <p>No sound</p>
+                    </div>
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sidebarNoneToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="music-option-item">
+                    <div class="music-option-info">
+                        <h4>Rain Sounds</h4>
+                        <p>Natural rain and thunder for deep concentration</p>
+                    </div>
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sidebarRainToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="music-option-item" id="sidebarLofiOption">
+                    <div class="music-option-info">
+                        <h4>Lofi Music</h4>
+                        <p>Relaxing beats for deep focus</p>
+                    </div>
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sidebarLofiToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
