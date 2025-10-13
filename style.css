@@ -7474,3 +7474,141 @@ input:checked + .toggle-slider:before {
     font-size: 0.8rem;
     margin: 8px 0 0 0;
 }
+
+/* Mood Panel Styles */
+.mood-sync-section {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mood-sync-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.mood-sync-info {
+    flex: 1;
+}
+
+.mood-sync-label {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.mood-sync-description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.mood-options-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mood-option-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mood-option-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mood-option-item.active {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.mood-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.mood-preview-rain {
+    background-image: url('/themes/rain.jpg');
+}
+
+.mood-preview-lofi {
+    background-image: url('/themes/lofi.jpg');
+}
+
+.mood-info {
+    flex: 1;
+}
+
+.mood-info h4 {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.mood-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.mood-option-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mood-radio {
+    position: relative;
+}
+
+.mood-radio input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+}
+
+.mood-radio label {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.mood-radio input[type="radio"]:checked + label {
+    border-color: #667eea;
+}
+
+.mood-radio input[type="radio"]:checked + label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #667eea;
+    border-radius: 50%;
+}
