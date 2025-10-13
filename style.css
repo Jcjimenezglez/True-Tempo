@@ -7314,6 +7314,11 @@ input:checked + .toggle-slider:before {
     background-image: url('/themes/winter.jpg');
 }
 
+.theme-preview-doordash {
+    background-image: url('/themes/Doordash.jpg');
+    background-position: center center;
+}
+
 .theme-preview-rain {
     background-image: url('/themes/rain.jpg');
 }
@@ -7395,6 +7400,11 @@ input:checked + .toggle-slider:before {
 
 .timer-section.theme-winter {
     background-image: url('/themes/winter.jpg');
+}
+
+.timer-section.theme-doordash {
+    background-image: url('/themes/Doordash.jpg');
+    background-position: center center;
 }
 
 /* Dynamic overlay element for theme backgrounds */
@@ -7498,8 +7508,8 @@ input:checked + .toggle-slider:before {
     display: block;
 }
 
-/* Winter Theme Visit Site Button */
-.winter-visit-btn {
+/* Theme Visit Site Button (Winter & Doordash) */
+.theme-visit-btn {
     position: absolute;
     bottom: 30px;
     right: 30px;
@@ -7520,28 +7530,28 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
-.winter-visit-btn:hover {
+.theme-visit-btn:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-1px);
 }
 
-.winter-visit-btn svg {
+.theme-visit-btn svg {
     flex-shrink: 0;
 }
 
-.winter-visit-btn span {
+.theme-visit-btn span {
     white-space: nowrap;
 }
 
 @media (max-width: 768px) {
-    .winter-visit-btn {
+    .theme-visit-btn {
         bottom: 20px;
         right: 20px;
         padding: 10px 16px;
         font-size: 0.85rem;
     }
     
-    .winter-visit-btn svg {
+    .theme-visit-btn svg {
         width: 16px;
         height: 16px;
     }

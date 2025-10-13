@@ -963,7 +963,7 @@ class PomodoroTimer {
     resetThemeAndMusicForGuest() {
         // Reset theme to minimalist if it's premium
         const currentTheme = localStorage.getItem('selectedTheme');
-        if (currentTheme === 'rain' || currentTheme === 'lofi' || currentTheme === 'winter') {
+        if (currentTheme === 'rain' || currentTheme === 'lofi' || currentTheme === 'winter' || currentTheme === 'doordash') {
             localStorage.setItem('selectedTheme', 'minimalist');
             this.applyTheme('minimalist');
         }
@@ -11361,7 +11361,7 @@ class PomodoroTimer {
         let savedTheme = localStorage.getItem('selectedTheme') || 'minimalist';
         
         // If user is not authenticated and tries to use premium themes, reset to minimalist
-        if (!isAuthenticated && (savedTheme === 'rain' || savedTheme === 'lofi' || savedTheme === 'winter')) {
+        if (!isAuthenticated && (savedTheme === 'rain' || savedTheme === 'lofi' || savedTheme === 'winter' || savedTheme === 'doordash')) {
             savedTheme = 'minimalist';
             localStorage.setItem('selectedTheme', 'minimalist');
         }
@@ -11383,7 +11383,7 @@ class PomodoroTimer {
             const themeName = option.dataset.theme;
             
             // Disable premium themes for guests
-            const isPremiumTheme = themeName === 'rain' || themeName === 'lofi' || themeName === 'winter';
+            const isPremiumTheme = themeName === 'rain' || themeName === 'lofi' || themeName === 'winter' || themeName === 'doordash';
             const signupText = option.querySelector('.theme-signup-required');
             
             if (!isAuthenticated && isPremiumTheme) {
@@ -11485,7 +11485,7 @@ class PomodoroTimer {
         }
         
         // Remove all theme classes
-        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain', 'theme-winter');
+        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain', 'theme-winter', 'theme-doordash');
         
         // Add new theme class
         timerSection.classList.add(`theme-${themeName}`);
@@ -11494,6 +11494,12 @@ class PomodoroTimer {
         const winterVisitBtn = document.getElementById('winterVisitBtn');
         if (winterVisitBtn) {
             winterVisitBtn.style.display = themeName === 'winter' ? 'flex' : 'none';
+        }
+        
+        // Show/hide Doordash visit button
+        const doordashVisitBtn = document.getElementById('doordashVisitBtn');
+        if (doordashVisitBtn) {
+            doordashVisitBtn.style.display = themeName === 'doordash' ? 'flex' : 'none';
         }
         
         // Save preference to localStorage
