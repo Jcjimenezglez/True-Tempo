@@ -11220,6 +11220,56 @@ class PomodoroTimer {
         const shortBreakValue = settingsPanel.querySelector('#sidebarShortBreakValue');
         const longBreakValue = settingsPanel.querySelector('#sidebarLongBreakValue');
 
+        // Disable duration controls for guest users
+        if (!this.isAuthenticated) {
+            console.log('🔒 Disabling duration controls for guest user');
+            
+            // Disable Focus duration
+            const focusOption = document.getElementById('sidebarFocusOption');
+            if (focusOption) {
+                focusOption.style.opacity = '0.5';
+                focusOption.style.cursor = 'not-allowed';
+                const focusLabel = focusOption.querySelector('label');
+                if (focusLabel) {
+                    focusLabel.innerHTML = 'Focus <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                }
+            }
+            if (pomodoroSlider) {
+                pomodoroSlider.disabled = true;
+                pomodoroSlider.style.cursor = 'not-allowed';
+            }
+            
+            // Disable Short Break duration
+            const shortBreakOption = document.getElementById('sidebarShortBreakOption');
+            if (shortBreakOption) {
+                shortBreakOption.style.opacity = '0.5';
+                shortBreakOption.style.cursor = 'not-allowed';
+                const shortBreakLabel = shortBreakOption.querySelector('label');
+                if (shortBreakLabel) {
+                    shortBreakLabel.innerHTML = 'Short Break <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                }
+            }
+            if (shortBreakSlider) {
+                shortBreakSlider.disabled = true;
+                shortBreakSlider.style.cursor = 'not-allowed';
+            }
+            
+            // Disable Long Break duration
+            const longBreakOption = document.getElementById('sidebarLongBreakOption');
+            if (longBreakOption) {
+                longBreakOption.style.opacity = '0.5';
+                longBreakOption.style.cursor = 'not-allowed';
+                const longBreakLabel = longBreakOption.querySelector('label');
+                if (longBreakLabel) {
+                    longBreakLabel.innerHTML = 'Long Break <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                }
+            }
+            if (longBreakSlider) {
+                longBreakSlider.disabled = true;
+                longBreakSlider.style.cursor = 'not-allowed';
+            }
+        }
+
         if (pomodoroSlider && pomodoroValue) {
             pomodoroSlider.value = pomodoroMin;
             pomodoroValue.textContent = `${pomodoroMin} min`;
@@ -11250,48 +11300,56 @@ class PomodoroTimer {
         // Save button handler
         const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
-            saveBtn.addEventListener('click', () => {
-                // Save new durations
-                this.workTime = parseInt(pomodoroSlider.value) * 60;
-                this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
-                this.longBreakTime = parseInt(longBreakSlider.value) * 60;
-                
-                // Save to localStorage ONLY if user is authenticated
-                if (this.isAuthenticated) {
-                    localStorage.setItem('pomodoroTime', String(this.workTime));
-                    localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
-                    localStorage.setItem('longBreakTime', String(this.longBreakTime));
-                    console.log('✅ Settings saved to localStorage (authenticated user)');
-                } else {
-                    console.log('ℹ️ Settings applied for this session only (guest user)');
-                }
-                
-                // Update cycle sections
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
-                
-                // Reset timer to first section
-                this.pauseTimerSilent();
-                this.currentSection = 1;
-                this.loadCurrentSection();
-                this.updateProgressRing();
-                
-                // Close the settings panel
-                const sidebarManager = document.querySelector('.sidebar');
-                if (window.sidebarManager) {
-                    window.sidebarManager.closeSettingsPanel();
-                }
-                
-                console.log('✅ Settings applied successfully');
-            });
+            // Disable save button for guest users
+            if (!this.isAuthenticated) {
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = '0.5';
+                saveBtn.style.cursor = 'not-allowed';
+                console.log('🔒 Save button disabled for guest user');
+            } else {
+                saveBtn.addEventListener('click', () => {
+                    // Save new durations
+                    this.workTime = parseInt(pomodoroSlider.value) * 60;
+                    this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
+                    this.longBreakTime = parseInt(longBreakSlider.value) * 60;
+                    
+                    // Save to localStorage ONLY if user is authenticated
+                    if (this.isAuthenticated) {
+                        localStorage.setItem('pomodoroTime', String(this.workTime));
+                        localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
+                        localStorage.setItem('longBreakTime', String(this.longBreakTime));
+                        console.log('✅ Settings saved to localStorage (authenticated user)');
+                    } else {
+                        console.log('ℹ️ Settings applied for this session only (guest user)');
+                    }
+                    
+                    // Update cycle sections
+                    this.cycleSections = [
+                        { type: 'work', duration: this.workTime, name: 'Work 1' },
+                        { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                        { type: 'work', duration: this.workTime, name: 'Work 2' },
+                        { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                        { type: 'work', duration: this.workTime, name: 'Work 3' },
+                        { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                        { type: 'work', duration: this.workTime, name: 'Work 4' },
+                        { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                    ];
+                    
+                    // Reset timer to first section
+                    this.pauseTimerSilent();
+                    this.currentSection = 1;
+                    this.loadCurrentSection();
+                    this.updateProgressRing();
+                    
+                    // Close the settings panel
+                    const sidebarManager = document.querySelector('.sidebar');
+                    if (window.sidebarManager) {
+                        window.sidebarManager.closeSettingsPanel();
+                    }
+                    
+                    console.log('✅ Settings applied successfully');
+                });
+            }
         }
     }
 
