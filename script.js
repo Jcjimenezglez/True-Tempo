@@ -1881,7 +1881,7 @@ class PomodoroTimer {
         if (this.guestTaskLimitSignupBtn) {
             this.guestTaskLimitSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location.href = '/signup.html';
+                window.location.href = '/pricing/';
             });
         }
         
@@ -4954,6 +4954,15 @@ class PomodoroTimer {
         const addTaskForm = modal.querySelector('#addTaskForm');
         if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
+                // Check guest task limit BEFORE showing the form
+                const currentTasks = this.getLocalTasks();
+                const MAX_GUEST_TASKS = 3;
+                
+                if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
+                    this.showGuestTaskLimitModal();
+                    return;
+                }
+                
                 // Enter add mode
                 this.editingTaskId = null;
                 addTaskForm.style.display = 'block';
@@ -5170,16 +5179,7 @@ class PomodoroTimer {
                         if (listEl) listEl.style.display = '';
                         if (addSection) addSection.style.display = '';
                     } else {
-                        // Create new task - check guest limit
-                        const currentTasks = this.getLocalTasks();
-                        const MAX_GUEST_TASKS = 3;
-                        
-                        // Guest users can only have 3 active tasks
-                        if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
-                            this.showGuestTaskLimitModal();
-                            return;
-                        }
-                        
+                        // Create new task
                         this.addLocalTask(description, pomodoros);
                     }
                     // Clear form
@@ -5326,16 +5326,7 @@ class PomodoroTimer {
                         this.editingTaskId = null;
                     } else {
                         console.log('💾 Adding new task');
-                        // Create new task - check guest limit
-                        const currentTasks = this.getLocalTasks();
-                        const MAX_GUEST_TASKS = 3;
-                        
-                        // Guest users can only have 3 active tasks
-                        if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
-                            this.showGuestTaskLimitModal();
-                            return;
-                        }
-                        
+                        // Create new task
                         this.addLocalTask(description, pomodoros);
                     }
                     if (finalTaskInput) finalTaskInput.value = '';
@@ -10777,6 +10768,16 @@ class PomodoroTimer {
             const newAddTaskBtn = panel.querySelector('#showAddTaskForm');
             newAddTaskBtn.addEventListener('click', () => {
                 console.log('Add Task button clicked');
+                
+                // Check guest task limit BEFORE showing the form
+                const currentTasks = this.getLocalTasks();
+                const MAX_GUEST_TASKS = 3;
+                
+                if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
+                    this.showGuestTaskLimitModal();
+                    return;
+                }
+                
                 this.editingTaskId = null;
                 addTaskForm.style.display = 'block';
                 newAddTaskBtn.disabled = true;
