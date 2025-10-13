@@ -558,70 +558,71 @@
             </div>
             
             <!-- Volume Section -->
-            <div class="music-volume-section">
-                <div class="volume-header">
-                    <label class="volume-label">Volume</label>
-                    <span class="volume-value" id="sidebarVolumeValue">25%</span>
+            <div class="theme-overlay-control">
+                <div class="overlay-header">
+                    <label class="overlay-label">Volume</label>
+                    <span class="overlay-value" id="sidebarVolumeValue">25%</span>
                 </div>
-                <div class="volume-control">
-                    <input type="range" id="sidebarAmbientVolume" min="0" max="100" value="25" class="volume-slider">
-                </div>
+                <input type="range" id="sidebarAmbientVolume" min="0" max="100" value="25" class="overlay-slider">
+                <p class="overlay-description">Adjust the music volume</p>
             </div>
             
             <!-- Music Options -->
-            <div class="music-options-section">
-                <div class="music-option-item">
-                    <div class="music-option-info">
+            <div class="theme-options">
+                <div class="theme-option" data-music="none">
+                    <div class="theme-preview" style="background: #0a0a0a;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">
+                            <line x1="2" y1="2" x2="22" y2="22"/>
+                            <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4l-6 4"/>
+                            <circle cx="12" cy="17" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="theme-info">
                         <h4>None</h4>
                         <p>No sound</p>
                     </div>
-                    <div class="toggle-container">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="sidebarNoneToggle" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
+                    <div class="theme-radio">
+                        <input type="radio" name="music" id="musicNone" value="none" checked>
+                        <label for="musicNone"></label>
                     </div>
                 </div>
                 
-                <div class="music-option-item">
-                    <div class="music-option-info">
+                <div class="theme-option" data-music="rain">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                            <path d="M16 13v8"/>
+                            <path d="M8 13v8"/>
+                            <path d="M12 15v8"/>
+                            <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
+                        </svg>
+                    </div>
+                    <div class="theme-info">
                         <h4>Rain Sounds</h4>
-                        <p>Natural rain and thunder for deep concentration</p>
+                        <p>Natural rain and thunder</p>
+                        <span class="theme-signup-required" style="display: none;">Sign up required</span>
                     </div>
-                    <div class="music-option-controls">
-                        <button class="preview-sound-btn" id="previewRainBtn" title="Preview sound">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                            </svg>
-                        </button>
-                        <div class="toggle-container">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="sidebarRainToggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
+                    <div class="theme-radio">
+                        <input type="radio" name="music" id="musicRain" value="rain">
+                        <label for="musicRain"></label>
                     </div>
                 </div>
                 
-                <div class="music-option-item" id="sidebarLofiOption">
-                    <div class="music-option-info">
+                <div class="theme-option" data-music="lofi">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="theme-info">
                         <h4>Lofi Music</h4>
                         <p>Relaxing beats for deep focus</p>
+                        <span class="theme-signup-required" style="display: none;">Sign up required</span>
                     </div>
-                    <div class="music-option-controls">
-                        <button class="preview-sound-btn" id="previewLofiBtn" title="Preview sound">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                            </svg>
-                        </button>
-                        <div class="toggle-container">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="sidebarLofiToggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
+                    <div class="theme-radio">
+                        <input type="radio" name="music" id="musicLofi" value="lofi">
+                        <label for="musicLofi"></label>
                     </div>
                 </div>
             </div>
