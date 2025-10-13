@@ -7482,7 +7482,7 @@ input:checked + .toggle-slider:before {
     left: 50%;
     transform: translate(-50%, -50%);
     background: #1a1a1a;
-    border: 2px solid #667eea;
+    border: 2px solid #10b981;
     border-radius: 16px;
     padding: 2rem;
     max-width: 400px;
@@ -7507,7 +7507,7 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-signup-btn {
-    background: #667eea;
+    background: #10b981;
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -7520,9 +7520,9 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-signup-btn:hover {
-    background: #5568d3;
+    background: #059669;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .theme-signup-message.fade-out {
@@ -7552,6 +7552,24 @@ input:checked + .toggle-slider:before {
 /* Locked theme styling */
 .theme-option.theme-locked {
     position: relative;
+    opacity: 0.4 !important;
+    filter: grayscale(70%);
+    cursor: not-allowed !important;
+}
+
+.theme-option.theme-locked:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.theme-option.theme-locked .theme-preview {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+.theme-option.theme-locked .theme-info h4,
+.theme-option.theme-locked .theme-info p {
+    color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .theme-option.theme-locked::after {
@@ -7561,4 +7579,5 @@ input:checked + .toggle-slider:before {
     right: 50px;
     transform: translateY(-50%);
     font-size: 1.2rem;
+    opacity: 0.6;
 }

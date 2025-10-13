@@ -11394,8 +11394,6 @@ class PomodoroTimer {
             const isPremiumTheme = themeName === 'rain' || themeName === 'lofi';
             if (!isAuthenticated && isPremiumTheme) {
                 option.classList.add('theme-locked');
-                option.style.opacity = '0.5';
-                option.style.cursor = 'not-allowed';
                 if (radio) radio.disabled = true;
             }
             
@@ -11433,14 +11431,31 @@ class PomodoroTimer {
         // Setup overlay slider
         const overlaySlider = document.getElementById('overlaySlider');
         const overlayValue = document.getElementById('overlayValue');
+        const overlayControl = document.querySelector('.theme-overlay-control');
         
         if (overlaySlider && overlayValue) {
             // Set initial slider value (convert 0.65 to 65)
             overlaySlider.value = Math.round(this.overlayOpacity * 100);
             overlayValue.textContent = `${Math.round(this.overlayOpacity * 100)}%`;
             
+            // Disable slider for guests
+            if (!isAuthenticated) {
+                overlaySlider.disabled = true;
+                overlaySlider.style.opacity = '0.4';
+                overlaySlider.style.cursor = 'not-allowed';
+                if (overlayControl) {
+                    overlayControl.style.opacity = '0.5';
+                    overlayControl.title = 'Sign up to customize background darkness';
+                }
+            }
+            
             // Slider input handler
             overlaySlider.addEventListener('input', (e) => {
+                // Prevent changes for guests
+                if (!isAuthenticated) {
+                    return;
+                }
+                
                 const value = parseInt(e.target.value);
                 overlayValue.textContent = `${value}%`;
                 
