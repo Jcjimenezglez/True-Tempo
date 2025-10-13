@@ -431,8 +431,8 @@ body::-webkit-scrollbar {
     transform: translateX(0);
 }
 
-/* Close Side Panel Button */
-.close-side-panel-btn {
+/* Close Side Panel Button - ONLY for side panels (Task, Timer, Music) */
+.task-side-panel .close-side-panel-btn {
     position: absolute;
     top: 50%;
     right: -40px;
@@ -453,12 +453,12 @@ body::-webkit-scrollbar {
     box-shadow: 4px 0 12px rgba(0, 0, 0, 0.2);
 }
 
-.close-side-panel-btn:hover {
+.task-side-panel .close-side-panel-btn:hover {
     background: #252525;
     color: rgba(255, 255, 255, 0.9);
 }
 
-.close-side-panel-btn svg {
+.task-side-panel .close-side-panel-btn svg {
     width: 20px;
     height: 20px;
 }
