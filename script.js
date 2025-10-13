@@ -11880,6 +11880,9 @@ class SidebarManager {
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
             }
+            if (this.isThemePanelOpen) {
+                this.closeThemePanel();
+            }
             
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
@@ -11948,6 +11951,9 @@ class SidebarManager {
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
             }
+            if (this.isThemePanelOpen) {
+                this.closeThemePanel();
+            }
             
             this.musicSidePanel.classList.add('open');
             this.isMusicPanelOpen = true;
@@ -12011,6 +12017,9 @@ class SidebarManager {
             }
             if (this.isMusicPanelOpen) {
                 this.closeMusicPanel();
+            }
+            if (this.isThemePanelOpen) {
+                this.closeThemePanel();
             }
             
             this.settingsSidePanel.classList.add('open');
