@@ -7255,3 +7255,147 @@ input:checked + .toggle-slider:before {
     border-color: rgba(163, 163, 163, 0.3);
     color: #ffffff;
 }
+
+/* ===================================
+   THEME SYSTEM
+   =================================== */
+
+/* Theme Options in Side Panel */
+.theme-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-option.active {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.theme-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.theme-preview-lofi {
+    background-image: url('/themes/lofi.jpg');
+}
+
+.theme-preview-rain {
+    background-image: url('/themes/rain.jpg');
+}
+
+.theme-info {
+    flex: 1;
+}
+
+.theme-info h4 {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.theme-info p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.theme-radio {
+    position: relative;
+}
+
+.theme-radio input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+}
+
+.theme-radio label {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.theme-radio input[type="radio"]:checked + label {
+    border-color: #667eea;
+}
+
+.theme-radio input[type="radio"]:checked + label::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #667eea;
+    border-radius: 50%;
+}
+
+/* Theme Backgrounds for Timer Section */
+.timer-section {
+    position: relative;
+    transition: background 0.5s ease;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.timer-section.theme-minimalist {
+    background-image: none;
+    background-color: #0a0a0a;
+}
+
+.timer-section.theme-lofi {
+    background-image: url('/themes/lofi.jpg');
+}
+
+.timer-section.theme-rain {
+    background-image: url('/themes/rain.jpg');
+}
+
+/* Overlay for better text readability on image backgrounds */
+.timer-section.theme-lofi::before,
+.timer-section.theme-rain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Ensure timer content is above overlay */
+.timer-section > * {
+    position: relative;
+    z-index: 1;
+}

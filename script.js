@@ -263,6 +263,10 @@ class PomodoroTimer {
         this.updateNavigationButtons();
         this.initClerk();
         
+        // Apply saved theme on init
+        this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        this.applyTheme(this.currentTheme);
+        
         // Initialize tasks for each focus session
         this.initializeSessionTasks();
         
@@ -11353,6 +11357,67 @@ class PomodoroTimer {
         }
     }
 
+    initializeThemePanel() {
+        console.log('🎨 Initializing theme panel');
+        
+        // Get current theme from localStorage or default to 'minimalist'
+        this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        
+        // Apply the saved theme
+        this.applyTheme(this.currentTheme);
+        
+        // Get all theme options
+        const themeOptions = document.querySelectorAll('.theme-option');
+        
+        themeOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            const themeName = option.dataset.theme;
+            
+            // Set initial active state
+            if (themeName === this.currentTheme) {
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+            }
+            
+            // Click handler for theme option
+            option.addEventListener('click', () => {
+                // Remove active from all options
+                themeOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    const optRadio = opt.querySelector('input[type="radio"]');
+                    if (optRadio) optRadio.checked = false;
+                });
+                
+                // Add active to clicked option
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+                
+                // Apply the selected theme
+                this.applyTheme(themeName);
+            });
+        });
+    }
+
+    applyTheme(themeName) {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        // Remove all theme classes
+        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain');
+        
+        // Add new theme class
+        timerSection.classList.add(`theme-${themeName}`);
+        
+        // Save preference to localStorage
+        localStorage.setItem('selectedTheme', themeName);
+        this.currentTheme = themeName;
+        
+        console.log(`🎨 Theme changed to: ${themeName}`);
+    }
+
 }
 
 // Initialize the timer when the page loads
@@ -11456,6 +11521,8 @@ class SidebarManager {
         this.musicPanelOverlay = document.getElementById('musicPanelOverlay');
         this.settingsSidePanel = document.getElementById('settingsSidePanel');
         this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
+        this.themeSidePanel = document.getElementById('themeSidePanel');
+        this.themePanelOverlay = document.getElementById('themePanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -11463,6 +11530,7 @@ class SidebarManager {
         this.isTaskPanelOpen = false;
         this.isMusicPanelOpen = false;
         this.isSettingsPanelOpen = false;
+        this.isThemePanelOpen = false;
         
         this.init();
     }
@@ -11583,8 +11651,8 @@ class SidebarManager {
             item.addEventListener('click', () => {
                 const section = item.dataset.section;
                 
-                // For tasks, settings, and music, active state is handled in their respective open/close methods
-                if (section !== 'tasks' && section !== 'settings' && section !== 'music') {
+                // For tasks, settings, music, and theme, active state is handled in their respective open/close methods
+                if (section !== 'tasks' && section !== 'settings' && section !== 'music' && section !== 'theme') {
                     this.setActiveNavItem(section);
                 }
                 
@@ -11604,6 +11672,7 @@ class SidebarManager {
                 this.closeTaskPanel();
                 this.closeSettingsPanel();
                 this.closeMusicPanel();
+                this.closeThemePanel();
             });
         }
         
@@ -11618,6 +11687,13 @@ class SidebarManager {
         if (this.settingsPanelOverlay) {
             this.settingsPanelOverlay.addEventListener('click', () => {
                 this.closeSettingsPanel();
+            });
+        }
+        
+        // Theme panel overlay click to close theme panel
+        if (this.themePanelOverlay) {
+            this.themePanelOverlay.addEventListener('click', () => {
+                this.closeThemePanel();
             });
         }
         
@@ -11640,6 +11716,13 @@ class SidebarManager {
         if (closeSettingsPanelBtn) {
             closeSettingsPanelBtn.addEventListener('click', () => {
                 this.closeSettingsPanel();
+            });
+        }
+        
+        const closeThemePanelBtn = document.getElementById('closeThemePanel');
+        if (closeThemePanelBtn) {
+            closeThemePanelBtn.addEventListener('click', () => {
+                this.closeThemePanel();
             });
         }
         
@@ -11754,6 +11837,10 @@ class SidebarManager {
             case 'music':
                 // Toggle music side panel
                 this.toggleMusicPanel();
+                break;
+            case 'theme':
+                // Toggle theme side panel
+                this.toggleThemePanel();
                 break;
             case 'timer':
                 // Scroll to timer section
@@ -11963,6 +12050,73 @@ class SidebarManager {
             const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
             if (settingsNavItem) {
                 settingsNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+    
+    toggleThemePanel() {
+        if (this.isThemePanelOpen) {
+            this.closeThemePanel();
+        } else {
+            this.openThemePanel();
+        }
+    }
+    
+    openThemePanel() {
+        if (this.themeSidePanel) {
+            // Close other panels if open
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isMusicPanelOpen) {
+                this.closeMusicPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
+            }
+            
+            this.themeSidePanel.classList.add('open');
+            this.isThemePanelOpen = true;
+            
+            // Show overlay
+            if (this.themePanelOverlay) {
+                this.themePanelOverlay.classList.add('active');
+            }
+            
+            // Set Theme nav item as active
+            this.setActiveNavItem('theme');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Initialize theme panel controls
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.initializeThemePanel();
+            }
+        }
+    }
+    
+    closeThemePanel() {
+        if (this.themeSidePanel) {
+            this.themeSidePanel.classList.remove('open');
+            this.isThemePanelOpen = false;
+            
+            // Hide overlay
+            if (this.themePanelOverlay) {
+                this.themePanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Theme nav item
+            const themeNavItem = document.querySelector('.nav-item[data-section="theme"]');
+            if (themeNavItem) {
+                themeNavItem.classList.remove('active');
             }
             
             // Reset main content position
