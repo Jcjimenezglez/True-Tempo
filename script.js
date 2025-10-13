@@ -978,7 +978,10 @@ class PomodoroTimer {
             localStorage.setItem('ambientEnabled', 'false');
         }
         
-        console.log('🔄 Reset theme and music to guest defaults');
+        // Clear saved timer state (guests don't get session restore)
+        sessionStorage.removeItem('timerState');
+        
+        console.log('🔄 Reset theme, music, and timer state to guest defaults');
     }
 
     async performLogout() {
@@ -10324,6 +10327,12 @@ class PomodoroTimer {
 
     // Load timer state from sessionStorage (persists on reload/navigation but not on tab close)
     loadTimerState() {
+        // Only restore session for authenticated users
+        if (!this.isAuthenticated) {
+            sessionStorage.removeItem('timerState');
+            return false;
+        }
+        
         const savedState = sessionStorage.getItem('timerState');
         if (!savedState) return false;
         
