@@ -11459,8 +11459,18 @@ class PomodoroTimer {
             return;
         }
         
-        // Set CSS custom property for overlay opacity
-        timerSection.style.setProperty('--theme-overlay-opacity', opacity);
+        // Find or create overlay element
+        let overlayElement = timerSection.querySelector('.theme-overlay');
+        
+        if (!overlayElement) {
+            // Create overlay element if it doesn't exist
+            overlayElement = document.createElement('div');
+            overlayElement.className = 'theme-overlay';
+            timerSection.insertBefore(overlayElement, timerSection.firstChild);
+        }
+        
+        // Apply opacity directly to the overlay
+        overlayElement.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
         
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }

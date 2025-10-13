@@ -7384,20 +7384,18 @@ input:checked + .toggle-slider:before {
     background-image: url('/themes/rain.jpg');
 }
 
-/* Overlay for better text readability on image backgrounds */
-.timer-section.theme-lofi::before,
-.timer-section.theme-rain::before {
-    content: '';
+/* Dynamic overlay element for theme backgrounds */
+.theme-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, var(--theme-overlay-opacity, 0.65));
+    background-color: rgba(0, 0, 0, 0.65);
     z-index: 1;
     pointer-events: none;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 /* Ensure timer content is above overlay */
-.timer-section > * {
+.timer-section > *:not(.theme-overlay) {
     position: relative;
     z-index: 2;
 }
