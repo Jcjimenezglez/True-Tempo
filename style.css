@@ -7287,8 +7287,8 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-option.active {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .theme-preview {
@@ -7347,7 +7347,7 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-radio input[type="radio"]:checked + label {
-    border-color: #667eea;
+    border-color: #ffffff;
 }
 
 .theme-radio input[type="radio"]:checked + label::after {
@@ -7358,7 +7358,7 @@ input:checked + .toggle-slider:before {
     transform: translate(-50%, -50%);
     width: 10px;
     height: 10px;
-    background: #667eea;
+    background: #ffffff;
     border-radius: 50%;
 }
 
@@ -7423,7 +7423,7 @@ input:checked + .toggle-slider:before {
 }
 
 .overlay-value {
-    color: #667eea;
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 600;
 }
@@ -7445,13 +7445,13 @@ input:checked + .toggle-slider:before {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #667eea;
+    background: #ffffff;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .overlay-slider::-webkit-slider-thumb:hover {
-    background: #7c8ef5;
+    background: #f0f0f0;
     transform: scale(1.1);
 }
 
@@ -7459,14 +7459,14 @@ input:checked + .toggle-slider:before {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #667eea;
+    background: #ffffff;
     cursor: pointer;
     border: none;
     transition: all 0.2s ease;
 }
 
 .overlay-slider::-moz-range-thumb:hover {
-    background: #7c8ef5;
+    background: #f0f0f0;
     transform: scale(1.1);
 }
 
