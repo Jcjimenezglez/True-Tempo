@@ -7368,6 +7368,7 @@ input:checked + .toggle-slider:before {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    isolation: isolate;
 }
 
 .timer-section.theme-minimalist {
@@ -7390,7 +7391,7 @@ input:checked + .toggle-slider:before {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, var(--theme-overlay-opacity, 0.65));
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
     transition: background 0.3s ease;
 }
@@ -7398,7 +7399,7 @@ input:checked + .toggle-slider:before {
 /* Ensure timer content is above overlay */
 .timer-section > * {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Theme Overlay Control */
