@@ -2082,11 +2082,6 @@ class PomodoroTimer {
         const shortBreakMin = Math.floor(this.shortBreakTime / 60);
         const longBreakMin = Math.floor(this.longBreakTime / 60);
         
-        // Get current music settings
-        const initialVolumePct = Math.round(this.ambientVolume * 100);
-        const lofiEnabled = this.ambientEnabled;
-        const rainEnabled = this.rainEnabled;
-        
         const modalContent = `
             <div class="focus-stats-modal timer-settings-modal">
                 <button class="close-focus-stats-x">
@@ -2127,78 +2122,6 @@ class PomodoroTimer {
                     </div>
                 </div>
                 
-                <!-- Focus Sounds -->
-                <div class="settings-section">
-                    <h4 class="section-title">Focus Sounds</h4>
-                    <div class="volume-section">
-                        <div class="volume-header">
-                            <label class="volume-label">Volume</label>
-                            <span class="volume-value" id="ambientVolumeValue">${initialVolumePct}%</span>
-                        </div>
-                        <div class="volume-control">
-                            <input type="range" id="ambientVolume" min="0" max="100" value="${initialVolumePct}" class="volume-slider">
-                        </div>
-                    </div>
-                    <div class="music-section">
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>None</h4>
-                                    <p>No sound</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="noneToggle" ${!rainEnabled && !lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>Rain Sounds</h4>
-                                    <p>Natural rain and thunder</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="rainToggle" ${rainEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        ${this.isAuthenticated ? `
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4>Lofi Music</h4>
-                                    <p>Relaxing beats for deep focus</p>
-                                </div>
-                            </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        ` : `
-                        <div class="music-header disabled">
-                            <div class="music-info">
-                                <div class="music-details">
-                                    <h4 style="color: #666;">Lofi Music</h4>
-                                    <p style="color: #888;">Sign up to unlock</p>
-                                </div>
-                            </div>
-                            <div class="login-container">
-                                <button id="lofiLoginBtn" class="login-btn">Sign up</button>
-                            </div>
-                        </div>
-                        `}
-                    </div>
-                </div>
-                
                 <!-- Save Button -->
                 <div class="modal-actions">
                     <button class="save-settings-btn" id="saveTimerSettings">Save Changes</button>
@@ -2229,89 +2152,6 @@ class PomodoroTimer {
         longBreakSlider.addEventListener('input', (e) => {
             longBreakValue.textContent = `${e.target.value} min`;
         });
-        
-        // Volume and music controls (same as showAmbientModal)
-        const volumeSlider = modalOverlay.querySelector('#ambientVolume');
-        const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const noneToggle = modalOverlay.querySelector('#noneToggle');
-        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-        const rainToggle = modalOverlay.querySelector('#rainToggle');
-        const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
-        
-        volumeSlider.disabled = !(lofiEnabled || rainEnabled);
-        noneToggle.checked = !this.ambientEnabled && !this.rainEnabled;
-        if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
-        rainToggle.checked = this.rainEnabled;
-        
-        volumeSlider.addEventListener('input', (e) => {
-            const newVolume = parseInt(e.target.value) / 100;
-            this.setAmbientVolume(newVolume);
-            volumeValue.textContent = `${e.target.value}%`;
-        });
-        
-        // None toggle logic
-        noneToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                this.ambientEnabled = false;
-                this.rainEnabled = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                localStorage.setItem('rainEnabled', 'false');
-                if (lofiToggle) lofiToggle.checked = false;
-                rainToggle.checked = false;
-                volumeSlider.disabled = true;
-                this.stopPlaylist();
-                this.stopRainPlaylist();
-            }
-        });
-        
-        if (lofiToggle) {
-            lofiToggle.addEventListener('change', (e) => {
-                this.ambientEnabled = e.target.checked;
-                localStorage.setItem('ambientEnabled', String(this.ambientEnabled));
-                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
-                
-                if (this.ambientEnabled) {
-                    noneToggle.checked = false;
-                    this.rainEnabled = false;
-                    rainToggle.checked = false;
-                    localStorage.setItem('rainEnabled', 'false');
-                    this.stopRainPlaylist();
-                    if (this.isRunning) this.playPlaylist();
-                } else {
-                    if (!rainToggle.checked) {
-                        noneToggle.checked = true;
-                    }
-                    this.stopPlaylist();
-                }
-            });
-        }
-        
-        rainToggle.addEventListener('change', (e) => {
-            this.rainEnabled = e.target.checked;
-            localStorage.setItem('rainEnabled', String(this.rainEnabled));
-            volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
-            
-            if (this.rainEnabled) {
-                noneToggle.checked = false;
-                this.ambientEnabled = false;
-                if (lofiToggle) lofiToggle.checked = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                this.stopPlaylist();
-                if (this.isRunning) this.playRainPlaylist();
-            } else {
-                if (!lofiToggle?.checked) {
-                    noneToggle.checked = true;
-                }
-                this.stopRainPlaylist();
-            }
-        });
-        
-        if (lofiLoginBtn) {
-            lofiLoginBtn.addEventListener('click', () => {
-                document.body.removeChild(modalOverlay);
-                this.showLofiLoginModal();
-            });
-        }
         
         // Close button
         modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
