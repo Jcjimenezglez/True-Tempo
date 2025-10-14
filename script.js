@@ -8764,6 +8764,31 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
+            // Track signup conversion for Google Ads
+            console.log('🎯 Tracking signup conversion...');
+            try {
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'conversion', {
+                        'send_to': 'AW-17614436696/kfFJCLb0ma0bENjym89B',
+                        'value': 1.0,
+                        'currency': 'USD'
+                    });
+                    
+                    // Also send to Google Analytics
+                    gtag('event', 'sign_up', {
+                        'method': 'clerk',
+                        'event_category': 'engagement',
+                        'event_label': 'user_signup'
+                    });
+                    
+                    console.log('✅ Signup conversion tracked successfully');
+                } else {
+                    console.warn('⚠️ gtag not available for tracking');
+                }
+            } catch (error) {
+                console.error('❌ Error tracking signup conversion:', error);
+            }
+            
             // Show success message for signup - DISABLED
             // setTimeout(() => {
             //     this.showSignupSuccessMessage();
