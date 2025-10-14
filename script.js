@@ -11662,6 +11662,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     window.pomodoroTimer = timer; // Make it globally accessible
     
+    // Ensure theme is applied after DOM is fully ready
+    timer.applyTheme(timer.currentTheme);
+    timer.applyOverlay(timer.overlayOpacity);
+    
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.getElementById('sidebar');
