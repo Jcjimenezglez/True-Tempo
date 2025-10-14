@@ -3244,8 +3244,12 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying) {
-            this.pausePlaylist();
+        if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying || this.naturePlaying) {
+            if (this.naturePlaying) {
+                this.pauseNatureSound();
+            } else {
+                this.pausePlaylist();
+            }
         }
         
         // Update session info to potentially show "Ready to focus?"
@@ -3280,8 +3284,12 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying) {
-            this.pausePlaylist();
+        if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying || this.naturePlaying) {
+            if (this.naturePlaying) {
+                this.pauseNatureSound();
+            } else {
+                this.pausePlaylist();
+            }
         }
         // No sound - silent pause
         
