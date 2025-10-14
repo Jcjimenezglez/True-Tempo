@@ -272,7 +272,7 @@ class PomodoroTimer {
         this.initClerk();
         
         // Apply saved theme and overlay on init
-        this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        this.currentTheme = localStorage.getItem('selectedTheme') || 'woman';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
         this.applyTheme(this.currentTheme);
         this.applyOverlay(this.overlayOpacity);
@@ -968,10 +968,7 @@ class PomodoroTimer {
     resetThemeAndMusicForGuest() {
         // Reset theme to minimalist if it's premium
         const currentTheme = localStorage.getItem('selectedTheme');
-        if (currentTheme === 'rain' || currentTheme === 'lofi' || currentTheme === 'winter' || currentTheme === 'study-corner') {
-            localStorage.setItem('selectedTheme', 'minimalist');
-            this.applyTheme('minimalist');
-        }
+        // All themes are now available for guests, no reset needed
         
         // Reset music to none if it's premium
         if (this.rainEnabled || this.ambientEnabled) {
@@ -11491,12 +11488,12 @@ class PomodoroTimer {
         // Check if user is authenticated
         const isAuthenticated = this.isAuthenticated;
         
-        // Get current theme from localStorage or default to 'minimalist'
-        let savedTheme = localStorage.getItem('selectedTheme') || 'minimalist';
+        // Get current theme from localStorage or default to 'woman'
+        let savedTheme = localStorage.getItem('selectedTheme') || 'woman';
         
         // Keep the theme visual even for non-authenticated users (they just can't change it)
         // This allows logged-out users to maintain their previous theme selection
-        // New users will have 'minimalist' by default from the || operator above
+        // New users will have 'woman' by default from the || operator above
         
         this.currentTheme = savedTheme;
         
@@ -11515,7 +11512,8 @@ class PomodoroTimer {
             const themeName = option.dataset.theme;
             
             // Disable premium themes for guests
-            const isPremiumTheme = themeName === 'rain' || themeName === 'lofi' || themeName === 'winter' || themeName === 'study-corner';
+            // All themes are now Guest tier - no premium themes
+            const isPremiumTheme = false;
             const signupText = option.querySelector('.theme-signup-required');
             
             if (!isAuthenticated && isPremiumTheme) {
@@ -11619,16 +11617,12 @@ class PomodoroTimer {
         }
         
         // Remove all theme classes
-        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain', 'theme-winter', 'theme-study-corner');
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
         
         // Add new theme class
         timerSection.classList.add(`theme-${themeName}`);
         
-        // Show/hide Winter visit button
-        const winterVisitBtn = document.getElementById('winterVisitBtn');
-        if (winterVisitBtn) {
-            winterVisitBtn.style.display = themeName === 'winter' ? 'flex' : 'none';
-        }
+        // Winter visit button removed - no longer needed
         
         // Save preference to localStorage
         localStorage.setItem('selectedTheme', themeName);

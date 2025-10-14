@@ -7308,20 +7308,12 @@ input:checked + .toggle-slider:before {
     background-position: center;
 }
 
-.theme-preview-lofi {
-    background-image: url('/themes/lofi.jpg');
+.theme-preview-woman {
+    background-image: url('/themes/Woman.png');
 }
 
-.theme-preview-winter {
-    background-image: url('/themes/winter.jpg');
-}
-
-.theme-preview-rain {
-    background-image: url('/themes/rain.jpg');
-}
-
-.theme-preview-study-corner {
-    background-image: url('/themes/1.png');
+.theme-preview-man {
+    background-image: url('/themes/Man.png');
 }
 
 .theme-info {
@@ -7391,20 +7383,12 @@ input:checked + .toggle-slider:before {
     background-color: #0a0a0a;
 }
 
-.timer-section.theme-lofi {
-    background-image: url('/themes/lofi.jpg');
+.timer-section.theme-woman {
+    background-image: url('/themes/Woman.png');
 }
 
-.timer-section.theme-rain {
-    background-image: url('/themes/rain.jpg');
-}
-
-.timer-section.theme-winter {
-    background-image: url('/themes/winter.jpg');
-}
-
-.timer-section.theme-study-corner {
-    background-image: url('/themes/1.png');
+.timer-section.theme-man {
+    background-image: url('/themes/Man.png');
 }
 
 /* Dynamic overlay element for theme backgrounds */
