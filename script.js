@@ -3020,6 +3020,23 @@ class PomodoroTimer {
         // Show keyboard shortcut hint on first play
         this.showKeyboardHint();
         
+        // 🎯 Track Timer Started event to Google Analytics & Google Ads
+        if (typeof gtag !== 'undefined') {
+            // Send to Google Analytics
+            gtag('event', 'timer_started', {
+                event_category: 'engagement',
+                event_label: 'User started focus timer',
+                value: 1
+            });
+            
+            // Send to Google Ads (you'll need to create this conversion in Google Ads and replace CONVERSION_LABEL)
+            gtag('event', 'conversion', {
+                'send_to': 'AW-17614436696/CONVERSION_LABEL' // Replace CONVERSION_LABEL with actual label from Google Ads
+            });
+            
+            console.log('📊 Timer started event tracked');
+        }
+        
         // Close all open modals to focus on timer
         this.closeAllModals();
         
