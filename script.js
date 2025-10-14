@@ -1280,6 +1280,17 @@ class PomodoroTimer {
             this.headerSettingsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // Track account button click in Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'account_button_click', {
+                        'event_category': 'navigation',
+                        'event_label': 'account_settings',
+                        'value': 1
+                    });
+                    console.log('📊 Account button click tracked');
+                }
+                
                 if (this.settingsDropdown) {
                     const isShown = this.settingsDropdown.style.display === 'block';
                     // Close user profile dropdown if open
@@ -11846,6 +11857,16 @@ class SidebarManager {
     }
     
     handleNavigation(section) {
+        // Track sidebar navigation clicks in Google Analytics
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'sidebar_navigation', {
+                'event_category': 'navigation',
+                'event_label': section,
+                'value': 1
+            });
+            console.log(`📊 Sidebar navigation tracked: ${section}`);
+        }
+        
         switch (section) {
             case 'tasks':
                 // Toggle task side panel
