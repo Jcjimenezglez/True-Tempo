@@ -960,7 +960,7 @@ class PomodoroTimer {
     resetThemeAndMusicForGuest() {
         // Reset theme to minimalist if it's premium
         const currentTheme = localStorage.getItem('selectedTheme');
-        if (currentTheme === 'rain' || currentTheme === 'lofi' || currentTheme === 'winter') {
+        if (currentTheme === 'rain' || currentTheme === 'lofi' || currentTheme === 'winter' || currentTheme === 'study-corner') {
             localStorage.setItem('selectedTheme', 'minimalist');
             this.applyTheme('minimalist');
         }
@@ -11400,7 +11400,7 @@ class PomodoroTimer {
             const themeName = option.dataset.theme;
             
             // Disable premium themes for guests
-            const isPremiumTheme = themeName === 'rain' || themeName === 'lofi' || themeName === 'winter';
+            const isPremiumTheme = themeName === 'rain' || themeName === 'lofi' || themeName === 'winter' || themeName === 'study-corner';
             const signupText = option.querySelector('.theme-signup-required');
             
             if (!isAuthenticated && isPremiumTheme) {
@@ -11504,7 +11504,7 @@ class PomodoroTimer {
         }
         
         // Remove all theme classes
-        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain', 'theme-winter');
+        timerSection.classList.remove('theme-minimalist', 'theme-lofi', 'theme-rain', 'theme-winter', 'theme-study-corner');
         
         // Add new theme class
         timerSection.classList.add(`theme-${themeName}`);

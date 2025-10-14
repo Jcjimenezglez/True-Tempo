@@ -7320,6 +7320,10 @@ input:checked + .toggle-slider:before {
     background-image: url('/themes/rain.jpg');
 }
 
+.theme-preview-study-corner {
+    background-image: url('/themes/1.png');
+}
+
 .theme-info {
     flex: 1;
 }
@@ -7397,6 +7401,10 @@ input:checked + .toggle-slider:before {
 
 .timer-section.theme-winter {
     background-image: url('/themes/winter.jpg');
+}
+
+.timer-section.theme-study-corner {
+    background-image: url('/themes/1.png');
 }
 
 /* Dynamic overlay element for theme backgrounds */
