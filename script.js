@@ -8772,7 +8772,7 @@ class PomodoroTimer {
             try {
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'conversion', {
-                        'send_to': 'AW-17614436696/kfFJCLb0ma0bENjym89B',
+                        'send_to': 'AW-17614436696/HLp9CM6P1q0bENjym89B',
                         'value': 1.0,
                         'currency': 'USD'
                     });
