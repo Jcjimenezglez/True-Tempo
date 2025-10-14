@@ -2768,10 +2768,58 @@ class PomodoroTimer {
 
     async loadLofiPlaylist() {
         try {
-            // Fetch the directory listing (this requires server to list files or hardcode the list)
-            // For now, we'll use a hardcoded list that you can update when you add songs
+            // Lofi playlist - 49 relaxing tracks
             this.lofiPlaylist = [
-                // Placeholder - will be populated when user uploads MP3s to /audio/Lofi/
+                "A Sip of Yesterday (1).mp3",
+                "A Sip of Yesterday.mp3",
+                "Autumn Reverie (1).mp3",
+                "Autumn Reverie.mp3",
+                "Autumn's Whisper (1).mp3",
+                "Autumn's Whisper.mp3",
+                "Dream in Slow Motion (1).mp3",
+                "Dream in Slow Motion.mp3",
+                "Dreaming in Dandelions.mp3",
+                "Dreaming in Pastels (1).mp3",
+                "Dreaming in Pastels.mp3",
+                "Dreams in Sepia (1).mp3",
+                "Dreams in Sepia.mp3",
+                "Dreams in the Windowlight (1).mp3",
+                "Dreams in the Windowlight.mp3",
+                "Driftwood Dreams (1).mp3",
+                "Driftwood Dreams.mp3",
+                "Evening in a Teacup (1).mp3",
+                "Evening in a Teacup.mp3",
+                "Evening's Gentle Glow (1).mp3",
+                "Evening's Gentle Glow.mp3",
+                "Falling for Yesterday (1).mp3",
+                "Falling for Yesterday.mp3",
+                "Golden Glow.mp3",
+                "Golden Hour Glow.mp3",
+                "Golden Hour Memory.mp3",
+                "Lantern Glow (1).mp3",
+                "Lantern Glow.mp3",
+                "Lost in the Glow (1).mp3",
+                "Lost in the Glow.mp3",
+                "Lost in the Quiet.mp3",
+                "Moonlight Whispers (1).mp3",
+                "Moonlight Whispers.mp3",
+                "Starlit Whispers (1).mp3",
+                "Starlit Whispers.mp3",
+                "Under the Velvet Sky (1).mp3",
+                "Under the Velvet Sky.mp3",
+                "Whispered Breezes (1).mp3",
+                "Whispered Breezes (2).mp3",
+                "Whispered Breezes.mp3",
+                "Whispered Dreams (1).mp3",
+                "Whispered Dreams.mp3",
+                "Whispered Horizons (1).mp3",
+                "Whispered Horizons (2).mp3",
+                "Whispered Horizons.mp3",
+                "Whispered Memories.mp3",
+                "Whispered Pines (1).mp3",
+                "Whispered Pines.mp3",
+                "Whispering Lights (1).mp3",
+                "Whispering Lights.mp3"
             ];
             
             console.log(`📂 Loaded ${this.lofiPlaylist.length} Lofi tracks`);
