@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Signup Tracking - Superfocus</title>
+    
+    <!-- Google Tag Manager (same as production) -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PWPTLLHZ');</script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T3T0PES8C0"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-T3T0PES8C0');
+    </script>
+    
+    <!-- Google Ads Conversion Tracking -->
+    <script>
+        gtag('config', 'AW-17614436696');
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        .container {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        h1 {
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .status.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border-left: 4px solid #10b981;
+        }
+        
+        .status.info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .status.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border-left: 4px solid #ef4444;
+        }
+        
+        button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+        
+        button:hover {
+            background: #059669;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button.secondary {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        button.secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        pre {
+            background: #0a0a0a;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        
+        .log {
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        
+        .log-entry.success {
+            color: #10b981;
+        }
+        
+        .log-entry.error {
+            color: #f87171;
+        }
+        
+        .log-entry.info {
+            color: #60a5fa;
+        }
+        
+        code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWPTLLHZ"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    
+    <div class="container">
+        <h1>🧪 Test Signup Conversion Tracking</h1>
+        <p>Esta página simula el flujo de signup para verificar que el tracking funcione.</p>
+        
+        <div class="status info">
+            <strong>ℹ️ Instrucciones:</strong><br>
+            1. Desactiva tu ad blocker para este sitio<br>
+            2. Haz clic en "Simular Signup Exitoso"<br>
+            3. Observa los logs aquí y en la consola del navegador (F12)<br>
+            4. Verifica en Google Ads en 2-3 horas
+        </div>
+        
+        <div id="statusContainer"></div>
+        
+        <h3>🎯 Acciones:</h3>
+        <button onclick="simulateSignup()">Simular Signup Exitoso</button>
+        <button onclick="testGtagAvailability()" class="secondary">Verificar gtag</button>
+        <button onclick="clearLogs()" class="secondary">Limpiar Logs</button>
+        <button onclick="simulateSignupWithRedirect()" class="secondary">Simular con Redirect Real</button>
+        
+        <h3>📊 Logs de Tracking:</h3>
+        <div class="log" id="logContainer">
+            <div class="log-entry info">Esperando acción...</div>
+        </div>
+        
+        <h3>📋 Código que se ejecuta:</h3>
+        <pre>gtag('event', 'conversion', {
+    'send_to': 'AW-17614436696/kfFJCLb0ma0bENjym89B',
+    'value': 1.0,
+    'currency': 'USD'
+});
+
+gtag('event', 'sign_up', {
+    'method': 'clerk',
+    'event_category': 'engagement',
+    'event_label': 'user_signup'
+});</pre>
+    </div>
+    
+    <script>
+        const logContainer = document.getElementById('logContainer');
+        const statusContainer = document.getElementById('statusContainer');
+        
+        function addLog(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(message);
+        }
+        
+        function showStatus(message, type = 'info') {
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+            statusContainer.innerHTML = '';
+            statusContainer.appendChild(status);
+        }
+        
+        function clearLogs() {
+            logContainer.innerHTML = '<div class="log-entry info">Logs limpiados. Esperando acción...</div>';
+            statusContainer.innerHTML = '';
+        }
+        
+        function testGtagAvailability() {
+            addLog('🔍 Verificando disponibilidad de gtag...', 'info');
+            
+            if (typeof gtag !== 'undefined') {
+                addLog('✅ gtag está disponible y funcionando', 'success');
+                showStatus('<strong>✅ gtag disponible</strong><br>El tracking está listo para funcionar.', 'success');
+            } else {
+                addLog('❌ gtag NO está disponible', 'error');
+                showStatus('<strong>❌ gtag NO disponible</strong><br>Verifica que Google Tag Manager esté cargando correctamente.<br>Asegúrate de desactivar tu ad blocker.', 'error');
+            }
+            
+            // Check dataLayer
+            if (typeof window.dataLayer !== 'undefined') {
+                addLog('✅ dataLayer está disponible', 'success');
+            } else {
+                addLog('⚠️ dataLayer NO está disponible', 'error');
+            }
+        }
+        
+        function simulateSignup() {
+            addLog('🎯 Iniciando simulación de signup...', 'info');
+            
+            // Check gtag availability
+            if (typeof gtag === 'undefined') {
+                addLog('❌ ERROR: gtag no está disponible', 'error');
+                showStatus('<strong>❌ Error</strong><br>gtag no está disponible. Verifica que Google Tag Manager esté cargando.<br><br><strong>Solución:</strong> Desactiva tu ad blocker y recarga la página.', 'error');
+                return;
+            }
+            
+            addLog('✅ gtag está disponible', 'success');
+            
+            try {
+                // Google Ads conversion tracking
+                addLog('📡 Enviando conversión a Google Ads...', 'info');
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17614436696/kfFJCLb0ma0bENjym89B',
+                    'value': 1.0,
+                    'currency': 'USD'
+                });
+                addLog('✅ Conversión enviada a Google Ads', 'success');
+                
+                // Google Analytics event
+                addLog('📡 Enviando evento a Google Analytics...', 'info');
+                gtag('event', 'sign_up', {
+                    'method': 'clerk',
+                    'event_category': 'engagement',
+                    'event_label': 'user_signup'
+                });
+                addLog('✅ Evento enviado a Google Analytics', 'success');
+                
+                addLog('🎉 Tracking completado exitosamente', 'success');
+                
+                showStatus(
+                    '<strong>✅ Tracking Exitoso</strong><br>' +
+                    'Los eventos fueron enviados correctamente.<br><br>' +
+                    '<strong>⏰ Próximo paso:</strong><br>' +
+                    'Ve a Google Ads → Herramientas → Conversiones<br>' +
+                    'En 2-3 horas deberías ver 1 conversión registrada.',
+                    'success'
+                );
+                
+            } catch (error) {
+                addLog(`❌ ERROR: ${error.message}`, 'error');
+                showStatus(
+                    `<strong>❌ Error en el tracking</strong><br>${error.message}`,
+                    'error'
+                );
+            }
+        }
+        
+        function simulateSignupWithRedirect() {
+            addLog('🔄 Simulando signup con redirect real...', 'info');
+            addLog('Redirigiendo a: /?signup=success', 'info');
+            
+            // Add query parameter and reload
+            window.location.href = window.location.pathname + '?signup=success';
+        }
+        
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addLog('🚀 Página cargada. Lista para pruebas.', 'info');
+                testGtagAvailability();
+                
+                // Check if we came from a signup redirect
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('signup') === 'success') {
+                    addLog('🎯 Detectado parámetro ?signup=success', 'success');
+                    addLog('Ejecutando tracking automáticamente...', 'info');
+                    setTimeout(() => {
+                        simulateSignup();
+                    }, 1000);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+
