@@ -8863,6 +8863,16 @@ class PomodoroTimer {
     }
 
     showPaymentSuccessMessage() {
+        // Google Ads Subscribe Conversion Tracking
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'conversion', {
+                'send_to': 'AW-17614436696/uBZgCNz9pq0bENjym89B',
+                'value': 9.0,
+                'currency': 'USD'
+            });
+            console.log('Google Ads subscription conversion tracked');
+        }
+        
         // Show success notification for payment
         const notification = document.createElement('div');
         notification.className = 'payment-success-notification';
