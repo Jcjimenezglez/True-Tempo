@@ -1309,7 +1309,7 @@ class PomodoroTimer {
             this.settingsSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
-                window.location.href = '/pricing';
+                this.handleSignup();
             });
         }
         
@@ -1882,7 +1882,7 @@ class PomodoroTimer {
         if (this.guestTaskLimitSignupBtn) {
             this.guestTaskLimitSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location.href = '/pricing/';
+                this.handleSignup();
             });
         }
         
@@ -11471,7 +11471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (timerSignupBtn) {
                 timerSignupBtn.addEventListener('click', () => {
-                    window.location.href = '/pricing/';
+                    timer.handleSignup();
                 });
             }
         } else {
