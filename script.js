@@ -273,7 +273,7 @@ class PomodoroTimer {
         
         // Apply saved theme and overlay on init
         this.currentTheme = localStorage.getItem('selectedTheme') || 'woman';
-        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
+        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         this.applyTheme(this.currentTheme);
         this.applyOverlay(this.overlayOpacity);
         
@@ -11497,8 +11497,8 @@ class PomodoroTimer {
         
         this.currentTheme = savedTheme;
         
-        // Get overlay opacity from localStorage or default to 65%
-        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
+        // Get overlay opacity from localStorage or default to 20%
+        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
         // Apply the saved theme and overlay
         this.applyTheme(this.currentTheme);
