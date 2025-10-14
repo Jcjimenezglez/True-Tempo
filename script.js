@@ -8871,6 +8871,17 @@ class PomodoroTimer {
                 'currency': 'USD'
             });
             console.log('Google Ads subscription conversion tracked');
+            
+            // Also send to Google Analytics
+            gtag('event', 'purchase', {
+                'transaction_id': 'superfocus_pro_' + Date.now(),
+                'value': 9.0,
+                'currency': 'USD',
+                'event_category': 'ecommerce',
+                'event_label': 'pro_subscription'
+            });
+            
+            console.log('✅ Google Analytics purchase event tracked');
         }
         
         // Show success notification for payment
