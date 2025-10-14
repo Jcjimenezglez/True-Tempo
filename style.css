@@ -7313,7 +7313,7 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-preview-man {
-    background-image: url('/themes/Man.png');
+    background-image: url('/themes/Man2.jpeg');
 }
 
 .theme-info {
@@ -7388,7 +7388,7 @@ input:checked + .toggle-slider:before {
 }
 
 .timer-section.theme-man {
-    background-image: url('/themes/Man.png');
+    background-image: url('/themes/Man2.jpeg');
 }
 
 /* Dynamic overlay element for theme backgrounds */
