@@ -47,54 +47,19 @@ class PomodoroTimer {
         // Notion integration (Pro feature)
         this.notionPages = [];
         
-		// Ambient sounds system
-		this.ambientPlaying = false;
-		// Load saved volume if exists, otherwise default to 25% for guests
-		const savedVolume = localStorage.getItem('ambientVolume');
-		this.ambientVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
-		// Persisted enable flag (default None/off for guests, load saved for authenticated users)
-		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
-		this.ambientEnabled = savedAmbientEnabled === null ? false : savedAmbientEnabled === 'true';
-
-
-		// Rain music system
-		this.rainPlaying = false;
-		const savedRainEnabled = localStorage.getItem('rainEnabled');
-		this.rainEnabled = savedRainEnabled === null ? false : savedRainEnabled === 'true';
-		this.rainPlaylist = [
-			"night-rain-with-distant-thunder-321446.mp3"
-		];
-		this.currentRainTrackIndex = 0;
-
-		// Nature sounds system (Whisper of Leaves)
-		this.naturePlaying = false;
-		const savedNatureEnabled = localStorage.getItem('natureEnabled');
-		this.natureEnabled = savedNatureEnabled === null ? false : savedNatureEnabled === 'true';
-		this.natureTrack = "Whisper of the Leaves.mp3";
-
-		this.playlist = [
-            "Chasing Clouds.mp3",
-            "Clouds Drift By.mp3",
-            "Clouds Drift By 2.mp3",
-            "Cloudy Minds.mp3",
-            "Cloudy Minds 2.mp3",
-            "Coffee Clouds.mp3",
-            "Coffee Clouds 2.mp3",
-            "Dreaming in Loops.mp3",
-            "Drift and Dream.mp3",
-            "Drift and Dream 2.mp3",
-            "Drifting in the Static.mp3",
-            "Drifting in the Static 2.mp3",
-            "Midnight Whispers.mp3",
-            "Midnight Whispers 2.mp3",
-            "Moonlit Scribbles.mp3",
-            "Nightfall Notebook.mp3",
-            "Nightfall Notebook 2.mp3",
-            "Nightlight Dreams.mp3",
-            "Under the Neon Moon.mp3",
-            "Under the Neon Moon 2.mp3"
-        ];
-		this.currentTrackIndex = 0;
+		// Lofi music system with shuffle
+		this.lofiPlaying = false;
+		const savedLofiEnabled = localStorage.getItem('lofiEnabled');
+		this.lofiEnabled = savedLofiEnabled === null ? false : savedLofiEnabled === 'true';
+		
+		// Lofi playlist - will be dynamically loaded from /audio/Lofi/
+		this.lofiPlaylist = [];
+		this.lofiShuffledPlaylist = [];
+		this.currentLofiTrackIndex = 0;
+		
+		// Load saved volume if exists, otherwise default to 25%
+		const savedVolume = localStorage.getItem('lofiVolume');
+		this.lofiVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
 		// Fade/ducking state
 		this.isDucked = false;
 		this.duckRestoreTimer = null;
@@ -143,31 +108,21 @@ class PomodoroTimer {
         this.backgroundAudio = document.getElementById('backgroundAudio');
         if (this.backgroundAudio) {
             this.backgroundAudio.addEventListener('ended', () => {
-                // Advance according to the currently active source
-                if (this.rainPlaying || this.rainEnabled) {
-                    // Advance to next Rain track if multiple exist; otherwise restart
-                    if (Array.isArray(this.rainPlaylist) && this.rainPlaylist.length > 0) {
-                        this.currentRainTrackIndex = (this.currentRainTrackIndex + 1) % this.rainPlaylist.length;
-                        this.playRainPlaylist();
-                    }
-                } else if (this.ambientPlaying || this.ambientEnabled) {
-                    this.nextTrack();
+                // Advance to next Lofi track
+                if (this.lofiPlaying || this.lofiEnabled) {
+                    this.nextLofiTrack();
                 }
             });
-            // Defensive: when play() resolves, mark the correct flags by inspecting src
+            // Defensive: when play() resolves, mark the correct flag
             this.backgroundAudio.addEventListener('play', () => {
                 const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
-                const isRain = /\/audio\/Rain\//.test(src);
-                const isNature = /\/audio\/nature\//.test(src);
-                const isLofi = /\/audio\/lofi\//.test(src);
-                this.rainPlaying = isRain;
-                this.naturePlaying = isNature;
-                this.ambientPlaying = isLofi;
+                const isLofi = /\/audio\/Lofi\//.test(src);
+                this.lofiPlaying = isLofi;
             });
         }
 
-		// Shuffle playlist order on each load so it doesn't always start with the same track
-		this.shufflePlaylist();
+		// Load Lofi playlist from /audio/Lofi/ directory
+		this.loadLofiPlaylist();
         
         // Auth elements
         this.authContainer = document.getElementById('authContainer');
@@ -2724,52 +2679,117 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
     }
 
-    // Alias methods for consistency
-    async playAmbientPlaylist() {
-        return this.playPlaylist();
+    // Lofi music methods
+    setLofiVolume(vol) {
+        this.lofiVolume = Math.max(0, Math.min(1, vol));
+        localStorage.setItem('lofiVolume', String(this.lofiVolume));
+        if (this.backgroundAudio) this.backgroundAudio.volume = this.lofiVolume;
     }
 
-    stopAmbientPlaylist() {
-        return this.stopPlaylist();
-    }
-
-    pausePlaylist() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.ambientPlaying = false;
-        this.buryTheLightPlaying = false; // Ensure both flags are cleared
-        this.rainPlaying = false; // Ensure all flags are cleared
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    resumePlaylist() {
-        if (!this.backgroundAudio) return;
-        if (!this.ambientEnabled && !this.buryTheLightEnabled && !this.rainEnabled) return;
-        // Ensure the correct source is loaded when resuming
-        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
-        const isLofiSrc = /\/audio\/lofi\//.test(src);
-        const shouldBeLofi = this.ambientEnabled && !this.buryTheLightEnabled;
-        if (shouldBeLofi && !isLofiSrc) {
-            // Switch to lofi source before resuming
-            this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
+    shuffleLofiPlaylist() {
+        // Fisher-Yates shuffle algorithm for random order
+        this.lofiShuffledPlaylist = [...this.lofiPlaylist];
+        for (let i = this.lofiShuffledPlaylist.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.lofiShuffledPlaylist[i], this.lofiShuffledPlaylist[j]] = [this.lofiShuffledPlaylist[j], this.lofiShuffledPlaylist[i]];
         }
-        try { this.backgroundAudio.play(); } catch (_) {}
-        this.ambientPlaying = true;
-        this.buryTheLightPlaying = false;
+        this.currentLofiTrackIndex = 0;
+    }
+
+    async playLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0) {
+            console.log('❌ No Lofi tracks available yet');
+            return;
+        }
+        
+        this.backgroundAudio.pause();
+        this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        this.backgroundAudio.loop = false;
+        this.backgroundAudio.volume = this.lofiVolume;
+        
+        try { 
+            await this.backgroundAudio.play(); 
+            console.log('✅ Lofi music started:', this.lofiShuffledPlaylist[this.currentLofiTrackIndex]);
+        } catch (error) {
+            console.log('❌ Error playing Lofi:', error);
+        }
+        
+        this.lofiPlaying = true;
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
-    setAmbientVolume(vol) {
-        this.ambientVolume = Math.max(0, Math.min(1, vol));
-        localStorage.setItem('ambientVolume', String(this.ambientVolume));
-        if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+    stopLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.lofiPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.lofiPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    resumeLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.lofiEnabled) return;
+        
+        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+        const isLofiSrc = /\/audio\/Lofi\//.test(src);
+        
+        if (!isLofiSrc && this.lofiShuffledPlaylist.length > 0) {
+            this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        }
+        
+        try { this.backgroundAudio.play(); } catch (_) {}
+        this.lofiPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    nextLofiTrack() {
+        if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0 || !this.backgroundAudio) return;
+        
+        this.currentLofiTrackIndex = (this.currentLofiTrackIndex + 1) % this.lofiShuffledPlaylist.length;
+        
+        // Re-shuffle when playlist loops back to beginning
+        if (this.currentLofiTrackIndex === 0) {
+            this.shuffleLofiPlaylist();
+        }
+        
+        this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        this.backgroundAudio.volume = this.lofiVolume;
+        this.backgroundAudio.play().catch(() => {});
+        this.lofiPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    async loadLofiPlaylist() {
+        try {
+            // Fetch the directory listing (this requires server to list files or hardcode the list)
+            // For now, we'll use a hardcoded list that you can update when you add songs
+            this.lofiPlaylist = [
+                // Placeholder - will be populated when user uploads MP3s to /audio/Lofi/
+            ];
+            
+            console.log(`📂 Loaded ${this.lofiPlaylist.length} Lofi tracks`);
+            
+            // Shuffle the playlist for first playback
+            if (this.lofiPlaylist.length > 0) {
+                this.shuffleLofiPlaylist();
+            }
+        } catch (error) {
+            console.error('❌ Error loading Lofi playlist:', error);
+        }
     }
 
     // Smooth fades
     fadeMusicTo(targetVolume, durationMs) {
         if (!this.backgroundAudio) return;
-        // Only fade if music is actually playing (either lofi or Bury the Light)
-        if (!this.ambientPlaying && !this.buryTheLightPlaying) return;
+        // Only fade if music is actually playing
+        if (!this.lofiPlaying) return;
         
         if (this.fadeTimer) {
             clearInterval(this.fadeTimer);
@@ -2794,230 +2814,20 @@ class PomodoroTimer {
 
     fadeMusicIn(durationMs) {
         if (!this.backgroundAudio) return;
-        // Only fade in if music is actually playing (either lofi or Bury the Light)
-        if (!this.ambientPlaying && !this.buryTheLightPlaying) return;
+        // Only fade in if music is actually playing
+        if (!this.lofiPlaying) return;
         
-        const target = this.ambientVolume;
+        const target = this.lofiVolume;
         if (this.backgroundAudio.volume > 0.001) this.backgroundAudio.volume = 0;
         this.fadeMusicTo(target, durationMs);
     }
 
     fadeMusicOut(durationMs) {
         if (!this.backgroundAudio) return;
-        // Only fade out if music is actually playing (either lofi or Bury the Light)
-        if (!this.ambientPlaying && !this.buryTheLightPlaying) return;
+        // Only fade out if music is actually playing
+        if (!this.lofiPlaying) return;
         
         this.fadeMusicTo(0, durationMs);
-    }
-
-    nextTrack() {
-        if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
-        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
-        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
-        this.backgroundAudio.volume = this.ambientVolume;
-        this.backgroundAudio.play().catch(() => {});
-        this.ambientPlaying = true;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    prevTrack() {
-        if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
-        this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
-        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
-        this.backgroundAudio.volume = this.ambientVolume;
-        this.backgroundAudio.play().catch(() => {});
-        this.ambientPlaying = true;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    shufflePlaylist() {
-        for (let i = this.playlist.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.playlist[i], this.playlist[j]] = [this.playlist[j], this.playlist[i]];
-        }
-    }
-
-    // Bury the Light playlist functions
-    setBuryTheLightPlaylist(trackFilenames = []) {
-        if (!Array.isArray(trackFilenames)) return;
-        // Keep only .mp3 and .wav for safety
-        this.buryTheLightPlaylist = trackFilenames.filter(name => /\.(mp3|wav)$/i.test(name));
-        this.currentBuryTheLightTrackIndex = 0;
-    }
-
-    async playBuryTheLightPlaylist() {
-        if (!this.backgroundAudio) return;
-        if (!this.buryTheLightPlaylist || this.buryTheLightPlaylist.length === 0) {
-            alert('No Bury the Light tracks available yet. Upload MP3s to /audio/Bury the Light/');
-            return;
-        }
-        // Ensure we stop any lofi playback and swap source cleanly
-        this.backgroundAudio.pause();
-        this.backgroundAudio.src = '/audio/Bury the Light/' + this.buryTheLightPlaylist[this.currentBuryTheLightTrackIndex];
-        this.backgroundAudio.loop = false;
-        this.backgroundAudio.volume = this.ambientVolume;
-        try { await this.backgroundAudio.play(); } catch (_) {}
-        this.buryTheLightPlaying = true;
-        this.ambientPlaying = false; // Ensure only one flag is set
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    stopBuryTheLightPlaylist() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.buryTheLightPlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    pauseBuryTheLightPlaylist() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.buryTheLightPlaying = false;
-        this.ambientPlaying = false; // Ensure both flags are cleared
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    async playRainPlaylist() {
-        console.log('🎵 playRainPlaylist called');
-        if (!this.backgroundAudio) {
-            console.log('❌ No backgroundAudio element found');
-            return;
-        }
-        if (!this.rainPlaylist || this.rainPlaylist.length === 0) {
-            console.log('❌ No Rain tracks available');
-            alert('No Rain tracks available yet. Upload MP3s to /audio/Rain/');
-            return;
-        }
-        // Ensure we stop any other playback and swap source cleanly
-        this.backgroundAudio.pause();
-        const rainSrc = '/audio/Rain/' + this.rainPlaylist[this.currentRainTrackIndex];
-        console.log('🎵 Setting Rain source:', rainSrc);
-        this.backgroundAudio.src = rainSrc;
-        this.backgroundAudio.loop = true;
-        this.backgroundAudio.volume = this.ambientVolume;
-        console.log('🎵 Volume set to:', this.ambientVolume);
-        try { 
-            await this.backgroundAudio.play(); 
-            console.log('✅ Rain music started playing');
-        } catch (error) {
-            console.log('❌ Error playing Rain music:', error);
-        }
-        this.rainPlaying = true;
-        this.ambientPlaying = false; // Ensure only one flag is set
-        this.buryTheLightPlaying = false; // Ensure only one flag is set
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    stopRainPlaylist() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.rainPlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    pauseRainPlaylist() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.rainPlaying = false;
-        this.ambientPlaying = false; // Ensure both flags are cleared
-        this.buryTheLightPlaying = false; // Ensure both flags are cleared
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    async playNatureSound() {
-        console.log('🍃 playNatureSound called');
-        if (!this.backgroundAudio) {
-            console.log('❌ No backgroundAudio element found');
-            return;
-        }
-        if (!this.natureTrack) {
-            console.log('❌ No nature track available');
-            return;
-        }
-        // Ensure we stop any other playback and swap source cleanly
-        this.backgroundAudio.pause();
-        const natureSrc = '/audio/nature/' + this.natureTrack;
-        console.log('🍃 Setting Nature sound source:', natureSrc);
-        this.backgroundAudio.src = natureSrc;
-        this.backgroundAudio.loop = true; // Loop infinitely
-        this.backgroundAudio.volume = this.ambientVolume;
-        console.log('🍃 Volume set to:', this.ambientVolume);
-        try { 
-            await this.backgroundAudio.play();
-            console.log('✅ Nature sound started');
-        } catch (error) { 
-            console.error('❌ Failed to play nature sound:', error);
-        }
-        this.naturePlaying = true;
-        this.rainPlaying = false;
-        this.ambientPlaying = false;
-        this.buryTheLightPlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    stopNatureSound() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.naturePlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    pauseNatureSound() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.naturePlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
-    }
-
-    resumeNatureSound() {
-        if (!this.backgroundAudio) return;
-        if (!this.natureEnabled) return;
-        // Ensure the correct source is loaded when resuming
-        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
-        const isNatureSrc = /\/audio\/nature\//.test(src);
-        if (!isNatureSrc) {
-            // Wrong source, reload nature sound
-            this.playNatureSound();
-            return;
-        }
-        // Resume from where we left off
-        try { this.backgroundAudio.play(); } catch (_) {}
-        this.naturePlaying = true;
-        this.rainPlaying = false;
-        this.ambientPlaying = false;
-        this.buryTheLightPlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    resumeBuryTheLightPlaylist() {
-        if (!this.backgroundAudio) return;
-        if (!this.buryTheLightEnabled) return;
-        // Ensure the correct source is loaded when resuming
-        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
-        const isBtlSrc = /\/audio\/Bury the Light\//.test(src);
-        if (!isBtlSrc) {
-            this.backgroundAudio.src = '/audio/Bury the Light/' + this.buryTheLightPlaylist[this.currentBuryTheLightTrackIndex];
-        }
-        try { this.backgroundAudio.play(); } catch (_) {}
-        this.buryTheLightPlaying = true;
-        this.ambientPlaying = false; // Ensure only one flag is set
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    resumeRainPlaylist() {
-        if (!this.backgroundAudio) return;
-        if (!this.rainEnabled) return;
-        // Ensure the correct source is loaded when resuming
-        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
-        const isRainSrc = /\/audio\/Rain\//.test(src);
-        if (!isRainSrc) {
-            this.backgroundAudio.src = '/audio/Rain/' + this.rainPlaylist[this.currentRainTrackIndex];
-        }
-        try { this.backgroundAudio.play(); } catch (_) {}
-        this.rainPlaying = true;
-        this.ambientPlaying = false; // Ensure only one flag is set
-        this.buryTheLightPlaying = false; // Ensure only one flag is set
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
     updatePremiumUI() {
@@ -3168,36 +2978,13 @@ class PomodoroTimer {
         // Close all open modals to focus on timer
         this.closeAllModals();
         
-        // Resume background music if enabled (persisted flag)
-        if (this.ambientEnabled || this.buryTheLightEnabled || this.rainEnabled || this.natureEnabled) {
+        // Resume background music if enabled
+        if (this.lofiEnabled) {
             const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
-            if (this.buryTheLightEnabled) {
-                // Always ensure correct source for BTL
-                if (hasProgress && /\/audio\/Bury the Light\//.test(this.backgroundAudio.currentSrc || '')) {
-                    this.resumeBuryTheLightPlaylist();
-                } else {
-                    this.playBuryTheLightPlaylist();
-                }
-            } else if (this.rainEnabled) {
-                // Always ensure correct source for Rain
-                if (hasProgress && /\/audio\/Rain\//.test(this.backgroundAudio.currentSrc || '')) {
-                    this.resumeRainPlaylist();
-                } else {
-                    this.playRainPlaylist();
-                }
-            } else if (this.natureEnabled) {
-                // Nature sound (loops infinitely)
-                if (hasProgress && /\/audio\/nature\//.test(this.backgroundAudio.currentSrc || '')) {
-                    this.resumeNatureSound();
-                } else {
-                    this.playNatureSound();
-                }
-            } else if (this.ambientEnabled) {
-                if (hasProgress && /\/audio\/lofi\//.test(this.backgroundAudio.currentSrc || '')) {
-                    this.resumePlaylist();
-                } else {
-                    this.playPlaylist();
-                }
+            if (hasProgress && /\/audio\/Lofi\//.test(this.backgroundAudio.currentSrc || '')) {
+                this.resumeLofiPlaylist();
+            } else {
+                this.playLofiPlaylist();
             }
         }
         
@@ -3241,12 +3028,8 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying || this.naturePlaying) {
-            if (this.naturePlaying) {
-                this.pauseNatureSound();
-            } else {
-                this.pausePlaylist();
-            }
+        if (this.lofiPlaying) {
+            this.pauseLofiPlaylist();
         }
         
         // Update session info to potentially show "Ready to focus?"
@@ -11148,15 +10931,13 @@ class PomodoroTimer {
         
         // Determine current selection
         let currentMusic = 'none';
-        if (this.rainEnabled) currentMusic = 'rain';
-        if (this.ambientEnabled) currentMusic = 'lofi';
-        if (this.natureEnabled) currentMusic = 'whisper-of-leaves';
+        if (this.lofiEnabled) currentMusic = 'lofi';
         
         musicOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
             const musicType = option.dataset.music;
             const signupText = option.querySelector('.theme-signup-required');
-            const isPremium = musicType === 'rain' || musicType === 'lofi';
+            const isPremium = false; // All music options are now Guest tier
             
             // Disable premium options for guests
             if (!isAuthenticated && isPremium) {
@@ -11202,65 +10983,18 @@ class PomodoroTimer {
                 // Handle music playback
                 switch (musicType) {
                     case 'none':
-                        this.stopRainPlaylist();
-                        this.stopAmbientPlaylist();
-                        this.stopNatureSound();
-                        this.rainEnabled = false;
-                        this.ambientEnabled = false;
-                        this.natureEnabled = false;
-                        localStorage.setItem('rainEnabled', 'false');
-                        localStorage.setItem('ambientEnabled', 'false');
-                        localStorage.setItem('natureEnabled', 'false');
-                        break;
-                        
-                    case 'whisper-of-leaves':
-                        this.stopRainPlaylist();
-                        this.stopAmbientPlaylist();
-                        this.rainEnabled = false;
-                        this.ambientEnabled = false;
-                        localStorage.setItem('rainEnabled', 'false');
-                        localStorage.setItem('ambientEnabled', 'false');
-                        
-                        this.natureEnabled = true;
-                        localStorage.setItem('natureEnabled', 'true');
-                        
-                        // Only play if timer is running
-                        if (this.isRunning) {
-                            await this.playNatureSound();
-                        }
-                        break;
-                        
-                    case 'rain':
-                        this.stopAmbientPlaylist();
-                        this.stopNatureSound();
-                        this.ambientEnabled = false;
-                        this.natureEnabled = false;
-                        localStorage.setItem('ambientEnabled', 'false');
-                        localStorage.setItem('natureEnabled', 'false');
-                        
-                        this.rainEnabled = true;
-                        localStorage.setItem('rainEnabled', 'true');
-                        
-                        // Only play if timer is running
-                        if (this.isRunning) {
-                            await this.playRainPlaylist();
-                        }
+                        this.stopLofiPlaylist();
+                        this.lofiEnabled = false;
+                        localStorage.setItem('lofiEnabled', 'false');
                         break;
                         
                     case 'lofi':
-                        this.stopRainPlaylist();
-                        this.stopNatureSound();
-                        this.rainEnabled = false;
-                        this.natureEnabled = false;
-                        localStorage.setItem('rainEnabled', 'false');
-                        localStorage.setItem('natureEnabled', 'false');
-                        
-                        this.ambientEnabled = true;
-                        localStorage.setItem('ambientEnabled', 'true');
+                        this.lofiEnabled = true;
+                        localStorage.setItem('lofiEnabled', 'true');
                         
                         // Only play if timer is running
                         if (this.isRunning) {
-                            await this.playAmbientPlaylist();
+                            await this.playLofiPlaylist();
                         }
                         break;
                 }
@@ -11289,10 +11023,8 @@ class PomodoroTimer {
         
         // Set the source based on type
         let source = '';
-        if (type === 'rain') {
-            source = '/audio/Rain/' + this.rainPlaylist[0];
-        } else if (type === 'lofi') {
-            source = '/audio/lofi/' + this.playlist[0];
+        if (type === 'lofi' && this.lofiShuffledPlaylist.length > 0) {
+            source = '/audio/Lofi/' + this.lofiShuffledPlaylist[0];
         }
         
         if (!source) {
