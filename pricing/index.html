@@ -772,8 +772,8 @@
         function initializeButtons() {
             if (buttonsInitialized) return;
             
-            freeButton = document.querySelector('.pricing-card:first-child .pricing-cta');
-            proButton = document.querySelector('.pricing-card:last-child .pricing-cta');
+            freeButton = document.getElementById('pricingPageSignup');
+            proButton = document.getElementById('pricingPageUpgrade');
             
             if (!freeButton || !proButton) {
                 console.error('Could not find pricing buttons');
