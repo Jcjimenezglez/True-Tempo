@@ -7309,7 +7309,7 @@ input:checked + .toggle-slider:before {
 }
 
 .theme-preview-woman {
-    background-image: url('/themes/Woman.png');
+    background-image: url('/themes/Woman2.jpeg');
 }
 
 .theme-preview-man {
@@ -7384,7 +7384,7 @@ input:checked + .toggle-slider:before {
 }
 
 .timer-section.theme-woman {
-    background-image: url('/themes/Woman.png');
+    background-image: url('/themes/Woman2.jpeg');
 }
 
 .timer-section.theme-man {
