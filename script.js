@@ -50,7 +50,7 @@ class PomodoroTimer {
 		// Lofi music system with shuffle
 		this.lofiPlaying = false;
 		const savedLofiEnabled = localStorage.getItem('lofiEnabled');
-		this.lofiEnabled = savedLofiEnabled === null ? false : savedLofiEnabled === 'true';
+		this.lofiEnabled = savedLofiEnabled === null ? true : savedLofiEnabled === 'true';
 		
 		// Lofi playlist - will be dynamically loaded from /audio/Lofi/
 		this.lofiPlaylist = [];
@@ -10978,8 +10978,7 @@ class PomodoroTimer {
         const isAuthenticated = this.isAuthenticated;
         
         // Determine current selection
-        let currentMusic = 'none';
-        if (this.lofiEnabled) currentMusic = 'lofi';
+        let currentMusic = this.lofiEnabled ? 'lofi' : 'none';
         
         musicOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
