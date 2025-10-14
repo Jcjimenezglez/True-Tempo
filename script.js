@@ -272,7 +272,7 @@ class PomodoroTimer {
         this.initClerk();
         
         // Apply saved theme and overlay on init
-        this.currentTheme = localStorage.getItem('selectedTheme') || 'woman';
+        this.currentTheme = localStorage.getItem('selectedTheme') || 'minimalist';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.65;
         this.applyTheme(this.currentTheme);
         this.applyOverlay(this.overlayOpacity);
@@ -11488,12 +11488,12 @@ class PomodoroTimer {
         // Check if user is authenticated
         const isAuthenticated = this.isAuthenticated;
         
-        // Get current theme from localStorage or default to 'woman'
-        let savedTheme = localStorage.getItem('selectedTheme') || 'woman';
+        // Get current theme from localStorage or default to 'minimalist'
+        let savedTheme = localStorage.getItem('selectedTheme') || 'minimalist';
         
         // Keep the theme visual even for non-authenticated users (they just can't change it)
         // This allows logged-out users to maintain their previous theme selection
-        // New users will have 'woman' by default from the || operator above
+        // New users will have 'minimalist' (Black) by default from the || operator above
         
         this.currentTheme = savedTheme;
         
