@@ -708,141 +708,103 @@
     </footer>
     
     <script>
-        // Pricing page logic
-        let pageUpdated = false;
-        let updateAttempts = 0;
-        const maxAttempts = 20;
-        
-        function tryUpdatePricingPage() {
-            if (pageUpdated) return;
-            
-            updateAttempts++;
-            
-            // Check if Clerk is loaded
-            if (window.Clerk) {
-                if (window.Clerk.user !== undefined) {
-                    // User state is determined (either logged in or not)
-                    console.log('Clerk user state:', window.Clerk.user);
-                    updatePricingPage();
-                    pageUpdated = true;
-                    return;
-                }
-                
-                // Clerk loaded but user state not ready yet
-                if (updateAttempts < maxAttempts) {
-                    setTimeout(tryUpdatePricingPage, 200);
-                    return;
-                }
-            }
-            
-            // If no Clerk or max attempts reached, show guest state
-            if (updateAttempts >= maxAttempts) {
-                console.log('Max attempts reached, showing guest state');
-                updatePricingPage();
-                pageUpdated = true;
-            }
-        }
-        
+        // Initialize buttons immediately on DOM load
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(tryUpdatePricingPage, 100);
-        });
-
-        // Store button references and handlers
-        let buttonsInitialized = false;
-        let freeButton, proButton;
-        
-        // Handler functions
-        function handleFreeSignup(e) {
-            e.preventDefault();
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
-        }
-        
-        function handleProUpgradeAuth(e) {
-            e.preventDefault();
-            console.log('Creating checkout session...');
-            createCheckoutSession();
-        }
-        
-        function handleProUpgradeGuest(e) {
-            e.preventDefault();
-            localStorage.setItem('upgradeAfterLogin', 'true');
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
-        }
-        
-        function initializeButtons() {
-            if (buttonsInitialized) return;
+            console.log('DOM loaded, initializing buttons...');
             
-            freeButton = document.getElementById('pricingPageSignup');
-            proButton = document.getElementById('pricingPageUpgrade');
+            const freeButton = document.getElementById('pricingPageSignup');
+            const proButton = document.getElementById('pricingPageUpgrade');
             
             if (!freeButton || !proButton) {
                 console.error('Could not find pricing buttons');
-                return false;
+                return;
             }
             
-            buttonsInitialized = true;
-            return true;
-        }
+            console.log('Buttons found, adding event listeners...');
+            
+            // Add event listeners immediately for guest users
+            freeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Free button clicked');
+                
+                // Check if user is authenticated
+                const isAuthenticated = window.Clerk && window.Clerk.user;
+                const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
+                
+                if (isAuthenticated && !isPremium) {
+                    // Already on free plan
+                    console.log('User already on free plan');
+                    return;
+                }
+                
+                // Redirect to signup
+                console.log('Redirecting to signup...');
+                window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+            });
+            
+            proButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Pro button clicked');
+                
+                // Check if user is authenticated
+                const isAuthenticated = window.Clerk && window.Clerk.user;
+                const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
+                
+                if (isPremium) {
+                    // Already pro
+                    console.log('User already has Pro');
+                    return;
+                }
+                
+                if (isAuthenticated) {
+                    // Authenticated user - create checkout session
+                    console.log('Creating checkout session for authenticated user...');
+                    createCheckoutSession();
+                } else {
+                    // Guest user - redirect to signup with upgrade intent
+                    console.log('Redirecting guest to signup with upgrade intent...');
+                    localStorage.setItem('upgradeAfterLogin', 'true');
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
+                }
+            });
+            
+            console.log('✅ Event listeners added successfully');
+            
+            // Update button states after Clerk loads
+            setTimeout(updateButtonStates, 500);
+        });
         
-        function updatePricingPage() {
-            if (!initializeButtons()) return;
+        function updateButtonStates() {
+            const freeButton = document.getElementById('pricingPageSignup');
+            const proButton = document.getElementById('pricingPageUpgrade');
+            
+            if (!freeButton || !proButton) return;
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
             
-            console.log('Updating pricing page:', {
-                isAuthenticated,
-                isPremium,
-                user: window.Clerk?.user
-            });
+            console.log('Updating button states:', { isAuthenticated, isPremium });
             
-            // Remove all event listeners by cloning and replacing
-            const newFreeButton = freeButton.cloneNode(true);
-            const newProButton = proButton.cloneNode(true);
-            
-            freeButton.parentNode.replaceChild(newFreeButton, freeButton);
-            proButton.parentNode.replaceChild(newProButton, proButton);
-            
-            freeButton = newFreeButton;
-            proButton = newProButton;
-
-            // Update Free plan button
+            // Update Free button
             if (isAuthenticated && !isPremium) {
-                console.log('User is FREE - showing Current');
                 freeButton.textContent = 'Current';
                 freeButton.disabled = true;
                 freeButton.classList.add('disabled');
-            } else if (!isAuthenticated) {
-                console.log('User is GUEST - showing Sign up');
-                freeButton.textContent = 'Sign up';
-                freeButton.disabled = false;
-                freeButton.classList.remove('disabled');
-                freeButton.addEventListener('click', handleFreeSignup);
-            } else {
-                console.log('User is PRO - Free plan disabled');
-                freeButton.textContent = 'Sign up';
+            } else if (isPremium) {
                 freeButton.disabled = true;
                 freeButton.classList.add('disabled');
             }
-
-            // Update Pro plan button
+            
+            // Update Pro button
             if (isPremium) {
-                console.log('User is PRO - showing Current');
                 proButton.textContent = 'Current';
                 proButton.disabled = true;
                 proButton.classList.add('disabled');
-            } else if (isAuthenticated) {
-                console.log('User is FREE - showing Upgrade to Pro with Stripe');
-                proButton.textContent = 'Upgrade to Pro';
-                proButton.disabled = false;
-                proButton.classList.remove('disabled');
-                proButton.addEventListener('click', handleProUpgradeAuth);
-            } else {
-                console.log('User is GUEST - showing Upgrade to Pro with signup');
-                proButton.textContent = 'Upgrade to Pro';
-                proButton.disabled = false;
-                proButton.classList.remove('disabled');
-                proButton.addEventListener('click', handleProUpgradeGuest);
+            }
+            
+            // Check for Clerk again if not loaded yet
+            if (!window.Clerk || window.Clerk.user === undefined) {
+                setTimeout(updateButtonStates, 500);
             }
         }
 
