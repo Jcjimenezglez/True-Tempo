@@ -87,7 +87,8 @@ class PomodoroTimer {
             "Nightfall Notebook 2.mp3",
             "Nightlight Dreams.mp3",
             "Under the Neon Moon.mp3",
-            "Under the Neon Moon 2.mp3"
+            "Under the Neon Moon 2.mp3",
+            "Whisper of the Leaves.mp3"
         ];
 		this.currentTrackIndex = 0;
 		// Fade/ducking state
