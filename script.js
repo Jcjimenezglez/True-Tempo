@@ -66,6 +66,11 @@ class PomodoroTimer {
 		];
 		this.currentRainTrackIndex = 0;
 
+		// Nature sounds system (Whisper of Leaves)
+		this.naturePlaying = false;
+		const savedNatureEnabled = localStorage.getItem('natureEnabled');
+		this.natureEnabled = savedNatureEnabled === null ? false : savedNatureEnabled === 'true';
+		this.natureTrack = "Whisper of the Leaves.mp3";
 
 		this.playlist = [
             "Chasing Clouds.mp3",
@@ -87,8 +92,7 @@ class PomodoroTimer {
             "Nightfall Notebook 2.mp3",
             "Nightlight Dreams.mp3",
             "Under the Neon Moon.mp3",
-            "Under the Neon Moon 2.mp3",
-            "Whisper of the Leaves.mp3"
+            "Under the Neon Moon 2.mp3"
         ];
 		this.currentTrackIndex = 0;
 		// Fade/ducking state
@@ -154,8 +158,11 @@ class PomodoroTimer {
             this.backgroundAudio.addEventListener('play', () => {
                 const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
                 const isRain = /\/audio\/Rain\//.test(src);
+                const isNature = /\/audio\/nature\//.test(src);
+                const isLofi = /\/audio\/lofi\//.test(src);
                 this.rainPlaying = isRain;
-                this.ambientPlaying = !isRain;
+                this.naturePlaying = isNature;
+                this.ambientPlaying = isLofi;
             });
         }
 
@@ -2920,6 +2927,71 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
     }
 
+    async playNatureSound() {
+        console.log('🍃 playNatureSound called');
+        if (!this.backgroundAudio) {
+            console.log('❌ No backgroundAudio element found');
+            return;
+        }
+        if (!this.natureTrack) {
+            console.log('❌ No nature track available');
+            return;
+        }
+        // Ensure we stop any other playback and swap source cleanly
+        this.backgroundAudio.pause();
+        const natureSrc = '/audio/nature/' + this.natureTrack;
+        console.log('🍃 Setting Nature sound source:', natureSrc);
+        this.backgroundAudio.src = natureSrc;
+        this.backgroundAudio.loop = true; // Loop infinitely
+        this.backgroundAudio.volume = this.ambientVolume;
+        console.log('🍃 Volume set to:', this.ambientVolume);
+        try { 
+            await this.backgroundAudio.play();
+            console.log('✅ Nature sound started');
+        } catch (error) { 
+            console.error('❌ Failed to play nature sound:', error);
+        }
+        this.naturePlaying = true;
+        this.rainPlaying = false;
+        this.ambientPlaying = false;
+        this.buryTheLightPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    stopNatureSound() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.naturePlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseNatureSound() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.naturePlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    resumeNatureSound() {
+        if (!this.backgroundAudio) return;
+        if (!this.natureEnabled) return;
+        // Ensure the correct source is loaded when resuming
+        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+        const isNatureSrc = /\/audio\/nature\//.test(src);
+        if (!isNatureSrc) {
+            // Wrong source, reload nature sound
+            this.playNatureSound();
+            return;
+        }
+        // Resume from where we left off
+        try { this.backgroundAudio.play(); } catch (_) {}
+        this.naturePlaying = true;
+        this.rainPlaying = false;
+        this.ambientPlaying = false;
+        this.buryTheLightPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
     resumeBuryTheLightPlaylist() {
         if (!this.backgroundAudio) return;
         if (!this.buryTheLightEnabled) return;
@@ -3100,7 +3172,7 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Resume background music if enabled (persisted flag)
-        if (this.ambientEnabled || this.buryTheLightEnabled || this.rainEnabled) {
+        if (this.ambientEnabled || this.buryTheLightEnabled || this.rainEnabled || this.natureEnabled) {
             const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
             if (this.buryTheLightEnabled) {
                 // Always ensure correct source for BTL
@@ -3115,6 +3187,13 @@ class PomodoroTimer {
                     this.resumeRainPlaylist();
                 } else {
                     this.playRainPlaylist();
+                }
+            } else if (this.natureEnabled) {
+                // Nature sound (loops infinitely)
+                if (hasProgress && /\/audio\/nature\//.test(this.backgroundAudio.currentSrc || '')) {
+                    this.resumeNatureSound();
+                } else {
+                    this.playNatureSound();
                 }
             } else if (this.ambientEnabled) {
                 if (hasProgress && /\/audio\/lofi\//.test(this.backgroundAudio.currentSrc || '')) {
@@ -11066,6 +11145,7 @@ class PomodoroTimer {
         let currentMusic = 'none';
         if (this.rainEnabled) currentMusic = 'rain';
         if (this.ambientEnabled) currentMusic = 'lofi';
+        if (this.natureEnabled) currentMusic = 'whisper-of-leaves';
         
         musicOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -11119,16 +11199,39 @@ class PomodoroTimer {
                     case 'none':
                         this.stopRainPlaylist();
                         this.stopAmbientPlaylist();
+                        this.stopNatureSound();
+                        this.rainEnabled = false;
+                        this.ambientEnabled = false;
+                        this.natureEnabled = false;
+                        localStorage.setItem('rainEnabled', 'false');
+                        localStorage.setItem('ambientEnabled', 'false');
+                        localStorage.setItem('natureEnabled', 'false');
+                        break;
+                        
+                    case 'whisper-of-leaves':
+                        this.stopRainPlaylist();
+                        this.stopAmbientPlaylist();
                         this.rainEnabled = false;
                         this.ambientEnabled = false;
                         localStorage.setItem('rainEnabled', 'false');
                         localStorage.setItem('ambientEnabled', 'false');
+                        
+                        this.natureEnabled = true;
+                        localStorage.setItem('natureEnabled', 'true');
+                        
+                        // Only play if timer is running
+                        if (this.isRunning) {
+                            await this.playNatureSound();
+                        }
                         break;
                         
                     case 'rain':
                         this.stopAmbientPlaylist();
+                        this.stopNatureSound();
                         this.ambientEnabled = false;
+                        this.natureEnabled = false;
                         localStorage.setItem('ambientEnabled', 'false');
+                        localStorage.setItem('natureEnabled', 'false');
                         
                         this.rainEnabled = true;
                         localStorage.setItem('rainEnabled', 'true');
@@ -11141,8 +11244,11 @@ class PomodoroTimer {
                         
                     case 'lofi':
                         this.stopRainPlaylist();
+                        this.stopNatureSound();
                         this.rainEnabled = false;
+                        this.natureEnabled = false;
                         localStorage.setItem('rainEnabled', 'false');
+                        localStorage.setItem('natureEnabled', 'false');
                         
                         this.ambientEnabled = true;
                         localStorage.setItem('ambientEnabled', 'true');
