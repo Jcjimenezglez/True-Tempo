@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar IDs de Conversión - Superfocus</title>
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PWPTLLHZ');</script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T3T0PES8C0"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-T3T0PES8C0');
+    </script>
+    
+    <!-- Google Ads Conversion Tracking -->
+    <script>
+        gtag('config', 'AW-17614436696');
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .verification-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .verification-section h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .id-display {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWPTLLHZ"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    
+    <div class="container">
+        <h1>🔍 Verificar IDs de Conversión de Google Ads</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instrucciones para Verificar los IDs Correctos:</h3>
+            <ol>
+                <li><strong>Ve a Google Ads:</strong> <a href="https://ads.google.com" target="_blank">ads.google.com</a></li>
+                <li><strong>Navega a:</strong> Herramientas y configuración → Conversiones</li>
+                <li><strong>Busca tus acciones de conversión:</strong>
+                    <ul>
+                        <li>Una para "Signup" o "Registro"</li>
+                        <li>Una para "Subscription" o "Suscripción"</li>
+                    </ul>
+                </li>
+                <li><strong>Para cada acción:</strong>
+                    <ul>
+                        <li>Haz clic en la acción</li>
+                        <li>Busca la sección "Etiqueta de conversión"</li>
+                        <li>Copia el ID completo (formato: AW-XXXXXXXXX/YYYYYYYYY)</li>
+                    </ul>
+                </li>
+                <li><strong>Compara</strong> con los IDs mostrados abajo</li>
+            </ol>
+        </div>
+        
+        <div class="verification-section">
+            <h3>🎯 IDs Actuales en el Código:</h3>
+            
+            <h4>ID Base de Google Ads:</h4>
+            <div class="id-display">AW-17614436696</div>
+            
+            <h4>ID para Signup:</h4>
+            <div class="id-display">AW-17614436696/HLp9CM6Plq0bENjym89B</div>
+            
+            <h4>ID para Subscription:</h4>
+            <div class="id-display">AW-17614436696/uBZgCNz9pq0bENjym89B</div>
+        </div>
+        
+        <div class="verification-section">
+            <h3>📝 Código de Ejemplo que Deberías Ver en Google Ads:</h3>
+            
+            <h4>Para Signup:</h4>
+            <div class="code-block">gtag('event', 'conversion', {
+    'send_to': '<span class="highlight">AW-17614436696/HLp9CM6Plq0bENjym89B</span>',
+    'value': 1.0,
+    'currency': 'USD'
+});</div>
+            
+            <h4>Para Subscription:</h4>
+            <div class="code-block">gtag('event', 'conversion', {
+    'send_to': '<span class="highlight">AW-17614436696/uBZgCNz9pq0bENjym89B</span>',
+    'value': 9.0,
+    'currency': 'USD'
+});</div>
+        </div>
+        
+        <div class="verification-section">
+            <h3>🧪 Test de Verificación:</h3>
+            <p>Usa estos botones para probar si los IDs funcionan correctamente:</p>
+            
+            <button onclick="testSignupID()">Test ID de Signup</button>
+            <button onclick="testSubscriptionID()">Test ID de Subscription</button>
+            <button onclick="checkGtagConfig()" class="secondary">Verificar Configuración</button>
+        </div>
+        
+        <div id="testResults"></div>
+        
+        <div class="verification-section">
+            <h3>⚠️ Si los IDs No Coinciden:</h3>
+            <div class="status warning">
+                <strong>Si los IDs en Google Ads son diferentes a los mostrados arriba:</strong><br><br>
+                1. <strong>Copia los IDs correctos</strong> de Google Ads<br>
+                2. <strong>Dime cuáles son</strong> y los actualizaré en el código<br>
+                3. <strong>O actualiza manualmente</strong> en los archivos:
+                <ul>
+                    <li><code>script.js</code> (líneas 8789 y 8796)</li>
+                    <li><code>api/stripe-webhook.js</code> (líneas 8-10)</li>
+                    <li><code>test-conversion-tracking.html</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const testResults = document.getElementById('testResults');
+        
+        function showResult(message, type = 'info') {
+            testResults.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function checkGtagConfig() {
+            showResult('🔍 Verificando configuración de gtag...', 'info');
+            
+            setTimeout(() => {
+                if (typeof gtag === 'undefined') {
+                    showResult('❌ <strong>Error:</strong> gtag no está disponible. Verifica que Google Tag Manager esté cargando correctamente.', 'error');
+                    return;
+                }
+                
+                // Check if Google Ads config is loaded
+                const config = window.dataLayer?.find(item => 
+                    item[0] === 'config' && item[1] === 'AW-17614436696'
+                );
+                
+                if (config) {
+                    showResult('✅ <strong>Configuración correcta:</strong> Google Ads (AW-17614436696) está configurado correctamente.', 'success');
+                } else {
+                    showResult('⚠️ <strong>Advertencia:</strong> No se pudo verificar la configuración de Google Ads. Esto puede ser normal.', 'warning');
+                }
+            }, 1000);
+        }
+        
+        function testSignupID() {
+            showResult('🎯 Probando ID de signup...', 'info');
+            
+            if (typeof gtag === 'undefined') {
+                showResult('❌ <strong>Error:</strong> gtag no está disponible.', 'error');
+                return;
+            }
+            
+            try {
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17614436696/HLp9CM6Plq0bENjym89B',
+                    'value': 1.0,
+                    'currency': 'USD'
+                });
+                
+                showResult('✅ <strong>Test exitoso:</strong> ID de signup enviado correctamente. Verifica en Google Ads en 2-3 horas.', 'success');
+            } catch (error) {
+                showResult(`❌ <strong>Error:</strong> ${error.message}`, 'error');
+            }
+        }
+        
+        function testSubscriptionID() {
+            showResult('🎯 Probando ID de subscription...', 'info');
+            
+            if (typeof gtag === 'undefined') {
+                showResult('❌ <strong>Error:</strong> gtag no está disponible.', 'error');
+                return;
+            }
+            
+            try {
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17614436696/uBZgCNz9pq0bENjym89B',
+                    'value': 9.0,
+                    'currency': 'USD'
+                });
+                
+                showResult('✅ <strong>Test exitoso:</strong> ID de subscription enviado correctamente. Verifica en Google Ads en 2-3 horas.', 'success');
+            } catch (error) {
+                showResult(`❌ <strong>Error:</strong> ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-check on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkGtagConfig();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

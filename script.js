@@ -8766,6 +8766,63 @@ class PomodoroTimer {
         }
     }
 
+    // Centralized conversion tracking function
+    trackConversion(type, value = 1.0, additionalData = {}) {
+        console.log(`🎯 Tracking ${type} conversion...`);
+        
+        try {
+            if (typeof gtag === 'undefined') {
+                console.warn('⚠️ gtag not available for tracking');
+                return false;
+            }
+
+            let conversionId;
+            let eventName;
+            let eventData = {
+                'value': value,
+                'currency': 'USD',
+                ...additionalData
+            };
+
+            switch (type) {
+                case 'signup':
+                    conversionId = 'AW-17614436696/HLp9CM6Plq0bENjym89B';
+                    eventName = 'sign_up';
+                    eventData.method = 'clerk';
+                    eventData.event_category = 'engagement';
+                    eventData.event_label = 'user_signup';
+                    break;
+                case 'subscription':
+                    conversionId = 'AW-17614436696/uBZgCNz9pq0bENjym89B';
+                    eventName = 'purchase';
+                    eventData.transaction_id = 'superfocus_pro_' + Date.now();
+                    eventData.event_category = 'ecommerce';
+                    eventData.event_label = 'pro_subscription';
+                    break;
+                default:
+                    console.error('❌ Unknown conversion type:', type);
+                    return false;
+            }
+
+            // Track Google Ads conversion
+            gtag('event', 'conversion', {
+                'send_to': conversionId,
+                'value': value,
+                'currency': 'USD'
+            });
+
+            // Track Google Analytics event
+            gtag('event', eventName, eventData);
+
+            console.log(`✅ ${type} conversion tracked successfully`);
+            return true;
+
+        } catch (error) {
+            console.error(`❌ Error tracking ${type} conversion:`, error);
+            return false;
+        }
+    }
+
     checkSignupSuccessRedirect() {
         // Check if user just signed up successfully or completed payment
         const urlParams = new URLSearchParams(window.location.search);
@@ -8778,30 +8835,8 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
-            // Track signup conversion for Google Ads
-            console.log('🎯 Tracking signup conversion...');
-            try {
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'conversion', {
-                        'send_to': 'AW-17614436696/HLp9CM6Plq0bENjym89B',
-                        'value': 1.0,
-                        'currency': 'USD'
-                    });
-                    
-                    // Also send to Google Analytics
-                    gtag('event', 'sign_up', {
-                        'method': 'clerk',
-                        'event_category': 'engagement',
-                        'event_label': 'user_signup'
-                    });
-                    
-                    console.log('✅ Signup conversion tracked successfully');
-                } else {
-                    console.warn('⚠️ gtag not available for tracking');
-                }
-            } catch (error) {
-                console.error('❌ Error tracking signup conversion:', error);
-            }
+            // Track signup conversion
+            this.trackConversion('signup');
             
             // Show success message for signup - DISABLED
             // setTimeout(() => {
@@ -8813,6 +8848,9 @@ class PomodoroTimer {
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
+            
+            // Track subscription conversion immediately
+            this.trackConversion('subscription', 9.0);
             
             // Show success message for payment and refresh premium status
             setTimeout(() => {
@@ -8874,26 +8912,8 @@ class PomodoroTimer {
     }
 
     showPaymentSuccessMessage() {
-        // Google Ads Subscribe Conversion Tracking
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'conversion', {
-                'send_to': 'AW-17614436696/uBZgCNz9pq0bENjym89B',
-                'value': 9.0,
-                'currency': 'USD'
-            });
-            console.log('Google Ads subscription conversion tracked');
-            
-            // Also send to Google Analytics
-            gtag('event', 'purchase', {
-                'transaction_id': 'superfocus_pro_' + Date.now(),
-                'value': 9.0,
-                'currency': 'USD',
-                'event_category': 'ecommerce',
-                'event_label': 'pro_subscription'
-            });
-            
-            console.log('✅ Google Analytics purchase event tracked');
-        }
+        // Note: Conversion tracking is now handled in checkSignupSuccessRedirect()
+        // to avoid duplicate tracking
         
         // Show success notification for payment
         const notification = document.createElement('div');

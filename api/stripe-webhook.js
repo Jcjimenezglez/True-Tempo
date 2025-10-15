@@ -2,6 +2,32 @@
 const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+// Function to send conversion tracking to Google Ads (server-side)
+async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null) {
+  try {
+    const conversionId = conversionType === 'signup' 
+      ? 'AW-17614436696/HLp9CM6Plq0bENjym89B'
+      : 'AW-17614436696/uBZgCNz9pq0bENjym89B';
+    
+    const payload = {
+      conversion_action: conversionId,
+      conversion_value: value,
+      currency_code: 'USD',
+      transaction_id: transactionId || `server_${conversionType}_${Date.now()}`
+    };
+
+    // Note: This is a placeholder for server-side conversion tracking
+    // In practice, you would need to implement server-side conversion tracking
+    // using Google Ads API or Measurement Protocol
+    console.log(`🎯 Server-side conversion tracking: ${conversionType}`, payload);
+    
+    return true;
+  } catch (error) {
+    console.error(`❌ Error tracking server-side conversion:`, error);
+    return false;
+  }
+}
+
 // Helper to read raw body for Stripe signature verification on Vercel Node functions
 async function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -119,6 +145,10 @@ async function handleCheckoutCompleted(session, clerk) {
     });
 
     console.log(`Updated Clerk user ${targetUserId} with premium status`);
+    
+    // Track subscription conversion server-side
+    await trackConversionServerSide('subscription', 9.0, session.id);
+    
   } catch (error) {
     console.error('Error updating Clerk user:', error);
   }
