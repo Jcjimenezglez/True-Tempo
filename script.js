@@ -11452,7 +11452,7 @@ class PomodoroTimer {
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
         // Apply the saved theme and overlay
-        this.applyTheme(this.currentTheme);
+        this.applyBackground(this.currentBackground);
         this.applyOverlay(this.overlayOpacity);
         
         // Get all theme options (not music options)
@@ -11507,8 +11507,8 @@ class PomodoroTimer {
                 option.classList.add('active');
                 if (radio) radio.checked = true;
                 
-                // Apply the selected theme
-                this.applyTheme(themeName);
+                // Apply the selected background
+                this.applyBackground(themeName);
             });
         });
         
@@ -11798,7 +11798,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Ensure theme is applied after DOM is fully ready
-    timer.applyTheme(timer.currentTheme);
+    timer.applyBackground(timer.currentBackground);
     timer.applyOverlay(timer.overlayOpacity);
     
     // Mobile menu toggle
@@ -11897,8 +11897,10 @@ class SidebarManager {
         this.musicPanelOverlay = document.getElementById('musicPanelOverlay');
         this.settingsSidePanel = document.getElementById('settingsSidePanel');
         this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
-        this.themeSidePanel = document.getElementById('themeSidePanel');
-        this.themePanelOverlay = document.getElementById('themePanelOverlay');
+        this.backgroundSidePanel = document.getElementById('backgroundSidePanel');
+        this.backgroundPanelOverlay = document.getElementById('backgroundPanelOverlay');
+        this.immersiveThemeSidePanel = document.getElementById('immersiveThemeSidePanel');
+        this.immersiveThemePanelOverlay = document.getElementById('immersiveThemePanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -11906,7 +11908,8 @@ class SidebarManager {
         this.isTaskPanelOpen = false;
         this.isMusicPanelOpen = false;
         this.isSettingsPanelOpen = false;
-        this.isThemePanelOpen = false;
+        this.isBackgroundPanelOpen = false;
+        this.isImmersiveThemePanelOpen = false;
         
         this.init();
     }
@@ -12270,8 +12273,8 @@ class SidebarManager {
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
             }
-            if (this.isThemePanelOpen) {
-                this.closeThemePanel();
+            if (this.isBackgroundPanelOpen) {
+                this.closeBackgroundPanel();
             }
             
             this.taskSidePanel.classList.add('open');
@@ -12346,8 +12349,8 @@ class SidebarManager {
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
             }
-            if (this.isThemePanelOpen) {
-                this.closeThemePanel();
+            if (this.isBackgroundPanelOpen) {
+                this.closeBackgroundPanel();
             }
             
             this.musicSidePanel.classList.add('open');
@@ -12413,8 +12416,8 @@ class SidebarManager {
             if (this.isMusicPanelOpen) {
                 this.closeMusicPanel();
             }
-            if (this.isThemePanelOpen) {
-                this.closeThemePanel();
+            if (this.isBackgroundPanelOpen) {
+                this.closeBackgroundPanel();
             }
             
             this.settingsSidePanel.classList.add('open');
@@ -12489,8 +12492,8 @@ class SidebarManager {
         }
     }
     
-    openThemePanel() {
-        if (this.themeSidePanel) {
+    openBackgroundPanel() {
+        if (this.backgroundSidePanel) {
             // Close other panels if open
             if (this.isTaskPanelOpen) {
                 this.closeTaskPanel();
@@ -12502,16 +12505,16 @@ class SidebarManager {
                 this.closeSettingsPanel();
             }
             
-            this.themeSidePanel.classList.add('open');
-            this.isThemePanelOpen = true;
+            this.backgroundSidePanel.classList.add('open');
+            this.isBackgroundPanelOpen = true;
             
             // Show overlay
-            if (this.themePanelOverlay) {
-                this.themePanelOverlay.classList.add('active');
+            if (this.backgroundPanelOverlay) {
+                this.backgroundPanelOverlay.classList.add('active');
             }
             
-            // Set Theme nav item as active
-            this.setActiveNavItem('theme');
+            // Set Background nav item as active
+            this.setActiveNavItem('background');
             
             // Push main content to the right
             if (this.mainContent) {
@@ -12525,18 +12528,75 @@ class SidebarManager {
         }
     }
     
-    closeThemePanel() {
-        if (this.themeSidePanel) {
-            this.themeSidePanel.classList.remove('open');
-            this.isThemePanelOpen = false;
+    closeBackgroundPanel() {
+        if (this.backgroundSidePanel) {
+            this.backgroundSidePanel.classList.remove('open');
+            this.isBackgroundPanelOpen = false;
             
             // Hide overlay
-            if (this.themePanelOverlay) {
-                this.themePanelOverlay.classList.remove('active');
+            if (this.backgroundPanelOverlay) {
+                this.backgroundPanelOverlay.classList.remove('active');
             }
             
             // Remove active state from Theme nav item
-            const themeNavItem = document.querySelector('.nav-item[data-section="theme"]');
+            const themeNavItem = document.querySelector('.nav-item[data-section="background"]');
+            if (themeNavItem) {
+                themeNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+
+    openImmersiveThemePanel() {
+        if (this.immersiveThemeSidePanel) {
+            // Close other panels if open
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isMusicPanelOpen) {
+                this.closeMusicPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
+            }
+            if (this.isBackgroundPanelOpen) {
+                this.closeBackgroundPanel();
+            }
+            
+            this.immersiveThemeSidePanel.classList.add('open');
+            this.isImmersiveThemePanelOpen = true;
+            
+            // Show overlay
+            if (this.immersiveThemePanelOverlay) {
+                this.immersiveThemePanelOverlay.classList.add('active');
+            }
+            
+            // Set Theme nav item as active
+            this.setActiveNavItem('immersive-theme');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+        }
+    }
+
+    closeImmersiveThemePanel() {
+        if (this.immersiveThemeSidePanel) {
+            this.immersiveThemeSidePanel.classList.remove('open');
+            this.isImmersiveThemePanelOpen = false;
+            
+            // Hide overlay
+            if (this.immersiveThemePanelOverlay) {
+                this.immersiveThemePanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Theme nav item
+            const themeNavItem = document.querySelector('.nav-item[data-section="immersive-theme"]');
             if (themeNavItem) {
                 themeNavItem.classList.remove('active');
             }
