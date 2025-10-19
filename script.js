@@ -2766,37 +2766,6 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
-    async forceStartLofiMusic() {
-        console.log('🎵 Force starting Lofi music...');
-        
-        if (!this.backgroundAudio) {
-            console.log('❌ No background audio element');
-            return;
-        }
-        
-        if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0) {
-            console.log('❌ No Lofi tracks available yet');
-            return;
-        }
-        
-        // Stop any current music
-        this.backgroundAudio.pause();
-        
-        // Set lofi track
-        this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
-        this.backgroundAudio.loop = false;
-        this.backgroundAudio.volume = this.lofiVolume;
-        
-        try { 
-            await this.backgroundAudio.play(); 
-            console.log('✅ Lofi music force started:', this.lofiShuffledPlaylist[this.currentLofiTrackIndex]);
-        } catch (error) {
-            console.log('❌ Error force playing Lofi:', error);
-        }
-        
-        this.lofiPlaying = true;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
 
     stopLofiPlaylist() {
         if (!this.backgroundAudio) return;
@@ -11500,10 +11469,8 @@ class PomodoroTimer {
             if (this.isAuthenticated) {
                 localStorage.setItem('lofiEnabled', 'true');
             }
-            
-            // Force start lofi music immediately - bypass any blocking conditions
-            this.forceStartLofiMusic();
-            console.log('🎨 Lofi theme applied - Garden Study background + lofi music');
+            // Don't start music automatically - only when user presses Start
+            console.log('🎨 Lofi theme applied - Garden Study background + lofi music (music will start when timer starts)');
             
         } else if (themeName === 'tron') {
             // Tron theme: slideshow + tron music
