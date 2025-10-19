@@ -237,19 +237,12 @@ class PomodoroTimer {
         this.initClerk();
         
         // Apply saved background and overlay on init
-        this.currentBackground = localStorage.getItem('selectedBackground') || 'woman';
+        // Initialize new theme system (default to lofi)
+        this.currentTheme = localStorage.getItem('selectedTheme') || 'lofi';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
-        // Check for immersive theme first (default to Tron)
-        this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'tron';
-        
-        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
-            // Apply immersive theme instead of background
-            this.applyImmersiveTheme(this.currentImmersiveTheme);
-        } else {
-            // Apply normal background
-            this.applyBackground(this.currentBackground);
-        }
+        // Apply the selected theme
+        this.applyTheme(this.currentTheme);
         
         this.applyOverlay(this.overlayOpacity);
         
@@ -11069,162 +11062,6 @@ class PomodoroTimer {
         console.log('✅ renderTasksInSidePanel completed successfully');
     }
 
-    initializeMusicSidePanel() {
-        console.log('🎵 Initializing music side panel');
-        const musicPanel = document.getElementById('musicSidePanel');
-        if (!musicPanel) {
-            console.error('❌ Music panel not found');
-            return;
-        }
-
-        // Create preview audio element if it doesn't exist
-        if (!this.previewAudio) {
-            this.previewAudio = document.createElement('audio');
-            this.previewAudio.id = 'previewAudio';
-        }
-
-        // Set initial volume value
-        const volumeSlider = musicPanel.querySelector('#sidebarAmbientVolume');
-        const volumeValue = musicPanel.querySelector('#sidebarVolumeValue');
-        const volumeControl = musicPanel.querySelector('.theme-overlay-control');
-        
-        if (volumeSlider && volumeValue) {
-            const currentVolume = Math.round(this.ambientVolume * 100);
-            volumeSlider.value = currentVolume;
-            volumeValue.textContent = `${currentVolume}%`;
-            
-            // Disable volume slider for guests
-            const isAuthenticated = this.isAuthenticated;
-            if (!isAuthenticated) {
-                volumeSlider.disabled = true;
-                volumeSlider.style.opacity = '0.4';
-                volumeSlider.style.cursor = 'not-allowed';
-                volumeValue.style.opacity = '0.5';
-                volumeValue.style.color = 'rgba(255, 255, 255, 0.4)';
-                if (volumeControl) {
-                    volumeControl.style.opacity = '0.5';
-                    volumeControl.title = 'Sign up to adjust volume';
-                }
-            }
-            
-            // Volume slider event listener
-            volumeSlider.addEventListener('input', (e) => {
-                // Prevent volume change for guests
-                if (!this.isAuthenticated) {
-                    return;
-                }
-                
-                const vol = parseInt(e.target.value);
-                volumeValue.textContent = `${vol}%`;
-                this.ambientVolume = vol / 100;
-                localStorage.setItem('ambientVolume', this.ambientVolume);
-                if (this.backgroundAudio) {
-                    this.backgroundAudio.volume = this.ambientVolume;
-                }
-                // Update preview audio volume too
-                if (this.previewAudio) {
-                    this.previewAudio.volume = this.ambientVolume;
-                }
-            });
-        }
-
-        // Get all music options
-        const musicOptions = musicPanel.querySelectorAll('.theme-option[data-music]');
-        const isAuthenticated = this.isAuthenticated;
-        
-        // Determine current selection
-        let currentMusic = this.lofiEnabled ? 'lofi' : 'none';
-        
-        musicOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
-            const musicType = option.dataset.music;
-            const signupText = option.querySelector('.theme-signup-required');
-            const isPremium = false; // All music options are now Guest tier
-            
-            // Disable premium options for guests
-            if (!isAuthenticated && isPremium) {
-                option.classList.add('theme-locked');
-                if (radio) radio.disabled = true;
-                
-                // Show "Sign up required" text
-                if (signupText) {
-                    signupText.style.display = 'block';
-                }
-                
-                // Hide description text
-                const description = option.querySelector('.theme-info p:not(.theme-signup-required)');
-                if (description) {
-                    description.style.display = 'none';
-                }
-            }
-            
-            // Set initial selection
-            if (musicType === currentMusic) {
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-            }
-            
-            // Click handler for music option
-            option.addEventListener('click', async () => {
-                // Prevent action if music is locked for guests (check current auth state)
-                if (!this.isAuthenticated && isPremium) {
-                    return;
-                }
-                
-                // Remove active from all options
-                musicOptions.forEach(opt => {
-                    opt.classList.remove('active');
-                    const optRadio = opt.querySelector('input[type="radio"]');
-                    if (optRadio) optRadio.checked = false;
-                });
-                
-                // Add active to clicked option
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-                
-                // Handle music playback
-                switch (musicType) {
-                    case 'none':
-                        // Deactivate immersive theme if active
-                        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
-                            this.deactivateImmersiveTheme();
-                        }
-                        
-                        this.stopLofiPlaylist();
-                        this.lofiEnabled = false;
-                        localStorage.setItem('lofiEnabled', 'false');
-                        
-                        // 🎯 Track Music Toggled event to Mixpanel
-                        if (window.mixpanelTracker) {
-                            window.mixpanelTracker.trackMusicToggled(false, 'none');
-                            console.log('📊 Music toggled (off) event tracked to Mixpanel');
-                        }
-                        break;
-                        
-                    case 'lofi':
-                        // Deactivate immersive theme if active
-                        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
-                            this.deactivateImmersiveTheme();
-                        }
-                        
-                        this.lofiEnabled = true;
-                        localStorage.setItem('lofiEnabled', 'true');
-                        
-                        // 🎯 Track Music Toggled event to Mixpanel
-                        if (window.mixpanelTracker) {
-                            window.mixpanelTracker.trackMusicToggled(true, 'lofi');
-                            console.log('📊 Music toggled (on) event tracked to Mixpanel');
-                        }
-                        
-                        // Only play if timer is running
-                        if (this.isRunning) {
-                            await this.playLofiPlaylist();
-                        }
-                        break;
-                }
-            });
-        });
-    }
 
     async playPreview(type, button) {
         console.log(`🎵 Playing ${type} preview`);
@@ -11438,137 +11275,6 @@ class PomodoroTimer {
         }
     }
 
-    initializeThemePanel() {
-        console.log('🎨 Initializing theme panel');
-        
-        // Check if user is authenticated
-        const isAuthenticated = this.isAuthenticated;
-        
-        // Get current background from localStorage or default to 'woman'
-        let savedBackground = localStorage.getItem('selectedBackground') || 'woman';
-        
-        // Keep the background visual even for non-authenticated users (they just can't change it)
-        // This allows logged-out users to maintain their previous background selection
-        // New users will have 'woman' (Evening Glow) by default from the || operator above
-        
-        this.currentBackground = savedBackground;
-        
-        // Get overlay opacity from localStorage or default to 20%
-        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
-        
-        // Apply the saved theme and overlay
-        this.applyBackground(this.currentBackground);
-        this.applyOverlay(this.overlayOpacity);
-        
-        // Get all background options (not music options)
-        const themeOptions = document.querySelectorAll('.theme-option[data-background]');
-        
-        themeOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
-            const themeName = option.dataset.background;
-            
-            // Disable premium themes for guests
-            // All themes are now Guest tier - no premium themes
-            const isPremiumTheme = false;
-            const signupText = option.querySelector('.theme-signup-required');
-            
-            if (!isAuthenticated && isPremiumTheme) {
-                option.classList.add('theme-locked');
-                if (radio) radio.disabled = true;
-                
-                // Show "Sign up required" text
-                if (signupText) {
-                    signupText.style.display = 'block';
-                }
-                
-                // Hide description text
-                const description = option.querySelector('.theme-info p:not(.theme-signup-required)');
-                if (description) {
-                    description.style.display = 'none';
-                }
-            }
-            
-            // Set initial active state
-            if (themeName === this.currentTheme) {
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-            }
-            
-            // Click handler for theme option
-            option.addEventListener('click', () => {
-                // Prevent action if theme is locked for guests (check current auth state)
-                if (!this.isAuthenticated && isPremiumTheme) {
-                    return;
-                }
-                
-                // Remove active from all options
-                themeOptions.forEach(opt => {
-                    opt.classList.remove('active');
-                    const optRadio = opt.querySelector('input[type="radio"]');
-                    if (optRadio) optRadio.checked = false;
-                });
-                
-                // Add active to clicked option
-                option.classList.add('active');
-                if (radio) radio.checked = true;
-                
-                // Deactivate immersive theme if active
-                if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
-                    this.deactivateImmersiveTheme();
-                }
-                
-                // Apply the selected background
-                this.applyBackground(themeName);
-            });
-        });
-        
-        // Setup overlay slider
-        const overlaySlider = document.getElementById('overlaySlider');
-        const overlayValue = document.getElementById('overlayValue');
-        const overlayControl = document.querySelector('.theme-overlay-control');
-        
-        if (overlaySlider && overlayValue) {
-            // Set initial slider value (convert 0.65 to 65)
-            overlaySlider.value = Math.round(this.overlayOpacity * 100);
-            overlayValue.textContent = `${Math.round(this.overlayOpacity * 100)}%`;
-            
-            // Disable slider for guests
-            if (!isAuthenticated) {
-                overlaySlider.disabled = true;
-                overlaySlider.style.opacity = '0.4';
-                overlaySlider.style.cursor = 'not-allowed';
-                overlayValue.style.opacity = '0.5';
-                overlayValue.style.color = 'rgba(255, 255, 255, 0.4)';
-                if (overlayControl) {
-                    overlayControl.style.opacity = '0.5';
-                    overlayControl.title = 'Sign up to customize contrast';
-                }
-            }
-            
-            // Slider input handler
-            overlaySlider.addEventListener('input', (e) => {
-                // Prevent changes for guests (check current auth state)
-                if (!this.isAuthenticated) {
-                    return;
-                }
-                
-                const value = parseInt(e.target.value);
-                overlayValue.textContent = `${value}%`;
-                
-                // Convert percentage to decimal (65 -> 0.65)
-                const opacity = value / 100;
-                this.overlayOpacity = opacity;
-                
-                // Apply overlay in real-time
-                this.applyOverlay(opacity);
-                
-                // Save to localStorage
-                localStorage.setItem('themeOverlayOpacity', String(opacity));
-                
-                console.log(`🎨 Overlay opacity changed to: ${value}%`);
-            });
-        }
-    }
 
     applyBackground(backgroundName) {
         // Don't apply background if immersive theme is active
@@ -11631,28 +11337,25 @@ class PomodoroTimer {
     }
 
     initializeImmersiveThemePanel() {
-        console.log('🎨 Initializing immersive theme panel');
+        console.log('🎨 Initializing theme panel');
         
-        // Check if user is authenticated
-        const isAuthenticated = this.isAuthenticated;
+        // Get current theme from localStorage or default to 'lofi'
+        let savedTheme = localStorage.getItem('selectedTheme') || 'lofi';
         
-        // Get current immersive theme from localStorage or default to 'tron'
-        let savedImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'tron';
+        this.currentTheme = savedTheme;
         
-        this.currentImmersiveTheme = savedImmersiveTheme;
+        // Initialize volume control
+        this.initializeVolumeControl();
         
-        // Get all immersive theme options
-        const immersiveThemeOptions = document.querySelectorAll('.immersive-theme-option[data-immersive-theme]');
+        // Get all theme options
+        const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
         
-        immersiveThemeOptions.forEach(option => {
+        themeOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
-            const themeName = option.dataset.immersiveTheme;
-            const loginBadge = option.querySelector('.login-required-badge');
+            const themeName = option.dataset.theme;
             
-            // Themes are now available for all users (no authentication required)
-            
-            // Set initial active state for Tron (default)
-            if (themeName === savedImmersiveTheme) {
+            // Set initial active state
+            if (themeName === savedTheme) {
                 option.classList.add('active');
                 if (radio) radio.checked = true;
             }
@@ -11662,7 +11365,7 @@ class PomodoroTimer {
                 e.preventDefault();
                 
                 // Remove active from all options
-                immersiveThemeOptions.forEach(opt => {
+                themeOptions.forEach(opt => {
                     opt.classList.remove('active');
                     const optRadio = opt.querySelector('input[type="radio"]');
                     if (optRadio) optRadio.checked = false;
@@ -11672,22 +11375,83 @@ class PomodoroTimer {
                 option.classList.add('active');
                 if (radio) radio.checked = true;
                 
-                // Apply the selected immersive theme
-                this.applyImmersiveTheme(themeName);
+                // Apply the selected theme
+                this.applyTheme(themeName);
                 
                 // Save to localStorage
-                localStorage.setItem('selectedImmersiveTheme', themeName);
-                this.currentImmersiveTheme = themeName;
+                localStorage.setItem('selectedTheme', themeName);
+                this.currentTheme = themeName;
             });
         });
+        
+        // Apply the saved theme on initialization
+        this.applyTheme(savedTheme);
+    }
+    
+    initializeVolumeControl() {
+        const volumeSlider = document.getElementById('sidebarAmbientVolume');
+        const volumeValue = document.getElementById('sidebarVolumeValue');
+        
+        if (volumeSlider && volumeValue) {
+            // Set initial volume
+            volumeSlider.value = this.lofiVolume * 100;
+            volumeValue.textContent = Math.round(this.lofiVolume * 100) + '%';
+            
+            // Add event listener
+            volumeSlider.addEventListener('input', (e) => {
+                const newVolume = e.target.value / 100;
+                this.lofiVolume = newVolume;
+                volumeValue.textContent = e.target.value + '%';
+                
+                // Update audio volume if playing
+                const audio = document.getElementById('backgroundAudio');
+                if (audio) {
+                    audio.volume = newVolume;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('lofiVolume', newVolume.toString());
+            });
+        }
     }
 
-    async applyImmersiveTheme(themeName) {
-        if (themeName === 'tron') {
-            await this.loadTronAssets();
-            this.activateTronTheme();
-        } else {
-            this.deactivateImmersiveTheme();
+    applyTheme(themeName) {
+        console.log(`🎨 Applying theme: ${themeName}`);
+        
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        // Remove all background classes
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        if (themeName === 'simple') {
+            // Simple theme: black background, no music
+            timerSection.classList.add('theme-minimalist');
+            this.stopLofiMusic();
+            this.lofiEnabled = false;
+            localStorage.setItem('lofiEnabled', 'false');
+            console.log('🎨 Simple theme applied - black background, no music');
+            
+        } else if (themeName === 'lofi') {
+            // Lofi theme: Garden Study background + lofi music
+            timerSection.classList.add('theme-woman');
+            this.lofiEnabled = true;
+            localStorage.setItem('lofiEnabled', 'true');
+            this.startLofiMusic();
+            console.log('🎨 Lofi theme applied - Garden Study background + lofi music');
+        }
+        
+        // Save theme preference
+        localStorage.setItem('selectedTheme', themeName);
+        this.currentTheme = themeName;
+        
+        // Track theme change
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackCustomEvent('Theme Changed', { theme_name: themeName });
+            console.log('📊 Theme changed event tracked to Mixpanel');
         }
     }
 
@@ -12136,12 +11900,8 @@ class SidebarManager {
         this.navItems = document.querySelectorAll('.nav-item');
         this.taskSidePanel = document.getElementById('taskSidePanel');
         this.taskPanelOverlay = document.getElementById('taskPanelOverlay');
-        this.musicSidePanel = document.getElementById('musicSidePanel');
-        this.musicPanelOverlay = document.getElementById('musicPanelOverlay');
         this.settingsSidePanel = document.getElementById('settingsSidePanel');
         this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
-        this.backgroundSidePanel = document.getElementById('backgroundSidePanel');
-        this.backgroundPanelOverlay = document.getElementById('backgroundPanelOverlay');
         this.immersiveThemeSidePanel = document.getElementById('immersiveThemeSidePanel');
         this.immersiveThemePanelOverlay = document.getElementById('immersiveThemePanelOverlay');
         
@@ -12149,9 +11909,7 @@ class SidebarManager {
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
         this.isTaskPanelOpen = false;
-        this.isMusicPanelOpen = false;
         this.isSettingsPanelOpen = false;
-        this.isBackgroundPanelOpen = false;
         this.isImmersiveThemePanelOpen = false;
         
         this.init();
@@ -12293,17 +12051,10 @@ class SidebarManager {
                 this.hideMobile();
                 this.closeTaskPanel();
                 this.closeSettingsPanel();
-                this.closeMusicPanel();
-                this.closeThemePanel();
+                this.closeImmersiveThemePanel();
             });
         }
         
-        // Music panel overlay click to close music panel
-        if (this.musicPanelOverlay) {
-            this.musicPanelOverlay.addEventListener('click', () => {
-                this.closeMusicPanel();
-            });
-        }
         
         // Settings panel overlay click to close settings panel
         if (this.settingsPanelOverlay) {
@@ -12348,12 +12099,6 @@ class SidebarManager {
             });
         }
         
-        const closeMusicPanelBtn = document.getElementById('closeMusicPanel');
-        if (closeMusicPanelBtn) {
-            closeMusicPanelBtn.addEventListener('click', () => {
-                this.closeMusicPanel();
-            });
-        }
         
         const closeImmersiveThemePanelBtn = document.getElementById('closeImmersiveThemePanel');
         if (closeImmersiveThemePanelBtn) {
@@ -12473,14 +12218,6 @@ class SidebarManager {
                 // Toggle settings side panel
                 this.toggleSettingsPanel();
                 break;
-            case 'music':
-                // Toggle music side panel
-                this.toggleMusicPanel();
-                break;
-            case 'background':
-                // Toggle background side panel
-                this.toggleBackgroundPanel();
-                break;
             case 'immersive-theme':
                 // Toggle immersive theme side panel
                 this.toggleImmersiveThemePanel();
@@ -12517,14 +12254,8 @@ class SidebarManager {
     openTaskPanel() {
         if (this.taskSidePanel) {
             // Close other panels if open
-            if (this.isMusicPanelOpen) {
-                this.closeMusicPanel();
-            }
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
-            }
-            if (this.isBackgroundPanelOpen) {
-                this.closeBackgroundPanel();
             }
             if (this.isImmersiveThemePanelOpen) {
                 this.closeImmersiveThemePanel();
@@ -12580,80 +12311,6 @@ class SidebarManager {
         }
     }
     
-    toggleMusicPanel() {
-        if (this.isMusicPanelOpen) {
-            this.closeMusicPanel();
-        } else {
-            // 🎯 Track Sidebar Panel Opened event to Mixpanel
-            if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSidebarPanelOpened('music');
-                console.log('📊 Music panel opened event tracked to Mixpanel');
-            }
-            this.openMusicPanel();
-        }
-    }
-    
-    openMusicPanel() {
-        if (this.musicSidePanel) {
-            // Close other panels if open
-            if (this.isTaskPanelOpen) {
-                this.closeTaskPanel();
-            }
-            if (this.isSettingsPanelOpen) {
-                this.closeSettingsPanel();
-            }
-            if (this.isBackgroundPanelOpen) {
-                this.closeBackgroundPanel();
-            }
-            if (this.isImmersiveThemePanelOpen) {
-                this.closeImmersiveThemePanel();
-            }
-            
-            this.musicSidePanel.classList.add('open');
-            this.isMusicPanelOpen = true;
-            
-            // Show overlay
-            if (this.musicPanelOverlay) {
-                this.musicPanelOverlay.classList.add('active');
-            }
-            
-            // Set Music nav item as active
-            this.setActiveNavItem('music');
-            
-            // Push main content to the right
-            if (this.mainContent) {
-                this.mainContent.classList.add('task-panel-open');
-            }
-            
-            // Initialize music panel controls
-            if (window.pomodoroTimer) {
-                window.pomodoroTimer.initializeMusicSidePanel();
-            }
-        }
-    }
-    
-    closeMusicPanel() {
-        if (this.musicSidePanel) {
-            this.musicSidePanel.classList.remove('open');
-            this.isMusicPanelOpen = false;
-            
-            // Hide overlay
-            if (this.musicPanelOverlay) {
-                this.musicPanelOverlay.classList.remove('active');
-            }
-            
-            // Remove active state from Music nav item
-            const musicNavItem = document.querySelector('.nav-item[data-section="music"]');
-            if (musicNavItem) {
-                musicNavItem.classList.remove('active');
-            }
-            
-            // Reset main content position
-            if (this.mainContent) {
-                this.mainContent.classList.remove('task-panel-open');
-            }
-        }
-    }
     
     toggleSettingsPanel() {
         if (this.isSettingsPanelOpen) {
@@ -12668,12 +12325,6 @@ class SidebarManager {
             // Close other panels if open
             if (this.isTaskPanelOpen) {
                 this.closeTaskPanel();
-            }
-            if (this.isMusicPanelOpen) {
-                this.closeMusicPanel();
-            }
-            if (this.isBackgroundPanelOpen) {
-                this.closeBackgroundPanel();
             }
             if (this.isImmersiveThemePanelOpen) {
                 this.closeImmersiveThemePanel();
@@ -12725,18 +12376,6 @@ class SidebarManager {
         }
     }
     
-    toggleBackgroundPanel() {
-        if (this.isBackgroundPanelOpen) {
-            this.closeBackgroundPanel();
-        } else {
-            // 🎯 Track Sidebar Panel Opened event to Mixpanel
-            if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSidebarPanelOpened('background');
-                console.log('📊 Background panel opened event tracked to Mixpanel');
-            }
-            this.openBackgroundPanel();
-        }
-    }
 
     toggleImmersiveThemePanel() {
         if (this.isImmersiveThemePanelOpen) {
@@ -12751,64 +12390,6 @@ class SidebarManager {
         }
     }
     
-    openBackgroundPanel() {
-        if (this.backgroundSidePanel) {
-            // Close other panels if open
-            if (this.isTaskPanelOpen) {
-                this.closeTaskPanel();
-            }
-            if (this.isMusicPanelOpen) {
-                this.closeMusicPanel();
-            }
-            if (this.isSettingsPanelOpen) {
-                this.closeSettingsPanel();
-            }
-            
-            this.backgroundSidePanel.classList.add('open');
-            this.isBackgroundPanelOpen = true;
-            
-            // Show overlay
-            if (this.backgroundPanelOverlay) {
-                this.backgroundPanelOverlay.classList.add('active');
-            }
-            
-            // Set Background nav item as active
-            this.setActiveNavItem('background');
-            
-            // Push main content to the right
-            if (this.mainContent) {
-                this.mainContent.classList.add('task-panel-open');
-            }
-            
-            // Initialize theme panel controls
-            if (window.pomodoroTimer) {
-                window.pomodoroTimer.initializeThemePanel();
-            }
-        }
-    }
-    
-    closeBackgroundPanel() {
-        if (this.backgroundSidePanel) {
-            this.backgroundSidePanel.classList.remove('open');
-            this.isBackgroundPanelOpen = false;
-            
-            // Hide overlay
-            if (this.backgroundPanelOverlay) {
-                this.backgroundPanelOverlay.classList.remove('active');
-            }
-            
-            // Remove active state from Theme nav item
-            const themeNavItem = document.querySelector('.nav-item[data-section="background"]');
-            if (themeNavItem) {
-                themeNavItem.classList.remove('active');
-            }
-            
-            // Reset main content position
-            if (this.mainContent) {
-                this.mainContent.classList.remove('task-panel-open');
-            }
-        }
-    }
 
     openImmersiveThemePanel() {
         if (this.immersiveThemeSidePanel) {
@@ -12816,14 +12397,8 @@ class SidebarManager {
             if (this.isTaskPanelOpen) {
                 this.closeTaskPanel();
             }
-            if (this.isMusicPanelOpen) {
-                this.closeMusicPanel();
-            }
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
-            }
-            if (this.isBackgroundPanelOpen) {
-                this.closeBackgroundPanel();
             }
             if (this.isImmersiveThemePanelOpen) {
                 this.closeImmersiveThemePanel();
