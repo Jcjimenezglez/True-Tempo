@@ -11732,9 +11732,12 @@ class PomodoroTimer {
             return;
         }
         
-        console.log('🎨 Timer section found, starting slideshow...');
+        console.log('🎨 Timer section found, removing background classes...');
         
-        // No UI changes - just background slideshow
+        // Remove all background classes so Tron slideshow is visible
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        console.log('🎨 Starting slideshow...');
         
         // Start slideshow
         this.startTronSlideshow();
