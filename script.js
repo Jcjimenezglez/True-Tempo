@@ -2513,7 +2513,7 @@ class PomodoroTimer {
                             </div>
                             <div class="toggle-container">
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="noneToggle" ${!rainEnabled && !lofiEnabled ? 'checked' : ''}>
+                                    <input type="checkbox" id="noneToggle" ${false ? 'checked' : ''}>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -2590,7 +2590,7 @@ class PomodoroTimer {
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize toggle states
-        noneToggle.checked = !this.ambientEnabled && !this.rainEnabled;
+        noneToggle.checked = false; // Never show "No sound" as active by default
         if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
         rainToggle.checked = this.rainEnabled;
 
