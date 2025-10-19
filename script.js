@@ -11641,10 +11641,7 @@ class PomodoroTimer {
         }
         this.currentImmersiveTheme = 'none';
         
-        // Close the immersive theme panel (if sidebar manager exists)
-        if (window.sidebarManager && window.sidebarManager.closeImmersiveThemePanel) {
-            window.sidebarManager.closeImmersiveThemePanel();
-        }
+        // Don't close the panel automatically - let user control it
         
         console.log('🎨 Immersive theme deactivated');
         
