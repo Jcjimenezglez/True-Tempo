@@ -2570,9 +2570,16 @@ class PomodoroTimer {
         // The same slider controls the single <audio> element, regardless of source
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
-        // Initialize radio button states - none selected by default
-        if (musicLofi) musicLofi.checked = false;
-        if (musicRain) musicRain.checked = false;
+        // Initialize radio button states
+        // If there's an active immersive theme (like Tron), don't select any music option
+        const hasActiveTheme = this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none';
+        
+        if (musicLofi) {
+            musicLofi.checked = !hasActiveTheme && lofiEnabled;
+        }
+        if (musicRain) {
+            musicRain.checked = !hasActiveTheme && rainEnabled;
+        }
 
         // Lofi radio button logic
         if (musicLofi) {
