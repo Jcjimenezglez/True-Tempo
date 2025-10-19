@@ -11207,6 +11207,11 @@ class PomodoroTimer {
                 // Handle music playback
                 switch (musicType) {
                     case 'none':
+                        // Deactivate immersive theme if active
+                        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+                            this.deactivateImmersiveTheme();
+                        }
+                        
                         this.stopLofiPlaylist();
                         this.lofiEnabled = false;
                         localStorage.setItem('lofiEnabled', 'false');
@@ -11219,6 +11224,11 @@ class PomodoroTimer {
                         break;
                         
                     case 'lofi':
+                        // Deactivate immersive theme if active
+                        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+                            this.deactivateImmersiveTheme();
+                        }
+                        
                         this.lofiEnabled = true;
                         localStorage.setItem('lofiEnabled', 'true');
                         
@@ -11524,6 +11534,11 @@ class PomodoroTimer {
                 option.classList.add('active');
                 if (radio) radio.checked = true;
                 
+                // Deactivate immersive theme if active
+                if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+                    this.deactivateImmersiveTheme();
+                }
+                
                 // Apply the selected background
                 this.applyBackground(themeName);
             });
@@ -11750,20 +11765,15 @@ class PomodoroTimer {
             console.log('🎵 Spotify player removed');
         }
         
-        // Return to original background
-        this.applyBackground(this.currentBackground);
-        
-        // Return to normal music
-        this.lofiEnabled = true;
-        if (this.lofiEnabled && this.isRunning) {
-            this.playLofiPlaylist();
-        }
-        
         // Save preference
         localStorage.setItem('selectedImmersiveTheme', 'none');
         this.currentImmersiveTheme = 'none';
         
-        console.log('🎨 Immersive theme deactivated - returned to original background and music');
+        console.log('🎨 Immersive theme deactivated');
+        
+        // Return to original background (only if not being called from background/music selection)
+        // This will be handled by the caller
+        this.applyBackground(this.currentBackground);
     }
 
     startTronSlideshow() {
