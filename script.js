@@ -237,7 +237,18 @@ class PomodoroTimer {
         // Apply saved background and overlay on init
         this.currentBackground = localStorage.getItem('selectedBackground') || 'woman';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
-        this.applyBackground(this.currentBackground);
+        
+        // Check for immersive theme first
+        this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+        
+        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+            // Apply immersive theme instead of background
+            this.applyImmersiveTheme(this.currentImmersiveTheme);
+        } else {
+            // Apply normal background
+            this.applyBackground(this.currentBackground);
+        }
+        
         this.applyOverlay(this.overlayOpacity);
         
         // Initialize tasks for each focus session
@@ -2759,6 +2770,12 @@ class PomodoroTimer {
     }
 
     async playLofiPlaylist() {
+        // Don't play Lofi music if immersive theme is active
+        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+            console.log(`🎵 Lofi music blocked - immersive theme '${this.currentImmersiveTheme}' is active`);
+            return;
+        }
+        
         if (!this.backgroundAudio) return;
         if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0) {
             console.log('❌ No Lofi tracks available yet');
@@ -11561,6 +11578,12 @@ class PomodoroTimer {
     }
 
     applyBackground(backgroundName) {
+        // Don't apply background if immersive theme is active
+        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+            console.log(`🎨 Background change blocked - immersive theme '${this.currentImmersiveTheme}' is active`);
+            return;
+        }
+        
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) {
             console.error('❌ Timer section not found');
@@ -11709,14 +11732,20 @@ class PomodoroTimer {
         // Stop slideshow
         this.stopTronSlideshow();
         
+        // Return to original background
+        this.applyBackground(this.currentBackground);
+        
         // Return to normal music
         this.lofiEnabled = true;
+        if (this.lofiEnabled && this.isRunning) {
+            this.playLofiPlaylist();
+        }
         
         // Save preference
         localStorage.setItem('selectedImmersiveTheme', 'none');
         this.currentImmersiveTheme = 'none';
         
-        console.log('🎨 Immersive theme deactivated');
+        console.log('🎨 Immersive theme deactivated - returned to original background and music');
     }
 
     startTronSlideshow() {
@@ -11781,9 +11810,17 @@ class PomodoroTimer {
     }
 
     loadTronPlaylist() {
+        // Stop any current music
+        if (this.backgroundAudio) {
+            this.backgroundAudio.pause();
+        }
+        
+        // Disable Lofi music when Tron is active
+        this.lofiEnabled = false;
+        
         // Use Tron playlist in background without opening Spotify
         // The playlist will be used by the existing music system
-        console.log('🎵 Tron playlist loaded in background');
+        console.log('🎵 Tron playlist loaded in background - Lofi music disabled');
     }
 
 
