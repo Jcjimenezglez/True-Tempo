@@ -7651,17 +7651,11 @@ input:checked + .toggle-slider:before {
     overflow: hidden;
 }
 
-.tron-preview-grid {
-    position: absolute;
-    top: 0;
-    left: 0;
+.tron-preview-image {
     width: 100%;
     height: 100%;
-    background-image: 
-        linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-    animation: tron-grid-pulse 2s ease-in-out infinite alternate;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 @keyframes tron-grid-pulse {
