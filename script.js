@@ -57,14 +57,14 @@ class PomodoroTimer {
 		this.lofiShuffledPlaylist = [];
 		this.currentLofiTrackIndex = 0;
 		
-        // Load saved volume if exists, otherwise default to 25%
+		// Load saved volume if exists, otherwise default to 25%
 		const savedVolume = localStorage.getItem('lofiVolume');
 		this.lofiVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
 		// Fade/ducking state
 		this.isDucked = false;
 		this.duckRestoreTimer = null;
 		this.fadeTimer = null;
-		
+        
 		// Immersive Theme System
 		this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
 		this.tronImages = [];
@@ -238,8 +238,8 @@ class PomodoroTimer {
         this.currentBackground = localStorage.getItem('selectedBackground') || 'woman';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
-        // Check for immersive theme first
-        this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+        // Check for immersive theme first (default to Tron)
+        this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'tron';
         
         if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
             // Apply immersive theme instead of background
@@ -11658,8 +11658,8 @@ class PomodoroTimer {
         // Check if user is authenticated
         const isAuthenticated = this.isAuthenticated;
         
-        // Get current immersive theme from localStorage or default to 'none'
-        let savedImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+        // Get current immersive theme from localStorage or default to 'tron'
+        let savedImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'tron';
         
         this.currentImmersiveTheme = savedImmersiveTheme;
         
@@ -11671,27 +11671,11 @@ class PomodoroTimer {
             const themeName = option.dataset.immersiveTheme;
             const loginBadge = option.querySelector('.login-required-badge');
             
-            // Show/hide login badge based on authentication
-            if (loginBadge) {
-                if (isAuthenticated) {
-                    loginBadge.style.display = 'none';
-                } else {
-                    loginBadge.style.display = 'block';
-                }
-            }
+            // Themes are now available for all users (no authentication required)
             
             // Set up click handler
             option.addEventListener('click', (e) => {
                 e.preventDefault();
-                
-                // Check authentication for immersive themes
-                if (!isAuthenticated) {
-                    // Show login modal
-                    if (window.pomodoroTimer && window.pomodoroTimer.showLoginModal) {
-                        window.pomodoroTimer.showLoginModal();
-                    }
-                    return;
-                }
                 
                 // Remove active from all options
                 immersiveThemeOptions.forEach(opt => {
