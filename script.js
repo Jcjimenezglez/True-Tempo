@@ -11455,6 +11455,8 @@ class PomodoroTimer {
             if (this.isAuthenticated) {
                 localStorage.setItem('lofiEnabled', 'false');
             }
+            
+            // Always stop music for Simple theme (whether timer is running or not)
             console.log('🎨 Simple theme applied - black background, no music');
             
         } else if (themeName === 'lofi') {
@@ -11469,8 +11471,14 @@ class PomodoroTimer {
             if (this.isAuthenticated) {
                 localStorage.setItem('lofiEnabled', 'true');
             }
-            // Don't start music automatically - only when user presses Start
-            console.log('🎨 Lofi theme applied - Garden Study background + lofi music (music will start when timer starts)');
+            
+            // If timer is running, start music immediately
+            if (this.isRunning) {
+                this.playLofiPlaylist().catch(err => console.log('Lofi start error:', err));
+                console.log('🎨 Lofi theme applied - Garden Study background + lofi music (music started because timer is running)');
+            } else {
+                console.log('🎨 Lofi theme applied - Garden Study background + lofi music (music will start when timer starts)');
+            }
             
         } else if (themeName === 'tron') {
             // Tron theme: slideshow + tron music
@@ -11483,7 +11491,14 @@ class PomodoroTimer {
             
             this.deactivateImmersiveTheme();
             this.applyImmersiveTheme('tron');
-            console.log('🎨 Tron theme applied - slideshow + tron music');
+            
+            // If timer is running, start Tron music immediately
+            if (this.isRunning) {
+                this.loadTronPlaylist();
+                console.log('🎨 Tron theme applied - slideshow + tron music (music started because timer is running)');
+            } else {
+                console.log('🎨 Tron theme applied - slideshow + tron music (music will start when timer starts)');
+            }
         }
         
         // Save theme preference only if user is authenticated
