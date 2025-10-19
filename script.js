@@ -239,16 +239,16 @@ class PomodoroTimer {
         
         // Apply saved background and overlay on init
         // Initialize new theme system (default to lofi)
-        this.currentTheme = localStorage.getItem('selectedTheme') || 'lofi';
+        // Only load saved theme if user is authenticated, otherwise use default
+        if (this.isAuthenticated) {
+            this.currentTheme = localStorage.getItem('selectedTheme') || 'lofi';
+        } else {
+            this.currentTheme = 'lofi'; // Always default for guests
+        }
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
         // Apply the selected theme with a small delay to ensure DOM is ready
         setTimeout(() => {
-            // Force default to lofi on first visit if not set
-            if (!localStorage.getItem('selectedTheme')) {
-                localStorage.setItem('selectedTheme', 'lofi');
-                this.currentTheme = 'lofi';
-            }
             this.applyTheme(this.currentTheme);
         }, 100);
         
@@ -2735,6 +2735,12 @@ class PomodoroTimer {
         // Don't play Lofi music if immersive theme is active
         if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
             console.log(`🎵 Lofi music blocked - immersive theme '${this.currentImmersiveTheme}' is active`);
+            return;
+        }
+        
+        // Don't play if lofi is disabled
+        if (!this.lofiEnabled) {
+            console.log(`🎵 Lofi music blocked - lofi disabled`);
             return;
         }
         
@@ -11445,7 +11451,9 @@ class PomodoroTimer {
             timerSection.classList.add('theme-minimalist');
             this.stopLofiPlaylist();
             this.lofiEnabled = false;
-            localStorage.setItem('lofiEnabled', 'false');
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'false');
+            }
             console.log('🎨 Simple theme applied - black background, no music');
             
         } else if (themeName === 'lofi') {
@@ -11457,14 +11465,17 @@ class PomodoroTimer {
             
             timerSection.classList.add('theme-woman');
             this.lofiEnabled = true;
-            localStorage.setItem('lofiEnabled', 'true');
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'true');
+            }
             // If audio is already on a lofi track with progress, resume; otherwise start
             const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
             const isLofiSrc = this.backgroundAudio && /\/audio\/Lofi\//.test(this.backgroundAudio.currentSrc || this.backgroundAudio.src || '');
             if (hasProgress && isLofiSrc) {
                 this.resumeLofiPlaylist();
             } else {
-                this.playLofiPlaylist();
+                // Force immediate start of lofi music
+                this.playLofiPlaylist().catch(err => console.log('Lofi start error:', err));
             }
             console.log('🎨 Lofi theme applied - Garden Study background + lofi music');
             
@@ -11473,15 +11484,19 @@ class PomodoroTimer {
             // Stop Lofi music first
             this.stopLofiPlaylist();
             this.lofiEnabled = false;
-            localStorage.setItem('lofiEnabled', 'false');
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'false');
+            }
             
             this.deactivateImmersiveTheme();
             this.applyImmersiveTheme('tron');
             console.log('🎨 Tron theme applied - slideshow + tron music');
         }
         
-        // Save theme preference
-        localStorage.setItem('selectedTheme', themeName);
+        // Save theme preference only if user is authenticated
+        if (this.isAuthenticated) {
+            localStorage.setItem('selectedTheme', themeName);
+        }
         this.currentTheme = themeName;
         
         // Update visual active state
