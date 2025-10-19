@@ -7563,3 +7563,178 @@ input:checked + .toggle-slider:before {
 .theme-option.theme-locked .theme-info p {
     color: rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Tron Theme Styles */
+.theme-tron {
+    background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e);
+    color: #00ffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-tron .progress-ring {
+    stroke: #00ffff;
+    filter: drop-shadow(0 0 10px #00ffff);
+}
+
+.theme-tron .progress-ring .progress-segment {
+    stroke: #00ffff;
+    filter: drop-shadow(0 0 5px #00ffff);
+}
+
+.theme-tron .progress-ring .progress-overlay {
+    stroke: #00ffff;
+    filter: drop-shadow(0 0 8px #00ffff);
+}
+
+.theme-tron .timer-content {
+    text-shadow: 0 0 20px #00ffff;
+    color: #00ffff;
+}
+
+.theme-tron .time {
+    color: #00ffff;
+    text-shadow: 0 0 20px #00ffff;
+}
+
+.theme-tron .start-btn {
+    background: rgba(0, 255, 255, 0.1);
+    border: 2px solid #00ffff;
+    color: #00ffff;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.theme-tron .start-btn:hover {
+    background: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+/* Tron Slideshow Styles */
+.tron-slideshow-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.tron-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 3s ease-in-out;
+}
+
+.tron-background-image.active {
+    opacity: 0.3;
+}
+
+/* Tron Preview Styles */
+.tron-preview {
+    background: linear-gradient(45deg, #0a0a0a, #1a1a2e);
+    position: relative;
+    overflow: hidden;
+}
+
+.tron-preview-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    animation: tron-grid-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes tron-grid-pulse {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.7; }
+}
+
+/* Immersive Theme Panel Styles */
+.immersive-theme-option {
+    position: relative;
+}
+
+.theme-features {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.feature-tag {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.login-required-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 165, 0, 0.1);
+    color: #ffa500;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    margin-top: 8px;
+}
+
+.login-required-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Spotify Notification Styles */
+.spotify-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(30, 215, 96, 0.95);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideInRight 0.3s ease-out;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.notification-content svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

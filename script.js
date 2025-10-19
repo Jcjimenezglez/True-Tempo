@@ -57,13 +57,21 @@ class PomodoroTimer {
 		this.lofiShuffledPlaylist = [];
 		this.currentLofiTrackIndex = 0;
 		
-		// Load saved volume if exists, otherwise default to 25%
+        // Load saved volume if exists, otherwise default to 25%
 		const savedVolume = localStorage.getItem('lofiVolume');
 		this.lofiVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
 		// Fade/ducking state
 		this.isDucked = false;
 		this.duckRestoreTimer = null;
 		this.fadeTimer = null;
+		
+		// Immersive Theme System
+		this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+		this.tronImages = [];
+		this.tronPlaylist = [];
+		this.tronImageIndex = 0;
+		this.tronImageInterval = null;
+		this.tronSlideshowActive = false;
         
         
         // Complete cycle: 25/5/25/5/25/5/25/15
@@ -226,10 +234,10 @@ class PomodoroTimer {
         this.updateNavigationButtons();
         this.initClerk();
         
-        // Apply saved theme and overlay on init
-        this.currentTheme = localStorage.getItem('selectedTheme') || 'woman';
+        // Apply saved background and overlay on init
+        this.currentBackground = localStorage.getItem('selectedBackground') || 'woman';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
-        this.applyTheme(this.currentTheme);
+        this.applyBackground(this.currentBackground);
         this.applyOverlay(this.overlayOpacity);
         
         // Initialize tasks for each focus session
@@ -464,6 +472,13 @@ class PomodoroTimer {
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
+            
+            // 🎯 Track User Login event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackUserLogin('clerk');
+                console.log('📊 User login event tracked to Mixpanel');
+            }
+            
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
             // Always show logo, never show achievement icon
@@ -940,6 +955,12 @@ class PomodoroTimer {
 
     async performLogout() {
         try {
+            // 🎯 Track User Logout event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackUserLogout();
+                console.log('📊 User logout event tracked to Mixpanel');
+            }
+            
             // Add loading state to confirm button
             if (this.confirmLogoutBtn) {
                 this.confirmLogoutBtn.textContent = 'Logging out...';
@@ -1003,6 +1024,15 @@ class PomodoroTimer {
                 this.showLogoutModal();
             } else {
                 console.log('Redirecting to Clerk hosted Sign In...');
+                
+                // 🎯 Track Login Attempt event to Mixpanel
+                if (window.mixpanelTracker) {
+                    window.mixpanelTracker.trackCustomEvent('Login Attempt', {
+                        method: 'clerk_redirect'
+                    });
+                    console.log('📊 Login attempt event tracked to Mixpanel');
+                }
+                
                 // Fixed redirect to homepage as requested
                 window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent('https://www.superfocus.live/');
             }
@@ -1014,6 +1044,15 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
+            
+            // 🎯 Track Signup Attempt event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackCustomEvent('Signup Attempt', {
+                    method: 'clerk_redirect'
+                });
+                console.log('📊 Signup attempt event tracked to Mixpanel');
+            }
+            
             // Redirect to signup with success URL that includes signup=success parameter
             const successUrl = 'https://www.superfocus.live/?signup=success';
             const signupUrl = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
@@ -1950,6 +1989,12 @@ class PomodoroTimer {
         const pricingModal = document.getElementById('pricingModal');
         if (pricingModal) {
             pricingModal.style.display = 'flex';
+            
+            // 🎯 Track Modal Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackModalOpened('pricing');
+                console.log('📊 Pricing modal opened event tracked to Mixpanel');
+            }
         }
     }
     
@@ -1992,6 +2037,12 @@ class PomodoroTimer {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
             settingsModal.style.display = 'flex';
+            
+            // 🎯 Track Modal Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackModalOpened('settings');
+                console.log('📊 Settings modal opened event tracked to Mixpanel');
+            }
             
             // Populate user info
             const emailElement = document.getElementById('settingsModalUserEmail');
@@ -2952,6 +3003,12 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
+        // 🎯 Track Sidebar Panel Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('tasks');
+            console.log('📊 Tasks panel opened event tracked to Mixpanel');
+        }
+        
         // Check user type and subscription level
         if (!this.isAuthenticated || !this.user) {
             // Guest users: show local tasks only
@@ -3045,6 +3102,21 @@ class PomodoroTimer {
             console.log('📊 Timer started event tracked to Analytics');
         }
         
+        // 🎯 Track Timer Started event to Mixpanel
+        if (window.mixpanelTracker) {
+            const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+            const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                               currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+            
+            window.mixpanelTracker.trackTimerStart(
+                sessionType, 
+                currentSectionInfo.duration, 
+                this.currentTaskName
+            );
+            
+            console.log('📊 Timer started event tracked to Mixpanel');
+        }
+        
         // Close all open modals to focus on timer
         this.closeAllModals();
         
@@ -3093,6 +3165,12 @@ class PomodoroTimer {
         
         clearInterval(this.interval);
         this.playUiSound('pause');
+        
+        // 🎯 Track Timer Paused event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackTimerPause();
+            console.log('📊 Timer paused event tracked to Mixpanel');
+        }
         
         // Close all open modals to focus on timer
         this.closeAllModals();
@@ -3165,6 +3243,17 @@ class PomodoroTimer {
     goToPreviousSection() {
         if (this.currentSection > 1) {
             this.pauseTimerSilent(); // Pause without sound
+            
+            // 🎯 Track Timer Skipped event to Mixpanel
+            if (window.mixpanelTracker) {
+                const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+                const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                                   currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+                
+                window.mixpanelTracker.trackTimerSkip(sessionType, 'navigation');
+                console.log('📊 Timer skipped (previous) event tracked to Mixpanel');
+            }
+            
             // Track time completed in current focus session before jumping
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
@@ -3179,6 +3268,17 @@ class PomodoroTimer {
     goToNextSection() {
         if (this.currentSection < this.cycleSections.length) {
             this.pauseTimerSilent(); // Pause without sound
+            
+            // 🎯 Track Timer Skipped event to Mixpanel
+            if (window.mixpanelTracker) {
+                const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+                const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                                   currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+                
+                window.mixpanelTracker.trackTimerSkip(sessionType, 'navigation');
+                console.log('📊 Timer skipped (next) event tracked to Mixpanel');
+            }
+            
             // Track time completed in current focus session before jumping
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
@@ -3300,6 +3400,16 @@ class PomodoroTimer {
         
         // Play notification sound
         this.playNotification();
+        
+        // 🎯 Track Timer Completed event to Mixpanel
+        if (window.mixpanelTracker) {
+            const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+            const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                               currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+            
+            window.mixpanelTracker.trackTimerComplete(sessionType, true);
+            console.log('📊 Timer completed event tracked to Mixpanel');
+        }
         
         // Advance section pointer
         const finishedWasFocus = this.isWorkSession === true;
@@ -7771,6 +7881,12 @@ class PomodoroTimer {
         this.setLocalTasks(tasks);
         // Persist planned sessions so the card progress matches the chosen value
         this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: true, completedSessions: 0 });
+        
+        // 🎯 Track Task Created event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackTaskCreated(description, pomodoros);
+            console.log('📊 Task created event tracked to Mixpanel');
+        }
     }
 
     showImportModal() {
@@ -8838,6 +8954,12 @@ class PomodoroTimer {
             // Track signup conversion
             this.trackConversion('signup');
             
+            // 🎯 Track User Signup event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackUserSignup('clerk');
+                console.log('📊 User signup event tracked to Mixpanel');
+            }
+            
             // Show success message for signup - DISABLED
             // setTimeout(() => {
             //     this.showSignupSuccessMessage();
@@ -8851,6 +8973,12 @@ class PomodoroTimer {
             
             // Track subscription conversion immediately
             this.trackConversion('subscription', 9.0);
+            
+            // 🎯 Track Subscription Upgrade event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackSubscriptionUpgrade('pro');
+                console.log('📊 Subscription upgrade event tracked to Mixpanel');
+            }
             
             // Show success message for payment and refresh premium status
             setTimeout(() => {
@@ -11065,11 +11193,23 @@ class PomodoroTimer {
                         this.stopLofiPlaylist();
                         this.lofiEnabled = false;
                         localStorage.setItem('lofiEnabled', 'false');
+                        
+                        // 🎯 Track Music Toggled event to Mixpanel
+                        if (window.mixpanelTracker) {
+                            window.mixpanelTracker.trackMusicToggled(false, 'none');
+                            console.log('📊 Music toggled (off) event tracked to Mixpanel');
+                        }
                         break;
                         
                     case 'lofi':
                         this.lofiEnabled = true;
                         localStorage.setItem('lofiEnabled', 'true');
+                        
+                        // 🎯 Track Music Toggled event to Mixpanel
+                        if (window.mixpanelTracker) {
+                            window.mixpanelTracker.trackMusicToggled(true, 'lofi');
+                            console.log('📊 Music toggled (on) event tracked to Mixpanel');
+                        }
                         
                         // Only play if timer is running
                         if (this.isRunning) {
@@ -11420,26 +11560,205 @@ class PomodoroTimer {
         }
     }
 
-    applyTheme(themeName) {
+    applyBackground(backgroundName) {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) {
             console.error('❌ Timer section not found');
             return;
         }
         
-        // Remove all theme classes
+        // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
         
-        // Add new theme class
-        timerSection.classList.add(`theme-${themeName}`);
+        // Add new background class
+        timerSection.classList.add(`theme-${backgroundName}`);
         
         // Winter visit button removed - no longer needed
         
         // Save preference to localStorage
-        localStorage.setItem('selectedTheme', themeName);
-        this.currentTheme = themeName;
+        localStorage.setItem('selectedBackground', backgroundName);
+        this.currentBackground = backgroundName;
         
-        console.log(`🎨 Theme changed to: ${themeName}`);
+        // 🎯 Track Background Changed event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackCustomEvent('Background Changed', { background_name: backgroundName });
+            console.log('📊 Background changed event tracked to Mixpanel');
+        }
+        
+        console.log(`🎨 Background changed to: ${backgroundName}`);
+    }
+
+    // Immersive Theme Functions
+    async loadTronAssets() {
+        try {
+            // Load Tron images (using the actual uploaded images)
+            this.tronImages = [
+                '/themes/Tron/1395104.jpg',
+                '/themes/Tron/1395234.jpg',
+                '/themes/Tron/1398525.jpg',
+                '/themes/Tron/1401208.jpg',
+                '/themes/Tron/1401214.jpg',
+                '/themes/Tron/1401926.jpg'
+            ];
+            
+            // Tron Spotify playlist - TRON: Ares Soundtrack by Nine Inch Nails
+            this.tronSpotifyPlaylist = 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl?si=xhBtalAoTAufDdN0FK8ZwA';
+            
+            console.log('🎨 Tron assets loaded');
+        } catch (error) {
+            console.error('❌ Failed to load Tron assets:', error);
+        }
+    }
+
+    async applyImmersiveTheme(themeName) {
+        if (themeName === 'tron') {
+            await this.loadTronAssets();
+            this.activateTronTheme();
+        } else {
+            this.deactivateImmersiveTheme();
+        }
+    }
+
+    activateTronTheme() {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) return;
+        
+        // Add Tron theme class
+        timerSection.classList.add('theme-tron');
+        
+        // Start slideshow
+        this.startTronSlideshow();
+        
+        // Switch to Tron music
+        this.loadTronPlaylist();
+        
+        // Save preference
+        localStorage.setItem('selectedImmersiveTheme', 'tron');
+        this.currentImmersiveTheme = 'tron';
+        
+        console.log('🎨 Tron theme activated');
+    }
+
+    deactivateImmersiveTheme() {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) return;
+        
+        // Remove Tron theme class
+        timerSection.classList.remove('theme-tron');
+        
+        // Stop slideshow
+        this.stopTronSlideshow();
+        
+        // Return to normal music
+        this.lofiEnabled = true;
+        
+        // Save preference
+        localStorage.setItem('selectedImmersiveTheme', 'none');
+        this.currentImmersiveTheme = 'none';
+        
+        console.log('🎨 Immersive theme deactivated');
+    }
+
+    startTronSlideshow() {
+        if (this.tronSlideshowActive || this.tronImages.length === 0) return;
+        
+        this.tronSlideshowActive = true;
+        this.tronImageIndex = 0;
+        
+        // Create slideshow container if it doesn't exist
+        let slideshowContainer = document.querySelector('.tron-slideshow-container');
+        if (!slideshowContainer) {
+            slideshowContainer = document.createElement('div');
+            slideshowContainer.className = 'tron-slideshow-container';
+            document.querySelector('.timer-section').appendChild(slideshowContainer);
+        }
+        
+        // Load first image
+        this.showTronImage(0);
+        
+        // Start rotation
+        this.tronImageInterval = setInterval(() => {
+            this.tronImageIndex = (this.tronImageIndex + 1) % this.tronImages.length;
+            this.showTronImage(this.tronImageIndex);
+        }, 45000); // Change every 45 seconds
+        
+        console.log('🎨 Tron slideshow started');
+    }
+
+    stopTronSlideshow() {
+        if (!this.tronSlideshowActive) return;
+        
+        this.tronSlideshowActive = false;
+        
+        if (this.tronImageInterval) {
+            clearInterval(this.tronImageInterval);
+            this.tronImageInterval = null;
+        }
+        
+        // Remove slideshow container
+        const slideshowContainer = document.querySelector('.tron-slideshow-container');
+        if (slideshowContainer) {
+            slideshowContainer.remove();
+        }
+        
+        console.log('🎨 Tron slideshow stopped');
+    }
+
+    showTronImage(index) {
+        const slideshowContainer = document.querySelector('.tron-slideshow-container');
+        if (!slideshowContainer || !this.tronImages[index]) return;
+        
+        // Remove existing images
+        slideshowContainer.innerHTML = '';
+        
+        // Create new image
+        const img = document.createElement('img');
+        img.src = this.tronImages[index];
+        img.className = 'tron-background-image active';
+        img.alt = `Tron background ${index + 1}`;
+        
+        slideshowContainer.appendChild(img);
+    }
+
+    loadTronPlaylist() {
+        // Open Spotify playlist in new tab
+        if (this.tronSpotifyPlaylist) {
+            // Show notification about Spotify playlist
+            this.showSpotifyNotification();
+            
+            // Open playlist in new tab
+            window.open(this.tronSpotifyPlaylist, '_blank');
+        }
+        
+        // Disable local music when Tron theme is active
+        this.lofiEnabled = false;
+        
+        console.log('🎵 Tron Spotify playlist opened');
+    }
+
+    showSpotifyNotification() {
+        // Create a temporary notification
+        const notification = document.createElement('div');
+        notification.className = 'spotify-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+                <span>Opening TRON: Ares Soundtrack on Spotify...</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
     }
 
     applyOverlay(opacity) {
@@ -11472,6 +11791,11 @@ class PomodoroTimer {
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     window.pomodoroTimer = timer; // Make it globally accessible
+    
+    // Initialize Mixpanel tracking
+    if (window.mixpanelTracker) {
+        window.mixpanelTracker.init();
+    }
     
     // Ensure theme is applied after DOM is fully ready
     timer.applyTheme(timer.currentTheme);
@@ -11900,9 +12224,13 @@ class SidebarManager {
                 // Toggle music side panel
                 this.toggleMusicPanel();
                 break;
-            case 'theme':
-                // Toggle theme side panel
-                this.toggleThemePanel();
+            case 'background':
+                // Toggle background side panel
+                this.toggleBackgroundPanel();
+                break;
+            case 'immersive-theme':
+                // Toggle immersive theme side panel
+                this.toggleImmersiveThemePanel();
                 break;
             case 'timer':
                 // Scroll to timer section
@@ -12000,6 +12328,11 @@ class SidebarManager {
         if (this.isMusicPanelOpen) {
             this.closeMusicPanel();
         } else {
+            // 🎯 Track Sidebar Panel Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackSidebarPanelOpened('music');
+                console.log('📊 Music panel opened event tracked to Mixpanel');
+            }
             this.openMusicPanel();
         }
     }
@@ -12130,11 +12463,29 @@ class SidebarManager {
         }
     }
     
-    toggleThemePanel() {
-        if (this.isThemePanelOpen) {
-            this.closeThemePanel();
+    toggleBackgroundPanel() {
+        if (this.isBackgroundPanelOpen) {
+            this.closeBackgroundPanel();
         } else {
-            this.openThemePanel();
+            // 🎯 Track Sidebar Panel Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackSidebarPanelOpened('background');
+                console.log('📊 Background panel opened event tracked to Mixpanel');
+            }
+            this.openBackgroundPanel();
+        }
+    }
+
+    toggleImmersiveThemePanel() {
+        if (this.isImmersiveThemePanelOpen) {
+            this.closeImmersiveThemePanel();
+        } else {
+            // 🎯 Track Sidebar Panel Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackSidebarPanelOpened('immersive-theme');
+                console.log('📊 Immersive theme panel opened event tracked to Mixpanel');
+            }
+            this.openImmersiveThemePanel();
         }
     }
     

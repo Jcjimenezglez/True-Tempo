@@ -189,6 +189,19 @@
     
     <link rel="stylesheet" href="style.css">
     
+    <!-- Mixpanel -->
+    <script type="text/javascript">
+        (function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;d=function(a,b){return(m=a.match(RegExp(b+"=([^&]*)")))?m[1]:null};f&&d(f,"state")&&(j=JSON.parse(decodeURIComponent(d(f,"state"))),"mpeditor"===j.action&&(b.sessionStorage.setItem("_mpcehash",f),history.replaceState(j.desiredHash||"",c.title,k.pathname+k.search)))}catch(n){}var l,h;window.mixpanel=a;a._i=[];a.init=function(b,d,g){function c(b,i){var a=i.split(".");2==a.length&&(b=b[a[0]],i=a[1]);b[i]=function(){b.push([i].concat(Array.prototype.slice.call(arguments,0)))}}var e=a;"undefined"!==typeof g?e=a[g]=[]:g="mixpanel";e.people=e.people||[];e.toString=function(b){var a="mixpanel";"mixpanel"!==g&&(a+="."+g);b||(a+=" (stub)");return a};e.people.toString=function(){return e.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");for(h=0;h<l.length;h++)c(e,l[h]);var f=a._i;function d(b){var a=b.split(".");2==a.length&&(b=b[a[0]],a=a[1]);return b}function g(b){var a=b.split(".");2==a.length&&(b=b[a[0]],a=a[1]);return a}var j="init identify track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove add_group set_group remove_group".split(" ");for(h=0;h<j.length;h++)c(e,j[h]);a._i.push([b,d,g])};a.__SV=1.2;b=c.createElement("script");b.type="text/javascript";b.async=!0;b.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===c.location.protocol&&"//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js";d=c.getElementsByTagName("script")[0];d.parentNode.insertBefore(b,d)}})(document,window.mixpanel||[]);
+        
+        // Initialize Mixpanel with your project token
+        // Replace 'YOUR_MIXPANEL_TOKEN' with your actual Mixpanel project token
+        mixpanel.init('YOUR_MIXPANEL_TOKEN', {
+            debug: false, // Set to true for development
+            track_pageview: true,
+            persistence: 'localStorage'
+        });
+    </script>
+    
     <!-- Clerk -->
     <script
         async
@@ -245,11 +258,17 @@
                         <circle cx="18" cy="16" r="3"/>
                     </svg>
                 </div>
-                <div class="nav-item" data-section="theme" data-tooltip="Themes">
+                <div class="nav-item" data-section="background" data-tooltip="Background">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                         <circle cx="8.5" cy="8.5" r="1.5"/>
                         <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                </div>
+                <div class="nav-item" data-section="immersive-theme" data-tooltip="Theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        <path d="M8 12l2 2 4-4"/>
                     </svg>
                 </div>
             </div>
@@ -596,17 +615,17 @@
         </div>
     </div>
 
-    <!-- Theme Side Panel -->
-    <div class="task-side-panel" id="themeSidePanel">
-        <button class="close-side-panel-btn" id="closeThemePanel">
+    <!-- Background Side Panel -->
+    <div class="task-side-panel" id="backgroundSidePanel">
+        <button class="close-side-panel-btn" id="closeBackgroundPanel">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m15 18-6-6 6-6"/>
             </svg>
         </button>
         <div class="task-side-panel-content">
             <div class="tasks-header">
-                <h3>Themes</h3>
-                <p class="tasks-subtitle">Choose your visual ambiance</p>
+                <h3>Background</h3>
+                <p class="tasks-subtitle">Choose your background style</p>
             </div>
             
             <!-- Contrast Control -->
@@ -619,49 +638,96 @@
                 <p class="overlay-description">Adjust the contrast on background images</p>
             </div>
             
-            <!-- Theme Options -->
+            <!-- Background Options -->
             <div class="theme-options">
-                <div class="theme-option" data-theme="minimalist">
+                <div class="theme-option" data-background="minimalist">
                     <div class="theme-preview" style="background: #0a0a0a;"></div>
                     <div class="theme-info">
                         <h4>Black</h4>
                         <p>Pure dark background</p>
                     </div>
                     <div class="theme-radio">
-                        <input type="radio" name="theme" id="themeMinimalist" value="minimalist">
-                        <label for="themeMinimalist"></label>
+                        <input type="radio" name="background" id="backgroundMinimalist" value="minimalist">
+                        <label for="backgroundMinimalist"></label>
                     </div>
                 </div>
                 
-                <div class="theme-option" data-theme="woman">
+                <div class="theme-option" data-background="woman">
                     <div class="theme-preview theme-preview-woman"></div>
                     <div class="theme-info">
                         <h4>Garden Study</h4>
                         <p>Feminine study ambiance</p>
                     </div>
                     <div class="theme-radio">
-                        <input type="radio" name="theme" id="themeWoman" value="woman" checked>
-                        <label for="themeWoman"></label>
+                        <input type="radio" name="background" id="backgroundWoman" value="woman" checked>
+                        <label for="backgroundWoman"></label>
                     </div>
                 </div>
                 
-                <div class="theme-option" data-theme="man">
+                <div class="theme-option" data-background="man">
                     <div class="theme-preview theme-preview-man"></div>
                     <div class="theme-info">
                         <h4>Library Corner</h4>
                         <p>Masculine study vibe</p>
                     </div>
                     <div class="theme-radio">
-                        <input type="radio" name="theme" id="themeMan" value="man">
-                        <label for="themeMan"></label>
+                        <input type="radio" name="background" id="backgroundMan" value="man">
+                        <label for="backgroundMan"></label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Theme Panel Overlay -->
-    <div class="task-panel-overlay" id="themePanelOverlay"></div>
+    <!-- Immersive Theme Side Panel -->
+    <div class="task-side-panel" id="immersiveThemeSidePanel">
+        <button class="close-side-panel-btn" id="closeImmersiveThemePanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Theme</h3>
+                <p class="tasks-subtitle">Choose your immersive experience</p>
+            </div>
+            
+            <!-- Theme Options -->
+            <div class="theme-options">
+                <div class="theme-option immersive-theme-option" data-immersive-theme="tron">
+                    <div class="theme-preview tron-preview">
+                        <div class="tron-preview-grid"></div>
+                    </div>
+                    <div class="theme-info">
+                        <h4>Tron</h4>
+                        <p>Neon grids and TRON: Ares soundtrack</p>
+                        <div class="theme-features">
+                            <span class="feature-tag">Slideshow</span>
+                            <span class="feature-tag">Spotify</span>
+                        </div>
+                        <div class="login-required-badge" id="tronLoginBadge" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                <polyline points="10 17 15 12 10 7"/>
+                                <line x1="15" y1="12" x2="3" y2="12"/>
+                            </svg>
+                            <span>Requires Login</span>
+                        </div>
+                    </div>
+                    <div class="theme-radio">
+                        <input type="radio" name="immersive-theme" id="immersiveThemeTron" value="tron">
+                        <label for="immersiveThemeTron"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Panel Overlay -->
+    <div class="task-panel-overlay" id="backgroundPanelOverlay"></div>
+    
+    <!-- Immersive Theme Panel Overlay -->
+    <div class="task-panel-overlay" id="immersiveThemePanelOverlay"></div>
 
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -1249,6 +1315,7 @@
         </div>
     </div>
     
+    <script src="mixpanel-tracking.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
