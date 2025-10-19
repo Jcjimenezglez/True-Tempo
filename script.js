@@ -11542,6 +11542,7 @@ class PomodoroTimer {
 
     activateTronTheme() {
         console.log('🎨 Activating Tron theme...');
+        console.log('🎨 Tron image available:', this.tronImage);
         
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) {
@@ -11549,17 +11550,29 @@ class PomodoroTimer {
             return;
         }
         
+        if (!this.tronImage) {
+            console.error('❌ Tron image not loaded, loading assets first...');
+            this.loadTronAssets();
+        }
+        
         console.log('🎨 Timer section found, setting Tron background...');
         
         // Remove ALL background classes and set Tron background
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
-        timerSection.style.backgroundImage = `url('${this.tronImage}')`;
-        timerSection.style.backgroundSize = 'cover';
-        timerSection.style.backgroundPosition = 'center';
-        timerSection.style.backgroundRepeat = 'no-repeat';
-        timerSection.style.backgroundColor = 'transparent';
+        
+        // Force Tron background with !important to override CSS
+        timerSection.style.setProperty('background-image', `url('${this.tronImage}')`, 'important');
+        timerSection.style.setProperty('background-size', 'cover', 'important');
+        timerSection.style.setProperty('background-position', 'center', 'important');
+        timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
+        timerSection.style.setProperty('background-color', 'transparent', 'important');
         
         console.log('🎨 Tron background set:', this.tronImage);
+        console.log('🎨 Applied styles:', {
+            backgroundImage: timerSection.style.backgroundImage,
+            backgroundSize: timerSection.style.backgroundSize,
+            backgroundPosition: timerSection.style.backgroundPosition
+        });
         
         // Clear Music and Background selections when Tron is active
         this.clearMusicAndBackgroundSelections();
@@ -11601,11 +11614,11 @@ class PomodoroTimer {
         if (!timerSection) return;
         
         // Remove Tron background
-        timerSection.style.backgroundImage = 'none';
-        timerSection.style.backgroundSize = '';
-        timerSection.style.backgroundPosition = '';
-        timerSection.style.backgroundRepeat = '';
-        timerSection.style.backgroundColor = '';
+        timerSection.style.removeProperty('background-image');
+        timerSection.style.removeProperty('background-size');
+        timerSection.style.removeProperty('background-position');
+        timerSection.style.removeProperty('background-repeat');
+        timerSection.style.removeProperty('background-color');
         
         // Remove Spotify player
         const spotifyPlayer = document.getElementById('tron-spotify-player');
