@@ -72,6 +72,8 @@ class PomodoroTimer {
 		this.tronImageIndex = 0;
 		this.tronImageInterval = null;
 		this.tronSlideshowActive = false;
+		this.tronSpotifyPlayer = null;
+		this.tronSpotifyPlayerReady = false;
         
         
         // Complete cycle: 25/5/25/5/25/5/25/15
@@ -11941,16 +11943,23 @@ class PomodoroTimer {
         iframe.style.position = 'absolute';
         iframe.style.left = '-9999px';
         
-        document.body.appendChild(iframe);
-        
-        // Store reference for control
+        // Store reference to the iframe
         this.tronSpotifyPlayer = iframe;
+        
+        // Add load event listener to ensure iframe is ready
+        iframe.addEventListener('load', () => {
+            console.log('🎵 Spotify iframe loaded and ready');
+            // Mark that the player is ready
+            this.tronSpotifyPlayerReady = true;
+        });
+        
+        document.body.appendChild(iframe);
         
         console.log('🎵 Spotify player created for Tron playlist with autoplay');
     }
 
     pauseTronMusic() {
-        if (this.tronSpotifyPlayer && this.currentImmersiveTheme === 'tron') {
+        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer && this.tronSpotifyPlayerReady) {
             try {
                 // Send pause command to Spotify iframe
                 this.tronSpotifyPlayer.contentWindow.postMessage({
@@ -11964,7 +11973,17 @@ class PomodoroTimer {
     }
 
     resumeTronMusic() {
-        if (this.tronSpotifyPlayer && this.currentImmersiveTheme === 'tron') {
+        if (this.currentImmersiveTheme === 'tron') {
+            // If player is not ready yet, wait for it
+            if (!this.tronSpotifyPlayerReady || !this.tronSpotifyPlayer) {
+                console.log('🎵 Spotify player not ready yet, waiting...');
+                // Retry after a short delay
+                setTimeout(() => {
+                    this.resumeTronMusic();
+                }, 200);
+                return;
+            }
+            
             try {
                 // Send play command to Spotify iframe
                 this.tronSpotifyPlayer.contentWindow.postMessage({
@@ -11973,6 +11992,9 @@ class PomodoroTimer {
                 console.log('🎵 Tron music resumed');
             } catch (error) {
                 console.log('🎵 Could not resume Tron music:', error);
+                // If the command fails, try to recreate the player
+                console.log('🎵 Attempting to recreate Spotify player...');
+                this.createSpotifyPlayer();
             }
         }
     }
