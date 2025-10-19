@@ -3147,6 +3147,11 @@ class PomodoroTimer {
             }
         }
         
+        // Resume Tron music if Tron theme is active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.resumeTronMusic();
+        }
+        
         this.interval = setInterval(() => {
             this.timeLeft--;
             this.updateDisplay();
@@ -3197,6 +3202,11 @@ class PomodoroTimer {
             this.pauseLofiPlaylist();
         }
         
+        // Pause Tron music if Tron theme is active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.pauseTronMusic();
+        }
+        
         // Update session info to potentially show "Ready to focus?"
         this.updateSessionInfo();
         
@@ -3236,6 +3246,12 @@ class PomodoroTimer {
                 this.pausePlaylist();
             }
         }
+        
+        // Pause Tron music if Tron theme is active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.pauseTronMusic();
+        }
+        
         // No sound - silent pause
         
         // Update title to show paused state
@@ -11733,7 +11749,30 @@ class PomodoroTimer {
         localStorage.setItem('selectedImmersiveTheme', 'tron');
         this.currentImmersiveTheme = 'tron';
         
+        // Clear Music and Background selections when Tron is active
+        this.clearMusicAndBackgroundSelections();
+        
         console.log('🎨 Tron theme activated successfully');
+    }
+
+    clearMusicAndBackgroundSelections() {
+        // Clear Music panel selections
+        const musicOptions = document.querySelectorAll('.music-option');
+        musicOptions.forEach(option => {
+            option.classList.remove('active');
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        // Clear Background panel selections
+        const backgroundOptions = document.querySelectorAll('.theme-option[data-background]');
+        backgroundOptions.forEach(option => {
+            option.classList.remove('active');
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        console.log('🎨 Cleared Music and Background selections for Tron theme');
     }
 
     deactivateImmersiveTheme() {
@@ -11755,6 +11794,9 @@ class PomodoroTimer {
         // Save preference
         localStorage.setItem('selectedImmersiveTheme', 'none');
         this.currentImmersiveTheme = 'none';
+        
+        // Close the immersive theme panel
+        this.closeImmersiveThemePanel();
         
         console.log('🎨 Immersive theme deactivated');
         
@@ -11882,21 +11924,54 @@ class PomodoroTimer {
             existingPlayer.remove();
         }
         
-        // Create hidden iframe for Spotify playlist
+        // Create hidden iframe for Spotify playlist with autoplay
         const iframe = document.createElement('iframe');
         iframe.id = 'tron-spotify-player';
-        iframe.src = this.tronSpotifyPlaylist.replace('album', 'embed/album');
+        iframe.src = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=true';
         iframe.width = '0';
         iframe.height = '0';
         iframe.frameBorder = '0';
         iframe.allowTransparency = 'true';
         iframe.allow = 'encrypted-media';
         iframe.style.display = 'none';
+        iframe.style.position = 'absolute';
+        iframe.style.left = '-9999px';
         
         document.body.appendChild(iframe);
-        console.log('🎵 Spotify player created for Tron playlist');
+        
+        // Store reference for control
+        this.tronSpotifyPlayer = iframe;
+        
+        console.log('🎵 Spotify player created for Tron playlist with autoplay');
     }
 
+    pauseTronMusic() {
+        if (this.tronSpotifyPlayer && this.currentImmersiveTheme === 'tron') {
+            try {
+                // Send pause command to Spotify iframe
+                this.tronSpotifyPlayer.contentWindow.postMessage({
+                    command: 'pause'
+                }, 'https://open.spotify.com');
+                console.log('🎵 Tron music paused');
+            } catch (error) {
+                console.log('🎵 Could not pause Tron music:', error);
+            }
+        }
+    }
+
+    resumeTronMusic() {
+        if (this.tronSpotifyPlayer && this.currentImmersiveTheme === 'tron') {
+            try {
+                // Send play command to Spotify iframe
+                this.tronSpotifyPlayer.contentWindow.postMessage({
+                    command: 'play'
+                }, 'https://open.spotify.com');
+                console.log('🎵 Tron music resumed');
+            } catch (error) {
+                console.log('🎵 Could not resume Tron music:', error);
+            }
+        }
+    }
 
     applyOverlay(opacity) {
         const timerSection = document.querySelector('.timer-section');
