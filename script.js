@@ -11525,8 +11525,10 @@ class PomodoroTimer {
         
         console.log('🎨 Timer section found, removing background classes...');
         
-        // Remove all background classes so Tron slideshow is visible
+        // Remove ALL background classes and background images so Tron slideshow is visible
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        timerSection.style.backgroundImage = 'none';
+        timerSection.style.backgroundColor = 'transparent';
         
         console.log('🎨 Starting slideshow...');
         
@@ -11570,8 +11572,6 @@ class PomodoroTimer {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) return;
         
-        // No UI changes to remove
-        
         // Stop slideshow
         this.stopTronSlideshow();
         
@@ -11591,9 +11591,9 @@ class PomodoroTimer {
         
         console.log('🎨 Immersive theme deactivated');
         
-        // Add small delay to ensure panel closes before applying background
+        // Restore the current theme background
         setTimeout(() => {
-            this.applyBackground(this.currentBackground);
+            this.applyTheme(this.currentTheme);
         }, 100);
     }
 
