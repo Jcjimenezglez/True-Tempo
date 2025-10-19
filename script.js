@@ -3149,7 +3149,10 @@ class PomodoroTimer {
         
         // Resume Tron music if Tron theme is active
         if (this.currentImmersiveTheme === 'tron') {
-            this.resumeTronMusic();
+            // Add small delay to ensure Spotify iframe is ready
+            setTimeout(() => {
+                this.resumeTronMusic();
+            }, 500);
         }
         
         this.interval = setInterval(() => {
@@ -11739,6 +11742,9 @@ class PomodoroTimer {
         
         console.log('🎨 Starting slideshow...');
         
+        // Clear Music and Background selections when Tron is active
+        this.clearMusicAndBackgroundSelections();
+        
         // Start slideshow
         this.startTronSlideshow();
         
@@ -11748,9 +11754,6 @@ class PomodoroTimer {
         // Save preference
         localStorage.setItem('selectedImmersiveTheme', 'tron');
         this.currentImmersiveTheme = 'tron';
-        
-        // Clear Music and Background selections when Tron is active
-        this.clearMusicAndBackgroundSelections();
         
         console.log('🎨 Tron theme activated successfully');
     }
@@ -11800,9 +11803,10 @@ class PomodoroTimer {
         
         console.log('🎨 Immersive theme deactivated');
         
-        // Return to original background (only if not being called from background/music selection)
-        // This will be handled by the caller
-        this.applyBackground(this.currentBackground);
+        // Add small delay to ensure panel closes before applying background
+        setTimeout(() => {
+            this.applyBackground(this.currentBackground);
+        }, 100);
     }
 
     startTronSlideshow() {
@@ -12321,6 +12325,13 @@ class SidebarManager {
         if (closeMusicPanelBtn) {
             closeMusicPanelBtn.addEventListener('click', () => {
                 this.closeMusicPanel();
+            });
+        }
+        
+        const closeImmersiveThemePanelBtn = document.getElementById('closeImmersiveThemePanel');
+        if (closeImmersiveThemePanelBtn) {
+            closeImmersiveThemePanelBtn.addEventListener('click', () => {
+                this.closeImmersiveThemePanel();
             });
         }
         
