@@ -11439,14 +11439,14 @@ class PomodoroTimer {
         // Check if user is authenticated
         const isAuthenticated = this.isAuthenticated;
         
-        // Get current theme from localStorage or default to 'woman'
-        let savedTheme = localStorage.getItem('selectedTheme') || 'woman';
+        // Get current background from localStorage or default to 'woman'
+        let savedBackground = localStorage.getItem('selectedBackground') || 'woman';
         
-        // Keep the theme visual even for non-authenticated users (they just can't change it)
-        // This allows logged-out users to maintain their previous theme selection
+        // Keep the background visual even for non-authenticated users (they just can't change it)
+        // This allows logged-out users to maintain their previous background selection
         // New users will have 'woman' (Evening Glow) by default from the || operator above
         
-        this.currentTheme = savedTheme;
+        this.currentBackground = savedBackground;
         
         // Get overlay opacity from localStorage or default to 20%
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
@@ -11455,12 +11455,12 @@ class PomodoroTimer {
         this.applyBackground(this.currentBackground);
         this.applyOverlay(this.overlayOpacity);
         
-        // Get all theme options (not music options)
-        const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
+        // Get all background options (not music options)
+        const themeOptions = document.querySelectorAll('.theme-option[data-background]');
         
         themeOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
-            const themeName = option.dataset.theme;
+            const themeName = option.dataset.background;
             
             // Disable premium themes for guests
             // All themes are now Guest tier - no premium themes
@@ -11608,6 +11608,68 @@ class PomodoroTimer {
         } catch (error) {
             console.error('❌ Failed to load Tron assets:', error);
         }
+    }
+
+    initializeImmersiveThemePanel() {
+        console.log('🎨 Initializing immersive theme panel');
+        
+        // Check if user is authenticated
+        const isAuthenticated = this.isAuthenticated;
+        
+        // Get current immersive theme from localStorage or default to 'none'
+        let savedImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+        
+        this.currentImmersiveTheme = savedImmersiveTheme;
+        
+        // Get all immersive theme options
+        const immersiveThemeOptions = document.querySelectorAll('.immersive-theme-option[data-immersive-theme]');
+        
+        immersiveThemeOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            const themeName = option.dataset.immersiveTheme;
+            const loginBadge = option.querySelector('.login-required-badge');
+            
+            // Show/hide login badge based on authentication
+            if (loginBadge) {
+                if (isAuthenticated) {
+                    loginBadge.style.display = 'none';
+                } else {
+                    loginBadge.style.display = 'block';
+                }
+            }
+            
+            // Set up click handler
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Check authentication for immersive themes
+                if (!isAuthenticated) {
+                    // Show login modal
+                    if (window.pomodoroTimer && window.pomodoroTimer.showLoginModal) {
+                        window.pomodoroTimer.showLoginModal();
+                    }
+                    return;
+                }
+                
+                // Remove active from all options
+                immersiveThemeOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    const optRadio = opt.querySelector('input[type="radio"]');
+                    if (optRadio) optRadio.checked = false;
+                });
+                
+                // Add active to clicked option
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+                
+                // Apply the selected immersive theme
+                this.applyImmersiveTheme(themeName);
+                
+                // Save to localStorage
+                localStorage.setItem('selectedImmersiveTheme', themeName);
+                this.currentImmersiveTheme = themeName;
+            });
+        });
     }
 
     async applyImmersiveTheme(themeName) {
@@ -12276,6 +12338,9 @@ class SidebarManager {
             if (this.isBackgroundPanelOpen) {
                 this.closeBackgroundPanel();
             }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
+            }
             
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
@@ -12352,6 +12417,9 @@ class SidebarManager {
             if (this.isBackgroundPanelOpen) {
                 this.closeBackgroundPanel();
             }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
+            }
             
             this.musicSidePanel.classList.add('open');
             this.isMusicPanelOpen = true;
@@ -12418,6 +12486,9 @@ class SidebarManager {
             }
             if (this.isBackgroundPanelOpen) {
                 this.closeBackgroundPanel();
+            }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
             }
             
             this.settingsSidePanel.classList.add('open');
@@ -12566,6 +12637,9 @@ class SidebarManager {
             if (this.isBackgroundPanelOpen) {
                 this.closeBackgroundPanel();
             }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
+            }
             
             this.immersiveThemeSidePanel.classList.add('open');
             this.isImmersiveThemePanelOpen = true;
@@ -12581,6 +12655,11 @@ class SidebarManager {
             // Push main content to the right
             if (this.mainContent) {
                 this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Initialize immersive theme panel controls
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.initializeImmersiveThemePanel();
             }
         }
     }
