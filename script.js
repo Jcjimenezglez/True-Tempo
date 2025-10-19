@@ -233,6 +233,7 @@ class PomodoroTimer {
         this.updateTechniqueTitle();
         this.loadAudio();
         this.loadCassetteSounds();
+        this.loadTronAssets();
         this.updateNavigationButtons();
         this.initClerk();
         
@@ -11501,6 +11502,16 @@ class PomodoroTimer {
         });
         
         console.log(`🎨 Theme active state updated to: ${themeName}`);
+    }
+
+    applyImmersiveTheme(themeName) {
+        console.log(`🎨 Applying immersive theme: ${themeName}`);
+        
+        if (themeName === 'tron') {
+            this.activateTronTheme();
+        } else {
+            console.log(`🎨 Unknown immersive theme: ${themeName}`);
+        }
     }
 
     activateTronTheme() {
