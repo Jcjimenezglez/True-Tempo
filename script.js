@@ -11454,11 +11454,34 @@ class PomodoroTimer {
         localStorage.setItem('selectedTheme', themeName);
         this.currentTheme = themeName;
         
+        // Update visual active state
+        this.updateThemeActiveState(themeName);
+        
         // Track theme change
         if (window.mixpanelTracker) {
             window.mixpanelTracker.trackCustomEvent('Theme Changed', { theme_name: themeName });
             console.log('📊 Theme changed event tracked to Mixpanel');
         }
+    }
+    
+    updateThemeActiveState(themeName) {
+        // Get all theme options
+        const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
+        
+        themeOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            const optionThemeName = option.dataset.theme;
+            
+            // Remove active from all options
+            option.classList.remove('active');
+            if (radio) radio.checked = false;
+            
+            // Add active to the selected theme
+            if (optionThemeName === themeName) {
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+            }
+        });
     }
 
     activateTronTheme() {
