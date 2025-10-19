@@ -2507,18 +2507,6 @@ class PomodoroTimer {
                         <div class="music-header">
                             <div class="music-info">
                                 <div class="music-details">
-                                    <h4>None</h4>
-                                    <p>No sound</p>
-                                </div>
-                            </div>
-                            <div class="music-radio">
-                                <input type="radio" name="music" id="musicNone" value="none">
-                                <label for="musicNone"></label>
-                            </div>
-                        </div>
-                        <div class="music-header">
-                            <div class="music-info">
-                                <div class="music-details">
                                     <h4>Rain Sounds</h4>
                                     <p>Natural rain and thunder for deep concentration</p>
                                 </div>
@@ -2572,7 +2560,6 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const musicNone = modalOverlay.querySelector('#musicNone');
         const musicLofi = modalOverlay.querySelector('#musicLofi');
         const musicRain = modalOverlay.querySelector('#musicRain');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
@@ -2584,26 +2571,8 @@ class PomodoroTimer {
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
         // Initialize radio button states - none selected by default
-        if (musicNone) musicNone.checked = false;
         if (musicLofi) musicLofi.checked = false;
         if (musicRain) musicRain.checked = false;
-
-        // Music radio button logic
-        if (musicNone) {
-            musicNone.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    // Disable all sounds
-                    this.ambientEnabled = false;
-                    this.rainEnabled = false;
-                    localStorage.setItem('ambientEnabled', 'false');
-                    localStorage.setItem('rainEnabled', 'false');
-                    volumeSlider.disabled = true;
-                    if (previewBtn) previewBtn.disabled = true;
-                    this.stopPlaylist();
-                    this.stopRainPlaylist();
-                }
-            });
-        }
 
         // Lofi radio button logic
         if (musicLofi) {
@@ -11663,6 +11632,12 @@ class PomodoroTimer {
             const loginBadge = option.querySelector('.login-required-badge');
             
             // Themes are now available for all users (no authentication required)
+            
+            // Set initial active state for Tron (default)
+            if (themeName === savedImmersiveTheme) {
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+            }
             
             // Set up click handler
             option.addEventListener('click', (e) => {
