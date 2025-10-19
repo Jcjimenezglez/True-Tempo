@@ -2490,7 +2490,7 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <div class="modal-header">
-                    <h3>Focus Sounds</h3>
+                    <h3>Focus Sounds - UPDATED</h3>
                     <p class="modal-subtitle">Set the mood for deep concentration</p>
                 </div>
                 <div class="music-controls">
