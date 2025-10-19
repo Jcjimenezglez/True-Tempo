@@ -7565,49 +7565,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* Tron Theme Styles */
-.theme-tron {
-    background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e);
-    color: #00ffff;
-    position: relative;
-    overflow: hidden;
-}
-
-.theme-tron .progress-ring {
-    stroke: #00ffff;
-    filter: drop-shadow(0 0 10px #00ffff);
-}
-
-.theme-tron .progress-ring .progress-segment {
-    stroke: #00ffff;
-    filter: drop-shadow(0 0 5px #00ffff);
-}
-
-.theme-tron .progress-ring .progress-overlay {
-    stroke: #00ffff;
-    filter: drop-shadow(0 0 8px #00ffff);
-}
-
-.theme-tron .timer-content {
-    text-shadow: 0 0 20px #00ffff;
-    color: #00ffff;
-}
-
-.theme-tron .time {
-    color: #00ffff;
-    text-shadow: 0 0 20px #00ffff;
-}
-
-.theme-tron .start-btn {
-    background: rgba(0, 255, 255, 0.1);
-    border: 2px solid #00ffff;
-    color: #00ffff;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-}
-
-.theme-tron .start-btn:hover {
-    background: rgba(0, 255, 255, 0.2);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-}
+/* Tron Theme - Only slideshow, no UI changes */
 
 /* Tron Slideshow Styles */
 .tron-slideshow-container {
@@ -7698,43 +7656,3 @@ input:checked + .toggle-slider:before {
     height: 14px;
 }
 
-/* Spotify Notification Styles */
-.spotify-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(30, 215, 96, 0.95);
-    color: white;
-    padding: 16px 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    z-index: 10000;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    animation: slideInRight 0.3s ease-out;
-}
-
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.notification-content svg {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}

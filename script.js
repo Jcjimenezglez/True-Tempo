@@ -11685,8 +11685,7 @@ class PomodoroTimer {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) return;
         
-        // Add Tron theme class
-        timerSection.classList.add('theme-tron');
+        // No UI changes - just background slideshow
         
         // Start slideshow
         this.startTronSlideshow();
@@ -11705,8 +11704,7 @@ class PomodoroTimer {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) return;
         
-        // Remove Tron theme class
-        timerSection.classList.remove('theme-tron');
+        // No UI changes to remove
         
         // Stop slideshow
         this.stopTronSlideshow();
@@ -11783,45 +11781,11 @@ class PomodoroTimer {
     }
 
     loadTronPlaylist() {
-        // Open Spotify playlist in new tab
-        if (this.tronSpotifyPlaylist) {
-            // Show notification about Spotify playlist
-            this.showSpotifyNotification();
-            
-            // Open playlist in new tab
-            window.open(this.tronSpotifyPlaylist, '_blank');
-        }
-        
-        // Disable local music when Tron theme is active
-        this.lofiEnabled = false;
-        
-        console.log('🎵 Tron Spotify playlist opened');
+        // Use Tron playlist in background without opening Spotify
+        // The playlist will be used by the existing music system
+        console.log('🎵 Tron playlist loaded in background');
     }
 
-    showSpotifyNotification() {
-        // Create a temporary notification
-        const notification = document.createElement('div');
-        notification.className = 'spotify-notification';
-        notification.innerHTML = `
-            <div class="notification-content">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 18V5l12-2v13"/>
-                    <circle cx="6" cy="18" r="3"/>
-                    <circle cx="18" cy="16" r="3"/>
-                </svg>
-                <span>Opening TRON: Ares Soundtrack on Spotify...</span>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Remove notification after 3 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 3000);
-    }
 
     applyOverlay(opacity) {
         const timerSection = document.querySelector('.timer-section');
