@@ -11483,9 +11483,13 @@ class PomodoroTimer {
             this.deactivateImmersiveTheme();
             this.applyImmersiveTheme('tron');
             
-            // Start Tron music immediately regardless of timer state
-            this.loadTronPlaylist();
-            console.log('🎨 Tron theme applied - background + tron music (music started immediately)');
+            // If timer is running, start Tron music immediately
+            if (this.isRunning) {
+                this.loadTronPlaylist();
+                console.log('🎨 Tron theme applied - background + tron music (music started because timer is running)');
+            } else {
+                console.log('🎨 Tron theme applied - background + tron music (music will start when timer starts)');
+            }
         }
         
         // Save theme preference only if user is authenticated
@@ -11573,8 +11577,7 @@ class PomodoroTimer {
         // Clear Music and Background selections when Tron is active
         this.clearMusicAndBackgroundSelections();
         
-        // Switch to Tron music immediately
-        this.loadTronPlaylist();
+        // Switch to Tron music (will start when timer starts)
         // Ensure lofi is not playing anymore
         this.stopLofiPlaylist();
         
