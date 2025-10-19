@@ -2511,11 +2511,9 @@ class PomodoroTimer {
                                     <p>No sound</p>
                                 </div>
                             </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="noneToggle" ${false ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
+                            <div class="music-radio">
+                                <input type="radio" name="music" id="musicNone" value="none">
+                                <label for="musicNone"></label>
                             </div>
                         </div>
                         <div class="music-header">
@@ -2525,11 +2523,9 @@ class PomodoroTimer {
                                     <p>Natural rain and thunder for deep concentration</p>
                                 </div>
                             </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="rainToggle" ${rainEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
+                            <div class="music-radio">
+                                <input type="radio" name="music" id="musicRain" value="rain">
+                                <label for="musicRain"></label>
                             </div>
                         </div>
                         ${this.isAuthenticated ? `
@@ -2540,11 +2536,9 @@ class PomodoroTimer {
                                     <p>Relaxing beats for deep focus</p>
                                 </div>
                             </div>
-                            <div class="toggle-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="lofiToggle" ${lofiEnabled ? 'checked' : ''}>
-                                    <span class="toggle-slider"></span>
-                                </label>
+                            <div class="music-radio">
+                                <input type="radio" name="music" id="musicLofi" value="lofi">
+                                <label for="musicLofi"></label>
                             </div>
                         </div>
                         ` : `
@@ -2578,9 +2572,9 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const noneToggle = modalOverlay.querySelector('#noneToggle');
-        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
-        const rainToggle = modalOverlay.querySelector('#rainToggle');
+        const musicNone = modalOverlay.querySelector('#musicNone');
+        const musicLofi = modalOverlay.querySelector('#musicLofi');
+        const musicRain = modalOverlay.querySelector('#musicRain');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
         const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
         
@@ -2589,57 +2583,45 @@ class PomodoroTimer {
         // The same slider controls the single <audio> element, regardless of source
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
-        // Initialize toggle states
-        noneToggle.checked = false; // Never show "No sound" as active by default
-        if (lofiToggle) lofiToggle.checked = this.ambientEnabled;
-        rainToggle.checked = this.rainEnabled;
+        // Initialize radio button states - none selected by default
+        if (musicNone) musicNone.checked = false;
+        if (musicLofi) musicLofi.checked = false;
+        if (musicRain) musicRain.checked = false;
 
-        // None toggle logic
-        noneToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                // Disable all sounds
-                this.ambientEnabled = false;
-                this.rainEnabled = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                localStorage.setItem('rainEnabled', 'false');
-                if (lofiToggle) lofiToggle.checked = false;
-                rainToggle.checked = false;
-                volumeSlider.disabled = true;
-                if (previewBtn) previewBtn.disabled = true;
-                this.stopPlaylist();
-                this.stopRainPlaylist();
-            }
-        });
+        // Music radio button logic
+        if (musicNone) {
+            musicNone.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    // Disable all sounds
+                    this.ambientEnabled = false;
+                    this.rainEnabled = false;
+                    localStorage.setItem('ambientEnabled', 'false');
+                    localStorage.setItem('rainEnabled', 'false');
+                    volumeSlider.disabled = true;
+                    if (previewBtn) previewBtn.disabled = true;
+                    this.stopPlaylist();
+                    this.stopRainPlaylist();
+                }
+            });
+        }
 
-        // Toggle logic with persistence
-        if (lofiToggle) {
-        lofiToggle.addEventListener('change', (e) => {
-            const enabled = e.target.checked;
-            this.ambientEnabled = enabled;
-            localStorage.setItem('ambientEnabled', String(enabled));
-            volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
-			if (previewBtn) previewBtn.disabled = !enabled;
-            
-            if (enabled) {
-                // If lofi is enabled, disable other options
-                noneToggle.checked = false;
-                this.rainEnabled = false;
-                localStorage.setItem('rainEnabled', 'false');
-                rainToggle.checked = false;
-                this.stopRainPlaylist();
-                // Start lofi music if timer is running
-                if (this.isRunning) {
-                    this.playPlaylist();
+        // Lofi radio button logic
+        if (musicLofi) {
+            musicLofi.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.ambientEnabled = true;
+                    this.rainEnabled = false;
+                    localStorage.setItem('ambientEnabled', 'true');
+                    localStorage.setItem('rainEnabled', 'false');
+                    volumeSlider.disabled = false;
+                    if (previewBtn) previewBtn.disabled = false;
+                    
+                    // Start lofi music if timer is running
+                    if (this.isRunning) {
+                        this.playPlaylist();
+                    }
                 }
-            } else {
-                // If disabling lofi, check if None should be enabled
-                if (!rainToggle.checked) {
-                    noneToggle.checked = true;
-                }
-                this.stopPlaylist();
-                if (previewBtn) previewBtn.textContent = 'Preview';
-            }
-        });
+            });
         }
 
 
@@ -2665,34 +2647,24 @@ class PomodoroTimer {
             });
         }
 
-        // Rain toggle logic
-        rainToggle.addEventListener('change', (e) => {
-            const enabled = e.target.checked;
-            console.log('🌧️ Rain toggle changed:', enabled);
-            this.rainEnabled = enabled;
-            localStorage.setItem('rainEnabled', String(enabled));
-            
-            if (enabled) {
-                // If Rain is enabled, disable other options
-                noneToggle.checked = false;
-                this.ambientEnabled = false;
-                localStorage.setItem('ambientEnabled', 'false');
-                if (lofiToggle) lofiToggle.checked = false;
-                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
-                if (previewBtn) previewBtn.disabled = true;
-                this.stopPlaylist();
-                // Start Rain music if timer is running
-                if (this.isRunning) {
-                    this.playRainPlaylist();
+        // Rain radio button logic
+        if (musicRain) {
+            musicRain.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.rainEnabled = true;
+                    this.ambientEnabled = false;
+                    localStorage.setItem('rainEnabled', 'true');
+                    localStorage.setItem('ambientEnabled', 'false');
+                    volumeSlider.disabled = false;
+                    if (previewBtn) previewBtn.disabled = true;
+                    
+                    // Start Rain music if timer is running
+                    if (this.isRunning) {
+                        this.playRainPlaylist();
+                    }
                 }
-            } else {
-                this.stopRainPlaylist();
-                // If disabling Rain, check if None should be enabled
-                if (!lofiToggle?.checked) {
-                    noneToggle.checked = true;
-                }
-            }
-        });
+            });
+        }
 
         // Preview button (play/pause functionality)
 		if (previewBtn) {
