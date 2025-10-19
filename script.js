@@ -66,7 +66,12 @@ class PomodoroTimer {
 		this.fadeTimer = null;
         
 		// Immersive Theme System
-		this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+		// Only load saved immersive theme if user is authenticated
+		if (this.isAuthenticated) {
+			this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+		} else {
+			this.currentImmersiveTheme = 'none'; // Always default for guests
+		}
 		this.tronImage = null;
 		this.tronSpotifyPlaylist = null;
 		this.tronSpotifyPlayer = null;
@@ -241,6 +246,8 @@ class PomodoroTimer {
             this.currentTheme = localStorage.getItem('selectedTheme') || 'lofi';
         } else {
             this.currentTheme = 'lofi'; // Always default for guests
+            // Clear any saved immersive theme for guests
+            this.currentImmersiveTheme = 'none';
         }
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
@@ -11581,8 +11588,10 @@ class PomodoroTimer {
         // Ensure lofi is not playing anymore
         this.stopLofiPlaylist();
         
-        // Save preference
-        localStorage.setItem('selectedImmersiveTheme', 'tron');
+        // Save preference only if user is authenticated
+        if (this.isAuthenticated) {
+            localStorage.setItem('selectedImmersiveTheme', 'tron');
+        }
         this.currentImmersiveTheme = 'tron';
         
         console.log('🎨 Tron theme activated successfully');
@@ -11626,8 +11635,10 @@ class PomodoroTimer {
             console.log('🎵 Spotify player removed');
         }
         
-        // Save preference
-        localStorage.setItem('selectedImmersiveTheme', 'none');
+        // Save preference only if user is authenticated
+        if (this.isAuthenticated) {
+            localStorage.setItem('selectedImmersiveTheme', 'none');
+        }
         this.currentImmersiveTheme = 'none';
         
         // Close the immersive theme panel (if sidebar manager exists)
