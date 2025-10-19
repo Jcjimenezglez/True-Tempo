@@ -244,6 +244,11 @@ class PomodoroTimer {
         
         // Apply the selected theme with a small delay to ensure DOM is ready
         setTimeout(() => {
+            // Force default to lofi on first visit if not set
+            if (!localStorage.getItem('selectedTheme')) {
+                localStorage.setItem('selectedTheme', 'lofi');
+                this.currentTheme = 'lofi';
+            }
             this.applyTheme(this.currentTheme);
         }, 100);
         
@@ -11438,7 +11443,7 @@ class PomodoroTimer {
             }
             
             timerSection.classList.add('theme-minimalist');
-            this.stopLofiMusic();
+            this.stopLofiPlaylist();
             this.lofiEnabled = false;
             localStorage.setItem('lofiEnabled', 'false');
             console.log('🎨 Simple theme applied - black background, no music');
@@ -11453,13 +11458,20 @@ class PomodoroTimer {
             timerSection.classList.add('theme-woman');
             this.lofiEnabled = true;
             localStorage.setItem('lofiEnabled', 'true');
-            this.startLofiMusic();
+            // If audio is already on a lofi track with progress, resume; otherwise start
+            const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
+            const isLofiSrc = this.backgroundAudio && /\/audio\/Lofi\//.test(this.backgroundAudio.currentSrc || this.backgroundAudio.src || '');
+            if (hasProgress && isLofiSrc) {
+                this.resumeLofiPlaylist();
+            } else {
+                this.playLofiPlaylist();
+            }
             console.log('🎨 Lofi theme applied - Garden Study background + lofi music');
             
         } else if (themeName === 'tron') {
             // Tron theme: slideshow + tron music
             // Stop Lofi music first
-            this.stopLofiMusic();
+            this.stopLofiPlaylist();
             this.lofiEnabled = false;
             localStorage.setItem('lofiEnabled', 'false');
             
@@ -11540,6 +11552,8 @@ class PomodoroTimer {
         
         // Switch to Tron music
         this.loadTronPlaylist();
+        // Ensure lofi is not playing anymore
+        this.stopLofiPlaylist();
         
         // Save preference
         localStorage.setItem('selectedImmersiveTheme', 'tron');
