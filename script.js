@@ -11681,40 +11681,27 @@ class PomodoroTimer {
         // Reset ready state
         this.tronSpotifyPlayerReady = false;
         
-        // Create hidden iframe for Spotify playlist with autoplay
+        // Create visible iframe for Spotify playlist with autoplay
         const iframe = document.createElement('iframe');
         iframe.id = 'tron-spotify-player';
         iframe.src = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=true';
-        iframe.width = '0';
-        iframe.height = '0';
+        iframe.width = '300';
+        iframe.height = '152';
         iframe.frameBorder = '0';
         iframe.allowTransparency = 'true';
         iframe.allow = 'encrypted-media';
-        iframe.style.display = 'none';
-        iframe.style.position = 'absolute';
-        iframe.style.left = '-9999px';
+        iframe.style.position = 'fixed';
+        iframe.style.bottom = '20px';
+        iframe.style.right = '20px';
+        iframe.style.zIndex = '1000';
+        iframe.style.borderRadius = '12px';
+        iframe.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
         
         // Store reference to the iframe
         this.tronSpotifyPlayer = iframe;
         
-        // Add load event listener to ensure iframe is ready
-        iframe.addEventListener('load', () => {
-            console.log('🎵 Spotify iframe loaded and ready');
-            // Mark that the player is ready
-            this.tronSpotifyPlayerReady = true;
-            
-            // Try to start music immediately when loaded
-            setTimeout(() => {
-                try {
-                    iframe.contentWindow.postMessage({
-                        command: 'play'
-                    }, 'https://open.spotify.com');
-                    console.log('🎵 Auto-started Tron music on iframe load');
-                } catch (error) {
-                    console.log('🎵 Could not auto-start music:', error);
-                }
-            }, 100);
-        });
+        // Mark that the player is ready
+        this.tronSpotifyPlayerReady = true;
         
         document.body.appendChild(iframe);
         
@@ -11722,67 +11709,20 @@ class PomodoroTimer {
     }
 
     pauseTronMusic() {
-        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer && this.tronSpotifyPlayerReady) {
-            try {
-                // Send pause command to Spotify iframe
-                this.tronSpotifyPlayer.contentWindow.postMessage({
-                    command: 'pause'
-                }, 'https://open.spotify.com');
-                console.log('🎵 Tron music paused');
-            } catch (error) {
-                console.log('🎵 Could not pause Tron music:', error);
-            }
+        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer) {
+            // Hide the Spotify player
+            this.tronSpotifyPlayer.style.display = 'none';
+            console.log('🎵 Tron music player is now hidden');
         }
     }
 
     resumeTronMusic() {
         if (this.currentImmersiveTheme === 'tron') {
-            console.log('🎵 Attempting to start Tron music...');
-            
-            // If player is not ready yet, try to create it first
-            if (!this.tronSpotifyPlayer || !this.tronSpotifyPlayerReady) {
-                console.log('🎵 Spotify player not ready, creating new one...');
-                this.createSpotifyPlayer();
-                
-                // Try multiple times with shorter delays
-                let attempts = 0;
-                const tryResume = () => {
-                    attempts++;
-                    if (attempts > 10) {
-                        console.log('🎵 Max attempts reached, giving up');
-                        return;
-                    }
-                    
-                    if (this.tronSpotifyPlayer && this.tronSpotifyPlayerReady) {
-                        try {
-                            this.tronSpotifyPlayer.contentWindow.postMessage({
-                                command: 'play'
-                            }, 'https://open.spotify.com');
-                            console.log('🎵 Tron music started successfully');
-                        } catch (error) {
-                            console.log('🎵 Could not start Tron music:', error);
-                            setTimeout(tryResume, 100);
-                        }
-                    } else {
-                        setTimeout(tryResume, 100);
-                    }
-                };
-                
-                setTimeout(tryResume, 100);
-                return;
-            }
-            
-            try {
-                // Send play command to Spotify iframe
-                this.tronSpotifyPlayer.contentWindow.postMessage({
-                    command: 'play'
-                }, 'https://open.spotify.com');
-                console.log('🎵 Tron music resumed');
-            } catch (error) {
-                console.log('🎵 Could not resume Tron music:', error);
-                // If the command fails, try to recreate the player
-                console.log('🎵 Attempting to recreate Spotify player...');
-                this.createSpotifyPlayer();
+            console.log('🎵 Starting Tron music...');
+            // Show the Spotify player
+            if (this.tronSpotifyPlayer) {
+                this.tronSpotifyPlayer.style.display = 'block';
+                console.log('🎵 Tron music player is now visible');
             }
         }
     }
