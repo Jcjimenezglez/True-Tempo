@@ -2511,9 +2511,11 @@ class PomodoroTimer {
                                     <p>Natural rain and thunder for deep concentration</p>
                                 </div>
                             </div>
-                            <div class="music-radio">
-                                <input type="radio" name="music" id="musicRain" value="rain">
-                                <label for="musicRain"></label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="musicRainToggle" ${rainEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
                         </div>
                         ${this.isAuthenticated ? `
@@ -2524,9 +2526,11 @@ class PomodoroTimer {
                                     <p>Relaxing beats for deep focus</p>
                                 </div>
                             </div>
-                            <div class="music-radio">
-                                <input type="radio" name="music" id="musicLofi" value="lofi">
-                                <label for="musicLofi"></label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="musicLofiToggle" ${lofiEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
                         </div>
                         ` : `
@@ -2560,8 +2564,8 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const musicLofi = modalOverlay.querySelector('#musicLofi');
-        const musicRain = modalOverlay.querySelector('#musicRain');
+        const musicLofiToggle = modalOverlay.querySelector('#musicLofiToggle');
+        const musicRainToggle = modalOverlay.querySelector('#musicRainToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
         const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
         
@@ -2570,32 +2574,32 @@ class PomodoroTimer {
         // The same slider controls the single <audio> element, regardless of source
 		if (previewBtn) previewBtn.disabled = !lofiEnabled;
         
-        // Initialize radio button states
-        // If there's an active immersive theme (like Tron), don't select any music option
-        const hasActiveTheme = this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none';
-        
-        if (musicLofi) {
-            musicLofi.checked = !hasActiveTheme && lofiEnabled;
-        }
-        if (musicRain) {
-            musicRain.checked = !hasActiveTheme && rainEnabled;
-        }
+        // Initialize toggle states based on current settings
+        if (musicLofiToggle) musicLofiToggle.checked = lofiEnabled;
+        if (musicRainToggle) musicRainToggle.checked = rainEnabled;
 
-        // Lofi radio button logic
-        if (musicLofi) {
-            musicLofi.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    this.ambientEnabled = true;
+        // Lofi toggle logic
+        if (musicLofiToggle) {
+            musicLofiToggle.addEventListener('change', (e) => {
+                const enabled = e.target.checked;
+                this.ambientEnabled = enabled;
+                localStorage.setItem('ambientEnabled', String(enabled));
+                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
+                if (previewBtn) previewBtn.disabled = !enabled;
+                
+                if (enabled) {
+                    // If enabling lofi, disable rain
                     this.rainEnabled = false;
-                    localStorage.setItem('ambientEnabled', 'true');
                     localStorage.setItem('rainEnabled', 'false');
-                    volumeSlider.disabled = false;
-                    if (previewBtn) previewBtn.disabled = false;
+                    if (musicRainToggle) musicRainToggle.checked = false;
+                    this.stopRainPlaylist();
                     
                     // Start lofi music if timer is running
                     if (this.isRunning) {
                         this.playPlaylist();
                     }
+                } else {
+                    this.stopPlaylist();
                 }
             });
         }
@@ -2623,21 +2627,28 @@ class PomodoroTimer {
             });
         }
 
-        // Rain radio button logic
-        if (musicRain) {
-            musicRain.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    this.rainEnabled = true;
+        // Rain toggle logic
+        if (musicRainToggle) {
+            musicRainToggle.addEventListener('change', (e) => {
+                const enabled = e.target.checked;
+                this.rainEnabled = enabled;
+                localStorage.setItem('rainEnabled', String(enabled));
+                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
+                if (previewBtn) previewBtn.disabled = true;
+                
+                if (enabled) {
+                    // If enabling rain, disable lofi
                     this.ambientEnabled = false;
-                    localStorage.setItem('rainEnabled', 'true');
                     localStorage.setItem('ambientEnabled', 'false');
-                    volumeSlider.disabled = false;
-                    if (previewBtn) previewBtn.disabled = true;
+                    if (musicLofiToggle) musicLofiToggle.checked = false;
+                    this.stopPlaylist();
                     
                     // Start Rain music if timer is running
                     if (this.isRunning) {
                         this.playRainPlaylist();
                     }
+                } else {
+                    this.stopRainPlaylist();
                 }
             });
         }
