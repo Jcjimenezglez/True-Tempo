@@ -11666,15 +11666,10 @@ class PomodoroTimer {
         // Disable Lofi music when Tron is active
         this.lofiEnabled = false;
         
-        // Create a hidden iframe to play Spotify playlist
+        // Create iframe - it will autoplay immediately
         this.createSpotifyPlayer();
         
-        // Start the music immediately
-        setTimeout(() => {
-            this.resumeTronMusic();
-        }, 500);
-        
-        console.log('🎵 Tron playlist loaded and started - Lofi music disabled');
+        console.log('🎵 Tron playlist loaded with autoplay - Lofi music disabled');
     }
     
     createSpotifyPlayer() {
@@ -11692,18 +11687,19 @@ class PomodoroTimer {
         // Create tiny iframe for Spotify playlist with autoplay
         const iframe = document.createElement('iframe');
         iframe.id = 'tron-spotify-player';
-        iframe.src = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=true';
+        iframe.src = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=1';
         iframe.width = '1';
         iframe.height = '1';
         iframe.frameBorder = '0';
         iframe.allowTransparency = 'true';
-        iframe.allow = 'encrypted-media';
+        iframe.allow = 'autoplay; encrypted-media';
         iframe.style.position = 'fixed';
         iframe.style.bottom = '10px';
         iframe.style.right = '10px';
         iframe.style.opacity = '0.1';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';
+        iframe.style.display = 'block';
         
         // Store reference to the iframe
         this.tronSpotifyPlayer = iframe;
