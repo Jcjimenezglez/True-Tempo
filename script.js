@@ -241,8 +241,10 @@ class PomodoroTimer {
         this.currentTheme = localStorage.getItem('selectedTheme') || 'lofi';
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
-        // Apply the selected theme
-        this.applyTheme(this.currentTheme);
+        // Apply the selected theme with a small delay to ensure DOM is ready
+        setTimeout(() => {
+            this.applyTheme(this.currentTheme);
+        }, 100);
         
         this.applyOverlay(this.overlayOpacity);
         
@@ -11497,6 +11499,8 @@ class PomodoroTimer {
                 if (radio) radio.checked = true;
             }
         });
+        
+        console.log(`🎨 Theme active state updated to: ${themeName}`);
     }
 
     activateTronTheme() {
