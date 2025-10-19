@@ -11399,8 +11399,9 @@ class PomodoroTimer {
             });
         });
         
-        // Apply the saved theme on initialization
-        this.applyTheme(savedTheme);
+        // Don't reapply theme when opening sidebar - just update visual state
+        this.updateThemeActiveState(savedTheme);
+        console.log('🎨 Theme panel initialized - no music reset');
     }
     
     initializeVolumeControl() {
