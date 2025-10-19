@@ -67,11 +67,8 @@ class PomodoroTimer {
         
 		// Immersive Theme System
 		this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
-		this.tronImages = [];
-		this.tronPlaylist = [];
-		this.tronImageIndex = 0;
-		this.tronImageInterval = null;
-		this.tronSlideshowActive = false;
+		this.tronImage = null;
+		this.tronSpotifyPlaylist = null;
 		this.tronSpotifyPlayer = null;
 		this.tronSpotifyPlayerReady = false;
         
@@ -11330,21 +11327,14 @@ class PomodoroTimer {
         try {
             console.log('🎨 Loading Tron assets...');
             
-            // Load Tron images (using the actual uploaded images)
-            this.tronImages = [
-                '/themes/Tron/1395104.jpg',
-                '/themes/Tron/1395234.jpg',
-                '/themes/Tron/1398525.jpg',
-                '/themes/Tron/1401208.jpg',
-                '/themes/Tron/1401214.jpg',
-                '/themes/Tron/1401926.jpg'
-            ];
+            // Load single Tron image
+            this.tronImage = '/themes/Tron/1395234.jpg';
             
             // Tron Spotify playlist - TRON: Ares Soundtrack by Nine Inch Nails
             this.tronSpotifyPlaylist = 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl?si=xhBtalAoTAufDdN0FK8ZwA';
             
             console.log('🎨 Tron assets loaded successfully');
-            console.log('🎨 Images:', this.tronImages.length);
+            console.log('🎨 Image:', this.tronImage);
             console.log('🎨 Playlist:', this.tronSpotifyPlaylist);
         } catch (error) {
             console.error('❌ Failed to load Tron assets:', error);
@@ -11559,20 +11549,20 @@ class PomodoroTimer {
             return;
         }
         
-        console.log('🎨 Timer section found, removing background classes...');
+        console.log('🎨 Timer section found, setting Tron background...');
         
-        // Remove ALL background classes and background images so Tron slideshow is visible
+        // Remove ALL background classes and set Tron background
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
-        timerSection.style.backgroundImage = 'none';
+        timerSection.style.backgroundImage = `url('${this.tronImage}')`;
+        timerSection.style.backgroundSize = 'cover';
+        timerSection.style.backgroundPosition = 'center';
+        timerSection.style.backgroundRepeat = 'no-repeat';
         timerSection.style.backgroundColor = 'transparent';
         
-        console.log('🎨 Starting slideshow...');
+        console.log('🎨 Tron background set:', this.tronImage);
         
         // Clear Music and Background selections when Tron is active
         this.clearMusicAndBackgroundSelections();
-        
-        // Start slideshow
-        this.startTronSlideshow();
         
         // Switch to Tron music
         this.loadTronPlaylist();
@@ -11610,8 +11600,12 @@ class PomodoroTimer {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) return;
         
-        // Stop slideshow
-        this.stopTronSlideshow();
+        // Remove Tron background
+        timerSection.style.backgroundImage = 'none';
+        timerSection.style.backgroundSize = '';
+        timerSection.style.backgroundPosition = '';
+        timerSection.style.backgroundRepeat = '';
+        timerSection.style.backgroundColor = '';
         
         // Remove Spotify player
         const spotifyPlayer = document.getElementById('tron-spotify-player');
@@ -11635,100 +11629,6 @@ class PomodoroTimer {
         }, 100);
     }
 
-    startTronSlideshow() {
-        console.log('🎨 Starting Tron slideshow...');
-        console.log('🎨 Tron images available:', this.tronImages.length);
-        console.log('🎨 Tron images:', this.tronImages);
-        
-        if (this.tronSlideshowActive || this.tronImages.length === 0) {
-            console.log('🎨 Slideshow blocked - active:', this.tronSlideshowActive, 'images:', this.tronImages.length);
-            return;
-        }
-        
-        this.tronSlideshowActive = true;
-        this.tronImageIndex = 0;
-        
-        // Create slideshow container if it doesn't exist
-        let slideshowContainer = document.querySelector('.tron-slideshow-container');
-        if (!slideshowContainer) {
-            slideshowContainer = document.createElement('div');
-            slideshowContainer.className = 'tron-slideshow-container';
-            const timerSection = document.querySelector('.timer-section');
-            if (timerSection) {
-                timerSection.appendChild(slideshowContainer);
-                console.log('🎨 Slideshow container created and added to timer section');
-            } else {
-                console.error('❌ Timer section not found for slideshow');
-                return;
-            }
-        }
-        
-        // Load first image
-        this.showTronImage(0);
-        
-        // Start rotation
-        this.tronImageInterval = setInterval(() => {
-            this.tronImageIndex = (this.tronImageIndex + 1) % this.tronImages.length;
-            this.showTronImage(this.tronImageIndex);
-        }, 45000); // Change every 45 seconds
-        
-        console.log('🎨 Tron slideshow started successfully');
-    }
-
-    stopTronSlideshow() {
-        if (!this.tronSlideshowActive) return;
-        
-        this.tronSlideshowActive = false;
-        
-        if (this.tronImageInterval) {
-            clearInterval(this.tronImageInterval);
-            this.tronImageInterval = null;
-        }
-        
-        // Remove slideshow container
-        const slideshowContainer = document.querySelector('.tron-slideshow-container');
-        if (slideshowContainer) {
-            slideshowContainer.remove();
-        }
-        
-        console.log('🎨 Tron slideshow stopped');
-    }
-
-    showTronImage(index) {
-        console.log('🎨 Showing Tron image:', index, this.tronImages[index]);
-        
-        const slideshowContainer = document.querySelector('.tron-slideshow-container');
-        if (!slideshowContainer) {
-            console.error('❌ Slideshow container not found');
-            return;
-        }
-        
-        if (!this.tronImages[index]) {
-            console.error('❌ Tron image not found at index:', index);
-            return;
-        }
-        
-        // Remove existing images
-        slideshowContainer.innerHTML = '';
-        
-        // Create new image
-        const img = document.createElement('img');
-        img.src = this.tronImages[index];
-        img.className = 'tron-background-image active';
-        img.alt = `Tron background ${index + 1}`;
-        
-        // Add error handling for image loading
-        img.onerror = () => {
-            console.error('❌ Failed to load Tron image:', this.tronImages[index]);
-        };
-        
-        img.onload = () => {
-            console.log('✅ Tron image loaded successfully:', this.tronImages[index]);
-        };
-        
-        slideshowContainer.appendChild(img);
-        console.log('🎨 Tron image added to slideshow container');
-    }
 
     loadTronPlaylist() {
         console.log('🎵 Loading Tron playlist...');
