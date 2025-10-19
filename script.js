@@ -2766,6 +2766,38 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
+    async forceStartLofiMusic() {
+        console.log('🎵 Force starting Lofi music...');
+        
+        if (!this.backgroundAudio) {
+            console.log('❌ No background audio element');
+            return;
+        }
+        
+        if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0) {
+            console.log('❌ No Lofi tracks available yet');
+            return;
+        }
+        
+        // Stop any current music
+        this.backgroundAudio.pause();
+        
+        // Set lofi track
+        this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        this.backgroundAudio.loop = false;
+        this.backgroundAudio.volume = this.lofiVolume;
+        
+        try { 
+            await this.backgroundAudio.play(); 
+            console.log('✅ Lofi music force started:', this.lofiShuffledPlaylist[this.currentLofiTrackIndex]);
+        } catch (error) {
+            console.log('❌ Error force playing Lofi:', error);
+        }
+        
+        this.lofiPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
     stopLofiPlaylist() {
         if (!this.backgroundAudio) return;
         try { this.backgroundAudio.pause(); } catch (_) {}
@@ -11468,15 +11500,9 @@ class PomodoroTimer {
             if (this.isAuthenticated) {
                 localStorage.setItem('lofiEnabled', 'true');
             }
-            // If audio is already on a lofi track with progress, resume; otherwise start
-            const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
-            const isLofiSrc = this.backgroundAudio && /\/audio\/Lofi\//.test(this.backgroundAudio.currentSrc || this.backgroundAudio.src || '');
-            if (hasProgress && isLofiSrc) {
-                this.resumeLofiPlaylist();
-            } else {
-                // Force immediate start of lofi music
-                this.playLofiPlaylist().catch(err => console.log('Lofi start error:', err));
-            }
+            
+            // Force start lofi music immediately - bypass any blocking conditions
+            this.forceStartLofiMusic();
             console.log('🎨 Lofi theme applied - Garden Study background + lofi music');
             
         } else if (themeName === 'tron') {
