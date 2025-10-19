@@ -11674,32 +11674,40 @@ class PomodoroTimer {
     
     createSpotifyPlayer() {
         console.log('🎵 Creating Spotify player...');
+        console.log('🎵 Playlist URL:', this.tronSpotifyPlaylist);
         
         // Remove existing player if any
         const existingPlayer = document.getElementById('tron-spotify-player');
         if (existingPlayer) {
             existingPlayer.remove();
+            console.log('🎵 Removed existing Spotify player');
         }
         
         // Reset ready state
         this.tronSpotifyPlayerReady = false;
         
-        // Create tiny iframe for Spotify playlist with autoplay
+        // Create embed URL
+        const embedUrl = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=1';
+        console.log('🎵 Embed URL:', embedUrl);
+        
+        // Create iframe for Spotify playlist
         const iframe = document.createElement('iframe');
         iframe.id = 'tron-spotify-player';
-        iframe.src = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=1';
-        iframe.width = '1';
-        iframe.height = '1';
+        iframe.src = embedUrl;
+        iframe.width = '300';
+        iframe.height = '152';
         iframe.frameBorder = '0';
         iframe.allowTransparency = 'true';
         iframe.allow = 'autoplay; encrypted-media';
         iframe.style.position = 'fixed';
-        iframe.style.bottom = '10px';
-        iframe.style.right = '10px';
+        iframe.style.bottom = '20px';
+        iframe.style.right = '20px';
         iframe.style.opacity = '0.1';
         iframe.style.zIndex = '9999';
         iframe.style.border = 'none';
         iframe.style.display = 'block';
+        iframe.style.borderRadius = '12px';
+        iframe.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
         
         // Store reference to the iframe
         this.tronSpotifyPlayer = iframe;
@@ -11710,14 +11718,19 @@ class PomodoroTimer {
             this.tronSpotifyPlayerReady = true;
         });
         
-        document.body.appendChild(iframe);
+        // Add error event listener
+        iframe.addEventListener('error', (error) => {
+            console.error('🎵 Spotify iframe error:', error);
+        });
         
-        console.log('🎵 Spotify player created for Tron playlist with autoplay');
+        document.body.appendChild(iframe);
+        console.log('🎵 Spotify player created and added to DOM');
+        console.log('🎵 Iframe element:', iframe);
     }
 
     pauseTronMusic() {
         if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer) {
-            // Hide the tiny iframe
+            // Hide the iframe
             this.tronSpotifyPlayer.style.display = 'none';
             console.log('🎵 Tron music paused (iframe hidden)');
         }
@@ -11726,9 +11739,10 @@ class PomodoroTimer {
     resumeTronMusic() {
         if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer) {
             console.log('🎵 Starting Tron music...');
-            // Show the tiny iframe
+            // Show the iframe with higher opacity so user can interact
             this.tronSpotifyPlayer.style.display = 'block';
-            console.log('🎵 Tron music started (iframe visible)');
+            this.tronSpotifyPlayer.style.opacity = '0.3';
+            console.log('🎵 Tron music started (iframe visible with higher opacity)');
         }
     }
 
