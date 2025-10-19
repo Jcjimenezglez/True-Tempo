@@ -11442,6 +11442,12 @@ class PomodoroTimer {
             localStorage.setItem('lofiEnabled', 'true');
             this.startLofiMusic();
             console.log('🎨 Lofi theme applied - Garden Study background + lofi music');
+            
+        } else if (themeName === 'tron') {
+            // Tron theme: slideshow + tron music
+            this.deactivateImmersiveTheme();
+            this.applyImmersiveTheme('tron');
+            console.log('🎨 Tron theme applied - slideshow + tron music');
         }
         
         // Save theme preference
