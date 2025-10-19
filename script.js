@@ -11429,6 +11429,11 @@ class PomodoroTimer {
         
         if (themeName === 'simple') {
             // Simple theme: black background, no music
+            // Stop Tron music first if active
+            if (this.currentImmersiveTheme === 'tron') {
+                this.deactivateImmersiveTheme();
+            }
+            
             timerSection.classList.add('theme-minimalist');
             this.stopLofiMusic();
             this.lofiEnabled = false;
@@ -11437,6 +11442,11 @@ class PomodoroTimer {
             
         } else if (themeName === 'lofi') {
             // Lofi theme: Garden Study background + lofi music
+            // Stop Tron music first if active
+            if (this.currentImmersiveTheme === 'tron') {
+                this.deactivateImmersiveTheme();
+            }
+            
             timerSection.classList.add('theme-woman');
             this.lofiEnabled = true;
             localStorage.setItem('lofiEnabled', 'true');
@@ -11445,6 +11455,11 @@ class PomodoroTimer {
             
         } else if (themeName === 'tron') {
             // Tron theme: slideshow + tron music
+            // Stop Lofi music first
+            this.stopLofiMusic();
+            this.lofiEnabled = false;
+            localStorage.setItem('lofiEnabled', 'false');
+            
             this.deactivateImmersiveTheme();
             this.applyImmersiveTheme('tron');
             console.log('🎨 Tron theme applied - slideshow + tron music');
