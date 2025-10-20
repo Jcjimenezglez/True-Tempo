@@ -12015,6 +12015,28 @@ class PomodoroTimer {
         }
     }
 
+    showSpotifyLoading() {
+        // Show loading state for Spotify widget
+        console.log('🎵 Showing Spotify loading state...');
+        // Add any loading UI here if needed
+    }
+
+    disableStartButtonForSpotify() {
+        // Disable start button while Spotify is loading
+        if (this.startPauseBtn) {
+            this.startPauseBtn.disabled = true;
+            this.startPauseBtn.style.opacity = '0.5';
+        }
+    }
+
+    enableStartButtonForSpotify() {
+        // Enable start button when Spotify is ready
+        if (this.startPauseBtn) {
+            this.startPauseBtn.disabled = false;
+            this.startPauseBtn.style.opacity = '1';
+        }
+    }
+
 
 
 }
