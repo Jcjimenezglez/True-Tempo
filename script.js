@@ -78,6 +78,7 @@ class PomodoroTimer {
 		this.tronSpotifyWidget = null;
 		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
 		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}`;
+		this.tronSpotifyWidgetReady = false;
         
         
         
@@ -3077,6 +3078,12 @@ class PomodoroTimer {
     }
     
     startTimer() {
+        // Check if Tron theme is active and widget is not ready
+        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
+            console.log('🎵 Cannot start timer - Tron Spotify widget not ready yet');
+            return;
+        }
+        
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
@@ -11504,6 +11511,8 @@ class PomodoroTimer {
             // Create Spotify widget for Tron theme (only if not already created)
             if (!this.tronSpotifyWidget) {
                 this.createTronSpotifyWidget();
+                // Disable Start button until widget is ready
+                this.disableStartButtonForTron();
             }
             
             // If timer is running, start Spotify immediately
@@ -11647,6 +11656,7 @@ class PomodoroTimer {
         // Tron theme deactivated - remove Spotify widget
         if (this.currentImmersiveTheme === 'tron') {
             this.removeTronSpotifyWidget();
+            this.tronSpotifyWidgetReady = false;
             console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
         }
         
@@ -11787,12 +11797,36 @@ class PomodoroTimer {
                 // Make it invisible but keep it functional
                 this.tronSpotifyWidget.style.opacity = '0.01';
                 this.tronSpotifyWidget.style.pointerEvents = 'none';
+                this.tronSpotifyWidgetReady = true;
                 console.log('🎵 Spotify widget fully activated and hidden');
+                
+                // Enable Start button if Tron theme is active
+                this.enableStartButtonIfReady();
             }, 3000); // Increased delay for better activation
         }
     }
 
 
+
+    enableStartButtonIfReady() {
+        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyWidgetReady) {
+            // Enable Start button
+            this.startPauseBtn.disabled = false;
+            this.startPauseBtn.style.opacity = '1';
+            this.startPauseBtn.style.cursor = 'pointer';
+            console.log('🎵 Start button enabled - Tron Spotify widget ready');
+        }
+    }
+
+    disableStartButtonForTron() {
+        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
+            // Disable Start button
+            this.startPauseBtn.disabled = true;
+            this.startPauseBtn.style.opacity = '0.5';
+            this.startPauseBtn.style.cursor = 'not-allowed';
+            console.log('🎵 Start button disabled - Tron Spotify widget loading...');
+        }
+    }
 
     pauseTronSpotify() {
         console.log('🎵 Pausing Tron Spotify...');
