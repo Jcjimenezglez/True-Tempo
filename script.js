@@ -11880,17 +11880,9 @@ class PomodoroTimer {
                     console.log('🎵 Widget interaction attempt failed');
                 }
                 
-                // Keep widget hidden but functional
-                this.tronSpotifyWidget.style.display = 'none';
-                this.tronSpotifyWidget.style.pointerEvents = 'none';
-                this.tronSpotifyWidgetReady = true;
-                this.tronSpotifyWidgetActivated = true; // Mark as activated
-                console.log('🎵 Spotify widget fully activated and hidden');
-                
-                // Hide loading and enable Start button when widget is ready
-                this.hideSpotifyLoading();
-                this.enableStartButtonForSpotify();
-            }, 3000); // Standard delay for activation
+                // Check if user needs to login to Spotify
+                this.checkSpotifyLoginStatus();
+            }, 6000); // Extended delay for activation (3s additional)
         }
     }
 
@@ -11941,6 +11933,114 @@ class PomodoroTimer {
             this.spotifyLoadingElement = null;
             console.log('🎵 Spotify loading hidden');
         }
+    }
+
+    showSpotifyLoginPrompt() {
+        if (this.spotifyLoadingElement) {
+            this.hideSpotifyLoading();
+        }
+        
+        const prompt = document.createElement('div');
+        prompt.className = 'spotify-login-prompt';
+        prompt.innerHTML = `
+            <div class="spotify-login-content">
+                <div class="spotify-login-icon">🎵</div>
+                <div class="spotify-login-text">
+                    <div class="spotify-login-title">Spotify Login Required</div>
+                    <div class="spotify-login-message">Please log in to Spotify to play the Tron playlist</div>
+                </div>
+                <div class="spotify-login-buttons">
+                    <button class="spotify-login-btn" id="spotifyLoginBtn">Login to Spotify</button>
+                    <button class="spotify-cancel-btn" id="spotifyCancelBtn">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        prompt.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #1db954;
+            z-index: 10001;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            max-width: 300px;
+        `;
+        
+        document.body.appendChild(prompt);
+        this.spotifyLoadingElement = prompt;
+        
+        // Add event listeners
+        const loginBtn = document.getElementById('spotifyLoginBtn');
+        const cancelBtn = document.getElementById('spotifyCancelBtn');
+        
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                this.openSpotifyLogin();
+            });
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                this.hideSpotifyLoading();
+                // Switch to Lofi theme as fallback
+                this.applyTheme('lofi');
+            });
+        }
+        
+        console.log('🎵 Spotify login prompt shown');
+    }
+
+    openSpotifyLogin() {
+        // Open Spotify login in a new window
+        const spotifyLoginUrl = 'https://accounts.spotify.com/authorize?client_id=your_client_id&response_type=code&redirect_uri=your_redirect_uri&scope=user-read-playback-state%20user-modify-playback-state';
+        window.open(spotifyLoginUrl, 'spotify-login', 'width=500,height=600,scrollbars=yes,resizable=yes');
+        
+        // Hide the prompt
+        this.hideSpotifyLoading();
+        
+        // Show a message that user should refresh after login
+        setTimeout(() => {
+            alert('Please refresh the page after logging in to Spotify to continue with the Tron theme.');
+        }, 1000);
+    }
+
+    checkSpotifyLoginStatus() {
+        // Try to detect if user is logged into Spotify by checking if the widget loads properly
+        try {
+            // Check if the widget iframe has loaded content
+            const iframe = this.tronSpotifyWidget;
+            if (iframe && iframe.contentDocument) {
+                // If we can access the content, user is likely logged in
+                this.activateSpotifyWidgetSuccess();
+            } else {
+                // If we can't access content, user might need to login
+                this.showSpotifyLoginPrompt();
+            }
+        } catch (error) {
+            // Cross-origin error usually means user needs to login
+            console.log('🎵 Spotify login required - cross-origin access denied');
+            this.showSpotifyLoginPrompt();
+        }
+    }
+
+    activateSpotifyWidgetSuccess() {
+        // Keep widget hidden but functional
+        this.tronSpotifyWidget.style.display = 'none';
+        this.tronSpotifyWidget.style.pointerEvents = 'none';
+        this.tronSpotifyWidgetReady = true;
+        this.tronSpotifyWidgetActivated = true; // Mark as activated
+        console.log('🎵 Spotify widget fully activated and hidden');
+        
+        // Hide loading and enable Start button when widget is ready
+        this.hideSpotifyLoading();
+        this.enableStartButtonForSpotify();
     }
 
     disableStartButtonForSpotify() {
