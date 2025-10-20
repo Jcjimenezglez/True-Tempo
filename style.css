@@ -8158,7 +8158,7 @@ input:checked + .toggle-slider:before {
 #tron-image-button {
     position: absolute !important;
     bottom: 20px !important;
-    left: 8px !important;
+    left: 16px !important;
 }
 
 .tron-image-content {
