@@ -11305,20 +11305,8 @@ class PomodoroTimer {
                         { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
                     ];
                     
-                    // Reset timer to first section
-                    this.pauseTimerSilent();
-                    this.currentSection = 1;
-                    this.loadCurrentSection();
-                    this.updateProgressRing();
-                    
-                    // Additional updates for Tron theme to ensure proper reset
-                    if (this.currentImmersiveTheme === 'tron') {
-                        this.updateDisplay();
-                        this.updateProgress();
-                        this.updateSections();
-                        this.updateSessionInfo();
-                        console.log('🎨 Tron theme timer reset completed');
-                    }
+                    // Reset timer to first section using the complete reset function
+                    this.resetTimer();
                     
                     // Close the settings panel
                     const sidebarManager = document.querySelector('.sidebar');
