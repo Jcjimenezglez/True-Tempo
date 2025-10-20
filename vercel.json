@@ -1,6 +1,10 @@
 {
   "version": 2,
-  "builds": [],
+  "functions": {
+    "api/**/*": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "headers": [
     {
       "source": "/audio/(.*)",
@@ -36,8 +40,23 @@
     }
   ],
   "redirects": [
-    { "source": "superfocus\\.live", "destination": "https://www.superfocus.live", "permanent": true },
-    { "source": "truetempo\\.app", "destination": "https://superfocus.live", "permanent": true },
-    { "source": "www\\.truetempo\\.app", "destination": "https://superfocus.live", "permanent": true }
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "superfocus.live" }],
+      "destination": "https://www.superfocus.live/:1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "truetempo.app" }],
+      "destination": "https://superfocus.live/:1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.truetempo.app" }],
+      "destination": "https://superfocus.live/:1",
+      "permanent": true
+    }
   ]
 }
