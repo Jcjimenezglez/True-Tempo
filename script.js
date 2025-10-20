@@ -3170,10 +3170,7 @@ class PomodoroTimer {
     
     startTimer() {
         // Check if Tron theme is active and widget is not ready
-        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
-            console.log('🎵 Cannot start timer - Tron Spotify widget not ready yet');
-            return;
-        }
+        // Widget is visible and ready, no checks needed
         
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
@@ -11737,12 +11734,7 @@ class PomodoroTimer {
         if (this.currentImmersiveTheme === 'tron') {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
-            this.tronSpotifyWidgetActivated = false; // Reset activation state
-            this.hideSpotifyLoading();
-            // Restore Start button to normal state
-            this.startPauseBtn.disabled = false;
-            this.startPauseBtn.style.opacity = '1';
-            this.startPauseBtn.style.cursor = 'pointer';
+            this.tronSpotifyWidgetActivated = false;
             console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
         }
         
@@ -11819,20 +11811,21 @@ class PomodoroTimer {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            display: none;
+            width: 300px;
+            height: 152px;
             z-index: 1000;
             border-radius: 8px;
             border: none;
-            pointer-events: none;
+            pointer-events: auto;
         `;
 
         document.body.appendChild(widget);
         this.tronSpotifyWidget = widget;
         
-        // Auto-activate widget after creation to ensure it's ready
-        setTimeout(() => {
-            this.activateSpotifyWidget();
-        }, 3000); // Standard delay to allow widget to load
+        // Widget is now visible and ready
+        this.tronSpotifyWidgetReady = true;
+        this.tronSpotifyWidgetActivated = true;
+        console.log('🎵 Spotify widget created and visible');
         
         console.log('🎵 Tron Spotify widget created');
     }
@@ -11853,228 +11846,17 @@ class PomodoroTimer {
         }
     }
 
-    activateSpotifyWidget() {
-        console.log('🎵 Activating Spotify widget...');
-        
-        // Only activate once to avoid restarting the playlist
-        if (this.tronSpotifyWidgetActivated) {
-            console.log('🎵 Spotify widget already activated, skipping...');
-            return;
-        }
-        
-        if (this.tronSpotifyWidget) {
-            // Make widget visible and interactive to fully activate it
-            this.tronSpotifyWidget.style.opacity = '0.1';
-            this.tronSpotifyWidget.style.pointerEvents = 'auto';
-            this.tronSpotifyWidget.style.width = '300px';
-            this.tronSpotifyWidget.style.height = '152px';
-            
-            // Wait for widget to fully load and activate
-            setTimeout(() => {
-                // Try to interact with the widget to ensure it's ready
-                try {
-                    this.tronSpotifyWidget.contentWindow.postMessage({
-                        command: 'ready'
-                    }, '*');
-                } catch (error) {
-                    console.log('🎵 Widget interaction attempt failed');
-                }
-                
-                // Check if user needs to login to Spotify
-                this.checkSpotifyLoginStatus();
-            }, 6000); // Extended delay for activation (3s additional)
-        }
-    }
+    // Widget is now always visible, no complex activation needed
 
 
 
-    showSpotifyLoading() {
-        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
-            // Remove existing loading if any
-            this.hideSpotifyLoading();
-            
-            // Create loading overlay
-            const loading = document.createElement('div');
-            loading.id = 'spotify-loading';
-            loading.innerHTML = `
-                <div class="spotify-loading-content">
-                    <div class="spotify-loading-spinner"></div>
-                    <div class="spotify-loading-text">Connecting Spotify...</div>
-                </div>
-            `;
-            
-            // Style the loading (same position as widget)
-            loading.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: rgba(0, 0, 0, 0.9);
-                color: #1db954;
-                padding: 15px 20px;
-                border-radius: 8px;
-                border: 2px solid #1db954;
-                z-index: 10001;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-size: 14px;
-                text-align: center;
-                backdrop-filter: blur(10px);
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-            `;
-            
-            document.body.appendChild(loading);
-            this.spotifyLoadingElement = loading;
-            console.log('🎵 Spotify loading shown');
-        }
-    }
+    // No loading needed - widget is visible
 
-    hideSpotifyLoading() {
-        if (this.spotifyLoadingElement) {
-            this.spotifyLoadingElement.remove();
-            this.spotifyLoadingElement = null;
-            console.log('🎵 Spotify loading hidden');
-        }
-    }
+    // No loading needed - widget is visible
 
-    showSpotifyLoginPrompt() {
-        if (this.spotifyLoadingElement) {
-            this.hideSpotifyLoading();
-        }
-        
-        const prompt = document.createElement('div');
-        prompt.className = 'spotify-login-prompt';
-        prompt.innerHTML = `
-            <div class="spotify-login-content">
-                <div class="spotify-login-icon">🎵</div>
-                <div class="spotify-login-text">
-                    <div class="spotify-login-title">Load Tron Playlist</div>
-                    <div class="spotify-login-message">Opening the Tron playlist to ensure music is ready</div>
-                </div>
-                <div class="spotify-login-buttons">
-                    <button class="spotify-login-btn" id="spotifyCheckBtn">Open Playlist</button>
-                    <button class="spotify-cancel-btn" id="spotifyCancelBtn">Cancel</button>
-                </div>
-            </div>
-        `;
-        
-        prompt.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.95);
-            color: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #1db954;
-            z-index: 10001;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            max-width: 300px;
-        `;
-        
-        document.body.appendChild(prompt);
-        this.spotifyLoadingElement = prompt;
-        
-        // Add event listeners
-        const checkBtn = document.getElementById('spotifyCheckBtn');
-        const cancelBtn = document.getElementById('spotifyCancelBtn');
-        
-        if (checkBtn) {
-            checkBtn.addEventListener('click', () => {
-                this.openSpotifyCheck();
-            });
-        }
-        
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
-                this.hideSpotifyLoading();
-                // Switch to Lofi theme as fallback
-                this.applyTheme('lofi');
-            });
-        }
-        
-        console.log('🎵 Spotify check prompt shown');
-    }
+    // No complex verification needed - widget is visible
 
-    openSpotifyCheck() {
-        // Mark that user has verified Spotify status
-        sessionStorage.setItem('spotifyVerified', 'true');
-        
-        // Open the specific Tron playlist to ensure it's loaded and ready
-        const tronPlaylistUrl = 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl';
-        window.open(tronPlaylistUrl, 'spotify-check', 'width=800,height=600,scrollbars=yes,resizable=yes');
-        
-        // Hide the prompt
-        this.hideSpotifyLoading();
-        
-        // Show a message that user should refresh after checking
-        setTimeout(() => {
-            alert('Please refresh the page after the Tron playlist loads to continue with the theme.');
-        }, 1000);
-    }
-
-    checkSpotifyLoginStatus() {
-        // Check if user has already verified Spotify status in this session
-        const spotifyVerified = sessionStorage.getItem('spotifyVerified');
-        
-        if (spotifyVerified === 'true') {
-            console.log('🎵 Spotify already verified in this session, waiting for widget activation...');
-            // Wait additional 3 seconds for widget to be fully ready
-            setTimeout(() => {
-                this.activateSpotifyWidgetSuccess();
-            }, 3000);
-            return;
-        }
-        
-        // Try to detect if user is logged into Spotify by checking if the widget loads properly
-        try {
-            // Check if the widget iframe has loaded content
-            const iframe = this.tronSpotifyWidget;
-            if (iframe && iframe.contentDocument) {
-                // If we can access the content, user is likely logged in
-                this.activateSpotifyWidgetSuccess();
-            } else {
-                // If we can't access content, user might need to login
-                this.showSpotifyLoginPrompt();
-            }
-        } catch (error) {
-            // Cross-origin error usually means user needs to login
-            console.log('🎵 Spotify login required - cross-origin access denied');
-            this.showSpotifyLoginPrompt();
-        }
-    }
-
-    activateSpotifyWidgetSuccess() {
-        // Keep widget hidden but functional
-        this.tronSpotifyWidget.style.display = 'none';
-        this.tronSpotifyWidget.style.pointerEvents = 'none';
-        this.tronSpotifyWidgetReady = true;
-        this.tronSpotifyWidgetActivated = true; // Mark as activated
-        console.log('🎵 Spotify widget fully activated and hidden');
-        
-        // Hide loading and enable Start button when widget is ready
-        this.hideSpotifyLoading();
-        this.enableStartButtonForSpotify();
-    }
-
-    disableStartButtonForSpotify() {
-        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
-            this.startPauseBtn.disabled = true;
-            this.startPauseBtn.style.opacity = '0.5';
-            this.startPauseBtn.style.cursor = 'not-allowed';
-            console.log('🎵 Start button disabled - Spotify connecting...');
-        }
-    }
-
-    enableStartButtonForSpotify() {
-        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyWidgetReady) {
-            this.startPauseBtn.disabled = false;
-            this.startPauseBtn.style.opacity = '1';
-            this.startPauseBtn.style.cursor = 'pointer';
-            console.log('🎵 Start button enabled - Spotify ready');
-        }
-    }
+    // No button disabling needed - widget is visible and ready
 
 
     loadLastSelectedTheme() {
