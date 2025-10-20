@@ -80,6 +80,7 @@ class PomodoroTimer {
 		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}`;
 		this.tronSpotifyWidgetReady = false;
 		this.spotifyLoadingElement = null;
+		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
 		
 		// Load saved Tron Spotify state (for both authenticated and guest users)
 		this.loadTronSpotifyState();
@@ -11664,6 +11665,7 @@ class PomodoroTimer {
         if (this.currentImmersiveTheme === 'tron') {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
+            this.tronSpotifyWidgetActivated = false; // Reset activation state
             this.hideSpotifyLoading();
             // Clear saved state when theme is deactivated
             localStorage.removeItem('tronSpotifyState');
@@ -11769,26 +11771,26 @@ class PomodoroTimer {
         console.log('🎵 Starting Tron Spotify...');
         
         if (this.tronSpotifyWidget) {
-            // Wait a bit more to ensure widget is fully loaded before trying to control it
-            setTimeout(() => {
-                // Activate widget by making it briefly visible and interactive
-                this.activateSpotifyWidget();
-                
-                // Try to control the widget (this may not work due to cross-origin restrictions)
-                try {
-                    this.tronSpotifyWidget.contentWindow.postMessage({
-                        command: 'play'
-                    }, '*');
-                    console.log('🎵 Tron Spotify play command sent');
-                } catch (error) {
-                    console.log('🎵 Tron Spotify control not available (cross-origin)');
-                }
-            }, 1000); // Additional delay to ensure widget is ready
+            // Only send play command, don't reactivate widget to avoid restarting playlist
+            try {
+                this.tronSpotifyWidget.contentWindow.postMessage({
+                    command: 'play'
+                }, '*');
+                console.log('🎵 Tron Spotify play command sent');
+            } catch (error) {
+                console.log('🎵 Tron Spotify control not available (cross-origin)');
+            }
         }
     }
 
     activateSpotifyWidget() {
         console.log('🎵 Activating Spotify widget...');
+        
+        // Only activate once to avoid restarting the playlist
+        if (this.tronSpotifyWidgetActivated) {
+            console.log('🎵 Spotify widget already activated, skipping...');
+            return;
+        }
         
         if (this.tronSpotifyWidget) {
             // Make widget visible and interactive to fully activate it
@@ -11812,6 +11814,7 @@ class PomodoroTimer {
                 this.tronSpotifyWidget.style.display = 'none';
                 this.tronSpotifyWidget.style.pointerEvents = 'none';
                 this.tronSpotifyWidgetReady = true;
+                this.tronSpotifyWidgetActivated = true; // Mark as activated
                 console.log('🎵 Spotify widget fully activated and hidden');
                 
                 // Save state when widget is ready
@@ -11898,6 +11901,7 @@ class PomodoroTimer {
             try {
                 const state = JSON.parse(savedTronSpotifyState);
                 this.tronSpotifyWidgetReady = state.widgetReady || false;
+                this.tronSpotifyWidgetActivated = state.widgetActivated || false;
                 console.log('🎵 Tron Spotify state loaded:', state);
             } catch (error) {
                 console.log('🎵 Could not load Tron Spotify state:', error);
@@ -11909,6 +11913,7 @@ class PomodoroTimer {
         // Save Tron Spotify state to localStorage (works for both authenticated and guest users)
         const state = {
             widgetReady: this.tronSpotifyWidgetReady,
+            widgetActivated: this.tronSpotifyWidgetActivated,
             timestamp: Date.now()
         };
         localStorage.setItem('tronSpotifyState', JSON.stringify(state));
