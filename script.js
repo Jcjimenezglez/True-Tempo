@@ -81,7 +81,6 @@ class PomodoroTimer {
 		this.tronSpotifyWidgetReady = false;
 		this.spotifyLoadingElement = null;
 		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
-		this.tronSpotifyPlaylistLoaded = false; // Track if playlist has been loaded and started
 		
 		// Note: We don't save Spotify connecting state - always show loading
 		
@@ -11691,7 +11690,6 @@ class PomodoroTimer {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
             this.tronSpotifyWidgetActivated = false; // Reset activation state
-            this.tronSpotifyPlaylistLoaded = false; // Reset playlist loaded state
             this.hideSpotifyLoading();
             // Restore Start button to normal state
             this.startPauseBtn.disabled = false;
@@ -11795,27 +11793,14 @@ class PomodoroTimer {
         console.log('🎵 Starting Tron Spotify...');
         
         if (this.tronSpotifyWidget) {
-            // Only send play command if playlist hasn't been loaded yet
-            if (!this.tronSpotifyPlaylistLoaded) {
-                try {
-                    this.tronSpotifyWidget.contentWindow.postMessage({
-                        command: 'play'
-                    }, '*');
-                    this.tronSpotifyPlaylistLoaded = true; // Mark as loaded
-                    console.log('🎵 Tron Spotify play command sent (first time)');
-                } catch (error) {
-                    console.log('🎵 Tron Spotify control not available (cross-origin)');
-                }
-            } else {
-                // Playlist already loaded, just resume
-                try {
-                    this.tronSpotifyWidget.contentWindow.postMessage({
-                        command: 'play'
-                    }, '*');
-                    console.log('🎵 Tron Spotify resume command sent');
-                } catch (error) {
-                    console.log('🎵 Tron Spotify control not available (cross-origin)');
-                }
+            // Only send play command, don't reactivate widget to avoid restarting playlist
+            try {
+                this.tronSpotifyWidget.contentWindow.postMessage({
+                    command: 'play'
+                }, '*');
+                console.log('🎵 Tron Spotify play command sent');
+            } catch (error) {
+                console.log('🎵 Tron Spotify control not available (cross-origin)');
             }
         }
     }
@@ -12003,7 +11988,6 @@ class PomodoroTimer {
         }
     }
 
-
     removeTronSpotifyWidget() {
         console.log('🎵 Removing Tron Spotify widget...');
         
@@ -12041,8 +12025,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.mixpanelTracker.init();
     }
     
-    // Ensure theme is applied after DOM is fully ready
-    timer.applyBackground(timer.currentBackground);
+    // Theme is applied inside constructor via applyTheme(this.currentTheme).
+    // Avoid re-applying a stale background here to prevent flashes or mismatches.
     timer.applyOverlay(timer.overlayOpacity);
     
     // Mobile menu toggle
