@@ -7502,12 +7502,14 @@ input:checked + .toggle-slider:before {
     justify-content: center;
     z-index: 10000;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .desktop-required-content {
     text-align: center;
     max-width: 500px;
     width: 100%;
+    margin: 40px 0;
 }
 
 .desktop-required-icon {
@@ -7611,6 +7613,44 @@ input:checked + .toggle-slider:before {
     
     .desktop-required-screen {
         display: flex !important;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .desktop-required-content {
+        margin: 20px 0;
+        padding: 0 10px;
+    }
+    
+    .desktop-required-content h1 {
+        font-size: 2rem;
+    }
+    
+    .desktop-required-content > p {
+        font-size: 1rem;
+    }
+    
+    .feature-item {
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .feature-icon {
+        font-size: 1.5rem;
+    }
+    
+    .feature-text h3 {
+        font-size: 1rem;
+    }
+    
+    .feature-text p {
+        font-size: 0.8rem;
+    }
+    
+    .desktop-required-btn {
+        padding: 14px 28px;
+        font-size: 0.9rem;
     }
 }
 
