@@ -1,28 +1,5 @@
 {
   "version": 2,
-  "headers": [
-    {
-      "source": "/index.html",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/script.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/style.css",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
-    }
-  ]
-}
-{
-  "version": 2,
   "builds": [],
   "headers": [
     {
@@ -58,30 +35,10 @@
       "destination": "/index.html"
     }
   ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        { "type": "host", "value": "superfocus.live" }
-      ],
-      "destination": "https://www.superfocus.live/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        { "type": "host", "value": "truetempo.app" }
-      ],
-      "destination": "https://superfocus.live/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        { "type": "host", "value": "www.truetempo.app" }
-      ],
-      "destination": "https://superfocus.live/$1",
-      "permanent": true
-    }
+  "routes": [
+    { "handle": "hostname" },
+    { "src": "superfocus\\.live", "dest": "https://www.superfocus.live" },
+    { "src": "truetempo\\.app", "dest": "https://superfocus.live" },
+    { "src": "www\\.truetempo\\.app", "dest": "https://superfocus.live" }
   ]
 }
