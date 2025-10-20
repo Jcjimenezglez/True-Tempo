@@ -11733,6 +11733,11 @@ class PomodoroTimer {
         document.body.appendChild(widget);
         this.tronSpotifyWidget = widget;
         
+        // Auto-activate widget after creation to ensure it's ready
+        setTimeout(() => {
+            this.activateSpotifyWidget();
+        }, 1000);
+        
         console.log('🎵 Tron Spotify widget created');
     }
 
@@ -11760,18 +11765,28 @@ class PomodoroTimer {
         console.log('🎵 Activating Spotify widget...');
         
         if (this.tronSpotifyWidget) {
-            // Make widget visible and interactive briefly to activate it
+            // Make widget visible and interactive to fully activate it
             this.tronSpotifyWidget.style.opacity = '0.1';
             this.tronSpotifyWidget.style.pointerEvents = 'auto';
             this.tronSpotifyWidget.style.width = '300px';
             this.tronSpotifyWidget.style.height = '152px';
             
-            // After a short delay, make it invisible again but keep it functional
+            // Wait longer for widget to fully load and activate
             setTimeout(() => {
+                // Try to interact with the widget to ensure it's ready
+                try {
+                    this.tronSpotifyWidget.contentWindow.postMessage({
+                        command: 'ready'
+                    }, '*');
+                } catch (error) {
+                    console.log('🎵 Widget interaction attempt failed');
+                }
+                
+                // Make it invisible but keep it functional
                 this.tronSpotifyWidget.style.opacity = '0.01';
                 this.tronSpotifyWidget.style.pointerEvents = 'none';
-                console.log('🎵 Spotify widget activated and hidden');
-            }, 2000);
+                console.log('🎵 Spotify widget fully activated and hidden');
+            }, 3000); // Increased delay for better activation
         }
     }
 
