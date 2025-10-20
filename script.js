@@ -1285,33 +1285,40 @@ class PomodoroTimer {
         // Clear existing segments
         progressSegments.innerHTML = '';
         
-        // SIMPLIFIED: Create only ONE full circle as background (Tesla style)
+        // Create all 8 segments for the complete cycle
+        this.cycleSections.forEach((section, index) => {
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('class', 'progress-segment');
+            circle.setAttribute('class', `progress-segment ${section.type === 'work' ? 'work-segment' : section.type === 'long-break' ? 'long-break-segment' : 'break-segment'}`);
+            circle.setAttribute('data-section', (index + 1).toString());
+            circle.setAttribute('data-minutes', Math.floor(section.duration / 60).toString());
             circle.setAttribute('cx', '50');
             circle.setAttribute('cy', '50');
             circle.setAttribute('r', '45');
             circle.setAttribute('fill', 'none');
             circle.setAttribute('stroke-width', '4');
-                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-        // Don't set stroke-dasharray - let it be a complete circle
+            circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
             
             progressSegments.appendChild(circle);
+        });
             
         // Restore opacity if it existed
         if (existingOpacity) {
             progressSegments.style.opacity = existingOpacity;
         }
         
-        // Update overlays: create ONLY ONE overlay used for current-section progress
+        // Update overlays: create 8 overlays for each section
         const progressOverlays = document.querySelector('.progress-overlays');
         if (progressOverlays) {
             // Preserve existing opacity before clearing
             const existingOverlayOpacity = progressOverlays.style.opacity || '';
             
             progressOverlays.innerHTML = '';
+            
+            // Create 8 overlays for each section
+            for (let i = 1; i <= 8; i++) {
                 const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 overlay.setAttribute('class', 'progress-overlay');
+                overlay.setAttribute('data-ol', i.toString());
                 overlay.setAttribute('cx', '50');
                 overlay.setAttribute('cy', '50');
                 overlay.setAttribute('r', '45');
@@ -1321,6 +1328,7 @@ class PomodoroTimer {
                 overlay.setAttribute('stroke-linejoin', 'round');
                 overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
                 progressOverlays.appendChild(overlay);
+            }
                 
             // Restore opacity if it existed
             if (existingOverlayOpacity) {
