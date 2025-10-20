@@ -11494,11 +11494,17 @@ class PomodoroTimer {
                 localStorage.setItem('lofiEnabled', 'false');
             }
             
-            this.deactivateImmersiveTheme();
+            // Only deactivate if not already Tron theme
+            if (this.currentImmersiveTheme !== 'tron') {
+                this.deactivateImmersiveTheme();
+            }
+            
             this.applyImmersiveTheme('tron');
             
-            // Create Spotify widget for Tron theme
-            this.createTronSpotifyWidget();
+            // Create Spotify widget for Tron theme (only if not already created)
+            if (!this.tronSpotifyWidget) {
+                this.createTronSpotifyWidget();
+            }
             
             // If timer is running, start Spotify immediately
             if (this.isRunning) {
@@ -11691,6 +11697,12 @@ class PomodoroTimer {
     // Tron Spotify Widget Methods
     createTronSpotifyWidget() {
         console.log('🎵 Creating Tron Spotify widget...');
+        
+        // Check if widget already exists
+        if (this.tronSpotifyWidget) {
+            console.log('🎵 Tron Spotify widget already exists, skipping creation');
+            return;
+        }
         
         // Remove existing widget if any
         const existingWidget = document.getElementById('tron-spotify-widget');
