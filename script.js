@@ -271,16 +271,16 @@ class PomodoroTimer {
         // Initialize new theme system (default to lofi)
         // Load last selected theme from localStorage (works for both authenticated and guest users)
         const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        // Track if we must defer Tron application until auth hydrates
+        this.pendingThemeApply = null;
         if (lastSelectedTheme) {
-            // Check if Tron theme requires authentication
-            if (lastSelectedTheme === 'tron' && !this.isAuthenticated) {
-                console.log('🎨 Tron theme requires authentication, using default lofi');
-                this.currentTheme = 'lofi';
-        } else {
-                this.currentTheme = lastSelectedTheme;
+            this.currentTheme = lastSelectedTheme;
+            if (lastSelectedTheme === 'tron') {
+                // Don't decide yet based on auth = false (not hydrated). Defer applying.
+                this.pendingThemeApply = 'tron';
             }
         } else {
-            this.currentTheme = 'lofi'; // Only default to lofi if no theme is saved
+            this.currentTheme = 'lofi'; // Only default when nothing saved
         }
         
             // Clear any saved immersive theme for guests
@@ -289,8 +289,10 @@ class PomodoroTimer {
         }
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
-        // Apply the selected theme immediately
+        // Apply theme now only if not deferring Tron until auth hydration
+        if (this.pendingThemeApply !== 'tron') {
             this.applyTheme(this.currentTheme);
+        }
         
         this.applyOverlay(this.overlayOpacity);
         
@@ -553,9 +555,14 @@ class PomodoroTimer {
             try { this.updateThemeAuthState(); } catch (_) {}
             try {
                 const savedTheme = localStorage.getItem('lastSelectedTheme');
-                if (savedTheme === 'tron' && this.currentTheme !== 'tron') {
-                    console.log('🎨 Auth hydrated: applying saved Tron theme');
+                // If we deferred Tron application, and user is authenticated now, apply it
+                if (this.pendingThemeApply === 'tron' && this.isAuthenticated) {
+                    console.log('🎨 Auth hydrated: applying deferred Tron theme');
                     this.applyTheme('tron');
+                    this.pendingThemeApply = null;
+                } else if (savedTheme && savedTheme !== this.currentTheme) {
+                    // Ensure saved cassette is honored
+                    this.applyTheme(savedTheme);
                 }
             } catch (_) {}
             // Check admin access for Developer tab
