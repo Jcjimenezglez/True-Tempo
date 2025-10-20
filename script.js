@@ -11822,6 +11822,9 @@ class PomodoroTimer {
         document.body.appendChild(widget);
         this.tronSpotifyWidget = widget;
         
+        // Create background image button
+        this.createTronImageButton();
+        
         // Widget is now visible and ready
         this.tronSpotifyWidgetReady = true;
         this.tronSpotifyWidgetActivated = true;
@@ -11854,7 +11857,57 @@ class PomodoroTimer {
 
     // No loading needed - widget is visible
 
-    // No complex verification needed - widget is visible
+    createTronImageButton() {
+        // Create background image button
+        const imageButton = document.createElement('div');
+        imageButton.id = 'tron-image-button';
+        imageButton.innerHTML = `
+            <div class="tron-image-content">
+                <div class="tron-image-icon">🖼️</div>
+                <div class="tron-image-text">Image</div>
+            </div>
+        `;
+        
+        imageButton.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        // Add hover effects
+        imageButton.addEventListener('mouseenter', () => {
+            imageButton.style.background = 'rgba(0, 0, 0, 0.5)';
+            imageButton.style.transform = 'translateY(-2px)';
+        });
+        
+        imageButton.addEventListener('mouseleave', () => {
+            imageButton.style.background = 'rgba(0, 0, 0, 0.3)';
+            imageButton.style.transform = 'translateY(0)';
+        });
+        
+        // Add click handler
+        imageButton.addEventListener('click', () => {
+            window.open('https://wall.alphacoders.com/big.php?i=1395234', '_blank');
+        });
+        
+        document.body.appendChild(imageButton);
+        this.tronImageButton = imageButton;
+        console.log('🖼️ Tron image button created');
+    }
 
     // No button disabling needed - widget is visible and ready
 
@@ -11940,6 +11993,13 @@ class PomodoroTimer {
             this.tronSpotifyWidget.remove();
             this.tronSpotifyWidget = null;
             console.log('🎵 Tron Spotify widget removed');
+        }
+        
+        // Remove image button
+        if (this.tronImageButton) {
+            this.tronImageButton.remove();
+            this.tronImageButton = null;
+            console.log('🖼️ Tron image button removed');
         }
     }
 

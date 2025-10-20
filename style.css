@@ -8154,6 +8154,22 @@ input:checked + .toggle-slider:before {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* Tron Image Button Styles */
+.tron-image-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tron-image-icon {
+    font-size: 16px;
+}
+
+.tron-image-text {
+    font-weight: 500;
+    font-size: 14px;
+}
+
 /* Immersive Theme Panel Styles */
 .immersive-theme-option {
     position: relative;
