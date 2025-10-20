@@ -7663,6 +7663,58 @@ input:checked + .toggle-slider:before {
     100% { opacity: 0.7; }
 }
 
+/* Spotify Login Instructions Styles */
+.spotify-instructions-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.spotify-instructions-icon {
+    font-size: 24px;
+    color: #1db954;
+}
+
+.spotify-instructions-text {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.spotify-instructions-text a {
+    color: #1db954;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.spotify-instructions-text a:hover {
+    color: #1ed760;
+    text-decoration: underline;
+}
+
+.spotify-instructions-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.spotify-instructions-close:hover {
+    background: #ff6666;
+}
+
 /* Immersive Theme Panel Styles */
 .immersive-theme-option {
     position: relative;

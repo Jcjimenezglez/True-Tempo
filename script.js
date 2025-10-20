@@ -11496,7 +11496,7 @@ class PomodoroTimer {
             
             // Only deactivate if not already Tron theme
             if (this.currentImmersiveTheme !== 'tron') {
-                this.deactivateImmersiveTheme();
+            this.deactivateImmersiveTheme();
             }
             
             this.applyImmersiveTheme('tron');
@@ -11740,6 +11740,9 @@ class PomodoroTimer {
         console.log('🎵 Starting Tron Spotify...');
         
         if (this.tronSpotifyWidget) {
+            // Activate widget by making it briefly visible and interactive
+            this.activateSpotifyWidget();
+            
             // Try to control the widget (this may not work due to cross-origin restrictions)
             try {
                 this.tronSpotifyWidget.contentWindow.postMessage({
@@ -11749,7 +11752,106 @@ class PomodoroTimer {
             } catch (error) {
                 console.log('🎵 Tron Spotify control not available (cross-origin)');
             }
+            
+            // Show Spotify login instructions if needed
+            this.checkSpotifyLoginAndShowInstructions();
         }
+    }
+
+    activateSpotifyWidget() {
+        console.log('🎵 Activating Spotify widget...');
+        
+        if (this.tronSpotifyWidget) {
+            // Make widget visible and interactive briefly to activate it
+            this.tronSpotifyWidget.style.opacity = '0.1';
+            this.tronSpotifyWidget.style.pointerEvents = 'auto';
+            this.tronSpotifyWidget.style.width = '300px';
+            this.tronSpotifyWidget.style.height = '152px';
+            
+            // After a short delay, make it invisible again but keep it functional
+            setTimeout(() => {
+                this.tronSpotifyWidget.style.opacity = '0.01';
+                this.tronSpotifyWidget.style.pointerEvents = 'none';
+                console.log('🎵 Spotify widget activated and hidden');
+            }, 2000);
+        }
+    }
+
+    async checkSpotifyLoginAndShowInstructions() {
+        // Check if user is logged into Spotify by trying to access Spotify API
+        try {
+            // This is a simple check - in a real implementation you'd need proper OAuth
+            const spotifyLoggedIn = await this.checkSpotifyLoginStatus();
+            
+            if (!spotifyLoggedIn) {
+                this.showSpotifyLoginInstructions();
+            }
+        } catch (error) {
+            console.log('🎵 Could not check Spotify login status');
+        }
+    }
+
+    async checkSpotifyLoginStatus() {
+        // Simple check: try to access Spotify's public API
+        try {
+            const response = await fetch('https://api.spotify.com/v1/search?q=test&type=track&limit=1');
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    showSpotifyLoginInstructions() {
+        // Remove existing instructions if any
+        const existingInstructions = document.getElementById('spotify-login-instructions');
+        if (existingInstructions) {
+            existingInstructions.remove();
+        }
+
+        // Create instructions overlay
+        const instructions = document.createElement('div');
+        instructions.id = 'spotify-login-instructions';
+        instructions.innerHTML = `
+            <div class="spotify-instructions-content">
+                <div class="spotify-instructions-icon">🎵</div>
+                <div class="spotify-instructions-text">
+                    <strong>Para música completa:</strong><br>
+                    Inicia sesión en <a href="https://open.spotify.com" target="_blank">Spotify</a> en esta pestaña
+                </div>
+                <button class="spotify-instructions-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        // Style the instructions
+        instructions.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #1db954;
+            z-index: 10001;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            max-width: 300px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        `;
+
+        document.body.appendChild(instructions);
+        
+        // Auto-remove after 8 seconds
+        setTimeout(() => {
+            if (instructions.parentElement) {
+                instructions.remove();
+            }
+        }, 8000);
+        
+        console.log('🎵 Spotify login instructions shown');
     }
 
     pauseTronSpotify() {
