@@ -11752,7 +11752,7 @@ class PomodoroTimer {
         // Auto-activate widget after creation to ensure it's ready
         setTimeout(() => {
             this.activateSpotifyWidget();
-        }, 3000); // Increased delay to allow widget to fully load
+        }, 5000); // Increased delay to allow widget to fully load
         
         console.log('🎵 Tron Spotify widget created');
     }
@@ -11809,7 +11809,7 @@ class PomodoroTimer {
                 // Hide loading and enable Start button when widget is ready
                 this.hideSpotifyLoading();
                 this.enableStartButtonForSpotify();
-            }, 3000); // Increased delay for better activation
+            }, 5000); // Increased delay for better activation
         }
     }
 
