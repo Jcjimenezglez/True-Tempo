@@ -35,10 +35,9 @@
       "destination": "/index.html"
     }
   ],
-  "routes": [
-    { "handle": "hostname" },
-    { "src": "superfocus\\.live", "dest": "https://www.superfocus.live" },
-    { "src": "truetempo\\.app", "dest": "https://superfocus.live" },
-    { "src": "www\\.truetempo\\.app", "dest": "https://superfocus.live" }
+  "redirects": [
+    { "source": "superfocus\\.live", "destination": "https://www.superfocus.live", "permanent": true },
+    { "source": "truetempo\\.app", "destination": "https://superfocus.live", "permanent": true },
+    { "source": "www\\.truetempo\\.app", "destination": "https://superfocus.live", "permanent": true }
   ]
 }
