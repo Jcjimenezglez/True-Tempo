@@ -8160,6 +8160,18 @@ input:checked + .toggle-slider:before {
     bottom: 20px !important;
     left: 16px !important;
     border-radius: 100px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    backdrop-filter: blur(4px) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+#tron-image-button:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    transform: translateY(-1px) !important;
+    color: #ffffff !important;
 }
 
 .tron-image-content {

@@ -11845,32 +11845,17 @@ class PomodoroTimer {
             position: absolute;
             bottom: 20px;
             left: calc(var(--sidebar-collapsed-width) + 16px);
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            color: #ffffff;
             padding: 12px 16px;
-            border-radius: 100px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
             cursor: pointer;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
-            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
         `;
         
-        // Add hover effects
-        imageButton.addEventListener('mouseenter', () => {
-            imageButton.style.background = 'rgba(0, 0, 0, 0.5)';
-            imageButton.style.transform = 'translateY(-2px)';
-        });
-        
-        imageButton.addEventListener('mouseleave', () => {
-            imageButton.style.background = 'rgba(0, 0, 0, 0.3)';
-            imageButton.style.transform = 'translateY(0)';
-        });
+        // Hover effects are now handled by CSS
         
         // Add click handler
         imageButton.addEventListener('click', () => {
