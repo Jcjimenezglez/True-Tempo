@@ -82,8 +82,10 @@ class PomodoroTimer {
 		this.spotifyLoadingElement = null;
 		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
 		
-		// Load saved Tron Spotify state (for both authenticated and guest users)
-		this.loadTronSpotifyState();
+		// Note: We don't save Spotify connecting state - always show loading
+		
+		// Load last selected theme (for both authenticated and guest users)
+		this.loadLastSelectedTheme();
         
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
@@ -11363,13 +11365,9 @@ class PomodoroTimer {
         console.log('🎨 Initializing theme panel');
         
         // Get current theme from localStorage or default to 'lofi'
-        // Only load saved theme if user is authenticated, otherwise use default
-        let savedTheme;
-        if (this.isAuthenticated) {
-            savedTheme = localStorage.getItem('selectedTheme') || 'lofi';
-        } else {
-            savedTheme = 'lofi'; // Always default for guests
-        }
+        // Load last selected theme for both authenticated and guest users
+        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        const savedTheme = lastSelectedTheme || 'lofi';
         
         this.currentTheme = savedTheme;
         
@@ -11407,8 +11405,8 @@ class PomodoroTimer {
                 // Apply the selected theme
                 this.applyTheme(themeName);
                 
-                // Save to localStorage
-                localStorage.setItem('selectedTheme', themeName);
+                // Save to localStorage (for both authenticated and guest users)
+                localStorage.setItem('lastSelectedTheme', themeName);
                 this.currentTheme = themeName;
             });
         });
@@ -11667,8 +11665,6 @@ class PomodoroTimer {
             this.tronSpotifyWidgetReady = false;
             this.tronSpotifyWidgetActivated = false; // Reset activation state
             this.hideSpotifyLoading();
-            // Clear saved state when theme is deactivated
-            localStorage.removeItem('tronSpotifyState');
             // Restore Start button to normal state
             this.startPauseBtn.disabled = false;
             this.startPauseBtn.style.opacity = '1';
@@ -11817,9 +11813,6 @@ class PomodoroTimer {
                 this.tronSpotifyWidgetActivated = true; // Mark as activated
                 console.log('🎵 Spotify widget fully activated and hidden');
                 
-                // Save state when widget is ready
-                this.saveTronSpotifyState();
-                
                 // Hide loading and enable Start button when widget is ready
                 this.hideSpotifyLoading();
                 this.enableStartButtonForSpotify();
@@ -11894,31 +11887,22 @@ class PomodoroTimer {
         }
     }
 
-    loadTronSpotifyState() {
-        // Load saved Tron Spotify state from localStorage (works for both authenticated and guest users)
-        const savedTronSpotifyState = localStorage.getItem('tronSpotifyState');
-        if (savedTronSpotifyState) {
-            try {
-                const state = JSON.parse(savedTronSpotifyState);
-                this.tronSpotifyWidgetReady = state.widgetReady || false;
-                this.tronSpotifyWidgetActivated = state.widgetActivated || false;
-                console.log('🎵 Tron Spotify state loaded:', state);
-            } catch (error) {
-                console.log('🎵 Could not load Tron Spotify state:', error);
-            }
+
+    loadLastSelectedTheme() {
+        // Load last selected theme from localStorage (works for both authenticated and guest users)
+        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        if (lastSelectedTheme && lastSelectedTheme !== 'lofi') {
+            // Only restore if it's not the default lofi theme
+            console.log('🎨 Restoring last selected theme:', lastSelectedTheme);
+            // Apply the theme after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                this.selectTheme(lastSelectedTheme);
+            }, 100);
+        } else {
+            console.log('🎨 Using default lofi theme for new user');
         }
     }
 
-    saveTronSpotifyState() {
-        // Save Tron Spotify state to localStorage (works for both authenticated and guest users)
-        const state = {
-            widgetReady: this.tronSpotifyWidgetReady,
-            widgetActivated: this.tronSpotifyWidgetActivated,
-            timestamp: Date.now()
-        };
-        localStorage.setItem('tronSpotifyState', JSON.stringify(state));
-        console.log('🎵 Tron Spotify state saved:', state);
-    }
 
     pauseTronSpotify() {
         console.log('🎵 Pausing Tron Spotify...');
