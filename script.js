@@ -3111,6 +3111,12 @@ class PomodoroTimer {
             this.pauseTimer();
         }
         
+        // Stop Spotify if Tron theme is active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.stopTronSpotify();
+            console.log('🎨 Tron theme reset - Spotify stopped');
+        }
+        
         // Reset to first section
         this.currentSection = 1;
         
@@ -11982,6 +11988,22 @@ class PomodoroTimer {
                     command: 'pause'
                 }, '*');
                 console.log('🎵 Tron Spotify pause command sent');
+            } catch (error) {
+                console.log('🎵 Tron Spotify control not available (cross-origin)');
+            }
+        }
+    }
+
+    stopTronSpotify() {
+        console.log('🎵 Stopping Tron Spotify...');
+        
+        if (this.tronSpotifyWidget) {
+            // Try to control the widget (this may not work due to cross-origin restrictions)
+            try {
+                this.tronSpotifyWidget.contentWindow.postMessage({
+                    command: 'stop'
+                }, '*');
+                console.log('🎵 Tron Spotify stop command sent');
             } catch (error) {
                 console.log('🎵 Tron Spotify control not available (cross-origin)');
             }
