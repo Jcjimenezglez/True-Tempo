@@ -10508,8 +10508,8 @@ class PomodoroTimer {
         this.currentTaskIndex = state.currentTaskIndex;
         this.currentTaskName = state.currentTaskName;
         
-        // Restore running state
-        this.isRunning = state.isRunning;
+        // Always restore as paused (user decides when to continue)
+        this.isRunning = false;
         
         // Update UI
         this.updateDisplay();
@@ -10519,10 +10519,9 @@ class PomodoroTimer {
         this.updateNavigationButtons();
         this.updateCurrentTaskFromQueue();
         
-        // Auto-start if it was running when saved
+        // Show user that timer was paused due to refresh
         if (state.isRunning) {
-            console.log('Timer was running, auto-starting...');
-            this.startTimer();
+            console.log('Timer was running, paused due to refresh - user can resume when ready');
         }
         
         // Clear saved state
@@ -10533,7 +10532,7 @@ class PomodoroTimer {
             timeLeft: this.timeLeft,
             technique: state.selectedTechnique,
             wasRunning: state.isRunning,
-            autoStarted: state.isRunning
+            restoredAsPaused: true
         });
     }
 
