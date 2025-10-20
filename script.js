@@ -548,6 +548,16 @@ class PomodoroTimer {
             this.updatePremiumUI();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
+            
+            // Ensure cassette auth gating and saved Tron theme are applied post-hydration
+            try { this.updateThemeAuthState(); } catch (_) {}
+            try {
+                const savedTheme = localStorage.getItem('lastSelectedTheme');
+                if (savedTheme === 'tron' && this.currentTheme !== 'tron') {
+                    console.log('🎨 Auth hydrated: applying saved Tron theme');
+                    this.applyTheme('tron');
+                }
+            } catch (_) {}
             // Check admin access for Developer tab
             this.checkAdminAccess();
             // Welcome modal removed
