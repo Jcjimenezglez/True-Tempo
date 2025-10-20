@@ -8738,20 +8738,22 @@ class PomodoroTimer {
                         </div>
                         <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
                         <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
-            </div>
-            
+                    </div>
+                    
                     <!-- Longest Streak -->
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
                         <div style="color: #a3a3a3; margin-bottom: 12px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
                         <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${longestStreak}</div>
                         <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
+                    </div>
                 </div>
-                    
-                    <!-- Total Focus Hours -->
+                
+                <!-- Total Focus Hours - Full width below -->
+                <div style="margin: 16px 0;">
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
                         <div style="color: #a3a3a3; margin-bottom: 12px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -8761,18 +8763,6 @@ class PomodoroTimer {
                         </div>
                         <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
                         <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
-            </div>
-            
-                    <!-- Completed Cycles -->
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
-                        <div style="color: #a3a3a3; margin-bottom: 12px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                <polyline points="22 4 12 14.01 9 11.01"/>
-                            </svg>
-                        </div>
-                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${completedCycles}</div>
-                        <div style="font-size: 14px; color: #a3a3a3;">Completed Cycles</div>
                     </div>
                 </div>
             </div>
