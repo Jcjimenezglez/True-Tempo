@@ -11728,7 +11728,7 @@ class PomodoroTimer {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            opacity: 0;
+            display: none;
             z-index: 1000;
             border-radius: 8px;
             border: none;
@@ -11789,8 +11789,8 @@ class PomodoroTimer {
                     console.log('🎵 Widget interaction attempt failed');
                 }
                 
-                // Make it invisible but keep it functional
-                this.tronSpotifyWidget.style.opacity = '0';
+                // Keep widget hidden but functional
+                this.tronSpotifyWidget.style.display = 'none';
                 this.tronSpotifyWidget.style.pointerEvents = 'none';
                 this.tronSpotifyWidgetReady = true;
                 console.log('🎵 Spotify widget fully activated and hidden');
@@ -11818,10 +11818,10 @@ class PomodoroTimer {
                 </div>
             `;
             
-            // Style the loading
+            // Style the loading (same position as widget)
             loading.style.cssText = `
                 position: fixed;
-                top: 20px;
+                bottom: 20px;
                 right: 20px;
                 background: rgba(0, 0, 0, 0.9);
                 color: #1db954;
