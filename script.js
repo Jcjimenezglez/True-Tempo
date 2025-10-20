@@ -11753,8 +11753,6 @@ class PomodoroTimer {
                 console.log('🎵 Tron Spotify control not available (cross-origin)');
             }
             
-            // Always show Spotify login instructions as a helpful reminder
-            this.showSpotifyLoginInstructions();
         }
     }
 
@@ -11778,57 +11776,6 @@ class PomodoroTimer {
     }
 
 
-    showSpotifyLoginInstructions() {
-        // Remove existing instructions if any
-        const existingInstructions = document.getElementById('spotify-login-instructions');
-        if (existingInstructions) {
-            existingInstructions.remove();
-        }
-
-        // Create instructions overlay
-        const instructions = document.createElement('div');
-        instructions.id = 'spotify-login-instructions';
-        instructions.innerHTML = `
-            <div class="spotify-instructions-content">
-                <div class="spotify-instructions-icon">🎵</div>
-                <div class="spotify-instructions-text">
-                    <strong>Tip:</strong> Para música completa, asegúrate de estar logueado en <a href="https://open.spotify.com" target="_blank">Spotify</a>
-                </div>
-                <button class="spotify-instructions-close" onclick="this.parentElement.parentElement.remove()">×</button>
-            </div>
-        `;
-        
-        // Style the instructions
-        instructions.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #1db954;
-            z-index: 10001;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 14px;
-            max-width: 300px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        `;
-
-        document.body.appendChild(instructions);
-        
-        // Auto-remove after 8 seconds
-        setTimeout(() => {
-            if (instructions.parentElement) {
-                instructions.remove();
-            }
-        }, 8000);
-        
-        console.log('🎵 Spotify login instructions shown');
-    }
 
     pauseTronSpotify() {
         console.log('🎵 Pausing Tron Spotify...');
