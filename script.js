@@ -5068,7 +5068,7 @@ class PomodoroTimer {
             addTaskBtn.addEventListener('click', () => {
                 // Check guest task limit BEFORE showing the form
                 const currentTasks = this.getLocalTasks();
-                const MAX_GUEST_TASKS = 3;
+                const MAX_GUEST_TASKS = 1;
                 
                 if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
                     this.showGuestTaskLimitModal();
@@ -10917,7 +10917,7 @@ class PomodoroTimer {
                 
                 // Check guest task limit BEFORE showing the form
                 const currentTasks = this.getLocalTasks();
-                const MAX_GUEST_TASKS = 3;
+                const MAX_GUEST_TASKS = 1;
                 
                 if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
                     this.showGuestTaskLimitModal();
