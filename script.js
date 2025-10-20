@@ -1279,6 +1279,9 @@ class PomodoroTimer {
         const progressSegments = document.querySelector('.progress-segments');
         if (!progressSegments) return;
         
+        // Preserve existing opacity before clearing
+        const existingOpacity = progressSegments.style.opacity || '';
+        
         // Clear existing segments
         progressSegments.innerHTML = '';
         
@@ -1294,10 +1297,18 @@ class PomodoroTimer {
         // Don't set stroke-dasharray - let it be a complete circle
             
             progressSegments.appendChild(circle);
+            
+        // Restore opacity if it existed
+        if (existingOpacity) {
+            progressSegments.style.opacity = existingOpacity;
+        }
         
         // Update overlays: create ONLY ONE overlay used for current-section progress
         const progressOverlays = document.querySelector('.progress-overlays');
         if (progressOverlays) {
+            // Preserve existing opacity before clearing
+            const existingOverlayOpacity = progressOverlays.style.opacity || '';
+            
             progressOverlays.innerHTML = '';
                 const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 overlay.setAttribute('class', 'progress-overlay');
@@ -1310,6 +1321,11 @@ class PomodoroTimer {
                 overlay.setAttribute('stroke-linejoin', 'round');
                 overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
                 progressOverlays.appendChild(overlay);
+                
+            // Restore opacity if it existed
+            if (existingOverlayOpacity) {
+                progressOverlays.style.opacity = existingOverlayOpacity;
+            }
         }
         
         // Refresh cached NodeLists so subsequent layout uses the new elements
