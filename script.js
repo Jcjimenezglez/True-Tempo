@@ -10427,7 +10427,7 @@ class PomodoroTimer {
         const state = {
             currentSection: this.currentSection,
             timeLeft: this.timeLeft,
-            isRunning: false, // Always save as paused
+            isRunning: this.isRunning, // Save actual running state
             isWorkSession: this.isWorkSession,
             isLongBreak: this.isLongBreak,
             currentTaskIndex: this.currentTaskIndex,
@@ -10478,7 +10478,7 @@ class PomodoroTimer {
             
             // Always continue session without modal (window was not closed)
             console.log('Continuing session automatically (window not closed)');
-            this.continueSession();
+            this.restoreTimerState(state);
             
             return true;
         } catch (error) {
@@ -10508,8 +10508,8 @@ class PomodoroTimer {
         this.currentTaskIndex = state.currentTaskIndex;
         this.currentTaskName = state.currentTaskName;
         
-        // Don't auto-start
-        this.isRunning = false;
+        // Restore running state
+        this.isRunning = state.isRunning;
         
         // Update UI
         this.updateDisplay();
@@ -10519,13 +10519,21 @@ class PomodoroTimer {
         this.updateNavigationButtons();
         this.updateCurrentTaskFromQueue();
         
+        // Auto-start if it was running when saved
+        if (state.isRunning) {
+            console.log('Timer was running, auto-starting...');
+            this.startTimer();
+        }
+        
         // Clear saved state
         sessionStorage.removeItem('timerState');
         
         console.log('Timer state restored successfully:', {
             section: this.currentSection,
             timeLeft: this.timeLeft,
-            technique: state.selectedTechnique
+            technique: state.selectedTechnique,
+            wasRunning: state.isRunning,
+            autoStarted: state.isRunning
         });
     }
 
