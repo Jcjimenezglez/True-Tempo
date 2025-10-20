@@ -11946,11 +11946,11 @@ class PomodoroTimer {
             <div class="spotify-login-content">
                 <div class="spotify-login-icon">🎵</div>
                 <div class="spotify-login-text">
-                    <div class="spotify-login-title">Check Spotify Status</div>
-                    <div class="spotify-login-message">Opening Spotify to check if you're logged in</div>
+                    <div class="spotify-login-title">Load Tron Playlist</div>
+                    <div class="spotify-login-message">Opening the Tron playlist to ensure music is ready</div>
                 </div>
                 <div class="spotify-login-buttons">
-                    <button class="spotify-login-btn" id="spotifyCheckBtn">Open Spotify</button>
+                    <button class="spotify-login-btn" id="spotifyCheckBtn">Open Playlist</button>
                     <button class="spotify-cancel-btn" id="spotifyCancelBtn">Cancel</button>
                 </div>
             </div>
@@ -12001,16 +12001,16 @@ class PomodoroTimer {
         // Mark that user has verified Spotify status
         sessionStorage.setItem('spotifyVerified', 'true');
         
-        // Open Spotify web player to check login status
-        const spotifyUrl = 'https://open.spotify.com/';
-        window.open(spotifyUrl, 'spotify-check', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        // Open the specific Tron playlist to ensure it's loaded and ready
+        const tronPlaylistUrl = 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl';
+        window.open(tronPlaylistUrl, 'spotify-check', 'width=800,height=600,scrollbars=yes,resizable=yes');
         
         // Hide the prompt
         this.hideSpotifyLoading();
         
         // Show a message that user should refresh after checking
         setTimeout(() => {
-            alert('Please refresh the page after checking your Spotify login status to continue with the Tron theme.');
+            alert('Please refresh the page after the Tron playlist loads to continue with the theme.');
         }, 1000);
     }
 
