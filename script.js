@@ -29,6 +29,19 @@ class PomodoroTimer {
         // Day streak tracking
         this.streakData = this.loadStreakData();
         this.hasCompletedFocusToday = false; // tracks if user completed focus session today
+        // Track focused seconds today for 1-minute streak rule
+        try {
+            const savedFocusDate = localStorage.getItem('focusSecondsTodayDate');
+            const savedFocusSecs = parseInt(localStorage.getItem('focusSecondsToday') || '0', 10);
+            const todayStr = new Date().toDateString();
+            this.focusSecondsToday = savedFocusDate === todayStr ? Math.max(0, savedFocusSecs) : 0;
+            if (savedFocusDate !== todayStr) {
+                localStorage.setItem('focusSecondsTodayDate', todayStr);
+                localStorage.setItem('focusSecondsToday', '0');
+            }
+        } catch (_) {
+            this.focusSecondsToday = 0;
+        }
 
         // Task execution queue (built from selected tasks and their session counts)
         this.taskQueue = [];
@@ -2078,6 +2091,11 @@ class PomodoroTimer {
         this.completedFocusSessionsInCycle = 0;
         this.cheatedDuringFocusInCycle = false;
         this.actualFocusTimeCompleted = 0;
+        this.focusSecondsToday = 0;
+        try {
+            localStorage.setItem('focusSecondsToday', '0');
+            localStorage.setItem('focusSecondsTodayDate', new Date().toDateString());
+        } catch (_) {}
     }
 
     showUpgradeModal() {
@@ -3220,6 +3238,19 @@ class PomodoroTimer {
             this.saveTimerState();
             
             // Music ducking: fade out 2s before end of section to prioritize alerts
+            // Accumulate focus seconds for day streak when on a focus session and not cheating
+            if (this.isWorkSession && !this.isLongBreak) {
+                // If user skipped sections, we mark cheatedDuringFocusInCycle elsewhere; here we only count naturally ticking time
+                this.focusSecondsToday = (this.focusSecondsToday || 0) + 1;
+                try {
+                    localStorage.setItem('focusSecondsToday', String(this.focusSecondsToday));
+                    localStorage.setItem('focusSecondsTodayDate', new Date().toDateString());
+                } catch (_) {}
+                // Once we pass 60s and haven't counted a streak yet today, award it
+                if ((this.focusSecondsToday >= 60) && !this.hasCompletedFocusToday) {
+                    this.updateStreak();
+                }
+            }
             if (this.timeLeft === 2) {
                 this.fadeMusicOut(2000);
                 this.isDucked = true;
