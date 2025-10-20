@@ -11640,6 +11640,10 @@ class PomodoroTimer {
         timerSection.style.removeProperty('background-repeat');
         timerSection.style.removeProperty('background-color');
         
+        // Stop Tron Spotify if active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.stopTronSpotify();
+        }
         
         // Save preference only if user is authenticated
         if (this.isAuthenticated) {
@@ -11718,6 +11722,12 @@ class PomodoroTimer {
 
     startTronSpotify() {
         console.log('🎵 Starting Tron Spotify playlist...');
+        
+        // Prevent multiple calls - only start if not already enabled
+        if (this.tronSpotifyConfig.isEnabled) {
+            console.log('🎵 Tron Spotify already active, skipping...');
+            return;
+        }
         
         if (this.tronSpotifyConfig.playerElement) {
             // Open Spotify playlist in new tab
