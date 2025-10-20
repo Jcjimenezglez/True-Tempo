@@ -11950,14 +11950,18 @@ class PomodoroTimer {
         // Update theme options based on authentication state
         const themeOptions = document.querySelectorAll('.theme-option[data-requires-auth="true"]');
         themeOptions.forEach(option => {
+            const signupText = option.querySelector('.signup-required-text');
+            
             if (this.isAuthenticated) {
                 option.classList.add('authenticated');
                 option.style.pointerEvents = 'auto';
                 option.style.opacity = '1';
+                if (signupText) signupText.style.display = 'none';
             } else {
                 option.classList.remove('authenticated');
                 option.style.pointerEvents = 'none';
                 option.style.opacity = '0.5';
+                if (signupText) signupText.style.display = 'inline';
             }
         });
     }
