@@ -10449,8 +10449,9 @@ class PomodoroTimer {
                 return false;
             }
             
-            // Show confirmation modal
-            this.showRestoreSessionModal(state, timeDiff);
+            // Always continue session without modal
+            console.log('Continuing session automatically');
+            this.continueSession();
             
             return true;
         } catch (error) {
@@ -10460,79 +10461,6 @@ class PomodoroTimer {
         }
     }
 
-    // Show modal to confirm restoring session
-    showRestoreSessionModal(state, timeDiff) {
-        console.log('Showing restore session modal with state:', state);
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'upgrade-modal-overlay';
-        overlay.style.display = 'flex';
-        
-        const minutesAgo = Math.floor(timeDiff / 60000);
-        const timeString = minutesAgo < 1 ? 'just now' : `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
-        
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal restore-session-modal';
-        modal.innerHTML = `
-            <button class="close-upgrade-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                </div>
-                <h3>Resume Session?</h3>
-                <p>You have a paused ${state.isWorkSession ? 'focus' : 'break'} session from ${timeString}.</p>
-                <div class="restore-session-time-card">
-                    <div class="restore-time">${Math.floor(state.timeLeft / 60)}:${(state.timeLeft % 60).toString().padStart(2, '0')}</div>
-                    <div class="restore-technique">${state.selectedTechnique}</div>
-                </div>
-                <div class="upgrade-buttons">
-                    <button class="upgrade-btn" id="continueSessionBtn">Continue Session</button>
-                    <button class="cancel-btn" id="startFreshBtn">Start Fresh</button>
-                </div>
-            </div>
-        `;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-        
-        // Event listeners - use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-            const closeBtn = modal.querySelector('.close-upgrade-x');
-            const startFreshBtn = modal.querySelector('#startFreshBtn');
-            const continueBtn = modal.querySelector('#continueSessionBtn');
-            
-            const close = () => {
-                overlay.remove();
-                sessionStorage.removeItem('timerState');
-            };
-            
-            const continueSession = () => {
-                try {
-                    this.restoreTimerState(state);
-                    overlay.remove();
-                } catch (error) {
-                    console.error('Error restoring timer state:', error);
-                }
-            };
-            
-            if (closeBtn) closeBtn.addEventListener('click', close);
-            if (startFreshBtn) startFreshBtn.addEventListener('click', close);
-            if (continueBtn) continueBtn.addEventListener('click', continueSession);
-            
-            // Close on overlay click
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) close();
-            });
-        }, 100);
-    }
 
     // Restore timer state
     restoreTimerState(state) {
