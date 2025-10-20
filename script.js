@@ -11736,7 +11736,7 @@ class PomodoroTimer {
         // Auto-activate widget after creation to ensure it's ready
         setTimeout(() => {
             this.activateSpotifyWidget();
-        }, 1000);
+        }, 3000); // Increased delay to allow widget to fully load
         
         console.log('🎵 Tron Spotify widget created');
     }
@@ -11745,19 +11745,21 @@ class PomodoroTimer {
         console.log('🎵 Starting Tron Spotify...');
         
         if (this.tronSpotifyWidget) {
-            // Activate widget by making it briefly visible and interactive
-            this.activateSpotifyWidget();
-            
-            // Try to control the widget (this may not work due to cross-origin restrictions)
-            try {
-                this.tronSpotifyWidget.contentWindow.postMessage({
-                    command: 'play'
-                }, '*');
-                console.log('🎵 Tron Spotify play command sent');
-            } catch (error) {
-                console.log('🎵 Tron Spotify control not available (cross-origin)');
-            }
-            
+            // Wait a bit more to ensure widget is fully loaded before trying to control it
+            setTimeout(() => {
+                // Activate widget by making it briefly visible and interactive
+                this.activateSpotifyWidget();
+                
+                // Try to control the widget (this may not work due to cross-origin restrictions)
+                try {
+                    this.tronSpotifyWidget.contentWindow.postMessage({
+                        command: 'play'
+                    }, '*');
+                    console.log('🎵 Tron Spotify play command sent');
+                } catch (error) {
+                    console.log('🎵 Tron Spotify control not available (cross-origin)');
+                }
+            }, 1000); // Additional delay to ensure widget is ready
         }
     }
 
