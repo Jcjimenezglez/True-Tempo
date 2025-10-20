@@ -11744,38 +11744,14 @@ class PomodoroTimer {
         if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer) {
             console.log('🎵 Starting Tron music...');
             
-            // Temporarily make iframe interactive to unlock autoplay
+            // Make iframe visible and interactive - this is the ONLY way Spotify works
+            this.tronSpotifyPlayer.style.display = 'block';
             this.tronSpotifyPlayer.style.pointerEvents = 'auto';
             this.tronSpotifyPlayer.style.opacity = '0.1';
             this.tronSpotifyPlayer.style.width = '300px';
             this.tronSpotifyPlayer.style.height = '152px';
             
-            // Simulate user interaction to unlock autoplay
-            setTimeout(() => {
-                try {
-                    // Focus the iframe to simulate user interaction
-                    this.tronSpotifyPlayer.focus();
-                    
-                    // Send play command
-                    this.tronSpotifyPlayer.contentWindow.postMessage({
-                        command: 'play'
-                    }, 'https://open.spotify.com');
-                    
-                    console.log('🎵 Sent play command to Spotify');
-                } catch (error) {
-                    console.log('🎵 Could not send play command:', error);
-                }
-                
-                // Restore minimal state after interaction
-                setTimeout(() => {
-                    this.tronSpotifyPlayer.style.pointerEvents = 'none';
-                    this.tronSpotifyPlayer.style.opacity = '0.01';
-                    this.tronSpotifyPlayer.style.width = '1px';
-                    this.tronSpotifyPlayer.style.height = '1px';
-                }, 1000);
-            }, 100);
-            
-            console.log('🎵 Tron music started (iframe activated)');
+            console.log('🎵 Tron music iframe visible - autoplay should work now');
         }
     }
 
