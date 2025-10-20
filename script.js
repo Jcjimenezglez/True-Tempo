@@ -3078,6 +3078,12 @@ class PomodoroTimer {
     }
     
     startTimer() {
+        // Check if Tron theme is active and widget is not ready
+        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
+            console.log('🎵 Cannot start timer - Tron Spotify widget not ready yet');
+            return;
+        }
+        
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
@@ -11505,8 +11511,9 @@ class PomodoroTimer {
             // Create Spotify widget for Tron theme (only if not already created)
             if (!this.tronSpotifyWidget) {
                 this.createTronSpotifyWidget();
-                // Show loading while widget is connecting
+                // Show loading and disable Start button while widget is connecting
                 this.showSpotifyLoading();
+                this.disableStartButtonForSpotify();
             }
             
             // If timer is running, start Spotify immediately
@@ -11652,6 +11659,10 @@ class PomodoroTimer {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
             this.hideSpotifyLoading();
+            // Restore Start button to normal state
+            this.startPauseBtn.disabled = false;
+            this.startPauseBtn.style.opacity = '1';
+            this.startPauseBtn.style.cursor = 'pointer';
             console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
         }
         
@@ -11795,8 +11806,9 @@ class PomodoroTimer {
                 this.tronSpotifyWidgetReady = true;
                 console.log('🎵 Spotify widget fully activated and hidden');
                 
-                // Hide loading when widget is ready
+                // Hide loading and enable Start button when widget is ready
                 this.hideSpotifyLoading();
+                this.enableStartButtonForSpotify();
             }, 3000); // Increased delay for better activation
         }
     }
@@ -11847,6 +11859,24 @@ class PomodoroTimer {
             this.spotifyLoadingElement.remove();
             this.spotifyLoadingElement = null;
             console.log('🎵 Spotify loading hidden');
+        }
+    }
+
+    disableStartButtonForSpotify() {
+        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
+            this.startPauseBtn.disabled = true;
+            this.startPauseBtn.style.opacity = '0.5';
+            this.startPauseBtn.style.cursor = 'not-allowed';
+            console.log('🎵 Start button disabled - Spotify connecting...');
+        }
+    }
+
+    enableStartButtonForSpotify() {
+        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyWidgetReady) {
+            this.startPauseBtn.disabled = false;
+            this.startPauseBtn.style.opacity = '1';
+            this.startPauseBtn.style.cursor = 'pointer';
+            console.log('🎵 Start button enabled - Spotify ready');
         }
     }
 
