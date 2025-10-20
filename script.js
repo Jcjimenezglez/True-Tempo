@@ -3078,12 +3078,6 @@ class PomodoroTimer {
     }
     
     startTimer() {
-        // Check if Tron theme is active and widget is not ready
-        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
-            console.log('🎵 Cannot start timer - Tron Spotify widget not ready yet');
-            return;
-        }
-        
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
@@ -11511,8 +11505,8 @@ class PomodoroTimer {
             // Create Spotify widget for Tron theme (only if not already created)
             if (!this.tronSpotifyWidget) {
                 this.createTronSpotifyWidget();
-                // Disable Start button until widget is ready
-                this.disableStartButtonForTron();
+                // Show loading while widget is connecting
+                this.showSpotifyLoading();
             }
             
             // If timer is running, start Spotify immediately
@@ -11657,6 +11651,7 @@ class PomodoroTimer {
         if (this.currentImmersiveTheme === 'tron') {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
+            this.hideSpotifyLoading();
             console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
         }
         
@@ -11733,7 +11728,7 @@ class PomodoroTimer {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            opacity: 0.01;
+            opacity: 0;
             z-index: 1000;
             border-radius: 8px;
             border: none;
@@ -11795,36 +11790,64 @@ class PomodoroTimer {
                 }
                 
                 // Make it invisible but keep it functional
-                this.tronSpotifyWidget.style.opacity = '0.01';
+                this.tronSpotifyWidget.style.opacity = '0';
                 this.tronSpotifyWidget.style.pointerEvents = 'none';
                 this.tronSpotifyWidgetReady = true;
                 console.log('🎵 Spotify widget fully activated and hidden');
                 
-                // Enable Start button if Tron theme is active
-                this.enableStartButtonIfReady();
+                // Hide loading when widget is ready
+                this.hideSpotifyLoading();
             }, 3000); // Increased delay for better activation
         }
     }
 
 
 
-    enableStartButtonIfReady() {
-        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyWidgetReady) {
-            // Enable Start button
-            this.startPauseBtn.disabled = false;
-            this.startPauseBtn.style.opacity = '1';
-            this.startPauseBtn.style.cursor = 'pointer';
-            console.log('🎵 Start button enabled - Tron Spotify widget ready');
+    showSpotifyLoading() {
+        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
+            // Remove existing loading if any
+            this.hideSpotifyLoading();
+            
+            // Create loading overlay
+            const loading = document.createElement('div');
+            loading.id = 'spotify-loading';
+            loading.innerHTML = `
+                <div class="spotify-loading-content">
+                    <div class="spotify-loading-spinner"></div>
+                    <div class="spotify-loading-text">Connecting Spotify...</div>
+                </div>
+            `;
+            
+            // Style the loading
+            loading.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                color: #1db954;
+                padding: 20px 30px;
+                border-radius: 12px;
+                border: 2px solid #1db954;
+                z-index: 10001;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 14px;
+                text-align: center;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            `;
+            
+            document.body.appendChild(loading);
+            this.spotifyLoadingElement = loading;
+            console.log('🎵 Spotify loading shown');
         }
     }
 
-    disableStartButtonForTron() {
-        if (this.currentImmersiveTheme === 'tron' && !this.tronSpotifyWidgetReady) {
-            // Disable Start button
-            this.startPauseBtn.disabled = true;
-            this.startPauseBtn.style.opacity = '0.5';
-            this.startPauseBtn.style.cursor = 'not-allowed';
-            console.log('🎵 Start button disabled - Tron Spotify widget loading...');
+    hideSpotifyLoading() {
+        if (this.spotifyLoadingElement) {
+            this.spotifyLoadingElement.remove();
+            this.spotifyLoadingElement = null;
+            console.log('🎵 Spotify loading hidden');
         }
     }
 

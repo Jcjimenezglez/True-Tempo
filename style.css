@@ -7715,6 +7715,33 @@ input:checked + .toggle-slider:before {
     background: #ff6666;
 }
 
+/* Spotify Loading Styles */
+.spotify-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.spotify-loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(29, 185, 84, 0.3);
+    border-top: 2px solid #1db954;
+    border-radius: 50%;
+    animation: spotify-spin 1s linear infinite;
+}
+
+.spotify-loading-text {
+    font-weight: 500;
+    color: #ffffff;
+}
+
+@keyframes spotify-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Immersive Theme Panel Styles */
 .immersive-theme-option {
     position: relative;
