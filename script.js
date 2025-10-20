@@ -73,9 +73,15 @@ class PomodoroTimer {
 			this.currentImmersiveTheme = 'none'; // Always default for guests
 		}
 		this.tronImage = null;
-		this.tronSpotifyPlaylist = null;
-		this.tronSpotifyPlayer = null;
-		this.tronSpotifyPlayerReady = false;
+        
+        // Tron Spotify integration - new implementation
+        this.tronSpotifyConfig = {
+            playlistId: '47pjW3XDPW99NShtkeewxl', // TRON: Ares Soundtrack by Nine Inch Nails
+            playlistUrl: 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl',
+            embedUrl: 'https://open.spotify.com/embed/album/47pjW3XDPW99NShtkeewxl',
+            isEnabled: false,
+            playerElement: null
+        };
         
         
         // Complete cycle: 25/5/25/5/25/5/25/15
@@ -3122,8 +3128,8 @@ class PomodoroTimer {
         
         // Resume Tron music if Tron theme is active
         if (this.currentImmersiveTheme === 'tron') {
-            // Start Tron music immediately - no delay
-            this.resumeTronMusic();
+            // Start Tron Spotify playlist
+            this.startTronSpotify();
         }
         
         this.interval = setInterval(() => {
@@ -3178,7 +3184,7 @@ class PomodoroTimer {
         
         // Pause Tron music if Tron theme is active
         if (this.currentImmersiveTheme === 'tron') {
-            this.pauseTronMusic();
+            this.stopTronSpotify();
         }
         
         // Update session info to potentially show "Ready to focus?"
@@ -11337,12 +11343,9 @@ class PomodoroTimer {
             // Load single Tron image
             this.tronImage = '/themes/Tron/1395234.jpg';
             
-            // Tron Spotify playlist - TRON: Ares Soundtrack by Nine Inch Nails
-            this.tronSpotifyPlaylist = 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl?si=xhBtalAoTAufDdN0FK8ZwA';
             
             console.log('🎨 Tron assets loaded successfully');
             console.log('🎨 Image:', this.tronImage);
-            console.log('🎨 Playlist:', this.tronSpotifyPlaylist);
         } catch (error) {
             console.error('❌ Failed to load Tron assets:', error);
         }
@@ -11496,9 +11499,12 @@ class PomodoroTimer {
             this.deactivateImmersiveTheme();
             this.applyImmersiveTheme('tron');
             
+            // Initialize Tron Spotify integration
+            this.initializeTronSpotify();
+            
             // If timer is running, start Tron music immediately
             if (this.isRunning) {
-                this.loadTronPlaylist();
+                this.startTronSpotify();
                 console.log('🎨 Tron theme applied - background + tron music (music started because timer is running)');
             } else {
                 console.log('🎨 Tron theme applied - background + tron music (music will start when timer starts)');
@@ -11634,12 +11640,6 @@ class PomodoroTimer {
         timerSection.style.removeProperty('background-repeat');
         timerSection.style.removeProperty('background-color');
         
-        // Remove Spotify player
-        const spotifyPlayer = document.getElementById('tron-spotify-player');
-        if (spotifyPlayer) {
-            spotifyPlayer.remove();
-            console.log('🎵 Spotify player removed');
-        }
         
         // Save preference only if user is authenticated
         if (this.isAuthenticated) {
@@ -11658,102 +11658,9 @@ class PomodoroTimer {
     }
 
 
-    loadTronPlaylist() {
-        console.log('🎵 Loading Tron playlist...');
-        
-        // Stop any current music
-        if (this.backgroundAudio) {
-            this.backgroundAudio.pause();
-        }
-        
-        // Stop Lofi music if playing
-        this.stopLofiPlaylist();
-        
-        // Disable Lofi music when Tron is active
-        this.lofiEnabled = false;
-        
-        // Create iframe - it will autoplay immediately
-        this.createSpotifyPlayer();
-        
-        console.log('🎵 Tron playlist loaded with autoplay - Lofi music disabled');
-    }
     
-    createSpotifyPlayer() {
-        console.log('🎵 Creating Spotify player...');
-        console.log('🎵 Playlist URL:', this.tronSpotifyPlaylist);
-        
-        // Remove existing player if any
-        const existingPlayer = document.getElementById('tron-spotify-player');
-        if (existingPlayer) {
-            existingPlayer.remove();
-            console.log('🎵 Removed existing Spotify player');
-        }
-        
-        // Reset ready state
-        this.tronSpotifyPlayerReady = false;
-        
-        // Create embed URL
-        const embedUrl = this.tronSpotifyPlaylist.replace('album', 'embed/album') + '&autoplay=1';
-        console.log('🎵 Embed URL:', embedUrl);
-        
-        // Create minimal iframe for Spotify playlist
-        const iframe = document.createElement('iframe');
-        iframe.id = 'tron-spotify-player';
-        iframe.src = embedUrl;
-        iframe.width = '1';
-        iframe.height = '1';
-        iframe.frameBorder = '0';
-        iframe.allowTransparency = 'true';
-        iframe.allow = 'autoplay; encrypted-media';
-        iframe.style.position = 'fixed';
-        iframe.style.bottom = '10px';
-        iframe.style.right = '10px';
-        iframe.style.opacity = '0.01';
-        iframe.style.zIndex = '9999';
-        iframe.style.border = 'none';
-        iframe.style.pointerEvents = 'none';
-        
-        // Store reference to the iframe
-        this.tronSpotifyPlayer = iframe;
-        
-        // Add load event listener
-        iframe.addEventListener('load', () => {
-            console.log('🎵 Spotify iframe loaded and ready');
-            this.tronSpotifyPlayerReady = true;
-        });
-        
-        // Add error event listener
-        iframe.addEventListener('error', (error) => {
-            console.error('🎵 Spotify iframe error:', error);
-        });
-        
-        document.body.appendChild(iframe);
-        console.log('🎵 Spotify player created and added to DOM');
-        console.log('🎵 Iframe element:', iframe);
-    }
 
-    pauseTronMusic() {
-        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer) {
-            // Hide the iframe
-            this.tronSpotifyPlayer.style.display = 'none';
-            console.log('🎵 Tron music paused (iframe hidden)');
-        }
-    }
 
-    resumeTronMusic() {
-        if (this.currentImmersiveTheme === 'tron' && this.tronSpotifyPlayer) {
-            console.log('🎵 Starting Tron music...');
-            
-            // Make iframe visible and interactive - this is the ONLY way Spotify works
-            this.tronSpotifyPlayer.style.display = 'block';
-            this.tronSpotifyPlayer.style.pointerEvents = 'auto';
-            this.tronSpotifyPlayer.style.opacity = '0.1';
-            this.tronSpotifyPlayer.style.width = '300px';
-            this.tronSpotifyPlayer.style.height = '152px';
-            
-            console.log('🎵 Tron music iframe visible - autoplay should work now');
-        }
-    }
 
     applyOverlay(opacity) {
         const timerSection = document.querySelector('.timer-section');
@@ -11776,6 +11683,109 @@ class PomodoroTimer {
         overlayElement.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
         
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
+    }
+
+    // New Tron Spotify Integration Methods
+    initializeTronSpotify() {
+        console.log('🎵 Initializing Tron Spotify integration...');
+        
+        // Create a simple link-based approach for now
+        this.createTronSpotifyLink();
+        
+        console.log('🎵 Tron Spotify integration ready');
+    }
+
+    createTronSpotifyLink() {
+        // Remove existing link if any
+        const existingLink = document.getElementById('tron-spotify-link');
+        if (existingLink) {
+            existingLink.remove();
+        }
+
+        // Create a hidden link that opens Spotify
+        const spotifyLink = document.createElement('a');
+        spotifyLink.id = 'tron-spotify-link';
+        spotifyLink.href = this.tronSpotifyConfig.playlistUrl;
+        spotifyLink.target = '_blank';
+        spotifyLink.style.display = 'none';
+        spotifyLink.textContent = 'Open Tron Playlist';
+        
+        document.body.appendChild(spotifyLink);
+        this.tronSpotifyConfig.playerElement = spotifyLink;
+        
+        console.log('🎵 Tron Spotify link created');
+    }
+
+    startTronSpotify() {
+        console.log('🎵 Starting Tron Spotify playlist...');
+        
+        if (this.tronSpotifyConfig.playerElement) {
+            // Open Spotify playlist in new tab
+            window.open(this.tronSpotifyConfig.playlistUrl, '_blank');
+            this.tronSpotifyConfig.isEnabled = true;
+            this.showSpotifyIndicator();
+            console.log('🎵 Tron Spotify playlist opened');
+        } else {
+            console.error('❌ Tron Spotify player not initialized');
+        }
+    }
+
+    stopTronSpotify() {
+        console.log('🎵 Stopping Tron Spotify...');
+        this.tronSpotifyConfig.isEnabled = false;
+        this.hideSpotifyIndicator();
+        console.log('🎵 Tron Spotify stopped (user needs to manually close Spotify tab)');
+    }
+
+    isTronSpotifyEnabled() {
+        return this.tronSpotifyConfig.isEnabled;
+    }
+
+    showSpotifyIndicator() {
+        // Remove existing indicator if any
+        const existingIndicator = document.getElementById('tron-spotify-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+
+        // Create Spotify indicator
+        const indicator = document.createElement('div');
+        indicator.id = 'tron-spotify-indicator';
+        indicator.innerHTML = `
+            <div class="spotify-indicator-content">
+                <div class="spotify-icon">♪</div>
+                <div class="spotify-text">Spotify Playing</div>
+                <button class="spotify-open-btn" onclick="window.open('${this.tronSpotifyConfig.playlistUrl}', '_blank')">Open</button>
+            </div>
+        `;
+        
+        // Style the indicator
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #1db954;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #1db954;
+            z-index: 10000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        `;
+
+        document.body.appendChild(indicator);
+        console.log('🎵 Spotify indicator shown');
+    }
+
+    hideSpotifyIndicator() {
+        const indicator = document.getElementById('tron-spotify-indicator');
+        if (indicator) {
+            indicator.remove();
+            console.log('🎵 Spotify indicator hidden');
+        }
     }
 
 
