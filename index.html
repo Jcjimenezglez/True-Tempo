@@ -525,21 +525,21 @@
                             <label>Focus</label>
                             <span class="duration-value" id="sidebarPomodoroValue">25 min</span>
                         </div>
-                        <input type="range" id="sidebarPomodoroSlider" min="1" max="90" value="25" class="duration-slider">
+                        <input type="range" id="sidebarPomodoroSlider" min="1" max="90" value="25" class="duration-slider" aria-label="Focus duration in minutes">
                     </div>
                     <div class="duration-item" id="sidebarShortBreakOption">
                         <div class="duration-header">
                             <label>Short Break</label>
                             <span class="duration-value" id="sidebarShortBreakValue">5 min</span>
                         </div>
-                        <input type="range" id="sidebarShortBreakSlider" min="1" max="30" value="5" class="duration-slider">
+                        <input type="range" id="sidebarShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
                     </div>
                     <div class="duration-item" id="sidebarLongBreakOption">
                         <div class="duration-header">
                             <label>Long Break</label>
                             <span class="duration-value" id="sidebarLongBreakValue">15 min</span>
                         </div>
-                        <input type="range" id="sidebarLongBreakSlider" min="1" max="60" value="15" class="duration-slider">
+                        <input type="range" id="sidebarLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
                     </div>
                 </div>
                 
@@ -571,7 +571,7 @@
                     <label class="overlay-label">Volume</label>
                     <span class="overlay-value" id="sidebarVolumeValue">25%</span>
                 </div>
-                <input type="range" id="sidebarAmbientVolume" min="0" max="100" value="25" class="overlay-slider">
+                <input type="range" id="sidebarAmbientVolume" min="0" max="100" value="25" class="overlay-slider" aria-label="Ambient music volume">
                 <p class="overlay-description">Adjust the music volume</p>
             </div>
             
@@ -585,7 +585,7 @@
                         <p>Pure dark background, no sound</p>
                     </div>
                     <div class="theme-radio">
-                        <input type="radio" name="theme" id="themeSimple" value="simple">
+                        <input type="radio" name="theme" id="themeSimple" value="simple" aria-label="Simple theme">
                         <label for="themeSimple"></label>
                     </div>
                 </div>
@@ -597,7 +597,7 @@
                         <p>Garden Study ambiance with relaxing beats</p>
                     </div>
                     <div class="theme-radio">
-                        <input type="radio" name="theme" id="themeLofi" value="lofi">
+                        <input type="radio" name="theme" id="themeLofi" value="lofi" aria-label="Lofi theme">
                         <label for="themeLofi"></label>
                     </div>
                 </div>
@@ -611,7 +611,7 @@
                         <p>Tron-style background with Spotify integration</p>
                     </div>
                     <div class="theme-radio">
-                        <input type="radio" name="theme" id="themeTron" value="tron">
+                        <input type="radio" name="theme" id="themeTron" value="tron" aria-label="Tron theme">
                         <label for="themeTron"></label>
                     </div>
                 </div>
@@ -699,7 +699,7 @@
     </div>
 
     <!-- Main Content Wrapper -->
-    <div class="main-content" id="mainContent">
+    <main class="main-content" id="mainContent">
         <!-- Timer Section - Full Viewport -->
         <section class="timer-section">
     
@@ -1144,7 +1144,7 @@
             </div>
         </div>
     </footer>
-    </div> <!-- End main-content wrapper -->
+    </main> <!-- End main-content wrapper -->
     
     <!-- Pricing Modal -->
     <div class="pricing-modal-overlay" id="pricingModal" style="display: none;">

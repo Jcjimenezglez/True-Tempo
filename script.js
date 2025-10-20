@@ -11773,6 +11773,8 @@ class PomodoroTimer {
         widget.height = '152';
         widget.frameBorder = '0';
         widget.allowTransparency = 'true';
+        widget.setAttribute('title', 'Spotify Music Player');
+        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
         widget.allow = 'encrypted-media';
         widget.style.cssText = `
             position: fixed;
