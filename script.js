@@ -81,6 +81,7 @@ class PomodoroTimer {
 		this.tronSpotifyWidgetReady = false;
 		this.spotifyLoadingElement = null;
 		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
+		this.tronSpotifyPlaylistLoaded = false; // Track if playlist has been loaded and started
 		
 		// Note: We don't save Spotify connecting state - always show loading
 		
@@ -276,21 +277,21 @@ class PomodoroTimer {
             if (lastSelectedTheme === 'tron' && !this.isAuthenticated) {
                 console.log('🎨 Tron theme requires authentication, using default lofi');
                 this.currentTheme = 'lofi';
-            } else {
+        } else {
                 this.currentTheme = lastSelectedTheme;
             }
         } else {
             this.currentTheme = 'lofi'; // Only default to lofi if no theme is saved
         }
         
-        // Clear any saved immersive theme for guests
+            // Clear any saved immersive theme for guests
         if (!this.isAuthenticated) {
             this.currentImmersiveTheme = 'none';
         }
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
         
         // Apply the selected theme immediately
-        this.applyTheme(this.currentTheme);
+            this.applyTheme(this.currentTheme);
         
         this.applyOverlay(this.overlayOpacity);
         
@@ -1304,7 +1305,7 @@ class PomodoroTimer {
             circle.setAttribute('r', '45');
             circle.setAttribute('fill', 'none');
             circle.setAttribute('stroke-width', '4');
-            circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
+                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
             
             progressSegments.appendChild(circle);
         });
@@ -3109,12 +3110,6 @@ class PomodoroTimer {
         // Pause timer if running
         if (this.isRunning) {
             this.pauseTimer();
-        }
-        
-        // Stop Spotify if Tron theme is active
-        if (this.currentImmersiveTheme === 'tron') {
-            this.stopTronSpotify();
-            console.log('🎨 Tron theme reset - Spotify stopped');
         }
         
         // Reset to first section
@@ -11696,6 +11691,7 @@ class PomodoroTimer {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
             this.tronSpotifyWidgetActivated = false; // Reset activation state
+            this.tronSpotifyPlaylistLoaded = false; // Reset playlist loaded state
             this.hideSpotifyLoading();
             // Restore Start button to normal state
             this.startPauseBtn.disabled = false;
@@ -11799,14 +11795,27 @@ class PomodoroTimer {
         console.log('🎵 Starting Tron Spotify...');
         
         if (this.tronSpotifyWidget) {
-            // Only send play command, don't reactivate widget to avoid restarting playlist
-            try {
-                this.tronSpotifyWidget.contentWindow.postMessage({
-                    command: 'play'
-                }, '*');
-                console.log('🎵 Tron Spotify play command sent');
-            } catch (error) {
-                console.log('🎵 Tron Spotify control not available (cross-origin)');
+            // Only send play command if playlist hasn't been loaded yet
+            if (!this.tronSpotifyPlaylistLoaded) {
+                try {
+                    this.tronSpotifyWidget.contentWindow.postMessage({
+                        command: 'play'
+                    }, '*');
+                    this.tronSpotifyPlaylistLoaded = true; // Mark as loaded
+                    console.log('🎵 Tron Spotify play command sent (first time)');
+                } catch (error) {
+                    console.log('🎵 Tron Spotify control not available (cross-origin)');
+                }
+            } else {
+                // Playlist already loaded, just resume
+                try {
+                    this.tronSpotifyWidget.contentWindow.postMessage({
+                        command: 'play'
+                    }, '*');
+                    console.log('🎵 Tron Spotify resume command sent');
+                } catch (error) {
+                    console.log('🎵 Tron Spotify control not available (cross-origin)');
+                }
             }
         }
     }
@@ -11994,21 +12003,6 @@ class PomodoroTimer {
         }
     }
 
-    stopTronSpotify() {
-        console.log('🎵 Stopping Tron Spotify...');
-        
-        if (this.tronSpotifyWidget) {
-            // Try to control the widget (this may not work due to cross-origin restrictions)
-            try {
-                this.tronSpotifyWidget.contentWindow.postMessage({
-                    command: 'stop'
-                }, '*');
-                console.log('🎵 Tron Spotify stop command sent');
-            } catch (error) {
-                console.log('🎵 Tron Spotify control not available (cross-origin)');
-            }
-        }
-    }
 
     removeTronSpotifyWidget() {
         console.log('🎵 Removing Tron Spotify widget...');
