@@ -11453,49 +11453,6 @@ class PomodoroTimer {
                 localStorage.setItem('lofiVolume', newVolume.toString());
             });
         }
-        
-        // Initialize contrast control
-        this.initializeContrastControl();
-    }
-    
-    initializeContrastControl() {
-        const contrastSlider = document.getElementById('sidebarContrast');
-        const contrastValue = document.getElementById('sidebarContrastValue');
-        
-        if (contrastSlider && contrastValue) {
-            // Load saved contrast or use default
-            const savedContrast = localStorage.getItem('backgroundContrast') || '50';
-            contrastSlider.value = savedContrast;
-            contrastValue.textContent = savedContrast + '%';
-            
-            // Set initial contrast
-            this.applyContrast(parseInt(savedContrast));
-            
-            // Add event listener
-            contrastSlider.addEventListener('input', (e) => {
-                const newContrast = e.target.value;
-                contrastValue.textContent = newContrast + '%';
-                
-                // Apply contrast immediately
-                this.applyContrast(parseInt(newContrast));
-                
-                // Save to localStorage
-                localStorage.setItem('backgroundContrast', newContrast.toString());
-            });
-        }
-    }
-    
-    applyContrast(contrastValue) {
-        const timerSection = document.querySelector('.timer-section');
-        if (!timerSection) return;
-        
-        // Convert percentage to opacity (0-1)
-        const opacity = contrastValue / 100;
-        
-        // Apply overlay opacity
-        timerSection.style.setProperty('--overlay-opacity', opacity.toString());
-        
-        console.log(`🎨 Contrast applied: ${contrastValue}% (opacity: ${opacity})`);
     }
 
     applyTheme(themeName) {
