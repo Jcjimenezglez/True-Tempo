@@ -11311,6 +11311,15 @@ class PomodoroTimer {
                     this.loadCurrentSection();
                     this.updateProgressRing();
                     
+                    // Additional updates for Tron theme to ensure proper reset
+                    if (this.currentImmersiveTheme === 'tron') {
+                        this.updateDisplay();
+                        this.updateProgress();
+                        this.updateSections();
+                        this.updateSessionInfo();
+                        console.log('🎨 Tron theme timer reset completed');
+                    }
+                    
                     // Close the settings panel
                     const sidebarManager = document.querySelector('.sidebar');
                     if (window.sidebarManager) {
