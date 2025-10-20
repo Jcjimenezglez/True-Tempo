@@ -231,6 +231,25 @@ class PomodoroTimer {
         this.pendingSelectedTechnique = null;
 
         this.init();
+        
+        // Mark window as active to detect if it was closed vs refreshed
+        sessionStorage.setItem('windowActive', 'true');
+        
+        // Listen for window close events
+        window.addEventListener('beforeunload', () => {
+            sessionStorage.removeItem('windowActive');
+        });
+        
+        // Also listen for visibility change (tab switching)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Tab is hidden, but window is still open
+                // Keep windowActive flag
+            } else {
+                // Tab is visible again, ensure windowActive flag exists
+                sessionStorage.setItem('windowActive', 'true');
+            }
+        });
     }
     
     init() {
@@ -10449,8 +10468,16 @@ class PomodoroTimer {
                 return false;
             }
             
-            // Always continue session without modal
-            console.log('Continuing session automatically');
+            // Check if window was closed (sessionStorage cleared) vs just refreshed
+            const windowClosed = !sessionStorage.getItem('windowActive');
+            if (windowClosed) {
+                console.log('Window was closed, resetting timer');
+                sessionStorage.removeItem('timerState');
+                return false;
+            }
+            
+            // Always continue session without modal (window was not closed)
+            console.log('Continuing session automatically (window not closed)');
             this.continueSession();
             
             return true;
