@@ -10513,8 +10513,8 @@ class PomodoroTimer {
         
         // Update UI
         this.updateDisplay();
-        this.updateProgress();
         this.updateProgressRing();
+        this.updateProgress();
         this.updateSessionInfo();
         this.updateNavigationButtons();
         this.updateCurrentTaskFromQueue();
