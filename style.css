@@ -8155,6 +8155,10 @@ input:checked + .toggle-slider:before {
 }
 
 /* Tron Image Button Styles */
+#tron-image-button {
+    left: calc(var(--sidebar-collapsed-width) + 8px) !important;
+}
+
 .tron-image-content {
     display: flex;
     align-items: center;
