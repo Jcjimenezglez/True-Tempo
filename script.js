@@ -11391,6 +11391,14 @@ class PomodoroTimer {
             option.addEventListener('click', (e) => {
                 e.preventDefault();
                 
+                // Check if theme requires authentication
+                const requiresAuth = option.dataset.requiresAuth === 'true';
+                if (requiresAuth && !this.isAuthenticated) {
+                    // Show message asking to sign up/login
+                    alert(`${themeName.charAt(0).toUpperCase() + themeName.slice(1)} theme requires an account. Sign up for free to unlock all immersive themes!`);
+                    return;
+                }
+                
                 // Remove active from all options
                 themeOptions.forEach(opt => {
                     opt.classList.remove('active');
@@ -11508,6 +11516,15 @@ class PomodoroTimer {
             }
             
             this.applyImmersiveTheme('tron');
+            
+            // Check if user is authenticated for Tron theme
+            if (!this.isAuthenticated) {
+                console.log('🎨 Tron theme requires authentication');
+                alert('Tron theme requires an account. Sign up for free to unlock all immersive themes!');
+                // Revert to default theme
+                this.applyTheme('lofi');
+                return;
+            }
             
             // Create Spotify widget for Tron theme (only if not already created)
             if (!this.tronSpotifyWidget) {
@@ -11892,6 +11909,12 @@ class PomodoroTimer {
         // Load last selected theme from localStorage (works for both authenticated and guest users)
         const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
         if (lastSelectedTheme && lastSelectedTheme !== 'lofi') {
+            // Check if Tron theme requires authentication
+            if (lastSelectedTheme === 'tron' && !this.isAuthenticated) {
+                console.log('🎨 Tron theme requires authentication, using default lofi');
+            return;
+        }
+        
             // Only restore if it's not the default lofi theme
             console.log('🎨 Restoring last selected theme:', lastSelectedTheme);
             // Apply the theme after a short delay to ensure DOM is ready
