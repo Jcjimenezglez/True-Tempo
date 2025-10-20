@@ -7495,13 +7495,14 @@ input:checked + .toggle-slider:before {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     z-index: 10000;
-    padding: 20px;
+    padding: 40px 20px;
     overflow-y: auto;
 }
 
@@ -7509,7 +7510,8 @@ input:checked + .toggle-slider:before {
     text-align: center;
     max-width: 500px;
     width: 100%;
-    margin: 40px 0;
+    margin: 0;
+    padding: 20px 0;
 }
 
 .desktop-required-icon {
@@ -7618,9 +7620,13 @@ input:checked + .toggle-slider:before {
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
+    .desktop-required-screen {
+        padding: 20px 15px;
+    }
+    
     .desktop-required-content {
-        margin: 20px 0;
-        padding: 0 10px;
+        margin: 0;
+        padding: 10px 0;
     }
     
     .desktop-required-content h1 {
@@ -7629,6 +7635,11 @@ input:checked + .toggle-slider:before {
     
     .desktop-required-content > p {
         font-size: 1rem;
+    }
+    
+    .desktop-required-features {
+        gap: 16px;
+        margin-bottom: 30px;
     }
     
     .feature-item {
