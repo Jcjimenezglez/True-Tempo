@@ -7657,38 +7657,6 @@ input:checked + .toggle-slider:before {
     border-radius: 8px;
 }
 
-/* Tron Spotify Indicator Styles */
-.spotify-indicator-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.spotify-icon {
-    font-size: 16px;
-    color: #1db954;
-}
-
-.spotify-text {
-    font-weight: 500;
-    color: #ffffff;
-}
-
-.spotify-open-btn {
-    background: #1db954;
-    color: #000000;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.spotify-open-btn:hover {
-    background: #1ed760;
-}
 
 @keyframes tron-grid-pulse {
     0% { opacity: 0.3; }

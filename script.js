@@ -74,14 +74,6 @@ class PomodoroTimer {
 		}
 		this.tronImage = null;
         
-        // Tron Spotify integration - new implementation
-        this.tronSpotifyConfig = {
-            playlistId: '47pjW3XDPW99NShtkeewxl', // TRON: Ares Soundtrack by Nine Inch Nails
-            playlistUrl: 'https://open.spotify.com/album/47pjW3XDPW99NShtkeewxl',
-            embedUrl: 'https://open.spotify.com/embed/album/47pjW3XDPW99NShtkeewxl',
-            isEnabled: false,
-            playerElement: null
-        };
         
         
         // Complete cycle: 25/5/25/5/25/5/25/15
@@ -3126,10 +3118,9 @@ class PomodoroTimer {
             }
         }
         
-        // Resume Tron music if Tron theme is active
+        // Tron theme is active (no music integration for now)
         if (this.currentImmersiveTheme === 'tron') {
-            // Start Tron Spotify playlist
-            this.startTronSpotify();
+            console.log('🎨 Tron theme active - background only');
         }
         
         this.interval = setInterval(() => {
@@ -3182,9 +3173,9 @@ class PomodoroTimer {
             this.pauseLofiPlaylist();
         }
         
-        // Pause Tron music if Tron theme is active
+        // Tron theme is active (no music integration for now)
         if (this.currentImmersiveTheme === 'tron') {
-            this.stopTronSpotify();
+            console.log('🎨 Tron theme paused - background only');
         }
         
         // Update session info to potentially show "Ready to focus?"
@@ -11499,15 +11490,11 @@ class PomodoroTimer {
             this.deactivateImmersiveTheme();
             this.applyImmersiveTheme('tron');
             
-            // Initialize Tron Spotify integration
-            this.initializeTronSpotify();
-            
-            // If timer is running, start Tron music immediately
+            // If timer is running, log that Tron theme is active
             if (this.isRunning) {
-                this.startTronSpotify();
-                console.log('🎨 Tron theme applied - background + tron music (music started because timer is running)');
+                console.log('🎨 Tron theme applied - background (timer is running)');
             } else {
-                console.log('🎨 Tron theme applied - background + tron music (music will start when timer starts)');
+                console.log('🎨 Tron theme applied - background (will be active when timer starts)');
             }
         }
         
@@ -11640,9 +11627,9 @@ class PomodoroTimer {
         timerSection.style.removeProperty('background-repeat');
         timerSection.style.removeProperty('background-color');
         
-        // Stop Tron Spotify if active
+        // Tron theme deactivated (no music integration for now)
         if (this.currentImmersiveTheme === 'tron') {
-            this.stopTronSpotify();
+            console.log('🎨 Tron theme deactivated - background removed');
         }
         
         // Save preference only if user is authenticated
@@ -11689,114 +11676,6 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    // New Tron Spotify Integration Methods
-    initializeTronSpotify() {
-        console.log('🎵 Initializing Tron Spotify integration...');
-        
-        // Create a simple link-based approach for now
-        this.createTronSpotifyLink();
-        
-        console.log('🎵 Tron Spotify integration ready');
-    }
-
-    createTronSpotifyLink() {
-        // Remove existing link if any
-        const existingLink = document.getElementById('tron-spotify-link');
-        if (existingLink) {
-            existingLink.remove();
-        }
-
-        // Create a hidden link that opens Spotify
-        const spotifyLink = document.createElement('a');
-        spotifyLink.id = 'tron-spotify-link';
-        spotifyLink.href = this.tronSpotifyConfig.playlistUrl;
-        spotifyLink.target = '_blank';
-        spotifyLink.style.display = 'none';
-        spotifyLink.textContent = 'Open Tron Playlist';
-        
-        document.body.appendChild(spotifyLink);
-        this.tronSpotifyConfig.playerElement = spotifyLink;
-        
-        console.log('🎵 Tron Spotify link created');
-    }
-
-    startTronSpotify() {
-        console.log('🎵 Starting Tron Spotify playlist...');
-        
-        // Prevent multiple calls - only start if not already enabled
-        if (this.tronSpotifyConfig.isEnabled) {
-            console.log('🎵 Tron Spotify already active, skipping...');
-            return;
-        }
-        
-        if (this.tronSpotifyConfig.playerElement) {
-            // Open Spotify playlist in new tab
-            window.open(this.tronSpotifyConfig.playlistUrl, '_blank');
-            this.tronSpotifyConfig.isEnabled = true;
-            this.showSpotifyIndicator();
-            console.log('🎵 Tron Spotify playlist opened');
-        } else {
-            console.error('❌ Tron Spotify player not initialized');
-        }
-    }
-
-    stopTronSpotify() {
-        console.log('🎵 Stopping Tron Spotify...');
-        this.tronSpotifyConfig.isEnabled = false;
-        this.hideSpotifyIndicator();
-        console.log('🎵 Tron Spotify stopped (user needs to manually close Spotify tab)');
-    }
-
-    isTronSpotifyEnabled() {
-        return this.tronSpotifyConfig.isEnabled;
-    }
-
-    showSpotifyIndicator() {
-        // Remove existing indicator if any
-        const existingIndicator = document.getElementById('tron-spotify-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
-        }
-
-        // Create Spotify indicator
-        const indicator = document.createElement('div');
-        indicator.id = 'tron-spotify-indicator';
-        indicator.innerHTML = `
-            <div class="spotify-indicator-content">
-                <div class="spotify-icon">♪</div>
-                <div class="spotify-text">Spotify Playing</div>
-                <button class="spotify-open-btn" onclick="window.open('${this.tronSpotifyConfig.playlistUrl}', '_blank')">Open</button>
-            </div>
-        `;
-        
-        // Style the indicator
-        indicator.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #1db954;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #1db954;
-            z-index: 10000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        `;
-
-        document.body.appendChild(indicator);
-        console.log('🎵 Spotify indicator shown');
-    }
-
-    hideSpotifyIndicator() {
-        const indicator = document.getElementById('tron-spotify-indicator');
-        if (indicator) {
-            indicator.remove();
-            console.log('🎵 Spotify indicator hidden');
-        }
-    }
 
 
 }
