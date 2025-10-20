@@ -79,8 +79,10 @@ class PomodoroTimer {
 		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
 		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}`;
 		this.tronSpotifyWidgetReady = false;
-        
-        
+		this.spotifyLoadingElement = null;
+		
+		// Load saved Tron Spotify state (for both authenticated and guest users)
+		this.loadTronSpotifyState();
         
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
@@ -11514,6 +11516,10 @@ class PomodoroTimer {
                 // Show loading and disable Start button while widget is connecting
                 this.showSpotifyLoading();
                 this.disableStartButtonForSpotify();
+            } else if (this.tronSpotifyWidgetReady) {
+                // Widget already exists and is ready, enable Start button immediately
+                this.enableStartButtonForSpotify();
+                console.log('🎨 Tron theme applied - Spotify widget already ready');
             }
             
             // If timer is running, start Spotify immediately
@@ -11659,6 +11665,8 @@ class PomodoroTimer {
             this.removeTronSpotifyWidget();
             this.tronSpotifyWidgetReady = false;
             this.hideSpotifyLoading();
+            // Clear saved state when theme is deactivated
+            localStorage.removeItem('tronSpotifyState');
             // Restore Start button to normal state
             this.startPauseBtn.disabled = false;
             this.startPauseBtn.style.opacity = '1';
@@ -11806,6 +11814,9 @@ class PomodoroTimer {
                 this.tronSpotifyWidgetReady = true;
                 console.log('🎵 Spotify widget fully activated and hidden');
                 
+                // Save state when widget is ready
+                this.saveTronSpotifyState();
+                
                 // Hide loading and enable Start button when widget is ready
                 this.hideSpotifyLoading();
                 this.enableStartButtonForSpotify();
@@ -11878,6 +11889,30 @@ class PomodoroTimer {
             this.startPauseBtn.style.cursor = 'pointer';
             console.log('🎵 Start button enabled - Spotify ready');
         }
+    }
+
+    loadTronSpotifyState() {
+        // Load saved Tron Spotify state from localStorage (works for both authenticated and guest users)
+        const savedTronSpotifyState = localStorage.getItem('tronSpotifyState');
+        if (savedTronSpotifyState) {
+            try {
+                const state = JSON.parse(savedTronSpotifyState);
+                this.tronSpotifyWidgetReady = state.widgetReady || false;
+                console.log('🎵 Tron Spotify state loaded:', state);
+            } catch (error) {
+                console.log('🎵 Could not load Tron Spotify state:', error);
+            }
+        }
+    }
+
+    saveTronSpotifyState() {
+        // Save Tron Spotify state to localStorage (works for both authenticated and guest users)
+        const state = {
+            widgetReady: this.tronSpotifyWidgetReady,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('tronSpotifyState', JSON.stringify(state));
+        console.log('🎵 Tron Spotify state saved:', state);
     }
 
     pauseTronSpotify() {
