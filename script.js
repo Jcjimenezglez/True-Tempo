@@ -11882,7 +11882,7 @@ class PomodoroTimer {
             backdrop-filter: blur(10px);
             color: #ffffff;
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 100px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
             cursor: pointer;

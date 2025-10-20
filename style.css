@@ -8159,6 +8159,7 @@ input:checked + .toggle-slider:before {
     position: absolute !important;
     bottom: 20px !important;
     left: 16px !important;
+    border-radius: 100px !important;
 }
 
 .tron-image-content {
