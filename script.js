@@ -269,12 +269,22 @@ class PomodoroTimer {
         
         // Apply saved background and overlay on init
         // Initialize new theme system (default to lofi)
-        // Only load saved theme if user is authenticated, otherwise use default
-        if (this.isAuthenticated) {
-            this.currentTheme = localStorage.getItem('selectedTheme') || 'lofi';
+        // Load last selected theme from localStorage (works for both authenticated and guest users)
+        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        if (lastSelectedTheme && lastSelectedTheme !== 'lofi') {
+            // Check if Tron theme requires authentication
+            if (lastSelectedTheme === 'tron' && !this.isAuthenticated) {
+                console.log('🎨 Tron theme requires authentication, using default lofi');
+                this.currentTheme = 'lofi';
+            } else {
+                this.currentTheme = lastSelectedTheme;
+            }
         } else {
             this.currentTheme = 'lofi'; // Always default for guests
-            // Clear any saved immersive theme for guests
+        }
+        
+        // Clear any saved immersive theme for guests
+        if (!this.isAuthenticated) {
             this.currentImmersiveTheme = 'none';
         }
         this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
@@ -11550,10 +11560,8 @@ class PomodoroTimer {
             }
         }
         
-        // Save theme preference only if user is authenticated
-        if (this.isAuthenticated) {
-            localStorage.setItem('selectedTheme', themeName);
-        }
+        // Save theme preference (for both authenticated and guest users)
+        localStorage.setItem('lastSelectedTheme', themeName);
         this.currentTheme = themeName;
         
         // Update visual active state
