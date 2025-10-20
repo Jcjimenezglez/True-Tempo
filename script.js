@@ -3218,11 +3218,11 @@ class PomodoroTimer {
             }
         }
         
-        // Tron theme is active - start Spotify
-        if (this.currentImmersiveTheme === 'tron') {
-            this.startTronSpotify();
-            console.log('🎨 Tron theme active - background + Spotify started');
-        }
+        // Tron theme is active - start Spotify (disabled to avoid playlist restart issues)
+        // if (this.currentImmersiveTheme === 'tron') {
+        //     this.startTronSpotify();
+        //     console.log('🎨 Tron theme active - background + Spotify started');
+        // }
         
         this.interval = setInterval(() => {
             this.timeLeft--;
@@ -3287,11 +3287,11 @@ class PomodoroTimer {
             this.pauseLofiPlaylist();
         }
         
-        // Tron theme is active - pause Spotify
-        if (this.currentImmersiveTheme === 'tron') {
-            this.pauseTronSpotify();
-            console.log('🎨 Tron theme paused - background + Spotify paused');
-        }
+        // Tron theme is active - pause Spotify (disabled to avoid playlist restart issues)
+        // if (this.currentImmersiveTheme === 'tron') {
+        //     this.pauseTronSpotify();
+        //     console.log('🎨 Tron theme paused - background + Spotify paused');
+        // }
         
         // Update session info to potentially show "Ready to focus?"
         this.updateSessionInfo();
@@ -11594,13 +11594,13 @@ class PomodoroTimer {
                 console.log('🎨 Tron theme applied - Spotify widget already ready');
             }
             
-            // If timer is running, start Spotify immediately
-            if (this.isRunning) {
-                this.startTronSpotify();
-                console.log('🎨 Tron theme applied - background + Spotify (timer is running)');
-            } else {
-                console.log('🎨 Tron theme applied - background + Spotify (will start when timer starts)');
-            }
+            // If timer is running, start Spotify immediately (disabled to avoid playlist restart issues)
+            // if (this.isRunning) {
+            //     this.startTronSpotify();
+            //     console.log('🎨 Tron theme applied - background + Spotify (timer is running)');
+            // } else {
+            //     console.log('🎨 Tron theme applied - background + Spotify (will start when timer starts)');
+            // }
         }
         
         // Save theme preference (for both authenticated and guest users)

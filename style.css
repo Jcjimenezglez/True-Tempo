@@ -1448,6 +1448,7 @@ body.is-scrolling .streak-fire {
     border: none;
     border-radius: 100px;
     padding: 1rem 2rem;
+    margin-bottom: 16px;
     font-size: 1.125rem;
     font-weight: 600;
     cursor: pointer;
