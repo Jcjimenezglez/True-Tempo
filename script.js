@@ -11394,8 +11394,8 @@ class PomodoroTimer {
                 // Check if theme requires authentication
                 const requiresAuth = option.dataset.requiresAuth === 'true';
                 if (requiresAuth && !this.isAuthenticated) {
-                    // Show message asking to sign up/login
-                    alert(`${themeName.charAt(0).toUpperCase() + themeName.slice(1)} theme requires an account. Sign up for free to unlock all immersive themes!`);
+                    // Show modal with theme info
+                    this.showTronInfoModal();
                     return;
                 }
                 
@@ -11421,6 +11421,10 @@ class PomodoroTimer {
         
         // Don't reapply theme when opening sidebar - just update visual state
         this.updateThemeActiveState(savedTheme);
+        
+        // Update theme authentication state
+        this.updateThemeAuthState();
+        
         console.log('🎨 Theme panel initialized - no music reset');
     }
     
@@ -11926,6 +11930,38 @@ class PomodoroTimer {
         }
     }
 
+    showTronInfoModal() {
+        const modal = document.getElementById('tronInfoModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    closeTronInfoModal() {
+        const modal = document.getElementById('tronInfoModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    updateThemeAuthState() {
+        // Update theme options based on authentication state
+        const themeOptions = document.querySelectorAll('.theme-option[data-requires-auth="true"]');
+        themeOptions.forEach(option => {
+            if (this.isAuthenticated) {
+                option.classList.add('authenticated');
+                option.style.pointerEvents = 'auto';
+                option.style.opacity = '1';
+            } else {
+                option.classList.remove('authenticated');
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.5';
+            }
+        });
+    }
+
 
     pauseTronSpotify() {
         console.log('🎵 Pausing Tron Spotify...');
@@ -11955,6 +11991,19 @@ class PomodoroTimer {
 
 
 
+}
+
+// Global functions for modal
+function closeTronInfoModal() {
+    if (window.pomodoroTimer) {
+        window.pomodoroTimer.closeTronInfoModal();
+    }
+}
+
+function handleSignup() {
+    if (window.pomodoroTimer) {
+        window.pomodoroTimer.handleSignup();
+    }
 }
 
 // Initialize the timer when the page loads
