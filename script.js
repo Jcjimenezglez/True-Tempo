@@ -11457,7 +11457,12 @@ class PomodoroTimer {
 
     applyTheme(themeName) {
         console.log(`🎨 Applying theme: ${themeName}`);
-        console.log(`🎨 Timer running state before theme change: ${this.isRunning}`);
+        
+        // Pause timer when changing cassettes for better UX
+        if (this.isRunning) {
+            this.pauseTimer();
+            console.log('🎨 Timer paused due to cassette change');
+        }
         
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) {
@@ -11557,8 +11562,6 @@ class PomodoroTimer {
             localStorage.setItem('selectedTheme', themeName);
         }
         this.currentTheme = themeName;
-        
-        console.log(`🎨 Timer running state after theme change: ${this.isRunning}`);
         
         // Update visual active state
         this.updateThemeActiveState(themeName);
