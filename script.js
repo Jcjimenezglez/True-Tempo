@@ -11896,7 +11896,7 @@ class PomodoroTimer {
             console.log('🎨 Restoring last selected theme:', lastSelectedTheme);
             // Apply the theme after a short delay to ensure DOM is ready
             setTimeout(() => {
-                this.selectTheme(lastSelectedTheme);
+                this.applyTheme(lastSelectedTheme);
             }, 100);
         } else {
             console.log('🎨 Using default lofi theme for new user');
