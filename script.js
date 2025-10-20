@@ -11946,11 +11946,11 @@ class PomodoroTimer {
             <div class="spotify-login-content">
                 <div class="spotify-login-icon">🎵</div>
                 <div class="spotify-login-text">
-                    <div class="spotify-login-title">Spotify Login Required</div>
-                    <div class="spotify-login-message">Please log in to Spotify to play the Tron playlist</div>
+                    <div class="spotify-login-title">Check Spotify Status</div>
+                    <div class="spotify-login-message">Opening Spotify to check if you're logged in</div>
                 </div>
                 <div class="spotify-login-buttons">
-                    <button class="spotify-login-btn" id="spotifyLoginBtn">Login to Spotify</button>
+                    <button class="spotify-login-btn" id="spotifyCheckBtn">Open Spotify</button>
                     <button class="spotify-cancel-btn" id="spotifyCancelBtn">Cancel</button>
                 </div>
             </div>
@@ -11977,12 +11977,12 @@ class PomodoroTimer {
         this.spotifyLoadingElement = prompt;
         
         // Add event listeners
-        const loginBtn = document.getElementById('spotifyLoginBtn');
+        const checkBtn = document.getElementById('spotifyCheckBtn');
         const cancelBtn = document.getElementById('spotifyCancelBtn');
         
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                this.openSpotifyLogin();
+        if (checkBtn) {
+            checkBtn.addEventListener('click', () => {
+                this.openSpotifyCheck();
             });
         }
         
@@ -11994,20 +11994,20 @@ class PomodoroTimer {
             });
         }
         
-        console.log('🎵 Spotify login prompt shown');
+        console.log('🎵 Spotify check prompt shown');
     }
 
-    openSpotifyLogin() {
-        // Open Spotify login in a new window
-        const spotifyLoginUrl = 'https://accounts.spotify.com/authorize?client_id=your_client_id&response_type=code&redirect_uri=your_redirect_uri&scope=user-read-playback-state%20user-modify-playback-state';
-        window.open(spotifyLoginUrl, 'spotify-login', 'width=500,height=600,scrollbars=yes,resizable=yes');
+    openSpotifyCheck() {
+        // Open Spotify web player to check login status
+        const spotifyUrl = 'https://open.spotify.com/';
+        window.open(spotifyUrl, 'spotify-check', 'width=800,height=600,scrollbars=yes,resizable=yes');
         
         // Hide the prompt
         this.hideSpotifyLoading();
         
-        // Show a message that user should refresh after login
+        // Show a message that user should refresh after checking
         setTimeout(() => {
-            alert('Please refresh the page after logging in to Spotify to continue with the Tron theme.');
+            alert('Please refresh the page after checking your Spotify login status to continue with the Tron theme.');
         }, 1000);
     }
 
