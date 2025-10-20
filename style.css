@@ -7788,7 +7788,7 @@ input:checked + .toggle-slider:before {
 /* Theme Overlay Control (Contrast) */
 .theme-overlay-control {
     margin-top: 20px;
-    margin-bottom: 24px;
+    margin-bottom: 0px;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
