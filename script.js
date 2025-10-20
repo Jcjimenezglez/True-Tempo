@@ -11998,6 +11998,9 @@ class PomodoroTimer {
     }
 
     openSpotifyCheck() {
+        // Mark that user has verified Spotify status
+        sessionStorage.setItem('spotifyVerified', 'true');
+        
         // Open Spotify web player to check login status
         const spotifyUrl = 'https://open.spotify.com/';
         window.open(spotifyUrl, 'spotify-check', 'width=800,height=600,scrollbars=yes,resizable=yes');
@@ -12012,6 +12015,18 @@ class PomodoroTimer {
     }
 
     checkSpotifyLoginStatus() {
+        // Check if user has already verified Spotify status in this session
+        const spotifyVerified = sessionStorage.getItem('spotifyVerified');
+        
+        if (spotifyVerified === 'true') {
+            console.log('🎵 Spotify already verified in this session, waiting for widget activation...');
+            // Wait additional 3 seconds for widget to be fully ready
+            setTimeout(() => {
+                this.activateSpotifyWidgetSuccess();
+            }, 3000);
+            return;
+        }
+        
         // Try to detect if user is logged into Spotify by checking if the widget loads properly
         try {
             // Check if the widget iframe has loaded content
