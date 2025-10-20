@@ -1413,7 +1413,7 @@ body.is-scrolling .streak-fire {
     justify-content: center;
     gap: 1rem;
     margin-top: auto;
-    padding: 2rem 2rem;
+    padding: 1.25rem 2rem;
     position: relative;
     z-index: 10;
 }
@@ -1448,7 +1448,6 @@ body.is-scrolling .streak-fire {
     border: none;
     border-radius: 100px;
     padding: 1rem 2rem;
-    margin-bottom: 16px;
     font-size: 1.125rem;
     font-weight: 600;
     cursor: pointer;
