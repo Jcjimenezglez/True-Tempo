@@ -11753,8 +11753,8 @@ class PomodoroTimer {
                 console.log('🎵 Tron Spotify control not available (cross-origin)');
             }
             
-            // Show Spotify login instructions if needed
-            this.checkSpotifyLoginAndShowInstructions();
+            // Always show Spotify login instructions as a helpful reminder
+            this.showSpotifyLoginInstructions();
         }
     }
 
@@ -11777,29 +11777,6 @@ class PomodoroTimer {
         }
     }
 
-    async checkSpotifyLoginAndShowInstructions() {
-        // Check if user is logged into Spotify by trying to access Spotify API
-        try {
-            // This is a simple check - in a real implementation you'd need proper OAuth
-            const spotifyLoggedIn = await this.checkSpotifyLoginStatus();
-            
-            if (!spotifyLoggedIn) {
-                this.showSpotifyLoginInstructions();
-            }
-        } catch (error) {
-            console.log('🎵 Could not check Spotify login status');
-        }
-    }
-
-    async checkSpotifyLoginStatus() {
-        // Simple check: try to access Spotify's public API
-        try {
-            const response = await fetch('https://api.spotify.com/v1/search?q=test&type=track&limit=1');
-            return response.ok;
-        } catch (error) {
-            return false;
-        }
-    }
 
     showSpotifyLoginInstructions() {
         // Remove existing instructions if any
@@ -11815,8 +11792,7 @@ class PomodoroTimer {
             <div class="spotify-instructions-content">
                 <div class="spotify-instructions-icon">🎵</div>
                 <div class="spotify-instructions-text">
-                    <strong>Para música completa:</strong><br>
-                    Inicia sesión en <a href="https://open.spotify.com" target="_blank">Spotify</a> en esta pestaña
+                    <strong>Tip:</strong> Para música completa, asegúrate de estar logueado en <a href="https://open.spotify.com" target="_blank">Spotify</a>
                 </div>
                 <button class="spotify-instructions-close" onclick="this.parentElement.parentElement.remove()">×</button>
             </div>
