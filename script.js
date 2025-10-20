@@ -10457,6 +10457,7 @@ class PomodoroTimer {
             currentTaskIndex: this.currentTaskIndex,
             currentTaskName: this.currentTaskName,
             selectedTechnique: this.selectedTechnique?.name || 'Pomodoro',
+            selectedTheme: this.currentTheme || 'lofi', // Save current theme
             timestamp: Date.now(),
             sectionDuration: sectionDuration,
             timeElapsed: timeElapsed
@@ -10531,6 +10532,12 @@ class PomodoroTimer {
         this.isLongBreak = state.isLongBreak;
         this.currentTaskIndex = state.currentTaskIndex;
         this.currentTaskName = state.currentTaskName;
+        
+        // Restore theme if it was saved in the state
+        if (state.selectedTheme) {
+            console.log('🎨 Restoring theme from saved state:', state.selectedTheme);
+            this.applyTheme(state.selectedTheme);
+        }
         
         // Always restore as paused (user decides when to continue)
         this.isRunning = false;
