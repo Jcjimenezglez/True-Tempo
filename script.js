@@ -11457,6 +11457,7 @@ class PomodoroTimer {
 
     applyTheme(themeName) {
         console.log(`🎨 Applying theme: ${themeName}`);
+        console.log(`🎨 Timer running state before theme change: ${this.isRunning}`);
         
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) {
@@ -11556,6 +11557,8 @@ class PomodoroTimer {
             localStorage.setItem('selectedTheme', themeName);
         }
         this.currentTheme = themeName;
+        
+        console.log(`🎨 Timer running state after theme change: ${this.isRunning}`);
         
         // Update visual active state
         this.updateThemeActiveState(themeName);
