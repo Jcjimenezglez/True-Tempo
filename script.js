@@ -11629,7 +11629,7 @@ class PomodoroTimer {
                 focusOption.style.cursor = 'not-allowed';
                 const focusLabel = focusOption.querySelector('label');
                 if (focusLabel) {
-                    focusLabel.innerHTML = 'Focus <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                    focusLabel.innerHTML = 'Duration <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
                 }
             }
             if (pomodoroSlider) {
