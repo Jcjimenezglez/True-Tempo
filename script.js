@@ -611,6 +611,53 @@ class PomodoroTimer {
         }
     }
     
+    // Enable Timer panel features for authenticated users
+    enableTimerPanelFeatures() {
+        try {
+            console.log('🔓 Enabling Timer panel features for authenticated user');
+            
+            // Enable sessions slider
+            const sessionsSlider = document.querySelector('#sidebarSessionsSlider');
+            const sessionsValue = document.querySelector('#sidebarSessionsValue');
+            if (sessionsSlider && sessionsValue) {
+                sessionsSlider.disabled = false;
+                sessionsSlider.style.opacity = '1';
+                sessionsSlider.style.cursor = 'pointer';
+                sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+            }
+            
+            // Enable advanced techniques
+            const techniquePresets = document.querySelectorAll('.technique-preset');
+            techniquePresets.forEach(preset => {
+                const technique = preset.dataset.technique;
+                if (technique !== 'pomodoro') {
+                    preset.style.opacity = '1';
+                    preset.style.cursor = 'pointer';
+                    preset.style.pointerEvents = 'auto';
+                    
+                    // Remove "Sign up required" text
+                    const signupText = preset.querySelector('.technique-signup-text');
+                    if (signupText) {
+                        signupText.remove();
+                    }
+                }
+            });
+            
+            // Enable save button
+            const saveBtn = document.querySelector('#sidebarSaveSettings');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+                saveBtn.style.cursor = 'pointer';
+            }
+            
+            console.log('✅ Timer panel features enabled');
+            
+        } catch (error) {
+            console.error('Error enabling Timer panel features:', error);
+        }
+    }
+    
     updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
         
@@ -632,6 +679,9 @@ class PomodoroTimer {
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
+            
+            // Enable Timer panel features for authenticated users
+            this.enableTimerPanelFeatures();
             
             // 🎯 Track User Login event to Mixpanel
             if (window.mixpanelTracker) {
@@ -11629,7 +11679,19 @@ class PomodoroTimer {
             sessionsSlider.value = this.sessionsPerCycle;
             sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
             
+            // Disable sessions slider for guest users
+            if (!this.isAuthenticated) {
+                sessionsSlider.disabled = true;
+                sessionsSlider.style.opacity = '0.5';
+                sessionsSlider.style.cursor = 'not-allowed';
+                sessionsValue.textContent = 'Sign up required';
+            }
+            
             sessionsSlider.addEventListener('input', (e) => {
+                if (!this.isAuthenticated) {
+                    this.showLoginRequiredModal('sessions');
+                    return;
+                }
                 sessionsValue.textContent = `${e.target.value} sesh`;
             });
         }
@@ -11637,14 +11699,38 @@ class PomodoroTimer {
         // Techniques presets
         const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
         techniquePresets.forEach(preset => {
+            const technique = preset.dataset.technique;
+            
+            // Disable advanced techniques for guest users
+            if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                preset.style.opacity = '0.5';
+                preset.style.cursor = 'not-allowed';
+                preset.style.pointerEvents = 'none';
+                
+                // Add "Sign up required" text
+                const signupText = document.createElement('div');
+                signupText.className = 'technique-signup-text';
+                signupText.textContent = 'Sign up required';
+                signupText.style.fontSize = '10px';
+                signupText.style.color = 'rgba(255, 255, 255, 0.6)';
+                signupText.style.marginTop = '4px';
+                preset.appendChild(signupText);
+            }
+            
             preset.addEventListener('click', () => {
+                // Check if technique requires authentication (all except pomodoro)
+                if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                    // Show signup modal for guest users
+                    this.showLoginRequiredModal('technique');
+                    return;
+                }
+                
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
                 // Add active class to clicked preset
                 preset.classList.add('active');
                 
                 // Apply technique settings
-                const technique = preset.dataset.technique;
                 this.applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
             });
         });
