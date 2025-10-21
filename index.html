@@ -34,12 +34,23 @@
     <!-- Mixpanel -->
     <script type="text/javascript" src="//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js"></script>
     <script type="text/javascript">
-        // Initialize Mixpanel
-        mixpanel.init('bcf2edbf4f718b186314825c2d961256', {
-            debug: false, 
-            track_pageview: true, 
-            persistence: 'localStorage'
-        });
+        // Wait for Mixpanel to load, then initialize
+        function initMixpanel() {
+            if (typeof window.mixpanel !== 'undefined') {
+                window.mixpanel.init('bcf2edbf4f718b186314825c2d961256', {
+                    debug: false, 
+                    track_pageview: true, 
+                    persistence: 'localStorage'
+                });
+                console.log('✅ Mixpanel initialized successfully');
+            } else {
+                // Retry after 100ms if not loaded yet
+                setTimeout(initMixpanel, 100);
+            }
+        }
+        
+        // Start initialization
+        initMixpanel();
     </script>
     <!-- End Mixpanel -->
     

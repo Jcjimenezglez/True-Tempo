@@ -294,7 +294,7 @@ class PomodoroTimer {
     
     trackEvent(eventName, properties = {}) {
         // Check if Mixpanel is available and properly initialized
-        if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
+        if (typeof window.mixpanel !== 'undefined' && typeof window.mixpanel.track === 'function') {
             try {
                 // Add common properties
                 const eventProperties = {
