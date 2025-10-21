@@ -2455,6 +2455,52 @@ class PomodoroTimer {
                     <p class="modal-subtitle">Customize your focus sessions</p>
                 </div>
                 
+                <!-- Sessions Count -->
+                <div class="settings-section">
+                    <h4 class="section-title">Sessions</h4>
+                    <div class="sessions-control">
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Number of Sessions</label>
+                                <span class="duration-value" id="sessionsValue">${this.sessionsPerCycle} sessions</span>
+                            </div>
+                            <input type="range" id="sessionsSlider" min="1" max="12" value="${this.sessionsPerCycle}" class="duration-slider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Techniques -->
+                <div class="settings-section">
+                    <h4 class="section-title">Techniques</h4>
+                    <div class="techniques-grid">
+                        <button class="technique-preset" data-technique="pomodoro">
+                            <div class="technique-icon">🍅</div>
+                            <div class="technique-name">Pomodoro</div>
+                            <div class="technique-desc">25min work, 5min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="flow">
+                            <div class="technique-icon">🌊</div>
+                            <div class="technique-name">Flow State</div>
+                            <div class="technique-desc">45min work, 15min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="deepwork">
+                            <div class="technique-icon">🧠</div>
+                            <div class="technique-name">Deep Work</div>
+                            <div class="technique-desc">90min work, 20min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="sprint">
+                            <div class="technique-icon">⚡</div>
+                            <div class="technique-name">Sprint</div>
+                            <div class="technique-desc">15min work, 3min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="marathon">
+                            <div class="technique-icon">🏃</div>
+                            <div class="technique-name">Marathon</div>
+                            <div class="technique-desc">60min work, 10min break</div>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Timer Durations -->
                 <div class="settings-section">
                     <h4 class="section-title">Duration</h4>
@@ -2514,6 +2560,28 @@ class PomodoroTimer {
             longBreakValue.textContent = `${e.target.value} min`;
         });
         
+        // Sessions slider
+        const sessionsSlider = modalOverlay.querySelector('#sessionsSlider');
+        const sessionsValue = modalOverlay.querySelector('#sessionsValue');
+        sessionsSlider.addEventListener('input', (e) => {
+            sessionsValue.textContent = `${e.target.value} sessions`;
+        });
+
+        // Techniques presets
+        const techniquePresets = modalOverlay.querySelectorAll('.technique-preset');
+        techniquePresets.forEach(preset => {
+            preset.addEventListener('click', () => {
+                // Remove active class from all presets
+                techniquePresets.forEach(p => p.classList.remove('active'));
+                // Add active class to clicked preset
+                preset.classList.add('active');
+                
+                // Apply technique settings
+                const technique = preset.dataset.technique;
+                this.applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
+            });
+        });
+
         // Close button
         modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
@@ -2525,11 +2593,13 @@ class PomodoroTimer {
             this.workTime = parseInt(pomodoroSlider.value) * 60;
             this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
             this.longBreakTime = parseInt(longBreakSlider.value) * 60;
+            this.sessionsPerCycle = parseInt(sessionsSlider.value);
             
             // Save to localStorage
             localStorage.setItem('pomodoroTime', String(this.workTime));
             localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
             localStorage.setItem('longBreakTime', String(this.longBreakTime));
+            localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
             
             // Update cycle sections
             this.cycleSections = [
@@ -2552,6 +2622,30 @@ class PomodoroTimer {
             // Close modal
             document.body.removeChild(modalOverlay);
         });
+    }
+
+    applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider) {
+        const presets = {
+            pomodoro: { work: 25, shortBreak: 5, longBreak: 15, sessions: 4 },
+            flow: { work: 45, shortBreak: 15, longBreak: 30, sessions: 3 },
+            deepwork: { work: 90, shortBreak: 20, longBreak: 45, sessions: 2 },
+            sprint: { work: 15, shortBreak: 3, longBreak: 10, sessions: 6 },
+            marathon: { work: 60, shortBreak: 10, longBreak: 20, sessions: 4 }
+        };
+
+        const preset = presets[technique];
+        if (preset) {
+            pomodoroSlider.value = preset.work;
+            shortBreakSlider.value = preset.shortBreak;
+            longBreakSlider.value = preset.longBreak;
+            sessionsSlider.value = preset.sessions;
+
+            // Update display values
+            document.querySelector('#pomodoroValue').textContent = `${preset.work} min`;
+            document.querySelector('#shortBreakValue').textContent = `${preset.shortBreak} min`;
+            document.querySelector('#longBreakValue').textContent = `${preset.longBreak} min`;
+            document.querySelector('#sessionsValue').textContent = `${preset.sessions} sessions`;
+        }
     }
 
     showAmbientLoginModal() {
