@@ -5516,10 +5516,6 @@ input:checked + .toggle-slider:before {
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    position: sticky;
-    bottom: 0;
-    background: var(--onyx-dark, #1a1a1a);
-    z-index: 10;
 }
 
 .settings-save-section .save-settings-btn {

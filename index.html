@@ -516,25 +516,11 @@
                 <p class="tasks-subtitle">Customize your focus sessions</p>
             </div>
             
-            <!-- Sessions Count -->
-            <div class="settings-section">
-                <h4 class="section-title">Sessions</h4>
-                <div class="sessions-control">
-                    <div class="duration-item">
-                        <div class="duration-header">
-                            <label>Number of Sessions</label>
-                            <span class="duration-value" id="sidebarSessionsValue">4 sessions</span>
-                        </div>
-                        <input type="range" id="sidebarSessionsSlider" min="1" max="12" value="4" class="duration-slider">
-                    </div>
-                </div>
-            </div>
-
             <!-- Techniques -->
             <div class="settings-section">
                 <h4 class="section-title">Techniques</h4>
                 <div class="techniques-grid">
-                    <button class="technique-preset" data-technique="pomodoro">
+                    <button class="technique-preset active" data-technique="pomodoro">
                         <div class="technique-icon">🍅</div>
                         <div class="technique-name">Pomodoro</div>
                         <div class="technique-desc">25min work, 5min break</div>
@@ -585,6 +571,13 @@
                             <span class="duration-value" id="sidebarLongBreakValue">15 min</span>
                         </div>
                         <input type="range" id="sidebarLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
+                    </div>
+                    <div class="duration-item">
+                        <div class="duration-header">
+                            <label>Number of Sessions</label>
+                            <span class="duration-value" id="sidebarSessionsValue">4 sessions</span>
+                        </div>
+                        <input type="range" id="sidebarSessionsSlider" min="1" max="12" value="4" class="duration-slider">
                     </div>
                 </div>
             </div>
