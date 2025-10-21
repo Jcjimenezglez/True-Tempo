@@ -9086,73 +9086,12 @@ class PomodoroTimer {
         if (urlParams.get('error') === 'pro_required') {
             // Only show modal if user is actually not Pro
             // If they're in Developer Mode as Pro, don't show it
-            if (!this.isPremiumUser()) {
-                setTimeout(() => {
-                    this.showProRequiredModal();
-                    // Clean URL
-                    const newUrl = window.location.origin + window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
-                }, 500);
-            } else {
-                // User is Pro in frontend but backend rejected - just clean URL
-                const newUrl = window.location.origin + window.location.pathname;
-                window.history.replaceState({}, document.title, newUrl);
-            }
+            // Clean URL regardless of Pro status
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
         }
     }
 
-    showProRequiredModal() {
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
-
-        const modal = document.createElement('div');
-        modal.className = 'focus-stats-modal';
-        modal.style.maxWidth = '450px';
-        modal.innerHTML = `
-            <button class="close-focus-stats-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div style="text-align: center; padding: 20px;">
-                <div style="width: 60px; height: 60px; background: rgba(255, 193, 7, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                </div>
-                <h3 style="color: #ffffff; margin: 0 0 12px 0; font-size: 1.5rem;">Pro Feature</h3>
-                <p style="color: rgba(255, 255, 255, 0.8); margin: 0 0 24px 0; line-height: 1.6;">
-                    Integrations with Todoist and Notion are exclusive to Pro members.
-                </p>
-                <p style="color: rgba(255, 255, 255, 0.7); margin: 0 0 24px 0; font-size: 0.9rem;">
-                    Upgrade to Pro for just <strong style="color: #ffffff;">$9/year</strong> to unlock all integrations and premium features.
-                </p>
-                <button id="upgradeFromProRequiredModal" style="width: 100%; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px; color: #ffffff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                    Upgrade to Pro
-                </button>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            try { document.body.removeChild(overlay); } catch (_) {}
-        };
-
-        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
-        const upgradeBtn = modal.querySelector('#upgradeFromProRequiredModal');
-        upgradeBtn.addEventListener('click', () => {
-            close();
-            this.showPricingModal();
-        });
-    }
 
 
     // Centralized conversion tracking function
