@@ -1273,7 +1273,7 @@ class PomodoroTimer {
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <h3 class="logout-modal-title">${techniqueName} Technique</h3>
+            <h3 class="logout-modal-title">${techniqueName}</h3>
             <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
             <div class="logout-modal-buttons">
                 <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up</button>
