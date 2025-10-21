@@ -2068,7 +2068,7 @@ class PomodoroTimer {
         }
         
         if (this.guestTaskLimitSignupBtn) {
-            this.guestTaskLimitSignupBtn.addEventListener('click', (e) => {
+            this.guestTaskLimitSignupBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 this.hideGuestTaskLimitModal();
                 
@@ -2076,8 +2076,27 @@ class PomodoroTimer {
                     // Guest user - show signup
                     this.handleSignup();
                 } else {
-                    // Free user - redirect to pricing page
-                    window.location.href = '/pricing';
+                    // Free user - redirect to Stripe checkout
+                    try {
+                        const response = await fetch('/api/create-checkout-session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        
+                        if (response.ok) {
+                            const { url } = await response.json();
+                            window.location.href = url;
+                        } else {
+                            // Fallback to pricing page if Stripe fails
+                            window.location.href = '/pricing';
+                        }
+                    } catch (error) {
+                        console.error('Error creating checkout session:', error);
+                        // Fallback to pricing page if error
+                        window.location.href = '/pricing';
+                    }
                 }
             });
         }
@@ -2086,6 +2105,7 @@ class PomodoroTimer {
             this.guestTaskLimitCancelBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideGuestTaskLimitModal();
+                window.location.href = '/pricing';
             });
         }
         
