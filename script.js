@@ -218,11 +218,6 @@ class PomodoroTimer {
         this.guestTaskLimitSignupBtn = document.getElementById('guestTaskLimitSignupBtn');
         this.guestTaskLimitCancelBtn = document.getElementById('guestTaskLimitCancelBtn');
         
-        // Integration modal elements
-        this.integrationModalOverlay = document.getElementById('integrationModalOverlay');
-        this.integrationModalPrimaryBtn = document.getElementById('integrationModalPrimaryBtn');
-        this.integrationModalSecondaryBtn = document.getElementById('integrationModalSecondaryBtn');
-        this.integrationModalMessage = document.getElementById('integrationModalMessage');
         
         
         // Auth state
@@ -964,38 +959,6 @@ class PomodoroTimer {
         }
     }
     
-    showIntegrationModal(integrationType) {
-        if (this.integrationModalOverlay) {
-            const messages = {
-                todoist: 'Connect Todoist to sync your tasks and boost productivity with seamless integration!',
-                notion: 'Connect Notion to centralize your workflow and sync task progress automatically!'
-            };
-            
-            this.integrationModalMessage.textContent = messages[integrationType] || 'Connect your favorite productivity tools and sync your tasks seamlessly!';
-            
-            // Update button text based on user type
-            const isGuest = !this.isAuthenticated || !this.user;
-            const isFree = this.isAuthenticated && this.user && !this.isPro;
-            
-            if (isGuest) {
-                // Guest users: Learn More + Cancel
-                this.integrationModalPrimaryBtn.textContent = 'Learn More';
-                this.integrationModalSecondaryBtn.textContent = 'Cancel';
-            } else if (isFree) {
-                // Free users: Upgrade to Pro + Learn more
-                this.integrationModalPrimaryBtn.textContent = 'Upgrade to Pro';
-                this.integrationModalSecondaryBtn.textContent = 'Learn more';
-            }
-            
-            this.integrationModalOverlay.style.display = 'flex';
-        }
-    }
-    
-    hideIntegrationModal() {
-        if (this.integrationModalOverlay) {
-            this.integrationModalOverlay.style.display = 'none';
-        }
-    }
     
     
     
@@ -2158,70 +2121,6 @@ class PomodoroTimer {
             });
         }
         
-        // Integration modal event listeners
-        if (this.integrationModalPrimaryBtn) {
-            this.integrationModalPrimaryBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                this.hideIntegrationModal();
-                
-                const isGuest = !this.isAuthenticated || !this.user;
-                const isFree = this.isAuthenticated && this.user && !this.isPro;
-                
-                if (isGuest) {
-                    // Guest users go to pricing page
-                    window.location.href = '/pricing';
-                } else if (isFree) {
-                    // Free users go to Stripe checkout
-                    try {
-                        const response = await fetch('/api/create-checkout-session', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        });
-                        
-                        if (response.ok) {
-                            const { url } = await response.json();
-                            window.location.href = url;
-                        } else {
-                            // Fallback to pricing page if Stripe fails
-                            window.location.href = '/pricing';
-                        }
-                    } catch (error) {
-                        console.error('Error creating checkout session:', error);
-                        // Fallback to pricing page if error
-                        window.location.href = '/pricing';
-                    }
-                }
-            });
-        }
-        
-        if (this.integrationModalSecondaryBtn) {
-            this.integrationModalSecondaryBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.hideIntegrationModal();
-                
-                const isGuest = !this.isAuthenticated || !this.user;
-                const isFree = this.isAuthenticated && this.user && !this.isPro;
-                
-                if (isGuest) {
-                    // Guest users: Cancel (do nothing)
-                    return;
-                } else if (isFree) {
-                    // Free users: Learn more -> pricing page
-                    window.location.href = '/pricing';
-                }
-            });
-        }
-        
-        // Close integration modal when clicking overlay
-        if (this.integrationModalOverlay) {
-            this.integrationModalOverlay.addEventListener('click', (e) => {
-                if (e.target === this.integrationModalOverlay) {
-                    this.hideIntegrationModal();
-                }
-            });
-        }
         
         
         // Close modal when clicking overlay
@@ -6331,12 +6230,12 @@ class PomodoroTimer {
                 console.log('🔍 Todoist connection status:', isConnected);
                 
                 if (!isConnected) {
-                    // Redirect directly to Todoist auth (no modal)
+                    // Pro user not connected → redirect to auth (same as Settings Connect button)
                     console.log('🔗 Redirecting to Todoist auth...');
                     window.location.href = '/api/todoist-auth-start';
                     return;
                 }
-                // Show Todoist projects selection modal
+                // Pro user connected → show projects modal
                 console.log('📋 Showing Todoist projects modal...');
                 await this.showTodoistProjectsModal();
             } catch (error) {
@@ -6344,9 +6243,9 @@ class PomodoroTimer {
                 alert('Error loading Todoist projects. Please try again.');
             }
         } else {
-            // Guest and Free users show integration modal
-            console.log('💰 Showing integration modal for non-Pro user');
-            this.showIntegrationModal('todoist');
+            // Guest and Free users redirect to pricing
+            console.log('💰 Redirecting to pricing for non-Pro user');
+            window.location.href = '/pricing';
         }
     }
     
@@ -6373,8 +6272,8 @@ class PomodoroTimer {
                 alert('Error checking Notion connection. Please try again.');
             });
         } else {
-            // Guest and Free users show integration modal
-            this.showIntegrationModal('notion');
+            // Guest and Free users redirect to pricing
+            window.location.href = '/pricing';
         }
     }
     
