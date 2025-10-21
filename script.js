@@ -1,5 +1,7 @@
 class PomodoroTimer {
     constructor() {
+        // Initialize Mixpanel tracking
+        this.initMixpanel();
         // Pomodoro Technique structure - Load from localStorage if authenticated
         const savedPomodoroTime = localStorage.getItem('pomodoroTime');
         const savedShortBreakTime = localStorage.getItem('shortBreakTime');
@@ -271,6 +273,54 @@ class PomodoroTimer {
                 sessionStorage.setItem('windowActive', 'true');
             }
         });
+    }
+    
+    // Mixpanel Analytics Functions
+    initMixpanel() {
+        // Initialize Mixpanel if available
+        if (typeof mixpanel !== 'undefined') {
+            this.mixpanel = mixpanel;
+        } else {
+            console.warn('Mixpanel not loaded');
+            this.mixpanel = null;
+        }
+    }
+    
+    trackEvent(eventName, properties = {}) {
+        if (this.mixpanel) {
+            try {
+                // Add common properties
+                const eventProperties = {
+                    ...properties,
+                    timestamp: new Date().toISOString(),
+                    user_authenticated: this.isAuthenticated,
+                    user_pro: this.isPro,
+                    user_id: this.user?.id || 'guest'
+                };
+                
+                this.mixpanel.track(eventName, eventProperties);
+                console.log('Mixpanel event tracked:', eventName, eventProperties);
+            } catch (error) {
+                console.error('Error tracking Mixpanel event:', error);
+            }
+        }
+    }
+    
+    identifyUser() {
+        if (this.mixpanel && this.isAuthenticated && this.user) {
+            try {
+                this.mixpanel.identify(this.user.id);
+                this.mixpanel.people.set({
+                    '$email': this.user.emailAddresses[0]?.emailAddress,
+                    '$name': this.user.fullName,
+                    'pro_user': this.isPro,
+                    'signup_date': this.user.createdAt
+                });
+                console.log('User identified in Mixpanel:', this.user.id);
+            } catch (error) {
+                console.error('Error identifying user in Mixpanel:', error);
+            }
+        }
     }
     
     init() {
@@ -837,6 +887,17 @@ class PomodoroTimer {
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
+            
+            // Track user authentication
+            this.trackEvent('User Authenticated', {
+                user_id: this.user.id,
+                email: this.user.emailAddresses[0]?.emailAddress,
+                is_pro: this.isPro,
+                signup_date: this.user.createdAt
+            });
+            
+            // Identify user in Mixpanel
+            this.identifyUser();
             
             // Enable Timer panel features for authenticated users
             this.enableTimerPanelFeatures();
@@ -1829,7 +1890,14 @@ class PomodoroTimer {
     }
     bindEvents() {
         // Primary binding for Play/Pause button (original behavior)
-        if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
+        if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => {
+            this.trackEvent('Timer Toggle Clicked', {
+                timer_state: this.isRunning ? 'running' : 'paused',
+                current_section: this.currentSection,
+                technique: this.getCurrentTechnique()
+            });
+            this.toggleTimer();
+        });
         if (this.prevSectionBtn) this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
         if (this.nextSectionBtn) this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
         if (this.musicToggleBtn) this.musicToggleBtn.addEventListener('click', (e) => {
@@ -2105,6 +2173,10 @@ class PomodoroTimer {
         if (this.signupButton) {
             this.signupButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Signup Button Clicked', {
+                    source: 'main_header',
+                    user_type: this.isAuthenticated ? 'authenticated' : 'guest'
+                });
                 this.handleSignup();
             });
         }
@@ -2985,6 +3057,13 @@ class PomodoroTimer {
     }
 
     applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider) {
+        // Track technique selection
+        this.trackEvent('Technique Selected', {
+            technique_name: technique,
+            user_authenticated: this.isAuthenticated,
+            user_pro: this.isPro
+        });
+        
         const presets = {
             pomodoro: { work: 25, shortBreak: 5, longBreak: 15, sessions: 4 },
             flow: { work: 45, shortBreak: 15, longBreak: 30, sessions: 3 },
