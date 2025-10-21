@@ -1,6 +1,12 @@
 class PomodoroTimer {
     constructor() {
         // Initialize Mixpanel tracking
+        this.trackEvent('Page Loaded', {
+            page: 'timer',
+            user_type: 'unknown', // Will be updated when auth state is known
+            timestamp: new Date().toISOString()
+        });
+        
         // Pomodoro Technique structure - Load from localStorage if authenticated
         const savedPomodoroTime = localStorage.getItem('pomodoroTime');
         const savedShortBreakTime = localStorage.getItem('shortBreakTime');
@@ -880,10 +886,33 @@ class PomodoroTimer {
         }
         
         // Update Pro status
+        const wasPro = this.isPro;
         this.isPro = this.isPremiumUser();
+        
+        // Track Pro conversion if user just became Pro
+        if (!wasPro && this.isPro && this.isAuthenticated) {
+            this.trackEvent('User Upgraded to Pro', {
+                user_id: this.user?.id,
+                email: this.user?.emailAddresses[0]?.emailAddress,
+                conversion_type: 'free_to_pro',
+                user_journey: 'free → pro',
+                source: 'stripe_webhook',
+                revenue: 9.0,
+                timestamp: new Date().toISOString()
+            });
+        }
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
+            
+            // Track user authentication (first time or returning)
+            this.trackEvent('User Authenticated', {
+                user_id: this.user.id,
+                email: this.user.emailAddresses[0]?.emailAddress,
+                is_pro: this.isPro,
+                signup_date: this.user.createdAt,
+                authentication_type: 'clerk_auth'
+            });
             
             // Identify user in Mixpanel
             this.identifyUser();
@@ -9815,6 +9844,14 @@ class PomodoroTimer {
         const premiumStatus = urlParams.get('premium');
         
         if (signupSuccess === 'success') {
+            // Track successful signup conversion
+            this.trackEvent('Signup Success', {
+                conversion_type: 'guest_to_signup',
+                user_journey: 'guest → signup',
+                source: 'clerk_signup',
+                timestamp: new Date().toISOString()
+            });
+            
             // Remove the parameter from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
@@ -9836,6 +9873,15 @@ class PomodoroTimer {
         }
         
         if (paymentSuccess === 'success' || premiumStatus === '1') {
+            // Track successful subscription conversion
+            this.trackEvent('Subscribe Success', {
+                conversion_type: 'signup_to_pro',
+                user_journey: 'signup → pro',
+                source: 'stripe_payment',
+                revenue: 9.0,
+                timestamp: new Date().toISOString()
+            });
+            
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
