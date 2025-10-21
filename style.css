@@ -472,9 +472,9 @@ body::-webkit-scrollbar {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 24px;
     display: flex;
     flex-direction: column;
+    padding: 24px;
     gap: 16px;
     overscroll-behavior: contain;
 }
@@ -5513,7 +5513,8 @@ input:checked + .toggle-slider:before {
 }
 
 .settings-save-section {
-    margin-top: 24px;
+    margin-top: auto;
+    padding-top: 24px;
 }
 
 .settings-save-section .save-settings-btn {
