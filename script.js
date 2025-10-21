@@ -12809,7 +12809,7 @@ class PomodoroTimer {
                         <path d="M15 3h6v6"/>
                     </svg>
                 </div>
-                <div class="tron-image-text">Image</div>
+                <div class="tron-image-text">Visit Website</div>
             </div>
         `;
         
