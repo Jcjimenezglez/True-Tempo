@@ -5853,50 +5853,6 @@ class PomodoroTimer {
         }
     }
 
-    showTodoistConnectionPrompt() {
-        // Create overlay (same as logout modal)
-        const overlay = document.createElement('div');
-        overlay.className = 'logout-modal-overlay';
-        overlay.style.display = 'flex';
-        overlay.style.zIndex = '100002';
-
-        // Create modal (same structure as logout modal)
-        const modal = document.createElement('div');
-        modal.className = 'logout-modal';
-        modal.innerHTML = `
-            <h3 class="logout-modal-title">Connect to Todoist</h3>
-            <p class="logout-modal-message">You need to connect your Todoist account to import tasks</p>
-            <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelConnectionPrompt">Cancel</button>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        // Setup event listeners
-        const connectBtn = modal.querySelector('#connectTodoistPromptBtn');
-        const cancelBtn = modal.querySelector('#cancelConnectionPrompt');
-
-        const closeModal = () => {
-            document.body.removeChild(overlay);
-        };
-
-        cancelBtn.addEventListener('click', closeModal);
-        
-        connectBtn.addEventListener('click', () => {
-            // Redirect to Todoist auth
-            window.location.href = '/api/todoist-auth-start';
-        });
-
-        // Close on overlay click (same as logout modal)
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                closeModal();
-            }
-        });
-    }
 
     async showTodoistProjectsModal() {
         // Create overlay (ensure on top of Tasks modal)
@@ -9127,8 +9083,6 @@ class PomodoroTimer {
         this.setupGoogleCalendarIntegrationControls();
         this.setupNotionIntegrationControls();
         
-        // Check if user just connected to Todoist and should open task list
-        this.checkTodoistConnectionRedirect();
         
         // Check if user just signed up successfully
         this.checkSignupSuccessRedirect();
@@ -9210,22 +9164,6 @@ class PomodoroTimer {
         });
     }
 
-    checkTodoistConnectionRedirect() {
-        // Check if user just connected to Todoist
-        const urlParams = new URLSearchParams(window.location.search);
-        const todoistConnected = urlParams.get('todoist');
-        
-        if (todoistConnected === 'connected') {
-            // Remove the parameter from URL without page reload
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-            
-            // Show success message and open task list
-            setTimeout(() => {
-                this.showTodoistConnectionSuccess();
-            }, 1000); // Small delay to let the page fully load
-        }
-    }
 
     // Centralized conversion tracking function
     trackConversion(type, value = 1.0, additionalData = {}) {
@@ -9513,52 +9451,6 @@ class PomodoroTimer {
         }, 5000);
     }
 
-    showTodoistConnectionSuccess() {
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.className = 'todoist-success-notification';
-        notification.innerHTML = `
-            <div class="notification-content">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 12l2 2 4-4"/>
-                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
-                </svg>
-                <span>Successfully connected to Todoist!</span>
-            </div>
-        `;
-        
-        // Add styles
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 3000);
-        
-        // Open task list modal automatically
-        setTimeout(() => {
-            this.showTaskListModal();
-        }, 500);
-    }
 
     setupTodoistIntegrationControls() {
         const connectBtn = document.getElementById('connectTodoistBtn');
