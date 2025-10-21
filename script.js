@@ -1247,6 +1247,126 @@ class PomodoroTimer {
         }
     }
     
+    showTechniqueModal(technique) {
+        // Get technique information
+        const techniqueInfo = {
+            'sprint': {
+                name: 'Sprint',
+                description: 'Quick 15-minute focused bursts for rapid task completion',
+                benefits: [
+                    'Perfect for quick tasks and email management',
+                    'Builds momentum with frequent completions',
+                    'Ideal for busy schedules and interruptions',
+                    'Great for breaking down large projects'
+                ]
+            },
+            'focus': {
+                name: 'Focus',
+                description: '30-minute focused sessions for moderate complexity tasks',
+                benefits: [
+                    'Balanced approach for most work types',
+                    'Enough time for meaningful progress',
+                    'Prevents burnout with reasonable duration',
+                    'Suitable for both creative and analytical work'
+                ]
+            },
+            'flow': {
+                name: 'Flow State',
+                description: '45-minute deep work sessions to enter flow state',
+                benefits: [
+                    'Extended focus for complex problem-solving',
+                    'Enhances creativity and innovation',
+                    'Reduces context switching overhead',
+                    'Perfect for writing, coding, and design work'
+                ]
+            },
+            'marathon': {
+                name: 'Marathon',
+                description: '60-minute intensive sessions for demanding projects',
+                benefits: [
+                    'Maximum productivity for complex tasks',
+                    'Deep immersion in challenging work',
+                    'Ideal for research and analysis',
+                    'Builds sustained attention capacity'
+                ]
+            },
+            'deepwork': {
+                name: 'Deep Work',
+                description: '90-minute ultra-deep sessions for the most demanding work',
+                benefits: [
+                    'Uninterrupted focus for breakthrough work',
+                    'Tackles the most complex challenges',
+                    'Builds exceptional concentration skills',
+                    'Perfect for strategic thinking and planning'
+                ]
+            }
+        };
+        
+        const info = techniqueInfo[technique];
+        if (!info) return;
+        
+        // Create technique modal using upgrade modal styling
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeTechniqueModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="M6 6l12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-modal-content">
+                <h2 class="upgrade-modal-title">${info.name} Technique</h2>
+                <p class="upgrade-modal-description">${info.description}</p>
+                <div class="technique-benefits">
+                    <h3>Benefits:</h3>
+                    <ul>
+                        ${info.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="upgrade-modal-actions">
+                    <button class="upgrade-modal-primary-btn" id="techniqueSignupBtn">Sign up to unlock</button>
+                    <button class="upgrade-modal-secondary-btn" id="techniqueLearnMoreBtn">Learn more</button>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Show modal
+        modalOverlay.style.display = 'flex';
+        
+        // Event listeners
+        const closeBtn = modal.querySelector('#closeTechniqueModal');
+        const signupBtn = modal.querySelector('#techniqueSignupBtn');
+        const learnMoreBtn = modal.querySelector('#techniqueLearnMoreBtn');
+        
+        const closeModal = () => {
+            modalOverlay.remove();
+        };
+        
+        closeBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        
+        signupBtn.addEventListener('click', () => {
+            closeModal();
+            this.showSignupModal();
+        });
+        
+        learnMoreBtn.addEventListener('click', () => {
+            closeModal();
+            // Could open a help page or show more info
+            window.open('/pricing/', '_blank');
+        });
+    }
+    
     hideIntegrationModal() {
         if (this.integrationModalOverlay) {
             this.integrationModalOverlay.style.display = 'none';
@@ -11902,24 +12022,20 @@ class PomodoroTimer {
         techniquePresets.forEach(preset => {
             const technique = preset.dataset.technique;
             
-            // Disable advanced techniques for guest users
+            // Keep techniques enabled for guest users but show modal on click
             if (technique !== 'pomodoro' && !this.isAuthenticated) {
-                preset.style.opacity = '0.5';
-                preset.style.cursor = 'not-allowed';
-                preset.style.pointerEvents = 'none';
-                
-                // Show "(Sign up required)" text
+                // Hide "(Sign up required)" text since we'll show modal instead
                 const signupText = preset.querySelector('.signup-required-text');
                 if (signupText) {
-                    signupText.classList.remove('hidden');
+                    signupText.classList.add('hidden');
                 }
             }
             
             preset.addEventListener('click', () => {
                 // Check if technique requires authentication (all except pomodoro)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
-                    // Show signup modal for guest users
-                    this.showLoginRequiredModal('technique');
+                    // Show technique modal for guest users
+                    this.showTechniqueModal(technique);
                     return;
                 }
                 

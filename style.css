@@ -3157,6 +3157,73 @@ audio {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Technique Modal Specific Styles */
+.technique-benefits {
+    margin: 1.5rem 0;
+}
+
+.technique-benefits h3 {
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.technique-benefits ul {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    margin: 0 0 1.5rem 0;
+    padding-left: 1.5rem;
+    line-height: 1.6;
+}
+
+.technique-benefits li {
+    margin-bottom: 0.5rem;
+}
+
+.upgrade-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.upgrade-modal-primary-btn {
+    background: #ffffff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.upgrade-modal-primary-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.upgrade-modal-secondary-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.upgrade-modal-secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
 .upgrade-required-buttons .upgrade-btn {
     background: #ffffff;
     color: #1a1a1a;
