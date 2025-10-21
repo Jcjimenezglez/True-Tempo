@@ -7501,6 +7501,18 @@ input:checked + .toggle-slider:before {
     background: #f0f0f0;
 }
 
+.btn-primary:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    border: none;
+    cursor: not-allowed;
+}
+
+.btn-primary:disabled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+}
+
 .btn-secondary {
     background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.8);
