@@ -8934,7 +8934,7 @@ class PomodoroTimer {
                 <h3>Focus Report</h3>
                 <p>Your productivity summary</p>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
                     <!-- Day Streak -->
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
                         <div style="color: #a3a3a3; margin-bottom: 12px;">
