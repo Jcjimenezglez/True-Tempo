@@ -54,8 +54,6 @@ class PomodoroTimer {
         this.todoistProjectsById = {};
         this.currentTask = null; // { id, content, project_id }
         
-        // Google Calendar integration (Pro feature)
-        this.googleCalendarEvents = [];
         
         // Notion integration (Pro feature)
         this.notionPages = [];
@@ -6218,17 +6216,6 @@ class PomodoroTimer {
                     'Boost productivity with seamless integration'
                 ]
             },
-            googleCalendar: {
-                title: 'Google Calendar Integration',
-                subtitle: 'Sync your calendar events',
-                icon: '/images/google-calendar.svg',
-                benefits: [
-                    'Import events from Google Calendar',
-                    'Focus on scheduled tasks',
-                    'Sync progress automatically',
-                    'Boost productivity with calendar integration'
-                ]
-            }
         };
         
         const data = integrationData[integrationType];
@@ -7290,14 +7277,6 @@ class PomodoroTimer {
                 
                 // Update task in Notion
                 this.completeNotionTask(task, isCompleted);
-            } else if (task.source === 'google-calendar') {
-                // For Google Calendar tasks, update in local tasks
-                const localTasks = this.getLocalTasks();
-                const taskIndex = localTasks.findIndex(t => t.id === taskId);
-                if (taskIndex !== -1) {
-                    localTasks[taskIndex].completed = isCompleted;
-                    this.setLocalTasks(localTasks);
-                }
             }
         }
         
@@ -9094,7 +9073,6 @@ class PomodoroTimer {
         
         // Setup integration controls in settings
         this.setupTodoistIntegrationControls();
-        this.setupGoogleCalendarIntegrationControls();
         this.setupNotionIntegrationControls();
         
         
