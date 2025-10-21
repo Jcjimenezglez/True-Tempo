@@ -5546,7 +5546,6 @@ input:checked + .toggle-slider:before {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
-    margin-top: 16px;
 }
 
 .technique-preset {
@@ -5570,9 +5569,8 @@ input:checked + .toggle-slider:before {
 }
 
 .technique-preset.active {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
 }
 
 .technique-icon {

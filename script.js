@@ -2654,7 +2654,8 @@ class PomodoroTimer {
             flow: { work: 45, shortBreak: 15, longBreak: 30, sessions: 3 },
             deepwork: { work: 90, shortBreak: 20, longBreak: 45, sessions: 2 },
             sprint: { work: 15, shortBreak: 3, longBreak: 10, sessions: 6 },
-            marathon: { work: 60, shortBreak: 10, longBreak: 20, sessions: 4 }
+            marathon: { work: 60, shortBreak: 10, longBreak: 20, sessions: 4 },
+            focus: { work: 30, shortBreak: 8, longBreak: 20, sessions: 4 }
         };
 
         const preset = presets[technique];
@@ -2668,7 +2669,7 @@ class PomodoroTimer {
             document.querySelector('#sidebarPomodoroValue').textContent = `${preset.work} min`;
             document.querySelector('#sidebarShortBreakValue').textContent = `${preset.shortBreak} min`;
             document.querySelector('#sidebarLongBreakValue').textContent = `${preset.longBreak} min`;
-            document.querySelector('#sidebarSessionsValue').textContent = `${preset.sessions} sessions`;
+            document.querySelector('#sidebarSessionsValue').textContent = `${preset.sessions} sesh`;
         }
     }
 
@@ -11546,10 +11547,10 @@ class PomodoroTimer {
         const sessionsValue = settingsPanel.querySelector('#sidebarSessionsValue');
         if (sessionsSlider && sessionsValue) {
             sessionsSlider.value = this.sessionsPerCycle;
-            sessionsValue.textContent = `${this.sessionsPerCycle} sessions`;
+            sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
             
             sessionsSlider.addEventListener('input', (e) => {
-                sessionsValue.textContent = `${e.target.value} sessions`;
+                sessionsValue.textContent = `${e.target.value} sesh`;
             });
         }
 
