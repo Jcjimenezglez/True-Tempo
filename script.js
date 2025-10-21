@@ -11843,7 +11843,7 @@ class PomodoroTimer {
         imageButton.style.cssText = `
             position: absolute;
             bottom: 20px;
-            left: calc(var(--sidebar-collapsed-width) + 16px);
+            left: var(--sidebar-collapsed-width);
             padding: 12px 16px;
             z-index: 1000;
             cursor: pointer;
