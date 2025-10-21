@@ -5842,6 +5842,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
