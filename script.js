@@ -1248,64 +1248,18 @@ class PomodoroTimer {
     }
     
     showTechniqueModal(technique) {
-        // Get technique information
-        const techniqueInfo = {
-            'sprint': {
-                name: 'Sprint',
-                description: 'Quick 15-minute focused bursts for rapid task completion',
-                benefits: [
-                    'Perfect for quick tasks and email management',
-                    'Builds momentum with frequent completions',
-                    'Ideal for busy schedules and interruptions',
-                    'Great for breaking down large projects'
-                ]
-            },
-            'focus': {
-                name: 'Focus',
-                description: '30-minute focused sessions for moderate complexity tasks',
-                benefits: [
-                    'Balanced approach for most work types',
-                    'Enough time for meaningful progress',
-                    'Prevents burnout with reasonable duration',
-                    'Suitable for both creative and analytical work'
-                ]
-            },
-            'flow': {
-                name: 'Flow State',
-                description: '45-minute deep work sessions to enter flow state',
-                benefits: [
-                    'Extended focus for complex problem-solving',
-                    'Enhances creativity and innovation',
-                    'Reduces context switching overhead',
-                    'Perfect for writing, coding, and design work'
-                ]
-            },
-            'marathon': {
-                name: 'Marathon',
-                description: '60-minute intensive sessions for demanding projects',
-                benefits: [
-                    'Maximum productivity for complex tasks',
-                    'Deep immersion in challenging work',
-                    'Ideal for research and analysis',
-                    'Builds sustained attention capacity'
-                ]
-            },
-            'deepwork': {
-                name: 'Deep Work',
-                description: '90-minute ultra-deep sessions for the most demanding work',
-                benefits: [
-                    'Uninterrupted focus for breakthrough work',
-                    'Tackles the most complex challenges',
-                    'Builds exceptional concentration skills',
-                    'Perfect for strategic thinking and planning'
-                ]
-            }
+        // Get technique name
+        const techniqueNames = {
+            'sprint': 'Sprint',
+            'focus': 'Focus', 
+            'flow': 'Flow State',
+            'marathon': 'Marathon',
+            'deepwork': 'Deep Work'
         };
         
-        const info = techniqueInfo[technique];
-        if (!info) return;
+        const techniqueName = techniqueNames[technique] || 'Advanced Technique';
         
-        // Create technique modal using upgrade modal styling
+        // Create simple technique modal
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
         
@@ -1320,16 +1274,10 @@ class PomodoroTimer {
                 </svg>
             </button>
             <div class="upgrade-modal-content">
-                <h2 class="upgrade-modal-title">${info.name} Technique</h2>
-                <p class="upgrade-modal-description">${info.description}</p>
-                <div class="technique-benefits">
-                    <h3>Benefits:</h3>
-                    <ul>
-                        ${info.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
-                    </ul>
-                </div>
+                <h2 class="upgrade-modal-title">${techniqueName} Technique</h2>
+                <p class="upgrade-modal-description">Sign up to unlock advanced focus techniques and boost your productivity!</p>
                 <div class="upgrade-modal-actions">
-                    <button class="upgrade-modal-primary-btn" id="techniqueSignupBtn">Sign up to unlock</button>
+                    <button class="upgrade-modal-primary-btn" id="techniqueSignupBtn">Sign up</button>
                     <button class="upgrade-modal-secondary-btn" id="techniqueLearnMoreBtn">Learn more</button>
                 </div>
             </div>
@@ -1357,12 +1305,11 @@ class PomodoroTimer {
         
         signupBtn.addEventListener('click', () => {
             closeModal();
-            this.showSignupModal();
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
         });
         
         learnMoreBtn.addEventListener('click', () => {
             closeModal();
-            // Could open a help page or show more info
             window.open('/pricing/', '_blank');
         });
     }
@@ -12024,10 +11971,10 @@ class PomodoroTimer {
             
             // Keep techniques enabled for guest users but show modal on click
             if (technique !== 'pomodoro' && !this.isAuthenticated) {
-                // Hide "(Sign up required)" text since we'll show modal instead
+                // Show "(Sign up required)" text so user knows it requires signup
                 const signupText = preset.querySelector('.signup-required-text');
                 if (signupText) {
-                    signupText.classList.add('hidden');
+                    signupText.classList.remove('hidden');
                 }
             }
             
