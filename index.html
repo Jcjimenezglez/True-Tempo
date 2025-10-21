@@ -411,18 +411,12 @@
             
             <!-- Integration Buttons -->
             <div class="integration-buttons" id="integrationButtonsSection">
-                <div class="integration-btn-container">
-                    <button class="integration-btn" id="importTodoistMainBtn" data-tooltip="Todoist">
-                        <img src="/images/todoist.svg" alt="Todoist">
-                    </button>
-                    <span class="pro-badge" id="todoistProBadge">PRO</span>
-                </div>
-                <div class="integration-btn-container">
-                    <button class="integration-btn" id="importNotionMainBtn" data-tooltip="Notion">
-                        <img src="/images/notion.svg" alt="Notion">
-                    </button>
-                    <span class="pro-badge" id="notionProBadge">PRO</span>
-                </div>
+                <button class="integration-btn" id="importTodoistMainBtn" data-tooltip="Todoist">
+                    <img src="/images/todoist.svg" alt="Todoist">
+                </button>
+                <button class="integration-btn" id="importNotionMainBtn" data-tooltip="Notion">
+                    <img src="/images/notion.svg" alt="Notion">
+                </button>
             </div>
             
             <!-- Task Tabs -->
@@ -886,23 +880,6 @@
         </div>
     </div>
 
-    <!-- Integration Upgrade Modal -->
-    <div class="logout-modal-overlay" id="integrationUpgradeModalOverlay" style="display: none;">
-        <div class="logout-modal">
-            <button class="close-logout-modal-x" id="closeIntegrationUpgradeModalX">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <h3 class="logout-modal-title">Pro Feature</h3>
-            <p class="logout-modal-message" id="integrationUpgradeMessage">Connect your favorite productivity tools and sync your tasks seamlessly!</p>
-            <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="integrationUpgradeBtn">Upgrade to Pro</button>
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="integrationLearnMoreBtn">Learn more</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Feedback Modal -->
     <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">

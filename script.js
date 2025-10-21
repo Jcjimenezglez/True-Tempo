@@ -220,11 +220,6 @@ class PomodoroTimer {
         this.guestTaskLimitSignupBtn = document.getElementById('guestTaskLimitSignupBtn');
         this.guestTaskLimitCancelBtn = document.getElementById('guestTaskLimitCancelBtn');
         
-        // Integration upgrade modal elements
-        this.integrationUpgradeModalOverlay = document.getElementById('integrationUpgradeModalOverlay');
-        this.integrationUpgradeBtn = document.getElementById('integrationUpgradeBtn');
-        this.integrationLearnMoreBtn = document.getElementById('integrationLearnMoreBtn');
-        this.integrationUpgradeMessage = document.getElementById('integrationUpgradeMessage');
         
         // Auth state
         this.isAuthenticated = false;
@@ -548,9 +543,6 @@ class PomodoroTimer {
         
         // Update Pro status
         this.isPro = this.isPremiumUser();
-        
-        // Update integration buttons based on user type
-        this.updateIntegrationButtons();
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
@@ -968,60 +960,7 @@ class PomodoroTimer {
         }
     }
     
-    showIntegrationUpgradeModal(integrationType) {
-        if (this.integrationUpgradeModalOverlay) {
-            const messages = {
-                todoist: 'Connect Todoist to sync your tasks and boost productivity with seamless integration!',
-                notion: 'Connect Notion to centralize your workflow and sync task progress automatically!'
-            };
-            
-            this.integrationUpgradeMessage.textContent = messages[integrationType] || 'Connect your favorite productivity tools and sync your tasks seamlessly!';
-            this.integrationUpgradeModalOverlay.style.display = 'flex';
-        }
-    }
     
-    hideIntegrationUpgradeModal() {
-        if (this.integrationUpgradeModalOverlay) {
-            this.integrationUpgradeModalOverlay.style.display = 'none';
-        }
-    }
-    
-    updateIntegrationButtons() {
-        const todoistBtn = document.getElementById('importTodoistMainBtn');
-        const notionBtn = document.getElementById('importNotionMainBtn');
-        const todoistBadge = document.getElementById('todoistProBadge');
-        const notionBadge = document.getElementById('notionProBadge');
-        
-        if (!todoistBtn || !notionBtn) return;
-        
-        const isGuest = !this.isAuthenticated || !this.user;
-        const isFree = this.isAuthenticated && this.user && !this.isPro;
-        const isPro = this.isAuthenticated && this.user && this.isPro;
-        
-        if (isGuest) {
-            // Guest users: disabled buttons with PRO badge
-            todoistBtn.classList.add('disabled');
-            notionBtn.classList.add('disabled');
-            todoistBtn.classList.remove('pro-feature');
-            notionBtn.classList.remove('pro-feature');
-            if (todoistBadge) todoistBadge.style.display = 'block';
-            if (notionBadge) notionBadge.style.display = 'block';
-        } else if (isFree) {
-            // Free users: clickable buttons with PRO badge
-            todoistBtn.classList.remove('disabled');
-            notionBtn.classList.remove('disabled');
-            todoistBtn.classList.add('pro-feature');
-            notionBtn.classList.add('pro-feature');
-            if (todoistBadge) todoistBadge.style.display = 'block';
-            if (notionBadge) notionBadge.style.display = 'block';
-        } else if (isPro) {
-            // Pro users: normal buttons without PRO badge
-            todoistBtn.classList.remove('disabled', 'pro-feature');
-            notionBtn.classList.remove('disabled', 'pro-feature');
-            if (todoistBadge) todoistBadge.style.display = 'none';
-            if (notionBadge) notionBadge.style.display = 'none';
-        }
-    }
     
     async submitFeedback() {
         const feedbackText = this.feedbackText?.value?.trim();
@@ -2182,51 +2121,6 @@ class PomodoroTimer {
             });
         }
         
-        // Integration upgrade modal event listeners
-        if (this.integrationUpgradeBtn) {
-            this.integrationUpgradeBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                this.hideIntegrationUpgradeModal();
-                
-                try {
-                    const response = await fetch('/api/create-checkout-session', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    
-                    if (response.ok) {
-                        const { url } = await response.json();
-                        window.location.href = url;
-                    } else {
-                        // Fallback to pricing page if Stripe fails
-                        window.location.href = '/pricing';
-                    }
-                } catch (error) {
-                    console.error('Error creating checkout session:', error);
-                    // Fallback to pricing page if error
-                    window.location.href = '/pricing';
-                }
-            });
-        }
-        
-        if (this.integrationLearnMoreBtn) {
-            this.integrationLearnMoreBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.hideIntegrationUpgradeModal();
-                window.location.href = '/pricing';
-            });
-        }
-        
-        // Close integration upgrade modal when clicking overlay
-        if (this.integrationUpgradeModalOverlay) {
-            this.integrationUpgradeModalOverlay.addEventListener('click', (e) => {
-                if (e.target === this.integrationUpgradeModalOverlay) {
-                    this.hideIntegrationUpgradeModal();
-                }
-            });
-        }
         
         // Close modal when clicking overlay
         if (this.logoutModalOverlay) {
@@ -6372,43 +6266,24 @@ class PomodoroTimer {
 
     // Wrapper functions for integration buttons
     showTodoistProjects() {
-        // Check if user is Guest
-        const isGuest = !this.isAuthenticated || !this.user;
-        
-        if (isGuest) {
-            // Guest users see disabled buttons, no action
-            return;
+        // Check if user is Pro
+        if (this.isAuthenticated && this.user && this.isPro) {
+            // Pro users can access integrations
+            this.showTodoistProjectsModal();
+        } else {
+            // Guest and Free users go to pricing page
+            window.location.href = '/pricing';
         }
-        
-        // Check if user is Free (authenticated but not Pro)
-        if (this.isAuthenticated && this.user && !this.isPro) {
-            this.showIntegrationUpgradeModal('todoist');
-            return;
-        }
-        
-        // Pro users can access integrations
-        this.showTodoistProjectsModal();
     }
     
     showNotionIntegration() {
-        // Check if user is Guest
-        const isGuest = !this.isAuthenticated || !this.user;
-        
-        if (isGuest) {
-            // Guest users see disabled buttons, no action
-            return;
-        }
-        
-        // Check if user is Free (authenticated but not Pro)
-        if (this.isAuthenticated && this.user && !this.isPro) {
-            this.showIntegrationUpgradeModal('notion');
-            return;
-        }
-        
-        // Check if already connected
-        fetch('/api/notion-status')
-            .then(res => res.json())
-            .then(data => {
+        // Check if user is Pro
+        if (this.isAuthenticated && this.user && this.isPro) {
+            // Pro users can access integrations
+            // Check if already connected
+            fetch('/api/notion-status')
+                .then(res => res.json())
+                .then(data => {
                 if (data.connected) {
                     // Already connected, show import modal
                     this.showNotionPagesModal();
@@ -6423,6 +6298,10 @@ class PomodoroTimer {
             .catch(() => {
                 alert('Error checking Notion connection. Please try again.');
             });
+        } else {
+            // Guest and Free users go to pricing page
+            window.location.href = '/pricing';
+        }
     }
     
     async showNotionPagesModal() {
@@ -6830,19 +6709,9 @@ class PomodoroTimer {
     }
     
     showGoogleCalendarIntegration() {
-        // Check if user is Guest
-        const isGuest = !this.isAuthenticated || !this.user;
-        
-        if (isGuest) {
-            this.showIntegrationUpgradeModal('googleCalendar');
-            return;
-        }
-        
-        // Check if user is Free (authenticated but not Pro)
-        if (this.isAuthenticated && this.user && !this.isPro) {
-            this.showIntegrationUpgradeModal('googleCalendar');
-            return;
-        }
+        // Check if user is Pro
+        if (this.isAuthenticated && this.user && this.isPro) {
+            // Pro users can access integrations
         
         // Check if already connected
         fetch('/api/google-calendar-status')
@@ -6862,6 +6731,10 @@ class PomodoroTimer {
             .catch(() => {
                 alert('Error checking Google Calendar connection. Please try again.');
             });
+        } else {
+            // Guest and Free users go to pricing page
+            window.location.href = '/pricing';
+        }
     }
 
     refreshTaskModalIfOpen() {
@@ -11374,8 +11247,6 @@ class PomodoroTimer {
             });
         }
         
-        // Update integration buttons
-        this.updateIntegrationButtons();
         
         // Initial render
         console.log('🔵 Calling initial renderTasks');
