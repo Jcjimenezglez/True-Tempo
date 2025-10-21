@@ -54,8 +54,6 @@ class PomodoroTimer {
         this.todoistProjectsById = {};
         this.currentTask = null; // { id, content, project_id }
         
-        // Google Calendar integration (Pro feature)
-        this.googleCalendarEvents = [];
         
         // Notion integration (Pro feature)
         this.notionPages = [];
@@ -6217,17 +6215,6 @@ class PomodoroTimer {
                     'Sync task progress automatically',
                     'Boost productivity with seamless integration'
                 ]
-            },
-            googleCalendar: {
-                title: 'Google Calendar Integration',
-                subtitle: 'Sync your calendar events',
-                icon: '/images/google-calendar.svg',
-                benefits: [
-                    'Import events from Google Calendar',
-                    'Focus on scheduled tasks',
-                    'Sync progress automatically',
-                    'Boost productivity with calendar integration'
-                ]
             }
         };
         
@@ -6333,33 +6320,33 @@ class PomodoroTimer {
             isPremiumUser: this.isPremiumUser()
         });
         
-        // Check if user is Pro (double check with isPremiumUser)
-        const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
-        
-        if (isProUser) {
-            // Pro users can access integrations
-            try {
-                // Check if Todoist is connected first
-                const isConnected = await this.checkTodoistConnection();
-                console.log('🔍 Todoist connection status:', isConnected);
-                
-                if (!isConnected) {
-                    // Redirect directly to Todoist auth (no modal)
-                    console.log('🔗 Redirecting to Todoist auth...');
-                    window.location.href = '/api/todoist-auth-start';
-                    return;
-                }
-                // Show Todoist projects selection modal
+        try {
+            // Always check connection first (like Settings Connect button)
+            const isConnected = await this.checkTodoistConnection();
+            console.log('🔍 Todoist connection status:', isConnected);
+            
+            if (!isConnected) {
+                // If not connected, always redirect to auth (same as Settings Connect button)
+                console.log('🔗 Redirecting to Todoist auth...');
+                window.location.href = '/api/todoist-auth-start';
+                return;
+            }
+            
+            // If connected, check if user is Pro to show projects modal
+            const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
+            
+            if (isProUser) {
+                // Pro users can see projects modal
                 console.log('📋 Showing Todoist projects modal...');
                 await this.showTodoistProjectsModal();
-            } catch (error) {
-                console.error('Error opening Todoist projects modal:', error);
-                alert('Error loading Todoist projects. Please try again.');
+            } else {
+                // Non-Pro users show upgrade modal
+                console.log('💰 Showing integration modal for non-Pro user');
+                this.showIntegrationModal('todoist');
             }
-        } else {
-            // Guest and Free users show integration modal
-            console.log('💰 Showing integration modal for non-Pro user');
-            this.showIntegrationModal('todoist');
+        } catch (error) {
+            console.error('Error checking Todoist connection:', error);
+            alert('Error checking Todoist connection. Please try again.');
         }
     }
     
@@ -6816,34 +6803,6 @@ class PomodoroTimer {
         }
     }
     
-    showGoogleCalendarIntegration() {
-        // Check if user is Pro
-        if (this.isAuthenticated && this.user && this.isPro) {
-            // Pro users can access integrations
-        
-        // Check if already connected
-        fetch('/api/google-calendar-status')
-            .then(res => res.json())
-            .then(data => {
-                if (data.connected) {
-                    // Already connected
-                    alert('Google Calendar is already connected! Manage it in Settings.');
-                } else {
-                    // Not connected, initiate connection
-                    const userId = window.Clerk?.user?.id || '';
-                    const viewMode = localStorage.getItem('viewMode');
-                    const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-                    window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-                }
-            })
-            .catch(() => {
-                alert('Error checking Google Calendar connection. Please try again.');
-            });
-        } else {
-            // Guest and Free users go to pricing page
-            window.location.href = '/pricing';
-        }
-    }
 
     refreshTaskModalIfOpen() {
         // Check if task sidebar panel is open
@@ -7290,8 +7249,8 @@ class PomodoroTimer {
                 
                 // Update task in Notion
                 this.completeNotionTask(task, isCompleted);
-            } else if (task.source === 'google-calendar') {
-                // For Google Calendar tasks, update in local tasks
+            } else {
+                // For other tasks, update in local tasks
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
@@ -9094,7 +9053,6 @@ class PomodoroTimer {
         
         // Setup integration controls in settings
         this.setupTodoistIntegrationControls();
-        this.setupGoogleCalendarIntegrationControls();
         this.setupNotionIntegrationControls();
         
         
@@ -9528,59 +9486,6 @@ class PomodoroTimer {
         })();
     }
 
-    setupGoogleCalendarIntegrationControls() {
-        const connectBtn = document.getElementById('connectGoogleCalendarBtn');
-        const disconnectBtn = document.getElementById('disconnectGoogleCalendarBtn');
-        const statusText = document.getElementById('googleCalendarStatusText');
-        
-        if (!connectBtn || !disconnectBtn || !statusText) return;
-        
-        connectBtn.addEventListener('click', () => {
-            // Add user ID to URL for server-side verification
-            const userId = window.Clerk?.user?.id || '';
-            console.log('Connecting Google Calendar:', { userId, clerkUser: window.Clerk?.user });
-            
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-            
-            // Let the server verify Pro status - it will redirect with error if not Pro
-            window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-        });
-
-        disconnectBtn.addEventListener('click', async () => {
-            try {
-                await fetch('/api/google-calendar-disconnect', { method: 'POST' });
-            } catch (_) {}
-            statusText.textContent = 'Not connected';
-            disconnectBtn.style.display = 'none';
-            connectBtn.style.display = '';
-            this.googleCalendarEvents = [];
-        });
-
-        // Check connection status and update UI
-        (async () => {
-            try {
-                const resp = await fetch('/api/google-calendar-status');
-                const json = await resp.json();
-                const connected = !!json.connected;
-                if (connected) {
-                    statusText.textContent = 'Connected';
-                    connectBtn.style.display = 'none';
-                    disconnectBtn.style.display = '';
-                    this.fetchGoogleCalendarData();
-                } else {
-                    statusText.textContent = 'Not connected';
-                    connectBtn.style.display = '';
-                    disconnectBtn.style.display = 'none';
-                }
-            } catch (_) {
-                statusText.textContent = 'Not connected';
-                connectBtn.style.display = '';
-                disconnectBtn.style.display = 'none';
-            }
-        })();
-    }
 
     setupNotionIntegrationControls() {
         const connectBtn = document.getElementById('connectNotionBtn');
@@ -9636,38 +9541,6 @@ class PomodoroTimer {
         })();
     }
 
-    async fetchGoogleCalendarData() {
-        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
-            this.googleCalendarEvents = [];
-            return;
-        }
-        try {
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const userId = window.Clerk?.user?.id || '';
-            
-            // Build query params
-            const params = new URLSearchParams();
-            if (viewMode === 'pro') params.append('devMode', 'pro');
-            if (userId) params.append('uid', userId);
-            const queryString = params.toString() ? `?${params.toString()}` : '';
-            
-            console.log('Fetching Google Calendar data with params:', queryString);
-            
-            const resp = await fetch(`/api/google-calendar-events${queryString}`);
-            if (resp.ok) {
-                const events = await resp.json();
-                this.googleCalendarEvents = events;
-                console.log('Google Calendar events loaded:', events.length);
-            } else {
-                console.error('Failed to fetch calendar events:', resp.status, await resp.text());
-                this.googleCalendarEvents = [];
-            }
-        } catch (e) {
-            console.error('Error fetching Google Calendar data:', e);
-            this.googleCalendarEvents = [];
-        }
-    }
 
     async fetchNotionData() {
         if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
