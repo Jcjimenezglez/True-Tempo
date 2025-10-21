@@ -38,8 +38,10 @@
         e.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=e.getElementsByTagName("script")[0];e.parentNode.insertBefore(k,e)}})(document,window.mixpanel||[])
 
         mixpanel.init('bcf2edbf4f718b186314825c2d961256', {
-            autocapture: true,
-            record_sessions_percent: 100,
+            autocapture: false,
+            record_sessions_percent: 0,
+            track_pageview: true,
+            persistence: 'localStorage'
         })
     </script>
     <!-- End Mixpanel -->
