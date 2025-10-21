@@ -277,24 +277,17 @@ class PomodoroTimer {
     
     // Mixpanel Analytics Functions
     initMixpanel() {
-        // Wait for Mixpanel to load
-        const checkMixpanel = () => {
-            if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
-                this.mixpanel = window.mixpanel;
-                console.log('✅ Mixpanel initialized successfully');
-            } else {
-                // Retry after 100ms
-                setTimeout(checkMixpanel, 100);
-            }
-        };
-        
-        // Start checking for Mixpanel
-        checkMixpanel();
+        // Mixpanel is initialized in HTML, just verify it's available
+        if (typeof window.mixpanel !== 'undefined') {
+            console.log('✅ Mixpanel is available');
+        } else {
+            console.warn('⚠️ Mixpanel not available');
+        }
     }
     
     trackEvent(eventName, properties = {}) {
-        // Check if Mixpanel is available and properly initialized
-        if (typeof window.mixpanel !== 'undefined' && typeof window.mixpanel.track === 'function') {
+        // Simple check for Mixpanel availability
+        if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
             try {
                 // Add common properties
                 const eventProperties = {
@@ -306,7 +299,7 @@ class PomodoroTimer {
                 };
                 
                 window.mixpanel.track(eventName, eventProperties);
-                console.log('✅ Mixpanel event tracked:', eventName, eventProperties);
+                console.log('✅ Mixpanel event tracked:', eventName);
             } catch (error) {
                 console.error('❌ Error tracking Mixpanel event:', error);
             }
