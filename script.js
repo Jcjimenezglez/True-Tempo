@@ -1259,27 +1259,25 @@ class PomodoroTimer {
         
         const techniqueName = techniqueNames[technique] || 'Advanced Technique';
         
-        // Create simple technique modal
+        // Create technique modal using exact same structure as Task limit reached
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
+        modalOverlay.className = 'logout-modal-overlay';
         
         const modal = document.createElement('div');
-        modal.className = 'upgrade-modal';
+        modal.className = 'logout-modal';
         
         modal.innerHTML = `
-            <button class="close-upgrade-x" id="closeTechniqueModal">
+            <button class="close-logout-modal-x" id="closeTechniqueModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/>
-                    <path d="M6 6l12 12"/>
+                    <path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <div class="upgrade-modal-content">
-                <h2 class="upgrade-modal-title">${techniqueName} Technique</h2>
-                <p class="upgrade-modal-description">Sign up to unlock advanced focus techniques and boost your productivity!</p>
-                <div class="upgrade-modal-actions">
-                    <button class="upgrade-modal-primary-btn" id="techniqueSignupBtn">Sign up</button>
-                    <button class="upgrade-modal-secondary-btn" id="techniqueLearnMoreBtn">Learn more</button>
-                </div>
+            <h3 class="logout-modal-title">${techniqueName} Technique</h3>
+            <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Learn more</button>
             </div>
         `;
         
