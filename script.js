@@ -8833,7 +8833,7 @@ class PomodoroTimer {
                     <button id="guestReportSignupBtn" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
                     <!-- Total Focus Hours -->
                     <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; filter: blur(2px); opacity: 0.6;">
                         <div style="color: #a3a3a3; margin-bottom: 12px;">
