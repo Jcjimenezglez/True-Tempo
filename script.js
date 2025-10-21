@@ -286,42 +286,60 @@ class PomodoroTimer {
     }
     
     trackEvent(eventName, properties = {}) {
-        // Simple check for Mixpanel availability
-        if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
-            try {
-                // Add common properties
-                const eventProperties = {
-                    ...properties,
-                    timestamp: new Date().toISOString(),
-                    user_authenticated: this.isAuthenticated,
-                    user_pro: this.isPro,
-                    user_id: this.user?.id || 'guest'
-                };
-                
-                window.mixpanel.track(eventName, eventProperties);
-                console.log('✅ Mixpanel event tracked:', eventName);
-            } catch (error) {
-                console.error('❌ Error tracking Mixpanel event:', error);
+        // Wait for Mixpanel to be fully initialized
+        const tryTrack = (attempts = 0) => {
+            if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track && typeof window.mixpanel.track === 'function') {
+                try {
+                    // Add common properties
+                    const eventProperties = {
+                        ...properties,
+                        timestamp: new Date().toISOString(),
+                        user_authenticated: this.isAuthenticated,
+                        user_pro: this.isPro,
+                        user_id: this.user?.id || 'guest'
+                    };
+                    
+                    window.mixpanel.track(eventName, eventProperties);
+                    console.log('✅ Mixpanel event tracked:', eventName);
+                } catch (error) {
+                    console.error('❌ Error tracking Mixpanel event:', error);
+                }
+            } else if (attempts < 10) {
+                // Retry after 200ms, up to 10 times
+                setTimeout(() => tryTrack(attempts + 1), 200);
+            } else {
+                console.warn('⚠️ Mixpanel not available after 10 attempts, event not tracked:', eventName);
             }
-        } else {
-            console.warn('⚠️ Mixpanel not available, event not tracked:', eventName);
-        }
+        };
+        
+        tryTrack();
     }
     
     identifyUser() {
-        if (typeof window.mixpanel !== 'undefined' && this.isAuthenticated && this.user) {
-            try {
-                window.mixpanel.identify(this.user.id);
-                window.mixpanel.people.set({
-                    '$email': this.user.emailAddresses[0]?.emailAddress,
-                    '$name': this.user.fullName,
-                    'pro_user': this.isPro,
-                    'signup_date': this.user.createdAt
-                });
-                console.log('✅ User identified in Mixpanel:', this.user.id);
-            } catch (error) {
-                console.error('❌ Error identifying user in Mixpanel:', error);
-            }
+        if (this.isAuthenticated && this.user) {
+            const tryIdentify = (attempts = 0) => {
+                if (typeof window.mixpanel !== 'undefined' && window.mixpanel.identify && typeof window.mixpanel.identify === 'function') {
+                    try {
+                        window.mixpanel.identify(this.user.id);
+                        window.mixpanel.people.set({
+                            '$email': this.user.emailAddresses[0]?.emailAddress,
+                            '$name': this.user.fullName,
+                            'pro_user': this.isPro,
+                            'signup_date': this.user.createdAt
+                        });
+                        console.log('✅ User identified in Mixpanel:', this.user.id);
+                    } catch (error) {
+                        console.error('❌ Error identifying user in Mixpanel:', error);
+                    }
+                } else if (attempts < 10) {
+                    // Retry after 200ms, up to 10 times
+                    setTimeout(() => tryIdentify(attempts + 1), 200);
+                } else {
+                    console.warn('⚠️ Mixpanel not available for user identification');
+                }
+            };
+            
+            tryIdentify();
         }
     }
     
