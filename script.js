@@ -220,6 +220,12 @@ class PomodoroTimer {
         this.guestTaskLimitSignupBtn = document.getElementById('guestTaskLimitSignupBtn');
         this.guestTaskLimitCancelBtn = document.getElementById('guestTaskLimitCancelBtn');
         
+        // Integration upgrade modal elements
+        this.integrationUpgradeModalOverlay = document.getElementById('integrationUpgradeModalOverlay');
+        this.integrationUpgradeBtn = document.getElementById('integrationUpgradeBtn');
+        this.integrationLearnMoreBtn = document.getElementById('integrationLearnMoreBtn');
+        this.integrationUpgradeMessage = document.getElementById('integrationUpgradeMessage');
+        
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
@@ -542,6 +548,9 @@ class PomodoroTimer {
         
         // Update Pro status
         this.isPro = this.isPremiumUser();
+        
+        // Update integration buttons based on user type
+        this.updateIntegrationButtons();
         
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
@@ -956,6 +965,61 @@ class PomodoroTimer {
     hideGuestTaskLimitModal() {
         if (this.guestTaskLimitModalOverlay) {
             this.guestTaskLimitModalOverlay.style.display = 'none';
+        }
+    }
+    
+    showIntegrationUpgradeModal(integrationType) {
+        if (this.integrationUpgradeModalOverlay) {
+            const messages = {
+                todoist: 'Connect Todoist to sync your tasks and boost productivity with seamless integration!',
+                notion: 'Connect Notion to centralize your workflow and sync task progress automatically!'
+            };
+            
+            this.integrationUpgradeMessage.textContent = messages[integrationType] || 'Connect your favorite productivity tools and sync your tasks seamlessly!';
+            this.integrationUpgradeModalOverlay.style.display = 'flex';
+        }
+    }
+    
+    hideIntegrationUpgradeModal() {
+        if (this.integrationUpgradeModalOverlay) {
+            this.integrationUpgradeModalOverlay.style.display = 'none';
+        }
+    }
+    
+    updateIntegrationButtons() {
+        const todoistBtn = document.getElementById('importTodoistMainBtn');
+        const notionBtn = document.getElementById('importNotionMainBtn');
+        const todoistBadge = document.getElementById('todoistProBadge');
+        const notionBadge = document.getElementById('notionProBadge');
+        
+        if (!todoistBtn || !notionBtn) return;
+        
+        const isGuest = !this.isAuthenticated || !this.user;
+        const isFree = this.isAuthenticated && this.user && !this.isPro;
+        const isPro = this.isAuthenticated && this.user && this.isPro;
+        
+        if (isGuest) {
+            // Guest users: disabled buttons with PRO badge
+            todoistBtn.classList.add('disabled');
+            notionBtn.classList.add('disabled');
+            todoistBtn.classList.remove('pro-feature');
+            notionBtn.classList.remove('pro-feature');
+            if (todoistBadge) todoistBadge.style.display = 'block';
+            if (notionBadge) notionBadge.style.display = 'block';
+        } else if (isFree) {
+            // Free users: clickable buttons with PRO badge
+            todoistBtn.classList.remove('disabled');
+            notionBtn.classList.remove('disabled');
+            todoistBtn.classList.add('pro-feature');
+            notionBtn.classList.add('pro-feature');
+            if (todoistBadge) todoistBadge.style.display = 'block';
+            if (notionBadge) notionBadge.style.display = 'block';
+        } else if (isPro) {
+            // Pro users: normal buttons without PRO badge
+            todoistBtn.classList.remove('disabled', 'pro-feature');
+            notionBtn.classList.remove('disabled', 'pro-feature');
+            if (todoistBadge) todoistBadge.style.display = 'none';
+            if (notionBadge) notionBadge.style.display = 'none';
         }
     }
     
@@ -2114,6 +2178,52 @@ class PomodoroTimer {
             this.guestTaskLimitModalOverlay.addEventListener('click', (e) => {
                 if (e.target === this.guestTaskLimitModalOverlay) {
                     this.hideGuestTaskLimitModal();
+                }
+            });
+        }
+        
+        // Integration upgrade modal event listeners
+        if (this.integrationUpgradeBtn) {
+            this.integrationUpgradeBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                this.hideIntegrationUpgradeModal();
+                
+                try {
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    
+                    if (response.ok) {
+                        const { url } = await response.json();
+                        window.location.href = url;
+                    } else {
+                        // Fallback to pricing page if Stripe fails
+                        window.location.href = '/pricing';
+                    }
+                } catch (error) {
+                    console.error('Error creating checkout session:', error);
+                    // Fallback to pricing page if error
+                    window.location.href = '/pricing';
+                }
+            });
+        }
+        
+        if (this.integrationLearnMoreBtn) {
+            this.integrationLearnMoreBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideIntegrationUpgradeModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        // Close integration upgrade modal when clicking overlay
+        if (this.integrationUpgradeModalOverlay) {
+            this.integrationUpgradeModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.integrationUpgradeModalOverlay) {
+                    this.hideIntegrationUpgradeModal();
                 }
             });
         }
@@ -6266,7 +6376,7 @@ class PomodoroTimer {
         const isGuest = !this.isAuthenticated || !this.user;
         
         if (isGuest) {
-            this.showIntegrationUpgradeModal('todoist');
+            // Guest users see disabled buttons, no action
             return;
         }
         
@@ -6276,6 +6386,7 @@ class PomodoroTimer {
             return;
         }
         
+        // Pro users can access integrations
         this.showTodoistProjectsModal();
     }
     
@@ -6284,7 +6395,7 @@ class PomodoroTimer {
         const isGuest = !this.isAuthenticated || !this.user;
         
         if (isGuest) {
-            this.showIntegrationUpgradeModal('notion');
+            // Guest users see disabled buttons, no action
             return;
         }
         
@@ -11262,6 +11373,9 @@ class PomodoroTimer {
                 this.showNotionIntegration();
             });
         }
+        
+        // Update integration buttons
+        this.updateIntegrationButtons();
         
         // Initial render
         console.log('🔵 Calling initial renderTasks');
