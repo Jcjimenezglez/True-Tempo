@@ -6097,7 +6097,7 @@ class PomodoroTimer {
         }
     }
 
-    // Show integration upgrade modal for Guest users - Dynamic modal like showTaskListModal
+    // Show integration upgrade modal for Guest and Free users - Dynamic modal like showTaskListModal
     showIntegrationUpgradeModal(integrationType) {
         const integrationData = {
             todoist: {
@@ -6121,11 +6121,38 @@ class PomodoroTimer {
                     'Sync task progress automatically',
                     'Boost productivity with seamless integration'
                 ]
+            },
+            googleCalendar: {
+                title: 'Google Calendar Integration',
+                subtitle: 'Sync your calendar events',
+                icon: '/images/google-calendar.svg',
+                benefits: [
+                    'Import events from Google Calendar',
+                    'Focus on scheduled tasks',
+                    'Sync progress automatically',
+                    'Boost productivity with calendar integration'
+                ]
             }
         };
         
         const data = integrationData[integrationType];
         if (!data) return;
+        
+        // Determine user type and message
+        const isGuest = !this.isAuthenticated || !this.user;
+        const isFree = this.isAuthenticated && this.user && !this.isPro;
+        
+        let upgradeMessage, buttonText;
+        if (isGuest) {
+            upgradeMessage = 'Sign up to unlock integrations and sync your tasks seamlessly!';
+            buttonText = 'Sign up';
+        } else if (isFree) {
+            upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
+            buttonText = 'Upgrade to Pro';
+        } else {
+            upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
+            buttonText = 'Upgrade to Pro';
+        }
         
         // Create overlay
         const overlay = document.createElement('div');
@@ -6165,8 +6192,12 @@ class PomodoroTimer {
                 `).join('')}
             </div>
             
+            <div style="text-align: center; margin-bottom: 24px;">
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.5;">${upgradeMessage}</p>
+            </div>
+            
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="btn-primary" id="integrationSignupBtn" style="width: 100%;">Upgrade to Pro</button>
+                <button class="btn-primary" id="integrationSignupBtn" style="width: 100%;">${buttonText}</button>
                 <button class="btn-secondary" id="integrationCancelBtn" style="width: 100%;">Cancel</button>
             </div>
         `;
@@ -6187,7 +6218,13 @@ class PomodoroTimer {
         // Button handlers
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
-            window.location.href = '/pricing';
+            if (isGuest) {
+                // Guest user - show signup
+                this.handleSignup();
+            } else {
+                // Free user - redirect to pricing page
+                window.location.href = '/pricing';
+            }
         });
     }
 
@@ -6201,6 +6238,12 @@ class PomodoroTimer {
             return;
         }
         
+        // Check if user is Free (authenticated but not Pro)
+        if (this.isAuthenticated && this.user && !this.isPro) {
+            this.showIntegrationUpgradeModal('todoist');
+            return;
+        }
+        
         this.showTodoistProjectsModal();
     }
     
@@ -6209,6 +6252,12 @@ class PomodoroTimer {
         const isGuest = !this.isAuthenticated || !this.user;
         
         if (isGuest) {
+            this.showIntegrationUpgradeModal('notion');
+            return;
+        }
+        
+        // Check if user is Free (authenticated but not Pro)
+        if (this.isAuthenticated && this.user && !this.isPro) {
             this.showIntegrationUpgradeModal('notion');
             return;
         }
@@ -6642,6 +6691,12 @@ class PomodoroTimer {
         const isGuest = !this.isAuthenticated || !this.user;
         
         if (isGuest) {
+            this.showIntegrationUpgradeModal('googleCalendar');
+            return;
+        }
+        
+        // Check if user is Free (authenticated but not Pro)
+        if (this.isAuthenticated && this.user && !this.isPro) {
             this.showIntegrationUpgradeModal('googleCalendar');
             return;
         }
