@@ -4869,12 +4869,12 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: 4px solid #10b981;
+    border-left: 4px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Preserve selected green accent on hover */
+/* Preserve selected accent on hover */
 .task-item.selected:hover {
-    border-left-color: #10b981;
+    border-left-color: rgba(255, 255, 255, 0.4);
 }
 
 .task-item.completed {
@@ -7486,9 +7486,9 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary {
-    background: #10b981;
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: 500;
@@ -7498,7 +7498,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary:hover {
-    background: #059669;
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .btn-secondary {
