@@ -516,6 +516,52 @@
                 <p class="tasks-subtitle">Customize your focus sessions</p>
             </div>
             
+            <!-- Sessions Count -->
+            <div class="settings-section">
+                <h4 class="section-title">Sessions</h4>
+                <div class="sessions-control">
+                    <div class="duration-item">
+                        <div class="duration-header">
+                            <label>Number of Sessions</label>
+                            <span class="duration-value" id="sidebarSessionsValue">4 sessions</span>
+                        </div>
+                        <input type="range" id="sidebarSessionsSlider" min="1" max="12" value="4" class="duration-slider">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Techniques -->
+            <div class="settings-section">
+                <h4 class="section-title">Techniques</h4>
+                <div class="techniques-grid">
+                    <button class="technique-preset" data-technique="pomodoro">
+                        <div class="technique-icon">🍅</div>
+                        <div class="technique-name">Pomodoro</div>
+                        <div class="technique-desc">25min work, 5min break</div>
+                    </button>
+                    <button class="technique-preset" data-technique="flow">
+                        <div class="technique-icon">🌊</div>
+                        <div class="technique-name">Flow State</div>
+                        <div class="technique-desc">45min work, 15min break</div>
+                    </button>
+                    <button class="technique-preset" data-technique="deepwork">
+                        <div class="technique-icon">🧠</div>
+                        <div class="technique-name">Deep Work</div>
+                        <div class="technique-desc">90min work, 20min break</div>
+                    </button>
+                    <button class="technique-preset" data-technique="sprint">
+                        <div class="technique-icon">⚡</div>
+                        <div class="technique-name">Sprint</div>
+                        <div class="technique-desc">15min work, 3min break</div>
+                    </button>
+                    <button class="technique-preset" data-technique="marathon">
+                        <div class="technique-icon">🏃</div>
+                        <div class="technique-name">Marathon</div>
+                        <div class="technique-desc">60min work, 10min break</div>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Duration Section -->
             <div class="settings-duration-section">
                 <div class="duration-controls">

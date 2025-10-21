@@ -2648,6 +2648,30 @@ class PomodoroTimer {
         }
     }
 
+    applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider) {
+        const presets = {
+            pomodoro: { work: 25, shortBreak: 5, longBreak: 15, sessions: 4 },
+            flow: { work: 45, shortBreak: 15, longBreak: 30, sessions: 3 },
+            deepwork: { work: 90, shortBreak: 20, longBreak: 45, sessions: 2 },
+            sprint: { work: 15, shortBreak: 3, longBreak: 10, sessions: 6 },
+            marathon: { work: 60, shortBreak: 10, longBreak: 20, sessions: 4 }
+        };
+
+        const preset = presets[technique];
+        if (preset) {
+            pomodoroSlider.value = preset.work;
+            shortBreakSlider.value = preset.shortBreak;
+            longBreakSlider.value = preset.longBreak;
+            sessionsSlider.value = preset.sessions;
+
+            // Update display values
+            document.querySelector('#sidebarPomodoroValue').textContent = `${preset.work} min`;
+            document.querySelector('#sidebarShortBreakValue').textContent = `${preset.shortBreak} min`;
+            document.querySelector('#sidebarLongBreakValue').textContent = `${preset.longBreak} min`;
+            document.querySelector('#sidebarSessionsValue').textContent = `${preset.sessions} sessions`;
+        }
+    }
+
     showAmbientLoginModal() {
         const modalContent = `
             <div class="focus-stats-modal">
@@ -11517,6 +11541,33 @@ class PomodoroTimer {
             });
         }
 
+        // Sessions slider
+        const sessionsSlider = settingsPanel.querySelector('#sidebarSessionsSlider');
+        const sessionsValue = settingsPanel.querySelector('#sidebarSessionsValue');
+        if (sessionsSlider && sessionsValue) {
+            sessionsSlider.value = this.sessionsPerCycle;
+            sessionsValue.textContent = `${this.sessionsPerCycle} sessions`;
+            
+            sessionsSlider.addEventListener('input', (e) => {
+                sessionsValue.textContent = `${e.target.value} sessions`;
+            });
+        }
+
+        // Techniques presets
+        const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+        techniquePresets.forEach(preset => {
+            preset.addEventListener('click', () => {
+                // Remove active class from all presets
+                techniquePresets.forEach(p => p.classList.remove('active'));
+                // Add active class to clicked preset
+                preset.classList.add('active');
+                
+                // Apply technique settings
+                const technique = preset.dataset.technique;
+                this.applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
+            });
+        });
+
         // Save button handler
         const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
@@ -11532,12 +11583,14 @@ class PomodoroTimer {
                     this.workTime = parseInt(pomodoroSlider.value) * 60;
                     this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
                     this.longBreakTime = parseInt(longBreakSlider.value) * 60;
+                    this.sessionsPerCycle = parseInt(sessionsSlider.value);
                     
                     // Save to localStorage ONLY if user is authenticated
                     if (this.isAuthenticated) {
                         localStorage.setItem('pomodoroTime', String(this.workTime));
                         localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
                         localStorage.setItem('longBreakTime', String(this.longBreakTime));
+                        localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
                         console.log('✅ Settings saved to localStorage (authenticated user)');
                     } else {
                         console.log('ℹ️ Settings applied for this session only (guest user)');
