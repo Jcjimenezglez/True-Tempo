@@ -1527,11 +1527,15 @@ class PomodoroTimer {
     }
     
     toggleDropdown() {
-        this.techniqueDropdown.classList.toggle('open');
+        if (this.techniqueDropdown) {
+            this.techniqueDropdown.classList.toggle('open');
+        }
     }
     
     closeDropdown() {
-        this.techniqueDropdown.classList.remove('open');
+        if (this.techniqueDropdown) {
+            this.techniqueDropdown.classList.remove('open');
+        }
     }
     
     selectTechnique(item) {
@@ -10352,7 +10356,9 @@ class PomodoroTimer {
             evt.stopPropagation();
             document.body.removeChild(modalOverlay);
             // Keep dropdown open after closing modal
-            this.techniqueDropdown.classList.add('open');
+            if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
         });
         
         closeBtnX.addEventListener('click', (evt) => {
@@ -10360,7 +10366,9 @@ class PomodoroTimer {
             evt.stopPropagation();
             document.body.removeChild(modalOverlay);
             // Keep dropdown open after closing modal
-            this.techniqueDropdown.classList.add('open');
+            if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
         });
 
         modalOverlay.addEventListener('click', (e) => {
@@ -10374,7 +10382,9 @@ class PomodoroTimer {
                 e.stopPropagation();
                 document.body.removeChild(modalOverlay);
                 // Keep dropdown open after closing modal
+                if (this.techniqueDropdown) {
                 this.techniqueDropdown.classList.add('open');
+            }
             }
         });
 
@@ -10542,7 +10552,9 @@ class PomodoroTimer {
         
         this.customTimerModal.style.display = 'flex';
         // Keep dropdown open
-        this.techniqueDropdown.classList.add('open');
+        if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
         
         // Add real-time validation
         this.setupCustomTimerValidation();
@@ -10551,7 +10563,9 @@ class PomodoroTimer {
     hideCustomTimerModal() {
         this.customTimerModal.style.display = 'none';
         // Keep dropdown open
-        this.techniqueDropdown.classList.add('open');
+        if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
     }
 
     resetCustomTimerForm() {
