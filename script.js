@@ -223,6 +223,7 @@ class PomodoroTimer {
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
+        this.isPro = false;
         // Signals when Clerk auth has fully hydrated for this session
         this.authReady = false;
         
@@ -539,6 +540,9 @@ class PomodoroTimer {
             this.user = window.Clerk.user;
         }
         
+        // Update Pro status
+        this.isPro = this.isPremiumUser();
+        
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             
@@ -646,6 +650,9 @@ class PomodoroTimer {
                 this.updateAuthState();
                 return;
             }
+            
+            // Reset Pro status for unauthenticated users
+            this.isPro = false;
             
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
