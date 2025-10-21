@@ -6504,25 +6504,46 @@ class PomodoroTimer {
         const importActions = modal.querySelector('#notionImportActions');
         
         try {
-            // Build query params (Developer Mode + uid)
-            const viewMode = localStorage.getItem('viewMode');
-            const userId = window.Clerk?.user?.id || '';
-            const params = new URLSearchParams();
-            if (viewMode === 'pro') {
-                params.append('devMode', 'pro');
-                params.append('bypass', 'true');
-            }
-            if (userId) params.append('uid', userId);
-            const qs = params.toString() ? `?${params.toString()}` : '';
-
-            // Fetch databases from Notion
-            const response = await fetch(`/api/notion-pages${qs}`);
+            // Check if we have cached databases
+            const cacheKey = 'notion_databases_cache';
+            const cachedData = localStorage.getItem(cacheKey);
+            const cacheTime = localStorage.getItem(cacheKey + '_time');
+            const now = Date.now();
+            const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
             
-            if (!response.ok) {
-                throw new Error('Failed to fetch Notion databases');
-            }
+            let databases;
+            
+            // Use cache if it's fresh (less than 2 minutes old)
+            if (cachedData && cacheTime && (now - parseInt(cacheTime)) < CACHE_DURATION) {
+                databases = JSON.parse(cachedData);
+                console.log('Using cached Notion databases');
+                // Skip loading state for cached data
+                if (loadingState) loadingState.style.display = 'none';
+            } else {
+                // Build query params (Developer Mode + uid)
+                const viewMode = localStorage.getItem('viewMode');
+                const userId = window.Clerk?.user?.id || '';
+                const params = new URLSearchParams();
+                if (viewMode === 'pro') {
+                    params.append('devMode', 'pro');
+                    params.append('bypass', 'true');
+                }
+                if (userId) params.append('uid', userId);
+                const qs = params.toString() ? `?${params.toString()}` : '';
 
-            const databases = await response.json();
+                // Fetch databases from Notion
+                const response = await fetch(`/api/notion-pages${qs}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Notion databases');
+                }
+
+                databases = await response.json();
+                
+                // Cache the results
+                localStorage.setItem(cacheKey, JSON.stringify(databases));
+                localStorage.setItem(cacheKey + '_time', now.toString());
+            }
             
             // Hide loading state
             if (loadingState) loadingState.style.display = 'none';

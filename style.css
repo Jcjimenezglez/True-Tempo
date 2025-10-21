@@ -6088,7 +6088,7 @@ input:checked + .toggle-slider:before {
 
 .modal-actions {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     justify-content: flex-end;
     margin-top: 2rem;
     padding-top: 1rem;
@@ -6237,6 +6237,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -6649,7 +6650,7 @@ input:checked + .toggle-slider:before {
 
 .modal-actions {
     display: flex;
-    gap: 1rem;
+    gap: 16px;
     margin-top: 1.5rem;
 }
 
