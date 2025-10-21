@@ -274,6 +274,42 @@ class PomodoroTimer {
         });
     }
     
+    // Mixpanel Analytics Functions
+    trackEvent(eventName, properties = {}) {
+        if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
+            try {
+                const eventProperties = {
+                    ...properties,
+                    timestamp: new Date().toISOString(),
+                    user_authenticated: this.isAuthenticated,
+                    user_pro: this.isPro,
+                    user_id: this.user?.id || 'guest'
+                };
+                
+                window.mixpanel.track(eventName, eventProperties);
+                console.log('✅ Event tracked:', eventName, eventProperties);
+            } catch (error) {
+                console.error('❌ Error tracking event:', error);
+            }
+        }
+    }
+    
+    identifyUser() {
+        if (this.isAuthenticated && this.user && typeof window.mixpanel !== 'undefined') {
+            try {
+                window.mixpanel.identify(this.user.id);
+                window.mixpanel.people.set({
+                    '$email': this.user.emailAddresses[0]?.emailAddress,
+                    '$name': this.user.fullName,
+                    'pro_user': this.isPro,
+                    'signup_date': this.user.createdAt
+                });
+                console.log('✅ User identified:', this.user.id);
+            } catch (error) {
+                console.error('❌ Error identifying user:', error);
+            }
+        }
+    }
     
     getCurrentTaskCount() {
         try {
@@ -849,7 +885,8 @@ class PomodoroTimer {
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             
-            
+            // Identify user in Mixpanel
+            this.identifyUser();
             
             // Enable Timer panel features for authenticated users
             this.enableTimerPanelFeatures();
@@ -1316,12 +1353,21 @@ class PomodoroTimer {
         });
         
         signupBtn.addEventListener('click', () => {
-            
+            this.trackEvent('Signup from Technique Modal', {
+                button_type: 'signup',
+                source: 'technique_modal',
+                technique_name: technique
+            });
             closeModal();
             window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
         });
         
         learnMoreBtn.addEventListener('click', () => {
+            this.trackEvent('Learn More from Technique Modal', {
+                button_type: 'learn_more',
+                source: 'technique_modal',
+                technique_name: technique
+            });
             closeModal();
             window.open('/pricing/', '_blank');
         });
@@ -1846,6 +1892,11 @@ class PomodoroTimer {
     bindEvents() {
         // Primary binding for Play/Pause button (original behavior)
         if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => {
+            this.trackEvent('Start Button Clicked', {
+                button_type: 'start_pause',
+                timer_state: this.isRunning ? 'running' : 'paused',
+                current_section: this.currentSection
+            });
             this.toggleTimer();
         });
         if (this.prevSectionBtn) this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
@@ -1862,7 +1913,13 @@ class PomodoroTimer {
         // Streak button event listener
         const streakInfo = document.getElementById('streakInfo');
         if (streakInfo) {
-            streakInfo.addEventListener('click', () => this.showStreakInfo());
+            streakInfo.addEventListener('click', () => {
+                this.trackEvent('Focus Report Clicked', {
+                    button_type: 'focus_report',
+                    source: 'timer_header'
+                });
+                this.showStreakInfo();
+            });
         }
         
         // Timer Settings button event listeners (footer legacy)
@@ -1906,6 +1963,10 @@ class PomodoroTimer {
         if (this.settingsLoginBtn) {
             this.settingsLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Account Menu Login Clicked', {
+                    button_type: 'login',
+                    source: 'account_menu'
+                });
                 this.settingsDropdown.style.display = 'none';
                 this.handleLogin();
             });
@@ -1915,6 +1976,10 @@ class PomodoroTimer {
         if (this.settingsSignupBtn) {
             this.settingsSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Account Menu Signup Clicked', {
+                    button_type: 'signup',
+                    source: 'account_menu'
+                });
                 this.settingsDropdown.style.display = 'none';
                 this.handleSignup();
             });
@@ -1924,6 +1989,11 @@ class PomodoroTimer {
         if (this.shortcutsItem) {
             this.shortcutsItem.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Account Menu Help Clicked', {
+                    button_type: 'help',
+                    source: 'account_menu',
+                    help_option: 'shortcuts'
+                });
                 this.settingsDropdown.style.display = 'none';
                 this.showShortcutsModal();
             });
@@ -1951,6 +2021,10 @@ class PomodoroTimer {
         if (this.settingsAccountBtn) {
             this.settingsAccountBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Account Menu Account Clicked', {
+                    button_type: 'account',
+                    source: 'account_menu'
+                });
                 this.settingsDropdown.style.display = 'none';
                 this.showSettingsModal();
             });
@@ -1979,6 +2053,11 @@ class PomodoroTimer {
         if (this.settingsFeedbackBtn) {
             this.settingsFeedbackBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Account Menu Help Clicked', {
+                    button_type: 'help',
+                    source: 'account_menu',
+                    help_option: 'feedback'
+                });
                 this.settingsDropdown.style.display = 'none';
                 this.showFeedbackModal();
             });
@@ -2115,6 +2194,10 @@ class PomodoroTimer {
         if (this.loginButton) {
             this.loginButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Login Button Clicked', {
+                    button_type: 'login',
+                    source: 'main_header'
+                });
                 this.handleLogin();
             });
         }
@@ -2123,6 +2206,10 @@ class PomodoroTimer {
         if (this.signupButton) {
             this.signupButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Signup Button Clicked', {
+                    button_type: 'signup',
+                    source: 'main_header'
+                });
                 this.handleSignup();
             });
         }
@@ -2151,6 +2238,10 @@ class PomodoroTimer {
         if (this.logoIcon) {
             this.logoIcon.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Logo Clicked', {
+                    button_type: 'logo',
+                    destination: 'homepage'
+                });
                 window.location.href = 'https://superfocus.live';
             });
         }
@@ -2490,6 +2581,11 @@ class PomodoroTimer {
             this.guestTaskLimitSignupBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
+                this.trackEvent('Signup from Task Limit Modal', {
+                    button_type: 'signup',
+                    source: 'task_limit_modal',
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest'
+                });
                 
                 this.hideGuestTaskLimitModal();
                 
@@ -2526,6 +2622,11 @@ class PomodoroTimer {
         if (this.guestTaskLimitCancelBtn) {
             this.guestTaskLimitCancelBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Learn More from Task Limit Modal', {
+                    button_type: 'learn_more',
+                    source: 'task_limit_modal',
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest'
+                });
                 this.hideGuestTaskLimitModal();
                 window.location.href = '/pricing';
             });
@@ -2576,6 +2677,11 @@ class PomodoroTimer {
         
         if (this.integrationModalPrimaryBtn) {
             this.integrationModalPrimaryBtn.addEventListener('click', async () => {
+                this.trackEvent('Upgrade to Pro from Integration Modal', {
+                    button_type: 'upgrade_to_pro',
+                    source: 'integration_modal',
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest'
+                });
                 if (this.isAuthenticated) {
                     // Free user - redirect to Stripe checkout
                     try {
@@ -2931,12 +3037,30 @@ class PomodoroTimer {
         const longBreakValue = modalOverlay.querySelector('#longBreakValue');
         
         pomodoroSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'pomodoro',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
             pomodoroValue.textContent = `${e.target.value} min`;
         });
         shortBreakSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'short_break',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
             shortBreakValue.textContent = `${e.target.value} min`;
         });
         longBreakSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'long_break',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
             longBreakValue.textContent = `${e.target.value} min`;
         });
         
@@ -2944,6 +3068,12 @@ class PomodoroTimer {
         const sessionsSlider = modalOverlay.querySelector('#sessionsSlider');
         const sessionsValue = modalOverlay.querySelector('#sessionsValue');
         sessionsSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'sessions',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
             sessionsValue.textContent = `${e.target.value} sessions`;
         });
 
@@ -2951,13 +3081,18 @@ class PomodoroTimer {
         const techniquePresets = modalOverlay.querySelectorAll('.technique-preset');
         techniquePresets.forEach(preset => {
             preset.addEventListener('click', () => {
+                const technique = preset.dataset.technique;
+                this.trackEvent('Technique Selected', {
+                    button_type: 'technique_preset',
+                    technique_name: technique,
+                    source: 'timer_modal'
+                });
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
                 // Add active class to clicked preset
                 preset.classList.add('active');
                 
                 // Apply technique settings
-                const technique = preset.dataset.technique;
                 this.applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
             });
         });
@@ -5461,6 +5596,10 @@ class PomodoroTimer {
         };
 
         connectBtn.addEventListener('click', () => {
+            this.trackEvent('Todoist Connect Clicked', {
+                button_type: 'todoist_connect',
+                source: 'tasks_modal'
+            });
             window.location.href = '/api/todoist-auth-start';
         });
 
@@ -5813,6 +5952,10 @@ class PomodoroTimer {
         const addTaskForm = modal.querySelector('#addTaskForm');
         if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
+                this.trackEvent('Add Task Button Clicked', {
+                    button_type: 'add_task',
+                    source: 'tasks_modal'
+                });
                 // Check task limit BEFORE showing the form
                 const currentTasks = this.getLocalTasks();
                 
@@ -5888,6 +6031,11 @@ class PomodoroTimer {
             const tabs = modal.querySelectorAll('.task-tab');
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
+                    this.trackEvent('Task Tab Clicked', {
+                        button_type: 'task_tab',
+                        tab_name: tab.dataset.tab,
+                        source: 'tasks_modal'
+                    });
                     // Remove active class from all tabs
                     tabs.forEach(t => t.classList.remove('active'));
                     // Add active class to clicked tab
@@ -6298,6 +6446,10 @@ class PomodoroTimer {
         // Clear all tasks
         if (clearAllBtn) {
             clearAllBtn.addEventListener('click', () => {
+                this.trackEvent('Clear All Tasks Clicked', {
+                    button_type: 'clear_all_tasks',
+                    source: 'tasks_modal'
+                });
                 if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
                     // Clear local tasks
                     this.setLocalTasks([]);
@@ -6319,6 +6471,10 @@ class PomodoroTimer {
         // Clear done tasks
         if (clearDoneBtn) {
             clearDoneBtn.addEventListener('click', () => {
+                this.trackEvent('Clear Done Tasks Clicked', {
+                    button_type: 'clear_done_tasks',
+                    source: 'tasks_modal'
+                });
                 if (confirm('Are you sure you want to clear all completed tasks?')) {
                     const allTasks = this.getAllTasks();
                     const activeTasks = allTasks.filter(task => !task.completed);
@@ -9891,6 +10047,10 @@ class PomodoroTimer {
         if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
+            this.trackEvent('Todoist Connect Clicked', {
+                button_type: 'todoist_connect',
+                source: 'settings_modal'
+            });
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
             const viewMode = localStorage.getItem('viewMode');
@@ -10007,6 +10167,10 @@ class PomodoroTimer {
         if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
+            this.trackEvent('Notion Connect Clicked', {
+                button_type: 'notion_connect',
+                source: 'settings_modal'
+            });
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
             console.log('Connecting Notion:', { userId, clerkUser: window.Clerk?.user });
@@ -12007,6 +12171,11 @@ class PomodoroTimer {
                     return;
                 }
                 
+                this.trackEvent('Technique Selected', {
+                    button_type: 'technique_preset',
+                    technique_name: technique,
+                    source: 'timer_sidebar'
+                });
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
                 // Add active class to clicked preset
@@ -12152,6 +12321,12 @@ class PomodoroTimer {
             // Set up click handler
             option.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                this.trackEvent('Cassette Selected', {
+                    button_type: 'cassette',
+                    cassette_name: themeName,
+                    source: 'cassettes_panel'
+                });
                 
                 // Check if theme requires authentication
                 const requiresAuth = option.dataset.requiresAuth === 'true';
@@ -12610,6 +12785,11 @@ class PomodoroTimer {
         
         // Add click handler
         imageButton.addEventListener('click', () => {
+            this.trackEvent('Tron Image Button Clicked', {
+                button_type: 'tron_image',
+                source: 'tron_theme',
+                destination: 'wallpaper_site'
+            });
             window.open('https://wall.alphacoders.com/big.php?i=1395234', '_blank');
         });
         
@@ -12993,6 +13173,14 @@ class SidebarManager {
         this.navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const section = item.dataset.section;
+                
+                // Track navigation clicks
+                if (window.pomodoroTimer) {
+                    window.pomodoroTimer.trackEvent('Navigation Clicked', {
+                        section: section,
+                        button_type: 'nav_item'
+                    });
+                }
                 
                 // For tasks, settings, music, and theme, active state is handled in their respective open/close methods
                 if (section !== 'tasks' && section !== 'settings' && section !== 'music' && section !== 'theme') {
