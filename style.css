@@ -4896,6 +4896,32 @@ input:checked + .toggle-slider:before {
     color: rgba(163, 163, 163, 0.7);
 }
 
+/* Disabled tasks for Guest users */
+.task-item.disabled-for-guest {
+    opacity: 0.6;
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+}
+
+.task-item.disabled-for-guest:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.task-item.disabled-for-guest .task-checkbox input[type="checkbox"] {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.task-item.disabled-for-guest .task-title {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.task-item.disabled-for-guest .progress-text {
+    color: rgba(255, 255, 255, 0.3);
+}
+
 .task-progress {
     display: flex;
     align-items: center;

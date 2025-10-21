@@ -5124,19 +5124,25 @@ class PomodoroTimer {
                 const totalSessions = taskConfig.sessions || 1;
                 const isCompleted = task.completed || (completedSessions >= totalSessions);
                 
+                // Check if task should be disabled for Guest users
+                const isGuest = !this.isAuthenticated || !this.user;
+                const shouldDisableForGuest = isGuest && index >= 1; // Disable tasks 2+ for guests
+                
                 const itemContent = `
                     <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${shouldDisableForGuest ? 'disabled' : ''}>
                         <label for="task-${task.id}"></label>
                     </div>
                     <div class="task-content">
-                        <div class="task-title">
+                        <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
                             ${task.content || '(untitled)'}
+                            ${shouldDisableForGuest ? '<span style="color: #fbbf24; font-size: 12px; margin-left: 8px;">(Sign up to unlock)</span>' : ''}
                         </div>
-                            </div>
+                    </div>
                     <div class="task-progress">
-                        <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                        </div>
+                        <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
+                    </div>
+                    ${!shouldDisableForGuest ? `
                     <div class="task-menu" data-task-id="${task.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="1"/>
@@ -5144,9 +5150,15 @@ class PomodoroTimer {
                             <circle cx="5" cy="12" r="1"/>
                         </svg>
                     </div>
+                    ` : ''}
                 `;
                 
                 item.innerHTML = itemContent;
+                
+                // Add disabled class for guest users
+                if (shouldDisableForGuest) {
+                    item.classList.add('disabled-for-guest');
+                }
                 
                 // Set initial selected state
                 if (taskConfig.selected) {
@@ -10921,20 +10933,25 @@ class PomodoroTimer {
                     const totalSessions = taskConfig.sessions || 1;
                     const isCompleted = task.completed || (completedSessions >= totalSessions);
                     
+                    // Check if task should be disabled for Guest users
+                    const isGuest = !this.isAuthenticated || !this.user;
+                    const shouldDisableForGuest = isGuest && globalIndex > 1; // Disable tasks 2+ for guests
+                    
                     const itemContent = `
                         <div class="task-checkbox">
-                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${shouldDisableForGuest ? 'disabled' : ''}>
                             <label for="task-${task.id}"></label>
                         </div>
                         <div class="task-content">
-                            <div class="task-title">
+                            <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
                                 ${task.content || '(untitled)'}
+                                ${shouldDisableForGuest ? '<span style="color: #fbbf24; font-size: 12px; margin-left: 8px;">(Sign up to unlock)</span>' : ''}
                             </div>
                         </div>
                         <div class="task-progress">
-                            <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                            <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
                         </div>
-                        ${!isCompleted ? `
+                        ${!isCompleted && !shouldDisableForGuest ? `
                         <div class="task-menu" data-task-id="${task.id}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1"/>
@@ -10946,6 +10963,11 @@ class PomodoroTimer {
                     `;
                     
                     item.innerHTML = itemContent;
+                    
+                    // Add disabled class for guest users
+                    if (shouldDisableForGuest) {
+                        item.classList.add('disabled-for-guest');
+                    }
                     
                     // Add completed class if task is completed
                     if (isCompleted) {
