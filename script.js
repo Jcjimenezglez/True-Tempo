@@ -11198,13 +11198,23 @@ class PomodoroTimer {
             newTodoistBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🔵 Todoist button clicked - calling showTodoistProjects()');
-                console.log('🔵 Current auth state:', {
-                    isAuthenticated: this.isAuthenticated,
-                    hasUser: !!this.user,
-                    isPro: this.isPro
+                console.log('🔵 Todoist button clicked - redirecting to auth');
+                
+                // Add user ID to URL for server-side verification
+                const userId = window.Clerk?.user?.id || '';
+                const viewMode = localStorage.getItem('viewMode');
+                
+                console.log('🔗 Connecting Todoist:', { 
+                    userId, 
+                    viewMode,
+                    clerkUser: window.Clerk?.user 
                 });
-                this.showTodoistProjects();
+                
+                // Check if Developer Mode is active
+                const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                
+                // Let the server verify Pro status - it will redirect with error if not Pro
+                window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
             });
             
             console.log('🔵 Event listener added successfully');
