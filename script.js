@@ -6377,8 +6377,8 @@ class PomodoroTimer {
                 // Check if Todoist is connected first
                 const isConnected = await this.checkTodoistConnection();
                 if (!isConnected) {
-                    // Show connection prompt and redirect to auth
-                    this.showTodoistConnectionPrompt();
+                    // Redirect directly to Todoist auth (no modal)
+                    window.location.href = '/api/todoist-auth-start';
                     return;
                 }
                 // Show Todoist projects selection modal
