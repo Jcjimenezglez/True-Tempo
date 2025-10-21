@@ -4869,12 +4869,12 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: 4px solid rgba(255, 255, 255, 0.3);
+    border-left: 4px solid #ffffff;
 }
 
 /* Preserve selected accent on hover */
 .task-item.selected:hover {
-    border-left-color: rgba(255, 255, 255, 0.4);
+    border-left-color: #ffffff;
 }
 
 .task-item.completed {
@@ -7486,9 +7486,9 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: 500;
@@ -7498,7 +7498,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-primary:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: #f0f0f0;
 }
 
 .btn-secondary {
