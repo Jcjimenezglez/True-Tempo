@@ -2123,6 +2123,7 @@ class PomodoroTimer {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'x-clerk-userid': this.user?.id || ''
                             },
                         });
                         
@@ -2194,10 +2195,31 @@ class PomodoroTimer {
         }
         
         if (this.integrationModalPrimaryBtn) {
-            this.integrationModalPrimaryBtn.addEventListener('click', () => {
+            this.integrationModalPrimaryBtn.addEventListener('click', async () => {
                 if (this.isAuthenticated) {
                     // Free user - redirect to Stripe checkout
-                    window.location.href = '/api/create-checkout-session';
+                    try {
+                        const response = await fetch('/api/create-checkout-session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-clerk-userid': this.user?.id || ''
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            window.location.href = data.url;
+                        } else {
+                            console.error('Checkout session creation failed:', response.status);
+                            // Fallback to pricing page
+                            window.location.href = '/pricing';
+                        }
+                    } catch (error) {
+                        console.error('Error creating checkout session:', error);
+                        // Fallback to pricing page
+                        window.location.href = '/pricing';
+                    }
                 } else {
                     // Guest user - redirect to pricing
                     window.location.href = '/pricing';
