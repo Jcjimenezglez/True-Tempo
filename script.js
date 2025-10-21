@@ -932,6 +932,14 @@ class PomodoroTimer {
     }
     
     showIntegrationModal(integrationType) {
+        console.log('🔍 showIntegrationModal called with:', integrationType);
+        console.log('🔍 Modal overlay element:', this.integrationModalOverlay);
+        console.log('🔍 Auth state:', {
+            isAuthenticated: this.isAuthenticated,
+            hasUser: !!this.user,
+            isPro: this.isPro
+        });
+        
         if (this.integrationModalOverlay) {
             const integrationData = {
                 todoist: {
@@ -947,12 +955,17 @@ class PomodoroTimer {
             };
             
             const data = integrationData[integrationType] || integrationData.todoist;
+            console.log('🔍 Modal data:', data);
             
             this.integrationModalMessage.textContent = data.message;
             this.integrationModalPrimaryBtn.textContent = data.primaryText;
             this.integrationModalSecondaryBtn.textContent = data.secondaryText;
             
+            console.log('🔍 Showing integration modal...');
             this.integrationModalOverlay.style.display = 'flex';
+            console.log('🔍 Modal display set to flex');
+        } else {
+            console.error('❌ Integration modal overlay not found!');
         }
     }
     
