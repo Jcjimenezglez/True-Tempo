@@ -277,17 +277,24 @@ class PomodoroTimer {
     
     // Mixpanel Analytics Functions
     initMixpanel() {
-        // Initialize Mixpanel if available
-        if (typeof mixpanel !== 'undefined') {
-            this.mixpanel = mixpanel;
-        } else {
-            console.warn('Mixpanel not loaded');
-            this.mixpanel = null;
-        }
+        // Wait for Mixpanel to load
+        const checkMixpanel = () => {
+            if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
+                this.mixpanel = window.mixpanel;
+                console.log('✅ Mixpanel initialized successfully');
+            } else {
+                // Retry after 100ms
+                setTimeout(checkMixpanel, 100);
+            }
+        };
+        
+        // Start checking for Mixpanel
+        checkMixpanel();
     }
     
     trackEvent(eventName, properties = {}) {
-        if (this.mixpanel) {
+        // Check if Mixpanel is available and properly initialized
+        if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
             try {
                 // Add common properties
                 const eventProperties = {
@@ -298,27 +305,29 @@ class PomodoroTimer {
                     user_id: this.user?.id || 'guest'
                 };
                 
-                this.mixpanel.track(eventName, eventProperties);
-                console.log('Mixpanel event tracked:', eventName, eventProperties);
+                window.mixpanel.track(eventName, eventProperties);
+                console.log('✅ Mixpanel event tracked:', eventName, eventProperties);
             } catch (error) {
-                console.error('Error tracking Mixpanel event:', error);
+                console.error('❌ Error tracking Mixpanel event:', error);
             }
+        } else {
+            console.warn('⚠️ Mixpanel not available, event not tracked:', eventName);
         }
     }
     
     identifyUser() {
-        if (this.mixpanel && this.isAuthenticated && this.user) {
+        if (typeof window.mixpanel !== 'undefined' && this.isAuthenticated && this.user) {
             try {
-                this.mixpanel.identify(this.user.id);
-                this.mixpanel.people.set({
+                window.mixpanel.identify(this.user.id);
+                window.mixpanel.people.set({
                     '$email': this.user.emailAddresses[0]?.emailAddress,
                     '$name': this.user.fullName,
                     'pro_user': this.isPro,
                     'signup_date': this.user.createdAt
                 });
-                console.log('User identified in Mixpanel:', this.user.id);
+                console.log('✅ User identified in Mixpanel:', this.user.id);
             } catch (error) {
-                console.error('Error identifying user in Mixpanel:', error);
+                console.error('❌ Error identifying user in Mixpanel:', error);
             }
         }
     }
