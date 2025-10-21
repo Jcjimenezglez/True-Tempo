@@ -932,14 +932,6 @@ class PomodoroTimer {
     }
     
     showIntegrationModal(integrationType) {
-        console.log('🔍 showIntegrationModal called with:', integrationType);
-        console.log('🔍 Modal overlay element:', this.integrationModalOverlay);
-        console.log('🔍 Auth state:', {
-            isAuthenticated: this.isAuthenticated,
-            hasUser: !!this.user,
-            isPro: this.isPro
-        });
-        
         if (this.integrationModalOverlay) {
             const integrationData = {
                 todoist: {
@@ -955,17 +947,12 @@ class PomodoroTimer {
             };
             
             const data = integrationData[integrationType] || integrationData.todoist;
-            console.log('🔍 Modal data:', data);
             
             this.integrationModalMessage.textContent = data.message;
             this.integrationModalPrimaryBtn.textContent = data.primaryText;
             this.integrationModalSecondaryBtn.textContent = data.secondaryText;
             
-            console.log('🔍 Showing integration modal...');
             this.integrationModalOverlay.style.display = 'flex';
-            console.log('🔍 Modal display set to flex');
-        } else {
-            console.error('❌ Integration modal overlay not found!');
         }
     }
     
@@ -11211,39 +11198,49 @@ class PomodoroTimer {
             newTodoistBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🔵 Todoist button clicked - checking connection status');
+                console.log('🔵 Todoist button clicked - checking user type and connection status');
                 
-                try {
-                    // Check if Todoist is connected first
-                    const isConnected = await this.checkTodoistConnection();
-                    console.log('🔍 Todoist connection status:', isConnected);
-                    
-                    if (!isConnected) {
-                        // Not connected → redirect to auth (same as Settings Connect button)
-                        console.log('🔗 Not connected - redirecting to Todoist auth...');
+                // Check if user is Pro (double check with isPremiumUser)
+                const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
+                
+                if (isProUser) {
+                    // Pro users can access integrations
+                    try {
+                        // Check if Todoist is connected first
+                        const isConnected = await this.checkTodoistConnection();
+                        console.log('🔍 Todoist connection status:', isConnected);
+                        
+                        if (!isConnected) {
+                            // Pro user not connected → redirect to auth
+                            console.log('🔗 Pro user not connected - redirecting to Todoist auth...');
+                            const userId = window.Clerk?.user?.id || '';
+                            const viewMode = localStorage.getItem('viewMode');
+                            
+                            console.log('🔗 Connecting Todoist:', { 
+                                userId, 
+                                viewMode,
+                                clerkUser: window.Clerk?.user 
+                            });
+                            
+                            const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                        } else {
+                            // Pro user connected → show tasks modal for import
+                            console.log('📋 Pro user connected - showing Todoist projects modal...');
+                            await this.showTodoistProjectsModal();
+                        }
+                    } catch (error) {
+                        console.error('Error checking Todoist connection:', error);
+                        // Fallback to auth redirect
                         const userId = window.Clerk?.user?.id || '';
                         const viewMode = localStorage.getItem('viewMode');
-                        
-                        console.log('🔗 Connecting Todoist:', { 
-                            userId, 
-                            viewMode,
-                            clerkUser: window.Clerk?.user 
-                        });
-                        
                         const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
                         window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-                    } else {
-                        // Connected → show tasks modal for import
-                        console.log('📋 Connected - showing Todoist projects modal...');
-                        await this.showTodoistProjectsModal();
                     }
-                } catch (error) {
-                    console.error('Error checking Todoist connection:', error);
-                    // Fallback to auth redirect
-                    const userId = window.Clerk?.user?.id || '';
-                    const viewMode = localStorage.getItem('viewMode');
-                    const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
-                    window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                } else {
+                    // Guest and Free users show integration modal
+                    console.log('💰 Showing integration modal for non-Pro user');
+                    this.showIntegrationModal('todoist');
                 }
             });
             
