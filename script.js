@@ -635,13 +635,19 @@ class PomodoroTimer {
                     preset.style.cursor = 'pointer';
                     preset.style.pointerEvents = 'auto';
                     
-                    // Remove "Sign up required" text
-                    const signupText = preset.querySelector('.technique-signup-text');
+                    // Hide "(Sign up required)" text
+                    const signupText = preset.querySelector('.signup-required-text');
                     if (signupText) {
-                        signupText.remove();
+                        signupText.classList.add('hidden');
                     }
                 }
             });
+            
+            // Hide "(Sign up required)" text from sessions label
+            const sessionsSignupText = document.querySelector('#sidebarSessionsSlider').closest('.duration-item').querySelector('.signup-required-text');
+            if (sessionsSignupText) {
+                sessionsSignupText.classList.add('hidden');
+            }
             
             // Enable save button
             const saveBtn = document.querySelector('#sidebarSaveSettings');
@@ -11684,7 +11690,12 @@ class PomodoroTimer {
                 sessionsSlider.disabled = true;
                 sessionsSlider.style.opacity = '0.5';
                 sessionsSlider.style.cursor = 'not-allowed';
-                sessionsValue.textContent = 'Sign up required';
+                
+                // Show "(Sign up required)" in the label
+                const signupText = settingsPanel.querySelector('#sidebarSessionsSlider').closest('.duration-item').querySelector('.signup-required-text');
+                if (signupText) {
+                    signupText.classList.remove('hidden');
+                }
             }
             
             sessionsSlider.addEventListener('input', (e) => {
@@ -11707,14 +11718,11 @@ class PomodoroTimer {
                 preset.style.cursor = 'not-allowed';
                 preset.style.pointerEvents = 'none';
                 
-                // Add "Sign up required" text
-                const signupText = document.createElement('div');
-                signupText.className = 'technique-signup-text';
-                signupText.textContent = 'Sign up required';
-                signupText.style.fontSize = '10px';
-                signupText.style.color = 'rgba(255, 255, 255, 0.6)';
-                signupText.style.marginTop = '4px';
-                preset.appendChild(signupText);
+                // Show "(Sign up required)" text
+                const signupText = preset.querySelector('.signup-required-text');
+                if (signupText) {
+                    signupText.classList.remove('hidden');
+                }
             }
             
             preset.addEventListener('click', () => {

@@ -5628,6 +5628,16 @@ input:checked + .toggle-slider:before {
     line-height: 1.2;
 }
 
+.signup-required-text {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: normal;
+}
+
+.hidden {
+    display: none;
+}
+
 /* Music Side Panel Specific Styles */
 .music-volume-section {
     margin-bottom: 24px;
