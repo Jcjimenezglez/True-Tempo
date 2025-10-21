@@ -534,8 +534,88 @@ class PomodoroTimer {
         });
     }
     
+    debugAuthState() {
+        try {
+            console.log('🔍 Auth Debug Info:');
+            console.log('- isAuthenticated:', this.isAuthenticated);
+            console.log('- user:', this.user);
+            console.log('- Clerk exists:', !!window.Clerk);
+            console.log('- Clerk.user:', window.Clerk?.user);
+            console.log('- Clerk.session:', window.Clerk?.session);
+            console.log('- localStorage hasAccount:', localStorage.getItem('hasAccount'));
+            console.log('- sessionStorage just_logged_out:', sessionStorage.getItem('just_logged_out'));
+            
+            // Check for multiple account issues
+            if (window.Clerk?.user && !this.isAuthenticated) {
+                console.warn('⚠️ Potential multiple account issue: Clerk has user but app shows not authenticated');
+                console.log('Attempting to sync auth state...');
+                this.isAuthenticated = true;
+                this.user = window.Clerk.user;
+            }
+            
+            // Check for session conflicts
+            if (this.isAuthenticated && !window.Clerk?.user) {
+                console.warn('⚠️ Session conflict: App shows authenticated but Clerk has no user');
+                console.log('Clearing auth state...');
+                this.isAuthenticated = false;
+                this.user = null;
+            }
+            
+        } catch (error) {
+            console.error('Debug auth state error:', error);
+        }
+    }
+    
+    // Force clear all auth state to resolve multiple account issues
+    forceClearAuthState() {
+        try {
+            console.log('🧹 Force clearing all auth state...');
+            
+            // Clear app state
+            this.isAuthenticated = false;
+            this.user = null;
+            this.isPro = false;
+            
+            // Clear localStorage
+            localStorage.removeItem('hasAccount');
+            localStorage.removeItem('selectedImmersiveTheme');
+            localStorage.removeItem('lastSelectedTheme');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('just_logged_out');
+            
+            // Clear Clerk state if possible
+            if (window.Clerk && window.Clerk.signOut) {
+                try {
+                    window.Clerk.signOut();
+                } catch (e) {
+                    console.log('Could not sign out from Clerk:', e);
+                }
+            }
+            
+            // Clear Todoist tasks
+            this.clearTodoistTasks();
+            
+            // Update UI
+            this.updateAuthState();
+            
+            console.log('✅ Auth state cleared successfully');
+            
+            // Make function available globally for debugging
+            window.debugAuth = () => this.debugAuthState();
+            window.clearAuth = () => this.forceClearAuthState();
+            console.log('🔧 Debug functions available: window.debugAuth() and window.clearAuth()');
+            
+        } catch (error) {
+            console.error('Error clearing auth state:', error);
+        }
+    }
+    
     updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+        
+        // Debug multiple account issues
+        this.debugAuthState();
         
         // If we just logged out, do NOT rehydrate from Clerk even if window.Clerk.user still exists momentáneamente
         let justLoggedOut = false;
