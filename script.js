@@ -917,6 +917,29 @@ class PomodoroTimer {
         }
     }
     
+    showTaskLimitModal() {
+        if (this.guestTaskLimitModalOverlay) {
+            // Update modal content based on user type
+            const title = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-title');
+            const message = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-message');
+            const button = this.guestTaskLimitModalOverlay.querySelector('#guestTaskLimitSignupBtn');
+            
+            if (!this.isAuthenticated) {
+                // Guest user
+                title.textContent = 'Task limit reached';
+                message.textContent = 'Guest users can have up to 1 active task. Sign up to create unlimited tasks and unlock all features!';
+                button.textContent = 'Sign up';
+            } else {
+                // Free user (authenticated but not Pro)
+                title.textContent = 'Task limit reached';
+                message.textContent = 'Free users can have up to 5 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
+                button.textContent = 'Upgrade to Pro';
+            }
+            
+            this.guestTaskLimitModalOverlay.style.display = 'flex';
+        }
+    }
+    
     showGuestTaskLimitModal() {
         if (this.guestTaskLimitModalOverlay) {
             this.guestTaskLimitModalOverlay.style.display = 'flex';
@@ -2040,7 +2063,15 @@ class PomodoroTimer {
         if (this.guestTaskLimitSignupBtn) {
             this.guestTaskLimitSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.handleSignup();
+                this.hideGuestTaskLimitModal();
+                
+                if (!this.isAuthenticated) {
+                    // Guest user - show signup
+                    this.handleSignup();
+                } else {
+                    // Free user - show pricing modal
+                    this.showPricingModal();
+                }
             });
         }
         
@@ -5139,12 +5170,24 @@ class PomodoroTimer {
         const addTaskForm = modal.querySelector('#addTaskForm');
         if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
-                // Check guest task limit BEFORE showing the form
+                // Check task limit BEFORE showing the form
                 const currentTasks = this.getLocalTasks();
-                const MAX_GUEST_TASKS = 1;
                 
-                if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
-                    this.showGuestTaskLimitModal();
+                // Define limits based on user type
+                let taskLimit;
+                if (!this.isAuthenticated) {
+                    // Guest users: 1 task
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
+                    // Free users: 5 tasks
+                    taskLimit = 5;
+                } else {
+                    // Pro users: unlimited
+                    taskLimit = Infinity;
+                }
+                
+                if (currentTasks.length >= taskLimit) {
+                    this.showTaskLimitModal();
                     return;
                 }
                 
@@ -10928,12 +10971,24 @@ class PomodoroTimer {
             newAddTaskBtn.addEventListener('click', () => {
                 console.log('Add Task button clicked');
                 
-                // Check guest task limit BEFORE showing the form
+                // Check task limit BEFORE showing the form
                 const currentTasks = this.getLocalTasks();
-                const MAX_GUEST_TASKS = 1;
                 
-                if (!this.isAuthenticated && currentTasks.length >= MAX_GUEST_TASKS) {
-                    this.showGuestTaskLimitModal();
+                // Define limits based on user type
+                let taskLimit;
+                if (!this.isAuthenticated) {
+                    // Guest users: 1 task
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
+                    // Free users: 5 tasks
+                    taskLimit = 5;
+                } else {
+                    // Pro users: unlimited
+                    taskLimit = Infinity;
+                }
+                
+                if (currentTasks.length >= taskLimit) {
+                    this.showTaskLimitModal();
                     return;
                 }
                 
