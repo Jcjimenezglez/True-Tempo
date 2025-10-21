@@ -512,13 +512,13 @@ body::-webkit-scrollbar {
 
 /* Main content pushes when panel opens */
 .main-content {
-    margin-left: calc(var(--sidebar-collapsed-width) + 8px);
+    margin-left: var(--sidebar-collapsed-width);
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
 }
 
 .main-content.task-panel-open {
-    margin-left: calc(var(--sidebar-collapsed-width) + 8px + 400px) !important;
+    margin-left: calc(var(--sidebar-collapsed-width) + 400px) !important;
 }
 
 /* Mobile Menu Toggle Button */
