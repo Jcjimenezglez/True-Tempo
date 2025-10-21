@@ -470,13 +470,29 @@ body::-webkit-scrollbar {
 
 .task-side-panel-content {
     height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     padding: 24px;
     gap: 16px;
     overscroll-behavior: contain;
+}
+
+/* Timer specific layout */
+.timer-scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    margin-right: -8px;
+}
+
+.timer-save-panel {
+    flex-shrink: 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--onyx-dark, #1a1a1a);
+    margin: 0 -24px -24px -24px;
+    padding: 1.5rem 24px 24px 24px;
 }
 
 /* Custom scrollbar for task panel */
@@ -5515,6 +5531,29 @@ input:checked + .toggle-slider:before {
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Timer save panel styling */
+.timer-save-panel .save-settings-btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.timer-save-panel .save-settings-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.timer-save-panel .save-settings-btn:active {
+    transform: translateY(0);
 }
 
 .settings-save-section .save-settings-btn {
