@@ -616,14 +616,26 @@ class PomodoroTimer {
         try {
             console.log('🔓 Enabling Timer panel features for authenticated user');
             
-            // Enable sessions slider
+            // Enable sessions card
             const sessionsSlider = document.querySelector('#sidebarSessionsSlider');
             const sessionsValue = document.querySelector('#sidebarSessionsValue');
-            if (sessionsSlider && sessionsValue) {
-                sessionsSlider.disabled = false;
-                sessionsSlider.style.opacity = '1';
-                sessionsSlider.style.cursor = 'pointer';
+            const sessionsCard = sessionsSlider?.closest('.duration-item');
+            
+            if (sessionsSlider && sessionsValue && sessionsCard) {
+                sessionsCard.style.opacity = '1';
+                sessionsCard.style.pointerEvents = 'auto';
+                sessionsCard.style.cursor = 'auto';
                 sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+            }
+            
+            // Enable Long Break card
+            const longBreakSlider = document.querySelector('#sidebarLongBreakSlider');
+            const longBreakCard = longBreakSlider?.closest('.duration-item');
+            
+            if (longBreakSlider && longBreakCard) {
+                longBreakCard.style.opacity = '1';
+                longBreakCard.style.pointerEvents = 'auto';
+                longBreakCard.style.cursor = 'auto';
             }
             
             // Enable advanced techniques
@@ -643,10 +655,15 @@ class PomodoroTimer {
                 }
             });
             
-            // Hide "(Sign up required)" text from sessions label
-            const sessionsSignupText = document.querySelector('#sidebarSessionsSlider').closest('.duration-item').querySelector('.signup-required-text');
+            // Hide "(Sign up required)" text from sessions and long break labels
+            const sessionsSignupText = document.querySelector('#sidebarSessionsSlider')?.closest('.duration-item')?.querySelector('.signup-required-text');
             if (sessionsSignupText) {
                 sessionsSignupText.classList.add('hidden');
+            }
+            
+            const longBreakSignupText = document.querySelector('#sidebarLongBreakSlider')?.closest('.duration-item')?.querySelector('.signup-required-text');
+            if (longBreakSignupText) {
+                longBreakSignupText.classList.add('hidden');
             }
             
             // Enable save button
@@ -11673,7 +11690,26 @@ class PomodoroTimer {
             longBreakSlider.value = longBreakMin;
             longBreakValue.textContent = `${longBreakMin} min`;
             
+            const longBreakCard = longBreakSlider.closest('.duration-item');
+            
+            // Disable Long Break card for guest users
+            if (!this.isAuthenticated && longBreakCard) {
+                longBreakCard.style.opacity = '0.5';
+                longBreakCard.style.pointerEvents = 'none';
+                longBreakCard.style.cursor = 'not-allowed';
+                
+                // Show "(Sign up required)" in the label
+                const signupText = longBreakCard.querySelector('.signup-required-text');
+                if (signupText) {
+                    signupText.classList.remove('hidden');
+                }
+            }
+            
             longBreakSlider.addEventListener('input', (e) => {
+                if (!this.isAuthenticated) {
+                    this.showLoginRequiredModal('longbreak');
+                    return;
+                }
                 longBreakValue.textContent = `${e.target.value} min`;
             });
         }
@@ -11681,18 +11717,20 @@ class PomodoroTimer {
         // Sessions slider
         const sessionsSlider = settingsPanel.querySelector('#sidebarSessionsSlider');
         const sessionsValue = settingsPanel.querySelector('#sidebarSessionsValue');
-        if (sessionsSlider && sessionsValue) {
+        const sessionsCard = sessionsSlider?.closest('.duration-item');
+        
+        if (sessionsSlider && sessionsValue && sessionsCard) {
             sessionsSlider.value = this.sessionsPerCycle;
             sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
             
-            // Disable sessions slider for guest users
+            // Disable entire sessions card for guest users
             if (!this.isAuthenticated) {
-                sessionsSlider.disabled = true;
-                sessionsSlider.style.opacity = '0.5';
-                sessionsSlider.style.cursor = 'not-allowed';
+                sessionsCard.style.opacity = '0.5';
+                sessionsCard.style.pointerEvents = 'none';
+                sessionsCard.style.cursor = 'not-allowed';
                 
                 // Show "(Sign up required)" in the label
-                const signupText = settingsPanel.querySelector('#sidebarSessionsSlider').closest('.duration-item').querySelector('.signup-required-text');
+                const signupText = sessionsCard.querySelector('.signup-required-text');
                 if (signupText) {
                     signupText.classList.remove('hidden');
                 }
