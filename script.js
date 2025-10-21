@@ -2069,8 +2069,8 @@ class PomodoroTimer {
                     // Guest user - show signup
                     this.handleSignup();
                 } else {
-                    // Free user - show pricing modal
-                    this.showPricingModal();
+                    // Free user - redirect to pricing page
+                    window.location.href = '/pricing';
                 }
             });
         }
