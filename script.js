@@ -5136,7 +5136,7 @@ class PomodoroTimer {
                     <div class="task-content">
                         <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
                             ${task.content || '(untitled)'}
-                            ${shouldDisableForGuest ? '<span style="color: #fbbf24; font-size: 12px; margin-left: 8px;">(Sign up to unlock)</span>' : ''}
+                            ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up to unlock)</span>' : ''}
                         </div>
                     </div>
                     <div class="task-progress">
@@ -10945,7 +10945,7 @@ class PomodoroTimer {
                         <div class="task-content">
                             <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
                                 ${task.content || '(untitled)'}
-                                ${shouldDisableForGuest ? '<span style="color: #fbbf24; font-size: 12px; margin-left: 8px;">(Sign up to unlock)</span>' : ''}
+                                ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up to unlock)</span>' : ''}
                             </div>
                         </div>
                         <div class="task-progress">
