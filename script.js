@@ -323,6 +323,15 @@ class PomodoroTimer {
         }
     }
     
+    getCurrentTaskCount() {
+        try {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            return tasks.length;
+        } catch (error) {
+            return 0;
+        }
+    }
+    
     init() {
         this.layoutSegments();
         this.updateDisplay();
@@ -1309,6 +1318,14 @@ class PomodoroTimer {
     }
     
     showTechniqueModal(technique) {
+        // Track user motivation - technique interest
+        this.trackEvent('Technique Interest Shown', {
+            technique_name: technique,
+            motivation: 'advanced_technique_interest',
+            user_journey: 'guest → technique_modal',
+            user_type: 'guest'
+        });
+        
         // Get technique name
         const techniqueNames = {
             'sprint': 'Sprint',
@@ -1363,6 +1380,14 @@ class PomodoroTimer {
         });
         
         signupBtn.addEventListener('click', () => {
+            // Track motivation for signup
+            this.trackEvent('Signup from Technique Modal', {
+                technique_name: technique,
+                motivation: 'technique_modal_signup',
+                user_journey: 'guest → technique_modal → signup',
+                conversion_source: 'technique_interest'
+            });
+            
             closeModal();
             window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
         });
@@ -1381,6 +1406,14 @@ class PomodoroTimer {
     
     showTaskLimitModal() {
         if (this.guestTaskLimitModalOverlay) {
+            // Track user motivation - task limit reached
+            this.trackEvent('Task Limit Reached', {
+                user_type: this.isAuthenticated ? 'free_user' : 'guest',
+                motivation: 'task_limit_reached',
+                user_journey: this.isAuthenticated ? 'free → task_limit' : 'guest → task_limit',
+                current_tasks: this.getCurrentTaskCount()
+            });
+            
             // Update modal content based on user type
             const title = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-title');
             const message = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-message');
@@ -2175,7 +2208,8 @@ class PomodoroTimer {
                 e.preventDefault();
                 this.trackEvent('Signup Button Clicked', {
                     source: 'main_header',
-                    user_type: this.isAuthenticated ? 'authenticated' : 'guest'
+                    user_type: this.isAuthenticated ? 'authenticated' : 'guest',
+                    motivation: 'header_signup_click'
                 });
                 this.handleSignup();
             });
@@ -2543,6 +2577,15 @@ class PomodoroTimer {
         if (this.guestTaskLimitSignupBtn) {
             this.guestTaskLimitSignupBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
+                
+                // Track motivation for signup/upgrade
+                this.trackEvent('Signup from Task Limit Modal', {
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest',
+                    motivation: 'task_limit_modal_signup',
+                    user_journey: this.isAuthenticated ? 'free → task_limit → upgrade' : 'guest → task_limit → signup',
+                    conversion_source: 'task_limit_reached'
+                });
+                
                 this.hideGuestTaskLimitModal();
                 
                 if (!this.isAuthenticated) {
@@ -9721,6 +9764,14 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
+            // Track Guest → Signup conversion
+            this.trackEvent('Guest to Signup Conversion', {
+                conversion_type: 'guest_to_signup',
+                user_journey: 'guest → signup',
+                timestamp: new Date().toISOString(),
+                source: 'clerk_signup'
+            });
+            
             // Track signup conversion
             this.trackConversion('signup');
             
@@ -9740,6 +9791,15 @@ class PomodoroTimer {
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
+            
+            // Track Signup → Pro conversion
+            this.trackEvent('Signup to Pro Conversion', {
+                conversion_type: 'signup_to_pro',
+                user_journey: 'signup → pro',
+                revenue: 9.0,
+                timestamp: new Date().toISOString(),
+                source: 'stripe_payment'
+            });
             
             // Track subscription conversion immediately
             this.trackConversion('subscription', 9.0);
