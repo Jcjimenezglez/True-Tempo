@@ -1,7 +1,6 @@
 class PomodoroTimer {
     constructor() {
         // Initialize Mixpanel tracking
-        this.initMixpanel();
         // Pomodoro Technique structure - Load from localStorage if authenticated
         const savedPomodoroTime = localStorage.getItem('pomodoroTime');
         const savedShortBreakTime = localStorage.getItem('shortBreakTime');
@@ -275,73 +274,6 @@ class PomodoroTimer {
         });
     }
     
-    // Mixpanel Analytics Functions
-    initMixpanel() {
-        // Mixpanel is initialized in HTML, just verify it's available
-        if (typeof window.mixpanel !== 'undefined') {
-            console.log('✅ Mixpanel is available');
-        } else {
-            console.warn('⚠️ Mixpanel not available');
-        }
-    }
-    
-    trackEvent(eventName, properties = {}) {
-        // Wait for Mixpanel to be fully initialized
-        const tryTrack = (attempts = 0) => {
-            if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track && typeof window.mixpanel.track === 'function') {
-                try {
-                    // Add common properties
-                    const eventProperties = {
-                        ...properties,
-                        timestamp: new Date().toISOString(),
-                        user_authenticated: this.isAuthenticated,
-                        user_pro: this.isPro,
-                        user_id: this.user?.id || 'guest'
-                    };
-                    
-                    window.mixpanel.track(eventName, eventProperties);
-                    console.log('✅ Mixpanel event tracked:', eventName);
-                } catch (error) {
-                    console.error('❌ Error tracking Mixpanel event:', error);
-                }
-            } else if (attempts < 10) {
-                // Retry after 200ms, up to 10 times
-                setTimeout(() => tryTrack(attempts + 1), 200);
-            } else {
-                console.warn('⚠️ Mixpanel not available after 10 attempts, event not tracked:', eventName);
-            }
-        };
-        
-        tryTrack();
-    }
-    
-    identifyUser() {
-        if (this.isAuthenticated && this.user) {
-            const tryIdentify = (attempts = 0) => {
-                if (typeof window.mixpanel !== 'undefined' && window.mixpanel.identify && typeof window.mixpanel.identify === 'function') {
-                    try {
-                        window.mixpanel.identify(this.user.id);
-                        window.mixpanel.people.set({
-                            '$email': this.user.emailAddresses[0]?.emailAddress,
-                            '$name': this.user.fullName,
-                            'pro_user': this.isPro,
-                            'signup_date': this.user.createdAt
-                        });
-                        console.log('✅ User identified in Mixpanel:', this.user.id);
-                    } catch (error) {
-                        console.error('❌ Error identifying user in Mixpanel:', error);
-                    }
-                } else if (attempts < 10) {
-                    // Retry after 200ms, up to 10 times
-                    setTimeout(() => tryIdentify(attempts + 1), 200);
-                } else {
-                    console.warn('⚠️ Mixpanel not available for user identification');
-                }
-            };
-            
-            tryIdentify();
-        }
-    }
     
     getCurrentTaskCount() {
         try {
@@ -917,16 +849,7 @@ class PomodoroTimer {
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             
-            // Track user authentication
-            this.trackEvent('User Authenticated', {
-                user_id: this.user.id,
-                email: this.user.emailAddresses[0]?.emailAddress,
-                is_pro: this.isPro,
-                signup_date: this.user.createdAt
-            });
             
-            // Identify user in Mixpanel
-            this.identifyUser();
             
             // Enable Timer panel features for authenticated users
             this.enableTimerPanelFeatures();
@@ -1338,13 +1261,6 @@ class PomodoroTimer {
     }
     
     showTechniqueModal(technique) {
-        // Track user motivation - technique interest
-        this.trackEvent('Technique Interest Shown', {
-            technique_name: technique,
-            motivation: 'advanced_technique_interest',
-            user_journey: 'guest → technique_modal',
-            user_type: 'guest'
-        });
         
         // Get technique name
         const techniqueNames = {
@@ -1400,13 +1316,6 @@ class PomodoroTimer {
         });
         
         signupBtn.addEventListener('click', () => {
-            // Track motivation for signup
-            this.trackEvent('Signup from Technique Modal', {
-                technique_name: technique,
-                motivation: 'technique_modal_signup',
-                user_journey: 'guest → technique_modal → signup',
-                conversion_source: 'technique_interest'
-            });
             
             closeModal();
             window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
@@ -1426,13 +1335,6 @@ class PomodoroTimer {
     
     showTaskLimitModal() {
         if (this.guestTaskLimitModalOverlay) {
-            // Track user motivation - task limit reached
-            this.trackEvent('Task Limit Reached', {
-                user_type: this.isAuthenticated ? 'free_user' : 'guest',
-                motivation: 'task_limit_reached',
-                user_journey: this.isAuthenticated ? 'free → task_limit' : 'guest → task_limit',
-                current_tasks: this.getCurrentTaskCount()
-            });
             
             // Update modal content based on user type
             const title = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-title');
@@ -1944,11 +1846,6 @@ class PomodoroTimer {
     bindEvents() {
         // Primary binding for Play/Pause button (original behavior)
         if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => {
-            this.trackEvent('Timer Toggle Clicked', {
-                timer_state: this.isRunning ? 'running' : 'paused',
-                current_section: this.currentSection,
-                technique: this.getCurrentTechnique()
-            });
             this.toggleTimer();
         });
         if (this.prevSectionBtn) this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
@@ -2226,11 +2123,6 @@ class PomodoroTimer {
         if (this.signupButton) {
             this.signupButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.trackEvent('Signup Button Clicked', {
-                    source: 'main_header',
-                    user_type: this.isAuthenticated ? 'authenticated' : 'guest',
-                    motivation: 'header_signup_click'
-                });
                 this.handleSignup();
             });
         }
@@ -2598,13 +2490,6 @@ class PomodoroTimer {
             this.guestTaskLimitSignupBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
-                // Track motivation for signup/upgrade
-                this.trackEvent('Signup from Task Limit Modal', {
-                    user_type: this.isAuthenticated ? 'free_user' : 'guest',
-                    motivation: 'task_limit_modal_signup',
-                    user_journey: this.isAuthenticated ? 'free → task_limit → upgrade' : 'guest → task_limit → signup',
-                    conversion_source: 'task_limit_reached'
-                });
                 
                 this.hideGuestTaskLimitModal();
                 
@@ -3120,12 +3005,6 @@ class PomodoroTimer {
     }
 
     applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider) {
-        // Track technique selection
-        this.trackEvent('Technique Selected', {
-            technique_name: technique,
-            user_authenticated: this.isAuthenticated,
-            user_pro: this.isPro
-        });
         
         const presets = {
             pomodoro: { work: 25, shortBreak: 5, longBreak: 15, sessions: 4 },
@@ -9784,13 +9663,6 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
-            // Track Guest → Signup conversion
-            this.trackEvent('Guest to Signup Conversion', {
-                conversion_type: 'guest_to_signup',
-                user_journey: 'guest → signup',
-                timestamp: new Date().toISOString(),
-                source: 'clerk_signup'
-            });
             
             // Track signup conversion
             this.trackConversion('signup');
@@ -9812,14 +9684,6 @@ class PomodoroTimer {
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
-            // Track Signup → Pro conversion
-            this.trackEvent('Signup to Pro Conversion', {
-                conversion_type: 'signup_to_pro',
-                user_journey: 'signup → pro',
-                revenue: 9.0,
-                timestamp: new Date().toISOString(),
-                source: 'stripe_payment'
-            });
             
             // Track subscription conversion immediately
             this.trackConversion('subscription', 9.0);
