@@ -11183,17 +11183,33 @@ class PomodoroTimer {
         
         // Setup integration buttons
         const todoistBtn = panel.querySelector('#importTodoistMainBtn');
-        console.log('🔵 Todoist button:', todoistBtn);
+        console.log('🔵 Todoist button found:', todoistBtn);
+        console.log('🔵 Panel element:', panel);
+        console.log('🔵 All buttons in panel:', panel.querySelectorAll('button'));
+        
         if (todoistBtn) {
-            todoistBtn.replaceWith(todoistBtn.cloneNode(true));
-            const newTodoistBtn = panel.querySelector('#importTodoistMainBtn');
+            // Remove any existing listeners by cloning the button
+            const newTodoistBtn = todoistBtn.cloneNode(true);
+            todoistBtn.parentNode.replaceChild(newTodoistBtn, todoistBtn);
+            
+            console.log('🔵 New Todoist button created:', newTodoistBtn);
             console.log('🔵 Adding click listener to Todoist button');
-            newTodoistBtn.addEventListener('click', () => {
-                console.log('Todoist button clicked');
+            
+            newTodoistBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔵 Todoist button clicked - calling showTodoistProjects()');
+                console.log('🔵 Current auth state:', {
+                    isAuthenticated: this.isAuthenticated,
+                    hasUser: !!this.user,
+                    isPro: this.isPro
+                });
                 this.showTodoistProjects();
             });
+            
+            console.log('🔵 Event listener added successfully');
         } else {
-            console.warn('⚠️ Todoist button not found');
+            console.warn('⚠️ Todoist button not found in panel');
         }
         
         const notionBtn = panel.querySelector('#importNotionMainBtn');
