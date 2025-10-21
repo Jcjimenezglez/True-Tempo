@@ -490,7 +490,6 @@ body::-webkit-scrollbar {
     flex-shrink: 0;
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background: var(--onyx-dark, #1a1a1a);
     margin: 0 -24px -24px -24px;
     padding: 1.5rem 24px 24px 24px;
 }
