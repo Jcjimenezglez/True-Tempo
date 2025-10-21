@@ -6369,11 +6369,24 @@ class PomodoroTimer {
     }
 
     // Wrapper functions for integration buttons
-    showTodoistProjects() {
+    async showTodoistProjects() {
         // Check if user is Pro
         if (this.isAuthenticated && this.user && this.isPro) {
             // Pro users can access integrations
-            this.showTodoistProjectsModal();
+            try {
+                // Check if Todoist is connected first
+                const isConnected = await this.checkTodoistConnection();
+                if (!isConnected) {
+                    // Show connection prompt and redirect to auth
+                    this.showTodoistConnectionPrompt();
+                    return;
+                }
+                // Show Todoist projects selection modal
+                await this.showTodoistProjectsModal();
+            } catch (error) {
+                console.error('Error opening Todoist projects modal:', error);
+                alert('Error loading Todoist projects. Please try again.');
+            }
         } else {
             // Guest and Free users show integration modal
             this.showIntegrationModal('todoist');
