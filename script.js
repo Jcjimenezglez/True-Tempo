@@ -11195,26 +11195,43 @@ class PomodoroTimer {
             console.log('🔵 New Todoist button created:', newTodoistBtn);
             console.log('🔵 Adding click listener to Todoist button');
             
-            newTodoistBtn.addEventListener('click', (e) => {
+            newTodoistBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🔵 Todoist button clicked - redirecting to auth');
+                console.log('🔵 Todoist button clicked - checking connection status');
                 
-                // Add user ID to URL for server-side verification
-                const userId = window.Clerk?.user?.id || '';
-                const viewMode = localStorage.getItem('viewMode');
-                
-                console.log('🔗 Connecting Todoist:', { 
-                    userId, 
-                    viewMode,
-                    clerkUser: window.Clerk?.user 
-                });
-                
-                // Check if Developer Mode is active
-                const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
-                
-                // Let the server verify Pro status - it will redirect with error if not Pro
-                window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                try {
+                    // Check if Todoist is connected first
+                    const isConnected = await this.checkTodoistConnection();
+                    console.log('🔍 Todoist connection status:', isConnected);
+                    
+                    if (!isConnected) {
+                        // Not connected → redirect to auth (same as Settings Connect button)
+                        console.log('🔗 Not connected - redirecting to Todoist auth...');
+                        const userId = window.Clerk?.user?.id || '';
+                        const viewMode = localStorage.getItem('viewMode');
+                        
+                        console.log('🔗 Connecting Todoist:', { 
+                            userId, 
+                            viewMode,
+                            clerkUser: window.Clerk?.user 
+                        });
+                        
+                        const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                        window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                    } else {
+                        // Connected → show tasks modal for import
+                        console.log('📋 Connected - showing Todoist projects modal...');
+                        await this.showTodoistProjectsModal();
+                    }
+                } catch (error) {
+                    console.error('Error checking Todoist connection:', error);
+                    // Fallback to auth redirect
+                    const userId = window.Clerk?.user?.id || '';
+                    const viewMode = localStorage.getItem('viewMode');
+                    const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                    window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                }
             });
             
             console.log('🔵 Event listener added successfully');
