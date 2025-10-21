@@ -561,8 +561,57 @@ class PomodoroTimer {
                 this.user = null;
             }
             
+            // Check for button/panel functionality issues
+            this.debugPanelFunctionality();
+            
         } catch (error) {
             console.error('Debug auth state error:', error);
+        }
+    }
+    
+    debugPanelFunctionality() {
+        try {
+            console.log('🔧 Panel Functionality Debug:');
+            
+            // Check if panels are properly initialized
+            const taskPanel = document.getElementById('taskSidePanel');
+            const timerPanel = document.getElementById('settingsSidePanel');
+            const musicPanel = document.getElementById('musicSidePanel');
+            
+            console.log('- Task Panel exists:', !!taskPanel);
+            console.log('- Timer Panel exists:', !!timerPanel);
+            console.log('- Music Panel exists:', !!musicPanel);
+            
+            // Check if event listeners are working
+            if (taskPanel) {
+                const taskButtons = taskPanel.querySelectorAll('button');
+                console.log('- Task Panel buttons:', taskButtons.length);
+            }
+            
+            if (timerPanel) {
+                const timerButtons = timerPanel.querySelectorAll('button');
+                console.log('- Timer Panel buttons:', timerButtons.length);
+            }
+            
+            if (musicPanel) {
+                const musicButtons = musicPanel.querySelectorAll('button');
+                console.log('- Music Panel buttons:', musicButtons.length);
+            }
+            
+            // Check for disabled states
+            const disabledButtons = document.querySelectorAll('button[disabled]');
+            console.log('- Disabled buttons:', disabledButtons.length);
+            
+            // Check for opacity issues
+            const lowOpacityElements = document.querySelectorAll('[style*="opacity: 0.5"]');
+            console.log('- Low opacity elements:', lowOpacityElements.length);
+            
+            // Check for pointer-events issues
+            const noPointerElements = document.querySelectorAll('[style*="pointer-events: none"]');
+            console.log('- No pointer events elements:', noPointerElements.length);
+            
+        } catch (error) {
+            console.error('Debug panel functionality error:', error);
         }
     }
     
@@ -604,10 +653,96 @@ class PomodoroTimer {
             // Make function available globally for debugging
             window.debugAuth = () => this.debugAuthState();
             window.clearAuth = () => this.forceClearAuthState();
-            console.log('🔧 Debug functions available: window.debugAuth() and window.clearAuth()');
+            window.fixPanels = () => this.forceReinitializePanels();
+            console.log('🔧 Debug functions available: window.debugAuth(), window.clearAuth(), window.fixPanels()');
             
         } catch (error) {
             console.error('Error clearing auth state:', error);
+        }
+    }
+    
+    // Force reinitialize panels to fix button/action issues
+    forceReinitializePanels() {
+        try {
+            console.log('🔧 Force reinitializing panels...');
+            
+            // Re-setup Timer panel
+            const timerPanel = document.getElementById('settingsSidePanel');
+            if (timerPanel) {
+                console.log('Re-setting up Timer panel...');
+                this.setupTimerSidebar();
+            }
+            
+            // Re-setup Task panel
+            const taskPanel = document.getElementById('taskSidePanel');
+            if (taskPanel) {
+                console.log('Re-setting up Task panel...');
+                this.setupTaskSidebar();
+            }
+            
+            // Re-setup Music panel
+            const musicPanel = document.getElementById('musicSidePanel');
+            if (musicPanel) {
+                console.log('Re-setting up Music panel...');
+                this.setupMusicSidebar();
+            }
+            
+            // Force update auth state
+            this.updateAuthState();
+            
+            console.log('✅ Panels reinitialized successfully');
+            
+        } catch (error) {
+            console.error('Error reinitializing panels:', error);
+        }
+    }
+    
+    // Auto-fix common panel issues for authenticated users
+    autoFixPanelIssues() {
+        try {
+            console.log('🔧 Auto-fixing panel issues...');
+            
+            // Fix disabled buttons in panels
+            const panels = ['taskSidePanel', 'settingsSidePanel', 'musicSidePanel'];
+            panels.forEach(panelId => {
+                const panel = document.getElementById(panelId);
+                if (panel) {
+                    const buttons = panel.querySelectorAll('button');
+                    buttons.forEach(button => {
+                        if (button.disabled && this.isAuthenticated) {
+                            console.log(`Enabling disabled button in ${panelId}:`, button.textContent);
+                            button.disabled = false;
+                            button.style.opacity = '1';
+                            button.style.cursor = 'pointer';
+                        }
+                    });
+                }
+            });
+            
+            // Fix low opacity elements
+            const lowOpacityElements = document.querySelectorAll('[style*="opacity: 0.5"]');
+            lowOpacityElements.forEach(element => {
+                if (this.isAuthenticated) {
+                    console.log('Fixing low opacity element:', element);
+                    element.style.opacity = '1';
+                    element.style.pointerEvents = 'auto';
+                    element.style.cursor = 'auto';
+                }
+            });
+            
+            // Fix pointer-events: none elements
+            const noPointerElements = document.querySelectorAll('[style*="pointer-events: none"]');
+            noPointerElements.forEach(element => {
+                if (this.isAuthenticated) {
+                    console.log('Fixing no pointer events element:', element);
+                    element.style.pointerEvents = 'auto';
+                }
+            });
+            
+            console.log('✅ Panel issues auto-fixed');
+            
+        } catch (error) {
+            console.error('Error auto-fixing panel issues:', error);
         }
     }
     
@@ -705,6 +840,9 @@ class PomodoroTimer {
             
             // Enable Timer panel features for authenticated users
             this.enableTimerPanelFeatures();
+            
+            // Auto-fix panel issues for authenticated users
+            this.autoFixPanelIssues();
             
             // 🎯 Track User Login event to Mixpanel
             if (window.mixpanelTracker) {
