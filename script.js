@@ -4399,6 +4399,9 @@ class PomodoroTimer {
             this.completeCurrentTodoistTaskIfAny();
             this.advanceTaskQueueAfterFocus();
             
+            // Refresh task panel if it's open to show real-time updates
+            this.refreshTaskModalIfOpen();
+            
             // Update day streak only if no cheating occurred during focus session
             if (!this.cheatedDuringFocusInCycle) {
                 this.updateStreak();
