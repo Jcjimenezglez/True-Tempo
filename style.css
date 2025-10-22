@@ -1407,13 +1407,12 @@ body.is-scrolling .streak-fire {
 
 /* Specific styles for authenticated user dropdown with PRO badge */
 .settings-dropdown-menu.authenticated-user {
-    width: max-content;
-    min-width: max-content;
+    width: 272px;
+    min-width: 272px;
 }
 
 .settings-dropdown-menu.authenticated-user .settings-user-info {
-    width: max-content;
-    min-width: max-content;
+    width: 100%;
 }
 
 .settings-user-info .user-email {
