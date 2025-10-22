@@ -1210,6 +1210,12 @@ class PomodoroTimer {
 
     // Sync the settings panel technique selection with the main timer
     syncSettingsPanelTechnique(technique) {
+        // Don't sync if technique is 'custom'
+        if (technique === 'custom') {
+            this.deselectTechniqueInPanel();
+            return;
+        }
+        
         // Use setTimeout to ensure the panel is rendered
         setTimeout(() => {
             const settingsPanel = document.getElementById('settingsSidePanel');
@@ -1246,6 +1252,19 @@ class PomodoroTimer {
         }, 100);
     }
     
+    // Deselect technique in panel when user manually changes duration
+    deselectTechniqueInPanel() {
+        const settingsPanel = document.getElementById('settingsSidePanel');
+        if (!settingsPanel) return;
+        
+        const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+        techniquePresets.forEach(preset => {
+            preset.classList.remove('active');
+        });
+        
+        console.log('🔄 Technique deselected due to manual duration change');
+    }
+
     // Update the sliders in the settings panel to reflect current values
     updateSettingsPanelSliders() {
         const pomodoroSlider = document.getElementById('sidebarPomodoroSlider');
@@ -1296,6 +1315,44 @@ class PomodoroTimer {
 
         // Custom selected
         if (saved === 'custom') {
+            // Check if we have custom durations saved (from manual changes)
+            const savedPomodoroTime = localStorage.getItem('pomodoroTime');
+            const savedShortBreakTime = localStorage.getItem('shortBreakTime');
+            const savedLongBreakTime = localStorage.getItem('longBreakTime');
+            const savedSessionsPerCycle = localStorage.getItem('sessionsPerCycle');
+            
+            if (savedPomodoroTime || savedShortBreakTime || savedLongBreakTime || savedSessionsPerCycle) {
+                // Apply saved custom durations
+                if (savedPomodoroTime) this.workTime = parseInt(savedPomodoroTime);
+                if (savedShortBreakTime) this.shortBreakTime = parseInt(savedShortBreakTime);
+                if (savedLongBreakTime) this.longBreakTime = parseInt(savedLongBreakTime);
+                if (savedSessionsPerCycle) this.sessionsPerCycle = parseInt(savedSessionsPerCycle);
+                
+                // Update cycle sections with custom durations
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                
+                // Update UI to reflect custom durations
+                this.updateDisplay();
+                this.updateProgress();
+                this.updateSections();
+                this.updateSessionInfo();
+                this.updateCurrentSessionTask();
+                
+                console.log('✅ Applied saved custom configuration');
+                this.hasAppliedSavedTechnique = true;
+                return;
+            }
+            
+            // Check for saved custom timer config
             if (savedCustom) {
                 try {
                     const config = JSON.parse(savedCustom);
@@ -12280,8 +12337,11 @@ class PomodoroTimer {
         
         // Sync panel with current technique when opening
         const currentTechnique = localStorage.getItem('selectedTechnique');
-        if (currentTechnique) {
+        if (currentTechnique && currentTechnique !== 'custom') {
             this.syncSettingsPanelTechnique(currentTechnique);
+        } else {
+            // Custom configuration - deselect all techniques
+            this.deselectTechniqueInPanel();
         }
         
         const settingsPanel = document.getElementById('settingsSidePanel');
@@ -12360,6 +12420,8 @@ class PomodoroTimer {
             pomodoroSlider.addEventListener('input', (e) => {
                 pomodoroValue.textContent = `${e.target.value} min`;
                 this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
             });
         }
 
@@ -12370,6 +12432,8 @@ class PomodoroTimer {
             shortBreakSlider.addEventListener('input', (e) => {
                 shortBreakValue.textContent = `${e.target.value} min`;
                 this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
             });
         }
 
@@ -12399,6 +12463,8 @@ class PomodoroTimer {
                 }
                 longBreakValue.textContent = `${e.target.value} min`;
                 this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
             });
         }
 
@@ -12431,6 +12497,8 @@ class PomodoroTimer {
                 }
                 sessionsValue.textContent = `${e.target.value} sesh`;
                 this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
             });
         }
 
@@ -12497,11 +12565,15 @@ class PomodoroTimer {
                         localStorage.setItem('longBreakTime', String(this.longBreakTime));
                         localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
                         
-                        // Also save the currently selected technique
+                        // Save the currently selected technique (or mark as custom if none selected)
                         const activeTechnique = document.querySelector('.technique-preset.active');
                         if (activeTechnique && activeTechnique.dataset.technique) {
                             localStorage.setItem('selectedTechnique', activeTechnique.dataset.technique);
                             console.log(`✅ Technique '${activeTechnique.dataset.technique}' saved to localStorage`);
+                        } else {
+                            // No technique selected = custom configuration
+                            localStorage.setItem('selectedTechnique', 'custom');
+                            console.log('✅ Custom configuration saved (no technique selected)');
                         }
                         
                         console.log('✅ Settings saved to localStorage (authenticated user)');
