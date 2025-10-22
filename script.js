@@ -868,6 +868,20 @@ class PomodoroTimer {
             console.error('Error enabling Timer panel features:', error);
         }
     }
+
+    enableSaveButton() {
+        const saveBtn = document.querySelector('#sidebarSaveSettings');
+        if (saveBtn && this.isAuthenticated) {
+            saveBtn.classList.add('active');
+        }
+    }
+
+    resetSaveButton() {
+        const saveBtn = document.querySelector('#sidebarSaveSettings');
+        if (saveBtn) {
+            saveBtn.classList.remove('active');
+        }
+    }
     
     updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
@@ -12124,6 +12138,7 @@ class PomodoroTimer {
             
             pomodoroSlider.addEventListener('input', (e) => {
                 pomodoroValue.textContent = `${e.target.value} min`;
+                this.enableSaveButton();
             });
         }
 
@@ -12133,6 +12148,7 @@ class PomodoroTimer {
             
             shortBreakSlider.addEventListener('input', (e) => {
                 shortBreakValue.textContent = `${e.target.value} min`;
+                this.enableSaveButton();
             });
         }
 
@@ -12161,6 +12177,7 @@ class PomodoroTimer {
                     return;
                 }
                 longBreakValue.textContent = `${e.target.value} min`;
+                this.enableSaveButton();
             });
         }
 
@@ -12192,6 +12209,7 @@ class PomodoroTimer {
                     return;
                 }
                 sessionsValue.textContent = `${e.target.value} sesh`;
+                this.enableSaveButton();
             });
         }
 
@@ -12229,6 +12247,9 @@ class PomodoroTimer {
                 
                 // Apply technique settings
                 this.applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
+                
+                // Enable save button when technique changes
+                this.enableSaveButton();
             });
         });
 
@@ -12282,6 +12303,9 @@ class PomodoroTimer {
                     }
                     
                     console.log('✅ Settings applied successfully');
+                    
+                    // Reset save button state after successful save
+                    this.resetSaveButton();
                 });
             }
         }

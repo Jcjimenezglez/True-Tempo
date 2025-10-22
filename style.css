@@ -5624,6 +5624,17 @@ input:checked + .toggle-slider:before {
     transform: translateY(0);
 }
 
+.timer-save-panel .save-settings-btn.active {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+.timer-save-panel .save-settings-btn.active:hover {
+    background: #f0f0f0;
+    border-color: #f0f0f0;
+}
+
 .settings-save-section .save-settings-btn {
     width: 100%;
     padding: 12px 24px;
