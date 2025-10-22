@@ -1210,31 +1210,75 @@ class PomodoroTimer {
 
     // Sync the settings panel technique selection with the main timer
     syncSettingsPanelTechnique(technique) {
-        const settingsPanel = document.querySelector('.task-side-panel');
-        if (!settingsPanel || !settingsPanel.classList.contains('open')) {
-            return; // Panel not open, no need to sync
+        // Use setTimeout to ensure the panel is rendered
+        setTimeout(() => {
+            const settingsPanel = document.getElementById('settingsSidePanel');
+            if (!settingsPanel) {
+                console.log('⚠️ Settings panel not found in DOM');
+                return;
+            }
+            
+            const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+            if (!techniquePresets.length) {
+                console.log('⚠️ No technique presets found in panel');
+                return;
+            }
+            
+            // Remove active class from all presets
+            techniquePresets.forEach(preset => {
+                preset.classList.remove('active');
+            });
+            
+            // Add active class to the matching technique
+            const matchingPreset = Array.from(techniquePresets).find(preset => 
+                preset.dataset.technique === technique
+            );
+            
+            if (matchingPreset) {
+                matchingPreset.classList.add('active');
+                console.log(`✅ Settings panel synced with technique: ${technique}`);
+                
+                // Also update the sliders to reflect current settings
+                this.updateSettingsPanelSliders();
+            } else {
+                console.log(`⚠️ Technique '${technique}' not found in settings panel`);
+            }
+        }, 100);
+    }
+    
+    // Update the sliders in the settings panel to reflect current values
+    updateSettingsPanelSliders() {
+        const pomodoroSlider = document.getElementById('sidebarPomodoroSlider');
+        const shortBreakSlider = document.getElementById('sidebarShortBreakSlider');
+        const longBreakSlider = document.getElementById('sidebarLongBreakSlider');
+        const sessionsSlider = document.getElementById('sidebarSessionsSlider');
+        
+        const pomodoroValue = document.getElementById('sidebarPomodoroValue');
+        const shortBreakValue = document.getElementById('sidebarShortBreakValue');
+        const longBreakValue = document.getElementById('sidebarLongBreakValue');
+        const sessionsValue = document.getElementById('sidebarSessionsValue');
+        
+        if (pomodoroSlider && pomodoroValue) {
+            const minutes = Math.floor(this.workTime / 60);
+            pomodoroSlider.value = minutes;
+            pomodoroValue.textContent = `${minutes} min`;
         }
         
-        const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
-        if (!techniquePresets.length) {
-            return; // No technique presets found
+        if (shortBreakSlider && shortBreakValue) {
+            const minutes = Math.floor(this.shortBreakTime / 60);
+            shortBreakSlider.value = minutes;
+            shortBreakValue.textContent = `${minutes} min`;
         }
         
-        // Remove active class from all presets
-        techniquePresets.forEach(preset => {
-            preset.classList.remove('active');
-        });
+        if (longBreakSlider && longBreakValue) {
+            const minutes = Math.floor(this.longBreakTime / 60);
+            longBreakSlider.value = minutes;
+            longBreakValue.textContent = `${minutes} min`;
+        }
         
-        // Add active class to the matching technique
-        const matchingPreset = Array.from(techniquePresets).find(preset => 
-            preset.dataset.technique === technique
-        );
-        
-        if (matchingPreset) {
-            matchingPreset.classList.add('active');
-            console.log(`✅ Settings panel synced with technique: ${technique}`);
-        } else {
-            console.warn(`⚠️ Technique '${technique}' not found in settings panel`);
+        if (sessionsSlider && sessionsValue) {
+            sessionsSlider.value = this.sessionsPerCycle;
+            sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
         }
     }
 
@@ -1851,6 +1895,22 @@ class PomodoroTimer {
 
         // Different timer configurations based on technique
         switch(technique) {
+            case 'sprint':
+                this.workTime = 15 * 60;
+                this.shortBreakTime = 3 * 60;
+                this.longBreakTime = 10 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
             case 'pomodoro':
                 this.workTime = 25 * 60;
                 this.shortBreakTime = 5 * 60;
@@ -1864,6 +1924,66 @@ class PomodoroTimer {
                     { type: 'work', duration: this.workTime, name: 'Work 3' },
                     { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
                     { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'focus':
+                this.workTime = 30 * 60;
+                this.shortBreakTime = 6 * 60;
+                this.longBreakTime = 20 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'flow':
+                this.workTime = 45 * 60;
+                this.shortBreakTime = 8 * 60;
+                this.longBreakTime = 25 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'marathon':
+                this.workTime = 60 * 60;
+                this.shortBreakTime = 10 * 60;
+                this.longBreakTime = 30 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'deepwork':
+                this.workTime = 90 * 60;
+                this.shortBreakTime = 20 * 60;
+                this.longBreakTime = 30 * 60;
+                this.sessionsPerCycle = 2;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
                     { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
                 ];
                 break;
