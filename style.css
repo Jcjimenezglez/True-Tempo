@@ -1291,7 +1291,8 @@ body.is-scrolling .streak-fire {
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.6),
         0 0 0 1px rgba(255, 255, 255, 0.1);
-    min-width: 200px;
+    width: 272px;
+    min-width: 272px;
     overflow: hidden;
     margin-top: 0.5rem;
 }
@@ -1400,17 +1401,11 @@ body.is-scrolling .streak-fire {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.05);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    white-space: nowrap;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 /* Specific styles for authenticated user dropdown with PRO badge */
-.settings-dropdown-menu.authenticated-user {
-    width: 272px;
-    min-width: 272px;
-}
-
 .settings-dropdown-menu.authenticated-user .settings-user-info {
     width: 100%;
 }
@@ -1419,6 +1414,7 @@ body.is-scrolling .streak-fire {
     color: #ffffff;
     font-size: 14px;
     font-weight: 500;
+    margin: 0;
 }
 
 .settings-user-info .pro-badge {
@@ -1427,9 +1423,10 @@ body.is-scrolling .streak-fire {
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 11px;
-    margin-left: 1rem;
     font-weight: 700;
     letter-spacing: 0.5px;
+    align-self: flex-start;
+    margin: 0;
 }
 
 /* Timer Settings Button (legacy footer, now hidden) */
