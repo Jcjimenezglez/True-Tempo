@@ -12245,6 +12245,14 @@ class PomodoroTimer {
                 e.stopPropagation();
                 console.log('🔵 Todoist button clicked - checking user type and connection status');
                 
+                // Track Todoist button click
+                this.trackEvent('Todoist Integration Clicked', {
+                    button_type: 'todoist_integration',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                
                 // Check if user is Pro (double check with isPremiumUser)
                 const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
                 
@@ -12300,6 +12308,15 @@ class PomodoroTimer {
             const newNotionBtn = panel.querySelector('#importNotionMainBtn');
             newNotionBtn.addEventListener('click', () => {
                 console.log('Notion button clicked');
+                
+                // Track Notion button click
+                this.trackEvent('Notion Integration Clicked', {
+                    button_type: 'notion_integration',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                
                 this.showNotionIntegration();
             });
         }
