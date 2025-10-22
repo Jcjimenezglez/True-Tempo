@@ -1403,8 +1403,9 @@ body.is-scrolling .streak-fire {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.05);
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
 }
 
 /* Specific styles for authenticated user dropdown with PRO badge */
@@ -1416,7 +1417,10 @@ body.is-scrolling .streak-fire {
     color: #ffffff;
     font-size: 14px;
     font-weight: 500;
-    margin: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .settings-user-info .pro-badge {
@@ -1427,8 +1431,8 @@ body.is-scrolling .streak-fire {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    align-self: flex-start;
-    margin: 0;
+    margin-left: 0.75rem;
+    flex-shrink: 0;
 }
 
 /* Timer Settings Button (legacy footer, now hidden) */

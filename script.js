@@ -1007,9 +1007,14 @@ class PomodoroTimer {
             if (contentSection) contentSection.style.display = 'none';
             if (mainFooter) mainFooter.style.display = 'none';
             
-            // Update user email in settings dropdown
+            // Update user display name in settings dropdown (First name if available, email if not)
             if (this.settingsUserEmail && this.user) {
-                this.settingsUserEmail.textContent = this.user.primaryEmailAddress?.emailAddress || 'User';
+                const firstName = this.user.firstName;
+                const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress;
+                
+                // Use first name if available, otherwise use email
+                const displayName = firstName || email || 'User';
+                this.settingsUserEmail.textContent = displayName;
             }
 
 
@@ -1250,11 +1255,15 @@ class PomodoroTimer {
     updateUserProfile() {
         if (!this.user) return;
         
-        // Update user email in dropdown
+        // Update user display name in dropdown (First name if available, email if not)
         const userEmailElement = document.getElementById('userEmail');
         if (userEmailElement) {
-            const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress || 'user@example.com';
-            userEmailElement.textContent = email;
+            const firstName = this.user.firstName;
+            const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress;
+            
+            // Use first name if available, otherwise use email
+            const displayName = firstName || email || 'User';
+            userEmailElement.textContent = displayName;
         }
         
         // Update user avatar
