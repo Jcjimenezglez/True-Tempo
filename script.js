@@ -872,7 +872,6 @@ class PomodoroTimer {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn && this.isAuthenticated) {
             saveBtn.disabled = false;
-            saveBtn.classList.add('active');
         }
     }
 
@@ -880,7 +879,6 @@ class PomodoroTimer {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
             saveBtn.disabled = true;
-            saveBtn.classList.remove('active');
         }
     }
     

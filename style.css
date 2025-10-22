@@ -5603,34 +5603,8 @@ input:checked + .toggle-slider:before {
 }
 
 /* Timer save panel styling */
-.timer-save-panel .save-settings-btn {
+.timer-save-panel .btn-primary {
     width: 100%;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    border: none;
-}
-
-.timer-save-panel .save-settings-btn:disabled {
-    background: rgba(163, 163, 163, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-}
-
-.timer-save-panel .save-settings-btn:disabled:hover {
-    background: rgba(163, 163, 163, 0.3);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-}
-
-.timer-save-panel .save-settings-btn.active {
-    background: #ffffff;
-    color: #000000;
-    cursor: pointer;
-}
-
-.timer-save-panel .save-settings-btn.active:hover {
-    background: #f0f0f0;
 }
 
 
