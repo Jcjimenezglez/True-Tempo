@@ -858,8 +858,6 @@ class PomodoroTimer {
             const saveBtn = document.querySelector('#sidebarSaveSettings');
             if (saveBtn) {
                 saveBtn.disabled = true;
-                saveBtn.style.opacity = '0.5';
-                saveBtn.style.cursor = 'not-allowed';
             }
             
             console.log('✅ Timer panel features enabled');
@@ -873,8 +871,6 @@ class PomodoroTimer {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn && this.isAuthenticated) {
             saveBtn.disabled = false;
-            saveBtn.style.opacity = '1';
-            saveBtn.style.cursor = 'pointer';
             saveBtn.classList.add('active');
         }
     }
@@ -883,8 +879,6 @@ class PomodoroTimer {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
             saveBtn.disabled = true;
-            saveBtn.style.opacity = '0.5';
-            saveBtn.style.cursor = 'not-allowed';
             saveBtn.classList.remove('active');
         }
     }
@@ -12264,8 +12258,6 @@ class PomodoroTimer {
         if (saveBtn) {
             // Initialize save button as disabled for all users (will be enabled when changes are made)
             saveBtn.disabled = true;
-            saveBtn.style.opacity = '0.5';
-            saveBtn.style.cursor = 'not-allowed';
             
             if (!this.isAuthenticated) {
                 console.log('🔒 Save button disabled for guest user');
