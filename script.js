@@ -874,8 +874,6 @@ class PomodoroTimer {
             saveBtn.disabled = false;
             saveBtn.classList.add('active');
         }
-        // Also enable cancel button when there are changes
-        this.enableCancelButton();
     }
 
     resetSaveButton() {
@@ -883,57 +881,6 @@ class PomodoroTimer {
         if (saveBtn) {
             saveBtn.disabled = true;
             saveBtn.classList.remove('active');
-        }
-        // Also reset cancel button
-        this.resetCancelButton();
-    }
-
-    resetCancelButton() {
-        const cancelBtn = document.querySelector('#sidebarCancelSettings');
-        if (cancelBtn) {
-            cancelBtn.disabled = true;
-        }
-    }
-
-    enableCancelButton() {
-        const cancelBtn = document.querySelector('#sidebarCancelSettings');
-        if (cancelBtn && this.isAuthenticated) {
-            cancelBtn.disabled = false;
-        }
-    }
-
-    resetTimerSettingsToOriginal() {
-        // Reset sliders to original values
-        const pomodoroSlider = document.querySelector('#sidebarPomodoroSlider');
-        const shortBreakSlider = document.querySelector('#sidebarShortBreakSlider');
-        const longBreakSlider = document.querySelector('#sidebarLongBreakSlider');
-        const sessionsSlider = document.querySelector('#sidebarSessionsSlider');
-        
-        if (pomodoroSlider) {
-            const originalPomodoroMin = Math.floor(this.workTime / 60);
-            pomodoroSlider.value = originalPomodoroMin;
-            const pomodoroValue = document.querySelector('#sidebarPomodoroValue');
-            if (pomodoroValue) pomodoroValue.textContent = `${originalPomodoroMin} min`;
-        }
-        
-        if (shortBreakSlider) {
-            const originalShortBreakMin = Math.floor(this.shortBreakTime / 60);
-            shortBreakSlider.value = originalShortBreakMin;
-            const shortBreakValue = document.querySelector('#sidebarShortBreakValue');
-            if (shortBreakValue) shortBreakValue.textContent = `${originalShortBreakMin} min`;
-        }
-        
-        if (longBreakSlider) {
-            const originalLongBreakMin = Math.floor(this.longBreakTime / 60);
-            longBreakSlider.value = originalLongBreakMin;
-            const longBreakValue = document.querySelector('#sidebarLongBreakValue');
-            if (longBreakValue) longBreakValue.textContent = `${originalLongBreakMin} min`;
-        }
-        
-        if (sessionsSlider) {
-            sessionsSlider.value = this.sessionsPerCycle;
-            const sessionsValue = document.querySelector('#sidebarSessionsValue');
-            if (sessionsValue) sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
         }
     }
     
@@ -12308,12 +12255,10 @@ class PomodoroTimer {
             });
         });
 
-        // Save and Cancel button handlers
+        // Save button handler
         const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
-        const cancelBtn = settingsPanel.querySelector('#sidebarCancelSettings');
-        
         if (saveBtn) {
-            // Initialize save button as disabled for all users (will be enabled when changes are made)
+            // Initialize save button as disabled (will be enabled when changes are made)
             saveBtn.disabled = true;
             
             if (!this.isAuthenticated) {
@@ -12362,30 +12307,6 @@ class PomodoroTimer {
                     
                     // Reset save button state after successful save
                     this.resetSaveButton();
-                });
-            }
-        }
-        
-        if (cancelBtn) {
-            // Initialize cancel button as disabled (will be enabled when changes are made)
-            cancelBtn.disabled = true;
-            
-            if (!this.isAuthenticated) {
-                console.log('🔒 Cancel button disabled for guest user');
-            } else {
-                cancelBtn.addEventListener('click', () => {
-                    // Reset to original values
-                    this.resetTimerSettingsToOriginal();
-                    this.resetSaveButton();
-                    this.resetCancelButton();
-                    
-                    // Close the settings panel
-                    const sidebarManager = document.querySelector('.sidebar');
-                    if (window.sidebarManager) {
-                        window.sidebarManager.closeSettingsPanel();
-                    }
-                    
-                    console.log('❌ Settings changes cancelled');
                 });
             }
         }
