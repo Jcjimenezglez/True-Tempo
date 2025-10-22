@@ -7,6 +7,8 @@ class PomodoroTimer {
             timestamp: new Date().toISOString()
         });
         
+        this.isInitializing = false;
+        
         // Pomodoro Technique structure - Load from localStorage if authenticated
         const savedPomodoroTime = localStorage.getItem('pomodoroTime');
         const savedShortBreakTime = localStorage.getItem('shortBreakTime');

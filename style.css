@@ -5616,6 +5616,12 @@ input:checked + .toggle-slider:before {
     cursor: not-allowed;
 }
 
+.timer-save-panel .save-settings-btn:disabled:hover {
+    background: rgba(163, 163, 163, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
 .timer-save-panel .save-settings-btn.active {
     background: #ffffff;
     color: #000000;
