@@ -7,7 +7,6 @@ class PomodoroTimer {
             timestamp: new Date().toISOString()
         });
         
-        this.isInitializing = false;
         
         // Pomodoro Technique structure - Load from localStorage if authenticated
         const savedPomodoroTime = localStorage.getItem('pomodoroTime');
@@ -871,12 +870,7 @@ class PomodoroTimer {
 
     enableSaveButton() {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
-        console.log('enableSaveButton called:', { 
-            saveBtn: !!saveBtn, 
-            isAuthenticated: this.isAuthenticated, 
-            isInitializing: this.isInitializing 
-        });
-        if (saveBtn && this.isAuthenticated && !this.isInitializing) {
+        if (saveBtn && this.isAuthenticated) {
             saveBtn.disabled = false;
             saveBtn.classList.add('active');
         }
@@ -12071,8 +12065,6 @@ class PomodoroTimer {
     initializeSettingsSidePanel() {
         console.log('⚙️ Initializing settings side panel');
         
-        // Flag to prevent save button activation during initialization
-        this.isInitializing = true;
         const settingsPanel = document.getElementById('settingsSidePanel');
         if (!settingsPanel) {
             console.error('❌ Settings panel not found');
@@ -12319,8 +12311,6 @@ class PomodoroTimer {
             }
         }
         
-        // Mark initialization as complete
-        this.isInitializing = false;
     }
 
 
