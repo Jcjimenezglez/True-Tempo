@@ -982,6 +982,11 @@ class PomodoroTimer {
             // Update settings dropdown for authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
+            
+            // Add authenticated-user class to dropdown for proper width handling
+            if (this.settingsDropdown) {
+                this.settingsDropdown.classList.add('authenticated-user');
+            }
             if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'block';
             if (this.settingsReportSection) this.settingsReportSection.style.display = 'block';
             if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'none';
@@ -1069,6 +1074,11 @@ class PomodoroTimer {
             // Update settings dropdown for non-authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
             if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
+            
+            // Remove authenticated-user class from dropdown for guest users
+            if (this.settingsDropdown) {
+                this.settingsDropdown.classList.remove('authenticated-user');
+            }
             if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'none';
             if (this.settingsReportSection) this.settingsReportSection.style.display = 'none';
             if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
