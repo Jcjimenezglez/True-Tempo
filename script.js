@@ -1208,6 +1208,36 @@ class PomodoroTimer {
     }
 
 
+    // Sync the settings panel technique selection with the main timer
+    syncSettingsPanelTechnique(technique) {
+        const settingsPanel = document.querySelector('.task-side-panel');
+        if (!settingsPanel || !settingsPanel.classList.contains('open')) {
+            return; // Panel not open, no need to sync
+        }
+        
+        const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+        if (!techniquePresets.length) {
+            return; // No technique presets found
+        }
+        
+        // Remove active class from all presets
+        techniquePresets.forEach(preset => {
+            preset.classList.remove('active');
+        });
+        
+        // Add active class to the matching technique
+        const matchingPreset = Array.from(techniquePresets).find(preset => 
+            preset.dataset.technique === technique
+        );
+        
+        if (matchingPreset) {
+            matchingPreset.classList.add('active');
+            console.log(`✅ Settings panel synced with technique: ${technique}`);
+        } else {
+            console.warn(`⚠️ Technique '${technique}' not found in settings panel`);
+        }
+    }
+
     // Apply saved technique once, after auth/user state is hydrated
     applySavedTechniqueOnce() {
         if (this.hasAppliedSavedTechnique) return;
@@ -1280,6 +1310,9 @@ class PomodoroTimer {
                 
                 console.log('✅ Applied saved custom durations to technique');
             }
+            
+            // Sync settings panel with the loaded technique
+            this.syncSettingsPanelTechnique(saved);
             
             this.hasAppliedSavedTechnique = true;
             return;
@@ -1805,6 +1838,9 @@ class PomodoroTimer {
         
         // Here you could implement different timer configurations based on technique
         this.loadTechnique(technique);
+        
+        // Sync the settings panel with the selected technique
+        this.syncSettingsPanelTechnique(technique);
     }
     
     loadTechnique(technique) {
@@ -12121,6 +12157,12 @@ class PomodoroTimer {
 
     initializeSettingsSidePanel() {
         console.log('⚙️ Initializing settings side panel');
+        
+        // Sync panel with current technique when opening
+        const currentTechnique = localStorage.getItem('selectedTechnique');
+        if (currentTechnique) {
+            this.syncSettingsPanelTechnique(currentTechnique);
+        }
         
         const settingsPanel = document.getElementById('settingsSidePanel');
         if (!settingsPanel) {
