@@ -5611,17 +5611,11 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .timer-save-panel .save-settings-btn:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
-}
-
-.timer-save-panel .save-settings-btn:active {
-    transform: translateY(0);
 }
 
 .timer-save-panel .save-settings-btn.active {
