@@ -1240,10 +1240,47 @@ class PomodoroTimer {
             return;
         }
 
-        // Built-in technique
+        // Built-in technique - load technique first
         const item = document.querySelector(`[data-technique="${saved}"]`);
         if (item) {
             this.selectTechnique(item);
+            
+            // After loading technique, check if there are saved custom durations
+            // and apply them if they exist (user had customized the technique)
+            const savedPomodoroTime = localStorage.getItem('pomodoroTime');
+            const savedShortBreakTime = localStorage.getItem('shortBreakTime');
+            const savedLongBreakTime = localStorage.getItem('longBreakTime');
+            const savedSessionsPerCycle = localStorage.getItem('sessionsPerCycle');
+            
+            if (savedPomodoroTime || savedShortBreakTime || savedLongBreakTime || savedSessionsPerCycle) {
+                // Apply saved custom durations
+                if (savedPomodoroTime) this.workTime = parseInt(savedPomodoroTime);
+                if (savedShortBreakTime) this.shortBreakTime = parseInt(savedShortBreakTime);
+                if (savedLongBreakTime) this.longBreakTime = parseInt(savedLongBreakTime);
+                if (savedSessionsPerCycle) this.sessionsPerCycle = parseInt(savedSessionsPerCycle);
+                
+                // Update cycle sections with custom durations
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                
+                // Update UI to reflect custom durations
+                this.updateDisplay();
+                this.updateProgress();
+                this.updateSections();
+                this.updateSessionInfo();
+                this.updateCurrentSessionTask();
+                
+                console.log('✅ Applied saved custom durations to technique');
+            }
+            
             this.hasAppliedSavedTechnique = true;
             return;
         }
@@ -12297,6 +12334,14 @@ class PomodoroTimer {
                         localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
                         localStorage.setItem('longBreakTime', String(this.longBreakTime));
                         localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
+                        
+                        // Also save the currently selected technique
+                        const activeTechnique = document.querySelector('.technique-preset.active');
+                        if (activeTechnique && activeTechnique.dataset.technique) {
+                            localStorage.setItem('selectedTechnique', activeTechnique.dataset.technique);
+                            console.log(`✅ Technique '${activeTechnique.dataset.technique}' saved to localStorage`);
+                        }
+                        
                         console.log('✅ Settings saved to localStorage (authenticated user)');
                     } else {
                         console.log('ℹ️ Settings applied for this session only (guest user)');
