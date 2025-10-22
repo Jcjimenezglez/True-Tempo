@@ -283,6 +283,10 @@ class PomodoroTimer {
     
     // Mixpanel Analytics Functions
     trackEvent(eventName, properties = {}) {
+        console.log('🔍 Attempting to track event:', eventName);
+        console.log('🔍 Mixpanel available:', typeof window.mixpanel);
+        console.log('🔍 Mixpanel track function:', typeof window.mixpanel?.track);
+        
         if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
             try {
                 const eventProperties = {
@@ -294,10 +298,12 @@ class PomodoroTimer {
                 };
                 
                 window.mixpanel.track(eventName, eventProperties);
-                console.log('✅ Event tracked:', eventName, eventProperties);
+                console.log('✅ Event tracked successfully:', eventName, eventProperties);
             } catch (error) {
                 console.error('❌ Error tracking event:', error);
             }
+        } else {
+            console.warn('⚠️ Mixpanel not available or track function missing');
         }
     }
     
