@@ -3406,7 +3406,9 @@ class PomodoroTimer {
                 this.trackEvent('Technique Selected', {
                     button_type: 'technique_preset',
                     technique_name: technique,
-                    source: 'timer_modal'
+                    source: 'timer_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'technique_exploration'
                 });
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
@@ -6419,6 +6421,15 @@ class PomodoroTimer {
             mainImportBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // Track Todoist import button click
+                this.trackEvent('Todoist Import Clicked', {
+                    button_type: 'todoist_import',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                
                 try {
                     // Check if Todoist is connected first
                     const isConnected = await this.checkTodoistConnection();
@@ -12043,6 +12054,15 @@ class PomodoroTimer {
             newAddTaskBtn.addEventListener('click', () => {
                 console.log('Add Task button clicked');
                 
+                // Track Add Task button click in Tasks panel
+                this.trackEvent('Add Task Button Clicked', {
+                    button_type: 'add_task',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    task_count: this.getLocalTasks().length,
+                    conversion_funnel: 'task_creation'
+                });
+                
                 // Check task limit BEFORE showing the form
                 const currentTasks = this.getLocalTasks();
                 
@@ -12545,7 +12565,9 @@ class PomodoroTimer {
                 this.trackEvent('Technique Selected', {
                     button_type: 'technique_preset',
                     technique_name: technique,
-                    source: 'timer_sidebar'
+                    source: 'timer_sidebar',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'technique_exploration'
                 });
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
@@ -13563,11 +13585,18 @@ class SidebarManager {
             item.addEventListener('click', () => {
                 const section = item.dataset.section;
                 
-                // Track navigation clicks
+                // Track navigation clicks with specific panel names
                 if (window.pomodoroTimer) {
-                    window.pomodoroTimer.trackEvent('Navigation Clicked', {
+                    let panelName = section;
+                    if (section === 'tasks') panelName = 'Tasks Panel';
+                    else if (section === 'settings') panelName = 'Timer Panel';
+                    else if (section === 'cassettes') panelName = 'Cassettes Panel';
+                    
+                    window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
+                        panel_name: panelName,
                         section: section,
-                        button_type: 'nav_item'
+                        button_type: 'sidebar_navigation',
+                        source: 'sidebar'
                     });
                 }
                 
