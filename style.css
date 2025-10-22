@@ -965,7 +965,7 @@ body.is-scrolling .streak-fire {
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.6),
         0 0 0 1px rgba(255, 255, 255, 0.1);
-    min-width: 380px;
+    min-width: 420px;
 }
 
 .technique-dropdown.open .dropdown-menu {
@@ -1395,7 +1395,7 @@ body.is-scrolling .streak-fire {
 }
 
 .settings-user-info {
-    padding: 1rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.05);
     display: flex;
@@ -1415,7 +1415,7 @@ body.is-scrolling .streak-fire {
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 11px;
-    margin-left: 0.5rem;
+    margin-left: 1rem;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
