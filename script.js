@@ -854,12 +854,12 @@ class PomodoroTimer {
                 longBreakSignupText.classList.add('hidden');
             }
             
-            // Enable save button
+            // Initialize save button as disabled (will be enabled when changes are made)
             const saveBtn = document.querySelector('#sidebarSaveSettings');
             if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.style.opacity = '1';
-                saveBtn.style.cursor = 'pointer';
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = '0.5';
+                saveBtn.style.cursor = 'not-allowed';
             }
             
             console.log('✅ Timer panel features enabled');
@@ -872,6 +872,9 @@ class PomodoroTimer {
     enableSaveButton() {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn && this.isAuthenticated) {
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = '1';
+            saveBtn.style.cursor = 'pointer';
             saveBtn.classList.add('active');
         }
     }
@@ -879,6 +882,9 @@ class PomodoroTimer {
     resetSaveButton() {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+            saveBtn.style.cursor = 'not-allowed';
             saveBtn.classList.remove('active');
         }
     }
@@ -12256,11 +12262,12 @@ class PomodoroTimer {
         // Save button handler
         const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
-            // Disable save button for guest users
+            // Initialize save button as disabled for all users (will be enabled when changes are made)
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+            saveBtn.style.cursor = 'not-allowed';
+            
             if (!this.isAuthenticated) {
-                saveBtn.disabled = true;
-                saveBtn.style.opacity = '0.5';
-                saveBtn.style.cursor = 'not-allowed';
                 console.log('🔒 Save button disabled for guest user');
             } else {
                 saveBtn.addEventListener('click', () => {
