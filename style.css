@@ -966,6 +966,7 @@ body.is-scrolling .streak-fire {
         0 8px 32px rgba(0, 0, 0, 0.6),
         0 0 0 1px rgba(255, 255, 255, 0.1);
     min-width: 420px;
+    width: max-content;
 }
 
 .technique-dropdown.open .dropdown-menu {
@@ -1401,6 +1402,8 @@ body.is-scrolling .streak-fire {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-width: max-content;
+    white-space: nowrap;
 }
 
 .settings-user-info .user-email {
