@@ -1410,11 +1410,12 @@ body.is-scrolling .streak-fire {
 }
 
 .settings-user-info .pro-badge {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--onyx-dark, #064e3b);
     color: #ffffff;
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 11px;
+    margin-left: 0.5rem;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
@@ -3668,8 +3669,8 @@ audio {
 
 /* Pro Account Badge */
 .pro-badge {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-    color: #1a1a1a;
+    background: var(--onyx-dark, #064e3b);
+    color: #ffffff;
     font-size: 0.7rem;
     font-weight: 700;
     padding: 0.2rem 0.4rem;
