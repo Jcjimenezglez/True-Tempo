@@ -869,7 +869,7 @@ class PomodoroTimer {
 
     enableSaveButton() {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
-        if (saveBtn && this.isAuthenticated) {
+        if (saveBtn && this.isAuthenticated && !this.isInitializing) {
             saveBtn.disabled = false;
             saveBtn.classList.add('active');
         }
@@ -12063,6 +12063,9 @@ class PomodoroTimer {
 
     initializeSettingsSidePanel() {
         console.log('⚙️ Initializing settings side panel');
+        
+        // Flag to prevent save button activation during initialization
+        this.isInitializing = true;
         const settingsPanel = document.getElementById('settingsSidePanel');
         if (!settingsPanel) {
             console.error('❌ Settings panel not found');
@@ -12308,6 +12311,9 @@ class PomodoroTimer {
                 });
             }
         }
+        
+        // Mark initialization as complete
+        this.isInitializing = false;
     }
 
 

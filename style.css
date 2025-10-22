@@ -5622,6 +5622,10 @@ input:checked + .toggle-slider:before {
     cursor: pointer;
 }
 
+.timer-save-panel .save-settings-btn.active:hover {
+    background: #f0f0f0;
+}
+
 
 .settings-save-section .save-settings-btn {
     width: 100%;
