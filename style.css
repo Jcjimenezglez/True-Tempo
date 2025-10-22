@@ -5613,21 +5613,12 @@ input:checked + .toggle-slider:before {
     cursor: pointer;
 }
 
-.timer-save-panel .save-settings-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
 .timer-save-panel .save-settings-btn.active {
     background: #ffffff;
     color: #000000;
     border-color: #ffffff;
 }
 
-.timer-save-panel .save-settings-btn.active:hover {
-    background: #f0f0f0;
-    border-color: #f0f0f0;
-}
 
 .settings-save-section .save-settings-btn {
     width: 100%;
