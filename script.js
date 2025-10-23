@@ -8320,6 +8320,8 @@ class PomodoroTimer {
         // Update the main timer banner
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
+        this.updateDisplay();
         
         // Re-render tasks to move between tabs
         this.rerenderTaskList();
