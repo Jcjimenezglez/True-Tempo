@@ -8827,11 +8827,20 @@ class PomodoroTimer {
     getSelectedTasks() {
         const allTasks = this.getAllTasks();
         
+        console.log('🔍 getSelectedTasks - allTasks:', allTasks.map(t => ({ id: t.id, content: t.content, completed: t.completed })));
+        
         // Get selected tasks
         const selectedTasks = allTasks.filter(task => {
             const config = this.getTaskConfig(task.id);
-            // Only include tasks that are selected AND not completed
-            return config.selected && !task.completed;
+            const isSelected = config.selected && !task.completed;
+            console.log('🔍 Task filter:', { 
+                id: task.id, 
+                content: task.content, 
+                selected: config.selected, 
+                completed: task.completed, 
+                isSelected 
+            });
+            return isSelected;
         }).map(task => {
             const config = this.getTaskConfig(task.id);
             return {
@@ -8839,6 +8848,8 @@ class PomodoroTimer {
                 sessions: config.sessions || 1
             };
         });
+        
+        console.log('🔍 getSelectedTasks - selectedTasks:', selectedTasks.map(t => ({ id: t.id, content: t.content })));
         
         // Apply saved task order
         const savedOrder = this.getTaskOrder();
