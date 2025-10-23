@@ -1,11 +1,6 @@
 class PomodoroTimer {
     constructor() {
-        // Initialize Mixpanel tracking
-        this.trackEvent('Page Loaded', {
-            page: 'timer',
-            user_type: 'unknown', // Will be updated when auth state is known
-            timestamp: new Date().toISOString()
-        });
+        // Initialize Mixpanel tracking removed - Page Loaded event no longer needed
         
         
         // Pomodoro Technique structure - Load from localStorage if authenticated
