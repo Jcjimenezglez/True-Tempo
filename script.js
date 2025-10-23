@@ -12602,6 +12602,12 @@ class PomodoroTimer {
                 }
             }
             
+            // For guest users, ensure Pomodoro has active class
+            if (technique === 'pomodoro' && !this.isAuthenticated) {
+                preset.classList.add('active');
+                console.log('✅ Pomodoro marked as active for guest user');
+            }
+            
             preset.addEventListener('click', () => {
                 // Check if technique requires authentication (all except pomodoro)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
