@@ -1222,6 +1222,12 @@ class PomodoroTimer {
             return;
         }
         
+        // For guest users, don't interfere with the default Pomodoro selection
+        if (!this.isAuthenticated && technique === 'pomodoro') {
+            console.log('✅ Guest user - keeping default Pomodoro selection');
+            return;
+        }
+        
         // Use setTimeout to ensure the panel is rendered
         setTimeout(() => {
             const settingsPanel = document.getElementById('settingsSidePanel');
@@ -11525,29 +11531,11 @@ class PomodoroTimer {
         // Set current technique key
         this.currentTechniqueKey = 'pomodoro';
         
-        // Also sync the settings panel to show Pomodoro as active
-        this.setPomodoroActiveInSettingsPanel();
-        
+        // For guest users, ensure Pomodoro stays active in settings panel
+        // Don't remove the active class that's already in the HTML
         console.log('✅ Pomodoro set as default technique for guest user');
     }
     
-    setPomodoroActiveInSettingsPanel() {
-        // Find and mark Pomodoro as active in the settings panel
-        const settingsPanel = document.getElementById('settingsSidePanel');
-        if (settingsPanel) {
-            const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
-            techniquePresets.forEach(preset => {
-                preset.classList.remove('active');
-                if (preset.dataset.technique === 'pomodoro') {
-                    preset.classList.add('active');
-                }
-            });
-            console.log('✅ Pomodoro marked as active in settings panel');
-        } else {
-            // If panel doesn't exist yet, try again after a short delay
-            setTimeout(() => this.setPomodoroActiveInSettingsPanel(), 100);
-        }
-    }
 
     pauseSpotify() {
         // Implement logic to pause Spotify playback
