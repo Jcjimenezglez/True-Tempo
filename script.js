@@ -12573,6 +12573,14 @@ class PomodoroTimer {
             pomodoroValue.textContent = `${pomodoroMin} min`;
             
             pomodoroSlider.addEventListener('input', (e) => {
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'pomodoro',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
                 pomodoroValue.textContent = `${e.target.value} min`;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
@@ -12585,6 +12593,14 @@ class PomodoroTimer {
             shortBreakValue.textContent = `${shortBreakMin} min`;
             
             shortBreakSlider.addEventListener('input', (e) => {
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'short_break',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
                 shortBreakValue.textContent = `${e.target.value} min`;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
@@ -12616,6 +12632,15 @@ class PomodoroTimer {
                     this.showLoginRequiredModal('longbreak');
                     return;
                 }
+                
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'long_break',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
                 longBreakValue.textContent = `${e.target.value} min`;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
@@ -12650,6 +12675,15 @@ class PomodoroTimer {
                     this.showLoginRequiredModal('sessions');
                     return;
                 }
+                
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'sessions',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
                 sessionsValue.textContent = `${e.target.value} sesh`;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
