@@ -389,6 +389,11 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
+        
+        // For guest users, ensure Pomodoro is selected by default in UI
+        if (!this.isAuthenticated) {
+            this.setDefaultTechniqueForGuest();
+        }
         // Welcome modal removed
         
         // Pomodoro intro modal removed
@@ -11499,6 +11504,28 @@ class PomodoroTimer {
         if (pomodoroItem) {
             this.selectTechnique(pomodoroItem);
         }
+    }
+    
+    setDefaultTechniqueForGuest() {
+        // Set Pomodoro as selected in the main technique dropdown for guest users
+        if (this.techniqueTitle) {
+            this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        }
+        
+        // Mark Pomodoro as selected in dropdown items
+        if (this.dropdownItems) {
+            this.dropdownItems.forEach(item => {
+                item.classList.remove('selected');
+                if (item.dataset.technique === 'pomodoro') {
+                    item.classList.add('selected');
+                }
+            });
+        }
+        
+        // Set current technique key
+        this.currentTechniqueKey = 'pomodoro';
+        
+        console.log('✅ Pomodoro set as default technique for guest user');
     }
 
     pauseSpotify() {
