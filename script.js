@@ -9185,6 +9185,10 @@ class PomodoroTimer {
         // Persist planned sessions so the card progress matches the chosen value
         this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: true, completedSessions: 0 });
         
+        // Update the main task banner immediately
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
+        
         // 🎯 Track Task Created event to Mixpanel
         if (window.mixpanelTracker) {
             window.mixpanelTracker.trackTaskCreated(description, pomodoros);
