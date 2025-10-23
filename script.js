@@ -3665,10 +3665,6 @@ class PomodoroTimer {
                             <kbd class="shortcut-key">←</kbd>
                         </div>
                         <div class="shortcut-item">
-                            <span class="shortcut-description">Toggle Music</span>
-                            <kbd class="shortcut-key">M</kbd>
-                        </div>
-                        <div class="shortcut-item">
                             <span class="shortcut-description">Open Shortcuts</span>
                             <kbd class="shortcut-key">⌘K</kbd>
                         </div>
@@ -4598,11 +4594,6 @@ class PomodoroTimer {
             this.showResetConfirmationModal();
         }
         
-        // M to toggle music
-        if (e.code === 'KeyM') {
-            e.preventDefault();
-            this.toggleMusic();
-        }
         
         // A or ArrowLeft for previous section
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {

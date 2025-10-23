@@ -6444,6 +6444,9 @@ input:checked + .toggle-slider:before {
 .modal-header {
     text-align: center;
     margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .modal-header h3 {
@@ -6451,12 +6454,14 @@ input:checked + .toggle-slider:before {
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0 0 0.5rem 0;
+    display: block;
 }
 
 .modal-subtitle {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.9rem;
     margin: 0;
+    display: block;
 }
 
 .music-controls {
