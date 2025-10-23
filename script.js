@@ -9213,11 +9213,13 @@ class PomodoroTimer {
         // Update the main task banner immediately
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
         
         // Force a small delay to ensure DOM updates
         setTimeout(() => {
             console.log('🔄 Delayed banner update...');
             this.updateCurrentTaskBanner();
+            this.updateCurrentTaskFromQueue();
         }, 100);
         
         // 🎯 Track Task Created event to Mixpanel
