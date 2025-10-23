@@ -5076,10 +5076,18 @@ class PomodoroTimer {
     }
 
     updateCurrentTaskFromQueue() {
+        console.log('🎯 updateCurrentTaskFromQueue called', {
+            isWorkSession: this.isWorkSession,
+            taskQueueLength: this.taskQueue?.length,
+            taskQueue: this.taskQueue?.map(t => t.content)
+        });
+        
         // Update current task based on task queue and current session
         if (this.isWorkSession && this.taskQueue && this.taskQueue.length > 0) {
             // Calculate how many task slots have been completed so far
             const selected = this.getSelectedTasks();
+            console.log('🎯 Selected tasks:', selected.map(t => t.content));
+            
             let slotsCompleted = 0;
             selected.forEach(task => {
                 const cfg = this.getTaskConfig(task.id);
@@ -5088,25 +5096,32 @@ class PomodoroTimer {
                 slotsCompleted += done;
             });
             
+            console.log('🎯 slotsCompleted:', slotsCompleted, 'taskQueue.length:', this.taskQueue.length);
+            
             if (slotsCompleted >= this.taskQueue.length) {
                 this.currentTaskIndex = this.taskQueue.length; // beyond queue → Focus label
                 this.currentTask = null;
                 this.currentTaskName = null;
+                console.log('🎯 All tasks completed, setting currentTaskName to null');
             } else {
                 this.currentTaskIndex = slotsCompleted;
                 this.currentTask = this.taskQueue[this.currentTaskIndex];
                 this.currentTaskName = this.currentTask ? this.currentTask.content : null;
+                console.log('🎯 Setting currentTaskName to:', this.currentTaskName);
             }
         } else if (this.isWorkSession) {
             // In work session but no tasks selected - show "Focus"
             this.currentTask = null;
             this.currentTaskName = null;
+            console.log('🎯 Work session but no tasks, setting currentTaskName to null');
         } else {
             // Not in work session
             this.currentTask = null;
             this.currentTaskName = null;
+            console.log('🎯 Not in work session, setting currentTaskName to null');
         }
         
+        console.log('🎯 Final currentTaskName:', this.currentTaskName);
         this.updateCurrentTaskDisplay();
     }
     
@@ -8849,7 +8864,9 @@ class PomodoroTimer {
             };
         });
         
+        console.log('🔍 getSelectedTasks - selectedTasks COUNT:', selectedTasks.length);
         console.log('🔍 getSelectedTasks - selectedTasks:', selectedTasks.map(t => ({ id: t.id, content: t.content })));
+        console.log('🔍 getSelectedTasks - selectedTasks FULL:', selectedTasks);
         
         // Apply saved task order
         const savedOrder = this.getTaskOrder();
