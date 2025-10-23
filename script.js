@@ -6532,6 +6532,8 @@ class PomodoroTimer {
                 if (typeof renderTasks === 'function') renderTasks();
                 this.updateCurrentTaskBanner();
                 this.rebuildTaskQueue();
+                this.updateCurrentTaskFromQueue();
+                this.updateDisplay();
             });
         }
 
@@ -6677,6 +6679,8 @@ class PomodoroTimer {
                 if (typeof renderTasks === 'function') renderTasks();
                 this.updateCurrentTaskBanner();
                 this.rebuildTaskQueue();
+                this.updateCurrentTaskFromQueue();
+                this.updateDisplay();
             });
         }
 
