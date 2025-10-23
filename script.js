@@ -4674,6 +4674,7 @@ class PomodoroTimer {
         this.isLongBreak = currentSectionInfo.type === 'long-break';
         
         // Update UI to reflect the next section
+        this.updateCurrentTaskFromQueue();
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
