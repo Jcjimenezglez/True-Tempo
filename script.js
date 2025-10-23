@@ -4551,6 +4551,7 @@ class PomodoroTimer {
             this.currentTaskName = this.currentTask.content;
         }
         
+        this.updateCurrentTaskFromQueue();
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
