@@ -4728,7 +4728,7 @@ class PomodoroTimer {
         } else {
             // Fallback to session type if no current task
             if (this.isWorkSession) {
-                titleText = 'Focus';
+                titleText = 'Work';
             } else {
                 titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
             }
