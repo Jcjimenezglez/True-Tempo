@@ -8182,6 +8182,9 @@ class PomodoroTimer {
                 
                 // Update visual state
                 this.updateTaskCompletionVisual(modal, taskId, isChecked);
+                
+                // Update window title immediately
+                this.updateDisplay();
 
                 // If we're on To-do and the task just got completed, remove it immediately
                 // If we're on Done and the task was unchecked, remove it immediately
@@ -9242,12 +9245,14 @@ class PomodoroTimer {
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
         this.updateCurrentTaskFromQueue();
+        this.updateDisplay(); // Update window title immediately
         
         // Force a small delay to ensure DOM updates
         setTimeout(() => {
             console.log('🔄 Delayed banner update...');
             this.updateCurrentTaskBanner();
             this.updateCurrentTaskFromQueue();
+            this.updateDisplay(); // Update window title again
         }, 100);
         
         // 🎯 Track Task Created event to Mixpanel
