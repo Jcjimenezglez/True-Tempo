@@ -8706,13 +8706,21 @@ class PomodoroTimer {
         const selectedTasks = this.getSelectedTasks();
         const taskBanner = document.getElementById('currentTaskBanner');
         
+        console.log('🔄 updateCurrentTaskBanner called', { 
+            selectedTasksCount: selectedTasks.length, 
+            bannerExists: !!taskBanner,
+            selectedTasks: selectedTasks.map(t => ({ id: t.id, content: t.content, selected: this.getTaskConfig(t.id).selected }))
+        });
+        
         if (!taskBanner) {
             // Create task banner if it doesn't exist
+            console.log('🔄 Creating task banner...');
             this.createTaskBanner();
             return;
         }
 
         if (selectedTasks.length === 0) {
+            console.log('🔄 No selected tasks, hiding banner');
             taskBanner.style.display = 'none';
             return;
         }
@@ -8724,6 +8732,9 @@ class PomodoroTimer {
         } else {
             currentTask = selectedTasks[0];
         }
+        
+        console.log('🔄 Showing task in banner', { currentTask: currentTask?.content });
+        
         const taskInfo = document.getElementById('currentTaskInfo');
         const taskProgress = document.getElementById('taskProgress');
         
@@ -8743,6 +8754,7 @@ class PomodoroTimer {
         }
 
         taskBanner.style.display = 'block';
+        console.log('🔄 Banner should now be visible');
         
         // Update task button state
         this.updateTaskButtonState();
@@ -9185,9 +9197,17 @@ class PomodoroTimer {
         // Persist planned sessions so the card progress matches the chosen value
         this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: true, completedSessions: 0 });
         
+        console.log('🔄 Task created, updating banner...', { taskId: newTask.id, description });
+        
         // Update the main task banner immediately
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
+        
+        // Force a small delay to ensure DOM updates
+        setTimeout(() => {
+            console.log('🔄 Delayed banner update...');
+            this.updateCurrentTaskBanner();
+        }, 100);
         
         // 🎯 Track Task Created event to Mixpanel
         if (window.mixpanelTracker) {
