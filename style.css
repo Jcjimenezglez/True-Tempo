@@ -5531,6 +5531,7 @@ input:checked + .toggle-slider:before {
 /* Settings Side Panel Specific Styles */
 .settings-duration-section {
     margin-bottom: 24px;
+    display: none; /* Hidden for now - will be used for future feature */
 }
 
 .settings-section-title {
