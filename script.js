@@ -8853,13 +8853,18 @@ class PomodoroTimer {
         
         // Apply saved task order
         const savedOrder = this.getTaskOrder();
+        console.log('🔍 savedOrder:', savedOrder);
+        console.log('🔍 savedOrder.length:', savedOrder.length);
+        
         if (savedOrder.length > 0) {
             // Create a map for quick lookup
             const taskMap = new Map(selectedTasks.map(task => [task.id, task]));
+            console.log('🔍 taskMap has', taskMap.size, 'tasks');
             
             // Sort by saved order
             const orderedTasks = [];
             savedOrder.forEach(orderItem => {
+                console.log('🔍 Checking orderItem:', orderItem.id, 'has?', taskMap.has(orderItem.id));
                 if (taskMap.has(orderItem.id)) {
                     orderedTasks.push(taskMap.get(orderItem.id));
                     taskMap.delete(orderItem.id);
@@ -8867,11 +8872,17 @@ class PomodoroTimer {
             });
             
             // Add any remaining tasks that weren't in the saved order
-            taskMap.forEach(task => orderedTasks.push(task));
+            console.log('🔍 Remaining tasks in map:', taskMap.size);
+            taskMap.forEach(task => {
+                console.log('🔍 Adding remaining task:', task.content);
+                orderedTasks.push(task);
+            });
             
+            console.log('🔍 orderedTasks final:', orderedTasks.map(t => ({ id: t.id, content: t.content })));
             return orderedTasks;
         }
         
+        console.log('🔍 Returning selectedTasks as-is (no savedOrder)');
         return selectedTasks;
     }
 
