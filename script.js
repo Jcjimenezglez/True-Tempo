@@ -1181,12 +1181,15 @@ class PomodoroTimer {
                 
                 // Add to UI
                 this.addCustomTechniqueCard(customTechnique);
+                
+                // Select and apply the new technique immediately
+                this.selectCustomTechnique(customTechnique);
             }
             
             // Hide form
             this.hideCustomForm();
             
-            console.log('✅ Custom technique saved:', customTechnique);
+            console.log('✅ Custom technique saved and applied:', customTechnique);
             
         } catch (error) {
             console.error('Error saving custom technique:', error);
