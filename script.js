@@ -7532,22 +7532,21 @@ class PomodoroTimer {
                     source: 'tasks_modal'
                 });
                 if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
-                    // Clear local tasks
+                    // Clear local tasks (equivalent to filtering out all tasks)
                     this.setLocalTasks([]);
-                    // Clear task configs
+                    // Clear task configs (equivalent to deleting all configs)
                     localStorage.removeItem('taskConfigs');
-                    // Clear task order
+                    // Clear task order (equivalent to removing task order)
                     localStorage.removeItem('taskOrder');
-                    // Refresh UI
+                    // Reset state and UI (equivalent to resetting editing state)
+                    this.editingTaskId = null;
+                    // Refresh list/banner/queue (exact same pattern as Delete Task)
                     this.loadAllTasks();
-                    renderTasks();
+                    if (typeof renderTasks === 'function') renderTasks();
                     this.updateCurrentTaskBanner();
                     this.rebuildTaskQueue();
-                    console.log('🔍 Clear All Tasks - before updateCurrentTaskFromQueue, isWorkSession:', this.isWorkSession);
                     this.updateCurrentTaskFromQueue();
-                    console.log('🔍 Clear All Tasks - after updateCurrentTaskFromQueue, currentTaskName:', this.currentTaskName);
                     this.updateDisplay();
-                    console.log('🔍 Clear All Tasks - after updateDisplay, document.title:', document.title);
                     
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
