@@ -7540,6 +7540,11 @@ class PomodoroTimer {
                     localStorage.removeItem('taskOrder');
                     // Reset state and UI (equivalent to resetting editing state)
                     this.editingTaskId = null;
+                    // Clear task queue explicitly
+                    this.taskQueue = [];
+                    this.currentTaskIndex = 0;
+                    this.currentTask = null;
+                    this.currentTaskName = null;
                     // Refresh list/banner/queue (exact same pattern as Delete Task)
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
