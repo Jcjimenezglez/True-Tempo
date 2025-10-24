@@ -5660,15 +5660,14 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-save-custom:enabled {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
     cursor: pointer;
 }
 
 .btn-save-custom:enabled:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.6);
+    background: #f0f0f0;
     transform: translateY(-1px);
 }
 
