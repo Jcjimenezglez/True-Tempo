@@ -1215,7 +1215,20 @@ class PomodoroTimer {
     loadCustomTechniques() {
         try {
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
-            techniques.forEach(technique => this.addCustomTechniqueCard(technique));
+            const selectedTechnique = localStorage.getItem('selectedTechnique');
+            
+            techniques.forEach(technique => {
+                this.addCustomTechniqueCard(technique);
+                
+                // Mark as active if this is the selected technique
+                if (selectedTechnique === `custom_${technique.id}`) {
+                    const card = document.querySelector(`[data-technique-id="${technique.id}"]`);
+                    if (card) {
+                        card.classList.add('active');
+                        console.log(`✅ Custom technique '${technique.name}' marked as active`);
+                    }
+                }
+            });
         } catch (error) {
             console.error('Error loading custom techniques:', error);
         }
@@ -1313,13 +1326,20 @@ class PomodoroTimer {
             this.longBreakTime = technique.longBreakMinutes * 60;
             this.sessionsPerCycle = technique.sessions;
             
-            // Reset timer with new values
-            this.timeLeft = this.workTime;
-            this.isWorkSession = true;
-            this.isLongBreak = false;
+            // Update cycle sections (like Save Changes did)
+            this.cycleSections = [
+                { type: 'work', duration: this.workTime, name: 'Work 1' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                { type: 'work', duration: this.workTime, name: 'Work 2' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                { type: 'work', duration: this.workTime, name: 'Work 3' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                { type: 'work', duration: this.workTime, name: 'Work 4' },
+                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+            ];
             
-            // Update display
-            this.updateDisplay();
+            // Reset timer to first section using the complete reset function (like Save Changes)
+            this.resetTimer();
             
             // Save automatically to localStorage
             this.saveTechniqueSettings(technique);
@@ -1339,7 +1359,17 @@ class PomodoroTimer {
                 localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
                 localStorage.setItem('longBreakTime', String(this.longBreakTime));
                 localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
-                localStorage.setItem('selectedTechnique', technique.name || 'custom');
+                
+                // Save technique identifier properly
+                if (technique.id) {
+                    // Custom technique
+                    localStorage.setItem('selectedTechnique', `custom_${technique.id}`);
+                    console.log(`✅ Custom technique '${technique.name}' (ID: ${technique.id}) saved to localStorage`);
+                } else {
+                    // Regular technique
+                    localStorage.setItem('selectedTechnique', technique.name || 'custom');
+                    console.log(`✅ Regular technique '${technique.name}' saved to localStorage`);
+                }
             }
         } catch (error) {
             console.error('Error saving technique settings:', error);
@@ -11430,6 +11460,19 @@ class PomodoroTimer {
 
     getCurrentTechniqueName() {
         const selectedTechnique = localStorage.getItem('selectedTechnique');
+        
+        // Handle custom techniques
+        if (selectedTechnique && selectedTechnique.startsWith('custom_')) {
+            const customId = selectedTechnique.replace('custom_', '');
+            try {
+                const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                const customTechnique = techniques.find(t => t.id === customId);
+                return customTechnique ? customTechnique.name : 'Custom Technique';
+            } catch (_) {
+                return 'Custom Technique';
+            }
+        }
+        
         if (selectedTechnique === 'custom') {
             const savedCustomTimer = localStorage.getItem('customTimer');
             if (savedCustomTimer) {
@@ -13033,8 +13076,12 @@ class PomodoroTimer {
         
         // Sync panel with current technique when opening
         const currentTechnique = localStorage.getItem('selectedTechnique');
-        if (currentTechnique && currentTechnique !== 'custom') {
+        if (currentTechnique && currentTechnique !== 'custom' && !currentTechnique.startsWith('custom_')) {
             this.syncSettingsPanelTechnique(currentTechnique);
+        } else if (currentTechnique && currentTechnique.startsWith('custom_')) {
+            // Custom technique selected - deselect regular techniques
+            this.deselectTechniqueInPanel();
+            // The custom technique will be highlighted by loadCustomTechniques()
         } else {
             // Custom configuration - deselect all techniques
             this.deselectTechniqueInPanel();
