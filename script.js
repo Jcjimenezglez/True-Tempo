@@ -948,7 +948,17 @@ class PomodoroTimer {
         // Create Custom button - works for all users
         const createBtn = document.getElementById('createCustomBtn');
         if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
-            createBtn.addEventListener('click', () => this.showCustomForm());
+            createBtn.addEventListener('click', () => {
+                // Track Create Custom button click
+                this.trackEvent('Create Custom Button Clicked', {
+                    button_type: 'create_custom',
+                    source: 'timer_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    feature_access: this.isPremiumUser() ? 'allowed' : 'restricted'
+                });
+                
+                this.showCustomForm();
+            });
             createBtn.setAttribute('data-listener-added', 'true');
         }
     }
@@ -1059,6 +1069,14 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else {
+            // Track Pro Feature modal shown for non-Pro users
+            this.trackEvent('Pro Feature Modal Shown', {
+                feature: 'custom_techniques',
+                source: 'create_custom_button',
+                user_type: this.isAuthenticated ? 'free' : 'guest',
+                modal_type: 'upgrade_prompt'
+            });
+            
             // Show Pro Feature modal for Guest and Free users
             this.showCustomTechniqueProModal();
         }
@@ -1297,6 +1315,18 @@ class PomodoroTimer {
                 
                 // Select and apply the new technique immediately
                 this.selectCustomTechnique(customTechnique);
+                
+                // Track successful custom technique creation
+                this.trackEvent('Custom Technique Created', {
+                    feature: 'custom_techniques',
+                    technique_name: customTechnique.name,
+                    work_minutes: customTechnique.workMinutes,
+                    short_break_minutes: customTechnique.shortBreakMinutes,
+                    long_break_minutes: customTechnique.longBreakMinutes,
+                    sessions: customTechnique.sessions,
+                    emoji: customTechnique.emoji,
+                    user_type: 'pro'
+                });
             }
             
             // Hide form
