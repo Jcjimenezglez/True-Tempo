@@ -1032,11 +1032,20 @@ class PomodoroTimer {
             form.style.display = 'block';
             createBtn.style.display = 'none';
             
+            // Disable Save button by default
+            const saveBtn = document.getElementById('saveCustomBtn');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+            }
+            
             // Focus on name input
             const nameInput = document.getElementById('customName');
             if (nameInput) {
                 setTimeout(() => nameInput.focus(), 100);
             }
+            
+            // Validate form to ensure proper state
+            this.validateCustomForm();
         }
     }
     
