@@ -959,6 +959,36 @@ class PomodoroTimer {
             });
         }
         
+        // Custom short break slider
+        const shortBreakSlider = document.getElementById('customShortBreakSlider');
+        const shortBreakValue = document.getElementById('customShortBreakValue');
+        if (shortBreakSlider && shortBreakValue) {
+            shortBreakSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                shortBreakValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom long break slider
+        const longBreakSlider = document.getElementById('customLongBreakSlider');
+        const longBreakValue = document.getElementById('customLongBreakValue');
+        if (longBreakSlider && longBreakValue) {
+            longBreakSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                longBreakValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom sessions slider
+        const sessionsSlider = document.getElementById('customSessionsSlider');
+        const sessionsValue = document.getElementById('customSessionsValue');
+        if (sessionsSlider && sessionsValue) {
+            sessionsSlider.addEventListener('input', (e) => {
+                const sessions = parseInt(e.target.value);
+                sessionsValue.textContent = `${sessions} sesh`;
+            });
+        }
+        
         // Custom name input validation
         const nameInput = document.getElementById('customName');
         if (nameInput) {
@@ -1002,10 +1032,22 @@ class PomodoroTimer {
         const nameInput = document.getElementById('customName');
         const workSlider = document.getElementById('customWorkSlider');
         const workValue = document.getElementById('customWorkValue');
+        const shortBreakSlider = document.getElementById('customShortBreakSlider');
+        const shortBreakValue = document.getElementById('customShortBreakValue');
+        const longBreakSlider = document.getElementById('customLongBreakSlider');
+        const longBreakValue = document.getElementById('customLongBreakValue');
+        const sessionsSlider = document.getElementById('customSessionsSlider');
+        const sessionsValue = document.getElementById('customSessionsValue');
         
         if (nameInput) nameInput.value = '';
         if (workSlider) workSlider.value = '25';
         if (workValue) workValue.textContent = '25 min';
+        if (shortBreakSlider) shortBreakSlider.value = '5';
+        if (shortBreakValue) shortBreakValue.textContent = '5 min';
+        if (longBreakSlider) longBreakSlider.value = '15';
+        if (longBreakValue) longBreakValue.textContent = '15 min';
+        if (sessionsSlider) sessionsSlider.value = '4';
+        if (sessionsValue) sessionsValue.textContent = '4 sesh';
         
         this.validateCustomForm();
     }
@@ -1026,11 +1068,17 @@ class PomodoroTimer {
         try {
             const nameInput = document.getElementById('customName');
             const workSlider = document.getElementById('customWorkSlider');
+            const shortBreakSlider = document.getElementById('customShortBreakSlider');
+            const longBreakSlider = document.getElementById('customLongBreakSlider');
+            const sessionsSlider = document.getElementById('customSessionsSlider');
             
-            if (!nameInput || !workSlider) return;
+            if (!nameInput || !workSlider || !shortBreakSlider || !longBreakSlider || !sessionsSlider) return;
             
             const name = nameInput.value.trim();
             const workMinutes = parseInt(workSlider.value);
+            const shortBreakMinutes = parseInt(shortBreakSlider.value);
+            const longBreakMinutes = parseInt(longBreakSlider.value);
+            const sessions = parseInt(sessionsSlider.value);
             
             if (!name) {
                 alert('Please enter a name for your technique');
@@ -1042,6 +1090,9 @@ class PomodoroTimer {
                 id: `custom_${Date.now()}`,
                 name: name,
                 workMinutes: workMinutes,
+                shortBreakMinutes: shortBreakMinutes,
+                longBreakMinutes: longBreakMinutes,
+                sessions: sessions,
                 createdAt: new Date().toISOString()
             };
             
@@ -1094,7 +1145,7 @@ class PomodoroTimer {
         card.innerHTML = `
             <div class="custom-card-icon">🎯</div>
             <div class="custom-card-name">${technique.name}</div>
-            <div class="custom-card-duration">${technique.workMinutes} min work</div>
+            <div class="custom-card-duration">${technique.workMinutes}min work, ${technique.shortBreakMinutes}min break</div>
             <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
         `;
         
@@ -1113,6 +1164,9 @@ class PomodoroTimer {
         try {
             // Update timer settings
             this.workTime = technique.workMinutes * 60;
+            this.shortBreakTime = technique.shortBreakMinutes * 60;
+            this.longBreakTime = technique.longBreakMinutes * 60;
+            this.sessionsPerCycle = technique.sessions;
             
             // Update UI
             this.updateTimerDisplay();
@@ -1120,10 +1174,28 @@ class PomodoroTimer {
             // Update sidebar values
             const workSlider = document.getElementById('sidebarPomodoroSlider');
             const workValue = document.getElementById('sidebarPomodoroValue');
+            const shortBreakSlider = document.getElementById('sidebarShortBreakSlider');
+            const shortBreakValue = document.getElementById('sidebarShortBreakValue');
+            const longBreakSlider = document.getElementById('sidebarLongBreakSlider');
+            const longBreakValue = document.getElementById('sidebarLongBreakValue');
+            const sessionsSlider = document.getElementById('sidebarSessionsSlider');
+            const sessionsValue = document.getElementById('sidebarSessionsValue');
             
             if (workSlider && workValue) {
                 workSlider.value = technique.workMinutes;
                 workValue.textContent = `${technique.workMinutes} min`;
+            }
+            if (shortBreakSlider && shortBreakValue) {
+                shortBreakSlider.value = technique.shortBreakMinutes;
+                shortBreakValue.textContent = `${technique.shortBreakMinutes} min`;
+            }
+            if (longBreakSlider && longBreakValue) {
+                longBreakSlider.value = technique.longBreakMinutes;
+                longBreakValue.textContent = `${technique.longBreakMinutes} min`;
+            }
+            if (sessionsSlider && sessionsValue) {
+                sessionsSlider.value = technique.sessions;
+                sessionsValue.textContent = `${technique.sessions} sesh`;
             }
             
             // Enable save button
