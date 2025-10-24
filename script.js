@@ -394,6 +394,10 @@ class PomodoroTimer {
         if (!this.isAuthenticated) {
             this.setDefaultTechniqueForGuest();
         }
+        
+        // Enable Custom section for all users (functionality varies by user type)
+        this.enableCustomSection();
+        
         // Welcome modal removed
         
         // Pomodoro intro modal removed
@@ -1063,11 +1067,11 @@ class PomodoroTimer {
     // Show Pro Feature modal for Custom Techniques
     showCustomTechniqueProModal() {
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay';
+        modalOverlay.className = 'logout-modal-overlay';
         modalOverlay.style.display = 'flex';
         
         const modal = document.createElement('div');
-        modal.className = 'upgrade-modal';
+        modal.className = 'logout-modal';
         
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
@@ -1075,31 +1079,31 @@ class PomodoroTimer {
         if (isAuthenticated) {
             // Free user modal
             modal.innerHTML = `
-                <button class="close-upgrade-x">
+                <button class="close-logout-modal-x" id="closeCustomModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <h3>Pro Feature</h3>
-                <p>Create custom focus techniques tailored to your workflow!</p>
-                <div class="upgrade-modal-buttons">
-                    <button class="btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
-                    <button class="btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                <h3 class="logout-modal-title">Pro Feature</h3>
+                <p class="logout-modal-message">Create custom focus techniques tailored to your workflow!</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
                 </div>
             `;
         } else {
             // Guest user modal
             modal.innerHTML = `
-                <button class="close-upgrade-x">
+                <button class="close-logout-modal-x" id="closeCustomModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <h3>Pro Feature</h3>
-                <p>Create custom focus techniques tailored to your workflow!</p>
-                <div class="upgrade-modal-buttons">
-                    <button class="btn-secondary" id="customLearnMoreBtn">Learn more</button>
-                    <button class="btn-secondary" id="customCancelBtn">Cancel</button>
+                <h3 class="logout-modal-title">Pro Feature</h3>
+                <p class="logout-modal-message">Create custom focus techniques tailored to your workflow!</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="customCancelBtn">Cancel</button>
                 </div>
             `;
         }
@@ -1113,7 +1117,7 @@ class PomodoroTimer {
         };
         
         // Close button
-        const closeBtn = modal.querySelector('.close-upgrade-x');
+        const closeBtn = modal.querySelector('#closeCustomModal');
         if (closeBtn) {
             closeBtn.addEventListener('click', closeModal);
         }
