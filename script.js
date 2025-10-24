@@ -1102,7 +1102,7 @@ class PomodoroTimer {
                 <h3 class="logout-modal-title">Pro Feature</h3>
                 <p class="logout-modal-message">Create custom focus techniques tailored to your workflow!</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="customLearnMoreBtn">Learn more</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="customCancelBtn">Cancel</button>
                 </div>
             `;
