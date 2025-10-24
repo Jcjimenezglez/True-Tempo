@@ -7538,23 +7538,13 @@ class PomodoroTimer {
                     localStorage.removeItem('taskConfigs');
                     // Clear task order
                     localStorage.removeItem('taskOrder');
-                    // Clear current task state explicitly
-                    this.currentTask = null;
-                    this.currentTaskName = null;
                     // Refresh UI
                     this.loadAllTasks();
                     renderTasks();
                     this.updateCurrentTaskBanner();
                     this.rebuildTaskQueue();
                     this.updateCurrentTaskFromQueue();
-                    this.updateDisplay(); // Update window title immediately
-                    
-                    // Force a small delay to ensure DOM updates
-                    setTimeout(() => {
-                        this.updateCurrentTaskBanner();
-                        this.updateCurrentTaskFromQueue();
-                        this.updateDisplay(); // Update window title again
-                    }, 100);
+                    this.updateDisplay();
                     
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
