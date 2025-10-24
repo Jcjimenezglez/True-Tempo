@@ -3819,6 +3819,13 @@ class PomodoroTimer {
 
     async handleUpgrade() {
         try {
+            // 🎯 TRACKING: Stripe Checkout Opened
+            this.trackEvent('Stripe Checkout Opened', {
+                source: 'upgrade_flow',
+                user_type: this.isAuthenticated ? 'free_user' : 'guest',
+                timestamp: new Date().toISOString()
+            });
+            
             const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
                 headers: {
