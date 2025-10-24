@@ -577,9 +577,11 @@
                         <div class="custom-form" id="customForm" style="display: none;">
                             <div class="custom-form-content">
                                 <div class="custom-input-group">
-                                    <label for="customName">Name your technique (max 15 characters)</label>
+                                    <div class="name-header">
+                                        <label for="customName">Name your technique</label>
+                                        <div class="word-count" id="wordCount">0/15 characters</div>
+                                    </div>
                                     <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15">
-                                    <div class="word-count" id="wordCount">0/15 characters</div>
                                 </div>
                                 
                                 <div class="custom-input-group">
@@ -602,8 +604,8 @@
                                 
                                 <!-- Duration Options (Compact Controls) -->
                                 <div class="custom-duration-options">
-                                    <h5>Duration Settings</h5>
-                                    <div class="compact-duration-controls">
+                                    <h5>Set your duration</h5>
+                                    <div class="duration-controls">
                                         <div class="duration-item">
                                             <div class="duration-header">
                                                 <label>Work (min)</label>
