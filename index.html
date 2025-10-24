@@ -561,6 +561,49 @@
             
             <!-- Scrollable Content Panel -->
             <div class="timer-scrollable-content">
+                <!-- Custom Section (Pro Users Only) -->
+                <div class="settings-section custom-section" id="customSection" style="display: none;">
+                    <h4 class="section-title">Custom</h4>
+                    <div class="custom-controls">
+                        <button class="btn-create-custom" id="createCustomBtn">
+                            <div class="create-custom-icon">✨</div>
+                            <div class="create-custom-text">Create Custom</div>
+                        </button>
+                        
+                        <!-- Custom Form (Hidden by default) -->
+                        <div class="custom-form" id="customForm" style="display: none;">
+                            <div class="custom-form-content">
+                                <div class="custom-input-group">
+                                    <label for="customName">Name your technique</label>
+                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="30">
+                                </div>
+                                
+                                <!-- Duration Options (Reusing the hidden duration section) -->
+                                <div class="custom-duration-options">
+                                    <h5>Work Duration</h5>
+                                    <div class="duration-item">
+                                        <div class="duration-header">
+                                            <label>Work Time</label>
+                                            <span class="duration-value" id="customWorkValue">25 min</span>
+                                        </div>
+                                        <input type="range" id="customWorkSlider" min="1" max="90" value="25" class="duration-slider" aria-label="Custom work duration in minutes">
+                                    </div>
+                                </div>
+                                
+                                <div class="custom-form-actions">
+                                    <button class="btn-cancel-custom" id="cancelCustomBtn">Cancel</button>
+                                    <button class="btn-save-custom" id="saveCustomBtn">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Cards Container -->
+                        <div class="custom-cards-container" id="customCardsContainer">
+                            <!-- Custom cards will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Techniques -->
                 <div class="settings-section">
                     <h4 class="section-title">Techniques</h4>

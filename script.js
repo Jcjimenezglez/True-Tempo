@@ -867,6 +867,9 @@ class PomodoroTimer {
                 saveBtn.disabled = true;
             }
             
+            // Enable Custom section for Pro users
+            this.enableCustomSection();
+            
             console.log('✅ Timer panel features enabled');
             
         } catch (error) {
@@ -885,6 +888,272 @@ class PomodoroTimer {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
             saveBtn.disabled = true;
+        }
+    }
+    
+    // Enable Custom section for Pro users
+    enableCustomSection() {
+        try {
+            // Only show for Pro users
+            if (!this.isPremiumUser()) {
+                console.log('🔒 Custom section hidden - Pro users only');
+                return;
+            }
+            
+            console.log('🔓 Enabling Custom section for Pro user');
+            
+            const customSection = document.getElementById('customSection');
+            if (customSection) {
+                customSection.style.display = 'block';
+                this.initializeCustomSection();
+            }
+            
+        } catch (error) {
+            console.error('Error enabling Custom section:', error);
+        }
+    }
+    
+    // Initialize Custom section functionality
+    initializeCustomSection() {
+        try {
+            // Load existing custom techniques from localStorage
+            this.loadCustomTechniques();
+            
+            // Set up event listeners
+            this.setupCustomSectionListeners();
+            
+            console.log('✅ Custom section initialized');
+            
+        } catch (error) {
+            console.error('Error initializing Custom section:', error);
+        }
+    }
+    
+    // Set up event listeners for Custom section
+    setupCustomSectionListeners() {
+        // Create Custom button
+        const createBtn = document.getElementById('createCustomBtn');
+        if (createBtn) {
+            createBtn.addEventListener('click', () => this.showCustomForm());
+        }
+        
+        // Cancel button
+        const cancelBtn = document.getElementById('cancelCustomBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.hideCustomForm());
+        }
+        
+        // Save button
+        const saveBtn = document.getElementById('saveCustomBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => this.saveCustomTechnique());
+        }
+        
+        // Custom work slider
+        const workSlider = document.getElementById('customWorkSlider');
+        const workValue = document.getElementById('customWorkValue');
+        if (workSlider && workValue) {
+            workSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                workValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom name input validation
+        const nameInput = document.getElementById('customName');
+        if (nameInput) {
+            nameInput.addEventListener('input', () => this.validateCustomForm());
+        }
+    }
+    
+    // Show custom form
+    showCustomForm() {
+        const form = document.getElementById('customForm');
+        const createBtn = document.getElementById('createCustomBtn');
+        
+        if (form && createBtn) {
+            form.style.display = 'block';
+            createBtn.style.display = 'none';
+            
+            // Focus on name input
+            const nameInput = document.getElementById('customName');
+            if (nameInput) {
+                setTimeout(() => nameInput.focus(), 100);
+            }
+        }
+    }
+    
+    // Hide custom form
+    hideCustomForm() {
+        const form = document.getElementById('customForm');
+        const createBtn = document.getElementById('createCustomBtn');
+        
+        if (form && createBtn) {
+            form.style.display = 'none';
+            createBtn.style.display = 'flex';
+            
+            // Reset form
+            this.resetCustomForm();
+        }
+    }
+    
+    // Reset custom form
+    resetCustomForm() {
+        const nameInput = document.getElementById('customName');
+        const workSlider = document.getElementById('customWorkSlider');
+        const workValue = document.getElementById('customWorkValue');
+        
+        if (nameInput) nameInput.value = '';
+        if (workSlider) workSlider.value = '25';
+        if (workValue) workValue.textContent = '25 min';
+        
+        this.validateCustomForm();
+    }
+    
+    // Validate custom form
+    validateCustomForm() {
+        const nameInput = document.getElementById('customName');
+        const saveBtn = document.getElementById('saveCustomBtn');
+        
+        if (nameInput && saveBtn) {
+            const isValid = nameInput.value.trim().length > 0;
+            saveBtn.disabled = !isValid;
+        }
+    }
+    
+    // Save custom technique
+    saveCustomTechnique() {
+        try {
+            const nameInput = document.getElementById('customName');
+            const workSlider = document.getElementById('customWorkSlider');
+            
+            if (!nameInput || !workSlider) return;
+            
+            const name = nameInput.value.trim();
+            const workMinutes = parseInt(workSlider.value);
+            
+            if (!name) {
+                alert('Please enter a name for your technique');
+                return;
+            }
+            
+            // Create custom technique object
+            const customTechnique = {
+                id: `custom_${Date.now()}`,
+                name: name,
+                workMinutes: workMinutes,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            this.saveCustomTechniqueToStorage(customTechnique);
+            
+            // Add to UI
+            this.addCustomTechniqueCard(customTechnique);
+            
+            // Hide form
+            this.hideCustomForm();
+            
+            console.log('✅ Custom technique saved:', customTechnique);
+            
+        } catch (error) {
+            console.error('Error saving custom technique:', error);
+        }
+    }
+    
+    // Save custom technique to localStorage
+    saveCustomTechniqueToStorage(technique) {
+        try {
+            const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            existing.push(technique);
+            localStorage.setItem('customTechniques', JSON.stringify(existing));
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
+        }
+    }
+    
+    // Load custom techniques from localStorage
+    loadCustomTechniques() {
+        try {
+            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            techniques.forEach(technique => this.addCustomTechniqueCard(technique));
+        } catch (error) {
+            console.error('Error loading custom techniques:', error);
+        }
+    }
+    
+    // Add custom technique card to UI
+    addCustomTechniqueCard(technique) {
+        const container = document.getElementById('customCardsContainer');
+        if (!container) return;
+        
+        const card = document.createElement('div');
+        card.className = 'custom-card';
+        card.dataset.techniqueId = technique.id;
+        
+        card.innerHTML = `
+            <div class="custom-card-icon">🎯</div>
+            <div class="custom-card-name">${technique.name}</div>
+            <div class="custom-card-duration">${technique.workMinutes} min work</div>
+            <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
+        `;
+        
+        // Add click handler to select technique
+        card.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('custom-card-delete')) {
+                this.selectCustomTechnique(technique);
+            }
+        });
+        
+        container.appendChild(card);
+    }
+    
+    // Select custom technique
+    selectCustomTechnique(technique) {
+        try {
+            // Update timer settings
+            this.workTime = technique.workMinutes * 60;
+            
+            // Update UI
+            this.updateTimerDisplay();
+            
+            // Update sidebar values
+            const workSlider = document.getElementById('sidebarPomodoroSlider');
+            const workValue = document.getElementById('sidebarPomodoroValue');
+            
+            if (workSlider && workValue) {
+                workSlider.value = technique.workMinutes;
+                workValue.textContent = `${technique.workMinutes} min`;
+            }
+            
+            // Enable save button
+            this.enableSaveButton();
+            
+            console.log('✅ Custom technique selected:', technique);
+            
+        } catch (error) {
+            console.error('Error selecting custom technique:', error);
+        }
+    }
+    
+    // Delete custom technique
+    deleteCustomTechnique(techniqueId) {
+        try {
+            // Remove from localStorage
+            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const filtered = techniques.filter(t => t.id !== techniqueId);
+            localStorage.setItem('customTechniques', JSON.stringify(filtered));
+            
+            // Remove from UI
+            const card = document.querySelector(`[data-technique-id="${techniqueId}"]`);
+            if (card) {
+                card.remove();
+            }
+            
+            console.log('✅ Custom technique deleted:', techniqueId);
+            
+        } catch (error) {
+            console.error('Error deleting custom technique:', error);
         }
     }
     
