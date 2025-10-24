@@ -595,6 +595,8 @@
                                         <button type="button" class="emoji-option" data-emoji="💪">💪</button>
                                         <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
                                         <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
+                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
                                     </div>
                                 </div>
                                 
@@ -606,7 +608,7 @@
                                             <label>Work</label>
                                             <div class="duration-counter">
                                                 <button type="button" class="duration-btn minus" data-target="customWork">-</button>
-                                                <span class="duration-value" id="customWorkValue">25</span>
+                                                <input type="number" class="duration-input" id="customWorkValue" value="25" min="1" max="90">
                                                 <button type="button" class="duration-btn plus" data-target="customWork">+</button>
                                             </div>
                                         </div>
@@ -614,7 +616,7 @@
                                             <label>Short Break</label>
                                             <div class="duration-counter">
                                                 <button type="button" class="duration-btn minus" data-target="customShortBreak">-</button>
-                                                <span class="duration-value" id="customShortBreakValue">5</span>
+                                                <input type="number" class="duration-input" id="customShortBreakValue" value="5" min="1" max="30">
                                                 <button type="button" class="duration-btn plus" data-target="customShortBreak">+</button>
                                             </div>
                                         </div>
@@ -622,7 +624,7 @@
                                             <label>Long Break</label>
                                             <div class="duration-counter">
                                                 <button type="button" class="duration-btn minus" data-target="customLongBreak">-</button>
-                                                <span class="duration-value" id="customLongBreakValue">15</span>
+                                                <input type="number" class="duration-input" id="customLongBreakValue" value="15" min="1" max="60">
                                                 <button type="button" class="duration-btn plus" data-target="customLongBreak">+</button>
                                             </div>
                                         </div>
@@ -630,7 +632,7 @@
                                             <label>Sessions</label>
                                             <div class="duration-counter">
                                                 <button type="button" class="duration-btn minus" data-target="customSessions">-</button>
-                                                <span class="duration-value" id="customSessionsValue">4</span>
+                                                <input type="number" class="duration-input" id="customSessionsValue" value="4" min="1" max="12">
                                                 <button type="button" class="duration-btn plus" data-target="customSessions">+</button>
                                             </div>
                                         </div>

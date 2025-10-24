@@ -981,7 +981,7 @@ class PomodoroTimer {
                 const valueElement = document.getElementById(`custom${target.charAt(0).toUpperCase() + target.slice(1)}Value`);
                 
                 if (valueElement) {
-                    let currentValue = parseInt(valueElement.textContent);
+                    let currentValue = parseInt(valueElement.value);
                     
                     // Define limits for each type
                     const limits = {
@@ -999,7 +999,37 @@ class PomodoroTimer {
                         currentValue--;
                     }
                     
-                    valueElement.textContent = currentValue;
+                    valueElement.value = currentValue;
+                }
+            });
+        });
+        
+        // Direct input handling for duration inputs
+        const durationInputs = document.querySelectorAll('.duration-input');
+        durationInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                const min = parseInt(e.target.min);
+                const max = parseInt(e.target.max);
+                
+                // Clamp value within limits
+                if (value < min) {
+                    e.target.value = min;
+                } else if (value > max) {
+                    e.target.value = max;
+                }
+            });
+            
+            input.addEventListener('blur', (e) => {
+                const value = parseInt(e.target.value);
+                const min = parseInt(e.target.min);
+                const max = parseInt(e.target.max);
+                
+                // Ensure value is within limits on blur
+                if (isNaN(value) || value < min) {
+                    e.target.value = min;
+                } else if (value > max) {
+                    e.target.value = max;
                 }
             });
         });
@@ -1056,10 +1086,10 @@ class PomodoroTimer {
         const emojiOptions = document.querySelectorAll('.emoji-option');
         
         if (nameInput) nameInput.value = '';
-        if (workValue) workValue.textContent = '25';
-        if (shortBreakValue) shortBreakValue.textContent = '5';
-        if (longBreakValue) longBreakValue.textContent = '15';
-        if (sessionsValue) sessionsValue.textContent = '4';
+        if (workValue) workValue.value = '25';
+        if (shortBreakValue) shortBreakValue.value = '5';
+        if (longBreakValue) longBreakValue.value = '15';
+        if (sessionsValue) sessionsValue.value = '4';
         
         // Reset emoji to default
         emojiOptions.forEach(option => option.classList.remove('active'));
@@ -1117,10 +1147,10 @@ class PomodoroTimer {
             if (!nameInput || !workValue || !shortBreakValue || !longBreakValue || !sessionsValue) return;
             
             const name = nameInput.value.trim();
-            const workMinutes = parseInt(workValue.textContent);
-            const shortBreakMinutes = parseInt(shortBreakValue.textContent);
-            const longBreakMinutes = parseInt(longBreakValue.textContent);
-            const sessions = parseInt(sessionsValue.textContent);
+            const workMinutes = parseInt(workValue.value);
+            const shortBreakMinutes = parseInt(shortBreakValue.value);
+            const longBreakMinutes = parseInt(longBreakValue.value);
+            const sessions = parseInt(sessionsValue.value);
             const emoji = selectedEmoji ? selectedEmoji.dataset.emoji : '🎯';
             
             if (!name) {
