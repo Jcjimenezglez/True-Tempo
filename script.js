@@ -1063,22 +1063,21 @@ class PomodoroTimer {
         this.validateCustomForm();
     }
     
-    // Update word count
+    // Update character count
     updateWordCount() {
         const nameInput = document.getElementById('customName');
         const wordCount = document.getElementById('wordCount');
         
         if (nameInput && wordCount) {
-            const words = nameInput.value.trim().split(/\s+/).filter(word => word.length > 0);
-            const wordCountNum = words.length;
+            const characterCount = nameInput.value.length;
             
-            wordCount.textContent = `${wordCountNum}/15 words`;
+            wordCount.textContent = `${characterCount}/15 characters`;
             
-            // Update styling based on word count
+            // Update styling based on character count
             wordCount.classList.remove('warning', 'error');
-            if (wordCountNum > 15) {
+            if (characterCount > 15) {
                 wordCount.classList.add('error');
-            } else if (wordCountNum > 12) {
+            } else if (characterCount > 12) {
                 wordCount.classList.add('warning');
             }
         }
@@ -1090,8 +1089,8 @@ class PomodoroTimer {
         const saveBtn = document.getElementById('saveCustomBtn');
         
         if (nameInput && saveBtn) {
-            const words = nameInput.value.trim().split(/\s+/).filter(word => word.length > 0);
-            const isValid = nameInput.value.trim().length > 0 && words.length <= 15;
+            const characterCount = nameInput.value.length;
+            const isValid = characterCount > 0 && characterCount <= 15;
             saveBtn.disabled = !isValid;
         }
     }
@@ -1118,10 +1117,9 @@ class PomodoroTimer {
                 return;
             }
             
-            // Validate word count
-            const words = name.trim().split(/\s+/).filter(word => word.length > 0);
-            if (words.length > 15) {
-                alert('Technique name cannot exceed 15 words. Please shorten your name.');
+            // Validate character count
+            if (name.length > 15) {
+                alert('Technique name cannot exceed 15 characters. Please shorten your name.');
                 return;
             }
             
