@@ -5612,7 +5612,6 @@ input:checked + .toggle-slider:before {
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 12px;
-    letter-spacing: 0.05em;
 }
 
 .custom-form-actions {
