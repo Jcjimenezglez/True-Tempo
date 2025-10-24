@@ -7543,6 +7543,8 @@ class PomodoroTimer {
                     renderTasks();
                     this.updateCurrentTaskBanner();
                     this.rebuildTaskQueue();
+                    this.updateCurrentTaskFromQueue();
+                    this.updateDisplay(); // Update window title immediately
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
                 }
