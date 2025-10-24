@@ -7552,6 +7552,13 @@ class PomodoroTimer {
                     this.updateCurrentTaskFromQueue();
                     this.updateDisplay();
                     
+                    // Force a small delay to ensure DOM updates
+                    setTimeout(() => {
+                        this.updateCurrentTaskBanner();
+                        this.updateCurrentTaskFromQueue();
+                        this.updateDisplay(); // Update window title again
+                    }, 100);
+                    
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
                 }
