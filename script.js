@@ -894,18 +894,19 @@ class PomodoroTimer {
     // Enable Custom section for Pro users
     enableCustomSection() {
         try {
-            // Only show for Pro users
-            if (!this.isPremiumUser()) {
-                console.log('🔒 Custom section hidden - Pro users only');
-                return;
-            }
-            
-            console.log('🔓 Enabling Custom section for Pro user');
+            console.log('🔓 Enabling Custom section for all users');
             
             const customSection = document.getElementById('customSection');
             if (customSection) {
                 customSection.style.display = 'block';
-                this.initializeCustomSection();
+                
+                // Set up basic listeners for all users
+                this.setupBasicCustomListeners();
+                
+                // Only initialize full functionality for Pro users
+                if (this.isPremiumUser()) {
+                    this.initializeCustomSection();
+                }
             }
             
         } catch (error) {
@@ -935,6 +936,16 @@ class PomodoroTimer {
             
         } catch (error) {
             console.error('Error initializing Custom section:', error);
+        }
+    }
+    
+    // Set up basic event listeners for all users (Create Custom button)
+    setupBasicCustomListeners() {
+        // Create Custom button - works for all users
+        const createBtn = document.getElementById('createCustomBtn');
+        if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
+            createBtn.addEventListener('click', () => this.showCustomForm());
+            createBtn.setAttribute('data-listener-added', 'true');
         }
     }
     
