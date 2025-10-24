@@ -1309,16 +1309,10 @@ class PomodoroTimer {
         }
     }
     
-    // Apply technique immediately (Pro users only)
+    // Apply technique immediately (all users)
     applyTechniqueImmediately(technique) {
         try {
-            // Only apply immediately for Pro users
-            if (!this.isPremiumUser()) {
-                console.log('🔒 Immediate technique application requires Pro status');
-                return;
-            }
-            
-            console.log('⚡ Applying technique immediately:', technique);
+            console.log('⚡ Applying technique immediately for all users:', technique);
             
             // Update timer settings
             this.workTime = technique.workMinutes * 60;
@@ -1393,43 +1387,8 @@ class PomodoroTimer {
                 selectedCard.classList.add('active');
             }
             
-            // For Pro users: Apply immediately
-            if (this.isPremiumUser()) {
-                this.applyTechniqueImmediately(technique);
-            } else {
-                // For non-Pro users: Update timer settings but don't apply immediately
-                this.workTime = technique.workMinutes * 60;
-                this.shortBreakTime = technique.shortBreakMinutes * 60;
-                this.longBreakTime = technique.longBreakMinutes * 60;
-                this.sessionsPerCycle = technique.sessions;
-                
-                // Update sidebar values
-                const workSlider = document.getElementById('sidebarPomodoroSlider');
-                const workValue = document.getElementById('sidebarPomodoroValue');
-                const shortBreakSlider = document.getElementById('sidebarShortBreakSlider');
-                const shortBreakValue = document.getElementById('sidebarShortBreakValue');
-                const longBreakSlider = document.getElementById('sidebarLongBreakSlider');
-                const longBreakValue = document.getElementById('sidebarLongBreakValue');
-                const sessionsSlider = document.getElementById('sidebarSessionsSlider');
-                const sessionsValue = document.getElementById('sidebarSessionsValue');
-                
-                if (workSlider && workValue) {
-                    workSlider.value = technique.workMinutes;
-                    workValue.textContent = `${technique.workMinutes} min`;
-                }
-                if (shortBreakSlider && shortBreakValue) {
-                    shortBreakSlider.value = technique.shortBreakMinutes;
-                    shortBreakValue.textContent = `${technique.shortBreakMinutes} min`;
-                }
-                if (longBreakSlider && longBreakValue) {
-                    longBreakSlider.value = technique.longBreakMinutes;
-                    longBreakValue.textContent = `${technique.longBreakMinutes} min`;
-                }
-                if (sessionsSlider && sessionsValue) {
-                    sessionsSlider.value = technique.sessions;
-                    sessionsValue.textContent = `${technique.sessions} sesh`;
-                }
-            }
+            // Apply immediately for all users
+            this.applyTechniqueImmediately(technique);
             
             console.log('✅ Custom technique selected:', technique);
             
@@ -13327,94 +13286,24 @@ class PomodoroTimer {
                 // Apply technique settings
                 this.applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
                 
-                // For Pro users: Apply immediately
-                if (this.isPremiumUser()) {
-                    // Create technique object for immediate application
-                    const techniqueObj = {
-                        workMinutes: parseInt(pomodoroSlider.value),
-                        shortBreakMinutes: parseInt(shortBreakSlider.value),
-                        longBreakMinutes: parseInt(longBreakSlider.value),
-                        sessions: parseInt(sessionsSlider.value),
-                        name: technique
-                    };
-                    this.applyTechniqueImmediately(techniqueObj);
-                } else {
-                    // For non-Pro users: Enable save button (legacy behavior)
-                    this.enableSaveButton();
-                }
+                // Apply immediately for all users
+                const techniqueObj = {
+                    workMinutes: parseInt(pomodoroSlider.value),
+                    shortBreakMinutes: parseInt(shortBreakSlider.value),
+                    longBreakMinutes: parseInt(longBreakSlider.value),
+                    sessions: parseInt(sessionsSlider.value),
+                    name: technique
+                };
+                this.applyTechniqueImmediately(techniqueObj);
             });
         });
 
-        // Save button handler (only for non-Pro users)
+        // Save button handler (hidden for all users - immediate application enabled)
         const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
         if (saveBtn) {
-            // Initialize save button as disabled (will be enabled when changes are made)
-            saveBtn.disabled = true;
-            
-            // Hide save button for Pro users (they get immediate application)
-            if (this.isPremiumUser()) {
-                saveBtn.style.display = 'none';
-                console.log('🔒 Save button hidden for Pro users (immediate application enabled)');
-            } else if (!this.isAuthenticated) {
-                console.log('🔒 Save button disabled for guest user');
-            } else {
-                saveBtn.addEventListener('click', () => {
-                    // Save new durations
-                    this.workTime = parseInt(pomodoroSlider.value) * 60;
-                    this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
-                    this.longBreakTime = parseInt(longBreakSlider.value) * 60;
-                    this.sessionsPerCycle = parseInt(sessionsSlider.value);
-                    
-                    // Save to localStorage ONLY if user is authenticated
-                    if (this.isAuthenticated) {
-                        localStorage.setItem('pomodoroTime', String(this.workTime));
-                        localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
-                        localStorage.setItem('longBreakTime', String(this.longBreakTime));
-                        localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
-                        
-                        // Save the currently selected technique (or mark as custom if none selected)
-                        const activeTechnique = document.querySelector('.technique-preset.active');
-                        if (activeTechnique && activeTechnique.dataset.technique) {
-                            localStorage.setItem('selectedTechnique', activeTechnique.dataset.technique);
-                            console.log(`✅ Technique '${activeTechnique.dataset.technique}' saved to localStorage`);
-                        } else {
-                            // No technique selected = custom configuration
-                            localStorage.setItem('selectedTechnique', 'custom');
-                            console.log('✅ Custom configuration saved (no technique selected)');
-                        }
-                        
-                        console.log('✅ Settings saved to localStorage (authenticated user)');
-                    } else {
-                        console.log('ℹ️ Settings applied for this session only (guest user)');
-                    }
-                    
-                    // Update cycle sections
-                    this.cycleSections = [
-                        { type: 'work', duration: this.workTime, name: 'Work 1' },
-                        { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                        { type: 'work', duration: this.workTime, name: 'Work 2' },
-                        { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                        { type: 'work', duration: this.workTime, name: 'Work 3' },
-                        { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                        { type: 'work', duration: this.workTime, name: 'Work 4' },
-                        { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                    ];
-                    
-                    // Reset timer to first section using the complete reset function
-                    this.resetTimer();
-                    
-                    // Close the settings panel
-                    const sidebarManager = document.querySelector('.sidebar');
-                    if (window.sidebarManager) {
-                        window.sidebarManager.closeSettingsPanel();
-                    }
-                    
-                    console.log('✅ Settings applied successfully');
-                    
-                    // Reset save button state after successful save
-                    this.resetSaveButton();
-                });
-            }
+            // Hide save button for all users (immediate application enabled for everyone)
+            saveBtn.style.display = 'none';
+            console.log('🔒 Save button hidden for all users (immediate application enabled)');
         }
         
     }
