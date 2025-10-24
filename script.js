@@ -933,20 +933,23 @@ class PomodoroTimer {
     setupCustomSectionListeners() {
         // Create Custom button
         const createBtn = document.getElementById('createCustomBtn');
-        if (createBtn) {
+        if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
             createBtn.addEventListener('click', () => this.showCustomForm());
+            createBtn.setAttribute('data-listener-added', 'true');
         }
         
         // Cancel button
         const cancelBtn = document.getElementById('cancelCustomBtn');
-        if (cancelBtn) {
+        if (cancelBtn && !cancelBtn.hasAttribute('data-listener-added')) {
             cancelBtn.addEventListener('click', () => this.hideCustomForm());
+            cancelBtn.setAttribute('data-listener-added', 'true');
         }
         
         // Save button
         const saveBtn = document.getElementById('saveCustomBtn');
-        if (saveBtn) {
+        if (saveBtn && !saveBtn.hasAttribute('data-listener-added')) {
             saveBtn.addEventListener('click', () => this.saveCustomTechnique());
+            saveBtn.setAttribute('data-listener-added', 'true');
         }
         
         // Custom work slider
