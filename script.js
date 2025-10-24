@@ -1160,10 +1160,10 @@ class PomodoroTimer {
             // Free user - Upgrade to Pro button
             const upgradeBtn = modal.querySelector('#customUpgradeBtn');
             if (upgradeBtn) {
-                upgradeBtn.addEventListener('click', () => {
+                upgradeBtn.addEventListener('click', async () => {
                     closeModal();
                     // Redirect directly to Stripe checkout
-                    this.createCheckoutSession();
+                    await this.handleUpgrade();
                 });
             }
         } else {
