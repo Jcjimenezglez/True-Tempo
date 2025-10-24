@@ -5535,7 +5535,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* Custom Section Styles (Pro Users Only) */
-.custom-section {
+.settings-section.custom-section {
     margin-bottom: 1rem;
 }
 
