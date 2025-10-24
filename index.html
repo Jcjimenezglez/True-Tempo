@@ -604,21 +604,33 @@
                                 <div class="custom-duration-options">
                                     <h5>Duration Settings</h5>
                                     <div class="compact-duration-controls">
-                                        <div class="compact-duration-item">
-                                            <label>Work (min)</label>
-                                            <input type="number" class="duration-input-simple" id="customWorkValue" value="25" min="1" max="90" placeholder="25">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Work (min)</label>
+                                                <span class="duration-value" id="customWorkValue">25 min</span>
+                                            </div>
+                                            <input type="range" id="customWorkSlider" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes">
                                         </div>
-                                        <div class="compact-duration-item">
-                                            <label>Short Break (min)</label>
-                                            <input type="number" class="duration-input-simple" id="customShortBreakValue" value="5" min="1" max="30" placeholder="5">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Short Break (min)</label>
+                                                <span class="duration-value" id="customShortBreakValue">5 min</span>
+                                            </div>
+                                            <input type="range" id="customShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
                                         </div>
-                                        <div class="compact-duration-item">
-                                            <label>Long Break (min)</label>
-                                            <input type="number" class="duration-input-simple" id="customLongBreakValue" value="15" min="1" max="60" placeholder="15">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Long Break (min)</label>
+                                                <span class="duration-value" id="customLongBreakValue">15 min</span>
+                                            </div>
+                                            <input type="range" id="customLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
                                         </div>
-                                        <div class="compact-duration-item">
-                                            <label>Sessions (sesh)</label>
-                                            <input type="number" class="duration-input-simple" id="customSessionsValue" value="4" min="1" max="12" placeholder="4">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Sessions (sesh)</label>
+                                                <span class="duration-value" id="customSessionsValue">4 sesh</span>
+                                            </div>
+                                            <input type="range" id="customSessionsSlider" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions">
                                         </div>
                                     </div>
                                 </div>

@@ -972,35 +972,45 @@ class PomodoroTimer {
             });
         });
         
-        // Direct input handling for duration inputs
-        const durationInputs = document.querySelectorAll('.duration-input-simple');
-        durationInputs.forEach(input => {
-            input.addEventListener('input', (e) => {
-                const value = parseInt(e.target.value);
-                const min = parseInt(e.target.min);
-                const max = parseInt(e.target.max);
-                
-                // Clamp value within limits
-                if (value < min) {
-                    e.target.value = min;
-                } else if (value > max) {
-                    e.target.value = max;
-                }
+        // Custom work slider
+        const workSlider = document.getElementById('customWorkSlider');
+        const workValue = document.getElementById('customWorkValue');
+        if (workSlider && workValue) {
+            workSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                workValue.textContent = `${minutes} min`;
             });
-            
-            input.addEventListener('blur', (e) => {
-                const value = parseInt(e.target.value);
-                const min = parseInt(e.target.min);
-                const max = parseInt(e.target.max);
-                
-                // Ensure value is within limits on blur
-                if (isNaN(value) || value < min) {
-                    e.target.value = min;
-                } else if (value > max) {
-                    e.target.value = max;
-                }
+        }
+        
+        // Custom short break slider
+        const shortBreakSlider = document.getElementById('customShortBreakSlider');
+        const shortBreakValue = document.getElementById('customShortBreakValue');
+        if (shortBreakSlider && shortBreakValue) {
+            shortBreakSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                shortBreakValue.textContent = `${minutes} min`;
             });
-        });
+        }
+        
+        // Custom long break slider
+        const longBreakSlider = document.getElementById('customLongBreakSlider');
+        const longBreakValue = document.getElementById('customLongBreakValue');
+        if (longBreakSlider && longBreakValue) {
+            longBreakSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                longBreakValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom sessions slider
+        const sessionsSlider = document.getElementById('customSessionsSlider');
+        const sessionsValue = document.getElementById('customSessionsValue');
+        if (sessionsSlider && sessionsValue) {
+            sessionsSlider.addEventListener('input', (e) => {
+                const sessions = parseInt(e.target.value);
+                sessionsValue.textContent = `${sessions} sesh`;
+            });
+        }
         
         // Custom name input validation with word count
         const nameInput = document.getElementById('customName');
@@ -1057,10 +1067,10 @@ class PomodoroTimer {
             nameInput.value = '';
             nameInput.focus(); // Focus on name input after reset
         }
-        if (workValue) workValue.value = '25';
-        if (shortBreakValue) shortBreakValue.value = '5';
-        if (longBreakValue) longBreakValue.value = '15';
-        if (sessionsValue) sessionsValue.value = '4';
+        if (workValue) workValue.textContent = '25 min';
+        if (shortBreakValue) shortBreakValue.textContent = '5 min';
+        if (longBreakValue) longBreakValue.textContent = '15 min';
+        if (sessionsValue) sessionsValue.textContent = '4 sesh';
         
         // Reset emoji to default
         emojiOptions.forEach(option => option.classList.remove('active'));
@@ -1118,10 +1128,10 @@ class PomodoroTimer {
             if (!nameInput || !workValue || !shortBreakValue || !longBreakValue || !sessionsValue) return;
             
             const name = nameInput.value.trim();
-            const workMinutes = parseInt(workValue.value);
-            const shortBreakMinutes = parseInt(shortBreakValue.value);
-            const longBreakMinutes = parseInt(longBreakValue.value);
-            const sessions = parseInt(sessionsValue.value);
+            const workMinutes = parseInt(workValue.textContent);
+            const shortBreakMinutes = parseInt(shortBreakValue.textContent);
+            const longBreakMinutes = parseInt(longBreakValue.textContent);
+            const sessions = parseInt(sessionsValue.textContent);
             const emoji = selectedEmoji ? selectedEmoji.dataset.emoji : '🎯';
             
             if (!name) {
