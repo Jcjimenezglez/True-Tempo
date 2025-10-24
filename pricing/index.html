@@ -748,6 +748,18 @@
                 const isAuthenticated = window.Clerk && window.Clerk.user;
                 const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
                 
+                // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page (ALWAYS TRACK)
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Stripe Checkout Opened', {
+                        source: 'pricing_page',
+                        user_type: isAuthenticated ? 'free_user' : 'guest',
+                        timestamp: new Date().toISOString()
+                    });
+                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Opened');
+                } else {
+                    console.log('❌ Mixpanel not available');
+                }
+                
                 if (isPremium) {
                     // Already pro
                     console.log('User already has Pro');
@@ -757,16 +769,6 @@
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
                     console.log('Creating checkout session for authenticated user...');
-                    
-                    // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
-                    if (window.mixpanel && window.mixpanel.track) {
-                        window.mixpanel.track('Stripe Checkout Opened', {
-                            source: 'pricing_page',
-                            user_type: 'free_user',
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                    
                     createCheckoutSession();
                 } else {
                     // Guest user - redirect to signup with upgrade intent
