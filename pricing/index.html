@@ -757,6 +757,16 @@
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
                     console.log('Creating checkout session for authenticated user...');
+                    
+                    // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
+                    if (window.mixpanel && window.mixpanel.track) {
+                        window.mixpanel.track('Stripe Checkout Opened', {
+                            source: 'pricing_page',
+                            user_type: 'free_user',
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                    
                     createCheckoutSession();
                 } else {
                     // Guest user - redirect to signup with upgrade intent

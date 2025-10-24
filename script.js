@@ -3630,6 +3630,22 @@ class PomodoroTimer {
             this.guestTaskLimitSignupBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
+                // Check if user is authenticated (Free user trying to upgrade)
+                if (this.isAuthenticated) {
+                    // 🎯 TRACKING: Stripe Checkout Opened from Task Limit Modal
+                    this.trackEvent('Stripe Checkout Opened', {
+                        source: 'task_limit_modal',
+                        user_type: 'free_user',
+                        task_count: this.getLocalTasks().length,
+                        conversion_funnel: 'task_limit_reached',
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // Redirect to upgrade flow
+                    await this.handleUpgrade();
+                    return;
+                }
+                
                 this.trackEvent('Signup from Task Limit Modal', {
                     button_type: 'signup',
                     source: 'task_limit_modal',
