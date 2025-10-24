@@ -582,37 +582,57 @@
                                     <div class="word-count" id="wordCount">0/15 characters</div>
                                 </div>
                                 
-                                <!-- Duration Options (Complete Duration Controls) -->
+                                <div class="custom-input-group">
+                                    <label for="customEmoji">Choose an emoji</label>
+                                    <div class="emoji-picker">
+                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
+                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
+                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
+                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
+                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
+                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
+                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
+                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
+                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Duration Options (Compact Controls) -->
                                 <div class="custom-duration-options">
                                     <h5>Duration Settings</h5>
-                                    <div class="duration-controls">
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Work</label>
-                                                <span class="duration-value" id="customWorkValue">25 min</span>
+                                    <div class="compact-duration-controls">
+                                        <div class="compact-duration-item">
+                                            <label>Work</label>
+                                            <div class="duration-counter">
+                                                <button type="button" class="duration-btn minus" data-target="customWork">-</button>
+                                                <span class="duration-value" id="customWorkValue">25</span>
+                                                <button type="button" class="duration-btn plus" data-target="customWork">+</button>
                                             </div>
-                                            <input type="range" id="customWorkSlider" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes">
                                         </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Short Break</label>
-                                                <span class="duration-value" id="customShortBreakValue">5 min</span>
+                                        <div class="compact-duration-item">
+                                            <label>Short Break</label>
+                                            <div class="duration-counter">
+                                                <button type="button" class="duration-btn minus" data-target="customShortBreak">-</button>
+                                                <span class="duration-value" id="customShortBreakValue">5</span>
+                                                <button type="button" class="duration-btn plus" data-target="customShortBreak">+</button>
                                             </div>
-                                            <input type="range" id="customShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
                                         </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Long Break</label>
-                                                <span class="duration-value" id="customLongBreakValue">15 min</span>
+                                        <div class="compact-duration-item">
+                                            <label>Long Break</label>
+                                            <div class="duration-counter">
+                                                <button type="button" class="duration-btn minus" data-target="customLongBreak">-</button>
+                                                <span class="duration-value" id="customLongBreakValue">15</span>
+                                                <button type="button" class="duration-btn plus" data-target="customLongBreak">+</button>
                                             </div>
-                                            <input type="range" id="customLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
                                         </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Sessions</label>
-                                                <span class="duration-value" id="customSessionsValue">4 sesh</span>
+                                        <div class="compact-duration-item">
+                                            <label>Sessions</label>
+                                            <div class="duration-counter">
+                                                <button type="button" class="duration-btn minus" data-target="customSessions">-</button>
+                                                <span class="duration-value" id="customSessionsValue">4</span>
+                                                <button type="button" class="duration-btn plus" data-target="customSessions">+</button>
                                             </div>
-                                            <input type="range" id="customSessionsSlider" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions">
                                         </div>
                                     </div>
                                 </div>

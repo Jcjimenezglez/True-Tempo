@@ -961,45 +961,48 @@ class PomodoroTimer {
             saveBtn.setAttribute('data-listener-added', 'true');
         }
         
-        // Custom work slider
-        const workSlider = document.getElementById('customWorkSlider');
-        const workValue = document.getElementById('customWorkValue');
-        if (workSlider && workValue) {
-            workSlider.addEventListener('input', (e) => {
-                const minutes = parseInt(e.target.value);
-                workValue.textContent = `${minutes} min`;
+        // Emoji picker
+        const emojiOptions = document.querySelectorAll('.emoji-option');
+        emojiOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove active class from all options
+                emojiOptions.forEach(opt => opt.classList.remove('active'));
+                // Add active class to clicked option
+                option.classList.add('active');
             });
-        }
+        });
         
-        // Custom short break slider
-        const shortBreakSlider = document.getElementById('customShortBreakSlider');
-        const shortBreakValue = document.getElementById('customShortBreakValue');
-        if (shortBreakSlider && shortBreakValue) {
-            shortBreakSlider.addEventListener('input', (e) => {
-                const minutes = parseInt(e.target.value);
-                shortBreakValue.textContent = `${minutes} min`;
+        // Compact duration controls
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.target.dataset.target;
+                const isPlus = e.target.classList.contains('plus');
+                const valueElement = document.getElementById(`custom${target.charAt(0).toUpperCase() + target.slice(1)}Value`);
+                
+                if (valueElement) {
+                    let currentValue = parseInt(valueElement.textContent);
+                    
+                    // Define limits for each type
+                    const limits = {
+                        'customWork': { min: 1, max: 90 },
+                        'customShortBreak': { min: 1, max: 30 },
+                        'customLongBreak': { min: 1, max: 60 },
+                        'customSessions': { min: 1, max: 12 }
+                    };
+                    
+                    const limit = limits[`custom${target.charAt(0).toUpperCase() + target.slice(1)}`];
+                    
+                    if (isPlus && currentValue < limit.max) {
+                        currentValue++;
+                    } else if (!isPlus && currentValue > limit.min) {
+                        currentValue--;
+                    }
+                    
+                    valueElement.textContent = currentValue;
+                }
             });
-        }
-        
-        // Custom long break slider
-        const longBreakSlider = document.getElementById('customLongBreakSlider');
-        const longBreakValue = document.getElementById('customLongBreakValue');
-        if (longBreakSlider && longBreakValue) {
-            longBreakSlider.addEventListener('input', (e) => {
-                const minutes = parseInt(e.target.value);
-                longBreakValue.textContent = `${minutes} min`;
-            });
-        }
-        
-        // Custom sessions slider
-        const sessionsSlider = document.getElementById('customSessionsSlider');
-        const sessionsValue = document.getElementById('customSessionsValue');
-        if (sessionsSlider && sessionsValue) {
-            sessionsSlider.addEventListener('input', (e) => {
-                const sessions = parseInt(e.target.value);
-                sessionsValue.textContent = `${sessions} sesh`;
-            });
-        }
+        });
         
         // Custom name input validation with word count
         const nameInput = document.getElementById('customName');
@@ -1046,24 +1049,21 @@ class PomodoroTimer {
     // Reset custom form
     resetCustomForm() {
         const nameInput = document.getElementById('customName');
-        const workSlider = document.getElementById('customWorkSlider');
         const workValue = document.getElementById('customWorkValue');
-        const shortBreakSlider = document.getElementById('customShortBreakSlider');
         const shortBreakValue = document.getElementById('customShortBreakValue');
-        const longBreakSlider = document.getElementById('customLongBreakSlider');
         const longBreakValue = document.getElementById('customLongBreakValue');
-        const sessionsSlider = document.getElementById('customSessionsSlider');
         const sessionsValue = document.getElementById('customSessionsValue');
+        const emojiOptions = document.querySelectorAll('.emoji-option');
         
         if (nameInput) nameInput.value = '';
-        if (workSlider) workSlider.value = '25';
-        if (workValue) workValue.textContent = '25 min';
-        if (shortBreakSlider) shortBreakSlider.value = '5';
-        if (shortBreakValue) shortBreakValue.textContent = '5 min';
-        if (longBreakSlider) longBreakSlider.value = '15';
-        if (longBreakValue) longBreakValue.textContent = '15 min';
-        if (sessionsSlider) sessionsSlider.value = '4';
-        if (sessionsValue) sessionsValue.textContent = '4 sesh';
+        if (workValue) workValue.textContent = '25';
+        if (shortBreakValue) shortBreakValue.textContent = '5';
+        if (longBreakValue) longBreakValue.textContent = '15';
+        if (sessionsValue) sessionsValue.textContent = '4';
+        
+        // Reset emoji to default
+        emojiOptions.forEach(option => option.classList.remove('active'));
+        if (emojiOptions[0]) emojiOptions[0].classList.add('active');
         
         // Clear editing state
         this.editingTechnique = null;
@@ -1108,18 +1108,20 @@ class PomodoroTimer {
     saveCustomTechnique() {
         try {
             const nameInput = document.getElementById('customName');
-            const workSlider = document.getElementById('customWorkSlider');
-            const shortBreakSlider = document.getElementById('customShortBreakSlider');
-            const longBreakSlider = document.getElementById('customLongBreakSlider');
-            const sessionsSlider = document.getElementById('customSessionsSlider');
+            const workValue = document.getElementById('customWorkValue');
+            const shortBreakValue = document.getElementById('customShortBreakValue');
+            const longBreakValue = document.getElementById('customLongBreakValue');
+            const sessionsValue = document.getElementById('customSessionsValue');
+            const selectedEmoji = document.querySelector('.emoji-option.active');
             
-            if (!nameInput || !workSlider || !shortBreakSlider || !longBreakSlider || !sessionsSlider) return;
+            if (!nameInput || !workValue || !shortBreakValue || !longBreakValue || !sessionsValue) return;
             
             const name = nameInput.value.trim();
-            const workMinutes = parseInt(workSlider.value);
-            const shortBreakMinutes = parseInt(shortBreakSlider.value);
-            const longBreakMinutes = parseInt(longBreakSlider.value);
-            const sessions = parseInt(sessionsSlider.value);
+            const workMinutes = parseInt(workValue.textContent);
+            const shortBreakMinutes = parseInt(shortBreakValue.textContent);
+            const longBreakMinutes = parseInt(longBreakValue.textContent);
+            const sessions = parseInt(sessionsValue.textContent);
+            const emoji = selectedEmoji ? selectedEmoji.dataset.emoji : '🎯';
             
             if (!name) {
                 alert('Please enter a name for your technique');
@@ -1155,6 +1157,7 @@ class PomodoroTimer {
                 const customTechnique = {
                     id: `custom_${Date.now()}`,
                     name: name,
+                    emoji: emoji,
                     workMinutes: workMinutes,
                     shortBreakMinutes: shortBreakMinutes,
                     longBreakMinutes: longBreakMinutes,
@@ -1274,7 +1277,7 @@ class PomodoroTimer {
         card.dataset.techniqueId = technique.id;
         
         card.innerHTML = `
-            <div class="custom-card-icon">🎯</div>
+            <div class="custom-card-icon">${technique.emoji || '🎯'}</div>
             <div class="custom-card-name">${technique.name}</div>
             <div class="custom-card-duration">${technique.workMinutes}min work</div>
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
