@@ -1211,9 +1211,15 @@ class PomodoroTimer {
             if (card) {
                 const nameElement = card.querySelector('.custom-card-name');
                 const durationElement = card.querySelector('.custom-card-duration');
+                const breakElement = card.querySelector('.custom-card-break');
+                const longBreakElement = card.querySelector('.custom-card-long-break');
+                const sessionsElement = card.querySelector('.custom-card-sessions');
                 
                 if (nameElement) nameElement.textContent = technique.name;
                 if (durationElement) durationElement.textContent = `${technique.workMinutes}min work`;
+                if (breakElement) breakElement.textContent = `${technique.shortBreakMinutes}min short break`;
+                if (longBreakElement) longBreakElement.textContent = `${technique.longBreakMinutes}min long break`;
+                if (sessionsElement) sessionsElement.textContent = `${technique.sessions} sessions`;
             }
         } catch (error) {
             console.error('Error updating card in UI:', error);
@@ -1271,6 +1277,9 @@ class PomodoroTimer {
             <div class="custom-card-icon">🎯</div>
             <div class="custom-card-name">${technique.name}</div>
             <div class="custom-card-duration">${technique.workMinutes}min work</div>
+            <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
+            <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
+            <div class="custom-card-sessions">${technique.sessions} sessions</div>
             <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
         `;
         

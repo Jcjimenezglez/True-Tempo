@@ -5716,6 +5716,28 @@ input:checked + .toggle-slider:before {
     line-height: 1.2;
 }
 
+.custom-card-break {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.custom-card-long-break {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.custom-card-sessions {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
 .custom-card-delete {
     position: absolute;
     top: 8px;
@@ -5904,6 +5926,28 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.7);
     margin: 0;
     line-height: 1.2;
+}
+
+.technique-break {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.technique-long-break {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.technique-sessions {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+    line-height: 1.2;
+    font-weight: 500;
 }
 
 .signup-required-text {
