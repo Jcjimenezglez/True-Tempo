@@ -1162,7 +1162,8 @@ class PomodoroTimer {
             if (upgradeBtn) {
                 upgradeBtn.addEventListener('click', () => {
                     closeModal();
-                    this.showUpgradeModal();
+                    // Redirect directly to Stripe checkout
+                    this.createCheckoutSession();
                 });
             }
         } else {
