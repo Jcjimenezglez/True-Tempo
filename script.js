@@ -1025,24 +1025,122 @@ class PomodoroTimer {
     
     // Show custom form
     showCustomForm() {
-        const form = document.getElementById('customForm');
-        const createBtn = document.getElementById('createCustomBtn');
-        
-        if (form && createBtn) {
-            form.style.display = 'block';
-            createBtn.style.display = 'none';
+        // Check if user is Pro
+        if (this.isPremiumUser()) {
+            const form = document.getElementById('customForm');
+            const createBtn = document.getElementById('createCustomBtn');
             
-            // Focus on name input
-            const nameInput = document.getElementById('customName');
-            if (nameInput) {
-                setTimeout(() => nameInput.focus(), 100);
+            if (form && createBtn) {
+                form.style.display = 'block';
+                createBtn.style.display = 'none';
+                
+                // Focus on name input
+                const nameInput = document.getElementById('customName');
+                if (nameInput) {
+                    setTimeout(() => nameInput.focus(), 100);
+                }
+                
+                // Reset form and validate to ensure proper state
+                this.resetCustomForm();
             }
-            
-            // Reset form and validate to ensure proper state
-            this.resetCustomForm();
+        } else {
+            // Show Pro Feature modal for Guest and Free users
+            this.showCustomTechniqueProModal();
         }
     }
     
+    // Show Pro Feature modal for Custom Techniques
+    showCustomTechniqueProModal() {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay';
+        modalOverlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        // Check if user is authenticated (Free) or Guest
+        const isAuthenticated = this.isAuthenticated;
+        
+        if (isAuthenticated) {
+            // Free user modal
+            modal.innerHTML = `
+                <button class="close-upgrade-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <h3>Pro Feature</h3>
+                <p>Create custom focus techniques tailored to your workflow!</p>
+                <div class="upgrade-modal-buttons">
+                    <button class="btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
+                    <button class="btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                </div>
+            `;
+        } else {
+            // Guest user modal
+            modal.innerHTML = `
+                <button class="close-upgrade-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <h3>Pro Feature</h3>
+                <p>Create custom focus techniques tailored to your workflow!</p>
+                <div class="upgrade-modal-buttons">
+                    <button class="btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                    <button class="btn-secondary" id="customCancelBtn">Cancel</button>
+                </div>
+            `;
+        }
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Close modal function
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+        
+        // Close button
+        const closeBtn = modal.querySelector('.close-upgrade-x');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+        
+        // Button event listeners
+        const learnMoreBtn = modal.querySelector('#customLearnMoreBtn');
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', () => {
+                closeModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        if (isAuthenticated) {
+            // Free user - Upgrade to Pro button
+            const upgradeBtn = modal.querySelector('#customUpgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', () => {
+                    closeModal();
+                    this.showUpgradeModal();
+                });
+            }
+        } else {
+            // Guest user - Cancel button
+            const cancelBtn = modal.querySelector('#customCancelBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+        }
+    }
+
     // Hide custom form
     hideCustomForm() {
         const form = document.getElementById('customForm');
