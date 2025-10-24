@@ -1117,9 +1117,9 @@ class PomodoroTimer {
         const saveBtn = document.getElementById('saveCustomBtn');
         
         if (nameInput && saveBtn) {
-            const characterCount = nameInput.value.length;
-            const isValid = characterCount > 0 && characterCount <= 15;
-            saveBtn.disabled = !isValid;
+            const hasText = nameInput.value.trim().length > 0;
+            const isValidLength = nameInput.value.length <= 15;
+            saveBtn.disabled = !hasText || !isValidLength;
         }
     }
     
