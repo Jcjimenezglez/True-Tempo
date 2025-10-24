@@ -1065,7 +1065,6 @@ class PomodoroTimer {
         const longBreakValue = document.getElementById('customLongBreakValue');
         const sessionsValue = document.getElementById('customSessionsValue');
         const emojiOptions = document.querySelectorAll('.emoji-option');
-        const saveBtn = document.getElementById('saveCustomBtn');
         
         if (nameInput) {
             nameInput.value = '';
@@ -1081,11 +1080,6 @@ class PomodoroTimer {
         
         // Clear editing state
         this.editingTechnique = null;
-        
-        // Disable Save button
-        if (saveBtn) {
-            saveBtn.disabled = true;
-        }
         
         this.updateWordCount();
         this.validateCustomForm();
@@ -1117,9 +1111,7 @@ class PomodoroTimer {
         const saveBtn = document.getElementById('saveCustomBtn');
         
         if (nameInput && saveBtn) {
-            const hasText = nameInput.value.trim().length > 0;
-            const isValidLength = nameInput.value.length <= 15;
-            saveBtn.disabled = !hasText || !isValidLength;
+            saveBtn.disabled = !nameInput.value.trim();
         }
     }
     
