@@ -5607,6 +5607,12 @@ input:checked + .toggle-slider:before {
     color: #ff3b30;
 }
 
+.custom-duration-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .custom-duration-options h5 {
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.85rem;
