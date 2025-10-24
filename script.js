@@ -7532,15 +7532,19 @@ class PomodoroTimer {
                     source: 'tasks_modal'
                 });
                 if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
-                    // Clear local tasks (equivalent to filtering out all tasks)
-                    this.setLocalTasks([]);
-                    // Clear task configs (equivalent to deleting all configs)
+                    // Remove from local tasks - EXACT COPY from Delete Task but filter ALL tasks
+                    const tasks = this.getLocalTasks().filter(t => false); // This removes ALL tasks
+                    this.setLocalTasks(tasks);
+                    // Remove any config for ALL tasks - EXACT COPY from Delete Task but clear all
                     localStorage.removeItem('taskConfigs');
-                    // Clear task order (equivalent to removing task order)
-                    localStorage.removeItem('taskOrder');
-                    // Reset state and UI (equivalent to resetting editing state)
+                    // Reset state and UI - EXACT COPY from Delete Task
                     this.editingTaskId = null;
-                    // Refresh list/banner/queue (exact same pattern as Delete Task)
+                    // Restore list and add-section - EXACT COPY from Delete Task
+                    const listEl = modal.querySelector('#todoistTasksList');
+                    const addSection = modal.querySelector('.add-task-section');
+                    if (listEl) listEl.style.display = '';
+                    if (addSection) addSection.style.display = '';
+                    // Refresh list/banner/queue - EXACT COPY from Delete Task
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
                     this.updateCurrentTaskBanner();
