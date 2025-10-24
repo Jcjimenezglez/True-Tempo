@@ -5542,7 +5542,6 @@ input:checked + .toggle-slider:before {
 .custom-controls {
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
 
