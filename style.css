@@ -5646,20 +5646,29 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-save-custom {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+}
+
+.btn-save-custom:enabled {
     background: #4CAF50;
     color: white;
     border: 1px solid #4CAF50;
+    cursor: pointer;
 }
 
-.btn-save-custom:hover {
+.btn-save-custom:enabled:hover {
     background: #45a049;
     border-color: #45a049;
     transform: translateY(-1px);
 }
 
 .btn-save-custom:disabled {
-    background: rgba(76, 175, 80, 0.3);
-    border-color: rgba(76, 175, 80, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: not-allowed;
     transform: none;
 }
@@ -5740,10 +5749,11 @@ input:checked + .toggle-slider:before {
 
 /* Emoji Picker */
 .emoji-picker {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 8px;
     margin-top: 8px;
+    width: 100%;
 }
 
 .emoji-option {
@@ -5871,6 +5881,48 @@ input:checked + .toggle-slider:before {
 }
 
 .duration-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Simple Duration Inputs */
+.duration-input-simple {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.duration-input-simple:focus {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.duration-input-simple:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.duration-input-simple::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Hide number input arrows for simple inputs */
+.duration-input-simple::-webkit-outer-spin-button,
+.duration-input-simple::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.duration-input-simple[type=number] {
     -moz-appearance: textfield;
 }
 

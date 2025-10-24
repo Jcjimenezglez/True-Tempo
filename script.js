@@ -972,40 +972,8 @@ class PomodoroTimer {
             });
         });
         
-        // Compact duration controls
-        const durationBtns = document.querySelectorAll('.duration-btn');
-        durationBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const target = e.target.dataset.target;
-                const isPlus = e.target.classList.contains('plus');
-                const valueElement = document.getElementById(`custom${target.charAt(0).toUpperCase() + target.slice(1)}Value`);
-                
-                if (valueElement) {
-                    let currentValue = parseInt(valueElement.value);
-                    
-                    // Define limits for each type
-                    const limits = {
-                        'customWork': { min: 1, max: 90 },
-                        'customShortBreak': { min: 1, max: 30 },
-                        'customLongBreak': { min: 1, max: 60 },
-                        'customSessions': { min: 1, max: 12 }
-                    };
-                    
-                    const limit = limits[`custom${target.charAt(0).toUpperCase() + target.slice(1)}`];
-                    
-                    if (isPlus && currentValue < limit.max) {
-                        currentValue++;
-                    } else if (!isPlus && currentValue > limit.min) {
-                        currentValue--;
-                    }
-                    
-                    valueElement.value = currentValue;
-                }
-            });
-        });
-        
         // Direct input handling for duration inputs
-        const durationInputs = document.querySelectorAll('.duration-input');
+        const durationInputs = document.querySelectorAll('.duration-input-simple');
         durationInputs.forEach(input => {
             input.addEventListener('input', (e) => {
                 const value = parseInt(e.target.value);
@@ -1085,7 +1053,10 @@ class PomodoroTimer {
         const sessionsValue = document.getElementById('customSessionsValue');
         const emojiOptions = document.querySelectorAll('.emoji-option');
         
-        if (nameInput) nameInput.value = '';
+        if (nameInput) {
+            nameInput.value = '';
+            nameInput.focus(); // Focus on name input after reset
+        }
         if (workValue) workValue.value = '25';
         if (shortBreakValue) shortBreakValue.value = '5';
         if (longBreakValue) longBreakValue.value = '15';
