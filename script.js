@@ -1204,7 +1204,7 @@ class PomodoroTimer {
                 const durationElement = card.querySelector('.custom-card-duration');
                 
                 if (nameElement) nameElement.textContent = technique.name;
-                if (durationElement) durationElement.textContent = `${technique.workMinutes}min work, ${technique.shortBreakMinutes}min break`;
+                if (durationElement) durationElement.textContent = `${technique.workMinutes}min work`;
             }
         } catch (error) {
             console.error('Error updating card in UI:', error);
@@ -1233,7 +1233,7 @@ class PomodoroTimer {
         card.innerHTML = `
             <div class="custom-card-icon">🎯</div>
             <div class="custom-card-name">${technique.name}</div>
-            <div class="custom-card-duration">${technique.workMinutes}min work, ${technique.shortBreakMinutes}min break</div>
+            <div class="custom-card-duration">${technique.workMinutes}min work</div>
             <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
         `;
         
