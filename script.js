@@ -7543,8 +7543,11 @@ class PomodoroTimer {
                     renderTasks();
                     this.updateCurrentTaskBanner();
                     this.rebuildTaskQueue();
+                    console.log('🔍 Clear All Tasks - before updateCurrentTaskFromQueue, isWorkSession:', this.isWorkSession);
                     this.updateCurrentTaskFromQueue();
+                    console.log('🔍 Clear All Tasks - after updateCurrentTaskFromQueue, currentTaskName:', this.currentTaskName);
                     this.updateDisplay();
+                    console.log('🔍 Clear All Tasks - after updateDisplay, document.title:', document.title);
                     
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
