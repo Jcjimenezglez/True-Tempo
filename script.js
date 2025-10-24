@@ -879,7 +879,7 @@ class PomodoroTimer {
 
     enableSaveButton() {
         const saveBtn = document.querySelector('#sidebarSaveSettings');
-        if (saveBtn && this.isAuthenticated) {
+        if (saveBtn) {
             saveBtn.disabled = false;
         }
     }
