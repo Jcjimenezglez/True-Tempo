@@ -5545,36 +5545,6 @@ input:checked + .toggle-slider:before {
     gap: 16px;
 }
 
-.btn-create-custom {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-}
-
-.btn-create-custom:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-}
-
-.create-custom-icon {
-    font-size: 1.2rem;
-}
-
-.create-custom-text {
-    flex: 1;
-    text-align: left;
-}
 
 /* Custom Form Styles */
 .custom-form {
