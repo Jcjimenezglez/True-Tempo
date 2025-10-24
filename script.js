@@ -1305,7 +1305,11 @@ class PomodoroTimer {
             const allCustomCards = document.querySelectorAll('.custom-card');
             allCustomCards.forEach(card => card.classList.remove('active'));
             
-            // Add active class to selected card
+            // Remove active class from all regular techniques
+            const allTechniquePresets = document.querySelectorAll('.technique-preset');
+            allTechniquePresets.forEach(preset => preset.classList.remove('active'));
+            
+            // Add active class to selected custom card
             const selectedCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
             if (selectedCard) {
                 selectedCard.classList.add('active');
@@ -13218,6 +13222,11 @@ class PomodoroTimer {
                 });
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
+                
+                // Remove active class from all custom cards
+                const allCustomCards = document.querySelectorAll('.custom-card');
+                allCustomCards.forEach(card => card.classList.remove('active'));
+                
                 // Add active class to clicked preset
                 preset.classList.add('active');
                 
