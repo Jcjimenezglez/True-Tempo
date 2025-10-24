@@ -1319,8 +1319,13 @@ class PomodoroTimer {
             this.longBreakTime = technique.longBreakMinutes * 60;
             this.sessionsPerCycle = technique.sessions;
             
+            // Reset timer with new values
+            this.timeLeft = this.workTime;
+            this.isWorkSession = true;
+            this.isLongBreak = false;
+            
             // Update UI
-            this.updateTimerDisplay();
+            this.updateDisplay();
             
             // Update sidebar values
             const workSlider = document.getElementById('sidebarPomodoroSlider');
