@@ -5592,6 +5592,21 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.4);
 }
 
+.word-count {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+    text-align: right;
+}
+
+.word-count.warning {
+    color: #ff6b6b;
+}
+
+.word-count.error {
+    color: #ff3b30;
+}
+
 .custom-duration-options h5 {
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.85rem;
@@ -5700,24 +5715,25 @@ input:checked + .toggle-slider:before {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: none;
     border: none;
-    border-radius: 4px;
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
-    padding: 4px 6px;
-    font-size: 0.7rem;
+    padding: 0;
+    font-size: 18px;
+    font-weight: bold;
     transition: all 0.2s ease;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
 }
 
 .custom-card-delete:hover {
-    background: rgba(255, 0, 0, 0.2);
     color: #ff6b6b;
+    transform: scale(1.1);
 }
 
 .settings-section-title {

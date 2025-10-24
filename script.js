@@ -992,10 +992,14 @@ class PomodoroTimer {
             });
         }
         
-        // Custom name input validation
+        // Custom name input validation with word count
         const nameInput = document.getElementById('customName');
-        if (nameInput) {
-            nameInput.addEventListener('input', () => this.validateCustomForm());
+        const wordCount = document.getElementById('wordCount');
+        if (nameInput && wordCount) {
+            nameInput.addEventListener('input', () => {
+                this.validateCustomForm();
+                this.updateWordCount();
+            });
         }
     }
     
@@ -1052,7 +1056,32 @@ class PomodoroTimer {
         if (sessionsSlider) sessionsSlider.value = '4';
         if (sessionsValue) sessionsValue.textContent = '4 sesh';
         
+        // Clear editing state
+        this.editingTechnique = null;
+        
+        this.updateWordCount();
         this.validateCustomForm();
+    }
+    
+    // Update word count
+    updateWordCount() {
+        const nameInput = document.getElementById('customName');
+        const wordCount = document.getElementById('wordCount');
+        
+        if (nameInput && wordCount) {
+            const words = nameInput.value.trim().split(/\s+/).filter(word => word.length > 0);
+            const wordCountNum = words.length;
+            
+            wordCount.textContent = `${wordCountNum}/15 words`;
+            
+            // Update styling based on word count
+            wordCount.classList.remove('warning', 'error');
+            if (wordCountNum > 15) {
+                wordCount.classList.add('error');
+            } else if (wordCountNum > 12) {
+                wordCount.classList.add('warning');
+            }
+        }
     }
     
     // Validate custom form
@@ -1061,7 +1090,8 @@ class PomodoroTimer {
         const saveBtn = document.getElementById('saveCustomBtn');
         
         if (nameInput && saveBtn) {
-            const isValid = nameInput.value.trim().length > 0;
+            const words = nameInput.value.trim().split(/\s+/).filter(word => word.length > 0);
+            const isValid = nameInput.value.trim().length > 0 && words.length <= 15;
             saveBtn.disabled = !isValid;
         }
     }
@@ -1088,22 +1118,49 @@ class PomodoroTimer {
                 return;
             }
             
-            // Create custom technique object
-            const customTechnique = {
-                id: `custom_${Date.now()}`,
-                name: name,
-                workMinutes: workMinutes,
-                shortBreakMinutes: shortBreakMinutes,
-                longBreakMinutes: longBreakMinutes,
-                sessions: sessions,
-                createdAt: new Date().toISOString()
-            };
+            // Validate word count
+            const words = name.trim().split(/\s+/).filter(word => word.length > 0);
+            if (words.length > 15) {
+                alert('Technique name cannot exceed 15 words. Please shorten your name.');
+                return;
+            }
             
-            // Save to localStorage
-            this.saveCustomTechniqueToStorage(customTechnique);
-            
-            // Add to UI
-            this.addCustomTechniqueCard(customTechnique);
+            // Check if we're editing an existing technique
+            if (this.editingTechnique) {
+                // Update existing technique
+                this.editingTechnique.name = name;
+                this.editingTechnique.workMinutes = workMinutes;
+                this.editingTechnique.shortBreakMinutes = shortBreakMinutes;
+                this.editingTechnique.longBreakMinutes = longBreakMinutes;
+                this.editingTechnique.sessions = sessions;
+                this.editingTechnique.updatedAt = new Date().toISOString();
+                
+                // Update in localStorage
+                this.updateCustomTechniqueInStorage(this.editingTechnique);
+                
+                // Update card in UI
+                this.updateCustomTechniqueCard(this.editingTechnique);
+                
+                // Clear editing state
+                this.editingTechnique = null;
+            } else {
+                // Create new custom technique object
+                const customTechnique = {
+                    id: `custom_${Date.now()}`,
+                    name: name,
+                    workMinutes: workMinutes,
+                    shortBreakMinutes: shortBreakMinutes,
+                    longBreakMinutes: longBreakMinutes,
+                    sessions: sessions,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                this.saveCustomTechniqueToStorage(customTechnique);
+                
+                // Add to UI
+                this.addCustomTechniqueCard(customTechnique);
+            }
             
             // Hide form
             this.hideCustomForm();
@@ -1123,6 +1180,36 @@ class PomodoroTimer {
             localStorage.setItem('customTechniques', JSON.stringify(existing));
         } catch (error) {
             console.error('Error saving to localStorage:', error);
+        }
+    }
+    
+    // Update custom technique in localStorage
+    updateCustomTechniqueInStorage(technique) {
+        try {
+            const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const index = existing.findIndex(t => t.id === technique.id);
+            if (index !== -1) {
+                existing[index] = technique;
+                localStorage.setItem('customTechniques', JSON.stringify(existing));
+            }
+        } catch (error) {
+            console.error('Error updating in localStorage:', error);
+        }
+    }
+    
+    // Update custom technique card in UI
+    updateCustomTechniqueCard(technique) {
+        try {
+            const card = document.querySelector(`[data-technique-id="${technique.id}"]`);
+            if (card) {
+                const nameElement = card.querySelector('.custom-card-name');
+                const durationElement = card.querySelector('.custom-card-duration');
+                
+                if (nameElement) nameElement.textContent = technique.name;
+                if (durationElement) durationElement.textContent = `${technique.workMinutes}min work, ${technique.shortBreakMinutes}min break`;
+            }
+        } catch (error) {
+            console.error('Error updating card in UI:', error);
         }
     }
     
@@ -1152,14 +1239,63 @@ class PomodoroTimer {
             <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
         `;
         
-        // Add click handler to select technique
+        // Add click handler to edit technique
         card.addEventListener('click', (e) => {
             if (!e.target.classList.contains('custom-card-delete')) {
-                this.selectCustomTechnique(technique);
+                this.editCustomTechnique(technique);
             }
         });
         
         container.appendChild(card);
+    }
+    
+    // Edit custom technique
+    editCustomTechnique(technique) {
+        try {
+            // Store the technique being edited
+            this.editingTechnique = technique;
+            
+            // Show the form
+            this.showCustomForm();
+            
+            // Populate form with technique data
+            const nameInput = document.getElementById('customName');
+            const workSlider = document.getElementById('customWorkSlider');
+            const workValue = document.getElementById('customWorkValue');
+            const shortBreakSlider = document.getElementById('customShortBreakSlider');
+            const shortBreakValue = document.getElementById('customShortBreakValue');
+            const longBreakSlider = document.getElementById('customLongBreakSlider');
+            const longBreakValue = document.getElementById('customLongBreakValue');
+            const sessionsSlider = document.getElementById('customSessionsSlider');
+            const sessionsValue = document.getElementById('customSessionsValue');
+            
+            if (nameInput) nameInput.value = technique.name;
+            if (workSlider && workValue) {
+                workSlider.value = technique.workMinutes;
+                workValue.textContent = `${technique.workMinutes} min`;
+            }
+            if (shortBreakSlider && shortBreakValue) {
+                shortBreakSlider.value = technique.shortBreakMinutes;
+                shortBreakValue.textContent = `${technique.shortBreakMinutes} min`;
+            }
+            if (longBreakSlider && longBreakValue) {
+                longBreakSlider.value = technique.longBreakMinutes;
+                longBreakValue.textContent = `${technique.longBreakMinutes} min`;
+            }
+            if (sessionsSlider && sessionsValue) {
+                sessionsSlider.value = technique.sessions;
+                sessionsValue.textContent = `${technique.sessions} sesh`;
+            }
+            
+            // Update word count
+            this.updateWordCount();
+            this.validateCustomForm();
+            
+            console.log('✅ Editing custom technique:', technique);
+            
+        } catch (error) {
+            console.error('Error editing custom technique:', error);
+        }
     }
     
     // Select custom technique
