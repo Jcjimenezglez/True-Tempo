@@ -7559,6 +7559,11 @@ class PomodoroTimer {
                         this.updateDisplay(); // Update window title again
                     }, 100);
                     
+                    // Additional delay to ensure title updates even if timer is paused
+                    setTimeout(() => {
+                        this.updateDisplay(); // Force title update
+                    }, 200);
+                    
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
                 }
