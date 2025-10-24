@@ -5611,7 +5611,6 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.85rem;
     font-weight: 600;
-    margin-bottom: 16px;
 }
 
 .custom-form-actions {
@@ -5793,7 +5792,7 @@ input:checked + .toggle-slider:before {
     font-weight: 500;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.9);
-    margin: 0 0 8px 0;
+    margin: 0;
     line-height: 1.2;
 }
 
@@ -5802,7 +5801,6 @@ input:checked + .toggle-slider:before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
 }
 
 .name-header label {
