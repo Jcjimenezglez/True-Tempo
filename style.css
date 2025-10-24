@@ -5692,6 +5692,11 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
+.custom-card.active {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
+}
+
 .custom-card-icon {
     font-size: 24px;
     line-height: 1;

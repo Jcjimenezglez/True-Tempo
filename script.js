@@ -1239,10 +1239,10 @@ class PomodoroTimer {
             <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
         `;
         
-        // Add click handler to edit technique
+        // Add click handler to select technique
         card.addEventListener('click', (e) => {
             if (!e.target.classList.contains('custom-card-delete')) {
-                this.editCustomTechnique(technique);
+                this.selectCustomTechnique(technique);
             }
         });
         
@@ -1301,6 +1301,16 @@ class PomodoroTimer {
     // Select custom technique
     selectCustomTechnique(technique) {
         try {
+            // Remove active class from all custom cards
+            const allCustomCards = document.querySelectorAll('.custom-card');
+            allCustomCards.forEach(card => card.classList.remove('active'));
+            
+            // Add active class to selected card
+            const selectedCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active');
+            }
+            
             // Update timer settings
             this.workTime = technique.workMinutes * 60;
             this.shortBreakTime = technique.shortBreakMinutes * 60;
