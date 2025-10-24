@@ -7538,6 +7538,9 @@ class PomodoroTimer {
                     localStorage.removeItem('taskConfigs');
                     // Clear task order
                     localStorage.removeItem('taskOrder');
+                    // Clear current task state explicitly
+                    this.currentTask = null;
+                    this.currentTaskName = null;
                     // Refresh UI
                     this.loadAllTasks();
                     renderTasks();
