@@ -1032,20 +1032,14 @@ class PomodoroTimer {
             form.style.display = 'block';
             createBtn.style.display = 'none';
             
-            // Disable Save button by default
-            const saveBtn = document.getElementById('saveCustomBtn');
-            if (saveBtn) {
-                saveBtn.disabled = true;
-            }
-            
             // Focus on name input
             const nameInput = document.getElementById('customName');
             if (nameInput) {
                 setTimeout(() => nameInput.focus(), 100);
             }
             
-            // Validate form to ensure proper state
-            this.validateCustomForm();
+            // Reset form and validate to ensure proper state
+            this.resetCustomForm();
         }
     }
     
@@ -1071,10 +1065,10 @@ class PomodoroTimer {
         const longBreakValue = document.getElementById('customLongBreakValue');
         const sessionsValue = document.getElementById('customSessionsValue');
         const emojiOptions = document.querySelectorAll('.emoji-option');
+        const saveBtn = document.getElementById('saveCustomBtn');
         
         if (nameInput) {
             nameInput.value = '';
-            nameInput.focus(); // Focus on name input after reset
         }
         if (workValue) workValue.textContent = '25 min';
         if (shortBreakValue) shortBreakValue.textContent = '5 min';
@@ -1087,6 +1081,11 @@ class PomodoroTimer {
         
         // Clear editing state
         this.editingTechnique = null;
+        
+        // Disable Save button
+        if (saveBtn) {
+            saveBtn.disabled = true;
+        }
         
         this.updateWordCount();
         this.validateCustomForm();
