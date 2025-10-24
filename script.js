@@ -916,11 +916,20 @@ class PomodoroTimer {
     // Initialize Custom section functionality
     initializeCustomSection() {
         try {
+            // Prevent multiple initializations
+            if (this.customSectionInitialized) {
+                console.log('⚠️ Custom section already initialized, skipping...');
+                return;
+            }
+            
             // Load existing custom techniques from localStorage
             this.loadCustomTechniques();
             
             // Set up event listeners
             this.setupCustomSectionListeners();
+            
+            // Mark as initialized
+            this.customSectionInitialized = true;
             
             console.log('✅ Custom section initialized');
             
@@ -1214,8 +1223,16 @@ class PomodoroTimer {
     // Load custom techniques from localStorage
     loadCustomTechniques() {
         try {
+            // Clear existing cards first to prevent duplicates
+            const container = document.getElementById('customCardsContainer');
+            if (container) {
+                container.innerHTML = '';
+            }
+            
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
             const selectedTechnique = localStorage.getItem('selectedTechnique');
+            
+            console.log(`📋 Loading ${techniques.length} custom techniques`);
             
             techniques.forEach(technique => {
                 this.addCustomTechniqueCard(technique);
@@ -1238,6 +1255,13 @@ class PomodoroTimer {
     addCustomTechniqueCard(technique) {
         const container = document.getElementById('customCardsContainer');
         if (!container) return;
+        
+        // Check if card already exists to prevent duplicates
+        const existingCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
+        if (existingCard) {
+            console.log(`⚠️ Custom technique '${technique.name}' already exists, skipping...`);
+            return;
+        }
         
         const card = document.createElement('div');
         card.className = 'custom-card';
