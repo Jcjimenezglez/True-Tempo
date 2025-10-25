@@ -4156,6 +4156,14 @@ class PomodoroTimer {
         techniquePresets.forEach(preset => {
             preset.addEventListener('click', () => {
                 const technique = preset.dataset.technique;
+                
+                // Check if technique requires authentication (all except pomodoro)
+                if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                    // Show technique modal for guest users
+                    this.showTechniqueModal(technique);
+                    return;
+                }
+                
                 this.trackEvent('Technique Selected', {
                     button_type: 'technique_preset',
                     technique_name: technique,
