@@ -4154,8 +4154,12 @@ class PomodoroTimer {
         // Techniques presets
         const techniquePresets = modalOverlay.querySelectorAll('.technique-preset');
         techniquePresets.forEach(preset => {
-            preset.addEventListener('click', () => {
-                const technique = preset.dataset.technique;
+            // Remove any existing event listeners to prevent duplicates
+            const newPreset = preset.cloneNode(true);
+            preset.parentNode.replaceChild(newPreset, preset);
+            
+            newPreset.addEventListener('click', () => {
+                const technique = newPreset.dataset.technique;
                 
                 // Check if technique requires authentication (all except pomodoro)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
@@ -4174,7 +4178,7 @@ class PomodoroTimer {
                 // Remove active class from all presets
                 techniquePresets.forEach(p => p.classList.remove('active'));
                 // Add active class to clicked preset
-                preset.classList.add('active');
+                newPreset.classList.add('active');
                 
                 // Apply technique settings
                 this.applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
@@ -13489,10 +13493,14 @@ class PomodoroTimer {
         techniquePresets.forEach(preset => {
             const technique = preset.dataset.technique;
             
+            // Remove any existing event listeners to prevent duplicates
+            const newPreset = preset.cloneNode(true);
+            preset.parentNode.replaceChild(newPreset, preset);
+            
             // Keep techniques enabled for guest users but show modal on click
             if (technique !== 'pomodoro' && !this.isAuthenticated) {
                 // Show "(Sign up required)" text so user knows it requires signup
-                const signupText = preset.querySelector('.signup-required-text');
+                const signupText = newPreset.querySelector('.signup-required-text');
                 if (signupText) {
                     signupText.classList.remove('hidden');
                 }
@@ -13500,11 +13508,11 @@ class PomodoroTimer {
             
             // For guest users, ensure Pomodoro has active class
             if (technique === 'pomodoro' && !this.isAuthenticated) {
-                preset.classList.add('active');
+                newPreset.classList.add('active');
                 console.log('✅ Pomodoro marked as active for guest user');
             }
             
-            preset.addEventListener('click', () => {
+            newPreset.addEventListener('click', () => {
                 // Check if technique requires authentication (all except pomodoro)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
                     // Show technique modal for guest users
@@ -13527,7 +13535,7 @@ class PomodoroTimer {
                 allCustomCards.forEach(card => card.classList.remove('active'));
                 
                 // Add active class to clicked preset
-                preset.classList.add('active');
+                newPreset.classList.add('active');
                 
                 // Apply technique settings
                 this.applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
