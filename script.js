@@ -10586,6 +10586,7 @@ class PomodoroTimer {
             // If last active date is not today and not yesterday, reset streak
             if (this.streakData.lastActiveDate !== today && this.streakData.lastActiveDate !== yesterdayStr) {
                 console.log(`🔄 Streak reset: Last active was ${this.streakData.lastActiveDate}, today is ${today}`);
+                // Only reset currentStreak, preserve longestStreak as personal record
                 this.streakData.currentStreak = 0;
                 this.streakData.lastActiveDate = null;
                 this.saveStreakData();
@@ -10632,6 +10633,12 @@ class PomodoroTimer {
             } else {
                 // Streak broken - reset to 1
                 this.streakData.currentStreak = 1;
+            }
+            
+            // Update longest streak if current streak is higher
+            if (this.streakData.currentStreak > (this.streakData.longestStreak || 0)) {
+                this.streakData.longestStreak = this.streakData.currentStreak;
+                console.log(`🏆 New longest streak record: ${this.streakData.longestStreak} days!`);
             }
             
             this.streakData.lastActiveDate = today;
