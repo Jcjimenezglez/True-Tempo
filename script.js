@@ -12109,8 +12109,35 @@ class PomodoroTimer {
 
             if (!connectBtn || !disconnectBtn || !openBtn || !statusText) return;
 
+            // Check if this is jcjimenezglez@gmail.com and clear Spotify data
+            const isSpecificUser = window.Clerk && window.Clerk.user && 
+                (window.Clerk.user.primaryEmailAddress?.emailAddress === 'jcjimenezglez@gmail.com' ||
+                 window.Clerk.user.emailAddresses?.[0]?.emailAddress === 'jcjimenezglez@gmail.com');
+            
+            if (isSpecificUser) {
+                // Clear any Spotify-related localStorage data for this specific user
+                try {
+                    localStorage.removeItem('spotify_access_token');
+                    localStorage.removeItem('spotify_refresh_token');
+                    localStorage.removeItem('spotify_connected');
+                    localStorage.removeItem('spotify_user_data');
+                    console.log('✅ Cleared Spotify data for jcjimenezglez@gmail.com');
+                } catch (e) {
+                    console.log('Error clearing Spotify data:', e);
+                }
+            }
+
             const refreshStatus = async () => {
                 try {
+                    // Skip Spotify API calls for jcjimenezglez@gmail.com to avoid timeouts
+                    if (isSpecificUser) {
+                        statusText.textContent = 'Not connected';
+                        connectBtn.style.display = '';
+                        disconnectBtn.style.display = 'none';
+                        openBtn.style.display = 'none';
+                        return;
+                    }
+                    
                     const resp = await fetch('/api/spotify-status');
                     const data = await resp.json();
                     if (data.connected) {
@@ -12185,6 +12212,17 @@ class PomodoroTimer {
 
     async loadSpotifyDevices(modal) {
         const el = modal.querySelector('#spotifyDevices');
+        
+        // Check if this is jcjimenezglez@gmail.com and skip API calls
+        const isSpecificUser = window.Clerk && window.Clerk.user && 
+            (window.Clerk.user.primaryEmailAddress?.emailAddress === 'jcjimenezglez@gmail.com' ||
+             window.Clerk.user.emailAddresses?.[0]?.emailAddress === 'jcjimenezglez@gmail.com');
+        
+        if (isSpecificUser) {
+            el.innerHTML = '<div>Spotify integration not available</div>';
+            return;
+        }
+        
         try {
             const resp = await fetch('/api/spotify-devices');
             const data = await resp.json();
@@ -12197,6 +12235,17 @@ class PomodoroTimer {
 
     async loadSpotifyPlaylists(modal) {
         const el = modal.querySelector('#spotifyPlaylists');
+        
+        // Check if this is jcjimenezglez@gmail.com and skip API calls
+        const isSpecificUser = window.Clerk && window.Clerk.user && 
+            (window.Clerk.user.primaryEmailAddress?.emailAddress === 'jcjimenezglez@gmail.com' ||
+             window.Clerk.user.emailAddresses?.[0]?.emailAddress === 'jcjimenezglez@gmail.com');
+        
+        if (isSpecificUser) {
+            el.innerHTML = '<div>Spotify integration not available</div>';
+            return;
+        }
+        
         try {
             const resp = await fetch('/api/spotify-playlists');
             const data = await resp.json();
