@@ -12160,15 +12160,31 @@ class PomodoroTimer {
             };
 
             connectBtn.addEventListener('click', async () => {
+                // Skip Spotify auth for jcjimenezglez@gmail.com
+                if (isSpecificUser) {
+                    alert('Spotify integration is not available at the moment.');
+                    return;
+                }
                 window.location.href = '/api/spotify-auth-start';
             });
 
             disconnectBtn.addEventListener('click', async () => {
+                // Skip Spotify disconnect for jcjimenezglez@gmail.com
+                if (isSpecificUser) {
+                    alert('Spotify integration is not available at the moment.');
+                    refreshStatus();
+                    return;
+                }
                 await fetch('/api/spotify-disconnect');
                 refreshStatus();
             });
 
             openBtn.addEventListener('click', () => {
+                // Skip Spotify modal for jcjimenezglez@gmail.com
+                if (isSpecificUser) {
+                    alert('Spotify integration is not available at the moment.');
+                    return;
+                }
                 this.showSpotifyModal();
             });
 
