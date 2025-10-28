@@ -903,14 +903,21 @@ class PomodoroTimer {
             const customSection = document.getElementById('customSection');
             if (customSection) {
                 customSection.style.display = 'block';
+                console.log('✅ Custom section displayed');
                 
                 // Set up basic listeners for all users
                 this.setupBasicCustomListeners();
+                console.log('✅ Basic custom listeners set up');
                 
                 // Only initialize full functionality for Pro users
                 if (this.isPremiumUser()) {
+                    console.log('✅ User is Pro, initializing full custom functionality');
                     this.initializeCustomSection();
+                } else {
+                    console.log('ℹ️ User is not Pro, basic custom functionality only');
                 }
+            } else {
+                console.log('❌ Custom section not found');
             }
             
         } catch (error) {
