@@ -750,6 +750,20 @@
                 const isAuthenticated = window.Clerk && window.Clerk.user;
                 const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
                 
+                // Track Free plan Sign up click
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Sign Up Clicked', {
+                        modal_type: 'pricing_page',
+                        button_text: 'Sign up',
+                        user_type: isAuthenticated ? 'free' : 'guest',
+                        source: 'pricing_page',
+                        plan_type: 'free'
+                    });
+                    console.log('✅ Mixpanel tracking sent: Sign Up Clicked');
+                } else {
+                    console.log('❌ Mixpanel not available');
+                }
+                
                 if (isAuthenticated && !isPremium) {
                     // Already on free plan
                     console.log('User already on free plan');
