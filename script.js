@@ -14513,12 +14513,26 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (timerLoginBtn) {
                 timerLoginBtn.addEventListener('click', () => {
+                    // Track Timer header Login click
+                    timer.trackEvent('Login Clicked', {
+                        button_type: 'login',
+                        source: 'timer_header',
+                        user_type: 'guest'
+                    });
+                    
                     window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
                 });
             }
             
             if (timerSignupBtn) {
                 timerSignupBtn.addEventListener('click', () => {
+                    // Track Timer header Sign up click
+                    timer.trackEvent('Sign Up Clicked', {
+                        button_type: 'signup',
+                        source: 'timer_header',
+                        user_type: 'guest'
+                    });
+                    
                     timer.handleSignup();
                 });
             }
