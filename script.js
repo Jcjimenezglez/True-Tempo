@@ -1273,6 +1273,14 @@ class PomodoroTimer {
             const signupBtn = modal.querySelector('#customSignupBtn');
             if (signupBtn) {
                 signupBtn.addEventListener('click', () => {
+                    // Track Create timer modal Sign up click
+                    this.trackEvent('Sign Up Clicked', {
+                        modal_type: 'create_timer',
+                        button_text: 'Sign up',
+                        user_type: 'guest',
+                        source: 'create_timer_modal'
+                    });
+                    
                     closeModal();
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
                 });
