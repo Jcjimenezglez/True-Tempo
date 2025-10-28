@@ -4335,6 +4335,7 @@ class PomodoroTimer {
                 }
                 
                 this.trackEvent('Technique Selected', {
+                    modal_type: 'timer_modal',
                     button_type: 'technique_preset',
                     technique_name: technique,
                     source: 'timer_modal',
@@ -13729,6 +13730,7 @@ class PomodoroTimer {
                 }
                 
                 this.trackEvent('Technique Selected', {
+                    modal_type: 'timer_sidebar',
                     button_type: 'technique_preset',
                     technique_name: technique,
                     source: 'timer_sidebar',
