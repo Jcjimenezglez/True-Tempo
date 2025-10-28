@@ -1093,18 +1093,18 @@ class PomodoroTimer {
             console.log('🔍 user:', this.user);
             console.log('🔍 isPremiumUser():', this.isPremiumUser());
             
-            const existingCustomTimer = localStorage.getItem('customTimer');
-            console.log('🔍 existingCustomTimer:', existingCustomTimer);
+            // Check if there's already a custom timer in the array
+            const existingCustomTechniques = localStorage.getItem('customTechniques');
+            console.log('🔍 existingCustomTechniques:', existingCustomTechniques);
             
-            // Check if there's a valid custom timer (not just any value)
             let hasValidCustomTimer = false;
-            if (existingCustomTimer) {
+            if (existingCustomTechniques) {
                 try {
-                    const parsed = JSON.parse(existingCustomTimer);
-                    hasValidCustomTimer = parsed && parsed.name && parsed.focusTime;
-                    console.log('🔍 hasValidCustomTimer:', hasValidCustomTimer);
+                    const parsed = JSON.parse(existingCustomTechniques);
+                    hasValidCustomTimer = Array.isArray(parsed) && parsed.length > 0;
+                    console.log('🔍 hasValidCustomTimer (array):', hasValidCustomTimer, 'count:', parsed.length);
                 } catch (e) {
-                    console.log('🔍 Invalid custom timer data, ignoring');
+                    console.log('🔍 Invalid custom techniques data, ignoring');
                     hasValidCustomTimer = false;
                 }
             }
