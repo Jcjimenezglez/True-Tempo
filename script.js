@@ -1052,6 +1052,7 @@ class PomodoroTimer {
     showCustomForm() {
         // Check if user is Pro
         if (this.isPremiumUser()) {
+            // Pro users can create unlimited custom timers
             const form = document.getElementById('customForm');
             const createBtn = document.getElementById('createCustomBtn');
             
@@ -1068,12 +1069,46 @@ class PomodoroTimer {
                 // Reset form and validate to ensure proper state
                 this.resetCustomForm();
             }
+        } else if (this.isAuthenticated && this.user) {
+            // Free users can create 1 custom timer
+            const existingCustomTimer = localStorage.getItem('customTimer');
+            
+            if (existingCustomTimer) {
+                // Free user already has a custom timer - show upgrade modal
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_techniques',
+                    source: 'create_custom_button',
+                    user_type: 'free',
+                    modal_type: 'upgrade_prompt',
+                    reason: 'limit_reached'
+                });
+                
+                this.showCustomTechniqueProModal('You\'ve reached your limit of 1 custom timer. Upgrade to Pro for unlimited custom timers!');
+            } else {
+                // Free user can create their first custom timer
+                const form = document.getElementById('customForm');
+                const createBtn = document.getElementById('createCustomBtn');
+                
+                if (form && createBtn) {
+                    form.style.display = 'block';
+                    createBtn.style.display = 'none';
+                    
+                    // Focus on name input
+                    const nameInput = document.getElementById('customName');
+                    if (nameInput) {
+                        setTimeout(() => nameInput.focus(), 100);
+                    }
+                    
+                    // Reset form and validate to ensure proper state
+                    this.resetCustomForm();
+                }
+            }
         } else {
-            // Track Pro Feature modal shown for non-Pro users
+            // Guest users - show Pro Feature modal
             this.trackEvent('Pro Feature Modal Shown', {
                 feature: 'custom_techniques',
                 source: 'create_custom_button',
-                user_type: this.isAuthenticated ? 'free' : 'guest',
+                user_type: 'guest',
                 modal_type: 'upgrade_prompt'
             });
             
@@ -1083,7 +1118,7 @@ class PomodoroTimer {
     }
     
     // Show Pro Feature modal for Custom Techniques
-    showCustomTechniqueProModal() {
+    showCustomTechniqueProModal(customMessage = null) {
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'logout-modal-overlay';
         modalOverlay.style.display = 'flex';
@@ -1094,6 +1129,9 @@ class PomodoroTimer {
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
         
+        // Use custom message if provided, otherwise use default
+        const message = customMessage || 'Create custom focus techniques tailored to your workflow!';
+        
         if (isAuthenticated) {
             // Free user modal
             modal.innerHTML = `
@@ -1103,7 +1141,7 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <h3 class="logout-modal-title">Pro Feature</h3>
-                <p class="logout-modal-message">Create custom focus techniques tailored to your workflow!</p>
+                <p class="logout-modal-message">${message}</p>
                 <div class="logout-modal-buttons">
                     <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
@@ -1118,7 +1156,7 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <h3 class="logout-modal-title">Pro Feature</h3>
-                <p class="logout-modal-message">Create custom focus techniques tailored to your workflow!</p>
+                <p class="logout-modal-message">${message}</p>
                 <div class="logout-modal-buttons">
                     <button class="logout-modal-btn logout-modal-btn-primary" id="customLearnMoreBtn">Learn more</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="customCancelBtn">Cancel</button>
