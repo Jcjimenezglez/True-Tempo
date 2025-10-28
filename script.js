@@ -101,9 +101,6 @@ class PomodoroTimer {
         // Load last selected theme (for both authenticated and guest users)
         this.loadLastSelectedTheme();
         
-        // Initialize button state after DOM is ready
-        this.initializeButtonState();
-        
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
             { type: 'work', duration: this.workTime, name: 'Work 1' },
@@ -14097,16 +14094,10 @@ class PomodoroTimer {
             // Create Spotify widget for Tron theme (only if not already created)
             if (!this.tronSpotifyWidget) {
                 this.createTronSpotifyWidget();
-                // Show loading and disable Start button while widget is connecting
-                this.showSpotifyLoading();
+                console.log('🎨 Tron theme applied - Spotify widget created');
             } else if (this.tronSpotifyWidgetReady) {
-                // Widget already exists and is ready, enable Start button immediately
-                this.enableStartButtonForSpotify();
                 console.log('🎨 Tron theme applied - Spotify widget already ready');
             }
-            
-            // Initialize button state after theme application
-            this.initializeButtonState();
             
             // If timer is running, start Spotify immediately (disabled to avoid playlist restart issues)
             // if (this.isRunning) {
@@ -14252,9 +14243,6 @@ class PomodoroTimer {
             console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
         }
         
-        // Initialize button state after theme removal
-        this.initializeButtonState();
-        
         // Save preference only if user is authenticated
         if (this.isAuthenticated) {
             localStorage.setItem('selectedImmersiveTheme', 'none');
@@ -14348,7 +14336,6 @@ class PomodoroTimer {
             this.tronSpotifyWidgetReady = true;
             widget.style.opacity = '1';
             console.log('🎵 Spotify widget loaded successfully');
-            this.enableStartButtonForSpotify();
         };
 
         const handleError = () => {
@@ -14358,7 +14345,6 @@ class PomodoroTimer {
             
             console.warn('⚠️ Spotify widget failed to load');
             widget.style.opacity = '0.5';
-            this.enableStartButtonForSpotify();
         };
 
         const handleTimeout = () => {
@@ -14367,7 +14353,6 @@ class PomodoroTimer {
             
             console.warn('⚠️ Spotify widget loading timeout - showing anyway');
             widget.style.opacity = '0.7';
-            this.enableStartButtonForSpotify();
         };
 
         // Set timeout for 10 seconds
@@ -14407,50 +14392,7 @@ class PomodoroTimer {
 
     showSpotifyLoading() {
         console.log('🎵 Showing Spotify loading state...');
-        // Simple loading state - disable start button
-        this.disableStartButtonForSpotify();
-    }
-
-    disableStartButtonForSpotify() {
-        if (this.startPauseBtn) {
-            this.startPauseBtn.disabled = true;
-            this.startPauseBtn.style.opacity = '0.5';
-            this.startPauseBtn.classList.add('loading');
-            // Update text content properly
-            const playText = this.startPauseBtn.querySelector('.play-text');
-            const pauseText = this.startPauseBtn.querySelector('.pause-text');
-            if (playText) playText.textContent = 'Loading...';
-            if (pauseText) pauseText.textContent = 'Loading...';
-        }
-    }
-
-    enableStartButtonForSpotify() {
-        if (this.startPauseBtn) {
-            this.startPauseBtn.disabled = false;
-            this.startPauseBtn.style.opacity = '1';
-            this.startPauseBtn.classList.remove('loading');
-            // Update text content properly
-            const playText = this.startPauseBtn.querySelector('.play-text');
-            const pauseText = this.startPauseBtn.querySelector('.pause-text');
-            if (playText) playText.textContent = 'Start';
-            if (pauseText) pauseText.textContent = 'Pause';
-        }
-    }
-
-    initializeButtonState() {
-        // Initialize button state based on current theme and Spotify widget status
-        if (this.currentImmersiveTheme === 'tron') {
-            // Tron theme is active - check if Spotify widget is ready
-            if (this.tronSpotifyWidget && this.tronSpotifyWidgetReady) {
-                this.enableStartButtonForSpotify();
-            } else {
-                // Widget not ready yet - show loading state
-                this.disableStartButtonForSpotify();
-            }
-        } else {
-            // Non-Tron theme - button should be enabled
-            this.enableStartButtonForSpotify();
-        }
+        // No need to affect the Start/Pause button
     }
 
     createTronImageButton() {
