@@ -1079,7 +1079,20 @@ class PomodoroTimer {
             const existingCustomTimer = localStorage.getItem('customTimer');
             console.log('🔍 existingCustomTimer:', existingCustomTimer);
             
+            // Check if there's a valid custom timer (not just any value)
+            let hasValidCustomTimer = false;
             if (existingCustomTimer) {
+                try {
+                    const parsed = JSON.parse(existingCustomTimer);
+                    hasValidCustomTimer = parsed && parsed.name && parsed.focusTime;
+                    console.log('🔍 hasValidCustomTimer:', hasValidCustomTimer);
+                } catch (e) {
+                    console.log('🔍 Invalid custom timer data, ignoring');
+                    hasValidCustomTimer = false;
+                }
+            }
+            
+            if (hasValidCustomTimer) {
                 // Free user already has a custom timer - show upgrade modal
                 console.log('🚫 Free user already has custom timer, showing upgrade modal');
                 this.trackEvent('Pro Feature Modal Shown', {
