@@ -3190,6 +3190,15 @@ class PomodoroTimer {
         if (this.settingsUpgradeToProBtn) {
             this.settingsUpgradeToProBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // Track Profile menu Upgrade to Pro click
+                this.trackEvent('Upgrade to Pro Clicked', {
+                    modal_type: 'profile_menu',
+                    button_text: 'Upgrade to Pro',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    source: 'profile_dropdown'
+                });
+                
                 this.settingsDropdown.style.display = 'none';
                 window.location.href = '/pricing';
             });
@@ -3611,6 +3620,15 @@ class PomodoroTimer {
         if (upgradeToProModalBtn) {
             upgradeToProModalBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // Track Settings modal Upgrade to Pro click
+                this.trackEvent('Upgrade to Pro Clicked', {
+                    modal_type: 'settings_modal',
+                    button_text: 'Upgrade to Pro',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    source: 'settings_modal'
+                });
+                
                 this.hideSettingsModal();
                 window.location.href = '/pricing';
             });
