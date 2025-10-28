@@ -90,8 +90,8 @@ class PomodoroTimer {
 		
 		// Tron Spotify Widget Configuration - will be reimplemented
 		this.tronSpotifyWidget = null;
-		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
-		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}`;
+		this.tronSpotifyPlaylistId = '37i9dQZF1DXcBWIGoYBM5M'; // TRON: Legacy - Official Soundtrack
+		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/playlist/${this.tronSpotifyPlaylistId}`;
 		this.tronSpotifyWidgetReady = false;
 		this.spotifyLoadingElement = null;
 		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
@@ -14290,6 +14290,7 @@ class PomodoroTimer {
     // Tron Spotify Widget Methods - REIMPLEMENTED with timeout handling
     createTronSpotifyWidget() {
         console.log('🎵 Creating Tron Spotify widget...');
+        console.log('🎵 Spotify URL:', this.tronSpotifyEmbedUrl);
 
         // Remove any existing widget first
         this.removeTronSpotifyWidget();
@@ -14343,16 +14344,16 @@ class PomodoroTimer {
             isLoaded = true;
             clearTimeout(loadTimeout);
             
-            console.warn('⚠️ Spotify widget failed to load');
-            widget.style.opacity = '0.5';
+            console.warn('⚠️ Spotify widget failed to load, trying fallback...');
+            this.trySpotifyFallback(widget);
         };
 
         const handleTimeout = () => {
             if (isLoaded) return;
             isLoaded = true;
             
-            console.warn('⚠️ Spotify widget loading timeout - showing anyway');
-            widget.style.opacity = '0.7';
+            console.warn('⚠️ Spotify widget loading timeout - trying fallback...');
+            this.trySpotifyFallback(widget);
         };
 
         // Set timeout for 10 seconds
@@ -14370,6 +14371,43 @@ class PomodoroTimer {
         this.createTronImageButton();
         
         console.log('🎵 Tron Spotify widget created with timeout handling');
+    }
+
+    trySpotifyFallback(widget) {
+        console.log('🔄 Trying Spotify fallback URLs...');
+        
+        // List of fallback Spotify URLs to try
+        const fallbackUrls = [
+            'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M', // TRON: Legacy Official Soundtrack
+            'https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd', // RapCaviar (popular playlist)
+            'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator', // With utm_source
+            'https://open.spotify.com/embed/track/4iV5W9uYEdYUVa79Axb7Rh' // Single track fallback
+        ];
+        
+        let currentIndex = 0;
+        
+        const tryNextUrl = () => {
+            if (currentIndex >= fallbackUrls.length) {
+                console.error('❌ All Spotify fallback URLs failed');
+                widget.style.opacity = '0.3';
+                return;
+            }
+            
+            const fallbackUrl = fallbackUrls[currentIndex];
+            console.log(`🔄 Trying fallback URL ${currentIndex + 1}/${fallbackUrls.length}:`, fallbackUrl);
+            
+            widget.src = fallbackUrl;
+            currentIndex++;
+            
+            // Set a shorter timeout for fallback attempts
+            setTimeout(() => {
+                if (widget.style.opacity === '0.8') { // Still in loading state
+                    tryNextUrl();
+                }
+            }, 5000);
+        };
+        
+        tryNextUrl();
     }
 
     removeTronSpotifyWidget() {
