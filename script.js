@@ -1203,10 +1203,10 @@ class PomodoroTimer {
                         </svg>
                     </div>
                     <h3>Create Timer</h3>
-                    <p>Create personalized focus timers tailored to your workflow!</p>
+                    <p>Guest users cannot create custom timers. Sign up to create personalized focus timers and unlock all features!</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customCancelBtn">Cancel</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
                     </div>
                 </div>
             `;
@@ -1262,10 +1262,13 @@ class PomodoroTimer {
                 });
             }
             
-            // Guest user - Cancel button
-            const cancelBtn = modal.querySelector('#customCancelBtn');
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', closeModal);
+            // Guest user - Learn more button (same as authenticated users)
+            const learnMoreBtn = modal.querySelector('#customLearnMoreBtn');
+            if (learnMoreBtn) {
+                learnMoreBtn.addEventListener('click', () => {
+                    closeModal();
+                    window.location.href = '/pricing';
+                });
             }
         }
     }
