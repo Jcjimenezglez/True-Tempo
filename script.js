@@ -952,10 +952,16 @@ class PomodoroTimer {
     
     // Set up basic event listeners for all users (Create Custom button)
     setupBasicCustomListeners() {
+        console.log('🔧 Setting up basic custom listeners');
         // Create Custom button - works for all users
         const createBtn = document.getElementById('createCustomBtn');
+        console.log('🔧 Create button found:', !!createBtn);
+        console.log('🔧 Button already has listener:', createBtn?.hasAttribute('data-listener-added'));
+        
         if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
+            console.log('✅ Adding click listener to create button');
             createBtn.addEventListener('click', () => {
+                console.log('🖱️ Create Custom button clicked!');
                 // Track Create Custom button click
                 this.trackEvent('Create Custom Button Clicked', {
                     button_type: 'create_custom',
@@ -967,6 +973,9 @@ class PomodoroTimer {
                 this.showCustomForm();
             });
             createBtn.setAttribute('data-listener-added', 'true');
+            console.log('✅ Click listener added and marked');
+        } else {
+            console.log('⚠️ Could not add listener - button not found or already has listener');
         }
     }
     
