@@ -1178,11 +1178,19 @@ class PomodoroTimer {
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <h3 class="logout-modal-title">Pro Feature</h3>
-                <p class="logout-modal-message">${message}</p>
-                <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <h3>Create Custom Timers</h3>
+                    <p>Create unlimited personalized focus timers tailored to your workflow!</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                    </div>
                 </div>
             `;
         } else {
