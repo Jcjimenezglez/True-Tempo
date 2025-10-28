@@ -14295,88 +14295,89 @@ class PomodoroTimer {
     createTronSpotifyWidget() {
         console.log('🎵 Creating Tron Spotify widget...');
 
-        // Avoid duplicate widgets
         if (this.tronSpotifyWidget) {
             console.log('🎵 Tron Spotify widget already exists');
             return;
         }
 
-        // Remove any previous remnants
-        const existing = document.getElementById('tron-spotify-widget');
-        if (existing) existing.remove();
+        const mount = () => {
+            // Remove any previous remnants
+            const existing = document.getElementById('tron-spotify-widget');
+            if (existing) existing.remove();
 
-        const widget = document.createElement('iframe');
-        widget.id = 'tron-spotify-widget';
-        // Cache-busting param to avoid CDN edge cache hiccups during retries
-        const urlWithTs = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
-        widget.src = urlWithTs;
-        widget.width = '300';
-        widget.height = '152';
-        widget.frameBorder = '0';
-        widget.allowTransparency = 'true';
-        widget.setAttribute('title', 'Spotify Music Player');
-        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
-        widget.allow = 'autoplay; encrypted-media; clipboard-write';
-        widget.loading = 'lazy';
-        widget.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            height: 152px;
-            z-index: 1000;
-            border-radius: 8px;
-            border: none;
-            pointer-events: auto;
-        `;
+            const widget = document.createElement('iframe');
+            widget.id = 'tron-spotify-widget';
+            // Cache-busting param to avoid CDN edge cache hiccups during retries
+            const urlWithTs = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
+            widget.src = urlWithTs;
+            widget.width = '300';
+            widget.height = '152';
+            widget.frameBorder = '0';
+            widget.allowTransparency = 'true';
+            widget.setAttribute('title', 'Spotify Music Player');
+            widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
+            widget.setAttribute('referrerpolicy', 'no-referrer');
+            widget.allow = 'autoplay; encrypted-media; clipboard-write';
+            widget.loading = 'eager';
+            widget.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 300px;
+                height: 152px;
+                z-index: 1000;
+                border-radius: 8px;
+                border: none;
+                pointer-events: auto;
+            `;
 
-        // Attach lifecycle handlers with watchdog + retry
-        this.tronSpotifyWidgetReady = false;
-        this.tronSpotifyWidgetRetries = 0;
-        const maxRetries = 3;
-        let watchdogId = 0;
+            // Attach lifecycle handlers with watchdog + retry
+            this.tronSpotifyWidgetReady = false;
+            this.tronSpotifyWidgetRetries = 0;
+            const maxRetries = 3;
+            let watchdogId = 0;
 
-        const clearWatchdog = () => { if (watchdogId) { clearTimeout(watchdogId); watchdogId = 0; } };
+            const clearWatchdog = () => { if (watchdogId) { clearTimeout(watchdogId); watchdogId = 0; } };
 
-        const startWatchdog = () => {
-            clearWatchdog();
-            // If the embed doesn't finish loading within timeout, try a soft reload
-            watchdogId = setTimeout(() => {
-                if (this.tronSpotifyWidgetReady) return;
-                if (this.tronSpotifyWidgetRetries >= maxRetries) {
-                    console.warn('⚠️ Spotify widget failed after retries');
-                    this.enableStartButtonForSpotify();
-                    return;
-                }
-                this.tronSpotifyWidgetRetries += 1;
-                console.log(`🔁 Reloading Spotify widget (attempt ${this.tronSpotifyWidgetRetries}/${maxRetries})`);
-                try {
-                    // Soft reload: change src with a fresh cache-buster
-                    widget.src = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
-                    startWatchdog();
-                } catch (e) {
-                    console.warn('Spotify widget reload error:', e);
-                }
-            }, 7000); // 7s watchdog
+            const startWatchdog = () => {
+                clearWatchdog();
+                watchdogId = setTimeout(() => {
+                    if (this.tronSpotifyWidgetReady) return;
+                    if (this.tronSpotifyWidgetRetries >= maxRetries) {
+                        console.warn('⚠️ Spotify widget failed after retries');
+                        this.enableStartButtonForSpotify();
+                        return;
+                    }
+                    this.tronSpotifyWidgetRetries += 1;
+                    console.log(`🔁 Reloading Spotify widget (attempt ${this.tronSpotifyWidgetRetries}/${maxRetries})`);
+                    try {
+                        widget.src = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
+                        startWatchdog();
+                    } catch (e) {
+                        console.warn('Spotify widget reload error:', e);
+                    }
+                }, 6000);
+            };
+
+            widget.addEventListener('load', () => {
+                this.tronSpotifyWidgetReady = true;
+                this.enableStartButtonForSpotify();
+                clearWatchdog();
+                console.log('🎵 Spotify widget loaded');
+            });
+
+            document.body.appendChild(widget);
+            this.tronSpotifyWidget = widget;
+            this.createTronImageButton();
+            startWatchdog();
         };
 
-        widget.addEventListener('load', () => {
-            this.tronSpotifyWidgetReady = true;
-            this.enableStartButtonForSpotify();
-            clearWatchdog();
-            console.log('🎵 Spotify widget loaded');
-        });
-
-        // Note: iframe error events are not reliable cross-origin; rely on watchdog
-
-        document.body.appendChild(widget);
-        this.tronSpotifyWidget = widget;
-
-        // Provide the theme image button as before
-        this.createTronImageButton();
-
-        // Begin watchdog for initial load
-        startWatchdog();
+        // Defer mount until full window load for stability (avoids early network contention)
+        if (document.readyState === 'complete') {
+            mount();
+        } else {
+            window.addEventListener('load', () => mount(), { once: true });
+        }
     }
 
     startTronSpotify() {
