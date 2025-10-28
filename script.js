@@ -909,12 +909,13 @@ class PomodoroTimer {
                 this.setupBasicCustomListeners();
                 console.log('✅ Basic custom listeners set up');
                 
-                // Only initialize full functionality for Pro users
-                if (this.isPremiumUser()) {
-                    console.log('✅ User is Pro, initializing full custom functionality');
+                // Initialize full functionality for all authenticated users (Free and Pro)
+                // Free users can create 1 timer, Pro users can create unlimited
+                if (this.isAuthenticated && this.user) {
+                    console.log('✅ User is authenticated, initializing full custom functionality');
                     this.initializeCustomSection();
                 } else {
-                    console.log('ℹ️ User is not Pro, basic custom functionality only');
+                    console.log('ℹ️ User is not authenticated, basic custom functionality only');
                 }
             } else {
                 console.log('❌ Custom section not found');
