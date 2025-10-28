@@ -4175,8 +4175,11 @@ class PomodoroTimer {
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     conversion_funnel: 'technique_exploration'
                 });
+                
+                // Get fresh reference to all presets after cloning
+                const currentTechniquePresets = modalOverlay.querySelectorAll('.technique-preset');
                 // Remove active class from all presets
-                techniquePresets.forEach(p => p.classList.remove('active'));
+                currentTechniquePresets.forEach(p => p.classList.remove('active'));
                 // Add active class to clicked preset
                 newPreset.classList.add('active');
                 
@@ -13527,8 +13530,11 @@ class PomodoroTimer {
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     conversion_funnel: 'technique_exploration'
                 });
+                
+                // Get fresh reference to all presets after cloning
+                const currentTechniquePresets = settingsPanel.querySelectorAll('.technique-preset');
                 // Remove active class from all presets
-                techniquePresets.forEach(p => p.classList.remove('active'));
+                currentTechniquePresets.forEach(p => p.classList.remove('active'));
                 
                 // Remove active class from all custom cards
                 const allCustomCards = document.querySelectorAll('.custom-card');
