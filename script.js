@@ -91,7 +91,7 @@ class PomodoroTimer {
 		// Tron Spotify Widget Configuration - will be reimplemented
 		this.tronSpotifyWidget = null;
 		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
-		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}?utm_source=generator&theme=0`;
+		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}?utm_source=generator`;
 		this.tronSpotifyWidgetReady = false;
 		this.spotifyLoadingElement = null;
 		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
@@ -14306,8 +14306,9 @@ class PomodoroTimer {
         widget.setAttribute('title', 'Spotify Music Player');
         widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
         widget.setAttribute('referrerpolicy', 'no-referrer');
-        widget.allow = 'autoplay; encrypted-media; clipboard-write';
-        widget.loading = 'eager'; // Changed from lazy to eager for faster loading
+        widget.setAttribute('data-testid', 'embed-iframe');
+        widget.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        widget.loading = 'lazy';
         
         // Style the widget
         widget.style.cssText = `
