@@ -11708,32 +11708,51 @@ class PomodoroTimer {
     }
 
     checkAdminAccess() {
-        // Only show Developer tab for admin email
-        const adminEmail = 'jcjimenezglez@gmail.com';
+        // Hide Developer tab for all users (including jcjimenezglez@gmail.com)
         const developerNavItem = document.getElementById('developerNavItem');
         
         if (!developerNavItem) return;
         
-        // Check if user is authenticated and has admin email
-        let isAdmin = false;
+        // Always hide Developer tab - no more admin access
+        developerNavItem.style.display = 'none';
+        console.log('❌ Developer tab hidden for all users');
+    }
+
+    async handleManageSubscription() {
         try {
+            // Get user email for Stripe customer portal
+            let userEmail = '';
             if (window.Clerk && window.Clerk.user) {
-                const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
-                                 window.Clerk.user.emailAddresses?.[0]?.emailAddress || '';
-                isAdmin = userEmail.toLowerCase() === adminEmail.toLowerCase();
-                console.log('Admin check:', { userEmail, isAdmin });
+                userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
+                           window.Clerk.user.emailAddresses?.[0]?.emailAddress || '';
             }
-        } catch (e) {
-            console.log('Error checking admin access:', e);
-        }
-        
-        // Show/hide Developer tab based on admin status
-        if (isAdmin) {
-            developerNavItem.style.display = 'flex';
-            console.log('✅ Developer tab shown for admin');
-        } else {
-            developerNavItem.style.display = 'none';
-            console.log('❌ Developer tab hidden for non-admin');
+            
+            if (!userEmail) {
+                console.error('No user email found');
+                return;
+            }
+            
+            // Call Stripe customer portal API
+            const response = await fetch('/api/customer-portal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: userEmail })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    console.error('No portal URL returned');
+                }
+            } else {
+                console.error('Failed to create customer portal session');
+            }
+        } catch (error) {
+            console.error('Error managing subscription:', error);
         }
     }
 
