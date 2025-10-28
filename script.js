@@ -14291,73 +14291,29 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    // Tron Spotify Widget Methods
+    // Tron Spotify Widget Methods - DISABLED to prevent timeouts
     createTronSpotifyWidget() {
-        console.log('🎵 Creating Tron Spotify widget...');
+        console.log('🎵 Tron Spotify widget creation disabled to prevent timeouts');
         
-        // Check if widget already exists
-        if (this.tronSpotifyWidget) {
-            console.log('🎵 Tron Spotify widget already exists, skipping creation');
-            return;
-        }
+        // Skip creating Spotify widget to avoid upstream timeout errors
+        // The widget was causing 504 errors when trying to load open.spotify.com
         
-        // Remove existing widget if any
-        const existingWidget = document.getElementById('tron-spotify-widget');
-        if (existingWidget) {
-            existingWidget.remove();
-        }
-
-        // Create Spotify widget iframe
-        const widget = document.createElement('iframe');
-        widget.id = 'tron-spotify-widget';
-        widget.src = this.tronSpotifyEmbedUrl;
-        widget.width = '300';
-        widget.height = '152';
-        widget.frameBorder = '0';
-        widget.allowTransparency = 'true';
-        widget.setAttribute('title', 'Spotify Music Player');
-        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
-        widget.allow = 'encrypted-media';
-        widget.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            height: 152px;
-            z-index: 1000;
-            border-radius: 8px;
-            border: none;
-            pointer-events: auto;
-        `;
-
-        document.body.appendChild(widget);
-        this.tronSpotifyWidget = widget;
-        
-        // Create background image button
+        // Create background image button without Spotify widget
         this.createTronImageButton();
         
-        // Widget is now visible and ready
+        // Mark as ready but without actual widget
         this.tronSpotifyWidgetReady = true;
-        this.tronSpotifyWidgetActivated = true;
-        console.log('🎵 Spotify widget created and visible');
-        
-        console.log('🎵 Tron Spotify widget created');
+        this.tronSpotifyWidgetActivated = false; // Keep as false since no widget
+        console.log('🎵 Tron theme ready without Spotify widget');
     }
 
     startTronSpotify() {
-        console.log('🎵 Starting Tron Spotify...');
+        console.log('🎵 Tron Spotify start disabled to prevent timeouts');
         
-        if (this.tronSpotifyWidget) {
-            // Only send play command, don't reactivate widget to avoid restarting playlist
-            try {
-                this.tronSpotifyWidget.contentWindow.postMessage({
-                    command: 'play'
-                }, '*');
-                console.log('🎵 Tron Spotify play command sent');
-            } catch (error) {
-                console.log('🎵 Tron Spotify control not available (cross-origin)');
-            }
-        }
+        // Skip starting Spotify widget to avoid upstream timeout errors
+        // The widget was causing 504 errors when trying to load open.spotify.com
+        
+        console.log('🎵 Tron theme active without Spotify widget');
     }
 
     // Widget is now always visible, no complex activation needed
