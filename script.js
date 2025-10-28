@@ -3172,6 +3172,7 @@ class PomodoroTimer {
             this.settingsSignupBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.trackEvent('Account Menu Signup Clicked', {
+                    modal_type: 'account_menu',
                     button_type: 'signup',
                     source: 'account_menu'
                 });
@@ -3411,6 +3412,7 @@ class PomodoroTimer {
             this.signupButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.trackEvent('Signup Button Clicked', {
+                    modal_type: 'main_header',
                     button_type: 'signup',
                     source: 'main_header'
                 });
@@ -14536,6 +14538,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 timerSignupBtn.addEventListener('click', () => {
                     // Track Timer header Sign up click
                     timer.trackEvent('Sign Up Clicked', {
+                        modal_type: 'timer_header',
                         button_type: 'signup',
                         source: 'timer_header',
                         user_type: 'guest'
