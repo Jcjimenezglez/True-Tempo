@@ -98,8 +98,11 @@ class PomodoroTimer {
 		
 		// Note: We don't save Spotify connecting state - always show loading
 		
-		// Load last selected theme (for both authenticated and guest users)
-		this.loadLastSelectedTheme();
+        // Load last selected theme (for both authenticated and guest users)
+        this.loadLastSelectedTheme();
+        
+        // Initialize button state after DOM is ready
+        this.initializeButtonState();
         
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
@@ -14102,6 +14105,9 @@ class PomodoroTimer {
                 console.log('🎨 Tron theme applied - Spotify widget already ready');
             }
             
+            // Initialize button state after theme application
+            this.initializeButtonState();
+            
             // If timer is running, start Spotify immediately (disabled to avoid playlist restart issues)
             // if (this.isRunning) {
             //     this.startTronSpotify();
@@ -14245,6 +14251,9 @@ class PomodoroTimer {
             this.tronSpotifyWidgetActivated = false;
             console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
         }
+        
+        // Initialize button state after theme removal
+        this.initializeButtonState();
         
         // Save preference only if user is authenticated
         if (this.isAuthenticated) {
@@ -14406,7 +14415,12 @@ class PomodoroTimer {
         if (this.startPauseBtn) {
             this.startPauseBtn.disabled = true;
             this.startPauseBtn.style.opacity = '0.5';
-            this.startPauseBtn.textContent = 'Loading...';
+            this.startPauseBtn.classList.add('loading');
+            // Update text content properly
+            const playText = this.startPauseBtn.querySelector('.play-text');
+            const pauseText = this.startPauseBtn.querySelector('.pause-text');
+            if (playText) playText.textContent = 'Loading...';
+            if (pauseText) pauseText.textContent = 'Loading...';
         }
     }
 
@@ -14414,7 +14428,28 @@ class PomodoroTimer {
         if (this.startPauseBtn) {
             this.startPauseBtn.disabled = false;
             this.startPauseBtn.style.opacity = '1';
-            this.startPauseBtn.textContent = this.isRunning ? 'Pause' : 'Start';
+            this.startPauseBtn.classList.remove('loading');
+            // Update text content properly
+            const playText = this.startPauseBtn.querySelector('.play-text');
+            const pauseText = this.startPauseBtn.querySelector('.pause-text');
+            if (playText) playText.textContent = 'Start';
+            if (pauseText) pauseText.textContent = 'Pause';
+        }
+    }
+
+    initializeButtonState() {
+        // Initialize button state based on current theme and Spotify widget status
+        if (this.currentImmersiveTheme === 'tron') {
+            // Tron theme is active - check if Spotify widget is ready
+            if (this.tronSpotifyWidget && this.tronSpotifyWidgetReady) {
+                this.enableStartButtonForSpotify();
+            } else {
+                // Widget not ready yet - show loading state
+                this.disableStartButtonForSpotify();
+            }
+        } else {
+            // Non-Tron theme - button should be enabled
+            this.enableStartButtonForSpotify();
         }
     }
 
