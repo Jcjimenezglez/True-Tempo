@@ -1186,17 +1186,19 @@ class PomodoroTimer {
                 </div>
             `;
         } else {
-            // Guest user modal
+            // Guest user modal - Custom message for guest users
+            const guestMessage = 'Create personalized focus timers tailored to your workflow! Set custom work periods, break times, and session cycles that match your productivity style.';
+            
             modal.innerHTML = `
                 <button class="close-logout-modal-x" id="closeCustomModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <h3 class="logout-modal-title">Pro Feature</h3>
-                <p class="logout-modal-message">${message}</p>
+                <h3 class="logout-modal-title">Create Custom Timers</h3>
+                <p class="logout-modal-message">${guestMessage}</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="customLearnMoreBtn">Learn more</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="customCancelBtn">Cancel</button>
                 </div>
             `;
@@ -1243,6 +1245,15 @@ class PomodoroTimer {
                 });
             }
         } else {
+            // Guest user - Sign up button
+            const signupBtn = modal.querySelector('#customSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', () => {
+                    closeModal();
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                });
+            }
+            
             // Guest user - Cancel button
             const cancelBtn = modal.querySelector('#customCancelBtn');
             if (cancelBtn) {
