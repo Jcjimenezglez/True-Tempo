@@ -14291,29 +14291,97 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    // Tron Spotify Widget Methods - DISABLED to prevent timeouts
+    // Tron Spotify Widget Methods - with watchdog + retry to handle intermittent 504s
     createTronSpotifyWidget() {
-        console.log('🎵 Tron Spotify widget creation disabled to prevent timeouts');
-        
-        // Skip creating Spotify widget to avoid upstream timeout errors
-        // The widget was causing 504 errors when trying to load open.spotify.com
-        
-        // Create background image button without Spotify widget
+        console.log('🎵 Creating Tron Spotify widget...');
+
+        // Avoid duplicate widgets
+        if (this.tronSpotifyWidget) {
+            console.log('🎵 Tron Spotify widget already exists');
+            return;
+        }
+
+        // Remove any previous remnants
+        const existing = document.getElementById('tron-spotify-widget');
+        if (existing) existing.remove();
+
+        const widget = document.createElement('iframe');
+        widget.id = 'tron-spotify-widget';
+        // Cache-busting param to avoid CDN edge cache hiccups during retries
+        const urlWithTs = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
+        widget.src = urlWithTs;
+        widget.width = '300';
+        widget.height = '152';
+        widget.frameBorder = '0';
+        widget.allowTransparency = 'true';
+        widget.setAttribute('title', 'Spotify Music Player');
+        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
+        widget.allow = 'autoplay; encrypted-media; clipboard-write';
+        widget.loading = 'lazy';
+        widget.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 152px;
+            z-index: 1000;
+            border-radius: 8px;
+            border: none;
+            pointer-events: auto;
+        `;
+
+        // Attach lifecycle handlers with watchdog + retry
+        this.tronSpotifyWidgetReady = false;
+        this.tronSpotifyWidgetRetries = 0;
+        const maxRetries = 3;
+        let watchdogId = 0;
+
+        const clearWatchdog = () => { if (watchdogId) { clearTimeout(watchdogId); watchdogId = 0; } };
+
+        const startWatchdog = () => {
+            clearWatchdog();
+            // If the embed doesn't finish loading within timeout, try a soft reload
+            watchdogId = setTimeout(() => {
+                if (this.tronSpotifyWidgetReady) return;
+                if (this.tronSpotifyWidgetRetries >= maxRetries) {
+                    console.warn('⚠️ Spotify widget failed after retries');
+                    this.enableStartButtonForSpotify();
+                    return;
+                }
+                this.tronSpotifyWidgetRetries += 1;
+                console.log(`🔁 Reloading Spotify widget (attempt ${this.tronSpotifyWidgetRetries}/${maxRetries})`);
+                try {
+                    // Soft reload: change src with a fresh cache-buster
+                    widget.src = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
+                    startWatchdog();
+                } catch (e) {
+                    console.warn('Spotify widget reload error:', e);
+                }
+            }, 7000); // 7s watchdog
+        };
+
+        widget.addEventListener('load', () => {
+            this.tronSpotifyWidgetReady = true;
+            this.enableStartButtonForSpotify();
+            clearWatchdog();
+            console.log('🎵 Spotify widget loaded');
+        });
+
+        // Note: iframe error events are not reliable cross-origin; rely on watchdog
+
+        document.body.appendChild(widget);
+        this.tronSpotifyWidget = widget;
+
+        // Provide the theme image button as before
         this.createTronImageButton();
-        
-        // Mark as ready but without actual widget
-        this.tronSpotifyWidgetReady = true;
-        this.tronSpotifyWidgetActivated = false; // Keep as false since no widget
-        console.log('🎵 Tron theme ready without Spotify widget');
+
+        // Begin watchdog for initial load
+        startWatchdog();
     }
 
     startTronSpotify() {
-        console.log('🎵 Tron Spotify start disabled to prevent timeouts');
-        
-        // Skip starting Spotify widget to avoid upstream timeout errors
-        // The widget was causing 504 errors when trying to load open.spotify.com
-        
-        console.log('🎵 Tron theme active without Spotify widget');
+        // No-op control: the embed UI handles playback. Keep for future enhancements.
+        console.log('🎵 Tron Spotify start requested');
     }
 
     // Widget is now always visible, no complex activation needed
