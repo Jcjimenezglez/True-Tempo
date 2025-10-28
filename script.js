@@ -2348,12 +2348,8 @@ class PomodoroTimer {
                     title: 'Todoist Integration',
                     message: 'Sync your Todoist tasks directly into your focus sessions! Import tasks from your projects and track your productivity seamlessly.',
                     icon: `
-                        <div style="width: 64px; height: 64px; background: #E44332; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <svg width="32" height="32" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M169.165 377.508C183.113 369.363 482.738 195.242 489.587 191.207C496.436 187.222 496.81 174.968 489.089 170.535C481.418 166.126 466.847 157.758 461.443 154.545C453.726 150.299 444.347 150.413 436.735 154.844C432.9 157.085 176.886 305.777 168.343 310.659C158.057 316.537 145.429 316.636 135.217 310.659L0 231.307V298.753C32.8766 318.131 114.744 366.25 134.57 377.582C146.4 384.307 157.733 384.158 169.19 377.508" fill="white"/>
-                                <path d="M169.165 505.029C183.113 496.885 482.738 322.763 489.587 318.728C496.436 314.743 496.81 302.489 489.089 298.056C481.418 293.648 466.847 285.279 461.443 282.066C453.726 277.821 444.347 277.934 436.735 282.365C432.9 284.607 176.886 433.298 168.343 438.18C158.057 444.058 145.429 444.158 135.217 438.18L0 358.828V426.275C32.8766 445.652 114.744 493.771 134.57 505.104C146.4 511.829 157.733 511.679 169.19 505.029" fill="white"/>
-                                <path d="M169.165 640.52C183.113 632.376 482.738 458.255 489.587 454.22C496.436 450.235 496.81 437.981 489.089 433.547C481.418 429.139 466.847 420.77 461.443 417.557C453.726 413.312 444.347 413.425 436.735 417.856C432.9 420.098 176.886 568.79 168.343 573.671C158.057 579.549 145.429 579.649 135.217 573.671L0 494.319V561.766C32.8766 581.143 114.744 629.263 134.57 640.595C146.4 647.32 157.733 647.17 169.19 640.52" fill="white"/>
-                            </svg>
+                        <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                            <img src="/images/todoist.svg" alt="Todoist" style="width: 48px; height: 48px;">
                         </div>
                     `,
                     primaryText: this.isAuthenticated ? 'Upgrade to Pro' : 'Learn More',
@@ -2363,13 +2359,8 @@ class PomodoroTimer {
                     title: 'Notion Integration',
                     message: 'Connect your Notion workspace to import tasks from your databases! Sync your productivity workflow and manage tasks across platforms.',
                     icon: `
-                        <div style="width: 64px; height: 64px; background: #000000; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <svg width="32" height="32" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M357.934 610.517V337.277H378.952L547.1 589.498H568.118V316.259" stroke="white" stroke-width="84.0737" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M697.465 718.591L212.78 755.878C205.734 756.416 198.667 755.168 192.23 752.251C185.794 749.335 180.197 744.842 175.956 739.19L72.0831 600.72C66.6258 593.444 63.6758 584.594 63.6758 575.498V123.98C63.6761 113.392 67.6722 103.194 74.8653 95.4241C82.0585 87.6542 91.9189 82.885 102.476 82.0697L581.233 45.2455C599.97 43.8108 618.647 48.6947 634.284 59.1176L698.81 102.121C710.329 109.797 719.775 120.197 726.309 132.399C732.843 144.602 736.263 158.229 736.265 172.071V676.681C736.265 687.269 732.269 697.467 725.075 705.237C717.882 713.007 708.022 717.776 697.465 718.591Z" stroke="white" stroke-width="84.0737" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M84.6943 106.074L189.786 211.166" stroke="white" stroke-width="84.0737" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M736.265 169.13L189.786 211.166V736.627" stroke="white" stroke-width="84.0737" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                            <img src="/images/notion.svg" alt="Notion" style="width: 48px; height: 48px;">
                         </div>
                     `,
                     primaryText: this.isAuthenticated ? 'Upgrade to Pro' : 'Learn More',
