@@ -88,13 +88,6 @@ class PomodoroTimer {
 		}
 		this.tronImage = null;
 		
-		// Tron Spotify Widget Configuration - will be reimplemented
-		this.tronSpotifyWidget = null;
-		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
-		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}?utm_source=generator`;
-		this.tronSpotifyWidgetReady = false;
-		this.spotifyLoadingElement = null;
-		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
 		
 		// Note: We don't save Spotify connecting state - always show loading
 		
@@ -5246,11 +5239,6 @@ class PomodoroTimer {
             }
         }
         
-        // Tron theme is active - start Spotify (disabled to avoid playlist restart issues)
-        // if (this.currentImmersiveTheme === 'tron') {
-        //     this.startTronSpotify();
-        //     console.log('🎨 Tron theme active - background + Spotify started');
-        // }
         
         this.interval = setInterval(() => {
             this.timeLeft--;
@@ -5315,11 +5303,6 @@ class PomodoroTimer {
             this.pauseLofiPlaylist();
         }
         
-        // Tron theme is active - pause Spotify (disabled to avoid playlist restart issues)
-        // if (this.currentImmersiveTheme === 'tron') {
-        //     this.pauseTronSpotify();
-        //     console.log('🎨 Tron theme paused - background + Spotify paused');
-        // }
         
         // Update session info to potentially show "Ready to focus?"
         this.updateSessionInfo();
@@ -14091,21 +14074,9 @@ class PomodoroTimer {
                 return;
             }
             
-            // Create Spotify widget for Tron theme (only if not already created)
-            if (!this.tronSpotifyWidget) {
-                this.createTronSpotifyWidget();
-                console.log('🎨 Tron theme applied - Spotify widget created');
-            } else if (this.tronSpotifyWidgetReady) {
-                console.log('🎨 Tron theme applied - Spotify widget already ready');
-            }
+            // Tron theme is active - no Spotify widget needed
+            console.log('🎨 Tron theme applied - background only');
             
-            // If timer is running, start Spotify immediately (disabled to avoid playlist restart issues)
-            // if (this.isRunning) {
-            //     this.startTronSpotify();
-            //     console.log('🎨 Tron theme applied - background + Spotify (timer is running)');
-            // } else {
-            //     console.log('🎨 Tron theme applied - background + Spotify (will start when timer starts)');
-            // }
         }
         
         // Save theme preference (for both authenticated and guest users)
@@ -14235,13 +14206,8 @@ class PomodoroTimer {
         timerSection.style.removeProperty('background-repeat');
         timerSection.style.removeProperty('background-color');
         
-        // Tron theme deactivated - remove Spotify widget
-        if (this.currentImmersiveTheme === 'tron') {
-            this.removeTronSpotifyWidget();
-            this.tronSpotifyWidgetReady = false;
-            this.tronSpotifyWidgetActivated = false;
-            console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
-        }
+        // Tron theme deactivated - no Spotify widget to remove
+        console.log('🎨 Tron theme deactivated - background removed');
         
         // Save preference only if user is authenticated
         if (this.isAuthenticated) {
@@ -14287,185 +14253,6 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    // Tron Spotify Widget Methods - REIMPLEMENTED with timeout handling
-    createTronSpotifyWidget() {
-        console.log('🎵 Creating Tron Spotify widget...');
-        console.log('🎵 Spotify URL:', this.tronSpotifyEmbedUrl);
-
-        // Remove any existing widget first
-        this.removeTronSpotifyWidget();
-
-        // Create the iframe element
-        const widget = document.createElement('iframe');
-        widget.id = 'tron-spotify-widget';
-        widget.src = this.tronSpotifyEmbedUrl;
-        widget.width = '300';
-        widget.height = '152';
-        widget.frameBorder = '0';
-        widget.allowTransparency = 'true';
-        widget.setAttribute('title', 'Spotify Music Player');
-        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
-        widget.setAttribute('referrerpolicy', 'no-referrer');
-        widget.setAttribute('data-testid', 'embed-iframe');
-        widget.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-        widget.loading = 'lazy';
-        
-        // Style the widget
-        widget.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            height: 152px;
-            z-index: 1000;
-            border-radius: 8px;
-            border: none;
-            pointer-events: auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: opacity 0.3s ease;
-            opacity: 0.8; /* Show loading state */
-        `;
-
-        // Set up timeout handling
-        let loadTimeout;
-        let isLoaded = false;
-
-        const handleLoad = () => {
-            if (isLoaded) return;
-            isLoaded = true;
-            clearTimeout(loadTimeout);
-            
-            this.tronSpotifyWidgetReady = true;
-            widget.style.opacity = '1';
-            console.log('🎵 Spotify widget loaded successfully');
-        };
-
-        const handleError = () => {
-            if (isLoaded) return;
-            isLoaded = true;
-            clearTimeout(loadTimeout);
-            
-            console.warn('⚠️ TRON: Ares Soundtrack failed to load - this may be a temporary Spotify server issue');
-            widget.style.opacity = '0.5';
-            // Show a message to user about the issue
-            this.showSpotifyErrorMessage();
-        };
-
-        const handleTimeout = () => {
-            if (isLoaded) return;
-            isLoaded = true;
-            
-            console.warn('⚠️ TRON: Ares Soundtrack loading timeout - Spotify servers may be slow');
-            widget.style.opacity = '0.7';
-            // Show a message to user about the timeout
-            this.showSpotifyTimeoutMessage();
-        };
-
-        // Set timeout for 10 seconds
-        loadTimeout = setTimeout(handleTimeout, 10000);
-
-        // Add event listeners
-        widget.addEventListener('load', handleLoad);
-        widget.addEventListener('error', handleError);
-
-        // Append to body
-        document.body.appendChild(widget);
-        this.tronSpotifyWidget = widget;
-        
-        // Create the image button
-        this.createTronImageButton();
-        
-        console.log('🎵 Tron Spotify widget created with timeout handling');
-    }
-
-    showSpotifyErrorMessage() {
-        // Show a temporary message about Spotify loading issue
-        const message = document.createElement('div');
-        message.id = 'spotify-error-message';
-        message.innerHTML = `
-            <div style="
-                position: fixed;
-                bottom: 180px;
-                right: 20px;
-                background: rgba(255, 0, 0, 0.9);
-                color: white;
-                padding: 12px 16px;
-                border-radius: 8px;
-                font-size: 14px;
-                z-index: 1001;
-                max-width: 280px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            ">
-                ⚠️ TRON soundtrack temporarily unavailable<br>
-                <small>Spotify servers may be experiencing issues</small>
-            </div>
-        `;
-        
-        document.body.appendChild(message);
-        
-        // Remove message after 5 seconds
-        setTimeout(() => {
-            if (message.parentNode) {
-                message.parentNode.removeChild(message);
-            }
-        }, 5000);
-    }
-
-    showSpotifyTimeoutMessage() {
-        // Show a temporary message about Spotify timeout
-        const message = document.createElement('div');
-        message.id = 'spotify-timeout-message';
-        message.innerHTML = `
-            <div style="
-                position: fixed;
-                bottom: 180px;
-                right: 20px;
-                background: rgba(255, 165, 0, 0.9);
-                color: white;
-                padding: 12px 16px;
-                border-radius: 8px;
-                font-size: 14px;
-                z-index: 1001;
-                max-width: 280px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            ">
-                ⏱️ TRON soundtrack loading slowly<br>
-                <small>Please wait or try refreshing</small>
-            </div>
-        `;
-        
-        document.body.appendChild(message);
-        
-        // Remove message after 5 seconds
-        setTimeout(() => {
-            if (message.parentNode) {
-                message.parentNode.removeChild(message);
-            }
-        }, 5000);
-    }
-
-    removeTronSpotifyWidget() {
-        console.log('🎵 Removing Tron Spotify widget...');
-        
-        if (this.tronSpotifyWidget) {
-            this.tronSpotifyWidget.remove();
-            this.tronSpotifyWidget = null;
-            this.tronSpotifyWidgetReady = false;
-            console.log('🎵 Tron Spotify widget removed');
-        }
-        
-        // Remove image button
-        if (this.tronImageButton) {
-            this.tronImageButton.remove();
-            this.tronImageButton = null;
-            console.log('🖼️ Tron image button removed');
-        }
-    }
-
-    showSpotifyLoading() {
-        console.log('🎵 Showing Spotify loading state...');
-        // No need to affect the Start/Pause button
-    }
 
     createTronImageButton() {
         // Create background image button
