@@ -1185,8 +1185,8 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>Create Custom Timers</h3>
-                    <p>Create unlimited personalized focus timers tailored to your workflow!</p>
+                    <h3>Create timer</h3>
+                    <p>Free users can have up to 1 custom timer. Upgrade to Pro for unlimited timers and unlock all productivity features!</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
