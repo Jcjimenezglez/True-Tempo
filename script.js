@@ -1854,6 +1854,9 @@ class PomodoroTimer {
         // Update dropdown badges based on authentication state
         this.updateDropdownState();
         
+        // Check and reset streak if needed (after auth state is updated)
+        this.checkAndResetStreakIfNeeded();
+        
         // Update streak display based on authentication state
         this.updateStreakDisplay();
         
@@ -10564,6 +10567,30 @@ class PomodoroTimer {
                 currentStreak: 0,
                 lastActiveDate: null
             };
+        }
+    }
+
+    checkAndResetStreakIfNeeded() {
+        // Only check for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+
+        const today = new Date().toDateString();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+
+        // If we have a last active date, check if streak should be reset
+        if (this.streakData.lastActiveDate) {
+            // If last active date is not today and not yesterday, reset streak
+            if (this.streakData.lastActiveDate !== today && this.streakData.lastActiveDate !== yesterdayStr) {
+                console.log(`🔄 Streak reset: Last active was ${this.streakData.lastActiveDate}, today is ${today}`);
+                this.streakData.currentStreak = 0;
+                this.streakData.lastActiveDate = null;
+                this.saveStreakData();
+                this.updateStreakDisplay();
+            }
         }
     }
 
