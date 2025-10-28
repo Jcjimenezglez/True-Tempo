@@ -14290,7 +14290,7 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    // Tron Spotify Widget Methods - REIMPLEMENTED
+    // Tron Spotify Widget Methods - REIMPLEMENTED with timeout handling
     createTronSpotifyWidget() {
         console.log('🎵 Creating Tron Spotify widget...');
 
@@ -14309,7 +14309,7 @@ class PomodoroTimer {
         widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
         widget.setAttribute('referrerpolicy', 'no-referrer');
         widget.allow = 'autoplay; encrypted-media; clipboard-write';
-        widget.loading = 'lazy';
+        widget.loading = 'eager'; // Changed from lazy to eager for faster loading
         
         // Style the widget
         widget.style.cssText = `
@@ -14324,20 +14324,49 @@ class PomodoroTimer {
             pointer-events: auto;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             transition: opacity 0.3s ease;
+            opacity: 0.8; /* Show loading state */
         `;
 
-        // Add load event listener
-        widget.addEventListener('load', () => {
+        // Set up timeout handling
+        let loadTimeout;
+        let isLoaded = false;
+
+        const handleLoad = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
             this.tronSpotifyWidgetReady = true;
+            widget.style.opacity = '1';
             console.log('🎵 Spotify widget loaded successfully');
             this.enableStartButtonForSpotify();
-        });
+        };
 
-        // Add error handling
-        widget.addEventListener('error', () => {
+        const handleError = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
             console.warn('⚠️ Spotify widget failed to load');
+            widget.style.opacity = '0.5';
             this.enableStartButtonForSpotify();
-        });
+        };
+
+        const handleTimeout = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            
+            console.warn('⚠️ Spotify widget loading timeout - showing anyway');
+            widget.style.opacity = '0.7';
+            this.enableStartButtonForSpotify();
+        };
+
+        // Set timeout for 10 seconds
+        loadTimeout = setTimeout(handleTimeout, 10000);
+
+        // Add event listeners
+        widget.addEventListener('load', handleLoad);
+        widget.addEventListener('error', handleError);
 
         // Append to body
         document.body.appendChild(widget);
@@ -14346,7 +14375,7 @@ class PomodoroTimer {
         // Create the image button
         this.createTronImageButton();
         
-        console.log('🎵 Tron Spotify widget created');
+        console.log('🎵 Tron Spotify widget created with timeout handling');
     }
 
     removeTronSpotifyWidget() {
