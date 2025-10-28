@@ -1255,6 +1255,14 @@ class PomodoroTimer {
             const upgradeBtn = modal.querySelector('#customUpgradeBtn');
             if (upgradeBtn) {
                 upgradeBtn.addEventListener('click', async () => {
+                    // Track Create timer modal upgrade click
+                    this.trackEvent('Upgrade to Pro Clicked', {
+                        modal_type: 'create_timer',
+                        button_text: 'Upgrade to Pro',
+                        user_type: 'free',
+                        source: 'create_timer_modal'
+                    });
+                    
                     closeModal();
                     // Redirect directly to Stripe checkout
                     await this.handleUpgrade();
@@ -3762,13 +3770,13 @@ class PomodoroTimer {
                 
                 // Check if user is authenticated (Free user trying to upgrade)
                 if (this.isAuthenticated) {
-                    // 🎯 TRACKING: Stripe Checkout Opened from Task Limit Modal
-                    this.trackEvent('Stripe Checkout Opened', {
+                    // Track Task limit modal upgrade click
+                    this.trackEvent('Upgrade to Pro Clicked', {
+                        modal_type: 'task_limit_reached',
+                        button_text: 'Upgrade to Pro',
+                        user_type: 'free',
                         source: 'task_limit_modal',
-                        user_type: 'free_user',
-                        task_count: this.getLocalTasks().length,
-                        conversion_funnel: 'task_limit_reached',
-                        timestamp: new Date().toISOString()
+                        task_count: this.getLocalTasks().length
                     });
                     
                     // Redirect to upgrade flow
@@ -8225,6 +8233,14 @@ class PomodoroTimer {
         // Button handlers
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
+            // Track which integration modal was clicked
+            this.trackEvent('Upgrade to Pro Clicked', {
+                modal_type: `${integrationType}_integration`,
+                button_text: buttonText,
+                user_type: isGuest ? 'guest' : 'free',
+                source: 'integration_modal'
+            });
+            
             if (isGuest) {
                 // Guest user - show signup
                 this.handleSignup();
