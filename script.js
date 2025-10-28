@@ -11744,7 +11744,7 @@ class PomodoroTimer {
         const applyViewModeBtn = document.getElementById('applyViewModeBtn');
         
         // Store selected mode (not applied yet)
-        this.selectedViewMode = localStorage.getItem('viewMode') || 'pro';
+        this.selectedViewMode = localStorage.getItem('viewMode') || 'guest';
         
         if (guestModeBtn) {
             guestModeBtn.addEventListener('click', () => {
@@ -11823,7 +11823,7 @@ class PomodoroTimer {
     }
 
     updateViewModeButtons() {
-        const currentMode = this.selectedViewMode || localStorage.getItem('viewMode') || 'pro';
+        const currentMode = this.selectedViewMode || localStorage.getItem('viewMode') || 'guest';
         const guestModeBtn = document.getElementById('guestModeBtn');
         const freeModeBtn = document.getElementById('freeModeBtn');
         const proModeBtn = document.getElementById('proModeBtn');
