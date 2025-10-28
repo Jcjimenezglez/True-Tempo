@@ -88,7 +88,7 @@ class PomodoroTimer {
 		}
 		this.tronImage = null;
 		
-		// Tron Spotify Widget Configuration
+		// Tron Spotify Widget Configuration - will be reimplemented
 		this.tronSpotifyWidget = null;
 		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
 		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}`;
@@ -14096,7 +14096,6 @@ class PomodoroTimer {
                 this.createTronSpotifyWidget();
                 // Show loading and disable Start button while widget is connecting
                 this.showSpotifyLoading();
-                this.disableStartButtonForSpotify();
             } else if (this.tronSpotifyWidgetReady) {
                 // Widget already exists and is ready, enable Start button immediately
                 this.enableStartButtonForSpotify();
@@ -14291,107 +14290,104 @@ class PomodoroTimer {
         console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
     }
 
-    // Tron Spotify Widget Methods - with watchdog + retry to handle intermittent 504s
+    // Tron Spotify Widget Methods - REIMPLEMENTED
     createTronSpotifyWidget() {
         console.log('🎵 Creating Tron Spotify widget...');
 
+        // Remove any existing widget first
+        this.removeTronSpotifyWidget();
+
+        // Create the iframe element
+        const widget = document.createElement('iframe');
+        widget.id = 'tron-spotify-widget';
+        widget.src = this.tronSpotifyEmbedUrl;
+        widget.width = '300';
+        widget.height = '152';
+        widget.frameBorder = '0';
+        widget.allowTransparency = 'true';
+        widget.setAttribute('title', 'Spotify Music Player');
+        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
+        widget.setAttribute('referrerpolicy', 'no-referrer');
+        widget.allow = 'autoplay; encrypted-media; clipboard-write';
+        widget.loading = 'lazy';
+        
+        // Style the widget
+        widget.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 152px;
+            z-index: 1000;
+            border-radius: 8px;
+            border: none;
+            pointer-events: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease;
+        `;
+
+        // Add load event listener
+        widget.addEventListener('load', () => {
+            this.tronSpotifyWidgetReady = true;
+            console.log('🎵 Spotify widget loaded successfully');
+            this.enableStartButtonForSpotify();
+        });
+
+        // Add error handling
+        widget.addEventListener('error', () => {
+            console.warn('⚠️ Spotify widget failed to load');
+            this.enableStartButtonForSpotify();
+        });
+
+        // Append to body
+        document.body.appendChild(widget);
+        this.tronSpotifyWidget = widget;
+        
+        // Create the image button
+        this.createTronImageButton();
+        
+        console.log('🎵 Tron Spotify widget created');
+    }
+
+    removeTronSpotifyWidget() {
+        console.log('🎵 Removing Tron Spotify widget...');
+        
         if (this.tronSpotifyWidget) {
-            console.log('🎵 Tron Spotify widget already exists');
-            return;
-        }
-
-        const mount = () => {
-            // Remove any previous remnants
-            const existing = document.getElementById('tron-spotify-widget');
-            if (existing) existing.remove();
-
-            const widget = document.createElement('iframe');
-            widget.id = 'tron-spotify-widget';
-            // Cache-busting param to avoid CDN edge cache hiccups during retries
-            const urlWithTs = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
-            widget.src = urlWithTs;
-            widget.width = '300';
-            widget.height = '152';
-            widget.frameBorder = '0';
-            widget.allowTransparency = 'true';
-            widget.setAttribute('title', 'Spotify Music Player');
-            widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
-            widget.setAttribute('referrerpolicy', 'no-referrer');
-            widget.allow = 'autoplay; encrypted-media; clipboard-write';
-            widget.loading = 'eager';
-            widget.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 300px;
-                height: 152px;
-                z-index: 1000;
-                border-radius: 8px;
-                border: none;
-                pointer-events: auto;
-            `;
-
-            // Attach lifecycle handlers with watchdog + retry
+            this.tronSpotifyWidget.remove();
+            this.tronSpotifyWidget = null;
             this.tronSpotifyWidgetReady = false;
-            this.tronSpotifyWidgetRetries = 0;
-            const maxRetries = 3;
-            let watchdogId = 0;
-
-            const clearWatchdog = () => { if (watchdogId) { clearTimeout(watchdogId); watchdogId = 0; } };
-
-            const startWatchdog = () => {
-                clearWatchdog();
-                watchdogId = setTimeout(() => {
-                    if (this.tronSpotifyWidgetReady) return;
-                    if (this.tronSpotifyWidgetRetries >= maxRetries) {
-                        console.warn('⚠️ Spotify widget failed after retries');
-                        this.enableStartButtonForSpotify();
-                        return;
-                    }
-                    this.tronSpotifyWidgetRetries += 1;
-                    console.log(`🔁 Reloading Spotify widget (attempt ${this.tronSpotifyWidgetRetries}/${maxRetries})`);
-                    try {
-                        widget.src = `${this.tronSpotifyEmbedUrl}?t=${Date.now()}`;
-                        startWatchdog();
-                    } catch (e) {
-                        console.warn('Spotify widget reload error:', e);
-                    }
-                }, 6000);
-            };
-
-            widget.addEventListener('load', () => {
-                this.tronSpotifyWidgetReady = true;
-                this.enableStartButtonForSpotify();
-                clearWatchdog();
-                console.log('🎵 Spotify widget loaded');
-            });
-
-            document.body.appendChild(widget);
-            this.tronSpotifyWidget = widget;
-            this.createTronImageButton();
-            startWatchdog();
-        };
-
-        // Defer mount until full window load for stability (avoids early network contention)
-        if (document.readyState === 'complete') {
-            mount();
-        } else {
-            window.addEventListener('load', () => mount(), { once: true });
+            console.log('🎵 Tron Spotify widget removed');
+        }
+        
+        // Remove image button
+        if (this.tronImageButton) {
+            this.tronImageButton.remove();
+            this.tronImageButton = null;
+            console.log('🖼️ Tron image button removed');
         }
     }
 
-    startTronSpotify() {
-        // No-op control: the embed UI handles playback. Keep for future enhancements.
-        console.log('🎵 Tron Spotify start requested');
+    showSpotifyLoading() {
+        console.log('🎵 Showing Spotify loading state...');
+        // Simple loading state - disable start button
+        this.disableStartButtonForSpotify();
     }
 
-    // Widget is now always visible, no complex activation needed
+    disableStartButtonForSpotify() {
+        if (this.startPauseBtn) {
+            this.startPauseBtn.disabled = true;
+            this.startPauseBtn.style.opacity = '0.5';
+            this.startPauseBtn.textContent = 'Loading...';
+        }
+    }
 
-
-
-    // No loading needed - widget is visible
-
-    // No loading needed - widget is visible
+    enableStartButtonForSpotify() {
+        if (this.startPauseBtn) {
+            this.startPauseBtn.disabled = false;
+            this.startPauseBtn.style.opacity = '1';
+            this.startPauseBtn.textContent = this.isRunning ? 'Pause' : 'Start';
+        }
+    }
 
     createTronImageButton() {
         // Create background image button
@@ -14508,60 +14504,7 @@ class PomodoroTimer {
     }
 
 
-    pauseTronSpotify() {
-        console.log('🎵 Pausing Tron Spotify...');
-        
-        if (this.tronSpotifyWidget) {
-            // Try to control the widget (this may not work due to cross-origin restrictions)
-            try {
-                this.tronSpotifyWidget.contentWindow.postMessage({
-                    command: 'pause'
-                }, '*');
-                console.log('🎵 Tron Spotify pause command sent');
-            } catch (error) {
-                console.log('🎵 Tron Spotify control not available (cross-origin)');
-            }
-        }
-    }
-
-    removeTronSpotifyWidget() {
-        console.log('🎵 Removing Tron Spotify widget...');
-        
-        if (this.tronSpotifyWidget) {
-            this.tronSpotifyWidget.remove();
-            this.tronSpotifyWidget = null;
-            console.log('🎵 Tron Spotify widget removed');
-        }
-        
-        // Remove image button
-        if (this.tronImageButton) {
-            this.tronImageButton.remove();
-            this.tronImageButton = null;
-            console.log('🖼️ Tron image button removed');
-        }
-    }
-
-    showSpotifyLoading() {
-        // Show loading state for Spotify widget
-        console.log('🎵 Showing Spotify loading state...');
-        // Add any loading UI here if needed
-    }
-
-    disableStartButtonForSpotify() {
-        // Disable start button while Spotify is loading
-        if (this.startPauseBtn) {
-            this.startPauseBtn.disabled = true;
-            this.startPauseBtn.style.opacity = '0.5';
-        }
-    }
-
-    enableStartButtonForSpotify() {
-        // Enable start button when Spotify is ready
-        if (this.startPauseBtn) {
-            this.startPauseBtn.disabled = false;
-            this.startPauseBtn.style.opacity = '1';
-        }
-    }
+    // Spotify control methods removed - will be reimplemented
 
 
 
