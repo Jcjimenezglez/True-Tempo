@@ -1071,10 +1071,17 @@ class PomodoroTimer {
             }
         } else if (this.isAuthenticated && this.user) {
             // Free users can create 1 custom timer
+            console.log('🔍 Free user attempting to create custom timer');
+            console.log('🔍 isAuthenticated:', this.isAuthenticated);
+            console.log('🔍 user:', this.user);
+            console.log('🔍 isPremiumUser():', this.isPremiumUser());
+            
             const existingCustomTimer = localStorage.getItem('customTimer');
+            console.log('🔍 existingCustomTimer:', existingCustomTimer);
             
             if (existingCustomTimer) {
                 // Free user already has a custom timer - show upgrade modal
+                console.log('🚫 Free user already has custom timer, showing upgrade modal');
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_techniques',
                     source: 'create_custom_button',
@@ -1086,6 +1093,7 @@ class PomodoroTimer {
                 this.showCustomTechniqueProModal('You\'ve reached your limit of 1 custom timer. Upgrade to Pro for unlimited custom timers!');
             } else {
                 // Free user can create their first custom timer
+                console.log('✅ Free user can create first custom timer');
                 const form = document.getElementById('customForm');
                 const createBtn = document.getElementById('createCustomBtn');
                 
