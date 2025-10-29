@@ -14582,6 +14582,151 @@ function handleSignup() {
     }
 }
 
+// Mixpanel Tracker Class
+class MixpanelTracker {
+    constructor() {
+        this.isInitialized = false;
+    }
+
+    init() {
+        if (window.mixpanel && window.mixpanel.track) {
+            this.isInitialized = true;
+            console.log('🎯 MixpanelTracker initialized successfully');
+        } else {
+            console.warn('⚠️ Mixpanel not available for tracking');
+        }
+    }
+
+    trackTimerComplete(sessionType, completed) {
+        if (!this.isInitialized) {
+            console.warn('⚠️ MixpanelTracker not initialized');
+            return;
+        }
+
+        const eventData = {
+            session_type: sessionType,
+            completed: completed,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            page_url: window.location.href
+        };
+
+        // Track the session completion event
+        window.mixpanel.track('Timer Session Completed', eventData);
+        
+        // Also track specific session type events for easier analysis
+        const specificEventName = `Session ${sessionType.charAt(0).toUpperCase() + sessionType.slice(1)} Completed`;
+        window.mixpanel.track(specificEventName, eventData);
+
+        console.log(`📊 Tracked session completion: ${sessionType}`, eventData);
+        console.log(`📊 Event sent to Mixpanel: "Timer Session Completed" and "${specificEventName}"`);
+    }
+
+    trackUserLogin(method) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('User Login', {
+            method: method,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackUserLogout() {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('User Logout', {
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackCustomEvent(eventName, properties) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track(eventName, {
+            ...properties,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackModalOpened(modalType) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Modal Opened', {
+            modal_type: modalType,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackSidebarPanelOpened(panelType) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Sidebar Panel Opened', {
+            panel_type: panelType,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTimerStart(sessionType, duration, taskName) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Timer Started', {
+            session_type: sessionType,
+            duration: duration,
+            task_name: taskName,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTimerPause() {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Timer Paused', {
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTimerSkip(sessionType, reason) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Timer Skipped', {
+            session_type: sessionType,
+            reason: reason,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTaskCreated(description, pomodoros) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Task Created', {
+            description: description,
+            pomodoros: pomodoros,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackUserSignup(method) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('User Signup', {
+            method: method,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackSubscriptionUpgrade(plan) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Subscription Upgrade', {
+            plan: plan,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+// Initialize Mixpanel Tracker
+window.mixpanelTracker = new MixpanelTracker();
+
 // Initialize the timer when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
