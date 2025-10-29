@@ -1094,7 +1094,7 @@ class PomodoroTimer {
                 modal_type: 'upgrade_prompt'
             });
             
-            this.showCustomTechniqueProModal('Create custom focus techniques tailored to your workflow! Upgrade to Pro for unlimited custom timers and unlock all productivity features!');
+            this.showCustomTechniqueProModal('Create custom focus techniques tailored to your workflow! Upgrade to Pro to unlock this feature and all productivity tools.');
         } else {
             // Guest users - show Pro Feature modal
             this.trackEvent('Pro Feature Modal Shown', {
@@ -1140,7 +1140,7 @@ class PomodoroTimer {
                         </svg>
                     </div>
                     <h3>Create timer</h3>
-                    <p>Free users can have up to 1 custom timer. Upgrade to Pro for unlimited timers and unlock all productivity features!</p>
+                    <p>Create custom focus techniques tailored to your workflow! Upgrade to Pro to unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Subscribe</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
@@ -1165,7 +1165,7 @@ class PomodoroTimer {
                         </svg>
                     </div>
                     <h3>Create Timer</h3>
-                    <p>Guest users cannot create custom timers. Sign up to create personalized focus timers and unlock all features!</p>
+                    <p>Create custom focus techniques tailored to your workflow! Upgrade to Pro to unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
