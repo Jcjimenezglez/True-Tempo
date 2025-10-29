@@ -1072,6 +1072,9 @@ body.is-scrolling .streak-fire {
     right: 20px;
     left: auto;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .timer-auth-buttons {
@@ -1232,11 +1235,11 @@ body.is-scrolling .streak-fire {
     border: none;
     cursor: pointer;
     padding: 0.5rem 1rem;
-    border-radius: 100px;
+    border-radius: 1000px;
     box-shadow: none;
     backdrop-filter: blur(4px);
     transition: all 0.3s ease;
-    width: fit-content;
+    width: 64px;
 }
 
 .streak-info:hover {
@@ -1257,13 +1260,12 @@ body.is-scrolling .streak-fire {
     font-weight: 600;
     background: linear-gradient(135deg, #064e3b, #065f46);
     border: none;
-    border-radius: 8px;
+    border-radius: 1000px;
     padding: 8px 16px;
     cursor: pointer;
     backdrop-filter: blur(4px);
     transition: all 0.3s ease;
-    width: fit-content;
-    margin-right: 12px;
+    width: 64px;
 }
 
 .subscribe-btn:hover {
