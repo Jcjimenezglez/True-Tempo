@@ -2529,7 +2529,7 @@ class PomodoroTimer {
             } else {
                 // Free user (authenticated but not Pro)
                 title.textContent = 'Task limit reached';
-                message.textContent = 'Free users can have up to 5 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
+                message.textContent = 'Free users can have up to 3 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
                 button.textContent = 'Subscribe';
             }
             
@@ -7271,8 +7271,8 @@ class PomodoroTimer {
                     // Guest users: 1 task
                     taskLimit = 1;
                 } else if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 5 tasks
-                    taskLimit = 5;
+                    // Free users: 3 tasks
+                    taskLimit = 3;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
@@ -13293,8 +13293,8 @@ class PomodoroTimer {
                     // Guest users: 1 task
                     taskLimit = 1;
                 } else if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 5 tasks
-                    taskLimit = 5;
+                    // Free users: 3 tasks
+                    taskLimit = 3;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
