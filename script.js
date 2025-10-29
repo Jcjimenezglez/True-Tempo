@@ -4209,21 +4209,28 @@ class PomodoroTimer {
                         <button class="technique-preset" data-technique="flow">
                             <div class="technique-icon">🌊</div>
                             <div class="technique-name">Flow State</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Subscribe required)</div>
                             <div class="technique-desc">45min work, 15min break</div>
                         </button>
                         <button class="technique-preset" data-technique="deepwork">
                             <div class="technique-icon">🧠</div>
                             <div class="technique-name">Deep Work</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Subscribe required)</div>
                             <div class="technique-desc">90min work, 20min break</div>
                         </button>
                         <button class="technique-preset" data-technique="sprint">
                             <div class="technique-icon">⚡</div>
                             <div class="technique-name">Sprint</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
                             <div class="technique-desc">15min work, 3min break</div>
                         </button>
                         <button class="technique-preset" data-technique="marathon">
                             <div class="technique-icon">🏃</div>
                             <div class="technique-name">Marathon</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Subscribe required)</div>
                             <div class="technique-desc">60min work, 10min break</div>
                         </button>
                     </div>
@@ -4329,19 +4336,20 @@ class PomodoroTimer {
             newPreset.addEventListener('click', () => {
                 const technique = newPreset.dataset.technique;
                 
+                // Check if preset is disabled (opacity 0.5 means disabled)
+                if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
+                    return; // Don't do anything if preset is disabled
+                }
+                
                 // Check if technique requires Pro
                 const proTechniques = ['flow', 'marathon', 'deepwork'];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                    // Show upgrade modal for non-Pro users
-                    this.showLoginRequiredModal(technique);
-                    return;
+                    return; // Don't show modal, preset is already disabled
                 }
                 
                 // Check if technique requires authentication (Sprint, Focus for guests)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
-                    // Show technique modal for guest users
-                    this.showTechniqueModal(technique);
-                    return;
+                    return; // Don't show modal, preset is already disabled
                 }
                 
                 this.trackEvent('Technique Selected', {
@@ -4364,6 +4372,11 @@ class PomodoroTimer {
                 this.applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
             });
         });
+        
+        // Update preset visibility/disabled state after adding event listeners
+        setTimeout(() => {
+            this.updateTechniquePresetsVisibility();
+        }, 0);
 
         // Close button
         modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
@@ -6731,19 +6744,46 @@ class PomodoroTimer {
     }
 
     // Update technique presets visibility based on user type
-    // Note: All presets are visible, but Pro techniques show upgrade modal when clicked by non-Pro users
+    // Disable presets that require signup/subscribe and show appropriate text
     updateTechniquePresetsVisibility() {
         const techniquePresets = document.querySelectorAll('.technique-preset');
+        const proTechniques = ['flow', 'marathon', 'deepwork'];
+        const freeTechniques = ['sprint', 'focus'];
         
         techniquePresets.forEach(preset => {
             const technique = preset.dataset.technique;
             if (!technique) return;
             
-            // All presets are visible to all users
-            // Visibility is controlled by CSS, but functionality is gated by user type
-            preset.style.display = '';
+            const signupText = preset.querySelector('.signup-required-text');
+            const subscribeText = preset.querySelector('.subscribe-required-text');
+            
+            // Hide both texts initially
+            if (signupText) signupText.classList.add('hidden');
+            if (subscribeText) subscribeText.classList.add('hidden');
+            
+            // Reset preset state
             preset.style.opacity = '1';
             preset.style.pointerEvents = 'auto';
+            preset.style.cursor = 'pointer';
+            
+            // Guest users: disable all except Pomodoro
+            if (!this.isAuthenticated) {
+                if (technique !== 'pomodoro') {
+                    preset.style.opacity = '0.5';
+                    preset.style.pointerEvents = 'none';
+                    preset.style.cursor = 'not-allowed';
+                    if (signupText) signupText.classList.remove('hidden');
+                }
+            }
+            // Free users: disable Pro techniques
+            else if (this.isAuthenticated && !this.isPremiumUser()) {
+                if (proTechniques.includes(technique)) {
+                    preset.style.opacity = '0.5';
+                    preset.style.pointerEvents = 'none';
+                    preset.style.cursor = 'not-allowed';
+                    if (subscribeText) subscribeText.classList.remove('hidden');
+                }
+            }
         });
     }
 
@@ -13887,15 +13927,6 @@ class PomodoroTimer {
             const newPreset = preset.cloneNode(true);
             preset.parentNode.replaceChild(newPreset, preset);
             
-            // Keep techniques enabled for guest users but show modal on click
-            if (technique !== 'pomodoro' && !this.isAuthenticated) {
-                // Show "(Sign up required)" text so user knows it requires signup
-                const signupText = newPreset.querySelector('.signup-required-text');
-                if (signupText) {
-                    signupText.classList.remove('hidden');
-                }
-            }
-            
             // For guest users, ensure Pomodoro has active class
             if (technique === 'pomodoro' && !this.isAuthenticated) {
                 newPreset.classList.add('active');
@@ -13905,19 +13936,20 @@ class PomodoroTimer {
             newPreset.addEventListener('click', () => {
                 const technique = newPreset.dataset.technique;
                 
+                // Check if preset is disabled (opacity 0.5 means disabled)
+                if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
+                    return; // Don't do anything if preset is disabled
+                }
+                
                 // Check if technique requires Pro
                 const proTechniques = ['flow', 'marathon', 'deepwork'];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                    // Show upgrade modal for non-Pro users
-                    this.showLoginRequiredModal(technique);
-                    return;
+                    return; // Don't show modal, preset is already disabled
                 }
                 
                 // Check if technique requires authentication (Sprint, Focus for guests)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
-                    // Show technique modal for guest users
-                    this.showTechniqueModal(technique);
-                    return;
+                    return; // Don't show modal, preset is already disabled
                 }
                 
                 this.trackEvent('Technique Selected', {

@@ -8123,6 +8123,13 @@ input:checked + .toggle-slider:before {
     font-weight: normal;
 }
 
+/* Subscribe required text */
+.subscribe-required-text {
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: normal;
+}
+
 /* Tron Info Modal */
 .modal-overlay {
     position: fixed;
