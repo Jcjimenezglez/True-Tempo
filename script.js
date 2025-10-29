@@ -2010,7 +2010,7 @@ class PomodoroTimer {
         if (!savedTechnique) return;
         
         // Check if the saved technique requires Pro
-        const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
+        const proTechniques = ['custom'];
         if (proTechniques.includes(savedTechnique)) {
             // Reset to default Pomodoro technique if user is not Pro
             if (!this.isPremiumUser()) {
@@ -3340,7 +3340,7 @@ class PomodoroTimer {
                 const technique = item.getAttribute('data-technique');
                 
                 // Check if technique requires authentication
-                const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
+                const proTechniques = ['custom'];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -4342,7 +4342,7 @@ class PomodoroTimer {
                 }
                 
                 // Check if technique requires Pro
-                const proTechniques = ['flow', 'marathon', 'deepwork'];
+                const proTechniques = [];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
                     return; // Don't show modal, preset is already disabled
                 }
@@ -6716,7 +6716,7 @@ class PomodoroTimer {
 
     initializeDropdownItemsState() {
         // Initialize dropdown items state immediately to prevent flash of enabled state
-        const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
+        const proTechniques = ['custom'];
         
         this.dropdownItems.forEach(item => {
             const technique = item.getAttribute('data-technique');
@@ -6747,7 +6747,7 @@ class PomodoroTimer {
     // Disable presets that require signup/subscribe and show appropriate text
     updateTechniquePresetsVisibility() {
         const techniquePresets = document.querySelectorAll('.technique-preset');
-        const proTechniques = ['flow', 'marathon', 'deepwork'];
+        const proTechniques = [];
         const freeTechniques = ['sprint', 'focus'];
         
         techniquePresets.forEach(preset => {
@@ -6788,7 +6788,7 @@ class PomodoroTimer {
     }
 
     updateDropdownItemsState() {
-        const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
+        const proTechniques = ['custom'];
         
         this.dropdownItems.forEach(item => {
             const technique = item.getAttribute('data-technique');
@@ -13942,7 +13942,7 @@ class PomodoroTimer {
                 }
                 
                 // Check if technique requires Pro
-                const proTechniques = ['flow', 'marathon', 'deepwork'];
+                const proTechniques = [];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
                     return; // Don't show modal, preset is already disabled
                 }
