@@ -8896,7 +8896,7 @@ input:checked + .toggle-slider:before {
 #tron-image-button {
     position: absolute !important;
     bottom: 20px !important;
-    left: 16px !important;
+    left: 80px !important;
     border-radius: 100px !important;
     background: rgba(255, 255, 255, 0.1) !important;
     border: none !important;
@@ -8904,6 +8904,10 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.9) !important;
     font-weight: 600 !important;
     transition: all 0.3s ease !important;
+    padding: 12px 20px !important;
+    min-width: 140px !important;
+    white-space: nowrap !important;
+    z-index: 1000 !important;
 }
 
 #tron-image-button:hover {
@@ -8916,15 +8920,19 @@ input:checked + .toggle-slider:before {
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 100%;
+    justify-content: center;
 }
 
 .tron-image-icon {
     font-size: 16px;
+    flex-shrink: 0;
 }
 
 .tron-image-text {
     font-weight: 500;
     font-size: 14px;
+    flex-shrink: 0;
 }
 
 /* Immersive Theme Panel Styles */

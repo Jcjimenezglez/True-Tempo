@@ -14474,19 +14474,7 @@ class PomodoroTimer {
             </div>
         `;
         
-        imageButton.style.cssText = `
-            position: absolute;
-            bottom: 20px;
-            left: var(--sidebar-collapsed-width);
-            padding: 12px 16px;
-            z-index: 1000;
-            cursor: pointer;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        `;
+        // Styles are handled by CSS - no inline styles needed
         
         // Hover effects are now handled by CSS
         
