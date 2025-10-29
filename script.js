@@ -5591,6 +5591,18 @@ class PomodoroTimer {
             lastCycleWasLegitimate = (this.actualFocusTimeCompleted >= this.requiredFocusTimeForCycle);
             if (lastCycleWasLegitimate) {
                 this.updateCycleCounter();
+                
+                // 🎯 Track Cycle Completed event to Mixpanel
+                if (window.mixpanelTracker) {
+                    const currentTechnique = this.getCurrentTechniqueName();
+                    const cycleDuration = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+                    const workSessions = this.cycleSections.filter(section => section.type === 'work').length;
+                    const shortBreaks = this.cycleSections.filter(section => section.type === 'break').length;
+                    const longBreaks = this.cycleSections.filter(section => section.type === 'long-break').length;
+                    
+                    window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
+                    console.log('📊 Cycle completed event tracked to Mixpanel');
+                }
             }
             // Reset focus time tracker for next cycle
             this.actualFocusTimeCompleted = 0;
@@ -14770,6 +14782,36 @@ class MixpanelTracker {
 
         console.log(`📊 Tracked session completion: ${sessionType}`, eventData);
         console.log(`📊 Event sent to Mixpanel: "Timer Session Completed" and "${specificEventName}"`);
+    }
+
+    trackCycleComplete(technique, cycleDuration, workSessions, shortBreaks, longBreaks) {
+        if (!this.isInitialized) {
+            console.warn('⚠️ MixpanelTracker not initialized');
+            return;
+        }
+
+        const eventData = {
+            technique: technique,
+            cycle_duration_seconds: cycleDuration,
+            cycle_duration_minutes: Math.round(cycleDuration / 60),
+            work_sessions: workSessions,
+            short_breaks: shortBreaks,
+            long_breaks: longBreaks,
+            total_sessions: workSessions + shortBreaks + longBreaks,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            page_url: window.location.href
+        };
+
+        // Track the cycle completion event
+        window.mixpanel.track('Cycle Completed', eventData);
+        
+        // Also track technique-specific cycle events for easier analysis
+        const techniqueEventName = `Cycle ${technique.charAt(0).toUpperCase() + technique.slice(1)} Completed`;
+        window.mixpanel.track(techniqueEventName, eventData);
+
+        console.log(`📊 Tracked cycle completion: ${technique}`, eventData);
+        console.log(`📊 Event sent to Mixpanel: "Cycle Completed" and "${techniqueEventName}"`);
     }
 
     trackUserLogin(method) {
