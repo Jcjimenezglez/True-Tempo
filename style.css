@@ -610,6 +610,9 @@ body::-webkit-scrollbar {
         top: 20px;
         right: 20px;
         left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
     
     /* Ensure hamburger and header buttons don't overlap */
