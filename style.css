@@ -1264,11 +1264,10 @@ body.is-scrolling .streak-fire {
     background: linear-gradient(135deg, #064e3b, #065f46);
     border: none;
     border-radius: 1000px;
-    padding: 8px 16px;
+    padding: 10.5px 16px;
     cursor: pointer;
     backdrop-filter: blur(4px);
     transition: all 0.3s ease;
-    width: 64px;
 }
 
 .subscribe-btn:hover {
