@@ -1187,7 +1187,7 @@ class PomodoroTimer {
                     <h3>Create timer</h3>
                     <p>Free users can have up to 1 custom timer. Upgrade to Pro for unlimited timers and unlock all productivity features!</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Upgrade to Pro</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Subscribe</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
                     </div>
                 </div>
@@ -2393,7 +2393,7 @@ class PomodoroTimer {
                             <img src="/images/todoist.svg" alt="Todoist" style="width: 48px; height: 48px;">
                         </div>
                     `,
-                    primaryText: this.isAuthenticated ? 'Upgrade to Pro' : 'Learn More',
+                    primaryText: this.isAuthenticated ? 'Subscribe' : 'Learn More',
                     secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
                 },
                 notion: {
@@ -2404,7 +2404,7 @@ class PomodoroTimer {
                             <img src="/images/notion.svg" alt="Notion" style="width: 48px; height: 48px;">
                         </div>
                     `,
-                    primaryText: this.isAuthenticated ? 'Upgrade to Pro' : 'Learn More',
+                    primaryText: this.isAuthenticated ? 'Subscribe' : 'Learn More',
                     secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
                 }
             };
@@ -2529,7 +2529,7 @@ class PomodoroTimer {
                 // Free user (authenticated but not Pro)
                 title.textContent = 'Task limit reached';
                 message.textContent = 'Free users can have up to 5 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
-                button.textContent = 'Upgrade to Pro';
+                button.textContent = 'Subscribe';
             }
             
             this.guestTaskLimitModalOverlay.style.display = 'flex';
@@ -3740,7 +3740,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Pro') {
+                } else if (text === 'Subscribe') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -8211,10 +8211,10 @@ class PomodoroTimer {
             buttonText = 'Sign up';
         } else if (isFree) {
             upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Upgrade to Pro';
+            buttonText = 'Subscribe';
         } else {
             upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Upgrade to Pro';
+            buttonText = 'Subscribe';
         }
         
         // Create overlay
