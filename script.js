@@ -14487,7 +14487,7 @@ class PomodoroTimer {
             });
             
             // Open the wallpaper site in a new tab
-            window.open('https://wallpapers.com/tron', '_blank');
+            window.open('https://wall.alphacoders.com/big.php?i=1395234', '_blank');
         });
         
         // Append to timer section instead of body

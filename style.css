@@ -8908,6 +8908,7 @@ input:checked + .toggle-slider:before {
     min-width: 140px !important;
     white-space: nowrap !important;
     z-index: 100 !important;
+    cursor: pointer !important;
 }
 
 #tron-image-button:hover {
