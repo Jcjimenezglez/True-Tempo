@@ -1086,60 +1086,15 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else if (this.isAuthenticated && this.user) {
-            // Free users can create 1 custom timer
-            console.log('🔍 Free user attempting to create custom timer');
-            console.log('🔍 isAuthenticated:', this.isAuthenticated);
-            console.log('🔍 user:', this.user);
-            console.log('🔍 isPremiumUser():', this.isPremiumUser());
+            // Free users - show Subscribe modal
+            this.trackEvent('Pro Feature Modal Shown', {
+                feature: 'custom_techniques',
+                source: 'create_custom_button',
+                user_type: 'free',
+                modal_type: 'upgrade_prompt'
+            });
             
-            // Check if there's already a custom timer in the array
-            const existingCustomTechniques = localStorage.getItem('customTechniques');
-            console.log('🔍 existingCustomTechniques:', existingCustomTechniques);
-            
-            let hasValidCustomTimer = false;
-            if (existingCustomTechniques) {
-                try {
-                    const parsed = JSON.parse(existingCustomTechniques);
-                    hasValidCustomTimer = Array.isArray(parsed) && parsed.length > 0;
-                    console.log('🔍 hasValidCustomTimer (array):', hasValidCustomTimer, 'count:', parsed.length);
-                } catch (e) {
-                    console.log('🔍 Invalid custom techniques data, ignoring');
-                    hasValidCustomTimer = false;
-                }
-            }
-            
-            if (hasValidCustomTimer) {
-                // Free user already has a custom timer - show upgrade modal
-                console.log('🚫 Free user already has custom timer, showing upgrade modal');
-                this.trackEvent('Pro Feature Modal Shown', {
-                    feature: 'custom_techniques',
-                    source: 'create_custom_button',
-                    user_type: 'free',
-                    modal_type: 'upgrade_prompt',
-                    reason: 'limit_reached'
-                });
-                
-                this.showCustomTechniqueProModal('You\'ve reached your limit of 1 custom timer. Upgrade to Pro for unlimited custom timers!');
-            } else {
-                // Free user can create their first custom timer
-                console.log('✅ Free user can create first custom timer');
-                const form = document.getElementById('customForm');
-                const createBtn = document.getElementById('createCustomBtn');
-                
-                if (form && createBtn) {
-                    form.style.display = 'block';
-                    createBtn.style.display = 'none';
-                    
-                    // Focus on name input
-                    const nameInput = document.getElementById('customName');
-                    if (nameInput) {
-                        setTimeout(() => nameInput.focus(), 100);
-                    }
-                    
-                    // Reset form and validate to ensure proper state
-                    this.resetCustomForm();
-                }
-            }
+            this.showCustomTechniqueProModal('Create custom focus techniques tailored to your workflow! Upgrade to Pro for unlimited custom timers and unlock all productivity features!');
         } else {
             // Guest users - show Pro Feature modal
             this.trackEvent('Pro Feature Modal Shown', {
@@ -6359,6 +6314,36 @@ class PomodoroTimer {
                     'Based on scientific research on attention spans'
                 ]
             },
+            'flow': {
+                name: 'Flow State',
+                description: 'Extended focus sessions for immersive work',
+                benefits: [
+                    '45-minute work sessions for deep focus',
+                    'Perfect for tasks requiring sustained attention',
+                    'Reduces interruptions and context switching',
+                    'Ideal for creative and complex projects'
+                ]
+            },
+            'marathon': {
+                name: 'Marathon',
+                description: 'Extended focus sessions for intensive work',
+                benefits: [
+                    '60-minute work sessions for maximum productivity',
+                    'Perfect for completing large projects',
+                    'Longer breaks for better recovery',
+                    'Ideal for deep work and intensive tasks'
+                ]
+            },
+            'deepwork': {
+                name: 'Deep Work',
+                description: 'Extended focus sessions for intensive cognitive work',
+                benefits: [
+                    '90-minute work sessions for maximum concentration',
+                    'Perfect for complex cognitive tasks',
+                    'Longer breaks for optimal recovery',
+                    'Based on Cal Newport\'s Deep Work methodology'
+                ]
+            },
             'custom': {
                 name: 'Custom Timer',
                 description: 'Create your own personalized focus technique',
@@ -6374,49 +6359,78 @@ class PomodoroTimer {
         const info = techniqueInfo[technique];
         if (!info) return;
         
-        // Create login required modal using upgrade modal styling
+        // Check if user is authenticated but not Pro (Free user)
+        const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
+        
+        // Create modal using upgrade modal styling
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
+        modalOverlay.className = 'logout-modal-overlay';
         
         const modal = document.createElement('div');
-        modal.className = 'upgrade-modal';
+        modal.className = 'logout-modal';
         
-        modal.innerHTML = `
-            <button class="close-upgrade-x" id="closeLoginRequiredModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
-                        <path d="M10 2v2"/>
-                        <path d="M14 2v2"/>
-                        <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
-                        <path d="M6 2v2"/>
+        if (isFreeUser) {
+            // Free user - show Subscribe modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeLoginRequiredModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <h3>${info.name}</h3>
+                    <p>${info.description}. Upgrade to Pro to unlock this advanced focus technique and all productivity features!</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Subscribe</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="dismissLoginRequiredBtn">Maybe later</button>
+                    </div>
                 </div>
-                <h3>${info.name}</h3>
-                <p>${info.description}. Create a free account to unlock this advanced focus technique.</p>
-                <div class="upgrade-features">
-                    ${info.benefits.map(benefit => `
-                        <div class="upgrade-feature">
-                            <span class="upgrade-feature-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 6 9 17l-5-5"/>
-                                </svg>
-                            </span>
-                            <span class="upgrade-feature-text">${benefit}</span>
-                        </div>
-                    `).join('')}
+            `;
+        } else {
+            // Guest user - show signup modal
+            modal.innerHTML = `
+                <button class="close-upgrade-x" id="closeLoginRequiredModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
+                            <path d="M10 2v2"/>
+                            <path d="M14 2v2"/>
+                            <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
+                            <path d="M6 2v2"/>
+                        </svg>
+                    </div>
+                    <h3>${info.name}</h3>
+                    <p>${info.description}. Create a free account to unlock this advanced focus technique.</p>
+                    <div class="upgrade-features">
+                        ${info.benefits.map(benefit => `
+                            <div class="upgrade-feature">
+                                <span class="upgrade-feature-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6 9 17l-5-5"/>
+                                    </svg>
+                                </span>
+                                <span class="upgrade-feature-text">${benefit}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="upgrade-required-buttons">
+                        <button class="upgrade-btn" id="loginRequiredSignupBtn">Sign up for free</button>
+                        <button class="cancel-btn" id="dismissLoginRequiredBtn">Maybe later</button>
+                    </div>
                 </div>
-                <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="loginRequiredSignupBtn">Sign up for free</button>
-                    <button class="cancel-btn" id="dismissLoginRequiredBtn">Maybe later</button>
-                </div>
-            </div>
-        `;
+            `;
+        }
         
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
@@ -6426,22 +6440,38 @@ class PomodoroTimer {
         document.body.style.overflow = 'hidden';
         
         // Add event listeners
-        document.getElementById('loginRequiredSignupBtn').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            this.signupButton.click();
-        });
+        if (isFreeUser) {
+            // Free user - Subscribe button
+            document.getElementById('loginRequiredSubscribeBtn').addEventListener('click', () => {
+                document.body.style.overflow = previousOverflow;
+                document.body.removeChild(modalOverlay);
+                window.location.href = '/pricing';
+            });
+        } else {
+            // Guest user - Signup button
+            document.getElementById('loginRequiredSignupBtn').addEventListener('click', () => {
+                document.body.style.overflow = previousOverflow;
+                document.body.removeChild(modalOverlay);
+                if (this.signupButton) {
+                    this.signupButton.click();
+                }
+            });
+        }
         
         document.getElementById('dismissLoginRequiredBtn').addEventListener('click', () => {
+            document.body.style.overflow = previousOverflow;
             document.body.removeChild(modalOverlay);
         });
-        
+
         document.getElementById('closeLoginRequiredModal').addEventListener('click', () => {
+            document.body.style.overflow = previousOverflow;
             document.body.removeChild(modalOverlay);
         });
-        
+
         // Close on overlay click
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
+                document.body.style.overflow = previousOverflow;
                 document.body.removeChild(modalOverlay);
             }
         });
@@ -6701,42 +6731,19 @@ class PomodoroTimer {
     }
 
     // Update technique presets visibility based on user type
+    // Note: All presets are visible, but Pro techniques show upgrade modal when clicked by non-Pro users
     updateTechniquePresetsVisibility() {
         const techniquePresets = document.querySelectorAll('.technique-preset');
-        const proTechniques = ['flow', 'marathon', 'deepwork'];
-        const freeTechniques = ['pomodoro', 'sprint', 'focus'];
         
         techniquePresets.forEach(preset => {
             const technique = preset.dataset.technique;
             if (!technique) return;
             
-            // Pomodoro: always visible
-            if (technique === 'pomodoro') {
-                preset.style.display = '';
-                preset.style.opacity = '1';
-                preset.style.pointerEvents = 'auto';
-            }
-            // Pro techniques: only visible for Pro users
-            else if (proTechniques.includes(technique)) {
-                if (this.isPremiumUser()) {
-                    preset.style.display = '';
-                    preset.style.opacity = '1';
-                    preset.style.pointerEvents = 'auto';
-                } else {
-                    preset.style.display = 'none';
-                }
-            }
-            // Free techniques (Sprint, Focus): visible for Free and Pro users
-            else if (freeTechniques.includes(technique)) {
-                if (this.isAuthenticated || this.isPremiumUser()) {
-                    preset.style.display = '';
-                    preset.style.opacity = '1';
-                    preset.style.pointerEvents = 'auto';
-                } else {
-                    // Guest: hide Sprint and Focus
-                    preset.style.display = 'none';
-                }
-            }
+            // All presets are visible to all users
+            // Visibility is controlled by CSS, but functionality is gated by user type
+            preset.style.display = '';
+            preset.style.opacity = '1';
+            preset.style.pointerEvents = 'auto';
         });
     }
 
@@ -13896,7 +13903,17 @@ class PomodoroTimer {
             }
             
             newPreset.addEventListener('click', () => {
-                // Check if technique requires authentication (all except pomodoro)
+                const technique = newPreset.dataset.technique;
+                
+                // Check if technique requires Pro
+                const proTechniques = ['flow', 'marathon', 'deepwork'];
+                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                    // Show upgrade modal for non-Pro users
+                    this.showLoginRequiredModal(technique);
+                    return;
+                }
+                
+                // Check if technique requires authentication (Sprint, Focus for guests)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
                     // Show technique modal for guest users
                     this.showTechniqueModal(technique);
