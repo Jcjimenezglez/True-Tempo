@@ -8896,7 +8896,7 @@ input:checked + .toggle-slider:before {
 #tron-image-button {
     position: absolute !important;
     bottom: 20px !important;
-    left: 80px !important;
+    left: 16px !important;
     border-radius: 100px !important;
     background: rgba(255, 255, 255, 0.1) !important;
     border: none !important;
