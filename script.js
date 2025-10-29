@@ -1255,11 +1255,12 @@ class PomodoroTimer {
             if (upgradeBtn) {
                 upgradeBtn.addEventListener('click', async () => {
                     // Track Create timer modal upgrade click
-                    this.trackEvent('Upgrade to Pro Clicked', {
-                        modal_type: 'create_timer',
-                        button_text: 'Upgrade to Pro',
+                    this.trackEvent('Subscribe Clicked', {
+                        button_type: 'subscribe',
+                        source: 'create_timer_modal',
+                        location: 'custom_timer_modal',
                         user_type: 'free',
-                        source: 'create_timer_modal'
+                        modal_type: 'create_timer'
                     });
                     
                     closeModal();
@@ -3126,9 +3127,11 @@ class PomodoroTimer {
         const subscribeBtn = document.getElementById('subscribeBtn');
         if (subscribeBtn) {
             subscribeBtn.addEventListener('click', () => {
-                this.trackEvent('Subscribe Button Clicked', {
+                this.trackEvent('Subscribe Clicked', {
                     button_type: 'subscribe',
-                    source: 'timer_header'
+                    source: 'timer_header',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    location: 'timer_header'
                 });
                 window.location.href = 'https://www.superfocus.live/pricing';
             });
@@ -3230,11 +3233,12 @@ class PomodoroTimer {
                 e.preventDefault();
                 
                 // Track Profile menu Upgrade to Pro click
-                this.trackEvent('Upgrade to Pro Clicked', {
-                    modal_type: 'profile_menu',
-                    button_text: 'Upgrade to Pro',
+                this.trackEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source: 'profile_dropdown',
+                    location: 'settings_dropdown',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
-                    source: 'profile_dropdown'
+                    modal_type: 'profile_menu'
                 });
                 
                 this.settingsDropdown.style.display = 'none';
@@ -3520,6 +3524,14 @@ class PomodoroTimer {
         const upgradeToProFromPricing = document.getElementById('upgradeToProFromPricing');
         if (upgradeToProFromPricing) {
             upgradeToProFromPricing.addEventListener('click', async () => {
+                // Track Pricing modal Subscribe click
+                this.trackEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source: 'pricing_modal',
+                    location: 'pricing_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    modal_type: 'pricing_modal'
+                });
                 this.hidePricingModal();
                 await this.handleUpgrade();
             });
@@ -3661,11 +3673,12 @@ class PomodoroTimer {
                 e.preventDefault();
                 
                 // Track Settings modal Upgrade to Pro click
-                this.trackEvent('Upgrade to Pro Clicked', {
-                    modal_type: 'settings_modal',
-                    button_text: 'Upgrade to Pro',
+                this.trackEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source: 'settings_modal',
+                    location: 'settings_modal',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
-                    source: 'settings_modal'
+                    modal_type: 'settings_modal'
                 });
                 
                 this.hideSettingsModal();
@@ -3828,11 +3841,12 @@ class PomodoroTimer {
                 // Check if user is authenticated (Free user trying to upgrade)
                 if (this.isAuthenticated) {
                     // Track Task limit modal upgrade click
-                    this.trackEvent('Upgrade to Pro Clicked', {
-                        modal_type: 'task_limit_reached',
-                        button_text: 'Upgrade to Pro',
-                        user_type: 'free',
+                    this.trackEvent('Subscribe Clicked', {
+                        button_type: 'subscribe',
                         source: 'task_limit_modal',
+                        location: 'task_limit_modal',
+                        user_type: 'free',
+                        modal_type: 'task_limit_reached',
                         task_count: this.getLocalTasks().length
                     });
                     
@@ -8282,11 +8296,13 @@ class PomodoroTimer {
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
             // Track which integration modal was clicked
-            this.trackEvent('Upgrade to Pro Clicked', {
-                modal_type: `${integrationType}_integration`,
-                button_text: buttonText,
+            this.trackEvent('Subscribe Clicked', {
+                button_type: 'subscribe',
+                source: 'integration_modal',
+                location: `${integrationType}_integration_modal`,
                 user_type: isGuest ? 'guest' : 'free',
-                source: 'integration_modal'
+                modal_type: `${integrationType}_integration`,
+                integration_type: integrationType
             });
             
             if (isGuest) {

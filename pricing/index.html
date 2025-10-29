@@ -816,6 +816,16 @@
                         timestamp: new Date().toISOString()
                     });
                     console.log('✅ Mixpanel tracking sent: Stripe Checkout Opened');
+                    
+                    // Also track as Subscribe Clicked for consistency
+                    window.mixpanel.track('Subscribe Clicked', {
+                        button_type: 'subscribe',
+                        source: 'pricing_page',
+                        location: 'pricing_page',
+                        user_type: isAuthenticated ? (isPremium ? 'pro' : 'free') : 'guest',
+                        modal_type: 'pricing_page'
+                    });
+                    console.log('✅ Mixpanel tracking sent: Subscribe Clicked');
                 } else {
                     console.log('❌ Mixpanel not available');
                 }
