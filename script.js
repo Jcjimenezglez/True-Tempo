@@ -1852,6 +1852,18 @@ class PomodoroTimer {
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
             if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'block';
             
+            // Show/hide Subscribe button based on user type
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            if (subscribeBtn) {
+                if (this.isPro) {
+                    // Hide Subscribe button for Pro users
+                    subscribeBtn.style.display = 'none';
+                } else {
+                    // Show Subscribe button for Free users
+                    subscribeBtn.style.display = 'flex';
+                }
+            }
+            
             // Hide content section and footer when authenticated (only show timer)
             const contentSection = document.querySelector('.content-section');
             const mainFooter = document.querySelector('.main-footer');
@@ -1948,6 +1960,12 @@ class PomodoroTimer {
             // Hide Focus Report header when not authenticated
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
             if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'none';
+            
+            // Hide Subscribe button for Guest users
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            if (subscribeBtn) {
+                subscribeBtn.style.display = 'none';
+            }
             
             // Show content section and footer when not authenticated (guest user)
             const contentSection = document.querySelector('.content-section');
@@ -3104,6 +3122,18 @@ class PomodoroTimer {
         if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         
+        // Subscribe button event listener
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        if (subscribeBtn) {
+            subscribeBtn.addEventListener('click', () => {
+                this.trackEvent('Subscribe Button Clicked', {
+                    button_type: 'subscribe',
+                    source: 'timer_header'
+                });
+                window.location.href = 'https://www.superfocus.live/pricing';
+            });
+        }
+
         // Streak button event listener
         const streakInfo = document.getElementById('streakInfo');
         if (streakInfo) {
