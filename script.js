@@ -14490,8 +14490,13 @@ class PomodoroTimer {
             window.open('https://wallpapers.com/tron', '_blank');
         });
         
-        // Append to body
-        document.body.appendChild(imageButton);
+        // Append to timer section instead of body
+        const timerSection = document.querySelector('.timer-section');
+        if (timerSection) {
+            timerSection.appendChild(imageButton);
+        } else {
+            document.body.appendChild(imageButton);
+        }
         this.tronImageButton = imageButton;
         
         console.log('🖼️ Tron image button created');

@@ -8894,7 +8894,7 @@ input:checked + .toggle-slider:before {
 
 /* Tron Image Button Styles */
 #tron-image-button {
-    position: fixed !important;
+    position: absolute !important;
     bottom: 20px !important;
     left: 80px !important;
     border-radius: 100px !important;
@@ -8907,7 +8907,7 @@ input:checked + .toggle-slider:before {
     padding: 12px 20px !important;
     min-width: 140px !important;
     white-space: nowrap !important;
-    z-index: 10002 !important;
+    z-index: 100 !important;
 }
 
 #tron-image-button:hover {
