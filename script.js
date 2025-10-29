@@ -1807,6 +1807,8 @@ class PomodoroTimer {
             this.updateFocusHoursDisplay();
             // Update premium UI
             this.updatePremiumUI();
+            // Update technique presets visibility
+            this.updateTechniquePresetsVisibility();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
             
@@ -2002,6 +2004,9 @@ class PomodoroTimer {
         
         // Update dropdown items disabled state
         this.updateDropdownItemsState();
+        
+        // Update technique presets visibility based on user type
+        this.updateTechniquePresetsVisibility();
     }
 
     // Close all open modals to focus on timer
@@ -2049,33 +2054,32 @@ class PomodoroTimer {
         const savedTechnique = localStorage.getItem('selectedTechnique');
         if (!savedTechnique) return;
         
-        // Check if the saved technique requires authentication
-        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        // Check if the saved technique requires Pro
+        const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
         if (proTechniques.includes(savedTechnique)) {
-            // Reset to default Pomodoro technique
-            const alreadyPomodoro = savedTechnique === 'pomodoro';
-            if (!alreadyPomodoro) {
+            // Reset to default Pomodoro technique if user is not Pro
+            if (!this.isPremiumUser()) {
                 localStorage.setItem('selectedTechnique', 'pomodoro');
-            }
-            
-            // Update UI to show Pomodoro
-            if (this.techniqueTitle) {
-                this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
-            }
-            
-            // Update dropdown selection to show check icon on Pomodoro
-            if (this.dropdownItems) {
-                this.dropdownItems.forEach(item => {
-                    item.classList.remove('selected');
-                    if (item.dataset.technique === 'pomodoro') {
-                        item.classList.add('selected');
-                    }
-                });
-            }
-            
-            // Load the default Pomodoro technique only if not already applied
-            if (this.currentTechniqueKey !== 'pomodoro') {
-                this.loadTechnique('pomodoro');
+                
+                // Update UI to show Pomodoro
+                if (this.techniqueTitle) {
+                    this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+                }
+                
+                // Update dropdown selection to show check icon on Pomodoro
+                if (this.dropdownItems) {
+                    this.dropdownItems.forEach(item => {
+                        item.classList.remove('selected');
+                        if (item.dataset.technique === 'pomodoro') {
+                            item.classList.add('selected');
+                        }
+                    });
+                }
+                
+                // Load the default Pomodoro technique only if not already applied
+                if (this.currentTechniqueKey !== 'pomodoro') {
+                    this.loadTechnique('pomodoro');
+                }
             }
         }
     }
@@ -3381,8 +3385,8 @@ class PomodoroTimer {
                 const technique = item.getAttribute('data-technique');
                 
                 // Check if technique requires authentication
-                const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
-                if (proTechniques.includes(technique) && !this.isAuthenticated) {
+                const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
+                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
                     e.preventDefault();
                     e.stopPropagation();
                     this.showLoginRequiredModal(technique);
@@ -4370,7 +4374,15 @@ class PomodoroTimer {
             newPreset.addEventListener('click', () => {
                 const technique = newPreset.dataset.technique;
                 
-                // Check if technique requires authentication (all except pomodoro)
+                // Check if technique requires Pro
+                const proTechniques = ['flow', 'marathon', 'deepwork'];
+                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                    // Show upgrade modal for non-Pro users
+                    this.showLoginRequiredModal(technique);
+                    return;
+                }
+                
+                // Check if technique requires authentication (Sprint, Focus for guests)
                 if (technique !== 'pomodoro' && !this.isAuthenticated) {
                     // Show technique modal for guest users
                     this.showTechniqueModal(technique);
@@ -5132,6 +5144,9 @@ class PomodoroTimer {
             // Integrations removed from menu
             // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
         }
+        
+        // Update technique presets visibility based on user type
+        this.updateTechniquePresetsVisibility();
     }
 
     async refreshPremiumFromServer() {
@@ -6658,23 +6673,23 @@ class PomodoroTimer {
 
     initializeDropdownItemsState() {
         // Initialize dropdown items state immediately to prevent flash of enabled state
-        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
         
         this.dropdownItems.forEach(item => {
             const technique = item.getAttribute('data-technique');
-            const requiresAccount = proTechniques.includes(technique);
+            const requiresPro = proTechniques.includes(technique);
             
-            if (requiresAccount) {
+            if (requiresPro) {
                 // Check if user is already authenticated (for immediate login scenarios)
-                if (this.isAuthenticated) {
-                    // Enable item for authenticated users
+                if (this.isPremiumUser()) {
+                    // Enable item for Pro users
                     item.classList.remove('disabled');
                     const loginBtn = item.querySelector('.login-btn');
                     if (loginBtn) {
                         loginBtn.style.display = 'none';
                     }
                 } else {
-                    // Start with disabled state for guest users (will be updated when auth state is known)
+                    // Start with disabled state for non-Pro users (will be updated when auth state is known)
                     item.classList.add('disabled');
                     const loginBtn = item.querySelector('.login-btn');
                     if (loginBtn) {
@@ -6685,14 +6700,54 @@ class PomodoroTimer {
         });
     }
 
+    // Update technique presets visibility based on user type
+    updateTechniquePresetsVisibility() {
+        const techniquePresets = document.querySelectorAll('.technique-preset');
+        const proTechniques = ['flow', 'marathon', 'deepwork'];
+        const freeTechniques = ['pomodoro', 'sprint', 'focus'];
+        
+        techniquePresets.forEach(preset => {
+            const technique = preset.dataset.technique;
+            if (!technique) return;
+            
+            // Pomodoro: always visible
+            if (technique === 'pomodoro') {
+                preset.style.display = '';
+                preset.style.opacity = '1';
+                preset.style.pointerEvents = 'auto';
+            }
+            // Pro techniques: only visible for Pro users
+            else if (proTechniques.includes(technique)) {
+                if (this.isPremiumUser()) {
+                    preset.style.display = '';
+                    preset.style.opacity = '1';
+                    preset.style.pointerEvents = 'auto';
+                } else {
+                    preset.style.display = 'none';
+                }
+            }
+            // Free techniques (Sprint, Focus): visible for Free and Pro users
+            else if (freeTechniques.includes(technique)) {
+                if (this.isAuthenticated || this.isPremiumUser()) {
+                    preset.style.display = '';
+                    preset.style.opacity = '1';
+                    preset.style.pointerEvents = 'auto';
+                } else {
+                    // Guest: hide Sprint and Focus
+                    preset.style.display = 'none';
+                }
+            }
+        });
+    }
+
     updateDropdownItemsState() {
-        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        const proTechniques = ['flow', 'marathon', 'deepwork', 'custom'];
         
         this.dropdownItems.forEach(item => {
             const technique = item.getAttribute('data-technique');
-            const requiresAccount = proTechniques.includes(technique);
+            const requiresPro = proTechniques.includes(technique);
             
-            if (requiresAccount) {
+            if (requiresPro) {
                 // If auth readiness isn't known yet, keep items disabled to avoid flicker
                 if (!this.authReady) {
                     item.classList.add('disabled');
@@ -6700,15 +6755,15 @@ class PomodoroTimer {
                     if (loginBtn) loginBtn.style.display = 'block';
                     return;
                 }
-                if (this.isAuthenticated) {
-                    // Enable item for authenticated users
+                if (this.isPremiumUser()) {
+                    // Enable item for Pro users
                     item.classList.remove('disabled');
                     const loginBtn = item.querySelector('.login-btn');
                     if (loginBtn) {
                         loginBtn.style.display = 'none';
                     }
                 } else {
-                    // Disable item for non-authenticated users
+                    // Disable item for non-Pro users
                     item.classList.add('disabled');
                     const loginBtn = item.querySelector('.login-btn');
                     if (loginBtn) {
