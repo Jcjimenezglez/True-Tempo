@@ -3693,7 +3693,14 @@ class PomodoroTimer {
             this.dailyLimitSubscribeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideDailyLimitModal();
-                this.handleUpgradeToPro();
+                try {
+                    this.trackEvent && this.trackEvent('Subscribe Clicked', {
+                        button_type: 'subscribe',
+                        source: 'daily_limit_modal',
+                        user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest'
+                    });
+                } catch (_) {}
+                window.open('/pricing/', '_blank');
             });
         }
         
