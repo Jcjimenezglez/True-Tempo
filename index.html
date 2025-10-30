@@ -1126,6 +1126,33 @@
             </div>
         </div>
     </div>
+    
+    <!-- Daily Focus Limit Modal (Free/Guest) -->
+    <div class="logout-modal-overlay" id="dailyLimitModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeDailyLimitModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-8">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title" id="dailyLimitTitle">Daily limit reached</h3>
+                <p class="logout-modal-message" id="dailyLimitMessage">Great job! Free users have a 2‑hour daily focus limit. Pro users get unlimited daily usage and access to all techniques.</p>
+                <p class="logout-modal-message" id="dailyLimitCountdown" style="margin-top: 6px; opacity: 0.9;">Your timer will be available again soon…</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Subscribe</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Feedback Modal -->
     <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">

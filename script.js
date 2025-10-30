@@ -46,6 +46,23 @@ class PomodoroTimer {
             this.focusSecondsToday = 0;
         }
 
+        // Daily focus cap for non‑Pro users (in seconds) and cooldown
+        this.DAILY_FOCUS_LIMIT_SECONDS = 120 * 60; // 2 hours
+        this.FOCUS_LIMIT_COOLDOWN_MS = 22 * 60 * 60 * 1000; // 22 hours
+        
+        // Load cooldown timestamp (if any) and prune if expired
+        try {
+            const rawUntil = localStorage.getItem('focusLimitCooldownUntil');
+            this.focusLimitCooldownUntil = rawUntil ? parseInt(rawUntil, 10) : 0;
+            if (isNaN(this.focusLimitCooldownUntil)) this.focusLimitCooldownUntil = 0;
+            if (this.focusLimitCooldownUntil && Date.now() >= this.focusLimitCooldownUntil) {
+                this.focusLimitCooldownUntil = 0;
+                localStorage.removeItem('focusLimitCooldownUntil');
+            }
+        } catch (_) {
+            this.focusLimitCooldownUntil = 0;
+        }
+
         // Task execution queue (built from selected tasks and their session counts)
         this.taskQueue = [];
         this.currentTaskIndex = 0;
@@ -123,6 +140,13 @@ class PomodoroTimer {
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
         this.nextSectionBtn = document.getElementById('nextSectionBtn');
+        // Daily limit modal elements
+        this.dailyLimitModalOverlay = document.getElementById('dailyLimitModalOverlay');
+        this.dailyLimitSubscribeBtn = document.getElementById('dailyLimitSubscribeBtn');
+        this.dailyLimitLaterBtn = document.getElementById('dailyLimitLaterBtn');
+        this.closeDailyLimitModalX = document.getElementById('closeDailyLimitModalX');
+        this.dailyLimitCountdownEl = document.getElementById('dailyLimitCountdown');
+        this.dailyLimitCountdownTimer = null;
         this.musicToggleBtn = document.getElementById('musicToggleBtn');
         this.taskToggleBtn = document.getElementById('taskToggleBtn');
         this.progressSegments = document.querySelectorAll('.progress-segment');
@@ -2508,6 +2532,67 @@ class PomodoroTimer {
         }
     }
     
+    // Daily focus limit helpers
+    hasReachedDailyFocusLimit() {
+        // Pro users are unlimited; guests and free users are limited
+        const isLimitedUser = !this.isPremiumUser();
+        if (!isLimitedUser) return false;
+        // If cooldown is active, limit is reached
+        return !!this.focusLimitCooldownUntil && Date.now() < this.focusLimitCooldownUntil;
+    }
+    
+    showDailyLimitModal() {
+        if (!this.dailyLimitModalOverlay) return;
+        // Always pause and block controls while visible
+        this.pauseTimerSilent();
+        this.dailyLimitModalOverlay.style.display = 'flex';
+        // Start countdown updates
+        this.startDailyLimitCountdown();
+        // Keep controls clickable; Start will re-open modal via guard in startTimer
+    }
+    
+    hideDailyLimitModal() {
+        if (!this.dailyLimitModalOverlay) return;
+        this.dailyLimitModalOverlay.style.display = 'none';
+        this.stopDailyLimitCountdown();
+    }
+
+    // Countdown handling for daily limit modal
+    startDailyLimitCountdown() {
+        if (!this.dailyLimitCountdownEl) return;
+        this.stopDailyLimitCountdown();
+        const update = () => {
+            // If cooldown expired, clear and close
+            if (!this.focusLimitCooldownUntil || Date.now() >= this.focusLimitCooldownUntil) {
+                this.focusLimitCooldownUntil = 0;
+                try { localStorage.removeItem('focusLimitCooldownUntil'); } catch (_) {}
+                this.dailyLimitCountdownEl.textContent = 'You can start now.';
+                this.hideDailyLimitModal();
+                return;
+            }
+            const remainingMs = this.focusLimitCooldownUntil - Date.now();
+            this.dailyLimitCountdownEl.textContent = `Your timer will be available again in ${this.formatMsHHMMSS(remainingMs)}.`;
+        };
+        update();
+        this.dailyLimitCountdownTimer = setInterval(update, 1000);
+    }
+    stopDailyLimitCountdown() {
+        if (this.dailyLimitCountdownTimer) {
+            clearInterval(this.dailyLimitCountdownTimer);
+            this.dailyLimitCountdownTimer = null;
+        }
+    }
+    formatMsHHMMSS(ms) {
+        const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+    }
+    
     
     
     
@@ -3599,6 +3684,32 @@ class PomodoroTimer {
             this.logoutButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.showLogoutModal();
+            });
+        }
+
+        // Wire daily limit modal buttons
+        if (this.dailyLimitSubscribeBtn && !this.dailyLimitSubscribeBtn.hasAttribute('data-bound')) {
+            this.dailyLimitSubscribeBtn.setAttribute('data-bound', 'true');
+            this.dailyLimitSubscribeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideDailyLimitModal();
+                this.handleUpgradeToPro();
+            });
+        }
+        
+        // If user already at limit when loading, ensure modal will show on Start (we don't disable Start)
+        if (this.dailyLimitLaterBtn && !this.dailyLimitLaterBtn.hasAttribute('data-bound')) {
+            this.dailyLimitLaterBtn.setAttribute('data-bound', 'true');
+            this.dailyLimitLaterBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideDailyLimitModal();
+            });
+        }
+        if (this.closeDailyLimitModalX && !this.closeDailyLimitModalX.hasAttribute('data-bound')) {
+            this.closeDailyLimitModalX.setAttribute('data-bound', 'true');
+            this.closeDailyLimitModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideDailyLimitModal();
             });
         }
 
@@ -5223,6 +5334,13 @@ class PomodoroTimer {
     }
     
     startTimer() {
+        // Enforce daily focus limit for non‑Pro users
+        if (this.hasReachedDailyFocusLimit()) {
+            this.pauseTimerSilent();
+            this.showDailyLimitModal();
+            return;
+        }
+        
         // Check if Tron theme is active and widget is not ready
         // Widget is visible and ready, no checks needed
         
@@ -5305,6 +5423,16 @@ class PomodoroTimer {
             // Realtime tracking: focus-only for total focus time
             if (this.currentSection % 2 === 1) {
                 this.addFocusTime(1);
+                // If user crosses the 120-minute threshold now, start cooldown
+                if (!this.isPremiumUser() && (this.focusSecondsToday || 0) >= this.DAILY_FOCUS_LIMIT_SECONDS && !this.focusLimitCooldownUntil) {
+                    this.focusLimitCooldownUntil = Date.now() + this.FOCUS_LIMIT_COOLDOWN_MS;
+                    try { localStorage.setItem('focusLimitCooldownUntil', String(this.focusLimitCooldownUntil)); } catch (_) {}
+                }
+                if (this.hasReachedDailyFocusLimit()) {
+                    this.pauseTimer();
+                    this.showDailyLimitModal();
+                    return; // stop ticking further
+                }
             }
             // Realtime tracking: technique time (focus + breaks) for Most Used Technique
             this.addTechniqueTime(1);
