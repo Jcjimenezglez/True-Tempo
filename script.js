@@ -2546,6 +2546,16 @@ class PomodoroTimer {
         // Always pause and block controls while visible
         this.pauseTimerSilent();
         this.dailyLimitModalOverlay.style.display = 'flex';
+        // 🎯 Track Daily Limit Modal Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            const focusMinutesUsed = Math.floor((this.focusSecondsToday || 0) / 60);
+            window.mixpanelTracker.trackCustomEvent('Daily Limit Modal Opened', {
+                focus_minutes_used: focusMinutesUsed,
+                user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest',
+                cooldown_remaining_ms: this.focusLimitCooldownUntil ? Math.max(0, this.focusLimitCooldownUntil - Date.now()) : 0
+            });
+            console.log('📊 Daily limit modal opened event tracked to Mixpanel');
+        }
         // Start countdown updates
         this.startDailyLimitCountdown();
         // Keep controls clickable; Start will re-open modal via guard in startTimer
@@ -3693,6 +3703,17 @@ class PomodoroTimer {
             this.dailyLimitSubscribeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideDailyLimitModal();
+                // 🎯 Track Daily Limit Subscribe Click event to Mixpanel
+                if (window.mixpanelTracker) {
+                    const focusMinutesUsed = Math.floor((this.focusSecondsToday || 0) / 60);
+                    window.mixpanelTracker.trackCustomEvent('Daily Limit Subscribe Clicked', {
+                        focus_minutes_used: focusMinutesUsed,
+                        user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest',
+                        cooldown_remaining_ms: this.focusLimitCooldownUntil ? Math.max(0, this.focusLimitCooldownUntil - Date.now()) : 0,
+                        source: 'daily_limit_modal'
+                    });
+                    console.log('📊 Daily limit subscribe clicked event tracked to Mixpanel');
+                }
                 try {
                     this.trackEvent && this.trackEvent('Subscribe Clicked', {
                         button_type: 'subscribe',
