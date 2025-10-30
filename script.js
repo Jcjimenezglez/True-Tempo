@@ -5109,6 +5109,31 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
+    // Missing music pause methods
+    pausePlaylist() {
+        // Generic pause method for background music
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.lofiPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseNatureSound() {
+        // Pause nature sounds if playing
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.naturePlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseTronMusic() {
+        // Pause Tron music if playing
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        // Reset any Tron-specific music state if needed
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
     nextLofiTrack() {
         if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0 || !this.backgroundAudio) return;
         
