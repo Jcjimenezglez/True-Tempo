@@ -824,16 +824,30 @@
                 // 🎯 TRACKING: Subscribe Clicked to Google Ads for Performance Max optimization
                 if (typeof gtag !== 'undefined') {
                     try {
+                        const userType = isAuthenticated ? (isPremium ? 'pro' : 'free') : 'guest';
+                        
+                        // Track as engagement event
                         gtag('event', 'subscribe_clicked', {
                             'event_category': 'engagement',
                             'event_label': 'pricing_page',
                             'source': 'pricing_page',
-                            'user_type': isAuthenticated ? (isPremium ? 'pro' : 'free') : 'guest',
+                            'user_type': userType,
                             'value': 0.1, // Intent value (not conversion)
                             'currency': 'USD',
                             'non_interaction': false
                         });
+                        
+                        // Track Google Ads conversion event (for conversion tracking)
+                        gtag('event', 'conversion', {
+                            'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                            'value': 1.0,
+                            'currency': 'USD',
+                            'source': 'pricing_page',
+                            'user_type': userType
+                        });
+                        
                         console.log('✅ Subscribe Clicked tracked to Google Ads: pricing_page');
+                        console.log('✅ Google Ads conversion event sent');
                     } catch (error) {
                         console.error('❌ Error tracking to Google Ads:', error);
                     }

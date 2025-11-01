@@ -360,7 +360,17 @@ class PomodoroTimer {
                     'non_interaction': false
                 });
                 
+                // Track Google Ads conversion event (for conversion tracking)
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                    'value': 1.0,
+                    'currency': 'USD',
+                    'source': source,
+                    'user_type': userType
+                });
+                
                 console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
+                console.log('✅ Google Ads conversion event sent');
             } catch (error) {
                 console.error('❌ Error tracking to Google Ads:', error);
             }
