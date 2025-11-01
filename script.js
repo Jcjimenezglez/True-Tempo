@@ -342,6 +342,33 @@ class PomodoroTimer {
         }
     }
     
+    // Track Subscribe Clicked to Google Ads (for Performance Max optimization)
+    trackSubscribeClickedToGoogleAds(properties = {}) {
+        if (typeof gtag !== 'undefined') {
+            try {
+                const source = properties.source || 'unknown';
+                const userType = properties.user_type || (this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest');
+                
+                // Track as engagement event (intent signal, not conversion)
+                gtag('event', 'subscribe_clicked', {
+                    'event_category': 'engagement',
+                    'event_label': source,
+                    'source': source,
+                    'user_type': userType,
+                    'value': 0.1, // Intent value (not conversion)
+                    'currency': 'USD',
+                    'non_interaction': false
+                });
+                
+                console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
+            } catch (error) {
+                console.error('❌ Error tracking to Google Ads:', error);
+            }
+        } else {
+            console.warn('⚠️ gtag not available for Google Ads tracking');
+        }
+    }
+    
     getCurrentTaskCount() {
         try {
             const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -1234,13 +1261,17 @@ class PomodoroTimer {
             if (upgradeBtn) {
                 upgradeBtn.addEventListener('click', async () => {
                     // Track Create timer modal upgrade click
-                    this.trackEvent('Subscribe Clicked', {
+                    const eventProperties = {
                         button_type: 'subscribe',
                         source: 'create_timer_modal',
                         location: 'custom_timer_modal',
                         user_type: 'free',
                         modal_type: 'create_timer'
-                    });
+                    };
+                    this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds(eventProperties);
                     
                     closeModal();
                     // Redirect directly to Stripe checkout
@@ -3181,12 +3212,17 @@ class PomodoroTimer {
         const subscribeBtn = document.getElementById('subscribeBtn');
         if (subscribeBtn) {
             subscribeBtn.addEventListener('click', () => {
-                this.trackEvent('Subscribe Clicked', {
+                const eventProperties = {
                     button_type: 'subscribe',
                     source: 'timer_header',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     location: 'timer_header'
-                });
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
+                
                 window.location.href = 'https://www.superfocus.live/pricing';
             });
         }
@@ -3287,13 +3323,17 @@ class PomodoroTimer {
                 e.preventDefault();
                 
                 // Track Profile menu Upgrade to Pro click
-                this.trackEvent('Subscribe Clicked', {
+                const eventProperties = {
                     button_type: 'subscribe',
                     source: 'profile_dropdown',
                     location: 'settings_dropdown',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     modal_type: 'profile_menu'
-                });
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
                 
                 this.settingsDropdown.style.display = 'none';
                 window.location.href = '/pricing';
@@ -3579,13 +3619,18 @@ class PomodoroTimer {
         if (upgradeToProFromPricing) {
             upgradeToProFromPricing.addEventListener('click', async () => {
                 // Track Pricing modal Subscribe click
-                this.trackEvent('Subscribe Clicked', {
+                const eventProperties = {
                     button_type: 'subscribe',
                     source: 'pricing_modal',
                     location: 'pricing_modal',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     modal_type: 'pricing_modal'
-                });
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
+                
                 this.hidePricingModal();
                 await this.handleUpgrade();
             });
@@ -3715,11 +3760,15 @@ class PomodoroTimer {
                     console.log('📊 Daily limit subscribe clicked event tracked to Mixpanel');
                 }
                 try {
-                    this.trackEvent && this.trackEvent('Subscribe Clicked', {
+                    const eventProperties = {
                         button_type: 'subscribe',
                         source: 'daily_limit_modal',
                         user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest'
-                    });
+                    };
+                    this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds && this.trackSubscribeClickedToGoogleAds(eventProperties);
                 } catch (_) {}
                 window.open('/pricing/', '_blank');
             });
@@ -3771,13 +3820,17 @@ class PomodoroTimer {
                 e.preventDefault();
                 
                 // Track Settings modal Upgrade to Pro click
-                this.trackEvent('Subscribe Clicked', {
+                const eventProperties = {
                     button_type: 'subscribe',
                     source: 'settings_modal',
                     location: 'settings_modal',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     modal_type: 'settings_modal'
-                });
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
                 
                 this.hideSettingsModal();
                 window.location.href = '/pricing';
@@ -3939,14 +3992,18 @@ class PomodoroTimer {
                 // Check if user is authenticated (Free user trying to upgrade)
                 if (this.isAuthenticated) {
                     // Track Task limit modal upgrade click
-                    this.trackEvent('Subscribe Clicked', {
+                    const eventProperties = {
                         button_type: 'subscribe',
                         source: 'task_limit_modal',
                         location: 'task_limit_modal',
                         user_type: 'free',
                         modal_type: 'task_limit_reached',
                         task_count: this.getLocalTasks().length
-                    });
+                    };
+                    this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds(eventProperties);
                     
                     // Redirect to upgrade flow
                     await this.handleUpgrade();
@@ -8591,14 +8648,18 @@ class PomodoroTimer {
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
             // Track which integration modal was clicked
-            this.trackEvent('Subscribe Clicked', {
+            const eventProperties = {
                 button_type: 'subscribe',
                 source: 'integration_modal',
                 location: `${integrationType}_integration_modal`,
                 user_type: isGuest ? 'guest' : 'free',
                 modal_type: `${integrationType}_integration`,
                 integration_type: integrationType
-            });
+            };
+            this.trackEvent('Subscribe Clicked', eventProperties);
+            
+            // Track to Google Ads for Performance Max optimization
+            this.trackSubscribeClickedToGoogleAds(eventProperties);
             
             if (isGuest) {
                 // Guest user - show signup

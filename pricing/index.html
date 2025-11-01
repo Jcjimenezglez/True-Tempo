@@ -821,6 +821,26 @@
                     console.log('❌ Mixpanel not available');
                 }
                 
+                // 🎯 TRACKING: Subscribe Clicked to Google Ads for Performance Max optimization
+                if (typeof gtag !== 'undefined') {
+                    try {
+                        gtag('event', 'subscribe_clicked', {
+                            'event_category': 'engagement',
+                            'event_label': 'pricing_page',
+                            'source': 'pricing_page',
+                            'user_type': isAuthenticated ? (isPremium ? 'pro' : 'free') : 'guest',
+                            'value': 0.1, // Intent value (not conversion)
+                            'currency': 'USD',
+                            'non_interaction': false
+                        });
+                        console.log('✅ Subscribe Clicked tracked to Google Ads: pricing_page');
+                    } catch (error) {
+                        console.error('❌ Error tracking to Google Ads:', error);
+                    }
+                } else {
+                    console.warn('⚠️ gtag not available for Google Ads tracking');
+                }
+                
                 if (isPremium) {
                     // Already pro
                     console.log('User already has Pro');
