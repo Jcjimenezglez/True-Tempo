@@ -103,6 +103,8 @@ module.exports = async (req, res) => {
 async function handleCheckoutCompleted(session, clerk) {
   const customerId = session.customer;
   const clerkUserId = session.metadata?.clerk_user_id;
+  const paymentType = session.metadata?.payment_type;
+  const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
 
   if (!customerId) {
     console.log('Missing customer ID in checkout session');
@@ -135,6 +137,27 @@ async function handleCheckoutCompleted(session, clerk) {
       return;
     }
 
+    // For lifetime deals, mark as premium permanently
+    if (isLifetime) {
+      await clerk.users.updateUser(targetUserId, {
+        publicMetadata: {
+          stripeCustomerId: customerId,
+          isPremium: true,
+          premiumSince: new Date().toISOString(),
+          paymentType: 'lifetime',
+          isLifetime: true,
+        },
+      });
+
+      console.log(`Updated Clerk user ${targetUserId} with LIFETIME premium status`);
+      
+      // Track lifetime deal conversion server-side
+      await trackConversionServerSide('subscription', 9.99, session.id);
+      
+      return; // Don't process as subscription
+    }
+
+    // For subscriptions (backward compatibility)
     // Update Clerk user with Stripe customer ID and premium status
     await clerk.users.updateUser(targetUserId, {
       publicMetadata: {
