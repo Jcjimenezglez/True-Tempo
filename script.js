@@ -1871,7 +1871,7 @@ class PomodoroTimer {
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'none';
             
-            // Show Focus Report header when authenticated
+            // Show Report header when authenticated
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
             if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'block';
             
@@ -1885,6 +1885,12 @@ class PomodoroTimer {
                     // Show Subscribe button for Free users
                     subscribeBtn.style.display = 'flex';
                 }
+            }
+
+            // Sync stats to Clerk on authentication
+            const stats = this.getFocusStats();
+            if (stats.totalHours) {
+                this.syncStatsToClerk(stats.totalHours);
             }
             
             // Hide content section and footer when authenticated (only show timer)
@@ -1980,7 +1986,7 @@ class PomodoroTimer {
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'block';
             
-            // Hide Focus Report header when not authenticated
+            // Hide Report header when not authenticated
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
             if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'none';
             
@@ -3241,8 +3247,8 @@ class PomodoroTimer {
         const streakInfo = document.getElementById('streakInfo');
         if (streakInfo) {
             streakInfo.addEventListener('click', () => {
-                this.trackEvent('Focus Report Clicked', {
-                    button_type: 'focus_report',
+                this.trackEvent('Report Clicked', {
+                    button_type: 'report',
                     source: 'timer_header'
                 });
                 this.showStreakInfo();
@@ -3381,7 +3387,7 @@ class PomodoroTimer {
         //     });
         // }
         
-        // Settings dropdown - Focus Report (Guest) - REMOVED
+        // Settings dropdown - Report (Guest) - REMOVED
         // Guest users can now use the streak-info button directly
         // if (this.settingsStatisticsGuestBtn) {
         //     this.settingsStatisticsGuestBtn.addEventListener('click', (e) => {
@@ -11067,6 +11073,9 @@ class PomodoroTimer {
         // Save to localStorage
         localStorage.setItem('focusStats', JSON.stringify(stats));
 
+        // Sync stats to Clerk (async, don't wait)
+        this.syncStatsToClerk(stats.totalHours);
+
         // Update display in real-time
         this.updateFocusHoursDisplay();
     }
@@ -11117,6 +11126,9 @@ class PomodoroTimer {
         
         // Save back to localStorage
         localStorage.setItem('focusStats', JSON.stringify(stats));
+
+        // Sync stats to Clerk (async, don't wait)
+        this.syncStatsToClerk(stats.totalHours);
     }
 
     getFocusStats() {
@@ -11245,7 +11257,7 @@ class PomodoroTimer {
     }
 
     showGuestStreakModal() {
-        // Redirect to the full guest focus report teaser with 4 graphs
+        // Redirect to the full guest report teaser with 4 graphs
         this.showGuestFocusReportTeaser();
     }
 
@@ -11392,7 +11404,7 @@ class PomodoroTimer {
                 </svg>
             </button>
             <div class="upgrade-content">
-                <h3>Focus Report</h3>
+                <h3>Report</h3>
                 <p>Your productivity summary</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
@@ -11449,6 +11461,292 @@ class PomodoroTimer {
                 document.body.removeChild(modalOverlay);
             }
         });
+    }
+
+    async syncStatsToClerk(totalHours) {
+        // Only sync if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/sync-stats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ totalHours })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to sync stats to Clerk');
+            }
+        } catch (error) {
+            console.error('Error syncing stats to Clerk:', error);
+        }
+    }
+
+    async loadLeaderboard(modalElement) {
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/leaderboard', {
+                method: 'GET',
+                headers: {
+                    'x-clerk-userid': this.user.id
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch leaderboard');
+            }
+
+            const data = await response.json();
+            if (data.success && data.leaderboard) {
+                this.displayLeaderboard(modalElement, data.leaderboard, data.currentUserPosition);
+            }
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
+        }
+    }
+
+    async loadLeaderboardForPanel() {
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            if (leaderboardContent) {
+                leaderboardContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Please log in to view the leaderboard.
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const leaderboardContent = document.getElementById('leaderboardContent');
+        if (!leaderboardContent) return;
+
+        // Show loading state
+        leaderboardContent.innerHTML = `
+            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                Loading leaderboard...
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/leaderboard', {
+                method: 'GET',
+                headers: {
+                    'x-clerk-userid': this.user.id
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch leaderboard');
+            }
+
+            const data = await response.json();
+            if (data.success && data.leaderboard) {
+                this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition);
+            } else {
+                leaderboardContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Failed to load leaderboard.
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
+            leaderboardContent.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    Error loading leaderboard. Please try again later.
+                </div>
+            `;
+        }
+    }
+
+    displayLeaderboardInPanel(containerElement, leaderboard, currentUserPosition) {
+        // Find current user's stats
+        const stats = this.getFocusStats();
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const userTimeString = `${hours}h ${minutes}m`;
+
+        let html = '';
+
+        // Header with user position
+        if (currentUserPosition) {
+            html += `
+                <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                    <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
+                    <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${leaderboard.length} total users</div>
+                </div>
+            `;
+        }
+
+        // Leaderboard list
+        const topUsers = leaderboard.slice(0, 20); // Show top 20
+        
+        if (topUsers.length === 0) {
+            html += `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    No users yet. Be the first!
+                </div>
+            `;
+        } else {
+            html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            html += topUsers.map((user, index) => {
+                const isCurrentUser = user.isCurrentUser;
+                const userHours = Math.floor(user.totalFocusHours);
+                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
+                const userTimeStr = `${userHours}h ${userMinutes}m`;
+                
+                // Medal emojis for top 3
+                let rankDisplay = `${index + 1}.`;
+                if (index === 0) rankDisplay = '🥇 1.';
+                else if (index === 1) rankDisplay = '🥈 2.';
+                else if (index === 2) rankDisplay = '🥉 3.';
+
+                return `
+                    <div style="
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                        border-radius: 8px;
+                        border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
+                            <span style="color: ${isCurrentUser ? '#22c55e' : '#fff'}; font-size: 14px; font-weight: ${isCurrentUser ? '600' : '500'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${this.escapeHtml(user.username)}
+                            </span>
+                        </div>
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
+                    </div>
+                `;
+            }).join('');
+            html += '</div>';
+        }
+
+        containerElement.innerHTML = html;
+    }
+
+    displayLeaderboard(modalElement, leaderboard, currentUserPosition) {
+        const contentDiv = modalElement.querySelector('.upgrade-content');
+        if (!contentDiv) return;
+
+        // Find current user's stats
+        const stats = this.getFocusStats();
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const userTimeString = `${hours}h ${minutes}m`;
+
+        // Create leaderboard section
+        const leaderboardSection = document.createElement('div');
+        leaderboardSection.style.marginTop = '24px';
+        leaderboardSection.style.paddingTop = '24px';
+        leaderboardSection.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
+
+        // Leaderboard header
+        const leaderboardHeader = document.createElement('div');
+        leaderboardHeader.style.marginBottom = '16px';
+        leaderboardHeader.innerHTML = `
+            <h4 style="color: #fff; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Leaderboard</h4>
+            <p style="color: #a3a3a3; font-size: 14px; margin: 0;">
+                ${currentUserPosition ? `You're ranked #${currentUserPosition} of ${leaderboard.length}` : 'Top Focus Hours'}
+            </p>
+        `;
+        leaderboardSection.appendChild(leaderboardHeader);
+
+        // Leaderboard list container
+        const leaderboardList = document.createElement('div');
+        leaderboardList.style.maxHeight = '300px';
+        leaderboardList.style.overflowY = 'auto';
+        leaderboardList.style.borderRadius = '12px';
+        leaderboardList.style.background = '#1a1a1a';
+
+        // Show top 10 users
+        const topUsers = leaderboard.slice(0, 10);
+        
+        if (topUsers.length === 0) {
+            leaderboardList.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    No users yet. Be the first!
+                </div>
+            `;
+        } else {
+            leaderboardList.innerHTML = topUsers.map((user, index) => {
+                const isCurrentUser = user.isCurrentUser;
+                const userHours = Math.floor(user.totalFocusHours);
+                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
+                const userTimeStr = `${userHours}h ${userMinutes}m`;
+                
+                // Medal emojis for top 3
+                let rankDisplay = `${index + 1}.`;
+                if (index === 0) rankDisplay = '🥇 1.';
+                else if (index === 1) rankDisplay = '🥈 2.';
+                else if (index === 2) rankDisplay = '🥉 3.';
+
+                return `
+                    <div style="
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                        ${isCurrentUser ? 'background: rgba(34, 197, 94, 0.1); border-left: 3px solid #22c55e;' : ''}
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
+                            <span style="color: ${isCurrentUser ? '#22c55e' : '#fff'}; font-size: 14px; font-weight: ${isCurrentUser ? '600' : '500'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${this.escapeHtml(user.username)}
+                            </span>
+                        </div>
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        leaderboardSection.appendChild(leaderboardList);
+
+        // Add current user's position if not in top 10
+        if (currentUserPosition && currentUserPosition > 10) {
+            const currentUserRow = document.createElement('div');
+            currentUserRow.style.marginTop = '12px';
+            currentUserRow.style.padding = '12px 16px';
+            currentUserRow.style.background = 'rgba(34, 197, 94, 0.1)';
+            currentUserRow.style.borderRadius = '12px';
+            currentUserRow.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+            currentUserRow.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">#${currentUserPosition}</span>
+                        <span style="color: #22c55e; font-size: 14px; font-weight: 600;">You</span>
+                    </div>
+                    <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeString}</span>
+                </div>
+            `;
+            leaderboardSection.appendChild(currentUserRow);
+        }
+
+        contentDiv.appendChild(leaderboardSection);
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
     
     resetAllData() {
@@ -15298,6 +15596,8 @@ class SidebarManager {
         this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
         this.immersiveThemeSidePanel = document.getElementById('immersiveThemeSidePanel');
         this.immersiveThemePanelOverlay = document.getElementById('immersiveThemePanelOverlay');
+        this.leaderboardSidePanel = document.getElementById('leaderboardSidePanel');
+        this.leaderboardPanelOverlay = document.getElementById('leaderboardPanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -15305,6 +15605,7 @@ class SidebarManager {
         this.isTaskPanelOpen = false;
         this.isSettingsPanelOpen = false;
         this.isImmersiveThemePanelOpen = false;
+        this.isLeaderboardPanelOpen = false;
         
         this.init();
     }
@@ -15431,6 +15732,7 @@ class SidebarManager {
                     if (section === 'tasks') panelName = 'Tasks Panel';
                     else if (section === 'settings') panelName = 'Timer Panel';
                     else if (section === 'cassettes') panelName = 'Cassettes Panel';
+                    else if (section === 'leaderboard') panelName = 'Leaderboard Panel';
                     
                     window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
                         panel_name: panelName,
@@ -15454,13 +15756,14 @@ class SidebarManager {
             });
         });
         
-        // Overlay click to close sidebar AND all panels
+            // Overlay click to close sidebar AND all panels
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
                 this.hideMobile();
                 this.closeTaskPanel();
                 this.closeSettingsPanel();
                 this.closeImmersiveThemePanel();
+                this.closeLeaderboardPanel();
             });
         }
         
@@ -15630,6 +15933,10 @@ class SidebarManager {
             case 'immersive-theme':
                 // Toggle immersive theme side panel
                 this.toggleImmersiveThemePanel();
+                break;
+            case 'leaderboard':
+                // Toggle leaderboard side panel
+                this.toggleLeaderboardPanel();
                 break;
             case 'timer':
                 // Scroll to timer section
@@ -15832,6 +16139,90 @@ class SidebarManager {
             // Initialize immersive theme panel controls
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
+            }
+
+            // Initialize leaderboard panel
+            this.initializeLeaderboardPanel();
+        }
+    }
+
+    initializeLeaderboardPanel() {
+        // Close button
+        const closeBtn = document.getElementById('closeLeaderboardPanel');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+
+        // Overlay click to close
+        if (this.leaderboardPanelOverlay) {
+            this.leaderboardPanelOverlay.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+    }
+
+    toggleLeaderboardPanel() {
+        if (this.isLeaderboardPanelOpen) {
+            this.closeLeaderboardPanel();
+        } else {
+            this.openLeaderboardPanel();
+        }
+    }
+
+    openLeaderboardPanel() {
+        // Close other panels first
+        if (this.isTaskPanelOpen) this.closeTaskPanel();
+        if (this.isSettingsPanelOpen) this.closeSettingsPanel();
+        if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+
+        if (this.leaderboardSidePanel) {
+            this.leaderboardSidePanel.classList.add('open');
+            this.isLeaderboardPanelOpen = true;
+
+            // Show overlay
+            if (this.leaderboardPanelOverlay) {
+                this.leaderboardPanelOverlay.classList.add('active');
+            }
+
+            // Set active state on nav item
+            const leaderboardNavItem = document.querySelector('.nav-item[data-section="leaderboard"]');
+            if (leaderboardNavItem) {
+                leaderboardNavItem.classList.add('active');
+            }
+
+            // Adjust main content position
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+
+            // Load leaderboard
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.loadLeaderboardForPanel();
+            }
+        }
+    }
+
+    closeLeaderboardPanel() {
+        if (this.leaderboardSidePanel) {
+            this.leaderboardSidePanel.classList.remove('open');
+            this.isLeaderboardPanelOpen = false;
+
+            // Hide overlay
+            if (this.leaderboardPanelOverlay) {
+                this.leaderboardPanelOverlay.classList.remove('active');
+            }
+
+            // Remove active state from Leaderboard nav item
+            const leaderboardNavItem = document.querySelector('.nav-item[data-section="leaderboard"]');
+            if (leaderboardNavItem) {
+                leaderboardNavItem.classList.remove('active');
+            }
+
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
             }
         }
     }
