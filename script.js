@@ -7625,7 +7625,8 @@ class PomodoroTimer {
                     task_count: this.getLocalTasks().length
                 });
                 // Check task limit BEFORE showing the form
-                const currentTasks = this.getLocalTasks();
+                // Only count tasks in To-do (not completed), not tasks in Done
+                const currentTasks = this.getLocalTasks().filter(task => !task.completed);
                 
                 // Define limits based on user type
                 let taskLimit;
@@ -13651,7 +13652,8 @@ class PomodoroTimer {
                 });
                 
                 // Check task limit BEFORE showing the form
-                const currentTasks = this.getLocalTasks();
+                // Only count tasks in To-do (not completed), not tasks in Done
+                const currentTasks = this.getLocalTasks().filter(task => !task.completed);
                 
                 // Define limits based on user type
                 let taskLimit;
