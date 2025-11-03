@@ -11538,6 +11538,13 @@ class PomodoroTimer {
             </div>
         `;
 
+        // Sync local stats to Clerk if they exist (one-time sync for existing users)
+        const stats = this.getFocusStats();
+        if (stats.totalHours && stats.totalHours > 0) {
+            // Sync stats to ensure they're in Clerk (async, don't wait)
+            this.syncStatsToClerk(stats.totalHours);
+        }
+
         try {
             const response = await fetch('/api/leaderboard', {
                 method: 'GET',
@@ -11552,6 +11559,10 @@ class PomodoroTimer {
 
             const data = await response.json();
             if (data.success && data.leaderboard) {
+                // Log debug info if available
+                if (data.debug) {
+                    console.log('Leaderboard Debug:', data.debug);
+                }
                 this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition);
             } else {
                 leaderboardContent.innerHTML = `

@@ -63,11 +63,19 @@ module.exports = async (req, res) => {
       }
     }
 
+    // Include debug info
+    const debugInfo = {
+      totalUsersFound: allUsers.length,
+      usersWithHours: leaderboard.length,
+      usersWithoutHours: allUsers.length - leaderboard.length
+    };
+
     res.status(200).json({
       success: true,
       leaderboard: leaderboard,
       currentUserPosition: currentUserPosition,
-      totalUsers: leaderboard.length
+      totalUsers: leaderboard.length,
+      debug: debugInfo
     });
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
