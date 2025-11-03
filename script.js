@@ -1155,7 +1155,7 @@ class PomodoroTimer {
                 modal_type: 'upgrade_prompt'
             });
             
-            this.showCustomTechniqueProModal('Create custom timers tailored to your workflow! Subscribe to Pro to unlock this feature and all productivity tools.');
+            this.showCustomTechniqueProModal('Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
         } else {
             // Guest users - show Pro Feature modal
             this.trackEvent('Pro Feature Modal Shown', {
@@ -1201,9 +1201,9 @@ class PomodoroTimer {
                         </svg>
                     </div>
                     <h3>Create timer</h3>
-                    <p>Create custom timers tailored to your workflow! Subscribe to Pro to unlock this feature and all productivity tools.</p>
+                    <p>Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Subscribe</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Get Lifetime Access</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
                     </div>
                 </div>
@@ -1226,7 +1226,7 @@ class PomodoroTimer {
                         </svg>
                     </div>
                     <h3>Create Timer</h3>
-                    <p>Create custom timers tailored to your workflow! Subscribe to Pro to unlock this feature and all productivity tools.</p>
+                    <p>Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
@@ -2418,7 +2418,7 @@ class PomodoroTimer {
                             <img src="/images/todoist.svg" alt="Todoist" style="width: 48px; height: 48px;">
                         </div>
                     `,
-                    primaryText: this.isAuthenticated ? 'Subscribe' : 'Learn More',
+                    primaryText: this.isAuthenticated ? 'Get Lifetime Access' : 'Learn More',
                     secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
                 },
                 notion: {
@@ -2429,7 +2429,7 @@ class PomodoroTimer {
                             <img src="/images/notion.svg" alt="Notion" style="width: 48px; height: 48px;">
                         </div>
                     `,
-                    primaryText: this.isAuthenticated ? 'Subscribe' : 'Learn More',
+                    primaryText: this.isAuthenticated ? 'Get Lifetime Access' : 'Learn More',
                     secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
                 }
             };
@@ -2554,7 +2554,7 @@ class PomodoroTimer {
                 // Free user (authenticated but not Pro)
                 title.textContent = 'Task limit reached';
                 message.textContent = 'Free users can have up to 3 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
-                button.textContent = 'Subscribe';
+                button.textContent = 'Get Lifetime Access';
             }
             
             this.guestTaskLimitModalOverlay.style.display = 'flex';
@@ -3914,7 +3914,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Subscribe') {
+                } else if (text === 'Get Lifetime Access') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -4416,14 +4416,14 @@ class PomodoroTimer {
                             <div class="technique-icon">🌊</div>
                             <div class="technique-name">Flow State</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Subscribe required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
                             <div class="technique-desc">45min work, 15min break</div>
                         </button>
                         <button class="technique-preset" data-technique="deepwork">
                             <div class="technique-icon">🧠</div>
                             <div class="technique-name">Deep Work</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Subscribe required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
                             <div class="technique-desc">90min work, 20min break</div>
                         </button>
                         <button class="technique-preset" data-technique="sprint">
@@ -4436,7 +4436,7 @@ class PomodoroTimer {
                             <div class="technique-icon">🏃</div>
                             <div class="technique-name">Marathon</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Subscribe required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
                             <div class="technique-desc">60min work, 10min break</div>
                         </button>
                     </div>
@@ -6660,7 +6660,7 @@ class PomodoroTimer {
                     <h3>${info.name}</h3>
                     <p>${info.description}. Upgrade to Pro to unlock this advanced focus technique and all productivity features!</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Subscribe</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Get Lifetime Access</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="dismissLoginRequiredBtn">Maybe later</button>
                     </div>
                 </div>
@@ -8587,10 +8587,10 @@ class PomodoroTimer {
             buttonText = 'Sign up';
         } else if (isFree) {
             upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Subscribe';
+            buttonText = 'Get Lifetime Access';
         } else {
             upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Subscribe';
+            buttonText = 'Get Lifetime Access';
         }
         
         // Create overlay
