@@ -15987,6 +15987,9 @@ class SidebarManager {
             if (this.isImmersiveThemePanelOpen) {
                 this.closeImmersiveThemePanel();
             }
+            if (this.isLeaderboardPanelOpen) {
+                this.closeLeaderboardPanel();
+            }
             
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
@@ -16055,6 +16058,9 @@ class SidebarManager {
             }
             if (this.isImmersiveThemePanelOpen) {
                 this.closeImmersiveThemePanel();
+            }
+            if (this.isLeaderboardPanelOpen) {
+                this.closeLeaderboardPanel();
             }
             
             this.settingsSidePanel.classList.add('open');
@@ -16129,6 +16135,9 @@ class SidebarManager {
             }
             if (this.isImmersiveThemePanelOpen) {
                 this.closeImmersiveThemePanel();
+            }
+            if (this.isLeaderboardPanelOpen) {
+                this.closeLeaderboardPanel();
             }
             
             this.immersiveThemeSidePanel.classList.add('open');
