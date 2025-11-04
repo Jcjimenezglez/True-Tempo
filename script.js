@@ -12040,10 +12040,16 @@ class PomodoroTimer {
                     </div>
                 </div>
 
-                <!-- Trends Chart -->
+                <!-- Trends Chart with Toggle -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Last 4 Weeks</h4>
-                    <div style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h4 style="margin: 0; color: #fff; font-size: 16px;" id="trendsChartTitle">Last 4 Weeks</h4>
+                        <div style="display: flex; gap: 8px; background: #1a1a1a; padding: 4px; border-radius: 8px;">
+                            <button id="toggleToWeeks" class="trends-toggle-btn active" style="padding: 6px 12px; border: none; border-radius: 6px; background: var(--onyx-dark, #064e3b); color: white; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Weeks</button>
+                            <button id="toggleToDays" class="trends-toggle-btn" style="padding: 6px 12px; border: none; border-radius: 6px; background: transparent; color: #a3a3a3; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Days</button>
+                        </div>
+                    </div>
+                    <div id="trendsChartContent" style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
                         ${(() => {
                             const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
                             return last4Weeks.map(week => {
@@ -12082,6 +12088,60 @@ class PomodoroTimer {
         `;
 
         containerElement.innerHTML = html;
+
+        // Add toggle functionality for trends chart
+        const toggleToWeeks = document.getElementById('toggleToWeeks');
+        const toggleToDays = document.getElementById('toggleToDays');
+        const trendsChartTitle = document.getElementById('trendsChartTitle');
+        const trendsChartContent = document.getElementById('trendsChartContent');
+
+        if (toggleToWeeks && toggleToDays && trendsChartContent) {
+            const renderWeeksChart = () => {
+                const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
+                trendsChartContent.innerHTML = last4Weeks.map(week => {
+                    const height = (week.hours / maxHours) * 100;
+                    return `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
+                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                            <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
+                            <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            const renderDaysChart = () => {
+                const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
+                trendsChartContent.innerHTML = last7Days.map(day => {
+                    const height = (day.hours / maxHours) * 100;
+                    return `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
+                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                            <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
+                            <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            toggleToWeeks.addEventListener('click', () => {
+                if (trendsChartTitle) trendsChartTitle.textContent = 'Last 4 Weeks';
+                toggleToWeeks.style.background = 'var(--onyx-dark, #064e3b)';
+                toggleToWeeks.style.color = 'white';
+                toggleToDays.style.background = 'transparent';
+                toggleToDays.style.color = '#a3a3a3';
+                renderWeeksChart();
+            });
+
+            toggleToDays.addEventListener('click', () => {
+                if (trendsChartTitle) trendsChartTitle.textContent = 'Last 7 Days';
+                toggleToDays.style.background = 'var(--onyx-dark, #064e3b)';
+                toggleToDays.style.color = 'white';
+                toggleToWeeks.style.background = 'transparent';
+                toggleToWeeks.style.color = '#a3a3a3';
+                renderDaysChart();
+            });
+        }
     }
 
     displayLeaderboard(modalElement, leaderboard, currentUserPosition) {
