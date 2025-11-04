@@ -15203,7 +15203,505 @@ class PomodoroTimer {
         // Update theme authentication state
         this.updateThemeAuthState();
         
+        // Initialize My Cassettes section for Pro users
+        this.initializeMyCassettes();
+        
         console.log('🎨 Theme panel initialized - no music reset');
+    }
+
+    initializeMyCassettes() {
+        const myCassettesSection = document.getElementById('myCassettesSection');
+        const createCassetteBtn = document.getElementById('createCassetteBtn');
+        
+        // Show My Cassettes section only for Pro users
+        if (this.isPremiumUser()) {
+            if (myCassettesSection) {
+                myCassettesSection.style.display = 'block';
+            }
+            
+            // Load and render custom cassettes
+            this.loadCustomCassettes();
+            
+            // Add create button event
+            if (createCassetteBtn) {
+                createCassetteBtn.addEventListener('click', () => {
+                    this.showCreateCassetteModal();
+                });
+            }
+        } else {
+            if (myCassettesSection) {
+                myCassettesSection.style.display = 'none';
+            }
+        }
+    }
+
+    loadCustomCassettes() {
+        const customCassettesList = document.getElementById('customCassettesList');
+        if (!customCassettesList) return;
+        
+        const customCassettes = this.getCustomCassettes();
+        
+        if (customCassettes.length === 0) {
+            customCassettesList.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3; background: #2a2a2a; border-radius: 12px;">
+                    <p style="margin: 0 0 8px 0;">No custom cassettes yet</p>
+                    <p style="margin: 0; font-size: 12px;">Click "Create Cassette" to get started</p>
+                </div>
+            `;
+            return;
+        }
+        
+        customCassettesList.innerHTML = customCassettes.map(cassette => {
+            const previewStyle = cassette.imageUrl 
+                ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
+                : 'background: #0a0a0a;';
+            
+            return `
+                <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
+                    <div class="theme-preview" style="${previewStyle}"></div>
+                    <div class="theme-info">
+                        <h4>${cassette.title}</h4>
+                        <p>${cassette.description || 'Custom focus environment'}</p>
+                    </div>
+                    <div class="theme-radio">
+                        <input type="radio" name="theme" id="theme${cassette.id}" value="custom_${cassette.id}" aria-label="${cassette.title}">
+                        <label for="theme${cassette.id}"></label>
+                    </div>
+                    <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
+                        <button class="edit-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(0, 0, 0, 0.6); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px;" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                        <button class="delete-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(220, 38, 38, 0.8); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px;" title="Delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6h18"/>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add event listeners for custom cassettes
+        customCassettes.forEach(cassette => {
+            const cassetteOption = document.querySelector(`[data-cassette-id="${cassette.id}"]`);
+            if (cassetteOption) {
+                cassetteOption.addEventListener('click', (e) => {
+                    // Don't trigger if clicking edit/delete buttons
+                    if (e.target.closest('.edit-cassette-btn') || e.target.closest('.delete-cassette-btn')) {
+                        return;
+                    }
+                    
+                    this.selectCustomCassette(cassette.id);
+                });
+            }
+            
+            // Edit button
+            const editBtn = document.querySelector(`.edit-cassette-btn[data-cassette-id="${cassette.id}"]`);
+            if (editBtn) {
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showCreateCassetteModal(cassette.id);
+                });
+            }
+            
+            // Delete button
+            const deleteBtn = document.querySelector(`.delete-cassette-btn[data-cassette-id="${cassette.id}"]`);
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.deleteCustomCassette(cassette.id);
+                });
+            }
+        });
+    }
+
+    getCustomCassettes() {
+        try {
+            const cassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+            return cassettes;
+        } catch {
+            return [];
+        }
+    }
+
+    saveCustomCassette(cassette) {
+        try {
+            const cassettes = this.getCustomCassettes();
+            const existingIndex = cassettes.findIndex(c => c.id === cassette.id);
+            
+            if (existingIndex >= 0) {
+                cassettes[existingIndex] = cassette;
+            } else {
+                cassettes.push(cassette);
+            }
+            
+            localStorage.setItem('customCassettes', JSON.stringify(cassettes));
+            return true;
+        } catch (error) {
+            console.error('Error saving custom cassette:', error);
+            return false;
+        }
+    }
+
+    deleteCustomCassette(cassetteId) {
+        if (!confirm('Are you sure you want to delete this cassette?')) {
+            return;
+        }
+        
+        try {
+            const cassettes = this.getCustomCassettes();
+            const filtered = cassettes.filter(c => c.id !== cassetteId);
+            localStorage.setItem('customCassettes', JSON.stringify(filtered));
+            
+            // If this was the active theme, switch to lofi
+            if (this.currentTheme === `custom_${cassetteId}`) {
+                this.applyTheme('lofi');
+            }
+            
+            // Reload cassettes
+            this.loadCustomCassettes();
+        } catch (error) {
+            console.error('Error deleting custom cassette:', error);
+        }
+    }
+
+    selectCustomCassette(cassetteId) {
+        const cassettes = this.getCustomCassettes();
+        const cassette = cassettes.find(c => c.id === cassetteId);
+        
+        if (!cassette) return;
+        
+        // Remove active from all options
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.classList.remove('active');
+            const radio = opt.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        // Add active to selected cassette
+        const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
+        if (cassetteOption) {
+            cassetteOption.classList.add('active');
+            const radio = cassetteOption.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        }
+        
+        // Apply the custom cassette
+        this.applyCustomCassette(cassette);
+        
+        // Track event
+        this.trackEvent('Cassette Selected', {
+            button_type: 'cassette',
+            cassette_name: cassette.title,
+            cassette_type: 'custom',
+            source: 'cassettes_panel'
+        });
+    }
+
+    applyCustomCassette(cassette) {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) return;
+        
+        // Pause timer when changing cassettes
+        if (this.isRunning) {
+            this.pauseTimer();
+        }
+        
+        // Stop other music
+        this.stopLofiPlaylist();
+        if (this.currentImmersiveTheme === 'tron') {
+            this.deactivateImmersiveTheme();
+        }
+        
+        // Remove all background classes
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Set background image if provided
+        if (cassette.imageUrl) {
+            timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+            timerSection.style.setProperty('background-size', 'cover', 'important');
+            timerSection.style.setProperty('background-position', 'center', 'important');
+        } else {
+            timerSection.style.removeProperty('background-image');
+            timerSection.style.setProperty('background', '#0a0a0a', 'important');
+        }
+        
+        // Create Spotify widget if URL provided
+        if (cassette.spotifyUrl) {
+            this.createCustomSpotifyWidget(cassette.spotifyUrl);
+        } else {
+            // Remove existing Spotify widget if any
+            const existingWidget = document.getElementById('customSpotifyWidget');
+            if (existingWidget) {
+                existingWidget.remove();
+            }
+        }
+        
+        // Create Website URL link if provided
+        if (cassette.websiteUrl) {
+            this.createWebsiteLink(cassette.websiteUrl);
+        } else {
+            // Remove existing website link if any
+            const existingLink = document.getElementById('customWebsiteLink');
+            if (existingLink) {
+                existingLink.remove();
+            }
+        }
+        
+        // Save as current theme
+        const themeName = `custom_${cassette.id}`;
+        localStorage.setItem('lastSelectedTheme', themeName);
+        this.currentTheme = themeName;
+        
+        // Update visual active state
+        this.updateThemeActiveState(themeName);
+        
+        console.log('🎨 Custom cassette applied:', cassette.title);
+    }
+
+    createWebsiteLink(websiteUrl) {
+        // Remove existing website link
+        const existingLink = document.getElementById('customWebsiteLink');
+        if (existingLink) {
+            existingLink.remove();
+        }
+        
+        // Create website link button
+        const link = document.createElement('a');
+        link.id = 'customWebsiteLink';
+        link.href = websiteUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.cssText = `
+            position: fixed;
+            bottom: 110px;
+            right: 20px;
+            padding: 10px 16px;
+            background: var(--onyx-dark, #064e3b);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        `;
+        link.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Visit Website
+        `;
+        
+        link.addEventListener('mouseenter', () => {
+            link.style.background = 'var(--onyx-light, #065f46)';
+        });
+        
+        link.addEventListener('mouseleave', () => {
+            link.style.background = 'var(--onyx-dark, #064e3b)';
+        });
+        
+        document.body.appendChild(link);
+        console.log('🔗 Website link created:', websiteUrl);
+    }
+
+    createCustomSpotifyWidget(spotifyUrl) {
+        // Remove existing custom Spotify widget
+        const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget) {
+            existingWidget.remove();
+        }
+        
+        // Extract Spotify track/playlist/album ID from URL
+        const spotifyId = this.extractSpotifyId(spotifyUrl);
+        if (!spotifyId) {
+            console.error('Invalid Spotify URL');
+            return;
+        }
+        
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) return;
+        
+        // Create Spotify iframe
+        const widget = document.createElement('div');
+        widget.id = 'customSpotifyWidget';
+        widget.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 80px;
+            z-index: 1000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        `;
+        
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://open.spotify.com/embed/${spotifyId.type}/${spotifyId.id}?utm_source=generator&theme=0`;
+        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+        iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        iframe.loading = 'lazy';
+        
+        widget.appendChild(iframe);
+        document.body.appendChild(widget);
+        
+        console.log('🎵 Custom Spotify widget created');
+    }
+
+    extractSpotifyId(url) {
+        // Extract type and ID from Spotify URL
+        // Format: https://open.spotify.com/track/... or /playlist/... or /album/...
+        const match = url.match(/open\.spotify\.com\/(track|playlist|album)\/([a-zA-Z0-9]+)/);
+        if (match) {
+            return {
+                type: match[1],
+                id: match[2]
+            };
+        }
+        return null;
+    }
+
+    showCreateCassetteModal(cassetteId = null) {
+        const cassettes = this.getCustomCassettes();
+        const cassette = cassetteId ? cassettes.find(c => c.id === cassetteId) : null;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay';
+        modalOverlay.id = 'createCassetteModal';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        modal.style.maxWidth = '500px';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeCreateCassetteModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3>${cassette ? 'Edit Cassette' : 'Create Cassette'}</h3>
+                <p>Customize your focus environment</p>
+                
+                <form id="createCassetteForm" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
+                    <div>
+                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Title *</label>
+                        <input type="text" id="cassetteTitle" required style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? cassette.title : ''}" placeholder="My Focus Environment">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Description</label>
+                        <textarea id="cassetteDescription" rows="3" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; resize: vertical; box-sizing: border-box; font-family: inherit;" placeholder="Describe your focus environment...">${cassette ? (cassette.description || '') : ''}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Background Image URL</label>
+                        <input type="url" id="cassetteImageUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.imageUrl || '') : ''}" placeholder="https://example.com/image.jpg">
+                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">URL of the image to use as background</p>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Spotify URL (Optional)</label>
+                        <input type="url" id="cassetteSpotifyUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.spotifyUrl || '') : ''}" placeholder="https://open.spotify.com/track/...">
+                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">Spotify track, playlist, or album URL</p>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Website URL (Optional)</label>
+                        <input type="url" id="cassetteWebsiteUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.websiteUrl || '') : ''}" placeholder="https://example.com">
+                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">Link to a website related to this environment</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 8px;">
+                        <button type="submit" style="flex: 1; padding: 12px; background: var(--onyx-dark, #064e3b); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">${cassette ? 'Update' : 'Create'} Cassette</button>
+                        <button type="button" id="cancelCreateCassette" style="flex: 1; padding: 12px; background: #2a2a2a; color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Form submission
+        const form = document.getElementById('createCassetteForm');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveCassetteFromForm(cassetteId);
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close buttons
+        document.getElementById('closeCreateCassetteModal').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        document.getElementById('cancelCreateCassette').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    saveCassetteFromForm(cassetteId = null) {
+        const title = document.getElementById('cassetteTitle').value.trim();
+        const description = document.getElementById('cassetteDescription').value.trim();
+        const imageUrl = document.getElementById('cassetteImageUrl').value.trim();
+        const spotifyUrl = document.getElementById('cassetteSpotifyUrl').value.trim();
+        const websiteUrl = document.getElementById('cassetteWebsiteUrl').value.trim();
+        
+        if (!title) {
+            alert('Title is required');
+            return;
+        }
+        
+        const cassette = {
+            id: cassetteId || `cassette_${Date.now()}`,
+            title: title,
+            description: description || '',
+            imageUrl: imageUrl || '',
+            spotifyUrl: spotifyUrl || '',
+            websiteUrl: websiteUrl || '',
+            createdAt: cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId)?.createdAt : new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        if (this.saveCustomCassette(cassette)) {
+            // Reload cassettes
+            this.loadCustomCassettes();
+            
+            // Track event
+            this.trackEvent('Custom Cassette Created', {
+                feature: 'custom_cassettes',
+                cassette_title: cassette.title,
+                has_image: !!cassette.imageUrl,
+                has_spotify: !!cassette.spotifyUrl,
+                has_website: !!cassette.websiteUrl,
+                user_type: 'pro'
+            });
+            
+            console.log('✅ Custom cassette saved:', cassette);
+        } else {
+            alert('Error saving cassette. Please try again.');
+        }
     }
     
     initializeVolumeControl() {
@@ -15236,6 +15734,22 @@ class PomodoroTimer {
     applyTheme(themeName) {
         console.log(`🎨 Applying theme: ${themeName}`);
         
+        // Check if this is a custom cassette
+        if (themeName && themeName.startsWith('custom_')) {
+            const cassetteId = themeName.replace('custom_', '');
+            const cassettes = this.getCustomCassettes();
+            const cassette = cassettes.find(c => c.id === cassetteId);
+            
+            if (cassette) {
+                this.applyCustomCassette(cassette);
+                return;
+            } else {
+                // Custom cassette not found, fallback to lofi
+                console.warn('Custom cassette not found, falling back to lofi');
+                themeName = 'lofi';
+            }
+        }
+        
         // Pause timer when changing cassettes for better UX
         if (this.isRunning) {
             this.pauseTimer();
@@ -15250,6 +15764,12 @@ class PomodoroTimer {
         
         // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Remove custom website link if switching from custom cassette
+        const existingLink = document.getElementById('customWebsiteLink');
+        if (existingLink) {
+            existingLink.remove();
+        }
         
         if (themeName === 'simple') {
             // Simple theme: black background, no music
