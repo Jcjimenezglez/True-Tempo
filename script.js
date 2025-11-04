@@ -11822,7 +11822,7 @@ class PomodoroTimer {
         }
 
         // Leaderboard list
-        const topUsers = leaderboard.slice(0, 20); // Show top 20
+        const topUsers = leaderboard; // Show all users from API
         
         if (topUsers.length === 0) {
             html += `
