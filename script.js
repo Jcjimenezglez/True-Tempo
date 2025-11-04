@@ -11139,6 +11139,220 @@ class PomodoroTimer {
         }
     }
 
+    // Report helper functions
+    calculateCurrentStreak(stats) {
+        return this.streakData?.currentStreak || 0;
+    }
+
+    calculateLongestStreak(stats) {
+        return this.streakData?.longestStreak || 0;
+    }
+
+    getLastNDaysData(stats, n) {
+        const days = [];
+        const today = new Date();
+        
+        for (let i = n - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            const hours = stats.daily?.[dateStr] || 0;
+            
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+            days.push({
+                date: dateStr,
+                label: dayName,
+                hours: hours
+            });
+        }
+        
+        return days;
+    }
+
+    getLastNWeeksData(stats, n) {
+        const weeks = [];
+        const today = new Date();
+        
+        for (let i = n - 1; i >= 0; i--) {
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - (today.getDay() + i * 7));
+            weekStart.setHours(0, 0, 0, 0);
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            
+            let weekHours = 0;
+            for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toDateString();
+                weekHours += stats.daily?.[dateStr] || 0;
+            }
+            
+            const label = `${weekStart.getMonth() + 1}/${weekStart.getDate()}`;
+            weeks.push({
+                start: weekStart.toDateString(),
+                end: weekEnd.toDateString(),
+                label: label,
+                hours: weekHours
+            });
+        }
+        
+        return weeks;
+    }
+
+    getLastNMonthsData(stats, n) {
+        const months = [];
+        const today = new Date();
+        
+        for (let i = n - 1; i >= 0; i--) {
+            const monthDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+            const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+            
+            let monthHours = 0;
+            for (let d = new Date(monthStart); d <= monthEnd; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toDateString();
+                monthHours += stats.daily?.[dateStr] || 0;
+            }
+            
+            const label = monthDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            months.push({
+                start: monthStart.toDateString(),
+                end: monthEnd.toDateString(),
+                label: label,
+                hours: monthHours
+            });
+        }
+        
+        return months;
+    }
+
+    generateHeatmapData(stats, days) {
+        const heatmapData = [];
+        const today = new Date();
+        
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            const hours = stats.daily?.[dateStr] || 0;
+            
+            heatmapData.push({
+                date: dateStr,
+                hours: hours
+            });
+        }
+        
+        return heatmapData;
+    }
+
+    getHeatmapColor(intensity) {
+        // GitHub-style heatmap colors
+        if (intensity === 0) return '#161b22';
+        if (intensity < 0.25) return '#0e4429';
+        if (intensity < 0.5) return '#006d32';
+        if (intensity < 0.75) return '#26a641';
+        return '#39d353';
+    }
+
+    calculateInsights(stats, last30Days) {
+        const insights = [];
+        
+        // Find best day
+        const bestDay = last30Days.reduce((best, day) => day.hours > best.hours ? day : best, { hours: 0, label: 'None' });
+        if (bestDay.hours > 0) {
+            insights.push({
+                title: `Your best day was ${bestDay.label}`,
+                description: `You focused for ${bestDay.hours.toFixed(1)} hours on ${bestDay.date}`
+            });
+        }
+        
+        // Calculate average
+        const totalHours = last30Days.reduce((sum, day) => sum + day.hours, 0);
+        const avgHours = totalHours / last30Days.length;
+        if (avgHours > 0) {
+            insights.push({
+                title: `Daily average: ${avgHours.toFixed(1)} hours`,
+                description: `You've been consistent with your focus time`
+            });
+        }
+        
+        // Find improvement
+        const firstHalf = last30Days.slice(0, 15).reduce((sum, day) => sum + day.hours, 0) / 15;
+        const secondHalf = last30Days.slice(15).reduce((sum, day) => sum + day.hours, 0) / 15;
+        if (secondHalf > firstHalf * 1.1) {
+            const improvement = ((secondHalf - firstHalf) / firstHalf * 100).toFixed(0);
+            insights.push({
+                title: `You've improved ${improvement}%!`,
+                description: `Your focus time has increased in the last 15 days`
+            });
+        }
+        
+        // Find most active days
+        const dayCounts = {};
+        last30Days.forEach(day => {
+            const dayName = new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' });
+            if (day.hours > 0) {
+                dayCounts[dayName] = (dayCounts[dayName] || 0) + 1;
+            }
+        });
+        const mostActiveDay = Object.entries(dayCounts).reduce((best, [day, count]) => 
+            count > best.count ? { day, count } : best, { day: 'None', count: 0 }
+        );
+        if (mostActiveDay.count > 0) {
+            insights.push({
+                title: `${mostActiveDay.day} is your most productive day`,
+                description: `You've been active ${mostActiveDay.count} times on ${mostActiveDay.day}s`
+            });
+        }
+        
+        return insights;
+    }
+
+    renderComparison(stats) {
+        const today = new Date();
+        const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        
+        const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+        
+        let currentMonthHours = 0;
+        let lastMonthHours = 0;
+        
+        for (let d = new Date(currentMonth); d <= currentMonthEnd; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toDateString();
+            currentMonthHours += stats.daily?.[dateStr] || 0;
+        }
+        
+        for (let d = new Date(lastMonth); d <= lastMonthEnd; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toDateString();
+            lastMonthHours += stats.daily?.[dateStr] || 0;
+        }
+        
+        const change = currentMonthHours - lastMonthHours;
+        const changePercent = lastMonthHours > 0 ? ((change / lastMonthHours) * 100).toFixed(0) : 0;
+        const isPositive = change >= 0;
+        
+        return `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentMonthHours.toFixed(1)}h</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">This Month</div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px;">${lastMonthHours.toFixed(1)}h</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">Last Month</div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: ${isPositive ? '#39d353' : '#ff4444'}; margin-bottom: 4px;">
+                        ${isPositive ? '+' : ''}${change.toFixed(1)}h
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${isPositive ? '+' : ''}${changePercent}%</div>
+                </div>
+            </div>
+        `;
+    }
+
     // Day streak functions
     loadStreakData() {
         try {
@@ -11252,8 +11466,13 @@ class PomodoroTimer {
             return;
         }
         
-        // For authenticated users, show the full statistics modal
-        this.showStatisticsModal();
+        // For authenticated users, open the Report panel in the sidebar
+        if (window.sidebarManager) {
+            window.sidebarManager.openReportPanel();
+        } else {
+            // Fallback to modal if sidebarManager is not available
+            this.showStatisticsModal();
+        }
     }
 
     showGuestStreakModal() {
@@ -11647,6 +11866,215 @@ class PomodoroTimer {
             }).join('');
             html += '</div>';
         }
+
+        containerElement.innerHTML = html;
+    }
+
+    async loadReportForPanel() {
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            const reportContent = document.getElementById('reportContent');
+            if (reportContent) {
+                reportContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Please log in to view your report.
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const reportContent = document.getElementById('reportContent');
+        if (!reportContent) return;
+
+        // Check if user is premium
+        const isPremium = this.isPremiumUser();
+
+        // Show loading state
+        reportContent.innerHTML = `
+            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                Loading report...
+            </div>
+        `;
+
+        // Get stats
+        const stats = this.getFocusStats();
+        
+        // Display report based on premium status
+        if (isPremium) {
+            this.displayAdvancedReport(reportContent, stats);
+        } else {
+            this.displayBasicReport(reportContent, stats);
+        }
+    }
+
+    displayBasicReport(containerElement, stats) {
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+
+        // Calculate current streak
+        const currentStreak = this.calculateCurrentStreak(stats);
+        const longestStreak = this.calculateLongestStreak(stats);
+
+        // Get last 7 days data
+        const last7Days = this.getLastNDaysData(stats, 7);
+
+        const html = `
+            <div style="padding: 0;">
+                <!-- Basic Stats -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                    </div>
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    </div>
+                </div>
+
+                <!-- Simple Chart (Last 7 Days) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Last 7 Days</h4>
+                    <div style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
+                        ${last7Days.map(day => {
+                            const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
+                            const height = (day.hours / maxHours) * 100;
+                            return `
+                                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, #4f46e5, #7c3aed); border-radius: 4px 4px 0 0; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                    <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
+                                    <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Upgrade Prompt -->
+                <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 12px; padding: 20px; text-align: center;">
+                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">Unlock Advanced Analytics</h4>
+                    <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Get heatmap, trends, comparisons, and insights with Unlimited plan.</p>
+                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: #4f46e5; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Upgrade to Unlimited</button>
+                </div>
+            </div>
+        `;
+
+        containerElement.innerHTML = html;
+
+        // Add upgrade button event
+        const upgradeBtn = document.getElementById('upgradeToUnlimitedFromReport');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', () => {
+                window.location.href = '/pricing';
+            });
+        }
+    }
+
+    displayAdvancedReport(containerElement, stats) {
+        // This will be implemented with heatmap, trends, comparisons, and insights
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+
+        // Calculate streaks
+        const currentStreak = this.calculateCurrentStreak(stats);
+        const longestStreak = this.calculateLongestStreak(stats);
+
+        // Get data for different time periods
+        const last7Days = this.getLastNDaysData(stats, 7);
+        const last30Days = this.getLastNDaysData(stats, 30);
+        const last12Weeks = this.getLastNWeeksData(stats, 12);
+        const last12Months = this.getLastNMonthsData(stats, 12);
+
+        // Calculate insights
+        const insights = this.calculateInsights(stats, last30Days);
+
+        // Generate heatmap data
+        const heatmapData = this.generateHeatmapData(stats, 365); // Last year
+
+        const html = `
+            <div style="padding: 0;">
+                <!-- Stats Overview -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                    </div>
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    </div>
+                </div>
+
+                <!-- Heatmap -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity Heatmap (Last Year)</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        ${heatmapData.map(day => {
+                            const intensity = Math.min(day.hours / 4, 1); // Max 4 hours = full intensity
+                            const color = this.getHeatmapColor(intensity);
+                            return `
+                                <div 
+                                    style="width: 12px; height: 12px; background: ${color}; border-radius: 2px; cursor: pointer;"
+                                    title="${day.date}: ${day.hours.toFixed(1)}h"
+                                ></div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; color: #a3a3a3;">
+                        <span>Less</span>
+                        <div style="display: flex; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background: #161b22; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #0e4429; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #006d32; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #26a641; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #39d353; border-radius: 2px;"></div>
+                        </div>
+                        <span>More</span>
+                    </div>
+                </div>
+
+                <!-- Trends Chart -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Weekly Trends (Last 12 Weeks)</h4>
+                    <div style="height: 200px; display: flex; align-items: flex-end; gap: 4px;">
+                        ${last12Weeks.map(week => {
+                            const maxHours = Math.max(...last12Weeks.map(w => w.hours), 1);
+                            const height = (week.hours / maxHours) * 100;
+                            return `
+                                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, #4f46e5, #7c3aed); border-radius: 4px 4px 0 0; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                                    <div style="font-size: 10px; color: #666; text-align: center; transform: rotate(-45deg); transform-origin: top left; white-space: nowrap;">${week.label}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Comparison -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">This Month vs Last Month</h4>
+                    ${this.renderComparison(stats)}
+                </div>
+
+                <!-- Insights -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Insights</h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${insights.map(insight => `
+                            <div style="padding: 12px; background: #1a1a1a; border-radius: 8px; border-left: 3px solid #4f46e5;">
+                                <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${insight.title}</div>
+                                <div style="color: #a3a3a3; font-size: 12px;">${insight.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
 
         containerElement.innerHTML = html;
     }
@@ -15609,6 +16037,8 @@ class SidebarManager {
         this.immersiveThemePanelOverlay = document.getElementById('immersiveThemePanelOverlay');
         this.leaderboardSidePanel = document.getElementById('leaderboardSidePanel');
         this.leaderboardPanelOverlay = document.getElementById('leaderboardPanelOverlay');
+        this.reportSidePanel = document.getElementById('reportSidePanel');
+        this.reportPanelOverlay = document.getElementById('reportPanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -15617,6 +16047,7 @@ class SidebarManager {
         this.isSettingsPanelOpen = false;
         this.isImmersiveThemePanelOpen = false;
         this.isLeaderboardPanelOpen = false;
+        this.isReportPanelOpen = false;
         
         this.init();
     }
@@ -15744,6 +16175,7 @@ class SidebarManager {
                     else if (section === 'settings') panelName = 'Timer Panel';
                     else if (section === 'cassettes') panelName = 'Cassettes Panel';
                     else if (section === 'leaderboard') panelName = 'Leaderboard Panel';
+                    else if (section === 'report') panelName = 'Report Panel';
                     
                     window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
                         panel_name: panelName,
@@ -15775,6 +16207,7 @@ class SidebarManager {
                 this.closeSettingsPanel();
                 this.closeImmersiveThemePanel();
                 this.closeLeaderboardPanel();
+                this.closeReportPanel();
             });
         }
         
@@ -15842,6 +16275,21 @@ class SidebarManager {
         if (closeLeaderboardPanelBtn) {
             closeLeaderboardPanelBtn.addEventListener('click', () => {
                 this.closeLeaderboardPanel();
+            });
+        }
+        
+        // Report panel overlay click to close report panel
+        if (this.reportPanelOverlay) {
+            this.reportPanelOverlay.addEventListener('click', () => {
+                this.closeReportPanel();
+            });
+        }
+        
+        // Report panel close button
+        const closeReportPanelBtn = document.getElementById('closeReportPanel');
+        if (closeReportPanelBtn) {
+            closeReportPanelBtn.addEventListener('click', () => {
+                this.closeReportPanel();
             });
         }
         
@@ -15964,6 +16412,10 @@ class SidebarManager {
                 // Toggle leaderboard side panel
                 this.toggleLeaderboardPanel();
                 break;
+            case 'report':
+                // Toggle report side panel
+                this.toggleReportPanel();
+                break;
             case 'timer':
                 // Scroll to timer section
                 const timerSection = document.querySelector('.timer-section');
@@ -16004,6 +16456,9 @@ class SidebarManager {
             }
             if (this.isLeaderboardPanelOpen) {
                 this.closeLeaderboardPanel();
+            }
+            if (this.isReportPanelOpen) {
+                this.closeReportPanel();
             }
             
             this.taskSidePanel.classList.add('open');
@@ -16076,6 +16531,9 @@ class SidebarManager {
             }
             if (this.isLeaderboardPanelOpen) {
                 this.closeLeaderboardPanel();
+            }
+            if (this.isReportPanelOpen) {
+                this.closeReportPanel();
             }
             
             this.settingsSidePanel.classList.add('open');
@@ -16154,6 +16612,9 @@ class SidebarManager {
             if (this.isLeaderboardPanelOpen) {
                 this.closeLeaderboardPanel();
             }
+            if (this.isReportPanelOpen) {
+                this.closeReportPanel();
+            }
             
             this.immersiveThemeSidePanel.classList.add('open');
             this.isImmersiveThemePanelOpen = true;
@@ -16208,6 +16669,7 @@ class SidebarManager {
         if (this.isTaskPanelOpen) this.closeTaskPanel();
         if (this.isSettingsPanelOpen) this.closeSettingsPanel();
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+        if (this.isReportPanelOpen) this.closeReportPanel();
 
         if (this.leaderboardSidePanel) {
             this.leaderboardSidePanel.classList.add('open');
@@ -16250,6 +16712,71 @@ class SidebarManager {
             const leaderboardNavItem = document.querySelector('.nav-item[data-section="leaderboard"]');
             if (leaderboardNavItem) {
                 leaderboardNavItem.classList.remove('active');
+            }
+
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+
+    toggleReportPanel() {
+        if (this.isReportPanelOpen) {
+            this.closeReportPanel();
+        } else {
+            this.openReportPanel();
+        }
+    }
+
+    openReportPanel() {
+        // Close other panels first
+        if (this.isTaskPanelOpen) this.closeTaskPanel();
+        if (this.isSettingsPanelOpen) this.closeSettingsPanel();
+        if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+        if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
+
+        if (this.reportSidePanel) {
+            this.reportSidePanel.classList.add('open');
+            this.isReportPanelOpen = true;
+
+            // Show overlay
+            if (this.reportPanelOverlay) {
+                this.reportPanelOverlay.classList.add('active');
+            }
+
+            // Set active state on nav item
+            const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+            if (reportNavItem) {
+                reportNavItem.classList.add('active');
+            }
+
+            // Adjust main content position
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+
+            // Load report
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.loadReportForPanel();
+            }
+        }
+    }
+
+    closeReportPanel() {
+        if (this.reportSidePanel) {
+            this.reportSidePanel.classList.remove('open');
+            this.isReportPanelOpen = false;
+
+            // Hide overlay
+            if (this.reportPanelOverlay) {
+                this.reportPanelOverlay.classList.remove('active');
+            }
+
+            // Remove active state from Report nav item
+            const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+            if (reportNavItem) {
+                reportNavItem.classList.remove('active');
             }
 
             // Reset main content position
