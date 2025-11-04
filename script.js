@@ -15220,49 +15220,94 @@ class PomodoroTimer {
         const cancelCassetteBtn = document.getElementById('cancelCassetteBtn');
         const saveCassetteBtn = document.getElementById('saveCassetteBtn');
         
-        // Show create button only for Pro users
+        // Show create button for ALL users (similar to Create timer)
+        if (createCassetteSection) {
+            createCassetteSection.style.display = 'block';
+        }
+        
+        // Initialize search functionality for all users
+        this.initializeCassetteSearch();
+        
+        // Load and render custom cassettes (only Pro users have custom cassettes to load)
         if (this.isPremiumUser()) {
-            if (createCassetteSection) {
-                createCassetteSection.style.display = 'block';
-            }
-            
-            // Load and render custom cassettes
             this.loadCustomCassettes();
+        }
+        
+        // Add create button event (remove existing listeners first to avoid duplicates)
+        if (createCassetteBtn) {
+            // Clone and replace to remove all event listeners
+            const newBtn = createCassetteBtn.cloneNode(true);
+            createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
             
-            // Add create button event (remove existing listeners first to avoid duplicates)
-            if (createCassetteBtn) {
-                // Clone and replace to remove all event listeners
-                const newBtn = createCassetteBtn.cloneNode(true);
-                createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
-                
-                // Add single event listener
-                newBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.showCassetteForm();
-                });
-            }
-            
-            // Cancel button
-            if (cancelCassetteBtn) {
-                cancelCassetteBtn.addEventListener('click', () => {
+            // Add single event listener
+            newBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showCassetteForm();
+            });
+        }
+        
+        // Cancel button (only for Pro users who can see the form)
+        if (cancelCassetteBtn) {
+            cancelCassetteBtn.addEventListener('click', () => {
+                this.hideCassetteForm();
+            });
+        }
+        
+        // Save button (only for Pro users who can see the form)
+        if (saveCassetteBtn) {
+            saveCassetteBtn.addEventListener('click', () => {
+                const cassetteId = saveCassetteBtn.dataset.editingId || null;
+                const success = this.saveCassetteFromForm(cassetteId);
+                if (success) {
                     this.hideCassetteForm();
-                });
-            }
-            
-            // Save button
-            if (saveCassetteBtn) {
-                saveCassetteBtn.addEventListener('click', () => {
-                    const cassetteId = saveCassetteBtn.dataset.editingId || null;
-                    const success = this.saveCassetteFromForm(cassetteId);
-                    if (success) {
-                        this.hideCassetteForm();
-                    }
-                });
-            }
-        } else {
-            if (createCassetteSection) {
-                createCassetteSection.style.display = 'none';
+                }
+            });
+        }
+    }
+    
+    initializeCassetteSearch() {
+        const searchInput = document.getElementById('cassetteSearchInput');
+        if (!searchInput) return;
+        
+        // Remove existing listeners to avoid duplicates
+        const newSearchInput = searchInput.cloneNode(true);
+        searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+        
+        // Add search event listener
+        newSearchInput.addEventListener('input', (e) => {
+            const searchQuery = (e.target.value || '').trim().toLowerCase();
+            this.filterCassettes(searchQuery);
+        });
+    }
+    
+    filterCassettes(searchQuery) {
+        // Filter presets
+        const presetOptions = document.querySelectorAll('.theme-option[data-theme]');
+        presetOptions.forEach(option => {
+            const title = option.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const description = option.querySelector('p')?.textContent?.toLowerCase() || '';
+            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+            option.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Filter custom cassettes (only public ones are searchable)
+        const customCassettes = document.querySelectorAll('.custom-cassette');
+        customCassettes.forEach(cassette => {
+            // For now, we'll search all visible cassettes (public cassettes will be loaded async)
+            const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const description = cassette.querySelector('p')?.textContent?.toLowerCase() || '';
+            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+            cassette.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Hide "Cassette presets" section if all presets are hidden
+        const presetSection = document.querySelector('.settings-section');
+        if (presetSection) {
+            const visiblePresets = Array.from(presetOptions).filter(opt => opt.style.display !== 'none');
+            const presetTitle = presetSection.querySelector('.section-title');
+            if (presetTitle) {
+                presetTitle.parentElement.style.display = visiblePresets.length === 0 && searchQuery ? 'none' : 'block';
             }
         }
     }
@@ -15798,6 +15843,34 @@ class PomodoroTimer {
     }
 
     showCassetteForm(cassetteId = null) {
+        // Check if user is Pro (similar to showCustomForm)
+        if (!this.isPremiumUser()) {
+            // Free users - show Subscribe modal
+            if (this.isAuthenticated && this.user) {
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_cassettes',
+                    source: 'create_cassette_button',
+                    user_type: 'free',
+                    modal_type: 'upgrade_prompt'
+                });
+                
+                this.showCustomTechniqueProModal('Create custom focus environments! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
+            } else {
+                // Guest users - show Pro Feature modal
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_cassettes',
+                    source: 'create_cassette_button',
+                    user_type: 'guest',
+                    modal_type: 'upgrade_prompt'
+                });
+                
+                // Show Pro Feature modal for Guest users
+                this.showCustomTechniqueProModal();
+            }
+            return;
+        }
+        
+        // Pro users can create cassettes
         const form = document.getElementById('cassetteForm');
         const createBtn = document.getElementById('createCassetteBtn');
         const saveBtn = document.getElementById('saveCassetteBtn');
