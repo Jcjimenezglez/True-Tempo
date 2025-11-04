@@ -8777,6 +8777,8 @@ input:checked + .toggle-slider:before {
     height: 100%;
     object-fit: cover;
     border-radius: 8px;
+    pointer-events: none;
+    user-select: none;
 }
 
 
