@@ -15378,22 +15378,19 @@ class PomodoroTimer {
         
         if (!cassette) return;
         
-        // Remove active from all preset themes
+        // Remove active from all preset themes and custom cassettes
         document.querySelectorAll('.theme-option').forEach(opt => {
             opt.classList.remove('active');
             const radio = opt.querySelector('input[type="radio"]');
             if (radio) radio.checked = false;
         });
         
-        // Remove active from all technique presets
-        document.querySelectorAll('.technique-preset').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
         // Add active to selected cassette
         const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
         if (cassetteOption) {
             cassetteOption.classList.add('active');
+            const radio = cassetteOption.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
         }
         
         // Apply the custom cassette
