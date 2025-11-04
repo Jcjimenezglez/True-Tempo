@@ -15830,6 +15830,21 @@ class SidebarManager {
             });
         }
         
+        // Leaderboard panel overlay click to close leaderboard panel
+        if (this.leaderboardPanelOverlay) {
+            this.leaderboardPanelOverlay.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+        
+        // Leaderboard panel close button
+        const closeLeaderboardPanelBtn = document.getElementById('closeLeaderboardPanel');
+        if (closeLeaderboardPanelBtn) {
+            closeLeaderboardPanelBtn.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+        
         // Overlay is present but doesn't close panel on click
         // Panel only closes when clicking the Tasks button
         
@@ -16160,9 +16175,6 @@ class SidebarManager {
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
             }
-
-            // Initialize leaderboard panel
-            this.initializeLeaderboardPanel();
         }
     }
 
