@@ -15180,8 +15180,13 @@ class PomodoroTimer {
                     return;
                 }
                 
-                // Remove active from all options
+                // Remove active from all preset themes
                 themeOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all custom cassettes
+                document.querySelectorAll('.custom-cassette').forEach(opt => {
                     opt.classList.remove('active');
                 });
                 
@@ -15394,8 +15399,13 @@ class PomodoroTimer {
         
         if (!cassette) return;
         
-        // Remove active from all preset themes and custom cassettes
-        document.querySelectorAll('.theme-option').forEach(opt => {
+        // Remove active from all preset themes
+        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        
+        // Remove active from all custom cassettes
+        document.querySelectorAll('.custom-cassette').forEach(opt => {
             opt.classList.remove('active');
         });
         
@@ -15407,6 +15417,11 @@ class PomodoroTimer {
         
         // Apply the custom cassette
         this.applyCustomCassette(cassette);
+        
+        // Save to localStorage
+        const themeName = `custom_${cassetteId}`;
+        localStorage.setItem('lastSelectedTheme', themeName);
+        this.currentTheme = themeName;
         
         // Track event
         this.trackEvent('Cassette Selected', {
