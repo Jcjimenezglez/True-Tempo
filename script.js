@@ -15273,6 +15273,11 @@ class PomodoroTimer {
             return;
         }
         
+        if (customCassettes.length === 0) {
+            customCassettesList.innerHTML = '';
+            return;
+        }
+        
         customCassettesList.innerHTML = customCassettes.map(cassette => {
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
@@ -15810,6 +15815,14 @@ class PomodoroTimer {
             if (this.saveCustomCassette(cassette)) {
                 // Reload cassettes
                 this.loadCustomCassettes();
+                
+                // If this is a new cassette (not editing), select it automatically
+                if (!cassetteId) {
+                    // Wait a bit for DOM to update
+                    setTimeout(() => {
+                        this.selectCustomCassette(cassette.id);
+                    }, 100);
+                }
                 
                 // Track event
                 this.trackEvent('Custom Cassette Created', {
