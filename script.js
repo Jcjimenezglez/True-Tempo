@@ -15242,12 +15242,7 @@ class PomodoroTimer {
         const customCassettes = this.getCustomCassettes();
         
         if (customCassettes.length === 0) {
-            customCassettesList.innerHTML = `
-                <div style="padding: 24px; text-align: center; color: #a3a3a3; background: #2a2a2a; border-radius: 12px;">
-                    <p style="margin: 0 0 8px 0;">No custom cassettes yet</p>
-                    <p style="margin: 0; font-size: 12px;">Click "Create Cassette" to get started</p>
-                </div>
-            `;
+            customCassettesList.innerHTML = '';
             return;
         }
         
@@ -15257,24 +15252,18 @@ class PomodoroTimer {
                 : 'background: #0a0a0a;';
             
             return `
-                <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
-                    <div class="theme-preview" style="${previewStyle}"></div>
-                    <div class="theme-info">
-                        <h4>${cassette.title}</h4>
-                        <p>${cassette.description || 'Custom focus environment'}</p>
-                    </div>
-                    <div class="theme-radio">
-                        <input type="radio" name="theme" id="theme${cassette.id}" value="custom_${cassette.id}" aria-label="${cassette.title}">
-                        <label for="theme${cassette.id}"></label>
-                    </div>
+                <button class="technique-preset custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
+                    <div class="technique-icon" style="background: ${cassette.imageUrl ? 'transparent' : '#0a0a0a'}; background-image: ${cassette.imageUrl ? `url('${cassette.imageUrl}')` : 'none'}; background-size: cover; background-position: center; border-radius: 8px; width: 48px; height: 48px; margin: 0 auto 8px;"></div>
+                    <div class="technique-name">${cassette.title}</div>
+                    <div class="technique-desc">${cassette.description || 'Custom focus environment'}</div>
                     <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
-                        <button class="edit-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(0, 0, 0, 0.6); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px;" title="Edit">
+                        <button class="edit-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(0, 0, 0, 0.6); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px; z-index: 10;" title="Edit" onclick="event.stopPropagation();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                         </button>
-                        <button class="delete-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(220, 38, 38, 0.8); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px;" title="Delete">
+                        <button class="delete-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(220, 38, 38, 0.8); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px; z-index: 10;" title="Delete" onclick="event.stopPropagation();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 6h18"/>
                                 <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
@@ -15282,7 +15271,7 @@ class PomodoroTimer {
                             </svg>
                         </button>
                     </div>
-                </div>
+                </button>
             `;
         }).join('');
         
@@ -15376,19 +15365,22 @@ class PomodoroTimer {
         
         if (!cassette) return;
         
-        // Remove active from all options
+        // Remove active from all preset themes
         document.querySelectorAll('.theme-option').forEach(opt => {
             opt.classList.remove('active');
             const radio = opt.querySelector('input[type="radio"]');
             if (radio) radio.checked = false;
         });
         
+        // Remove active from all technique presets
+        document.querySelectorAll('.technique-preset').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
         // Add active to selected cassette
         const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
         if (cassetteOption) {
             cassetteOption.classList.add('active');
-            const radio = cassetteOption.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
         }
         
         // Apply the custom cassette
@@ -15640,8 +15632,10 @@ class PomodoroTimer {
         const form = document.getElementById('createCassetteForm');
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            this.saveCassetteFromForm(cassetteId);
-            document.body.removeChild(modalOverlay);
+            const success = this.saveCassetteFromForm(cassetteId);
+            if (success) {
+                document.body.removeChild(modalOverlay);
+            }
         });
         
         // Close buttons

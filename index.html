@@ -830,24 +830,21 @@
             </div>
             
             <!-- My Cassettes (Pro Only) -->
-            <div id="myCassettesSection" style="display: none; margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div>
-                        <h3 style="margin: 0; color: #fff; font-size: 18px; font-weight: 600;">My Cassettes</h3>
-                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 14px;">Create your custom focus environments</p>
-                    </div>
-                    <button id="createCassetteBtn" style="background: var(--onyx-dark, #064e3b); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <div class="settings-section" id="myCassettesSection" style="display: none;">
+                <h4 class="section-title">My Cassettes</h4>
+                <div class="custom-controls">
+                    <button class="add-task-btn" id="createCassetteBtn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M5 12h14"/>
                             <path d="M12 5v14"/>
+                            <path d="M5 12h14"/>
                         </svg>
-                        Create Cassette
+                        Create cassette
                     </button>
-                </div>
-                
-                <!-- Custom Cassettes List -->
-                <div id="customCassettesList" class="theme-options" style="display: flex; flex-direction: column; gap: 12px;">
-                    <!-- Custom cassettes will be rendered here -->
+                    
+                    <!-- Custom Cassettes List -->
+                    <div id="customCassettesList" class="techniques-grid" style="margin-top: 16px;">
+                        <!-- Custom cassettes will be rendered here -->
+                    </div>
                 </div>
             </div>
         </div>
