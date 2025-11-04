@@ -15227,7 +15227,7 @@ class PomodoroTimer {
             }
             
             // Load and render custom cassettes
-            this.loadCustomCassettes().catch(err => console.error('Error loading custom cassettes:', err));
+            this.loadCustomCassettes();
             
             // Add create button event (remove existing listeners first to avoid duplicates)
             if (createCassetteBtn) {
@@ -15236,10 +15236,10 @@ class PomodoroTimer {
                 createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
                 
                 // Add single event listener
-                newBtn.addEventListener('click', async (e) => {
+                newBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    await this.showCassetteForm();
+                    this.showCassetteForm();
                 });
             }
             
@@ -15260,156 +15260,71 @@ class PomodoroTimer {
                     }
                 });
             }
-            
-            // Initialize search functionality
-            this.initializeCassetteSearch();
         } else {
             if (createCassetteSection) {
                 createCassetteSection.style.display = 'none';
             }
-            
-            // Initialize search functionality even for non-Pro users
-            this.initializeCassetteSearch();
-        }
-    }
-    
-    initializeCassetteSearch() {
-        const searchInput = document.getElementById('cassetteSearchInput');
-        if (!searchInput) return;
-        
-        // Remove existing listeners to avoid duplicates
-        const newSearchInput = searchInput.cloneNode(true);
-        searchInput.parentNode.replaceChild(newSearchInput, searchInput);
-        
-        // Add search event listener
-        newSearchInput.addEventListener('input', async (e) => {
-            const searchQuery = (e.target.value || '').trim().toLowerCase();
-            await this.filterCassettes(searchQuery);
-        });
-    }
-    
-    async filterCassettes(searchQuery) {
-        // Filter presets
-        const presetOptions = document.querySelectorAll('.theme-option[data-theme]');
-        presetOptions.forEach(option => {
-            const title = option.querySelector('h4')?.textContent?.toLowerCase() || '';
-            const description = option.querySelector('p')?.textContent?.toLowerCase() || '';
-            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
-            option.style.display = matches ? 'flex' : 'none';
-        });
-        
-        // Filter custom cassettes (only public ones are searchable)
-        const customCassettes = document.querySelectorAll('.custom-cassette');
-        const allCassettes = await this.getCustomCassettes();
-        
-        customCassettes.forEach(cassette => {
-            // Only search public cassettes (not private)
-            const cassetteId = cassette.getAttribute('data-cassette-id');
-            const cassetteData = allCassettes.find(c => c.id === cassetteId);
-            
-            // Skip if it's private (private cassettes are not searchable)
-            if (cassetteData && cassetteData.isPublic === false) {
-                return; // Don't filter private cassettes
-            }
-            
-            const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
-            const description = cassette.querySelector('p')?.textContent?.toLowerCase() || '';
-            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
-            cassette.style.display = matches ? 'flex' : 'none';
-        });
-        
-        // Hide "Cassette presets" section if all presets are hidden
-        const presetSection = document.querySelector('.settings-section');
-        if (presetSection) {
-            const visiblePresets = Array.from(presetOptions).filter(opt => opt.style.display !== 'none');
-            const presetTitle = presetSection.querySelector('.section-title');
-            if (presetTitle) {
-                presetTitle.parentElement.style.display = visiblePresets.length === 0 && searchQuery ? 'none' : 'block';
-            }
         }
     }
 
-    async loadCustomCassettes() {
+    loadCustomCassettes() {
         const customCassettesList = document.getElementById('customCassettesList');
         if (!customCassettesList) return;
         
-        const allCassettes = await this.getCustomCassettes();
-        const currentUserId = this.isAuthenticated && this.user ? this.user.id : null;
+        const customCassettes = this.getCustomCassettes();
         
-        // Filter cassettes: show private only if user is creator, show public for all
-        const visibleCassettes = allCassettes.filter(cassette => {
-            if (cassette.isPublic === false) {
-                return cassette.userId === currentUserId;
-            }
-            return true; // Show public cassettes to all
-        });
-        
-        if (visibleCassettes.length === 0) {
+        if (customCassettes.length === 0) {
             customCassettesList.innerHTML = '';
             return;
         }
         
-        customCassettesList.innerHTML = visibleCassettes.map(cassette => {
+        customCassettesList.innerHTML = customCassettes.map(cassette => {
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
-            
-            // Check if current user is the creator
-            const isCreator = cassette.userId === currentUserId;
-            
-            // Show "Created by" only if it's public
-            const createdByText = cassette.isPublic === true && cassette.username 
-                ? `<p style="color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; margin-top: 4px;">Created by ${this.escapeHtml(cassette.username)}</p>`
-                : '';
-            
-            // Show options button only if user is creator
-            const optionsButton = isCreator ? `
-                <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
-                    <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"/>
-                            <circle cx="19" cy="12" r="1"/>
-                            <circle cx="5" cy="12" r="1"/>
-                        </svg>
-                    </button>
-                    <div class="cassette-options-dropdown" id="cassetteOptionsDropdown${cassette.id}" style="display: none;">
-                        <div class="cassette-options-menu">
-                            <button class="cassette-option-item edit-cassette-option" data-cassette-id="${cassette.id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                                Edit
-                            </button>
-                            <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                    <line x1="10" y1="11" x2="10" y2="17"/>
-                                    <line x1="14" y1="11" x2="14" y2="17"/>
-                                </svg>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ` : '';
             
             return `
                 <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
                     <div class="theme-preview" style="${previewStyle}"></div>
                     <div class="theme-info">
-                        <h4>${this.escapeHtml(cassette.title)}</h4>
-                        <p>${this.escapeHtml(cassette.description || 'Custom focus environment')}</p>
-                        ${createdByText}
+                        <h4>${cassette.title}</h4>
+                        <p>${cassette.description || 'Custom focus environment'}</p>
                     </div>
-                    ${optionsButton}
+                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </button>
+                        <div class="cassette-options-dropdown" id="cassetteOptionsDropdown${cassette.id}" style="display: none;">
+                            <div class="cassette-options-menu">
+                                <button class="cassette-option-item edit-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         }).join('');
         
         // Add event listeners for custom cassettes
-        visibleCassettes.forEach(cassette => {
+        customCassettes.forEach(cassette => {
             const cassetteOption = document.querySelector(`[data-cassette-id="${cassette.id}"]`);
             if (cassetteOption) {
                 cassetteOption.addEventListener('click', (e) => {
@@ -15418,7 +15333,7 @@ class PomodoroTimer {
                         return;
                     }
                     
-                    this.selectCustomCassette(cassette.id).catch(err => console.error('Error selecting cassette:', err));
+                    this.selectCustomCassette(cassette.id);
                 });
             }
             
@@ -15441,10 +15356,10 @@ class PomodoroTimer {
             // Edit option
             const editOption = document.querySelector(`.edit-cassette-option[data-cassette-id="${cassette.id}"]`);
             if (editOption) {
-                editOption.addEventListener('click', async (e) => {
+                editOption.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    await this.showCassetteForm(cassette.id);
+                    this.showCassetteForm(cassette.id);
                 });
             }
             
@@ -15472,87 +15387,64 @@ class PomodoroTimer {
         }, 100);
     }
 
-    async getCustomCassettes() {
+    getCustomCassettes() {
         try {
             const cassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
-            
-            // Get public cassettes from API (for all users)
-            if (this.isAuthenticated && this.user?.id) {
-                try {
-                    const response = await fetch('/api/public-cassettes', {
-                        method: 'GET',
-                        headers: {
-                            'x-clerk-userid': this.user.id
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.success && Array.isArray(data.publicCassettes)) {
-                            // Merge with local cassettes, avoiding duplicates
-                            const existingIds = new Set(cassettes.map(c => c.id));
-                            data.publicCassettes.forEach(publicCassette => {
-                                if (!existingIds.has(publicCassette.id)) {
-                                    cassettes.push(publicCassette);
-                                }
-                            });
-                            
-                            console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API`);
-                        }
-                    }
-                } catch (e) {
-                    console.error('Error loading public cassettes from API:', e);
-                    // Fallback to user's own public cassettes from metadata
-                    if (this.user && window.Clerk) {
-                        try {
-                            const publicCassettes = this.user.publicMetadata?.publicCassettes || [];
-                            const existingIds = new Set(cassettes.map(c => c.id));
-                            publicCassettes.forEach(publicCassette => {
-                                if (!existingIds.has(publicCassette.id)) {
-                                    cassettes.push(publicCassette);
-                                }
-                            });
-                        } catch (e2) {
-                            console.error('Error loading public cassettes from Clerk metadata:', e2);
-                        }
-                    }
-                }
-            }
-            
             return cassettes;
         } catch {
             return [];
         }
     }
 
-    async syncPublicCassettesToClerk() {
-        if (!this.isAuthenticated || !this.user || !window.Clerk) return;
-        
+    async loadPublicCassettesFromAPI() {
+        if (!this.isAuthenticated || !this.user?.id) {
+            return [];
+        }
+
         try {
-            const cassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
-            const publicCassettes = cassettes.filter(c => c.isPublic === true);
-            
-            // Update Clerk metadata
-            await window.Clerk.user.update({
-                publicMetadata: {
-                    ...this.user.publicMetadata,
-                    publicCassettes: publicCassettes
+            const response = await fetch('/api/public-cassettes', {
+                method: 'GET',
+                headers: {
+                    'x-clerk-userid': this.user.id
                 }
             });
-            
-            console.log('✅ Public cassettes synced to Clerk');
-        } catch (error) {
-            console.error('Error syncing public cassettes to Clerk:', error);
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && Array.isArray(data.publicCassettes)) {
+                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API`);
+                    return data.publicCassettes;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading public cassettes from API:', e);
         }
+
+        return [];
     }
 
-    async saveCustomCassette(cassette) {
+    async getCustomCassettesWithPublic() {
+        const localCassettes = this.getCustomCassettes();
+        
+        // Load public cassettes from API in background
+        const publicCassettes = await this.loadPublicCassettesFromAPI();
+        
+        // Merge with local cassettes, avoiding duplicates
+        const existingIds = new Set(localCassettes.map(c => c.id));
+        const mergedCassettes = [...localCassettes];
+        
+        publicCassettes.forEach(publicCassette => {
+            if (!existingIds.has(publicCassette.id)) {
+                mergedCassettes.push(publicCassette);
+            }
+        });
+        
+        return mergedCassettes;
+    }
+
+    saveCustomCassette(cassette) {
         try {
-            const cassettes = await this.getCustomCassettes();
-            
-            // Remove from Clerk public cassettes if it exists there
-            const existingPublicIndex = cassettes.findIndex(c => c.id === cassette.id && c.isPublic === true);
-            
+            const cassettes = this.getCustomCassettes();
             const existingIndex = cassettes.findIndex(c => c.id === cassette.id);
             
             if (existingIndex >= 0) {
@@ -15561,22 +15453,7 @@ class PomodoroTimer {
                 cassettes.push(cassette);
             }
             
-            // Save to localStorage
-            const localCassettes = cassettes.filter(c => {
-                // Keep if it's private and user is creator, or if it's public
-                if (c.isPublic === false) {
-                    return c.userId === (this.user?.id || null);
-                }
-                return true;
-            });
-            
-            localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
-            
-            // Sync public cassettes to Clerk metadata
-            if (cassette.isPublic === true) {
-                this.syncPublicCassettesToClerk();
-            }
-            
+            localStorage.setItem('customCassettes', JSON.stringify(cassettes));
             return true;
         } catch (error) {
             console.error('Error saving custom cassette:', error);
@@ -15584,27 +15461,11 @@ class PomodoroTimer {
         }
     }
 
-    async deleteCustomCassette(cassetteId) {
+    deleteCustomCassette(cassetteId) {
         try {
-            const cassettes = await this.getCustomCassettes();
-            const cassetteToDelete = cassettes.find(c => c.id === cassetteId);
+            const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
-            
-            // Save to localStorage (only keep user's own cassettes)
-            const currentUserId = this.isAuthenticated && this.user ? this.user.id : null;
-            const localCassettes = filtered.filter(c => {
-                if (c.isPublic === false) {
-                    return c.userId === currentUserId;
-                }
-                return true;
-            });
-            
-            localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
-            
-            // If deleted cassette was public, sync to Clerk
-            if (cassetteToDelete && cassetteToDelete.isPublic === true) {
-                await this.syncPublicCassettesToClerk();
-            }
+            localStorage.setItem('customCassettes', JSON.stringify(filtered));
             
             // If this was the active theme, switch to lofi
             if (this.currentTheme === `custom_${cassetteId}`) {
@@ -15612,14 +15473,14 @@ class PomodoroTimer {
             }
             
             // Reload cassettes
-            await this.loadCustomCassettes();
+            this.loadCustomCassettes();
         } catch (error) {
             console.error('Error deleting custom cassette:', error);
         }
     }
 
-    async selectCustomCassette(cassetteId) {
-        const cassettes = await this.getCustomCassettes();
+    selectCustomCassette(cassetteId) {
+        const cassettes = this.getCustomCassettes();
         const cassette = cassettes.find(c => c.id === cassetteId);
         
         if (!cassette) return;
@@ -15936,7 +15797,7 @@ class PomodoroTimer {
         return null;
     }
 
-    async showCassetteForm(cassetteId = null) {
+    showCassetteForm(cassetteId = null) {
         const form = document.getElementById('cassetteForm');
         const createBtn = document.getElementById('createCassetteBtn');
         const saveBtn = document.getElementById('saveCassetteBtn');
@@ -15945,7 +15806,7 @@ class PomodoroTimer {
         
         // Load cassette data if editing
         if (cassetteId) {
-            const cassettes = await this.getCustomCassettes();
+            const cassettes = this.getCustomCassettes();
             const cassette = cassettes.find(c => c.id === cassetteId);
             
             if (cassette) {
@@ -15954,17 +15815,6 @@ class PomodoroTimer {
                 document.getElementById('cassetteImageUrl').value = cassette.imageUrl || '';
                 document.getElementById('cassetteSpotifyUrl').value = cassette.spotifyUrl || '';
                 document.getElementById('cassetteWebsiteUrl').value = cassette.websiteUrl || '';
-                
-                // Set visibility
-                const visibilityPublic = document.getElementById('cassetteVisibilityPublic');
-                const visibilityPrivate = document.getElementById('cassetteVisibilityPrivate');
-                if (cassette.isPublic === false) {
-                    if (visibilityPrivate) visibilityPrivate.checked = true;
-                    if (visibilityPublic) visibilityPublic.checked = false;
-                } else {
-                    if (visibilityPublic) visibilityPublic.checked = true;
-                    if (visibilityPrivate) visibilityPrivate.checked = false;
-                }
                 
                 // Store editing ID in save button
                 if (saveBtn) {
@@ -15979,12 +15829,6 @@ class PomodoroTimer {
             document.getElementById('cassetteImageUrl').value = '';
             document.getElementById('cassetteSpotifyUrl').value = '';
             document.getElementById('cassetteWebsiteUrl').value = '';
-            
-            // Set visibility to Public by default
-            const visibilityPublic = document.getElementById('cassetteVisibilityPublic');
-            const visibilityPrivate = document.getElementById('cassetteVisibilityPrivate');
-            if (visibilityPublic) visibilityPublic.checked = true;
-            if (visibilityPrivate) visibilityPrivate.checked = false;
             
             if (saveBtn) {
                 delete saveBtn.dataset.editingId;
@@ -16026,12 +15870,6 @@ class PomodoroTimer {
         document.getElementById('cassetteImageUrl').value = '';
         document.getElementById('cassetteSpotifyUrl').value = '';
         document.getElementById('cassetteWebsiteUrl').value = '';
-        
-        // Reset visibility to Public
-        const visibilityPublic = document.getElementById('cassetteVisibilityPublic');
-        const visibilityPrivate = document.getElementById('cassetteVisibilityPrivate');
-        if (visibilityPublic) visibilityPublic.checked = true;
-        if (visibilityPrivate) visibilityPrivate.checked = false;
     }
 
     extractImageUrl(url) {
@@ -16129,14 +15967,6 @@ class PomodoroTimer {
         const spotifyUrl = (spotifyUrlEl.value || '').trim();
         const websiteUrl = (websiteUrlEl.value || '').trim();
         
-        // Get visibility
-        const visibilityPublic = document.getElementById('cassetteVisibilityPublic');
-        const isPublic = visibilityPublic ? visibilityPublic.checked : true; // Default to public
-        
-        // Get user info
-        const userId = this.isAuthenticated && this.user ? this.user.id : null;
-        const username = this.isAuthenticated && this.user ? (this.user.username || this.user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'Unknown') : null;
-        
         console.log('💾 Saving cassette - Title value:', title, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl.value);
         
         // Validate title first (before any other processing)
@@ -16162,8 +15992,6 @@ class PomodoroTimer {
             }
         }
         
-        const existingCassette = cassetteId ? (await this.getCustomCassettes()).find(c => c.id === cassetteId) : null;
-        
         const cassette = {
             id: cassetteId || `cassette_${Date.now()}`,
             title: title,
@@ -16171,23 +15999,20 @@ class PomodoroTimer {
             imageUrl: imageUrl || '',
             spotifyUrl: spotifyUrl || '',
             websiteUrl: websiteUrl || '',
-            isPublic: isPublic,
-            userId: userId || existingCassette?.userId || null,
-            username: username || existingCassette?.username || null,
-            createdAt: existingCassette?.createdAt || new Date().toISOString(),
+            createdAt: cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId)?.createdAt : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
         
         try {
-            if (await this.saveCustomCassette(cassette)) {
+            if (this.saveCustomCassette(cassette)) {
                 // Reload cassettes
-                await this.loadCustomCassettes();
+                this.loadCustomCassettes();
                 
                 // If this is a new cassette (not editing), select it automatically
                 if (!cassetteId) {
                     // Wait a bit for DOM to update
                     setTimeout(() => {
-                        this.selectCustomCassette(cassette.id).catch(err => console.error('Error selecting cassette:', err));
+                        this.selectCustomCassette(cassette.id);
                     }, 100);
                 }
                 
@@ -16242,13 +16067,13 @@ class PomodoroTimer {
         }
     }
 
-    async applyTheme(themeName) {
+    applyTheme(themeName) {
         console.log(`🎨 Applying theme: ${themeName}`);
         
         // Check if this is a custom cassette
         if (themeName && themeName.startsWith('custom_')) {
             const cassetteId = themeName.replace('custom_', '');
-            const cassettes = await this.getCustomCassettes();
+            const cassettes = this.getCustomCassettes();
             const cassette = cassettes.find(c => c.id === cassetteId);
             
             if (cassette) {
