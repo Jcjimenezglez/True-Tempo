@@ -11987,7 +11987,7 @@ class PomodoroTimer {
         // Get data for different time periods
         const last7Days = this.getLastNDaysData(stats, 7);
         const last30Days = this.getLastNDaysData(stats, 30);
-        const last12Weeks = this.getLastNWeeksData(stats, 12);
+        const last4Weeks = this.getLastNWeeksData(stats, 4);
         const last12Months = this.getLastNMonthsData(stats, 12);
 
         // Calculate insights
@@ -12040,10 +12040,10 @@ class PomodoroTimer {
 
                 <!-- Trends Chart -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Weekly Trends (Last 12 Weeks)</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Weekly Trends (Last 4 Weeks)</h4>
                     <div style="height: 200px; display: flex; align-items: flex-end; gap: 4px;">
-                        ${last12Weeks.map(week => {
-                            const maxHours = Math.max(...last12Weeks.map(w => w.hours), 1);
+                        ${last4Weeks.map(week => {
+                            const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
                             const height = (week.hours / maxHours) * 100;
                             return `
                                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
