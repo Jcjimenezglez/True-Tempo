@@ -15328,8 +15328,8 @@ class PomodoroTimer {
             const cassetteOption = document.querySelector(`[data-cassette-id="${cassette.id}"]`);
             if (cassetteOption) {
                 cassetteOption.addEventListener('click', (e) => {
-                    // Don't trigger if clicking edit/delete buttons
-                    if (e.target.closest('.edit-cassette-btn') || e.target.closest('.delete-cassette-btn')) {
+                    // Don't trigger if clicking options button or dropdown
+                    if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
                         return;
                     }
                     
@@ -15337,24 +15337,54 @@ class PomodoroTimer {
                 });
             }
             
-            // Edit button
-            const editBtn = document.querySelector(`.edit-cassette-btn[data-cassette-id="${cassette.id}"]`);
-            if (editBtn) {
-                editBtn.addEventListener('click', (e) => {
+            // Options button (3 dots)
+            const optionsBtn = document.querySelector(`.cassette-options-btn[data-cassette-id="${cassette.id}"]`);
+            const optionsDropdown = document.getElementById(`cassetteOptionsDropdown${cassette.id}`);
+            
+            if (optionsBtn && optionsDropdown) {
+                optionsBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    const isVisible = optionsDropdown.style.display === 'block';
+                    // Close all other dropdowns first
+                    document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                        dropdown.style.display = 'none';
+                    });
+                    optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                });
+            }
+            
+            // Edit option
+            const editOption = document.querySelector(`.edit-cassette-option[data-cassette-id="${cassette.id}"]`);
+            if (editOption) {
+                editOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (optionsDropdown) optionsDropdown.style.display = 'none';
                     this.showCassetteForm(cassette.id);
                 });
             }
             
-            // Delete button
-            const deleteBtn = document.querySelector(`.delete-cassette-btn[data-cassette-id="${cassette.id}"]`);
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', (e) => {
+            // Delete option
+            const deleteOption = document.querySelector(`.delete-cassette-option[data-cassette-id="${cassette.id}"]`);
+            if (deleteOption) {
+                deleteOption.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    if (optionsDropdown) optionsDropdown.style.display = 'none';
                     this.deleteCustomCassette(cassette.id);
                 });
             }
         });
+        
+        // Close dropdown when clicking outside
+        setTimeout(() => {
+            const closeDropdowns = (e) => {
+                if (!e.target.closest('.cassette-options-btn') && !e.target.closest('.cassette-options-dropdown')) {
+                    document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                        dropdown.style.display = 'none';
+                    });
+                }
+            };
+            document.addEventListener('click', closeDropdowns);
+        }, 100);
     }
 
     getCustomCassettes() {
