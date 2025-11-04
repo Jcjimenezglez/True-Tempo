@@ -15751,8 +15751,15 @@ class PomodoroTimer {
         
         // Extract actual image URL if it's a Google Images redirect
         if (imageUrl) {
+            const originalUrl = imageUrl;
             imageUrl = this.extractImageUrl(imageUrl);
+            console.log('🎨 Original URL:', originalUrl);
             console.log('🎨 Final image URL:', imageUrl);
+            
+            // Warn if URL looks problematic
+            if (imageUrl.includes('google.com/url') || (imageUrl === originalUrl && originalUrl.includes('google.com'))) {
+                alert('⚠️ Important: The URL you provided appears to be a redirect link, not a direct image URL.\n\nThis will likely not work as a background image.\n\n📝 How to get the correct URL:\n1. Right-click on the image (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. Paste that URL instead\n\nAlternatively, use image hosting services like:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
+            }
         }
         
         const cassette = {
