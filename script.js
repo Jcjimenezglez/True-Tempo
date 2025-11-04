@@ -15646,130 +15646,79 @@ class PomodoroTimer {
         return null;
     }
 
-    showCreateCassetteModal(cassetteId = null) {
-        // Check if modal already exists
-        const existingModal = document.getElementById('createCassetteModal');
-        if (existingModal) {
-            console.log('⚠️ Modal already exists, closing existing modal first');
-            existingModal.remove();
-        }
+    showCassetteForm(cassetteId = null) {
+        const form = document.getElementById('cassetteForm');
+        const createBtn = document.getElementById('createCassetteBtn');
+        const saveBtn = document.getElementById('saveCassetteBtn');
         
-        const cassettes = this.getCustomCassettes();
-        const cassette = cassetteId ? cassettes.find(c => c.id === cassetteId) : null;
+        if (!form || !createBtn) return;
         
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'upgrade-modal-overlay';
-        modalOverlay.id = 'createCassetteModal';
-        
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal';
-        modal.style.maxWidth = '500px';
-        
-        modal.innerHTML = `
-            <button class="close-upgrade-x" id="closeCreateCassetteModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <h3>${cassette ? 'Edit Cassette' : 'Create Cassette'}</h3>
-                <p>Customize your focus environment</p>
+        // Load cassette data if editing
+        if (cassetteId) {
+            const cassettes = this.getCustomCassettes();
+            const cassette = cassettes.find(c => c.id === cassetteId);
+            
+            if (cassette) {
+                document.getElementById('cassetteTitle').value = cassette.title || '';
+                document.getElementById('cassetteDescription').value = cassette.description || '';
+                document.getElementById('cassetteImageUrl').value = cassette.imageUrl || '';
+                document.getElementById('cassetteSpotifyUrl').value = cassette.spotifyUrl || '';
+                document.getElementById('cassetteWebsiteUrl').value = cassette.websiteUrl || '';
                 
-                <form id="createCassetteForm" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
-                    <div>
-                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Title *</label>
-                        <input type="text" id="cassetteTitle" required style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? cassette.title : ''}" placeholder="My Focus Environment">
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Description</label>
-                        <textarea id="cassetteDescription" rows="3" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; resize: vertical; box-sizing: border-box; font-family: inherit;" placeholder="Describe your focus environment...">${cassette ? (cassette.description || '') : ''}</textarea>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Background Image URL</label>
-                        <input type="url" id="cassetteImageUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.imageUrl || '') : ''}" placeholder="https://example.com/image.jpg">
-                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">URL of the image to use as background</p>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Spotify URL (Optional)</label>
-                        <input type="url" id="cassetteSpotifyUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.spotifyUrl || '') : ''}" placeholder="https://open.spotify.com/track/...">
-                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">Spotify track, playlist, or album URL</p>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Website URL (Optional)</label>
-                        <input type="url" id="cassetteWebsiteUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.websiteUrl || '') : ''}" placeholder="https://example.com">
-                        <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">Link to a website related to this environment</p>
-                    </div>
-                    
-                    <div style="display: flex; gap: 12px; margin-top: 8px;">
-                        <button type="submit" style="flex: 1; padding: 12px; background: var(--onyx-dark, #064e3b); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">${cassette ? 'Update' : 'Create'} Cassette</button>
-                        <button type="button" id="cancelCreateCassette" style="flex: 1; padding: 12px; background: #2a2a2a; color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        
-        modalOverlay.appendChild(modal);
-        document.body.appendChild(modalOverlay);
-        
-        // Helper function to close modal safely
-        const closeModal = () => {
-            if (modalOverlay && modalOverlay.parentNode) {
-                modalOverlay.remove();
-            }
-        };
-        
-        // Form submission
-        const form = document.getElementById('createCassetteForm');
-        if (form) {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const success = this.saveCassetteFromForm(cassetteId);
-                if (success) {
-                    closeModal();
+                // Store editing ID in save button
+                if (saveBtn) {
+                    saveBtn.dataset.editingId = cassetteId;
+                    saveBtn.textContent = 'Update';
                 }
-            });
-        }
-        
-        // Close buttons
-        const closeBtn = document.getElementById('closeCreateCassetteModal');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-            });
-        }
-        
-        const cancelBtn = document.getElementById('cancelCreateCassette');
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-            });
-        }
-        
-        // Close on overlay click (only if clicking directly on overlay, not modal)
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
             }
-        });
-        
-        // Prevent modal clicks from bubbling to overlay
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
+        } else {
+            // Clear form for new cassette
+            document.getElementById('cassetteTitle').value = '';
+            document.getElementById('cassetteDescription').value = '';
+            document.getElementById('cassetteImageUrl').value = '';
+            document.getElementById('cassetteSpotifyUrl').value = '';
+            document.getElementById('cassetteWebsiteUrl').value = '';
+            
+            if (saveBtn) {
+                delete saveBtn.dataset.editingId;
+                saveBtn.textContent = 'Save';
+            }
         }
+        
+        // Show form and hide button
+        form.style.display = 'block';
+        createBtn.style.display = 'none';
+        
+        // Focus on title input
+        const titleInput = document.getElementById('cassetteTitle');
+        if (titleInput) {
+            setTimeout(() => titleInput.focus(), 100);
+        }
+    }
+    
+    hideCassetteForm() {
+        const form = document.getElementById('cassetteForm');
+        const createBtn = document.getElementById('createCassetteBtn');
+        const saveBtn = document.getElementById('saveCassetteBtn');
+        
+        if (!form || !createBtn) return;
+        
+        // Hide form and show button
+        form.style.display = 'none';
+        createBtn.style.display = 'block';
+        
+        // Clear editing ID
+        if (saveBtn) {
+            delete saveBtn.dataset.editingId;
+            saveBtn.textContent = 'Save';
+        }
+        
+        // Clear form
+        document.getElementById('cassetteTitle').value = '';
+        document.getElementById('cassetteDescription').value = '';
+        document.getElementById('cassetteImageUrl').value = '';
+        document.getElementById('cassetteSpotifyUrl').value = '';
+        document.getElementById('cassetteWebsiteUrl').value = '';
     }
 
     extractImageUrl(url) {
