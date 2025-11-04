@@ -12042,17 +12042,19 @@ class PomodoroTimer {
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
                     <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Last 4 Weeks</h4>
                     <div style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
-                        ${last4Weeks.map(week => {
+                        ${(() => {
                             const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
-                            const height = (week.hours / maxHours) * 100;
-                            return `
-                                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px 4px 0 0; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
-                                    <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
-                                    <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
-                                </div>
-                            `;
-                        }).join('')}
+                            return last4Weeks.map(week => {
+                                const height = (week.hours / maxHours) * 100;
+                                return `
+                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%;">
+                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px 4px 0 0; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                                        <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
+                                        <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
+                                    </div>
+                                `;
+                            }).join('');
+                        })()}
                     </div>
                 </div>
 
