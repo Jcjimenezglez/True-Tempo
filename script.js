@@ -15819,19 +15819,29 @@ class PomodoroTimer {
         const websiteUrlEl = document.getElementById('cassetteWebsiteUrl');
         
         if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl || !websiteUrlEl) {
-            console.error('Form elements not found');
+            console.error('Form elements not found', {
+                titleEl: !!titleEl,
+                descriptionEl: !!descriptionEl,
+                imageUrlEl: !!imageUrlEl,
+                spotifyUrlEl: !!spotifyUrlEl,
+                websiteUrlEl: !!websiteUrlEl
+            });
             alert('Error: Form elements not found. Please try again.');
             return false;
         }
         
-        const title = titleEl.value.trim();
+        // Get values with debug logging
+        const title = titleEl.value ? titleEl.value.trim() : '';
+        console.log('💾 Saving cassette - Title value:', title, 'Editing:', !!cassetteId);
         const description = descriptionEl.value.trim();
         let imageUrl = imageUrlEl.value.trim();
         const spotifyUrl = spotifyUrlEl.value.trim();
         const websiteUrl = websiteUrlEl.value.trim();
         
+        // Validate title first (before any other processing)
         if (!title) {
             alert('Title is required');
+            titleEl.focus();
             return false;
         }
         
@@ -15843,8 +15853,10 @@ class PomodoroTimer {
             console.log('🎨 Final image URL:', imageUrl);
             
             // If extraction returned empty or it's still a Google redirect, show error
-            if (!imageUrl || imageUrl.includes('google.com/url') || (imageUrl === originalUrl && originalUrl.includes('google.com'))) {
+            // But only if the user actually provided an imageUrl (not empty)
+            if (originalUrl && (!imageUrl || imageUrl.includes('google.com/url') || (imageUrl === originalUrl && originalUrl.includes('google.com')))) {
                 alert('⚠️ Error: The URL you provided is not a direct image URL.\n\n📝 How to get the correct URL from Google Images:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)\n- Upload to Imgur and use the direct image URL');
+                imageUrlEl.focus();
                 return false;
             }
         }
