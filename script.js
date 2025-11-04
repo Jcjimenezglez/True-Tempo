@@ -15859,6 +15859,33 @@ class PomodoroTimer {
     }
     
     updateThemeActiveState(themeName) {
+        // Handle custom cassettes
+        if (themeName && themeName.startsWith('custom_')) {
+            const cassetteId = themeName.replace('custom_', '');
+            const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
+            if (cassetteOption) {
+                cassetteOption.classList.add('active');
+                const radio = cassetteOption.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
+            // Remove active from preset themes
+            document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                opt.classList.remove('active');
+                const radio = opt.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
+            });
+            // Remove active from other custom cassettes
+            document.querySelectorAll('.custom-cassette').forEach(opt => {
+                if (opt !== cassetteOption) {
+                    opt.classList.remove('active');
+                    const radio = opt.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = false;
+                }
+            });
+            console.log(`🎨 Theme active state updated to: ${themeName}`);
+            return;
+        }
+        
         // Get all theme options
         const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
         
@@ -15875,6 +15902,13 @@ class PomodoroTimer {
                 option.classList.add('active');
                 if (radio) radio.checked = true;
             }
+        });
+        
+        // Remove active from custom cassettes
+        document.querySelectorAll('.custom-cassette').forEach(opt => {
+            opt.classList.remove('active');
+            const radio = opt.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
         });
         
         console.log(`🎨 Theme active state updated to: ${themeName}`);
