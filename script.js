@@ -15831,15 +15831,16 @@ class PomodoroTimer {
         }
         
         // Get values with debug logging
-        const title = titleEl.value ? titleEl.value.trim() : '';
-        console.log('💾 Saving cassette - Title value:', title, 'Editing:', !!cassetteId);
-        const description = descriptionEl.value.trim();
-        let imageUrl = imageUrlEl.value.trim();
-        const spotifyUrl = spotifyUrlEl.value.trim();
-        const websiteUrl = websiteUrlEl.value.trim();
+        const title = (titleEl.value || '').trim();
+        const description = (descriptionEl.value || '').trim();
+        let imageUrl = (imageUrlEl.value || '').trim();
+        const spotifyUrl = (spotifyUrlEl.value || '').trim();
+        const websiteUrl = (websiteUrlEl.value || '').trim();
+        
+        console.log('💾 Saving cassette - Title value:', title, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl.value);
         
         // Validate title first (before any other processing)
-        if (!title) {
+        if (!title || title.length === 0) {
             alert('Title is required');
             titleEl.focus();
             return false;
