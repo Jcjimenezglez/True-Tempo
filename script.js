@@ -15509,48 +15509,68 @@ class PomodoroTimer {
             existingLink.remove();
         }
         
-        // Create website link button
-        const link = document.createElement('a');
+        // Get timer section to append button (like Tron does)
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('Timer section not found for website link');
+            return;
+        }
+        
+        // Create website link button matching Tron style
+        const link = document.createElement('div');
         link.id = 'customWebsiteLink';
-        link.href = websiteUrl;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
         link.style.cssText = `
-            position: fixed;
-            bottom: 110px;
-            right: 20px;
-            padding: 10px 16px;
-            background: var(--onyx-dark, #064e3b);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s;
-        `;
-        link.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                <polyline points="15 3 21 3 21 9"/>
-                <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            Visit Website
+            position: absolute !important;
+            bottom: 20px !important;
+            left: 16px !important;
+            border-radius: 100px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: none !important;
+            backdrop-filter: blur(4px) !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            padding: 12px 20px !important;
+            min-width: 140px !important;
+            white-space: nowrap !important;
+            z-index: 100 !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
         `;
         
+        link.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
+                <div style="font-size: 16px; flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </div>
+                <div style="font-weight: 500; font-size: 14px; flex-shrink: 0;">Visit Website</div>
+            </div>
+        `;
+        
+        // Add hover effect matching Tron style
         link.addEventListener('mouseenter', () => {
-            link.style.background = 'var(--onyx-light, #065f46)';
+            link.style.background = 'rgba(255, 255, 255, 0.15)';
+            link.style.transform = 'translateY(-1px)';
+            link.style.color = '#ffffff';
         });
         
         link.addEventListener('mouseleave', () => {
-            link.style.background = 'var(--onyx-dark, #064e3b)';
+            link.style.background = 'rgba(255, 255, 255, 0.1)';
+            link.style.transform = 'translateY(0)';
+            link.style.color = 'rgba(255, 255, 255, 0.9)';
         });
         
-        document.body.appendChild(link);
+        // Add click handler
+        link.addEventListener('click', () => {
+            window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+        });
+        
+        // Append to timer section (like Tron does)
+        timerSection.appendChild(link);
         console.log('🔗 Website link created:', websiteUrl);
     }
 
