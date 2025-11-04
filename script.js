@@ -12090,6 +12090,12 @@ class PomodoroTimer {
         containerElement.innerHTML = html;
 
         // Add toggle functionality for trends chart
+        // Store data in variables accessible to event listeners
+        const trendsData = {
+            last7Days: last7Days,
+            last4Weeks: last4Weeks
+        };
+
         const toggleToWeeks = document.getElementById('toggleToWeeks');
         const toggleToDays = document.getElementById('toggleToDays');
         const trendsChartTitle = document.getElementById('trendsChartTitle');
@@ -12097,8 +12103,8 @@ class PomodoroTimer {
 
         if (toggleToWeeks && toggleToDays && trendsChartContent) {
             const renderWeeksChart = () => {
-                const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
-                trendsChartContent.innerHTML = last4Weeks.map(week => {
+                const maxHours = Math.max(...trendsData.last4Weeks.map(w => w.hours), 1);
+                trendsChartContent.innerHTML = trendsData.last4Weeks.map(week => {
                     const height = (week.hours / maxHours) * 100;
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
@@ -12111,8 +12117,8 @@ class PomodoroTimer {
             };
 
             const renderDaysChart = () => {
-                const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
-                trendsChartContent.innerHTML = last7Days.map(day => {
+                const maxHours = Math.max(...trendsData.last7Days.map(d => d.hours), 1);
+                trendsChartContent.innerHTML = trendsData.last7Days.map(day => {
                     const height = (day.hours / maxHours) * 100;
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
