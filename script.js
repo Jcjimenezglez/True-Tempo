@@ -15681,31 +15681,60 @@ class PomodoroTimer {
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
         
+        // Helper function to close modal safely
+        const closeModal = () => {
+            if (modalOverlay && modalOverlay.parentNode) {
+                modalOverlay.remove();
+            }
+        };
+        
         // Form submission
         const form = document.getElementById('createCassetteForm');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const success = this.saveCassetteFromForm(cassetteId);
-            if (success) {
-                document.body.removeChild(modalOverlay);
-            }
-        });
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const success = this.saveCassetteFromForm(cassetteId);
+                if (success) {
+                    closeModal();
+                }
+            });
+        }
         
         // Close buttons
-        document.getElementById('closeCreateCassetteModal').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
+        const closeBtn = document.getElementById('closeCreateCassetteModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+        }
         
-        document.getElementById('cancelCreateCassette').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-        });
+        const cancelBtn = document.getElementById('cancelCreateCassette');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+        }
         
-        // Close on overlay click
+        // Close on overlay click (only if clicking directly on overlay, not modal)
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
             }
         });
+        
+        // Prevent modal clicks from bubbling to overlay
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
     }
 
     extractImageUrl(url) {
