@@ -6461,6 +6461,67 @@ input:checked + .toggle-slider:before {
     flex-shrink: 0;
 }
 
+/* Cassette Options Dropdown */
+.cassette-options-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cassette-options-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.cassette-options-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    min-width: 160px;
+    margin-top: 4px;
+}
+
+.cassette-options-menu {
+    padding: 8px 0;
+}
+
+.cassette-option-item {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    transition: background 0.2s ease;
+    text-align: left;
+}
+
+.cassette-option-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cassette-option-item svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
 /* Todoist Projects Modal Styles */
 .todoist-projects-container {
     margin: 1.5rem 0;
