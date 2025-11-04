@@ -15150,18 +15150,21 @@ class PomodoroTimer {
         const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
         
         themeOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
             const themeName = option.dataset.theme;
             
             // Set initial active state
             if (themeName === savedTheme) {
                 option.classList.add('active');
-                if (radio) radio.checked = true;
             }
             
             // Set up click handler
             option.addEventListener('click', (e) => {
                 e.preventDefault();
+                
+                // Don't trigger if clicking edit/delete buttons on custom cassettes
+                if (e.target.closest('.edit-cassette-btn') || e.target.closest('.delete-cassette-btn')) {
+                    return;
+                }
                 
                 this.trackEvent('Cassette Selected', {
                     button_type: 'cassette',
@@ -15180,13 +15183,10 @@ class PomodoroTimer {
                 // Remove active from all options
                 themeOptions.forEach(opt => {
                     opt.classList.remove('active');
-                    const optRadio = opt.querySelector('input[type="radio"]');
-                    if (optRadio) optRadio.checked = false;
                 });
                 
                 // Add active to clicked option
                 option.classList.add('active');
-                if (radio) radio.checked = true;
                 
                 // Apply the selected theme
                 this.applyTheme(themeName);
@@ -15264,10 +15264,6 @@ class PomodoroTimer {
                     <div class="theme-info">
                         <h4>${cassette.title}</h4>
                         <p>${cassette.description || 'Custom focus environment'}</p>
-                    </div>
-                    <div class="theme-radio">
-                        <input type="radio" name="theme" id="theme${cassette.id}" value="custom_${cassette.id}" aria-label="${cassette.title}">
-                        <label for="theme${cassette.id}"></label>
                     </div>
                     <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
                         <button class="edit-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(0, 0, 0, 0.6); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px; z-index: 10;" title="Edit" onclick="event.stopPropagation();">
@@ -15381,16 +15377,12 @@ class PomodoroTimer {
         // Remove active from all preset themes and custom cassettes
         document.querySelectorAll('.theme-option').forEach(opt => {
             opt.classList.remove('active');
-            const radio = opt.querySelector('input[type="radio"]');
-            if (radio) radio.checked = false;
         });
         
         // Add active to selected cassette
         const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
         if (cassetteOption) {
             cassetteOption.classList.add('active');
-            const radio = cassetteOption.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
         }
         
         // Apply the custom cassette
