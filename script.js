@@ -15668,31 +15668,75 @@ class PomodoroTimer {
             return;
         }
         
-        const timerSection = document.querySelector('.timer-section');
-        if (!timerSection) return;
-        
-        // Create Spotify iframe
-        const widget = document.createElement('div');
+        // Create Spotify iframe (same format as Tron)
+        const widget = document.createElement('iframe');
         widget.id = 'customSpotifyWidget';
+        widget.src = `https://open.spotify.com/embed/${spotifyId.type}/${spotifyId.id}?utm_source=generator&theme=0`;
+        widget.width = '100%';
+        widget.height = '352';
+        widget.frameBorder = '0';
+        widget.allowTransparency = 'true';
+        widget.setAttribute('title', 'Spotify Music Player');
+        widget.setAttribute('aria-label', 'Spotify Music Player');
+        widget.setAttribute('referrerpolicy', 'no-referrer');
+        widget.setAttribute('data-testid', 'embed-iframe');
+        widget.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        widget.loading = 'lazy';
+        
+        // Style the widget (same as Tron)
         widget.style.cssText = `
             position: fixed;
             bottom: 20px;
             right: 20px;
             width: 300px;
-            height: 80px;
+            height: 352px;
             z-index: 1000;
             border-radius: 12px;
-            overflow: hidden;
+            border: none;
+            pointer-events: auto;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease;
+            opacity: 0.8;
         `;
         
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://open.spotify.com/embed/${spotifyId.type}/${spotifyId.id}?utm_source=generator&theme=0`;
-        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-        iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-        iframe.loading = 'lazy';
+        // Set up timeout handling (same as Tron)
+        let loadTimeout;
+        let isLoaded = false;
         
-        widget.appendChild(iframe);
+        const handleLoad = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            widget.style.opacity = '1';
+            console.log('🎵 Custom Spotify widget loaded successfully');
+        };
+        
+        const handleError = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            console.error('❌ Custom Spotify widget failed to load');
+            widget.style.opacity = '0.7';
+        };
+        
+        const handleTimeout = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            console.warn('⚠️ Custom Spotify widget loading timeout');
+            widget.style.opacity = '0.7';
+        };
+        
+        // Set timeout for 10 seconds
+        loadTimeout = setTimeout(handleTimeout, 10000);
+        
+        // Add event listeners
+        widget.addEventListener('load', handleLoad);
+        widget.addEventListener('error', handleError);
+        
         document.body.appendChild(widget);
         
         console.log('🎵 Custom Spotify widget created');
