@@ -15484,7 +15484,7 @@ class PomodoroTimer {
             };
             testImg.onerror = () => {
                 console.error('❌ Image failed to load:', cassette.imageUrl);
-                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\nTip: Right-click on the image and select "Copy image address" instead of "Copy link address".');
+                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
                 // Fallback to black background
                 timerSection.style.removeProperty('background-image');
                 timerSection.style.setProperty('background', '#0a0a0a', 'important');
