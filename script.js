@@ -15290,20 +15290,34 @@ class PomodoroTimer {
                         <h4>${cassette.title}</h4>
                         <p>${cassette.description || 'Custom focus environment'}</p>
                     </div>
-                    <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
-                        <button class="edit-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(0, 0, 0, 0.6); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px; z-index: 10;" title="Edit" onclick="event.stopPropagation();">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
                             </svg>
                         </button>
-                        <button class="delete-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(220, 38, 38, 0.8); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px; z-index: 10;" title="Delete" onclick="event.stopPropagation();">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 6h18"/>
-                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                            </svg>
-                        </button>
+                        <div class="cassette-options-dropdown" id="cassetteOptionsDropdown${cassette.id}" style="display: none;">
+                            <div class="cassette-options-menu">
+                                <button class="cassette-option-item edit-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
