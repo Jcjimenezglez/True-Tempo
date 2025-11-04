@@ -15212,6 +15212,8 @@ class PomodoroTimer {
     initializeMyCassettes() {
         const createCassetteSection = document.getElementById('createCassetteSection');
         const createCassetteBtn = document.getElementById('createCassetteBtn');
+        const cancelCassetteBtn = document.getElementById('cancelCassetteBtn');
+        const saveCassetteBtn = document.getElementById('saveCassetteBtn');
         
         // Show create button only for Pro users
         if (this.isPremiumUser()) {
@@ -15232,7 +15234,25 @@ class PomodoroTimer {
                 newBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    this.showCreateCassetteModal();
+                    this.showCassetteForm();
+                });
+            }
+            
+            // Cancel button
+            if (cancelCassetteBtn) {
+                cancelCassetteBtn.addEventListener('click', () => {
+                    this.hideCassetteForm();
+                });
+            }
+            
+            // Save button
+            if (saveCassetteBtn) {
+                saveCassetteBtn.addEventListener('click', () => {
+                    const cassetteId = saveCassetteBtn.dataset.editingId || null;
+                    const success = this.saveCassetteFromForm(cassetteId);
+                    if (success) {
+                        this.hideCassetteForm();
+                    }
                 });
             }
         } else {
@@ -15303,7 +15323,7 @@ class PomodoroTimer {
             if (editBtn) {
                 editBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    this.showCreateCassetteModal(cassette.id);
+                    this.showCassetteForm(cassette.id);
                 });
             }
             
@@ -15784,6 +15804,12 @@ class PomodoroTimer {
     }
 
     saveCassetteFromForm(cassetteId = null) {
+        // Get cassetteId from save button if not provided
+        const saveBtn = document.getElementById('saveCassetteBtn');
+        if (!cassetteId && saveBtn && saveBtn.dataset.editingId) {
+            cassetteId = saveBtn.dataset.editingId;
+        }
+        
         const titleEl = document.getElementById('cassetteTitle');
         const descriptionEl = document.getElementById('cassetteDescription');
         const imageUrlEl = document.getElementById('cassetteImageUrl');
@@ -15843,7 +15869,8 @@ class PomodoroTimer {
                     has_image: !!cassette.imageUrl,
                     has_spotify: !!cassette.spotifyUrl,
                     has_website: !!cassette.websiteUrl,
-                    user_type: 'pro'
+                    user_type: 'pro',
+                    is_edit: !!cassetteId
                 });
                 
                 console.log('✅ Custom cassette saved:', cassette);
