@@ -15273,11 +15273,6 @@ class PomodoroTimer {
             return;
         }
         
-        if (customCassettes.length === 0) {
-            customCassettesList.innerHTML = '';
-            return;
-        }
-        
         customCassettesList.innerHTML = customCassettes.map(cassette => {
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
