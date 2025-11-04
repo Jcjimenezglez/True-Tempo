@@ -8092,7 +8092,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-top: 16px;
+    margin-top: 0;
 }
 
 .theme-option {
