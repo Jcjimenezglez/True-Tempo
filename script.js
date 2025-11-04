@@ -11959,7 +11959,7 @@ class PomodoroTimer {
                 <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
                     <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">Unlock Advanced Analytics</h4>
                     <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Get heatmap, trends, comparisons, and insights with Unlimited plan.</p>
-                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Upgrade to Unlimited</button>
+                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Get Lifetime Access</button>
                 </div>
             </div>
         `;
@@ -11970,6 +11970,16 @@ class PomodoroTimer {
         const upgradeBtn = document.getElementById('upgradeToUnlimitedFromReport');
         if (upgradeBtn) {
             upgradeBtn.addEventListener('click', () => {
+                // 🎯 Track Subscribe Clicked event to Mixpanel
+                if (window.pomodoroTimer) {
+                    window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                        button_type: 'subscribe',
+                        source: 'report_panel',
+                        location: 'report_panel',
+                        user_type: window.pomodoroTimer.isAuthenticated ? (window.pomodoroTimer.isPremiumUser() ? 'pro' : 'free') : 'guest',
+                        modal_type: 'report_upgrade_prompt'
+                    });
+                }
                 window.location.href = '/pricing';
             });
         }
@@ -16742,6 +16752,12 @@ class SidebarManager {
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isReportPanelOpen) this.closeReportPanel();
 
+        // 🎯 Track Leaderboard Panel Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('leaderboard');
+            console.log('📊 Leaderboard panel opened event tracked to Mixpanel');
+        }
+
         if (this.leaderboardSidePanel) {
             this.leaderboardSidePanel.classList.add('open');
             this.isLeaderboardPanelOpen = true;
@@ -16806,6 +16822,12 @@ class SidebarManager {
         if (this.isSettingsPanelOpen) this.closeSettingsPanel();
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
+
+        // 🎯 Track Report Panel Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('report');
+            console.log('📊 Report panel opened event tracked to Mixpanel');
+        }
 
         if (this.reportSidePanel) {
             this.reportSidePanel.classList.add('open');
