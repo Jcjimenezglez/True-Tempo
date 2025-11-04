@@ -15576,6 +15576,7 @@ class PomodoroTimer {
         const modal = document.createElement('div');
         modal.className = 'upgrade-modal';
         modal.style.maxWidth = '500px';
+        modal.style.maxHeight = '90vh';
         
         modal.innerHTML = `
             <button class="close-upgrade-x" id="closeCreateCassetteModal">
@@ -15601,7 +15602,7 @@ class PomodoroTimer {
                     
                     <div>
                         <label style="display: block; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 8px;">Background Image URL</label>
-                        <input type="url" id="cassetteImageUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box;" value="${cassette ? (cassette.imageUrl || '') : ''}" placeholder="https://example.com/image.jpg">
+                        <input type="url" id="cassetteImageUrl" style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; font-family: inherit;" value="${cassette ? (cassette.imageUrl || '') : ''}" placeholder="https://example.com/image.jpg">
                         <p style="margin: 4px 0 0 0; color: #a3a3a3; font-size: 12px;">URL of the image to use as background</p>
                     </div>
                     
