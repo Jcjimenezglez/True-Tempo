@@ -11945,7 +11945,7 @@ class PomodoroTimer {
                                 const height = (day.hours / maxHours) * 100;
                                 return `
                                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
-                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 0 0 4px 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
                                         <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
                                         <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
                                     </div>
@@ -12050,7 +12050,7 @@ class PomodoroTimer {
                                 const height = (week.hours / maxHours) * 100;
                                 return `
                                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
-                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 0 0 4px 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
                                         <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
                                         <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
                                     </div>
