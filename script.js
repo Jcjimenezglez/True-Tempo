@@ -15816,23 +15816,31 @@ class PomodoroTimer {
             updatedAt: new Date().toISOString()
         };
         
-        if (this.saveCustomCassette(cassette)) {
-            // Reload cassettes
-            this.loadCustomCassettes();
-            
-            // Track event
-            this.trackEvent('Custom Cassette Created', {
-                feature: 'custom_cassettes',
-                cassette_title: cassette.title,
-                has_image: !!cassette.imageUrl,
-                has_spotify: !!cassette.spotifyUrl,
-                has_website: !!cassette.websiteUrl,
-                user_type: 'pro'
-            });
-            
-            console.log('✅ Custom cassette saved:', cassette);
-        } else {
-            alert('Error saving cassette. Please try again.');
+        try {
+            if (this.saveCustomCassette(cassette)) {
+                // Reload cassettes
+                this.loadCustomCassettes();
+                
+                // Track event
+                this.trackEvent('Custom Cassette Created', {
+                    feature: 'custom_cassettes',
+                    cassette_title: cassette.title,
+                    has_image: !!cassette.imageUrl,
+                    has_spotify: !!cassette.spotifyUrl,
+                    has_website: !!cassette.websiteUrl,
+                    user_type: 'pro'
+                });
+                
+                console.log('✅ Custom cassette saved:', cassette);
+                return true;
+            } else {
+                alert('Error saving cassette. Please try again.');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error saving cassette:', error);
+            alert('Error saving cassette: ' + (error.message || 'Unknown error'));
+            return false;
         }
     }
     
