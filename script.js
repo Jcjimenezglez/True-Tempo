@@ -11944,7 +11944,7 @@ class PomodoroTimer {
                             const height = (day.hours / maxHours) * 100;
                             return `
                                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, #4f46e5, #7c3aed); border-radius: 4px 4px 0 0; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px 4px 0 0; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
                                     <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
                                     <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
                                 </div>
@@ -11954,10 +11954,10 @@ class PomodoroTimer {
                 </div>
 
                 <!-- Upgrade Prompt -->
-                <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 12px; padding: 20px; text-align: center;">
+                <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
                     <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">Unlock Advanced Analytics</h4>
                     <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Get heatmap, trends, comparisons, and insights with Unlimited plan.</p>
-                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: #4f46e5; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Upgrade to Unlimited</button>
+                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Upgrade to Unlimited</button>
                 </div>
             </div>
         `;
@@ -12047,7 +12047,7 @@ class PomodoroTimer {
                             const height = (week.hours / maxHours) * 100;
                             return `
                                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, #4f46e5, #7c3aed); border-radius: 4px 4px 0 0; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                                    <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px 4px 0 0; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
                                     <div style="font-size: 10px; color: #666; text-align: center; transform: rotate(-45deg); transform-origin: top left; white-space: nowrap;">${week.label}</div>
                                 </div>
                             `;
@@ -12066,7 +12066,7 @@ class PomodoroTimer {
                     <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Insights</h4>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         ${insights.map(insight => `
-                            <div style="padding: 12px; background: #1a1a1a; border-radius: 8px; border-left: 3px solid #4f46e5;">
+                            <div style="padding: 12px; background: #1a1a1a; border-radius: 8px; border-left: 3px solid var(--onyx-dark, #064e3b);">
                                 <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${insight.title}</div>
                                 <div style="color: #a3a3a3; font-size: 12px;">${insight.description}</div>
                             </div>
