@@ -15416,6 +15416,30 @@ class PomodoroTimer {
         // Set background image if provided
         if (cassette.imageUrl) {
             console.log('🎨 Setting custom cassette background image:', cassette.imageUrl);
+            
+            // Test if image loads before applying
+            const testImg = new Image();
+            testImg.onload = () => {
+                console.log('✅ Image loaded successfully');
+                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+                timerSection.style.setProperty('background-size', 'cover', 'important');
+                timerSection.style.setProperty('background-position', 'center', 'important');
+                timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
+                timerSection.style.setProperty('background-color', 'transparent', 'important');
+            };
+            testImg.onerror = () => {
+                console.error('❌ Image failed to load:', cassette.imageUrl);
+                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\nTip: Right-click on the image and select "Copy image address" instead of "Copy link address".');
+                // Fallback to black background
+                timerSection.style.removeProperty('background-image');
+                timerSection.style.setProperty('background', '#0a0a0a', 'important');
+            };
+            
+            // Set crossOrigin to allow CORS if needed
+            testImg.crossOrigin = 'anonymous';
+            testImg.src = cassette.imageUrl;
+            
+            // Apply immediately (will be overridden if image fails)
             timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
             timerSection.style.setProperty('background-size', 'cover', 'important');
             timerSection.style.setProperty('background-position', 'center', 'important');
