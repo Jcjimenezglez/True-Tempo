@@ -15753,7 +15753,25 @@ class PomodoroTimer {
                 const actualUrl = urlObj.searchParams.get('url');
                 if (actualUrl) {
                     const decodedUrl = decodeURIComponent(actualUrl);
-                    console.log('🎨 Extracted image URL from Google Images link:', decodedUrl);
+                    console.log('🎨 Extracted URL from Google Images link:', decodedUrl);
+                    
+                    // Check if the extracted URL is actually an image URL
+                    // If it's not an image URL (ends with .jpg, .png, .gif, .webp, etc.), return empty
+                    // This means the user needs to get the direct image URL
+                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+                    const isImageUrl = imageExtensions.some(ext => 
+                        decodedUrl.toLowerCase().includes(ext) || 
+                        decodedUrl.toLowerCase().includes('image') ||
+                        decodedUrl.includes('i.imgur.com') ||
+                        decodedUrl.includes('cdn.') ||
+                        decodedUrl.includes('/images/')
+                    );
+                    
+                    if (!isImageUrl) {
+                        console.warn('⚠️ Extracted URL is not a direct image URL:', decodedUrl);
+                        return ''; // Return empty to trigger the error message
+                    }
+                    
                     return decodedUrl;
                 }
             } catch (e) {
@@ -15762,7 +15780,21 @@ class PomodoroTimer {
                 const match = url.match(/url=([^&]+)/);
                 if (match) {
                     try {
-                        return decodeURIComponent(match[1]);
+                        const decodedUrl = decodeURIComponent(match[1]);
+                        // Check if it's an image URL
+                        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+                        const isImageUrl = imageExtensions.some(ext => 
+                            decodedUrl.toLowerCase().includes(ext) || 
+                            decodedUrl.toLowerCase().includes('image') ||
+                            decodedUrl.includes('i.imgur.com') ||
+                            decodedUrl.includes('cdn.')
+                        );
+                        
+                        if (!isImageUrl) {
+                            return '';
+                        }
+                        
+                        return decodedUrl;
                     } catch (e2) {
                         console.error('Error decoding URL:', e2);
                     }
@@ -15810,9 +15842,10 @@ class PomodoroTimer {
             console.log('🎨 Original URL:', originalUrl);
             console.log('🎨 Final image URL:', imageUrl);
             
-            // Warn if URL looks problematic
-            if (imageUrl.includes('google.com/url') || (imageUrl === originalUrl && originalUrl.includes('google.com'))) {
-                alert('⚠️ Important: The URL you provided appears to be a redirect link, not a direct image URL.\n\nThis will likely not work as a background image.\n\n📝 How to get the correct URL:\n1. Right-click on the image (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. Paste that URL instead\n\nAlternatively, use image hosting services like:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
+            // If extraction returned empty or it's still a Google redirect, show error
+            if (!imageUrl || imageUrl.includes('google.com/url') || (imageUrl === originalUrl && originalUrl.includes('google.com'))) {
+                alert('⚠️ Error: The URL you provided is not a direct image URL.\n\n📝 How to get the correct URL from Google Images:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)\n- Upload to Imgur and use the direct image URL');
+                return false;
             }
         }
         
