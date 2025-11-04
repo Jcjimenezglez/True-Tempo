@@ -16348,8 +16348,7 @@ class PomodoroTimer {
             
             console.warn('⚠️ TRON: Ares Soundtrack loading timeout - Spotify servers may be slow');
             widget.style.opacity = '0.7';
-            // Show a message to user about the timeout
-            this.showSpotifyTimeoutMessage();
+            // Message removed per user request
         };
 
         // Set timeout for 10 seconds
@@ -16402,38 +16401,6 @@ class PomodoroTimer {
         }, 5000);
     }
 
-    showSpotifyTimeoutMessage() {
-        // Show a temporary message about Spotify timeout
-        const message = document.createElement('div');
-        message.id = 'spotify-timeout-message';
-        message.innerHTML = `
-            <div style="
-                position: fixed;
-                bottom: 380px;
-                right: 20px;
-                background: rgba(255, 165, 0, 0.9);
-                color: white;
-                padding: 12px 16px;
-                border-radius: 8px;
-                font-size: 14px;
-                z-index: 1001;
-                max-width: 280px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            ">
-                ⏱️ TRON soundtrack loading slowly<br>
-                <small>Please wait or try refreshing</small>
-            </div>
-        `;
-        
-        document.body.appendChild(message);
-        
-        // Remove message after 5 seconds
-        setTimeout(() => {
-            if (message.parentNode) {
-                message.parentNode.removeChild(message);
-            }
-        }, 5000);
-    }
 
     removeTronSpotifyWidget() {
         console.log('🎵 Removing Tron Spotify widget...');
