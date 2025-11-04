@@ -15236,10 +15236,10 @@ class PomodoroTimer {
                 createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
                 
                 // Add single event listener
-                newBtn.addEventListener('click', (e) => {
+                newBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    this.showCassetteForm();
+                    await this.showCassetteForm();
                 });
             }
             
@@ -15441,10 +15441,10 @@ class PomodoroTimer {
             // Edit option
             const editOption = document.querySelector(`.edit-cassette-option[data-cassette-id="${cassette.id}"]`);
             if (editOption) {
-                editOption.addEventListener('click', (e) => {
+                editOption.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    this.showCassetteForm(cassette.id);
+                    await this.showCassetteForm(cassette.id);
                 });
             }
             
