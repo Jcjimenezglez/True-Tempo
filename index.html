@@ -787,6 +787,16 @@
                 <p class="tasks-subtitle">Choose your focus experience</p>
             </div>
             
+            <!-- Create Cassette Button (Pro Only) -->
+            <div id="createCassetteSection" style="display: none; margin-bottom: 24px;">
+                <button class="add-task-btn" id="createCassetteBtn" style="width: 100%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"/>
+                        <path d="M5 12h14"/>
+                    </svg>
+                    Create cassette
+                </button>
+            </div>
             
             <!-- Theme Options -->
             <div class="theme-options">
@@ -827,24 +837,10 @@
                         <label for="themeTron"></label>
                     </div>
                 </div>
-            </div>
-            
-            <!-- My Cassettes (Pro Only) -->
-            <div class="settings-section" id="myCassettesSection" style="display: none;">
-                <h4 class="section-title">My Cassettes</h4>
-                <div class="custom-controls">
-                    <button class="add-task-btn" id="createCassetteBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 5v14"/>
-                            <path d="M5 12h14"/>
-                        </svg>
-                        Create cassette
-                    </button>
-                    
-                    <!-- Custom Cassettes List -->
-                    <div id="customCassettesList" class="techniques-grid" style="margin-top: 16px;">
-                        <!-- Custom cassettes will be rendered here -->
-                    </div>
+                
+                <!-- Custom Cassettes List (Pro Only) -->
+                <div id="customCassettesList" class="theme-options">
+                    <!-- Custom cassettes will be rendered here -->
                 </div>
             </div>
         </div>

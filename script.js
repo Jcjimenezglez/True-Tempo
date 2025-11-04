@@ -15210,13 +15210,13 @@ class PomodoroTimer {
     }
 
     initializeMyCassettes() {
-        const myCassettesSection = document.getElementById('myCassettesSection');
+        const createCassetteSection = document.getElementById('createCassetteSection');
         const createCassetteBtn = document.getElementById('createCassetteBtn');
         
-        // Show My Cassettes section only for Pro users
+        // Show create button only for Pro users
         if (this.isPremiumUser()) {
-            if (myCassettesSection) {
-                myCassettesSection.style.display = 'block';
+            if (createCassetteSection) {
+                createCassetteSection.style.display = 'block';
             }
             
             // Load and render custom cassettes
@@ -15236,8 +15236,8 @@ class PomodoroTimer {
                 });
             }
         } else {
-            if (myCassettesSection) {
-                myCassettesSection.style.display = 'none';
+            if (createCassetteSection) {
+                createCassetteSection.style.display = 'none';
             }
         }
     }
@@ -15259,10 +15259,16 @@ class PomodoroTimer {
                 : 'background: #0a0a0a;';
             
             return `
-                <button class="technique-preset custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
-                    <div class="technique-icon" style="background: ${cassette.imageUrl ? 'transparent' : '#0a0a0a'}; background-image: ${cassette.imageUrl ? `url('${cassette.imageUrl}')` : 'none'}; background-size: cover; background-position: center; border-radius: 8px; width: 48px; height: 48px; margin: 0 auto 8px;"></div>
-                    <div class="technique-name">${cassette.title}</div>
-                    <div class="technique-desc">${cassette.description || 'Custom focus environment'}</div>
+                <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
+                    <div class="theme-preview" style="${previewStyle}"></div>
+                    <div class="theme-info">
+                        <h4>${cassette.title}</h4>
+                        <p>${cassette.description || 'Custom focus environment'}</p>
+                    </div>
+                    <div class="theme-radio">
+                        <input type="radio" name="theme" id="theme${cassette.id}" value="custom_${cassette.id}" aria-label="${cassette.title}">
+                        <label for="theme${cassette.id}"></label>
+                    </div>
                     <div style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px;">
                         <button class="edit-cassette-btn" data-cassette-id="${cassette.id}" style="background: rgba(0, 0, 0, 0.6); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; color: white; font-size: 12px; z-index: 10;" title="Edit" onclick="event.stopPropagation();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -15278,7 +15284,7 @@ class PomodoroTimer {
                             </svg>
                         </button>
                     </div>
-                </button>
+                </div>
             `;
         }).join('');
         
