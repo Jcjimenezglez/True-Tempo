@@ -15925,11 +15925,24 @@ class PomodoroTimer {
         // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
         
+        // Remove custom Spotify widget if switching from custom cassette
+        const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget) {
+            existingWidget.remove();
+        }
+        
         // Remove custom website link if switching from custom cassette
         const existingLink = document.getElementById('customWebsiteLink');
         if (existingLink) {
             existingLink.remove();
         }
+        
+        // Remove custom cassette background image styles
+        timerSection.style.removeProperty('background-image');
+        timerSection.style.removeProperty('background-size');
+        timerSection.style.removeProperty('background-position');
+        timerSection.style.removeProperty('background-repeat');
+        timerSection.style.removeProperty('background-color');
         
         if (themeName === 'simple') {
             // Simple theme: black background, no music
