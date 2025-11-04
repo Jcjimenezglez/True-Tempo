@@ -15416,10 +15416,6 @@ class PomodoroTimer {
     }
 
     deleteCustomCassette(cassetteId) {
-        if (!confirm('Are you sure you want to delete this cassette?')) {
-            return;
-        }
-        
         try {
             const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
