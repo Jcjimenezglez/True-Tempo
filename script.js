@@ -15222,9 +15222,16 @@ class PomodoroTimer {
             // Load and render custom cassettes
             this.loadCustomCassettes();
             
-            // Add create button event
+            // Add create button event (remove existing listeners first to avoid duplicates)
             if (createCassetteBtn) {
-                createCassetteBtn.addEventListener('click', () => {
+                // Clone and replace to remove all event listeners
+                const newBtn = createCassetteBtn.cloneNode(true);
+                createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
+                
+                // Add single event listener
+                newBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     this.showCreateCassetteModal();
                 });
             }
@@ -15605,6 +15612,13 @@ class PomodoroTimer {
     }
 
     showCreateCassetteModal(cassetteId = null) {
+        // Check if modal already exists
+        const existingModal = document.getElementById('createCassetteModal');
+        if (existingModal) {
+            console.log('⚠️ Modal already exists, closing existing modal first');
+            existingModal.remove();
+        }
+        
         const cassettes = this.getCustomCassettes();
         const cassette = cassetteId ? cassettes.find(c => c.id === cassetteId) : null;
         
