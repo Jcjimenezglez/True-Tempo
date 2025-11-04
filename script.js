@@ -15441,14 +15441,32 @@ class PomodoroTimer {
             this.pauseTimer();
         }
         
-        // Stop other music
+        // Stop other music and disable Lofi
         this.stopLofiPlaylist();
+        this.lofiEnabled = false;
+        if (this.isAuthenticated) {
+            localStorage.setItem('lofiEnabled', 'false');
+        }
+        
+        // Stop Tron theme if active
         if (this.currentImmersiveTheme === 'tron') {
             this.deactivateImmersiveTheme();
         }
         
         // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Remove custom Spotify widget from previous custom cassette
+        const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget) {
+            existingWidget.remove();
+        }
+        
+        // Remove custom website link from previous custom cassette
+        const existingLink = document.getElementById('customWebsiteLink');
+        if (existingLink) {
+            existingLink.remove();
+        }
         
         // Set background image if provided
         if (cassette.imageUrl) {
@@ -15502,23 +15520,11 @@ class PomodoroTimer {
         // Create Spotify widget if URL provided
         if (cassette.spotifyUrl) {
             this.createCustomSpotifyWidget(cassette.spotifyUrl);
-        } else {
-            // Remove existing Spotify widget if any
-            const existingWidget = document.getElementById('customSpotifyWidget');
-            if (existingWidget) {
-                existingWidget.remove();
-            }
         }
         
         // Create Website URL link if provided
         if (cassette.websiteUrl) {
             this.createWebsiteLink(cassette.websiteUrl);
-        } else {
-            // Remove existing website link if any
-            const existingLink = document.getElementById('customWebsiteLink');
-            if (existingLink) {
-                existingLink.remove();
-            }
         }
         
         // Save as current theme
