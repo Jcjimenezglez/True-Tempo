@@ -15670,16 +15670,65 @@ class PomodoroTimer {
         });
     }
 
+    extractImageUrl(url) {
+        if (!url) return '';
+        
+        // If it's a Google Images URL, extract the actual image URL
+        if (url.includes('google.com/url') && url.includes('url=')) {
+            try {
+                // Extract the URL parameter from the query string
+                const urlObj = new URL(url);
+                const actualUrl = urlObj.searchParams.get('url');
+                if (actualUrl) {
+                    const decodedUrl = decodeURIComponent(actualUrl);
+                    console.log('🎨 Extracted image URL from Google Images link:', decodedUrl);
+                    return decodedUrl;
+                }
+            } catch (e) {
+                console.error('Error extracting URL from Google Images link:', e);
+                // Try manual parsing as fallback
+                const match = url.match(/url=([^&]+)/);
+                if (match) {
+                    try {
+                        return decodeURIComponent(match[1]);
+                    } catch (e2) {
+                        console.error('Error decoding URL:', e2);
+                    }
+                }
+            }
+        }
+        
+        return url;
+    }
+
     saveCassetteFromForm(cassetteId = null) {
-        const title = document.getElementById('cassetteTitle').value.trim();
-        const description = document.getElementById('cassetteDescription').value.trim();
-        const imageUrl = document.getElementById('cassetteImageUrl').value.trim();
-        const spotifyUrl = document.getElementById('cassetteSpotifyUrl').value.trim();
-        const websiteUrl = document.getElementById('cassetteWebsiteUrl').value.trim();
+        const titleEl = document.getElementById('cassetteTitle');
+        const descriptionEl = document.getElementById('cassetteDescription');
+        const imageUrlEl = document.getElementById('cassetteImageUrl');
+        const spotifyUrlEl = document.getElementById('cassetteSpotifyUrl');
+        const websiteUrlEl = document.getElementById('cassetteWebsiteUrl');
+        
+        if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl || !websiteUrlEl) {
+            console.error('Form elements not found');
+            alert('Error: Form elements not found. Please try again.');
+            return false;
+        }
+        
+        const title = titleEl.value.trim();
+        const description = descriptionEl.value.trim();
+        let imageUrl = imageUrlEl.value.trim();
+        const spotifyUrl = spotifyUrlEl.value.trim();
+        const websiteUrl = websiteUrlEl.value.trim();
         
         if (!title) {
             alert('Title is required');
-            return;
+            return false;
+        }
+        
+        // Extract actual image URL if it's a Google Images redirect
+        if (imageUrl) {
+            imageUrl = this.extractImageUrl(imageUrl);
+            console.log('🎨 Final image URL:', imageUrl);
         }
         
         const cassette = {
