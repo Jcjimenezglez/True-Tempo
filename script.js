@@ -15190,6 +15190,11 @@ class PomodoroTimer {
                     opt.classList.remove('active');
                 });
                 
+                // Remove active from all public cassettes
+                document.querySelectorAll('.public-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
                 // Add active to clicked option
                 option.classList.add('active');
                 
@@ -15699,6 +15704,11 @@ class PomodoroTimer {
         
         // Remove active from all custom cassettes
         document.querySelectorAll('.custom-cassette').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        
+        // Remove active from all public cassettes
+        document.querySelectorAll('.public-cassette').forEach(opt => {
             opt.classList.remove('active');
         });
         
@@ -16324,15 +16334,44 @@ class PomodoroTimer {
         if (themeName && themeName.startsWith('custom_')) {
             const cassetteId = themeName.replace('custom_', '');
             const cassettes = this.getCustomCassettes();
-            const cassette = cassettes.find(c => c.id === cassetteId);
+            let cassette = cassettes.find(c => c.id === cassetteId);
             
             if (cassette) {
+                // Found in local cassettes, apply it
                 this.applyCustomCassette(cassette);
                 return;
             } else {
-                // Custom cassette not found, fallback to lofi
-                console.warn('Custom cassette not found, falling back to lofi');
-                themeName = 'lofi';
+                // Not found in local cassettes, try to find in public cassettes (async)
+                this.loadPublicCassettesFromAPI().then(publicCassettes => {
+                    const publicCassette = publicCassettes.find(c => c.id === cassetteId);
+                    if (publicCassette) {
+                        // Update active state visually
+                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        document.querySelectorAll('.custom-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        document.querySelectorAll('.public-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                        if (cassetteOption) {
+                            cassetteOption.classList.add('active');
+                        }
+                        this.applyCustomCassette(publicCassette);
+                    } else {
+                        // Not found in public cassettes either, fallback to lofi
+                        console.warn('Custom cassette not found in local or public cassettes, falling back to lofi');
+                        this.applyTheme('lofi');
+                    }
+                }).catch(err => {
+                    console.error('Error loading public cassettes:', err);
+                    // On error, fallback to lofi
+                    this.applyTheme('lofi');
+                });
+                // Return early since we're handling async
+                return;
             }
         }
         
