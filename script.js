@@ -15976,6 +15976,36 @@ class PomodoroTimer {
         });
         
     }
+    
+    applyActiveStateToPublicCassettes() {
+        // Check if current theme is a public cassette and mark it as active
+        const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+        if (currentTheme && currentTheme.startsWith('custom_')) {
+            const cassetteId = currentTheme.replace('custom_', '');
+            
+            // Try to find in rendered public cassettes
+            setTimeout(() => {
+                const activeOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                if (activeOption) {
+                    // Remove active from all other options
+                    document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    document.querySelectorAll('.custom-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    document.querySelectorAll('.public-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    // Add active to current cassette
+                    activeOption.classList.add('active');
+                    console.log('✅ Applied active state to public cassette:', cassetteId);
+                } else {
+                    console.log('⚠️ Public cassette not found in DOM for active state:', cassetteId);
+                }
+            }, 150);
+        }
+    }
 
     saveCustomCassette(cassette) {
         try {
