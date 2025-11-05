@@ -15699,7 +15699,7 @@ class PomodoroTimer {
                     <div class="theme-info">
                         <h4>${cassette.title} ${signupText}</h4>
                         <p>${cassette.description || 'Public focus environment'}</p>
-                        ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">by ${cassette.creatorName}</p>` : ''}
+                        ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">created by ${cassette.creatorName}</p>` : ''}
                     </div>
                     ${isOwnCassette ? `
                     <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
