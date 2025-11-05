@@ -43,11 +43,19 @@ module.exports = async (req, res) => {
       const publicCassettes = user.publicMetadata?.publicCassettes || [];
       
       if (Array.isArray(publicCassettes)) {
+        // Get creator name from user
+        const creatorName = user.firstName || user.username || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'Unknown';
+        
         publicCassettes.forEach(cassette => {
           // Only include if it's marked as public and we haven't seen this ID before
           if (cassette.isPublic === true && cassette.id && !seenIds.has(cassette.id)) {
             seenIds.add(cassette.id);
-            allPublicCassettes.push(cassette);
+            // Add creator information to cassette
+            allPublicCassettes.push({
+              ...cassette,
+              creatorName: creatorName,
+              creatorId: user.id
+            });
           }
         });
       }

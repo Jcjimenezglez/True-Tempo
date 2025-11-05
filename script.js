@@ -15549,10 +15549,38 @@ class PomodoroTimer {
                     <div class="theme-info">
                         <h4>${cassette.title} ${signupText}</h4>
                         <p>${cassette.description || 'Public focus environment'}</p>
+                        ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">by ${cassette.creatorName}</p>` : ''}
                     </div>
                 </div>
             `;
         }).join('');
+        
+        // Check if current theme is a public cassette and mark it as active
+        const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+        if (currentTheme && currentTheme.startsWith('custom_')) {
+            const cassetteId = currentTheme.replace('custom_', '');
+            const currentCassette = publicCassettes.find(c => c.id === cassetteId);
+            if (currentCassette) {
+                // Mark this cassette as active after rendering
+                setTimeout(() => {
+                    const activeOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                    if (activeOption) {
+                        // Remove active from all other options
+                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        document.querySelectorAll('.custom-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        document.querySelectorAll('.public-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        // Add active to current cassette
+                        activeOption.classList.add('active');
+                    }
+                }, 100);
+            }
+        }
         
         // Add event listeners for public cassettes
         publicCassettes.forEach(cassette => {
