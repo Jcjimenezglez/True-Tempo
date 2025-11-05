@@ -16258,7 +16258,7 @@ class PomodoroTimer {
                     <div style="flex: 1;">
                         <div style="font-weight: 600; margin-bottom: 8px; color: #ffffff;">Listen to full songs</div>
                         <div style="color: rgba(255, 255, 255, 0.9); margin-bottom: 12px;">
-                            Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview.
+                            Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview. Make sure third-party cookies are enabled in your browser settings for Spotify to detect your login session.
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <button id="spotifyLoggedInBtn" style="
@@ -16381,34 +16381,8 @@ class PomodoroTimer {
         
         document.body.appendChild(widget);
         
-        // Reload widget when user returns to tab (to detect Spotify login)
-        // This matches the behavior where jcjimenezglez@gmail.com doesn't see Preview
-        // because Spotify automatically detects their browser session
-        let lastVisibilityChange = Date.now();
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                // Tab is visible again - user might have logged in to Spotify
-                const timeSinceLastChange = Date.now() - lastVisibilityChange;
-                // Only reload if user was away for more than 2 seconds (likely logged in)
-                if (timeSinceLastChange > 2000) {
-                    setTimeout(() => {
-                        const currentWidget = document.getElementById('customSpotifyWidget');
-                        if (currentWidget) {
-                            // Reload widget with timestamp to force Spotify session detection
-                            const currentSrc = currentWidget.src;
-                            const baseUrl = currentSrc.split('?')[0];
-                            const newSrc = baseUrl + '?utm_source=generator&t=' + Date.now();
-                            if (currentWidget.src !== newSrc) {
-                                currentWidget.src = newSrc;
-                                console.log('🔄 Reloading Spotify widget to detect login status');
-                            }
-                        }
-                    }, 1500); // Wait 1.5 seconds for Spotify session to be ready
-                }
-            } else {
-                lastVisibilityChange = Date.now();
-            }
-        });
+        // Reset instructions state so user sees instructions again when selecting a new cassette
+        localStorage.removeItem('spotify_widget_instructions_seen');
         
         console.log('🎵 Custom Spotify widget created');
     }
@@ -17192,6 +17166,9 @@ class PomodoroTimer {
         // Append to body
         document.body.appendChild(widget);
         this.tronSpotifyWidget = widget;
+        
+        // Reset instructions state so user sees instructions again when selecting Tron
+        localStorage.removeItem('spotify_widget_instructions_seen');
         
         // Create the image button
         this.createTronImageButton();
