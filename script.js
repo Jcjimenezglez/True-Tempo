@@ -15383,7 +15383,8 @@ class PomodoroTimer {
         }
         
         // Load and render public cassettes (for all users, with restriction for Guest)
-        this.loadPublicCassettes();
+        // Force refresh on initial load to ensure users see latest cassettes
+        this.loadPublicCassettes(true);
         
         // Add create button event (remove existing listeners first to avoid duplicates)
         if (createCassetteBtn) {
@@ -18676,9 +18677,10 @@ class SidebarManager {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
                 
                 // Check for public cassettes updates when panel is opened
+                // Force refresh to ensure users see latest cassettes from server
                 // This ensures users see new cassettes without needing to reload
                 console.log('🔄 Checking for public cassettes updates...');
-                window.pomodoroTimer.loadPublicCassettes();
+                window.pomodoroTimer.loadPublicCassettes(true);
             }
         }
     }
