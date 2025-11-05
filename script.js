@@ -15771,17 +15771,28 @@ class PomodoroTimer {
             // Show section
             publicCassettesSection.style.display = 'block';
             
-            // Re-render with updated data (only if different from cache)
+            // Always re-render with fresh data from API to ensure consistency across users
+            // This ensures that when one user creates a cassette, other users see it immediately
             const cacheKeyForCompare = 'publicCassettesCache';
             const cachedDataForCompare = localStorage.getItem(cacheKeyForCompare);
-            if (!cachedDataForCompare || JSON.stringify(filteredPublicCassettes) !== cachedDataForCompare) {
+            const cachedCassettes = cachedDataForCompare ? JSON.parse(cachedDataForCompare) : [];
+            
+            // Compare by IDs and updatedAt to detect changes
+            const hasChanges = JSON.stringify(filteredPublicCassettes.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id))) !== 
+                              JSON.stringify(cachedCassettes.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id)));
+            
+            if (hasChanges || !cachedDataForCompare) {
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
                 console.log('🔄 Updated public cassettes UI with fresh data');
                 // Apply active state after re-rendering
-                this.applyActiveStateToPublicCassettes();
+                setTimeout(() => {
+                    this.applyActiveStateToPublicCassettes();
+                }, 200);
             } else {
                 // Even if data is the same, ensure active state is applied
-                this.applyActiveStateToPublicCassettes();
+                setTimeout(() => {
+                    this.applyActiveStateToPublicCassettes();
+                }, 200);
             }
         } catch (e) {
             console.error('Error loading public cassettes:', e);
@@ -16038,8 +16049,8 @@ class PomodoroTimer {
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
                 
-                // Sync in background (don't wait for response)
-                fetch('/api/sync-cassettes', {
+                // Sync and wait for response before invalidating cache and reloading
+                return fetch('/api/sync-cassettes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -16049,20 +16060,35 @@ class PomodoroTimer {
                 }).then(response => {
                     if (response.ok) {
                         console.log('✅ Cassettes synced to Clerk');
+                        // Invalidate cache after successful sync
+                        this.invalidatePublicCassettesCache();
+                        // Reload both custom cassettes and public cassettes to reflect changes
+                        this.loadCustomCassettes();
+                        this.loadPublicCassettes();
+                        return true;
                     } else {
                         console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                        // Even if sync fails, invalidate cache and reload locally
+                        this.invalidatePublicCassettesCache();
+                        this.loadCustomCassettes();
+                        this.loadPublicCassettes();
+                        return true;
                     }
                 }).catch(err => {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
+                    // Even if sync fails, invalidate cache and reload locally
+                    this.invalidatePublicCassettesCache();
+                    this.loadCustomCassettes();
+                    this.loadPublicCassettes();
+                    return true;
                 });
+            } else {
+                // Not authenticated, just invalidate cache and reload locally
+                this.invalidatePublicCassettesCache();
+                this.loadCustomCassettes();
+                this.loadPublicCassettes();
+                return true;
             }
-            
-            // Invalidate cache when saving (changes may have been made)
-            this.invalidatePublicCassettesCache();
-            
-            // Reload both custom cassettes and public cassettes to reflect changes
-            this.loadCustomCassettes();
-            this.loadPublicCassettes();
             
             return true;
         } catch (error) {
@@ -16814,19 +16840,19 @@ class PomodoroTimer {
         }
         
         // Get values with debug logging
-        const title = (titleEl.value || '').trim();
-        const description = (descriptionEl.value || '').trim();
-        let imageUrl = (imageUrlEl.value || '').trim();
-        const spotifyUrl = (spotifyUrlEl.value || '').trim();
-        const websiteUrl = (websiteUrlEl.value || '').trim();
+        const title = titleEl ? (titleEl.value || titleEl.textContent || '').trim() : '';
+        const description = descriptionEl ? (descriptionEl.value || descriptionEl.textContent || '').trim() : '';
+        let imageUrl = imageUrlEl ? (imageUrlEl.value || imageUrlEl.textContent || '').trim() : '';
+        const spotifyUrl = spotifyUrlEl ? (spotifyUrlEl.value || spotifyUrlEl.textContent || '').trim() : '';
+        const websiteUrl = websiteUrlEl ? (websiteUrlEl.value || websiteUrlEl.textContent || '').trim() : '';
         const isPublic = isPublicCheckbox ? isPublicCheckbox.checked : false;
         
-        console.log('💾 Saving cassette - Title value:', title, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl.value);
+        console.log('💾 Saving cassette - Title value:', title, 'Title length:', title.length, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl?.value);
         
         // Validate title first (before any other processing)
-        if (!title || title.length === 0) {
+        if (!title || title.length === 0 || title.trim().length === 0) {
             alert('Title is required');
-            titleEl.focus();
+            if (titleEl) titleEl.focus();
             return false;
         }
         
@@ -16859,8 +16885,11 @@ class PomodoroTimer {
         };
         
         try {
-            if (this.saveCustomCassette(cassette)) {
-                // Reload cassettes
+            const result = this.saveCustomCassette(cassette);
+            
+            // Handle both Promise and boolean return values
+            const handleSuccess = () => {
+                // Reload cassettes (already done in saveCustomCassette, but ensure it's done)
                 this.loadCustomCassettes();
                 
                 // If this is a new cassette (not editing), select it automatically
@@ -16883,6 +16912,22 @@ class PomodoroTimer {
                 });
                 
                 console.log('✅ Custom cassette saved:', cassette);
+            };
+            
+            if (result instanceof Promise) {
+                result.then(success => {
+                    if (success) {
+                        handleSuccess();
+                    } else {
+                        alert('Error saving cassette. Please try again.');
+                    }
+                }).catch(error => {
+                    console.error('Error saving cassette:', error);
+                    alert('Error saving cassette: ' + (error.message || 'Unknown error'));
+                });
+                return true; // Return true immediately, handle async in then/catch
+            } else if (result) {
+                handleSuccess();
                 return true;
             } else {
                 alert('Error saving cassette. Please try again.');
