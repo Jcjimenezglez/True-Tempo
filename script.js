@@ -17011,6 +17011,10 @@ class PomodoroTimer {
                 return false;
             }
             
+            // Hide form immediately for better UX (no delay)
+            this.hideCassetteForm();
+            
+            // Update UI and handle async operations in background
             const handleSuccess = async () => {
                 // The cassette is already saved to localStorage in saveCustomCassette
                 // Now we need to update the UI immediately
@@ -17029,14 +17033,14 @@ class PomodoroTimer {
                     
                     // Invalidate cache to remove the cassette from public list
                     this.invalidatePublicCassettesCache();
-                    // Reload public cassettes to ensure consistency
-                    await this.loadPublicCassettes(true);
+                    // Reload public cassettes in background (don't wait for it)
+                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
                 } else if (isNowPublic || changedFromPrivateToPublic) {
-                    // If it's a public cassette or changed to public, update public cassettes section immediately
+                    // If it's a public cassette or changed to public, update public cassettes section in background
                     // Force refresh from server to ensure consistency across users
                     // Don't invalidate cache before loading - keep other users' cassettes visible
                     // The cache will be updated with fresh data from server, and user's cassettes will be merged in
-                    await this.loadPublicCassettes(true);
+                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
                 }
                 
                 // If editing an existing cassette, check if it's currently selected
@@ -17052,8 +17056,8 @@ class PomodoroTimer {
                     }
                 } else {
                     // If this is a new cassette (not editing), select it automatically
-                    // For public cassettes, wait longer to ensure DOM is updated
-                    const delay = cassette.isPublic ? 500 : 100;
+                    // Reduced delay for better UX
+                    const delay = cassette.isPublic ? 200 : 50;
                     setTimeout(() => {
                         console.log('🔄 Selecting new cassette:', cassette.id);
                         if (cassette.isPublic) {
@@ -17062,7 +17066,7 @@ class PomodoroTimer {
                             // Also ensure the active state is applied to public cassettes
                             setTimeout(() => {
                                 this.applyActiveStateToPublicCassettes();
-                            }, 200);
+                            }, 100);
                         } else {
                             // For private cassettes, just select normally
                             this.selectCustomCassette(cassette.id);
@@ -17084,8 +17088,8 @@ class PomodoroTimer {
                 console.log('✅ Custom cassette saved:', cassette);
             };
             
-            await handleSuccess();
-            this.hideCassetteForm();
+            // Execute in background (don't wait)
+            handleSuccess().catch(err => console.error('Error in handleSuccess:', err));
             return true;
         } catch (error) {
             console.error('Error saving cassette:', error);
