@@ -16262,31 +16262,40 @@ class PomodoroTimer {
             };
             
             testImg.onerror = () => {
-                // Only show error if image truly failed AND it's the user's own cassette
-                // For public cassettes from other users, fail silently
-                if (isOwnCassette) {
-                    console.error('❌ Image failed to load:', cassette.imageUrl);
-                    // Only show alert for own cassettes
-                    alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
-                } else {
-                    console.warn('⚠️ Image may have CORS issues (public cassette from another user):', cassette.imageUrl);
-                    // Don't remove the background - it might still work despite CORS warning
-                    // The browser will handle it gracefully
-                }
+                // Don't show error immediately - check if image is actually displaying
+                // Sometimes CORS errors occur but the image still displays correctly
+                console.warn('⚠️ Image load test failed (may be CORS issue):', cassette.imageUrl);
                 
-                // Only apply fallback if image truly failed after a delay
-                // This gives time for CORS issues to resolve
+                // Wait a bit to check if the image actually loaded despite the error
                 errorTimeout = setTimeout(() => {
                     if (!imageLoaded) {
                         // Check if background is actually working by checking computed style
                         const computedBg = window.getComputedStyle(timerSection).backgroundImage;
-                        if (!computedBg || computedBg === 'none' || computedBg === '') {
-                            // Only remove background if it's truly not working
-                            timerSection.style.removeProperty('background-image');
-                            timerSection.style.setProperty('background', '#0a0a0a', 'important');
+                        const bgImage = timerSection.style.backgroundImage;
+                        
+                        // If the background image is set and not 'none', it's working
+                        const isImageWorking = (computedBg && computedBg !== 'none' && computedBg !== '') || 
+                                               (bgImage && bgImage !== 'none' && bgImage !== '');
+                        
+                        if (!isImageWorking) {
+                            // Image truly failed - only show error for own cassettes
+                            if (isOwnCassette) {
+                                console.error('❌ Image failed to load:', cassette.imageUrl);
+                                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
+                                // Remove background only if truly failed
+                                timerSection.style.removeProperty('background-image');
+                                timerSection.style.setProperty('background', '#0a0a0a', 'important');
+                            } else {
+                                // For public cassettes from other users, fail silently
+                                timerSection.style.removeProperty('background-image');
+                                timerSection.style.setProperty('background', '#0a0a0a', 'important');
+                            }
+                        } else {
+                            // Image is working despite the error - just log it
+                            console.log('✅ Image is working despite load test error (CORS warning)');
                         }
                     }
-                }, 3000); // Give 3 seconds for CORS to resolve
+                }, 2000); // Give 2 seconds to check if image actually loaded
             };
             
             // Set crossOrigin to allow CORS if needed
@@ -16933,9 +16942,20 @@ class PomodoroTimer {
                 // Reload cassettes (already done in saveCustomCassette, but ensure it's done)
                 this.loadCustomCassettes();
                 
-                // If this is a new cassette (not editing), select it automatically
-                if (!cassetteId) {
-                    // Wait a bit for DOM to update
+                // If editing an existing cassette, check if it's currently selected
+                if (cassetteId) {
+                    const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+                    const isCurrentlySelected = currentTheme === `custom_${cassetteId}`;
+                    
+                    if (isCurrentlySelected) {
+                        // Re-apply the updated cassette immediately
+                        console.log('🔄 Re-applying updated cassette:', cassette.title);
+                        setTimeout(() => {
+                            this.applyCustomCassette(cassette);
+                        }, 300); // Wait for sync to complete
+                    }
+                } else {
+                    // If this is a new cassette (not editing), select it automatically
                     setTimeout(() => {
                         this.selectCustomCassette(cassette.id);
                     }, 100);
@@ -16956,8 +16976,12 @@ class PomodoroTimer {
             };
             
             if (result instanceof Promise) {
-                result.then(success => {
-                    if (success) {
+                result.then(savedCassette => {
+                    if (savedCassette) {
+                        // Update the cassette object with the saved one (in case it was updated)
+                        if (savedCassette.id) {
+                            Object.assign(cassette, savedCassette);
+                        }
                         handleSuccess();
                     } else {
                         alert('Error saving cassette. Please try again.');
