@@ -16593,8 +16593,31 @@ class PomodoroTimer {
         
         // Load cassette data if editing
         if (cassetteId) {
+            let cassette = null;
+            
+            // First try to find in localStorage
             const cassettes = this.getCustomCassettes();
-            const cassette = cassettes.find(c => c.id === cassetteId);
+            cassette = cassettes.find(c => c.id === cassetteId);
+            
+            // If not found in localStorage, try to find in public cassettes cache
+            if (!cassette) {
+                const cacheKey = 'publicCassettesCache';
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    try {
+                        const cachedCassettes = JSON.parse(cachedData);
+                        cassette = cachedCassettes.find(c => c.id === cassetteId);
+                        // Check if it's the user's own cassette
+                        if (cassette && this.user?.id && cassette.creatorId === this.user.id) {
+                            console.log('📦 Found cassette in public cache for editing');
+                        } else {
+                            cassette = null; // Not user's own cassette
+                        }
+                    } catch (e) {
+                        console.error('Error parsing cached public cassettes:', e);
+                    }
+                }
+            }
             
             if (cassette) {
                 document.getElementById('cassetteTitle').value = cassette.title || '';
@@ -16612,6 +16635,10 @@ class PomodoroTimer {
                     saveBtn.dataset.editingId = cassetteId;
                     saveBtn.textContent = 'Update';
                 }
+            } else {
+                console.error('Cassette not found for editing:', cassetteId);
+                alert('Error: Cassette not found. Please try again.');
+                return;
             }
         } else {
             // Clear form for new cassette
