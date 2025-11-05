@@ -15818,8 +15818,8 @@ class PomodoroTimer {
                         ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">created by ${cassette.creatorName}</p>` : ''}
                     </div>
                     ${isOwnCassette ? `
-                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
-                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                    <div style="position: absolute; top: 8px; right: 8px; z-index: 100; pointer-events: none;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" style="pointer-events: auto;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1"/>
                                 <circle cx="19" cy="12" r="1"/>

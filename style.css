@@ -6473,6 +6473,9 @@ input:checked + .toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 100;
+    pointer-events: auto;
 }
 
 .cassette-options-btn:hover {
