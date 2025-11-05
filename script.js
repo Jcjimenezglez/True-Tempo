@@ -15582,6 +15582,30 @@ class PomodoroTimer {
             }
             
             localStorage.setItem('customCassettes', JSON.stringify(cassettes));
+            
+            // Sync public cassettes to Clerk
+            if (this.isAuthenticated && this.user?.id) {
+                const allCassettes = this.getCustomCassettes();
+                
+                // Sync in background (don't wait for response)
+                fetch('/api/sync-cassettes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-clerk-userid': this.user.id
+                    },
+                    body: JSON.stringify({ cassettes: allCassettes })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('✅ Cassettes synced to Clerk');
+                    } else {
+                        console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                    }
+                }).catch(err => {
+                    console.error('❌ Error syncing cassettes to Clerk:', err);
+                });
+            }
+            
             return true;
         } catch (error) {
             console.error('Error saving custom cassette:', error);
@@ -15594,6 +15618,29 @@ class PomodoroTimer {
             const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
             localStorage.setItem('customCassettes', JSON.stringify(filtered));
+            
+            // Sync public cassettes to Clerk after deletion
+            if (this.isAuthenticated && this.user?.id) {
+                const allCassettes = this.getCustomCassettes();
+                
+                // Sync in background (don't wait for response)
+                fetch('/api/sync-cassettes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-clerk-userid': this.user.id
+                    },
+                    body: JSON.stringify({ cassettes: allCassettes })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('✅ Cassettes synced to Clerk after deletion');
+                    } else {
+                        console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                    }
+                }).catch(err => {
+                    console.error('❌ Error syncing cassettes to Clerk:', err);
+                });
+            }
             
             // If this was the active theme, switch to lofi
             if (this.currentTheme === `custom_${cassetteId}`) {
