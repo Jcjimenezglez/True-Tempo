@@ -15742,8 +15742,14 @@ class PomodoroTimer {
                     // Render immediately from cache
                     this.renderPublicCassettes(cachedCassettes, isGuest);
                     console.log('📦 Rendered public cassettes from cache immediately');
+                    // Ensure section is visible
+                    if (publicCassettesSection) {
+                        publicCassettesSection.style.display = 'block';
+                    }
                     // Apply active state after rendering from cache
-                    this.applyActiveStateToPublicCassettes();
+                    setTimeout(() => {
+                        this.applyActiveStateToPublicCassettes();
+                    }, 200);
                 }
             } catch (e) {
                 console.error('Error parsing cached data:', e);
