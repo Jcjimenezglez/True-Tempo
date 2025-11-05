@@ -11883,7 +11883,7 @@ class PomodoroTimer {
         }
     }
 
-    async loadLeaderboardForPanel() {
+    async loadLeaderboardForPanel(page = 1) {
         // Only load if authenticated
         if (!this.isAuthenticated || !this.user?.id) {
             const leaderboardContent = document.getElementById('leaderboardContent');
@@ -11908,14 +11908,17 @@ class PomodoroTimer {
         `;
 
         // Sync local stats to Clerk if they exist (one-time sync for existing users)
-        const stats = this.getFocusStats();
-        if (stats.totalHours && stats.totalHours > 0) {
-            // Sync stats to ensure they're in Clerk (async, don't wait)
-            this.syncStatsToClerk(stats.totalHours);
+        // Only sync on page 1 to avoid unnecessary calls
+        if (page === 1) {
+            const stats = this.getFocusStats();
+            if (stats.totalHours && stats.totalHours > 0) {
+                // Sync stats to ensure they're in Clerk (async, don't wait)
+                this.syncStatsToClerk(stats.totalHours);
+            }
         }
 
         try {
-            const response = await fetch('/api/leaderboard', {
+            const response = await fetch(`/api/leaderboard?page=${page}&limit=100`, {
                 method: 'GET',
                 headers: {
                     'x-clerk-userid': this.user.id
@@ -11932,7 +11935,12 @@ class PomodoroTimer {
                 if (data.debug) {
                     console.log('Leaderboard Debug:', data.debug);
                 }
-                this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition);
+                this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition, {
+                    page: data.page,
+                    totalPages: data.totalPages,
+                    totalUsers: data.totalUsers,
+                    hasMore: data.hasMore
+                });
             } else {
                 leaderboardContent.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: #a3a3a3;">
@@ -11950,7 +11958,7 @@ class PomodoroTimer {
         }
     }
 
-    displayLeaderboardInPanel(containerElement, leaderboard, currentUserPosition) {
+    displayLeaderboardInPanel(containerElement, leaderboard, currentUserPosition, pagination = null) {
         // Find current user's stats
         const stats = this.getFocusStats();
         const totalHours = stats.totalHours || 0;
@@ -11962,17 +11970,21 @@ class PomodoroTimer {
 
         // Header with user position
         if (currentUserPosition) {
+            const totalUsersText = pagination?.totalUsers || leaderboard.length;
             html += `
                 <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
                     <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${leaderboard.length} total users</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} total users</div>
                 </div>
             `;
         }
 
         // Leaderboard list
-        const topUsers = leaderboard; // Show all users from API
+        const topUsers = leaderboard;
+        const currentPage = pagination?.page || 1;
+        const totalPages = pagination?.totalPages || 1;
+        const startRank = (currentPage - 1) * 100 + 1;
         
         if (topUsers.length === 0) {
             html += `
@@ -11988,11 +12000,13 @@ class PomodoroTimer {
                 const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
                 const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
-                // Medal emojis for top 3
-                let rankDisplay = `${index + 1}.`;
-                if (index === 0) rankDisplay = '🥇 1.';
-                else if (index === 1) rankDisplay = '🥈 2.';
-                else if (index === 2) rankDisplay = '🥉 3.';
+                const globalRank = startRank + index;
+                
+                // Medal emojis for top 3 (only on page 1)
+                let rankDisplay = `${globalRank}.`;
+                if (currentPage === 1 && index === 0) rankDisplay = '🥇 1.';
+                else if (currentPage === 1 && index === 1) rankDisplay = '🥈 2.';
+                else if (currentPage === 1 && index === 2) rankDisplay = '🥉 3.';
 
                 return `
                     <div style="
@@ -12017,7 +12031,72 @@ class PomodoroTimer {
             html += '</div>';
         }
 
+        // Pagination controls (only show if there are more than 100 users)
+        if (pagination && totalPages > 1) {
+            html += `
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <button 
+                        id="leaderboardPrevPage" 
+                        style="
+                            padding: 8px 16px;
+                            background: ${currentPage > 1 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                            color: ${currentPage > 1 ? '#fff' : '#666'};
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            cursor: ${currentPage > 1 ? 'pointer' : 'not-allowed'};
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s;
+                            ${currentPage > 1 ? '' : 'opacity: 0.5;'}
+                        "
+                        ${currentPage > 1 ? '' : 'disabled'}
+                    >
+                        ← Previous
+                    </button>
+                    <div style="color: #a3a3a3; font-size: 14px;">
+                        Page ${currentPage} of ${totalPages}
+                    </div>
+                    <button 
+                        id="leaderboardNextPage" 
+                        style="
+                            padding: 8px 16px;
+                            background: ${currentPage < totalPages ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                            color: ${currentPage < totalPages ? '#fff' : '#666'};
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            cursor: ${currentPage < totalPages ? 'pointer' : 'not-allowed'};
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s;
+                            ${currentPage < totalPages ? '' : 'opacity: 0.5;'}
+                        "
+                        ${currentPage < totalPages ? '' : 'disabled'}
+                    >
+                        Next →
+                    </button>
+                </div>
+            `;
+        }
+
         containerElement.innerHTML = html;
+
+        // Add event listeners for pagination buttons
+        if (pagination && totalPages > 1) {
+            const prevBtn = document.getElementById('leaderboardPrevPage');
+            const nextBtn = document.getElementById('leaderboardNextPage');
+            
+            if (prevBtn && currentPage > 1) {
+                prevBtn.addEventListener('click', () => {
+                    this.loadLeaderboardForPanel(currentPage - 1);
+                });
+            }
+            
+            if (nextBtn && currentPage < totalPages) {
+                nextBtn.addEventListener('click', () => {
+                    this.loadLeaderboardForPanel(currentPage + 1);
+                });
+            }
+        }
     }
 
     async loadReportForPanel() {
