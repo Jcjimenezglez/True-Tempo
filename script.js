@@ -16060,29 +16060,20 @@ class PomodoroTimer {
                 }).then(async (response) => {
                     if (response.ok) {
                         console.log('✅ Cassettes synced to Clerk');
-                        // Invalidate cache after successful sync
+                        // Don't reload here - handleSuccess will do it immediately
+                        // Just invalidate cache so next load gets fresh data
                         this.invalidatePublicCassettesCache();
-                        // Reload both custom cassettes and public cassettes to reflect changes
-                        this.loadCustomCassettes();
-                        await this.loadPublicCassettes();
-                        // Return cassette for re-application if it's currently selected
                         return cassette;
                     } else {
                         console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
-                        // Even if sync fails, invalidate cache and reload locally
+                        // Even if sync fails, invalidate cache (handleSuccess will reload)
                         this.invalidatePublicCassettesCache();
-                        this.loadCustomCassettes();
-                        await this.loadPublicCassettes();
-                        // Return cassette for re-application if it's currently selected
                         return cassette;
                     }
                 }).catch(async (err) => {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
-                    // Even if sync fails, invalidate cache and reload locally
+                    // Even if sync fails, invalidate cache (handleSuccess will reload)
                     this.invalidatePublicCassettesCache();
-                    this.loadCustomCassettes();
-                    await this.loadPublicCassettes();
-                    // Return cassette for re-application if it's currently selected
                     return cassette;
                 });
             } else {
@@ -16942,17 +16933,17 @@ class PomodoroTimer {
             
             // Handle both Promise and boolean return values
             const handleSuccess = async () => {
-                // Reload cassettes (already done in saveCustomCassette, but ensure it's done)
+                // The cassette is already saved to localStorage in saveCustomCassette
+                // Now we need to update the UI immediately
+                
+                // Update the UI immediately from localStorage (no delay)
                 this.loadCustomCassettes();
                 
-                // Wait a bit for cassettes to be loaded and rendered in DOM
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Reload public cassettes if it's a public cassette
+                // If it's a public cassette, also update public cassettes section
                 if (cassette.isPublic) {
+                    // Invalidate cache first to force fresh load
+                    this.invalidatePublicCassettesCache();
                     await this.loadPublicCassettes();
-                    // Wait a bit more for public cassettes to render
-                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
                 
                 // If editing an existing cassette, check if it's currently selected
@@ -16961,14 +16952,18 @@ class PomodoroTimer {
                     const isCurrentlySelected = currentTheme === `custom_${cassetteId}`;
                     
                     if (isCurrentlySelected) {
-                        // Re-apply the updated cassette immediately
+                        // Re-apply the updated cassette immediately with the latest data
                         console.log('🔄 Re-applying updated cassette:', cassette.title);
+                        // Use the cassette object directly (already has latest data)
                         this.applyCustomCassette(cassette);
                     }
                 } else {
                     // If this is a new cassette (not editing), select it automatically
-                    console.log('🔄 Selecting new cassette:', cassette.id);
-                    this.selectCustomCassette(cassette.id);
+                    // Wait a bit for DOM to update
+                    setTimeout(() => {
+                        console.log('🔄 Selecting new cassette:', cassette.id);
+                        this.selectCustomCassette(cassette.id);
+                    }, 100);
                 }
                 
                 // Track event
