@@ -43,8 +43,9 @@ module.exports = async (req, res) => {
       const publicCassettes = user.publicMetadata?.publicCassettes || [];
       
       if (Array.isArray(publicCassettes)) {
-        // Get creator name from user
-        const creatorName = user.firstName || user.username || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'Unknown';
+        // Get creator name from user (same logic as leaderboard)
+        const email = user.emailAddresses?.[0]?.emailAddress || 'Unknown';
+        const creatorName = user.username || email.split('@')[0];
         
         publicCassettes.forEach(cassette => {
           // Only include if it's marked as public and we haven't seen this ID before
