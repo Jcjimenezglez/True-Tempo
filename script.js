@@ -16250,7 +16250,7 @@ class PomodoroTimer {
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div style="color: #1db954; font-size: 20px; flex-shrink: 0;">🎵</div>
                     <div style="flex: 1;">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: #1db954;">Listen to full songs</div>
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #ffffff;">Listen to full songs</div>
                         <div style="color: rgba(255, 255, 255, 0.9); margin-bottom: 12px;">
                             Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview.
                         </div>
@@ -16284,12 +16284,23 @@ class PomodoroTimer {
             
             document.body.appendChild(instructionsDiv);
             
-            // Use event delegation to ensure buttons work
-            instructionsDiv.addEventListener('click', (e) => {
-                if (e.target.id === 'spotifyInstructionsClose' || e.target.closest('#spotifyInstructionsClose')) {
+            // Add direct event listeners to buttons for better reliability
+            const closeBtn = instructionsDiv.querySelector('#spotifyInstructionsClose');
+            const loggedInBtn = instructionsDiv.querySelector('#spotifyLoggedInBtn');
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     instructionsDiv.style.display = 'none';
                     localStorage.setItem('spotify_widget_instructions_seen', 'true');
-                } else if (e.target.id === 'spotifyLoggedInBtn' || e.target.closest('#spotifyLoggedInBtn')) {
+                });
+            }
+            
+            if (loggedInBtn) {
+                loggedInBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     // Reload widget by removing and recreating it
                     widget.remove();
                     instructionsDiv.style.display = 'none';
@@ -16298,8 +16309,8 @@ class PomodoroTimer {
                     setTimeout(() => {
                         this.createCustomSpotifyWidget(spotifyUrl);
                     }, 500);
-                }
-            });
+                });
+            }
         }
         
         // Set up timeout handling (same as Tron)
