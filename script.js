@@ -15922,23 +15922,32 @@ class PomodoroTimer {
                 
                 // Handle options button clicks
                 if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
-                    if (isOwnCassette) {
+                    // Check if it's own cassette by comparing creatorId with current user
+                    const isOwn = this.user?.id && cassette.creatorId === this.user.id;
+                    
+                    if (isOwn) {
                         const optionsBtn = cassetteOption.querySelector(`.cassette-options-btn[data-cassette-id="${cassetteId}"]`);
                         const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassetteId}`);
                         
-                        if (optionsBtn && e.target.closest('.cassette-options-btn')) {
+                        // Handle click on the 3 dots button
+                        if (e.target.closest('.cassette-options-btn')) {
                             e.stopPropagation();
-                            const isVisible = optionsDropdown.style.display === 'block';
-                            // Close all other dropdowns first
-                            document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
-                                dropdown.style.display = 'none';
-                            });
-                            optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                            e.preventDefault();
+                            if (optionsDropdown) {
+                                const isVisible = optionsDropdown.style.display === 'block';
+                                // Close all other dropdowns first
+                                document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                                    dropdown.style.display = 'none';
+                                });
+                                optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                            }
+                            return;
                         }
                         
                         // Handle edit option
                         if (e.target.closest('.edit-public-cassette-option')) {
                             e.stopPropagation();
+                            e.preventDefault();
                             if (optionsDropdown) optionsDropdown.style.display = 'none';
                             // Find cassette in localStorage to edit
                             const localCassettes = this.getCustomCassettes();
@@ -15946,17 +15955,20 @@ class PomodoroTimer {
                             if (localCassette) {
                                 this.showCassetteForm(cassetteId);
                             } else {
-                                // If not found in localStorage, try to create from API data
+                                // If not found in localStorage, use cassette from cache
                                 console.warn('Cassette not found in localStorage, using API data');
                                 this.showCassetteForm(cassetteId);
                             }
+                            return;
                         }
                         
                         // Handle delete option
                         if (e.target.closest('.delete-public-cassette-option')) {
                             e.stopPropagation();
+                            e.preventDefault();
                             if (optionsDropdown) optionsDropdown.style.display = 'none';
                             this.deleteCustomCassette(cassetteId);
+                            return;
                         }
                     }
                     return;
