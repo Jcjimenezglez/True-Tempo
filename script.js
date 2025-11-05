@@ -15487,12 +15487,15 @@ class PomodoroTimer {
         
         const customCassettes = this.getCustomCassettes();
         
-        if (customCassettes.length === 0) {
+        // Filter out public cassettes - only show private cassettes in "My Cassettes"
+        const privateCassettes = customCassettes.filter(c => !c.isPublic || c.isPublic === false);
+        
+        if (privateCassettes.length === 0) {
             customCassettesList.innerHTML = '';
             return;
         }
         
-        customCassettesList.innerHTML = customCassettes.map(cassette => {
+        customCassettesList.innerHTML = privateCassettes.map(cassette => {
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
@@ -15538,7 +15541,7 @@ class PomodoroTimer {
         }).join('');
         
         // Add event listeners for custom cassettes
-        customCassettes.forEach(cassette => {
+        privateCassettes.forEach(cassette => {
             const cassetteOption = document.querySelector(`[data-cassette-id="${cassette.id}"]`);
             if (cassetteOption) {
                 cassetteOption.addEventListener('click', (e) => {
@@ -15663,7 +15666,15 @@ class PomodoroTimer {
         const publicCassettes = await this.loadPublicCassettesFromAPI();
         const isGuest = !this.isAuthenticated;
         
-        if (publicCassettes.length === 0) {
+        // Filter out cassettes created by the current user (to avoid duplicates)
+        const filteredPublicCassettes = publicCassettes.filter(cassette => {
+            if (this.user?.id && cassette.creatorId) {
+                return cassette.creatorId !== this.user.id;
+            }
+            return true;
+        });
+        
+        if (filteredPublicCassettes.length === 0) {
             publicCassettesSection.style.display = 'none';
             return;
         }
@@ -15672,7 +15683,7 @@ class PomodoroTimer {
         publicCassettesSection.style.display = 'block';
         
         // Render public cassettes
-        publicCassettesList.innerHTML = publicCassettes.map(cassette => {
+        publicCassettesList.innerHTML = filteredPublicCassettes.map(cassette => {
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
@@ -15700,7 +15711,7 @@ class PomodoroTimer {
         const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
         if (currentTheme && currentTheme.startsWith('custom_')) {
             const cassetteId = currentTheme.replace('custom_', '');
-            const currentCassette = publicCassettes.find(c => c.id === cassetteId);
+            const currentCassette = filteredPublicCassettes.find(c => c.id === cassetteId);
             if (currentCassette) {
                 // Mark this cassette as active after rendering
                 setTimeout(() => {
@@ -15724,7 +15735,7 @@ class PomodoroTimer {
         }
         
         // Add event listeners for public cassettes
-        publicCassettes.forEach(cassette => {
+        filteredPublicCassettes.forEach(cassette => {
             const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
             if (cassetteOption) {
                 const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
@@ -15812,6 +15823,10 @@ class PomodoroTimer {
                 });
             }
             
+            // Reload both custom cassettes and public cassettes to reflect changes
+            this.loadCustomCassettes();
+            this.loadPublicCassettes();
+            
             return true;
         } catch (error) {
             console.error('Error saving custom cassette:', error);
@@ -15853,8 +15868,9 @@ class PomodoroTimer {
                 this.applyTheme('lofi');
             }
             
-            // Reload cassettes
+            // Reload both custom cassettes and public cassettes to reflect changes
             this.loadCustomCassettes();
+            this.loadPublicCassettes();
         } catch (error) {
             console.error('Error deleting custom cassette:', error);
         }
