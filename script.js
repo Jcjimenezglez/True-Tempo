@@ -15742,6 +15742,8 @@ class PomodoroTimer {
                     // Render immediately from cache
                     this.renderPublicCassettes(cachedCassettes, isGuest);
                     console.log('📦 Rendered public cassettes from cache immediately');
+                    // Apply active state after rendering from cache
+                    this.applyActiveStateToPublicCassettes();
                 }
             } catch (e) {
                 console.error('Error parsing cached data:', e);
@@ -15852,32 +15854,7 @@ class PomodoroTimer {
             `;
         }).join('');
         
-        // Check if current theme is a public cassette and mark it as active
-        const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
-        if (currentTheme && currentTheme.startsWith('custom_')) {
-            const cassetteId = currentTheme.replace('custom_', '');
-            const currentCassette = filteredPublicCassettes.find(c => c.id === cassetteId);
-            if (currentCassette) {
-                // Mark this cassette as active after rendering
-                setTimeout(() => {
-                    const activeOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
-                    if (activeOption) {
-                        // Remove active from all other options
-                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        document.querySelectorAll('.custom-cassette').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        document.querySelectorAll('.public-cassette').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        // Add active to current cassette
-                        activeOption.classList.add('active');
-                    }
-                }, 100);
-            }
-        }
+        // Apply active state will be called separately after rendering
         
         // Add event listeners for public cassettes (same approach as private cassettes)
         filteredPublicCassettes.forEach(cassette => {
