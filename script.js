@@ -16973,25 +16973,48 @@ class PomodoroTimer {
                             const publicCassettesList = document.getElementById('publicCassettesList');
                             const publicCassettesSection = document.getElementById('publicCassettesSection');
                             
+                            console.log('🔄 Updating public cassette UI:', {
+                                hasList: !!publicCassettesList,
+                                hasSection: !!publicCassettesSection,
+                                cassetteId: cassette.id,
+                                cassetteTitle: cassette.title,
+                                cassettesCount: cachedCassettes.length
+                            });
+                            
                             // Ensure section is visible before rendering
                             if (publicCassettesSection) {
                                 publicCassettesSection.style.display = 'block';
+                                console.log('✅ Public cassettes section made visible');
                             }
                             
                             // Force immediate re-render
                             if (publicCassettesList && publicCassettesSection) {
+                                // Re-render with updated data
                                 this.renderPublicCassettes(cachedCassettes, isGuest);
-                                console.log('🔄 Re-rendered public cassettes with updated data');
+                                console.log('✅ Re-rendered public cassettes with updated data');
                                 
-                                // Force a reflow to ensure DOM updates are visible
-                                void publicCassettesList.offsetHeight;
-                                
-                                // Apply active state after rendering
+                                // Double-check that the update was applied
                                 setTimeout(() => {
+                                    const updatedCard = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                                    if (updatedCard) {
+                                        const titleElement = updatedCard.querySelector('h4');
+                                        const descElement = updatedCard.querySelector('p');
+                                        console.log('✅ Card updated:', {
+                                            title: titleElement?.textContent,
+                                            description: descElement?.textContent
+                                        });
+                                    } else {
+                                        console.warn('⚠️ Updated card not found in DOM');
+                                    }
+                                    
+                                    // Apply active state after rendering
                                     this.applyActiveStateToPublicCassettes();
-                                }, 100);
+                                }, 50);
                             } else {
-                                console.warn('⚠️ Public cassettes elements not found, cannot update UI');
+                                console.warn('⚠️ Public cassettes elements not found:', {
+                                    list: !!publicCassettesList,
+                                    section: !!publicCassettesSection
+                                });
                             }
                         } catch (e) {
                             console.error('Error updating cache:', e);
