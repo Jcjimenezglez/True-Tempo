@@ -15729,36 +15729,79 @@ class PomodoroTimer {
         
         const isGuest = !this.isAuthenticated;
         
-        // Step 1: Render immediately from cache if available (optimistic rendering)
+        // Get user's own public cassettes from localStorage immediately
+        const userPublicCassettes = this.getCustomCassettes().filter(c => c.isPublic === true);
+        
+        // Add creator info to user's public cassettes
+        const userPublicCassettesWithCreator = userPublicCassettes.map(c => ({
+            ...c,
+            creatorName: this.user?.username || this.user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'You',
+            creatorId: this.user?.id
+        }));
+        
+        // Step 1: Render immediately from cache + user's public cassettes (optimistic rendering)
         const cacheKey = 'publicCassettesCache';
         const cachedData = localStorage.getItem(cacheKey);
+        let cachedCassettes = [];
+        
         if (cachedData) {
             try {
-                const cachedCassettes = JSON.parse(cachedData);
-                if (Array.isArray(cachedCassettes) && cachedCassettes.length > 0) {
-                    // Render immediately from cache
-                    this.renderPublicCassettes(cachedCassettes, isGuest);
-                    console.log('📦 Rendered public cassettes from cache immediately');
-                    // Ensure section is visible
-                    if (publicCassettesSection) {
-                        publicCassettesSection.style.display = 'block';
-                    }
-                    // Apply active state after rendering from cache
-                    setTimeout(() => {
-                        this.applyActiveStateToPublicCassettes();
-                    }, 200);
-                }
+                cachedCassettes = JSON.parse(cachedData);
             } catch (e) {
                 console.error('Error parsing cached data:', e);
             }
+        }
+        
+        // Merge user's public cassettes with cached cassettes (user's cassettes take priority)
+        const existingIds = new Set(cachedCassettes.map(c => c.id));
+        const mergedForDisplay = [...cachedCassettes];
+        
+        userPublicCassettesWithCreator.forEach(userCassette => {
+            const existingIndex = mergedForDisplay.findIndex(c => c.id === userCassette.id);
+            if (existingIndex >= 0) {
+                // Update existing with user's version (has latest data)
+                mergedForDisplay[existingIndex] = userCassette;
+            } else {
+                // Add new user's cassette
+                mergedForDisplay.push(userCassette);
+            }
+        });
+        
+        if (mergedForDisplay.length > 0) {
+            // Render immediately from merged cache + user's cassettes
+            this.renderPublicCassettes(mergedForDisplay, isGuest);
+            console.log('📦 Rendered public cassettes from cache + user cassettes immediately');
+            // Ensure section is visible
+            if (publicCassettesSection) {
+                publicCassettesSection.style.display = 'block';
+            }
+            // Apply active state after rendering from cache
+            setTimeout(() => {
+                this.applyActiveStateToPublicCassettes();
+            }, 200);
         }
         
         // Step 2: Check for updates in background
         try {
             const publicCassettes = await this.loadPublicCassettesFromAPI(forceRefresh);
             
+            // Merge user's public cassettes with server cassettes (user's cassettes take priority)
+            const serverExistingIds = new Set(publicCassettes.map(c => c.id));
+            const mergedCassettes = [...publicCassettes];
+            
+            userPublicCassettesWithCreator.forEach(userCassette => {
+                const existingIndex = mergedCassettes.findIndex(c => c.id === userCassette.id);
+                if (existingIndex >= 0) {
+                    // Update existing with user's version (has latest data)
+                    mergedCassettes[existingIndex] = userCassette;
+                } else {
+                    // Add new user's cassette
+                    mergedCassettes.push(userCassette);
+                }
+            });
+            
             // Include all public cassettes (including user's own cassettes for editing)
-            const filteredPublicCassettes = publicCassettes;
+            const filteredPublicCassettes = mergedCassettes;
             
             if (filteredPublicCassettes.length === 0) {
                 publicCassettesSection.style.display = 'none';
@@ -15768,19 +15811,20 @@ class PomodoroTimer {
             // Show section
             publicCassettesSection.style.display = 'block';
             
-            // Always re-render with fresh data from API to ensure consistency across users
+            // Always re-render with fresh data from API + user's cassettes to ensure consistency
             // This ensures that when one user creates a cassette, other users see it immediately
+            // And user's own cassettes appear immediately even before server sync
             const cacheKeyForCompare = 'publicCassettesCache';
             const cachedDataForCompare = localStorage.getItem(cacheKeyForCompare);
-            const cachedCassettes = cachedDataForCompare ? JSON.parse(cachedDataForCompare) : [];
+            const cachedCassettesForCompare = cachedDataForCompare ? JSON.parse(cachedDataForCompare) : [];
             
             // Compare by IDs and updatedAt to detect changes
             const hasChanges = JSON.stringify(filteredPublicCassettes.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id))) !== 
-                              JSON.stringify(cachedCassettes.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id)));
+                              JSON.stringify(cachedCassettesForCompare.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id)));
             
             if (hasChanges || !cachedDataForCompare) {
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
-                console.log('🔄 Updated public cassettes UI with fresh data');
+                console.log('🔄 Updated public cassettes UI with fresh data + user cassettes');
                 // Apply active state after re-rendering
                 setTimeout(() => {
                     this.applyActiveStateToPublicCassettes();
@@ -15794,7 +15838,7 @@ class PomodoroTimer {
         } catch (e) {
             console.error('Error loading public cassettes:', e);
             // If error and no cache was rendered, hide section
-            if (!cachedData) {
+            if (!cachedData && userPublicCassettesWithCreator.length === 0) {
                 publicCassettesSection.style.display = 'none';
             }
         }
@@ -16943,11 +16987,22 @@ class PomodoroTimer {
                     }
                 } else {
                     // If this is a new cassette (not editing), select it automatically
-                    // Wait a bit for DOM to update
+                    // For public cassettes, wait longer to ensure DOM is updated
+                    const delay = cassette.isPublic ? 500 : 100;
                     setTimeout(() => {
                         console.log('🔄 Selecting new cassette:', cassette.id);
-                        this.selectCustomCassette(cassette.id);
-                    }, 100);
+                        if (cassette.isPublic) {
+                            // For public cassettes, try to select and apply active state
+                            this.selectCustomCassette(cassette.id);
+                            // Also ensure the active state is applied to public cassettes
+                            setTimeout(() => {
+                                this.applyActiveStateToPublicCassettes();
+                            }, 200);
+                        } else {
+                            // For private cassettes, just select normally
+                            this.selectCustomCassette(cassette.id);
+                        }
+                    }, delay);
                 }
                 
                 // Track event
