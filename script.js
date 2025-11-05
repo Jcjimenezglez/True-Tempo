@@ -16134,13 +16134,19 @@ class PomodoroTimer {
         }
     }
 
-    // Increment views count for a public cassette
+    // Increment views count for a public cassette (unique views per user)
     async incrementCassetteViews(cassetteId, cassetteElement) {
+        // Only increment for authenticated users
+        if (!this.isAuthenticated || !this.user?.id) {
+            return; // Guest users don't count views
+        }
+        
         try {
             const response = await fetch('/api/increment-cassette-views', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
                 },
                 body: JSON.stringify({ cassetteId })
             });
@@ -17098,6 +17104,7 @@ class PomodoroTimer {
             websiteUrl: websiteUrl || '',
             isPublic: isPublic,
             views: cassetteId ? (previousCassette?.views || 0) : 0, // Initialize views to 0 for new cassettes, keep existing for edits
+            viewedBy: cassetteId ? (previousCassette?.viewedBy || []) : [], // Track which users have viewed this cassette
             createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
