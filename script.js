@@ -16226,6 +16226,12 @@ class PomodoroTimer {
         `;
         
         // Create login instructions message
+        // Remove any existing instructions modal first
+        const existingInstructions = document.getElementById('spotifyWidgetInstructions');
+        if (existingInstructions) {
+            existingInstructions.remove();
+        }
+        
         const hasSeenInstructions = localStorage.getItem('spotify_widget_instructions_seen') === 'true';
         if (!hasSeenInstructions) {
             const instructionsDiv = document.createElement('div');
@@ -16293,17 +16299,27 @@ class PomodoroTimer {
                 let isClosing = false;
                 
                 if (closeBtn) {
-                    closeBtn.addEventListener('click', (e) => {
-                        if (isClosing) return;
+                    const closeHandler = (e) => {
+                        if (isClosing) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            return;
+                        }
                         isClosing = true;
                         
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
                         
-                        instructionsDiv.style.display = 'none';
+                        // Remove the modal completely instead of just hiding it
+                        if (instructionsDiv && instructionsDiv.parentNode) {
+                            instructionsDiv.parentNode.removeChild(instructionsDiv);
+                        }
                         localStorage.setItem('spotify_widget_instructions_seen', 'true');
-                    }, { once: true, capture: true });
+                    };
+                    
+                    closeBtn.addEventListener('click', closeHandler, { once: true, capture: true });
                 }
                 
                 if (loggedInBtn) {
