@@ -15561,9 +15561,41 @@ class PomodoroTimer {
                     cassetteOption.style.cursor = 'not-allowed';
                     cassetteOption.style.pointerEvents = 'none';
                 } else {
-                    // Enable for Free and Pro users
+                    // Enable for Free and Pro users - use cassette data directly from API
                     cassetteOption.addEventListener('click', (e) => {
-                        this.selectCustomCassette(cassette.id);
+                        // Remove active from all preset themes
+                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        
+                        // Remove active from all custom cassettes
+                        document.querySelectorAll('.custom-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        
+                        // Remove active from all public cassettes
+                        document.querySelectorAll('.public-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        
+                        // Add active to selected cassette
+                        cassetteOption.classList.add('active');
+                        
+                        // Apply the public cassette directly
+                        this.applyCustomCassette(cassette);
+                        
+                        // Save to localStorage
+                        const themeName = `custom_${cassette.id}`;
+                        localStorage.setItem('lastSelectedTheme', themeName);
+                        this.currentTheme = themeName;
+                        
+                        // Track event
+                        this.trackEvent('Cassette Selected', {
+                            button_type: 'cassette',
+                            cassette_name: cassette.title,
+                            cassette_type: 'public',
+                            source: 'cassettes_panel'
+                        });
                     });
                 }
             }
