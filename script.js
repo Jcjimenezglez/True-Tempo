@@ -16232,7 +16232,8 @@ class PomodoroTimer {
             existingInstructions.remove();
         }
         
-        const hasSeenInstructions = localStorage.getItem('spotify_widget_instructions_seen') === 'true';
+        // Always show instructions (reset state when widget is created)
+        const hasSeenInstructions = false;
         if (!hasSeenInstructions) {
             const instructionsDiv = document.createElement('div');
             instructionsDiv.id = 'spotifyWidgetInstructions';
@@ -16258,7 +16259,7 @@ class PomodoroTimer {
                     <div style="flex: 1;">
                         <div style="font-weight: 600; margin-bottom: 8px; color: #ffffff;">Listen to full songs</div>
                         <div style="color: rgba(255, 255, 255, 0.9); margin-bottom: 12px;">
-                            Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview. Make sure third-party cookies are enabled in your browser settings for Spotify to detect your login session.
+                            Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview. Make sure third-party cookies are enabled in your browser settings.
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <button id="spotifyLoggedInBtn" style="
@@ -16316,7 +16317,7 @@ class PomodoroTimer {
                         if (instructionsDiv && instructionsDiv.parentNode) {
                             instructionsDiv.parentNode.removeChild(instructionsDiv);
                         }
-                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                        // Don't save to localStorage - message will show again next time
                     };
                     
                     closeBtn.addEventListener('click', closeHandler, { once: true, capture: true });
@@ -16331,7 +16332,7 @@ class PomodoroTimer {
                         // Reload widget by removing and recreating it
                         widget.remove();
                         instructionsDiv.style.display = 'none';
-                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                        // Don't save to localStorage - message will show again next time
                         // Recreate widget after a short delay
                         setTimeout(() => {
                             this.createCustomSpotifyWidget(spotifyUrl);
@@ -16380,9 +16381,6 @@ class PomodoroTimer {
         widget.addEventListener('error', handleError);
         
         document.body.appendChild(widget);
-        
-        // Reset instructions state so user sees instructions again when selecting a new cassette
-        localStorage.removeItem('spotify_widget_instructions_seen');
         
         console.log('🎵 Custom Spotify widget created');
     }
@@ -17166,9 +17164,6 @@ class PomodoroTimer {
         // Append to body
         document.body.appendChild(widget);
         this.tronSpotifyWidget = widget;
-        
-        // Reset instructions state so user sees instructions again when selecting Tron
-        localStorage.removeItem('spotify_widget_instructions_seen');
         
         // Create the image button
         this.createTronImageButton();
