@@ -15410,10 +15410,8 @@ class PomodoroTimer {
         if (saveCassetteBtn) {
             saveCassetteBtn.addEventListener('click', () => {
                 const cassetteId = saveCassetteBtn.dataset.editingId || null;
-                const success = this.saveCassetteFromForm(cassetteId);
-                if (success) {
-                    this.hideCassetteForm();
-                }
+                // Don't close form here - saveCassetteFromForm will handle it after UI is updated
+                this.saveCassetteFromForm(cassetteId);
             });
         }
     }
@@ -17071,6 +17069,8 @@ class PomodoroTimer {
                             Object.assign(cassette, savedCassette);
                         }
                         await handleSuccess();
+                        // Close form after UI is updated
+                        this.hideCassetteForm();
                     } else {
                         alert('Error saving cassette. Please try again.');
                     }
@@ -17080,7 +17080,10 @@ class PomodoroTimer {
                 });
                 return true; // Return true immediately, handle async in then/catch
             } else if (result) {
-                handleSuccess();
+                handleSuccess().then(() => {
+                    // Close form after UI is updated
+                    this.hideCassetteForm();
+                });
                 return true;
             } else {
                 alert('Error saving cassette. Please try again.');
