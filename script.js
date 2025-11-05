@@ -15971,6 +15971,10 @@ class PomodoroTimer {
                 document.getElementById('cassetteImageUrl').value = cassette.imageUrl || '';
                 document.getElementById('cassetteSpotifyUrl').value = cassette.spotifyUrl || '';
                 document.getElementById('cassetteWebsiteUrl').value = cassette.websiteUrl || '';
+                const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+                if (isPublicCheckbox) {
+                    isPublicCheckbox.checked = cassette.isPublic === true;
+                }
                 
                 // Store editing ID in save button
                 if (saveBtn) {
@@ -15985,6 +15989,10 @@ class PomodoroTimer {
             document.getElementById('cassetteImageUrl').value = '';
             document.getElementById('cassetteSpotifyUrl').value = '';
             document.getElementById('cassetteWebsiteUrl').value = '';
+            const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+            if (isPublicCheckbox) {
+                isPublicCheckbox.checked = false;
+            }
             
             if (saveBtn) {
                 delete saveBtn.dataset.editingId;
@@ -16026,6 +16034,10 @@ class PomodoroTimer {
         document.getElementById('cassetteImageUrl').value = '';
         document.getElementById('cassetteSpotifyUrl').value = '';
         document.getElementById('cassetteWebsiteUrl').value = '';
+        const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+        if (isPublicCheckbox) {
+            isPublicCheckbox.checked = false;
+        }
     }
 
     extractImageUrl(url) {
@@ -16103,6 +16115,7 @@ class PomodoroTimer {
         const imageUrlEl = document.getElementById('cassetteImageUrl');
         const spotifyUrlEl = document.getElementById('cassetteSpotifyUrl');
         const websiteUrlEl = document.getElementById('cassetteWebsiteUrl');
+        const isPublicCheckbox = document.getElementById('cassetteIsPublic');
         
         if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl || !websiteUrlEl) {
             console.error('Form elements not found', {
@@ -16122,6 +16135,7 @@ class PomodoroTimer {
         let imageUrl = (imageUrlEl.value || '').trim();
         const spotifyUrl = (spotifyUrlEl.value || '').trim();
         const websiteUrl = (websiteUrlEl.value || '').trim();
+        const isPublic = isPublicCheckbox ? isPublicCheckbox.checked : false;
         
         console.log('💾 Saving cassette - Title value:', title, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl.value);
         
@@ -16155,6 +16169,7 @@ class PomodoroTimer {
             imageUrl: imageUrl || '',
             spotifyUrl: spotifyUrl || '',
             websiteUrl: websiteUrl || '',
+            isPublic: isPublic,
             createdAt: cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId)?.createdAt : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
