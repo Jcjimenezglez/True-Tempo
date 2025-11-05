@@ -15666,13 +15666,8 @@ class PomodoroTimer {
         const publicCassettes = await this.loadPublicCassettesFromAPI();
         const isGuest = !this.isAuthenticated;
         
-        // Filter out cassettes created by the current user (to avoid duplicates)
-        const filteredPublicCassettes = publicCassettes.filter(cassette => {
-            if (this.user?.id && cassette.creatorId) {
-                return cassette.creatorId !== this.user.id;
-            }
-            return true;
-        });
+        // Include all public cassettes (including user's own cassettes for editing)
+        const filteredPublicCassettes = publicCassettes;
         
         if (filteredPublicCassettes.length === 0) {
             publicCassettesSection.style.display = 'none';
@@ -15684,6 +15679,8 @@ class PomodoroTimer {
         
         // Render public cassettes
         publicCassettesList.innerHTML = filteredPublicCassettes.map(cassette => {
+            // Check if this cassette belongs to the current user
+            const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
@@ -15696,6 +15693,7 @@ class PomodoroTimer {
                 <div class="theme-option public-cassette ${requiresAuth ? '' : 'authenticated'}" 
                      data-cassette-id="${cassette.id}" 
                      data-requires-auth="${requiresAuth}"
+                     data-is-own="${isOwnCassette}"
                      style="position: relative;">
                     <div class="theme-preview" style="${previewStyle}"></div>
                     <div class="theme-info">
@@ -15703,6 +15701,28 @@ class PomodoroTimer {
                         <p>${cassette.description || 'Public focus environment'}</p>
                         ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">by ${cassette.creatorName}</p>` : ''}
                     </div>
+                    ${isOwnCassette ? `
+                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </button>
+                        <div class="cassette-options-dropdown" id="publicCassetteOptionsDropdown${cassette.id}" style="display: none;">
+                            <div class="cassette-options-menu">
+                                <button class="cassette-option-item edit-public-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }).join('');
@@ -15739,6 +15759,44 @@ class PomodoroTimer {
             const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
             if (cassetteOption) {
                 const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
+                const isOwnCassette = cassetteOption.getAttribute('data-is-own') === 'true';
+                
+                // Add edit functionality for own cassettes
+                if (isOwnCassette) {
+                    const optionsBtn = cassetteOption.querySelector(`.cassette-options-btn[data-cassette-id="${cassette.id}"]`);
+                    const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassette.id}`);
+                    
+                    if (optionsBtn && optionsDropdown) {
+                        optionsBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const isVisible = optionsDropdown.style.display === 'block';
+                            // Close all other dropdowns first
+                            document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                                dropdown.style.display = 'none';
+                            });
+                            optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                        });
+                    }
+                    
+                    // Edit option for own cassettes
+                    const editOption = cassetteOption.querySelector(`.edit-public-cassette-option[data-cassette-id="${cassette.id}"]`);
+                    if (editOption) {
+                        editOption.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (optionsDropdown) optionsDropdown.style.display = 'none';
+                            // Find cassette in localStorage to edit
+                            const localCassettes = this.getCustomCassettes();
+                            const localCassette = localCassettes.find(c => c.id === cassette.id);
+                            if (localCassette) {
+                                this.showCassetteForm(cassette.id);
+                            } else {
+                                // If not found in localStorage, try to create from API data
+                                console.warn('Cassette not found in localStorage, using API data');
+                                this.showCassetteForm(cassette.id);
+                            }
+                        });
+                    }
+                }
                 
                 if (requiresAuth) {
                     // Disable for guest users
@@ -15748,6 +15806,11 @@ class PomodoroTimer {
                 } else {
                     // Enable for Free and Pro users - use cassette data directly from API
                     cassetteOption.addEventListener('click', (e) => {
+                        // Don't trigger if clicking options button or dropdown
+                        if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                            return;
+                        }
+                        
                         // Remove active from all preset themes
                         document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
                             opt.classList.remove('active');
