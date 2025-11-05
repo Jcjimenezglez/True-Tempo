@@ -111,6 +111,9 @@ class PomodoroTimer {
 		this.spotifyLoadingElement = null;
 		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
 		
+		// Custom Spotify widget URL tracking
+		this.currentSpotifyUrl = null; // Track current Spotify URL to avoid unnecessary recreations
+		
 		
 		// Note: We don't save Spotify connecting state - always show loading
 		
@@ -15764,19 +15767,37 @@ class PomodoroTimer {
         }
         
         // Add event listeners for public cassettes
-        filteredPublicCassettes.forEach(cassette => {
-            const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
-            if (cassetteOption) {
+        // Use event delegation on the container to avoid duplicate listeners
+        const publicCassettesContainer = document.getElementById('publicCassettesList');
+        if (publicCassettesContainer) {
+            // Remove any existing delegated listener by cloning the container
+            // This ensures we don't accumulate duplicate listeners
+            const oldContainer = publicCassettesContainer.cloneNode(false);
+            const newContainer = publicCassettesContainer.cloneNode(true);
+            publicCassettesContainer.parentNode.replaceChild(newContainer, publicCassettesContainer);
+            
+            // Now add the delegated listener to the new container
+            const container = document.getElementById('publicCassettesList');
+            container.addEventListener('click', (e) => {
+                const cassetteOption = e.target.closest('.public-cassette');
+                if (!cassetteOption) return;
+                
+                const cassetteId = cassetteOption.getAttribute('data-cassette-id');
+                if (!cassetteId) return;
+                
+                const cassette = filteredPublicCassettes.find(c => c.id === cassetteId);
+                if (!cassette) return;
+                
                 const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
                 const isOwnCassette = cassetteOption.getAttribute('data-is-own') === 'true';
                 
-                // Add edit functionality for own cassettes
-                if (isOwnCassette) {
-                    const optionsBtn = cassetteOption.querySelector(`.cassette-options-btn[data-cassette-id="${cassette.id}"]`);
-                    const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassette.id}`);
-                    
-                    if (optionsBtn && optionsDropdown) {
-                        optionsBtn.addEventListener('click', (e) => {
+                // Handle options button clicks
+                if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                    if (isOwnCassette) {
+                        const optionsBtn = cassetteOption.querySelector(`.cassette-options-btn[data-cassette-id="${cassetteId}"]`);
+                        const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassetteId}`);
+                        
+                        if (optionsBtn && e.target.closest('.cassette-options-btn')) {
                             e.stopPropagation();
                             const isVisible = optionsDropdown.style.display === 'block';
                             // Close all other dropdowns first
@@ -15784,89 +15805,94 @@ class PomodoroTimer {
                                 dropdown.style.display = 'none';
                             });
                             optionsDropdown.style.display = isVisible ? 'none' : 'block';
-                        });
-                    }
-                    
-                    // Edit option for own cassettes
-                    const editOption = cassetteOption.querySelector(`.edit-public-cassette-option[data-cassette-id="${cassette.id}"]`);
-                    if (editOption) {
-                        editOption.addEventListener('click', (e) => {
+                        }
+                        
+                        // Handle edit option
+                        if (e.target.closest('.edit-public-cassette-option')) {
                             e.stopPropagation();
                             if (optionsDropdown) optionsDropdown.style.display = 'none';
                             // Find cassette in localStorage to edit
                             const localCassettes = this.getCustomCassettes();
-                            const localCassette = localCassettes.find(c => c.id === cassette.id);
+                            const localCassette = localCassettes.find(c => c.id === cassetteId);
                             if (localCassette) {
-                                this.showCassetteForm(cassette.id);
+                                this.showCassetteForm(cassetteId);
                             } else {
                                 // If not found in localStorage, try to create from API data
                                 console.warn('Cassette not found in localStorage, using API data');
-                                this.showCassetteForm(cassette.id);
+                                this.showCassetteForm(cassetteId);
                             }
-                        });
-                    }
-                    
-                    // Delete option for own cassettes
-                    const deleteOption = cassetteOption.querySelector(`.delete-public-cassette-option[data-cassette-id="${cassette.id}"]`);
-                    if (deleteOption) {
-                        deleteOption.addEventListener('click', (e) => {
+                        }
+                        
+                        // Handle delete option
+                        if (e.target.closest('.delete-public-cassette-option')) {
                             e.stopPropagation();
                             if (optionsDropdown) optionsDropdown.style.display = 'none';
-                            this.deleteCustomCassette(cassette.id);
-                        });
+                            this.deleteCustomCassette(cassetteId);
+                        }
                     }
+                    return;
                 }
                 
+                // Handle cassette selection (only if not clicking on options)
+                if (requiresAuth) {
+                    return; // Disabled for guest users
+                }
+                
+                // Don't trigger if clicking options button or dropdown
+                if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                    return;
+                }
+                
+                // Remove active from all preset themes
+                document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all custom cassettes
+                document.querySelectorAll('.custom-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all public cassettes
+                document.querySelectorAll('.public-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active to selected cassette
+                cassetteOption.classList.add('active');
+                
+                // Apply the public cassette directly
+                this.applyCustomCassette(cassette);
+                
+                // Save to localStorage
+                const themeName = `custom_${cassette.id}`;
+                localStorage.setItem('lastSelectedTheme', themeName);
+                this.currentTheme = themeName;
+                
+                // Track event
+                this.trackEvent('Cassette Selected', {
+                    button_type: 'cassette',
+                    cassette_name: cassette.title,
+                    cassette_type: 'public',
+                    source: 'cassettes_panel'
+                });
+            });
+        }
+        
+        // Apply styles for guest users (disabled state)
+        filteredPublicCassettes.forEach(cassette => {
+            const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+            if (cassetteOption) {
+                const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
                 if (requiresAuth) {
                     // Disable for guest users
                     cassetteOption.style.opacity = '0.5';
                     cassetteOption.style.cursor = 'not-allowed';
                     cassetteOption.style.pointerEvents = 'none';
-                } else {
-                    // Enable for Free and Pro users - use cassette data directly from API
-                    cassetteOption.addEventListener('click', (e) => {
-                        // Don't trigger if clicking options button or dropdown
-                        if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
-                            return;
-                        }
-                        
-                        // Remove active from all preset themes
-                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        
-                        // Remove active from all custom cassettes
-                        document.querySelectorAll('.custom-cassette').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        
-                        // Remove active from all public cassettes
-                        document.querySelectorAll('.public-cassette').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        
-                        // Add active to selected cassette
-                        cassetteOption.classList.add('active');
-                        
-                        // Apply the public cassette directly
-                        this.applyCustomCassette(cassette);
-                        
-                        // Save to localStorage
-                        const themeName = `custom_${cassette.id}`;
-                        localStorage.setItem('lastSelectedTheme', themeName);
-                        this.currentTheme = themeName;
-                        
-                        // Track event
-                        this.trackEvent('Cassette Selected', {
-                            button_type: 'cassette',
-                            cassette_name: cassette.title,
-                            cassette_type: 'public',
-                            source: 'cassettes_panel'
-                        });
-                    });
                 }
             }
         });
+        
     }
 
     saveCustomCassette(cassette) {
@@ -16026,10 +16052,18 @@ class PomodoroTimer {
         // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
         
-        // Remove custom Spotify widget from previous custom cassette
+        // Remove custom Spotify widget from previous custom cassette only if URL is different
         const existingWidget = document.getElementById('customSpotifyWidget');
         if (existingWidget) {
-            existingWidget.remove();
+            // Check if we need to recreate the widget (only if URL changed)
+            if (cassette.spotifyUrl && this.currentSpotifyUrl === cassette.spotifyUrl) {
+                // Same Spotify URL, keep the existing widget
+                console.log('🎵 Spotify widget already exists with same URL, keeping it');
+            } else {
+                // Different or no Spotify URL, remove existing widget
+                existingWidget.remove();
+                this.currentSpotifyUrl = null;
+            }
         }
         
         // Remove custom website link from previous custom cassette
@@ -16087,9 +16121,16 @@ class PomodoroTimer {
             timerSection.style.setProperty('background', '#0a0a0a', 'important');
         }
         
-        // Create Spotify widget if URL provided
-        if (cassette.spotifyUrl) {
+        // Create Spotify widget if URL provided and different from current
+        if (cassette.spotifyUrl && this.currentSpotifyUrl !== cassette.spotifyUrl) {
             this.createCustomSpotifyWidget(cassette.spotifyUrl);
+        } else if (!cassette.spotifyUrl && this.currentSpotifyUrl) {
+            // If no Spotify URL but one exists, remove it
+            const widgetToRemove = document.getElementById('customSpotifyWidget');
+            if (widgetToRemove) {
+                widgetToRemove.remove();
+            }
+            this.currentSpotifyUrl = null;
         }
         
         // Create Website URL link if provided
@@ -16181,11 +16222,20 @@ class PomodoroTimer {
     }
 
     createCustomSpotifyWidget(spotifyUrl) {
-        // Remove existing custom Spotify widget
+        // Check if widget already exists with same URL
         const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget && this.currentSpotifyUrl === spotifyUrl) {
+            console.log('🎵 Spotify widget already exists with same URL, skipping recreation');
+            return;
+        }
+        
+        // Remove existing custom Spotify widget if URL is different
         if (existingWidget) {
             existingWidget.remove();
         }
+        
+        // Save current Spotify URL
+        this.currentSpotifyUrl = spotifyUrl;
         
         // Extract Spotify track/playlist/album ID from URL
         const spotifyId = this.extractSpotifyId(spotifyUrl);
@@ -16780,6 +16830,7 @@ class PomodoroTimer {
         const existingWidget = document.getElementById('customSpotifyWidget');
         if (existingWidget) {
             existingWidget.remove();
+            this.currentSpotifyUrl = null; // Clear Spotify URL tracking
         }
         
         // Remove custom website link if switching from custom cassette
