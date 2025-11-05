@@ -16239,7 +16239,7 @@ class PomodoroTimer {
                 color: #ffffff;
                 padding: 16px;
                 border-radius: 12px;
-                border: 2px solid #1db954;
+                border: none;
                 z-index: 1001;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 font-size: 13px;
@@ -16250,9 +16250,9 @@ class PomodoroTimer {
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div style="color: #1db954; font-size: 20px; flex-shrink: 0;">🎵</div>
                     <div style="flex: 1;">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: #1db954;">Escucha canciones completas</div>
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #1db954;">Listen to full songs</div>
                         <div style="color: rgba(255, 255, 255, 0.9); margin-bottom: 12px;">
-                            Haz clic en el logo de Spotify dentro del widget para loguearte y escuchar canciones completas en lugar de solo preview.
+                            Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview.
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <button id="spotifyLoggedInBtn" style="
@@ -16266,7 +16266,7 @@ class PomodoroTimer {
                                 cursor: pointer;
                                 transition: all 0.2s ease;
                                 flex: 1;
-                            ">Ya me logueé</button>
+                            ">I'm logged in</button>
                             <button id="spotifyInstructionsClose" style="
                                 background: rgba(255, 255, 255, 0.1);
                                 color: #ffffff;
@@ -16276,7 +16276,7 @@ class PomodoroTimer {
                                 font-size: 12px;
                                 cursor: pointer;
                                 transition: all 0.2s ease;
-                            ">Cerrar</button>
+                            ">Close</button>
                         </div>
                     </div>
                 </div>
@@ -16284,19 +16284,12 @@ class PomodoroTimer {
             
             document.body.appendChild(instructionsDiv);
             
-            // Close button handler
-            const closeBtn = document.getElementById('spotifyInstructionsClose');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
+            // Use event delegation to ensure buttons work
+            instructionsDiv.addEventListener('click', (e) => {
+                if (e.target.id === 'spotifyInstructionsClose' || e.target.closest('#spotifyInstructionsClose')) {
                     instructionsDiv.style.display = 'none';
                     localStorage.setItem('spotify_widget_instructions_seen', 'true');
-                });
-            }
-            
-            // "Ya me logueé" button handler - reload widget
-            const loggedInBtn = document.getElementById('spotifyLoggedInBtn');
-            if (loggedInBtn) {
-                loggedInBtn.addEventListener('click', () => {
+                } else if (e.target.id === 'spotifyLoggedInBtn' || e.target.closest('#spotifyLoggedInBtn')) {
                     // Reload widget by removing and recreating it
                     widget.remove();
                     instructionsDiv.style.display = 'none';
@@ -16305,8 +16298,8 @@ class PomodoroTimer {
                     setTimeout(() => {
                         this.createCustomSpotifyWidget(spotifyUrl);
                     }, 500);
-                });
-            }
+                }
+            });
         }
         
         // Set up timeout handling (same as Tron)
