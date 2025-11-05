@@ -15753,23 +15753,37 @@ class PomodoroTimer {
         }
         
         // Merge user's public cassettes with cached cassettes (user's cassettes take priority)
+        // Only update/add user's cassettes that belong to the current user
         const existingIds = new Set(cachedCassettes.map(c => c.id));
         const mergedForDisplay = [...cachedCassettes];
         
         userPublicCassettesWithCreator.forEach(userCassette => {
             const existingIndex = mergedForDisplay.findIndex(c => c.id === userCassette.id);
             if (existingIndex >= 0) {
-                // Update existing with user's version (has latest data)
-                mergedForDisplay[existingIndex] = userCassette;
+                // Update existing with user's version only if it's the user's own cassette
+                const existingCassette = mergedForDisplay[existingIndex];
+                if (existingCassette.creatorId === this.user?.id || !existingCassette.creatorId) {
+                    mergedForDisplay[existingIndex] = userCassette;
+                }
             } else {
                 // Add new user's cassette
                 mergedForDisplay.push(userCassette);
             }
         });
         
-        if (mergedForDisplay.length > 0) {
+        // Remove duplicates by ID before rendering (keep first occurrence)
+        const seenIdsForDisplay = new Set();
+        const uniqueMergedForDisplay = mergedForDisplay.filter(cassette => {
+            if (seenIdsForDisplay.has(cassette.id)) {
+                return false; // Duplicate, skip it
+            }
+            seenIdsForDisplay.add(cassette.id);
+            return true;
+        });
+        
+        if (uniqueMergedForDisplay.length > 0) {
             // Render immediately from merged cache + user's cassettes
-            this.renderPublicCassettes(mergedForDisplay, isGuest);
+            this.renderPublicCassettes(uniqueMergedForDisplay, isGuest);
             console.log('📦 Rendered public cassettes from cache + user cassettes immediately');
             // Ensure section is visible
             if (publicCassettesSection) {
@@ -15786,6 +15800,8 @@ class PomodoroTimer {
             const publicCassettes = await this.loadPublicCassettesFromAPI(forceRefresh);
             
             // Merge user's public cassettes with server cassettes (user's cassettes take priority)
+            // Only add user's cassettes that are NOT already in the server response
+            // This prevents duplicates when the server already has the cassette
             const serverExistingIds = new Set(publicCassettes.map(c => c.id));
             const mergedCassettes = [...publicCassettes];
             
@@ -15793,15 +15809,29 @@ class PomodoroTimer {
                 const existingIndex = mergedCassettes.findIndex(c => c.id === userCassette.id);
                 if (existingIndex >= 0) {
                     // Update existing with user's version (has latest data)
-                    mergedCassettes[existingIndex] = userCassette;
+                    // But only if it's the user's own cassette (same creatorId)
+                    const existingCassette = mergedCassettes[existingIndex];
+                    if (existingCassette.creatorId === this.user?.id) {
+                        mergedCassettes[existingIndex] = userCassette;
+                    }
                 } else {
-                    // Add new user's cassette
-                    mergedCassettes.push(userCassette);
+                    // Add new user's cassette only if it's not in the server response
+                    // This handles cases where the cassette was just created and not yet synced
+                    if (!serverExistingIds.has(userCassette.id)) {
+                        mergedCassettes.push(userCassette);
+                    }
                 }
             });
             
-            // Include all public cassettes (including user's own cassettes for editing)
-            const filteredPublicCassettes = mergedCassettes;
+            // Remove duplicates by ID (keep first occurrence)
+            const seenIds = new Set();
+            const filteredPublicCassettes = mergedCassettes.filter(cassette => {
+                if (seenIds.has(cassette.id)) {
+                    return false; // Duplicate, skip it
+                }
+                seenIds.add(cassette.id);
+                return true;
+            });
             
             if (filteredPublicCassettes.length === 0) {
                 publicCassettesSection.style.display = 'none';
