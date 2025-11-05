@@ -15408,10 +15408,10 @@ class PomodoroTimer {
         
         // Save button (only for Pro users who can see the form)
         if (saveCassetteBtn) {
-            saveCassetteBtn.addEventListener('click', () => {
+            saveCassetteBtn.addEventListener('click', async () => {
                 const cassetteId = saveCassetteBtn.dataset.editingId || null;
                 // Don't close form here - saveCassetteFromForm will handle it after UI is updated
-                this.saveCassetteFromForm(cassetteId);
+                await this.saveCassetteFromForm(cassetteId);
             });
         }
     }
@@ -15614,64 +15614,59 @@ class PomodoroTimer {
         }
     }
 
-    async loadPublicCassettesFromAPI() {
+    async loadPublicCassettesFromAPI(forceRefresh = false) {
         const cacheKey = 'publicCassettesCache';
         const cacheChecksumKey = 'publicCassettesChecksum';
-        
-        // Step 1: Check for changes using lightweight endpoint
-        try {
-            const checkResponse = await fetch('/api/public-cassettes-check', {
-                method: 'GET',
-                headers: this.user?.id ? {
-                    'x-clerk-userid': this.user.id
-                } : {}
-            });
 
-            if (checkResponse.ok) {
-                const checkData = await checkResponse.json();
-                if (checkData.success && checkData.checksum) {
-                    // Get cached checksum
-                    const cachedChecksum = localStorage.getItem(cacheChecksumKey);
-                    const cachedData = localStorage.getItem(cacheKey);
-                    
-                    // If checksum matches, use cache (no changes)
-                    if (cachedChecksum === checkData.checksum && cachedData) {
-                        console.log('📦 Using cached public cassettes (no changes detected)');
-                        return JSON.parse(cachedData);
-                    }
-                    
-                    // Checksum changed or no cache, fetch full data
-                    console.log('🔄 Changes detected, fetching updated public cassettes...');
-                    const fullResponse = await fetch('/api/public-cassettes', {
-                        method: 'GET',
-                        headers: this.user?.id ? {
-                            'x-clerk-userid': this.user.id
-                        } : {}
-                    });
+        if (!forceRefresh) {
+            try {
+                const checkResponse = await fetch('/api/public-cassettes-check', {
+                    method: 'GET',
+                    headers: this.user?.id ? {
+                        'x-clerk-userid': this.user.id
+                    } : {}
+                });
 
-                    if (fullResponse.ok) {
-                        const fullData = await fullResponse.json();
-                        if (fullData.success && Array.isArray(fullData.publicCassettes)) {
-                            // Update cache with new data and checksum
-                            localStorage.setItem(cacheKey, JSON.stringify(fullData.publicCassettes));
-                            localStorage.setItem(cacheChecksumKey, checkData.checksum);
-                            console.log(`✅ Loaded ${fullData.publicCassettes.length} public cassettes from API (updated)`);
-                            return fullData.publicCassettes;
+                if (checkResponse.ok) {
+                    const checkData = await checkResponse.json();
+                    if (checkData.success && checkData.checksum) {
+                        const cachedChecksum = localStorage.getItem(cacheChecksumKey);
+                        const cachedData = localStorage.getItem(cacheKey);
+
+                        if (cachedChecksum === checkData.checksum && cachedData) {
+                            console.log('📦 Using cached public cassettes (no changes detected)');
+                            return JSON.parse(cachedData);
+                        }
+
+                        console.log('🔄 Changes detected, fetching updated public cassettes...');
+                        const fullResponse = await fetch('/api/public-cassettes', {
+                            method: 'GET',
+                            headers: this.user?.id ? {
+                                'x-clerk-userid': this.user.id
+                            } : {}
+                        });
+
+                        if (fullResponse.ok) {
+                            const fullData = await fullResponse.json();
+                            if (fullData.success && Array.isArray(fullData.publicCassettes)) {
+                                localStorage.setItem(cacheKey, JSON.stringify(fullData.publicCassettes));
+                                localStorage.setItem(cacheChecksumKey, checkData.checksum);
+                                console.log(`✅ Loaded ${fullData.publicCassettes.length} public cassettes from API (updated)`);
+                                return fullData.publicCassettes;
+                            }
                         }
                     }
                 }
-            }
-        } catch (e) {
-            console.error('Error checking public cassettes:', e);
-            // Fallback: try to use cache even if check failed
-            const cachedData = localStorage.getItem(cacheKey);
-            if (cachedData) {
-                console.log('⚠️ Check failed, using cached data as fallback');
-                return JSON.parse(cachedData);
+            } catch (e) {
+                console.error('Error checking public cassettes:', e);
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    console.log('⚠️ Check failed, using cached data as fallback');
+                    return JSON.parse(cachedData);
+                }
             }
         }
 
-        // Fallback: if check endpoint fails, try full endpoint
         try {
             const response = await fetch('/api/public-cassettes', {
                 method: 'GET',
@@ -15683,9 +15678,13 @@ class PomodoroTimer {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && Array.isArray(data.publicCassettes)) {
-                    // Cache the results
                     localStorage.setItem(cacheKey, JSON.stringify(data.publicCassettes));
-                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API (fallback)`);
+                    if (!forceRefresh && data.checksum) {
+                        localStorage.setItem(cacheChecksumKey, data.checksum);
+                    } else if (forceRefresh) {
+                        localStorage.removeItem(cacheChecksumKey);
+                    }
+                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API (${forceRefresh ? 'forced' : 'fallback'})`);
                     return data.publicCassettes;
                 }
             }
@@ -15722,7 +15721,7 @@ class PomodoroTimer {
         return mergedCassettes;
     }
 
-    async loadPublicCassettes() {
+    async loadPublicCassettes(forceRefresh = false) {
         const publicCassettesList = document.getElementById('publicCassettesList');
         const publicCassettesSection = document.getElementById('publicCassettesSection');
         
@@ -15756,7 +15755,7 @@ class PomodoroTimer {
         
         // Step 2: Check for updates in background
         try {
-            const publicCassettes = await this.loadPublicCassettesFromAPI();
+            const publicCassettes = await this.loadPublicCassettesFromAPI(forceRefresh);
             
             // Include all public cassettes (including user's own cassettes for editing)
             const filteredPublicCassettes = publicCassettes;
@@ -16030,7 +16029,7 @@ class PomodoroTimer {
         }
     }
 
-    saveCustomCassette(cassette) {
+    async saveCustomCassette(cassette) {
         try {
             const cassettes = this.getCustomCassettes();
             const existingIndex = cassettes.findIndex(c => c.id === cassette.id);
@@ -16043,49 +16042,32 @@ class PomodoroTimer {
             
             localStorage.setItem('customCassettes', JSON.stringify(cassettes));
             
-            // Sync public cassettes to Clerk
+            // Sync public cassettes to Clerk when authenticated
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
-                
-                // Sync and wait for response before invalidating cache and reloading
-                return fetch('/api/sync-cassettes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-clerk-userid': this.user.id
-                    },
-                    body: JSON.stringify({ cassettes: allCassettes })
-                }).then(async (response) => {
-                    if (response.ok) {
-                        console.log('✅ Cassettes synced to Clerk');
-                        // Don't reload here - handleSuccess will do it immediately
-                        // Just invalidate cache so next load gets fresh data
-                        this.invalidatePublicCassettesCache();
-                        return cassette;
-                    } else {
+                try {
+                    const response = await fetch('/api/sync-cassettes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-clerk-userid': this.user.id
+                        },
+                        body: JSON.stringify({ cassettes: allCassettes })
+                    });
+                    if (!response.ok) {
                         console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
-                        // Even if sync fails, invalidate cache (handleSuccess will reload)
-                        this.invalidatePublicCassettesCache();
-                        return cassette;
+                    } else {
+                        console.log('✅ Cassettes synced to Clerk');
                     }
-                }).catch(async (err) => {
+                } catch (err) {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
-                    // Even if sync fails, invalidate cache (handleSuccess will reload)
-                    this.invalidatePublicCassettesCache();
-                    return cassette;
-                });
-            } else {
-                // Not authenticated, just invalidate cache and reload locally
-                this.invalidatePublicCassettesCache();
-                this.loadCustomCassettes();
-                this.loadPublicCassettes();
-                return Promise.resolve(true);
+                }
             }
+            
+            return cassette;
         } catch (error) {
             console.error('Error saving custom cassette:', error);
-            // Even on error, invalidate cache to force refresh
-            this.invalidatePublicCassettesCache();
-            return Promise.resolve(false);
+            throw error;
         }
     }
 
@@ -16844,7 +16826,7 @@ class PomodoroTimer {
         return url;
     }
 
-    saveCassetteFromForm(cassetteId = null) {
+    async saveCassetteFromForm(cassetteId = null) {
         // Get cassetteId from save button if not provided
         const saveBtn = document.getElementById('saveCassetteBtn');
         if (!cassetteId && saveBtn && saveBtn.dataset.editingId) {
@@ -16927,9 +16909,13 @@ class PomodoroTimer {
         };
         
         try {
-            const result = this.saveCustomCassette(cassette);
+            const savedCassette = await this.saveCustomCassette(cassette);
             
-            // Handle both Promise and boolean return values
+            if (!savedCassette) {
+                alert('Error saving cassette. Please try again.');
+                return false;
+            }
+            
             const handleSuccess = async () => {
                 // The cassette is already saved to localStorage in saveCustomCassette
                 // Now we need to update the UI immediately
@@ -16939,120 +16925,9 @@ class PomodoroTimer {
                 
                 // If it's a public cassette, update public cassettes section immediately
                 if (cassette.isPublic) {
-                    // Update the cache with the edited cassette data immediately
-                    const cacheKey = 'publicCassettesCache';
-                    const cachedData = localStorage.getItem(cacheKey);
-                    if (cachedData) {
-                        try {
-                            const cachedCassettes = JSON.parse(cachedData);
-                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassette.id);
-                            if (cassetteIndex >= 0) {
-                                // Update the cassette in cache with latest data
-                                cachedCassettes[cassetteIndex] = {
-                                    ...cassette,
-                                    creatorId: this.user?.id,
-                                    creatorName: this.user?.username || (this.user?.emailAddresses?.[0]?.emailAddress || '').split('@')[0]
-                                };
-                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
-                                console.log('✅ Updated public cassette in cache');
-                            } else {
-                                // Cassette not in cache, add it
-                                cachedCassettes.push({
-                                    ...cassette,
-                                    creatorId: this.user?.id,
-                                    creatorName: this.user?.username || (this.user?.emailAddresses?.[0]?.emailAddress || '').split('@')[0]
-                                });
-                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
-                                console.log('✅ Added public cassette to cache');
-                            }
-                            
-                            // Re-render immediately with updated cache
-                            const isGuest = !this.isAuthenticated;
-                            const publicCassettesList = document.getElementById('publicCassettesList');
-                            const publicCassettesSection = document.getElementById('publicCassettesSection');
-                            
-                            console.log('🔄 Updating public cassette UI:', {
-                                hasList: !!publicCassettesList,
-                                hasSection: !!publicCassettesSection,
-                                cassetteId: cassette.id,
-                                cassetteTitle: cassette.title,
-                                cassettesCount: cachedCassettes.length
-                            });
-                            
-                            // Ensure section is visible before rendering
-                            if (publicCassettesSection) {
-                                publicCassettesSection.style.display = 'block';
-                                console.log('✅ Public cassettes section made visible');
-                            }
-                            
-                            // Force immediate re-render
-                            if (publicCassettesList && publicCassettesSection) {
-                                // Ensure section is visible (force it)
-                                publicCassettesSection.style.display = 'block';
-                                publicCassettesSection.style.visibility = 'visible';
-                                
-                                // Re-render with updated data
-                                this.renderPublicCassettes(cachedCassettes, isGuest);
-                                console.log('✅ Re-rendered public cassettes with updated data');
-                                
-                                // Force a synchronous reflow to ensure DOM updates
-                                const forceReflow = publicCassettesList.offsetHeight;
-                                
-                                // Double-check that the update was applied immediately
-                                requestAnimationFrame(() => {
-                                    const updatedCard = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
-                                    if (updatedCard) {
-                                        const titleElement = updatedCard.querySelector('h4');
-                                        const descElement = updatedCard.querySelectorAll('p')[0]; // First p is description
-                                        console.log('✅ Card updated:', {
-                                            title: titleElement?.textContent?.trim(),
-                                            description: descElement?.textContent?.trim(),
-                                            cardFound: true
-                                        });
-                                        
-                                        // Verify the data is correct
-                                        if (titleElement?.textContent?.trim() !== cassette.title) {
-                                            console.warn('⚠️ Title mismatch, forcing update:', {
-                                                expected: cassette.title,
-                                                actual: titleElement?.textContent?.trim()
-                                            });
-                                            // Force update directly
-                                            titleElement.textContent = cassette.title;
-                                        }
-                                        if (descElement?.textContent?.trim() !== cassette.description) {
-                                            console.warn('⚠️ Description mismatch, forcing update:', {
-                                                expected: cassette.description,
-                                                actual: descElement?.textContent?.trim()
-                                            });
-                                            // Force update directly
-                                            descElement.textContent = cassette.description || 'Public focus environment';
-                                        }
-                                    } else {
-                                        console.warn('⚠️ Updated card not found in DOM, retrying render...');
-                                        // Retry render
-                                        this.renderPublicCassettes(cachedCassettes, isGuest);
-                                    }
-                                    
-                                    // Apply active state after rendering
-                                    this.applyActiveStateToPublicCassettes();
-                                });
-                            } else {
-                                console.warn('⚠️ Public cassettes elements not found:', {
-                                    list: !!publicCassettesList,
-                                    section: !!publicCassettesSection
-                                });
-                            }
-                        } catch (e) {
-                            console.error('Error updating cache:', e);
-                            // Fallback: invalidate and reload
-                            this.invalidatePublicCassettesCache();
-                            await this.loadPublicCassettes();
-                        }
-                    } else {
-                        // No cache, invalidate and reload
-                        this.invalidatePublicCassettesCache();
-                        await this.loadPublicCassettes();
-                    }
+                    // Force refresh from server to ensure consistency across users
+                    this.invalidatePublicCassettesCache();
+                    await this.loadPublicCassettes(true);
                 }
                 
                 // If editing an existing cassette, check if it's currently selected
@@ -17089,34 +16964,9 @@ class PomodoroTimer {
                 console.log('✅ Custom cassette saved:', cassette);
             };
             
-            if (result instanceof Promise) {
-                result.then(async (savedCassette) => {
-                    if (savedCassette) {
-                        // Update the cassette object with the saved one (in case it was updated)
-                        if (savedCassette.id) {
-                            Object.assign(cassette, savedCassette);
-                        }
-                        await handleSuccess();
-                        // Close form after UI is updated
-                        this.hideCassetteForm();
-                    } else {
-                        alert('Error saving cassette. Please try again.');
-                    }
-                }).catch(error => {
-                    console.error('Error saving cassette:', error);
-                    alert('Error saving cassette: ' + (error.message || 'Unknown error'));
-                });
-                return true; // Return true immediately, handle async in then/catch
-            } else if (result) {
-                handleSuccess().then(() => {
-                    // Close form after UI is updated
-                    this.hideCassetteForm();
-                });
-                return true;
-            } else {
-                alert('Error saving cassette. Please try again.');
-                return false;
-            }
+            await handleSuccess();
+            this.hideCassetteForm();
+            return true;
         } catch (error) {
             console.error('Error saving cassette:', error);
             alert('Error saving cassette: ' + (error.message || 'Unknown error'));
