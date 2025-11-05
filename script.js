@@ -15719,6 +15719,15 @@ class PomodoroTimer {
                                     </svg>
                                     Edit
                                 </button>
+                                <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    </svg>
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -15794,6 +15803,16 @@ class PomodoroTimer {
                                 console.warn('Cassette not found in localStorage, using API data');
                                 this.showCassetteForm(cassette.id);
                             }
+                        });
+                    }
+                    
+                    // Delete option for own cassettes
+                    const deleteOption = cassetteOption.querySelector(`.delete-public-cassette-option[data-cassette-id="${cassette.id}"]`);
+                    if (deleteOption) {
+                        deleteOption.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (optionsDropdown) optionsDropdown.style.display = 'none';
+                            this.deleteCustomCassette(cassette.id);
                         });
                     }
                 }
