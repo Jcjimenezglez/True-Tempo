@@ -16197,7 +16197,7 @@ class PomodoroTimer {
         // Create Spotify iframe (same format as Tron)
         const widget = document.createElement('iframe');
         widget.id = 'customSpotifyWidget';
-        widget.src = `https://open.spotify.com/embed/${spotifyId.type}/${spotifyId.id}?utm_source=generator&theme=0`;
+        widget.src = `https://open.spotify.com/embed/${spotifyId.type}/${spotifyId.id}?utm_source=generator`;
         widget.width = '100%';
         widget.height = '352';
         widget.frameBorder = '0';
