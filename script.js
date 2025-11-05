@@ -15764,7 +15764,13 @@ class PomodoroTimer {
                 // Update existing with user's version only if it's the user's own cassette
                 const existingCassette = mergedForDisplay[existingIndex];
                 if (existingCassette.creatorId === this.user?.id || !existingCassette.creatorId) {
-                    mergedForDisplay[existingIndex] = userCassette;
+                    // Preserve views and viewedBy from cache (cache has server data with views)
+                    // Server is source of truth for views, always prefer cache/server views
+                    mergedForDisplay[existingIndex] = {
+                        ...userCassette,
+                        views: existingCassette.views !== undefined && existingCassette.views !== null ? existingCassette.views : (userCassette.views !== undefined && userCassette.views !== null ? userCassette.views : 0),
+                        viewedBy: existingCassette.viewedBy || userCassette.viewedBy || []
+                    };
                 }
             } else {
                 // Add new user's cassette
@@ -15813,7 +15819,13 @@ class PomodoroTimer {
                     // But only if it's the user's own cassette (same creatorId)
                     const existingCassette = mergedCassettes[existingIndex];
                     if (existingCassette.creatorId === this.user?.id) {
-                        mergedCassettes[existingIndex] = userCassette;
+                        // Preserve views and viewedBy from server (server is source of truth for views)
+                        // Always prefer server views over localStorage views
+                        mergedCassettes[existingIndex] = {
+                            ...userCassette,
+                            views: existingCassette.views !== undefined && existingCassette.views !== null ? existingCassette.views : (userCassette.views !== undefined && userCassette.views !== null ? userCassette.views : 0),
+                            viewedBy: existingCassette.viewedBy || userCassette.viewedBy || []
+                        };
                     }
                 } else {
                     // Add new user's cassette only if it's not in the server response
@@ -16160,7 +16172,7 @@ class PomodoroTimer {
                         viewsSpan.textContent = this.formatViewsCount(data.views);
                     }
                     
-                    // Also update the cassette in cache for future loads
+                    // Also update the cassette in cache and localStorage for future loads
                     const cacheKey = 'publicCassettesCache';
                     const cachedData = localStorage.getItem(cacheKey);
                     if (cachedData) {
@@ -16169,11 +16181,21 @@ class PomodoroTimer {
                             const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassetteId);
                             if (cassetteIndex >= 0) {
                                 cachedCassettes[cassetteIndex].views = data.views;
+                                cachedCassettes[cassetteIndex].viewedBy = data.viewedBy || cachedCassettes[cassetteIndex].viewedBy || [];
                                 localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
                             }
                         } catch (e) {
                             console.error('Error updating cache:', e);
                         }
+                    }
+                    
+                    // Also update views in localStorage cassette for consistency
+                    const localCassettes = this.getCustomCassettes();
+                    const localCassetteIndex = localCassettes.findIndex(c => c.id === cassetteId);
+                    if (localCassetteIndex >= 0) {
+                        localCassettes[localCassetteIndex].views = data.views;
+                        localCassettes[localCassetteIndex].viewedBy = data.viewedBy || localCassettes[localCassetteIndex].viewedBy || [];
+                        localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
                     }
                 }
             }
@@ -17095,6 +17117,27 @@ class PomodoroTimer {
         const changedFromPublicToPrivate = wasPublic && !isNowPublic;
         const changedFromPrivateToPublic = !wasPublic && isNowPublic;
         
+        // Get views and viewedBy from server if available (server is source of truth for views)
+        let serverViews = 0;
+        let serverViewedBy = [];
+        if (cassetteId && previousCassette?.isPublic) {
+            // Try to get views from server cache
+            const cacheKey = 'publicCassettesCache';
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
+                try {
+                    const cachedCassettes = JSON.parse(cachedData);
+                    const serverCassette = cachedCassettes.find(c => c.id === cassetteId);
+                    if (serverCassette && serverCassette.views !== undefined) {
+                        serverViews = serverCassette.views;
+                        serverViewedBy = serverCassette.viewedBy || [];
+                    }
+                } catch (e) {
+                    console.error('Error parsing cache:', e);
+                }
+            }
+        }
+        
         const cassette = {
             id: cassetteId || `cassette_${Date.now()}`,
             title: title,
@@ -17103,8 +17146,11 @@ class PomodoroTimer {
             spotifyUrl: spotifyUrl || '',
             websiteUrl: websiteUrl || '',
             isPublic: isPublic,
-            views: cassetteId ? (previousCassette?.views || 0) : 0, // Initialize views to 0 for new cassettes, keep existing for edits
-            viewedBy: cassetteId ? (previousCassette?.viewedBy || []) : [], // Track which users have viewed this cassette
+            // Preserve views from server if available (server is source of truth for views)
+            // Always prefer server views over localStorage for public cassettes
+            views: cassetteId && previousCassette?.isPublic && serverViews !== undefined && serverViews !== null ? serverViews : (previousCassette?.views !== undefined && previousCassette.views !== null ? previousCassette.views : 0),
+            // Preserve viewedBy from server if available (server is source of truth for viewedBy)
+            viewedBy: cassetteId && previousCassette?.isPublic && serverViewedBy.length > 0 ? serverViewedBy : (previousCassette?.viewedBy || []),
             createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };

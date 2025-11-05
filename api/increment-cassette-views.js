@@ -75,6 +75,7 @@ module.exports = async (req, res) => {
             res.status(200).json({
               success: true,
               views: cassette.views || 0,
+              viewedBy: cassette.viewedBy || [],
               cassetteId: cassetteId,
               alreadyViewed: true
             });
@@ -103,6 +104,7 @@ module.exports = async (req, res) => {
           res.status(200).json({
             success: true,
             views: publicCassettes[cassetteIndex].views,
+            viewedBy: publicCassettes[cassetteIndex].viewedBy || [],
             cassetteId: cassetteId,
             alreadyViewed: false
           });
