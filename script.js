@@ -16232,8 +16232,8 @@ class PomodoroTimer {
             existingInstructions.remove();
         }
         
-        // Always show instructions (reset state when widget is created)
-        const hasSeenInstructions = false;
+        // Show instructions only the first time
+        const hasSeenInstructions = localStorage.getItem('spotify_widget_instructions_seen') === 'true';
         if (!hasSeenInstructions) {
             const instructionsDiv = document.createElement('div');
             instructionsDiv.id = 'spotifyWidgetInstructions';
@@ -16317,7 +16317,8 @@ class PomodoroTimer {
                         if (instructionsDiv && instructionsDiv.parentNode) {
                             instructionsDiv.parentNode.removeChild(instructionsDiv);
                         }
-                        // Don't save to localStorage - message will show again next time
+                        // Save to localStorage so message doesn't show again
+                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
                     };
                     
                     closeBtn.addEventListener('click', closeHandler, { once: true, capture: true });
@@ -16332,7 +16333,8 @@ class PomodoroTimer {
                         // Reload widget by removing and recreating it
                         widget.remove();
                         instructionsDiv.style.display = 'none';
-                        // Don't save to localStorage - message will show again next time
+                        // Save to localStorage so message doesn't show again
+                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
                         // Recreate widget after a short delay
                         setTimeout(() => {
                             this.createCustomSpotifyWidget(spotifyUrl);
