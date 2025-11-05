@@ -16087,13 +16087,13 @@ class PomodoroTimer {
                 this.invalidatePublicCassettesCache();
                 this.loadCustomCassettes();
                 this.loadPublicCassettes();
-                return true;
+                return Promise.resolve(true);
             }
-            
-            return true;
         } catch (error) {
             console.error('Error saving custom cassette:', error);
-            return false;
+            // Even on error, invalidate cache to force refresh
+            this.invalidatePublicCassettesCache();
+            return Promise.resolve(false);
         }
     }
 
