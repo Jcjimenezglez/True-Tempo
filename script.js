@@ -16863,9 +16863,20 @@ class PomodoroTimer {
             console.log('🎨 Original URL:', originalUrl);
             console.log('🎨 Final image URL:', imageUrl);
             
-            // If extraction returned empty or it's still a Google redirect, show error
-            // But only if the user actually provided an imageUrl (not empty)
-            if (originalUrl && (!imageUrl || imageUrl.includes('google.com/url') || (imageUrl === originalUrl && originalUrl.includes('google.com')))) {
+            // Check if it's a valid image URL (direct .jpg, .png, etc. or extracted from Google redirect)
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const hasImageExtension = imageExtensions.some(ext => 
+                imageUrl.toLowerCase().includes(ext.toLowerCase())
+            );
+            
+            // Only show error if:
+            // 1. Extraction returned empty (invalid Google redirect)
+            // 2. Still contains google.com/url (not extracted properly)
+            // 3. Is a Google redirect that wasn't extracted (original === extracted and contains google.com/url)
+            const isGoogleRedirect = originalUrl.includes('google.com/url');
+            const isValidDirectImage = hasImageExtension || imageUrl.includes('i.imgur.com') || imageUrl.includes('cdn.') || imageUrl.includes('/images/');
+            
+            if (originalUrl && (!imageUrl || imageUrl.includes('google.com/url') || (isGoogleRedirect && !isValidDirectImage))) {
                 alert('⚠️ Error: The URL you provided is not a direct image URL.\n\n📝 How to get the correct URL from Google Images:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)\n- Upload to Imgur and use the direct image URL');
                 imageUrlEl.focus();
                 return false;
