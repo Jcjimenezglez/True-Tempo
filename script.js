@@ -16984,6 +16984,13 @@ class PomodoroTimer {
             }
         }
         
+        // Get previous cassette state if editing
+        const previousCassette = cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId) : null;
+        const wasPublic = previousCassette?.isPublic === true;
+        const isNowPublic = isPublic === true;
+        const changedFromPublicToPrivate = wasPublic && !isNowPublic;
+        const changedFromPrivateToPublic = !wasPublic && isNowPublic;
+        
         const cassette = {
             id: cassetteId || `cassette_${Date.now()}`,
             title: title,
@@ -16992,7 +16999,7 @@ class PomodoroTimer {
             spotifyUrl: spotifyUrl || '',
             websiteUrl: websiteUrl || '',
             isPublic: isPublic,
-            createdAt: cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId)?.createdAt : new Date().toISOString(),
+            createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
         
@@ -17011,8 +17018,21 @@ class PomodoroTimer {
                 // Update the UI immediately from localStorage (no delay)
                 this.loadCustomCassettes();
                 
-                // If it's a public cassette, update public cassettes section immediately
-                if (cassette.isPublic) {
+                // If cassette changed from public to private, remove it from public list immediately
+                if (changedFromPublicToPrivate) {
+                    // Remove the cassette from the public cassettes list in the UI immediately
+                    const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                    if (publicCassetteElement) {
+                        publicCassetteElement.remove();
+                        console.log('🗑️ Removed cassette from public list:', cassette.id);
+                    }
+                    
+                    // Invalidate cache to remove the cassette from public list
+                    this.invalidatePublicCassettesCache();
+                    // Reload public cassettes to ensure consistency
+                    await this.loadPublicCassettes(true);
+                } else if (isNowPublic || changedFromPrivateToPublic) {
+                    // If it's a public cassette or changed to public, update public cassettes section immediately
                     // Force refresh from server to ensure consistency across users
                     // Don't invalidate cache before loading - keep other users' cassettes visible
                     // The cache will be updated with fresh data from server, and user's cassettes will be merged in
