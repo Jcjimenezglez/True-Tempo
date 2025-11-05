@@ -16225,6 +16225,90 @@ class PomodoroTimer {
             opacity: 0.8;
         `;
         
+        // Create login instructions message
+        const hasSeenInstructions = localStorage.getItem('spotify_widget_instructions_seen') === 'true';
+        if (!hasSeenInstructions) {
+            const instructionsDiv = document.createElement('div');
+            instructionsDiv.id = 'spotifyWidgetInstructions';
+            instructionsDiv.style.cssText = `
+                position: fixed;
+                bottom: 392px;
+                right: 20px;
+                width: 300px;
+                background: rgba(0, 0, 0, 0.95);
+                color: #ffffff;
+                padding: 16px;
+                border-radius: 12px;
+                border: 2px solid #1db954;
+                z-index: 1001;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 13px;
+                line-height: 1.5;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            `;
+            instructionsDiv.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="color: #1db954; font-size: 20px; flex-shrink: 0;">🎵</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #1db954;">Escucha canciones completas</div>
+                        <div style="color: rgba(255, 255, 255, 0.9); margin-bottom: 12px;">
+                            Haz clic en el logo de Spotify dentro del widget para loguearte y escuchar canciones completas en lugar de solo preview.
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="spotifyLoggedInBtn" style="
+                                background: #1db954;
+                                color: #000000;
+                                border: none;
+                                border-radius: 6px;
+                                padding: 8px 16px;
+                                font-size: 12px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                flex: 1;
+                            ">Ya me logueé</button>
+                            <button id="spotifyInstructionsClose" style="
+                                background: rgba(255, 255, 255, 0.1);
+                                color: #ffffff;
+                                border: 1px solid rgba(255, 255, 255, 0.2);
+                                border-radius: 6px;
+                                padding: 8px 12px;
+                                font-size: 12px;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                            ">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(instructionsDiv);
+            
+            // Close button handler
+            const closeBtn = document.getElementById('spotifyInstructionsClose');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    instructionsDiv.style.display = 'none';
+                    localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                });
+            }
+            
+            // "Ya me logueé" button handler - reload widget
+            const loggedInBtn = document.getElementById('spotifyLoggedInBtn');
+            if (loggedInBtn) {
+                loggedInBtn.addEventListener('click', () => {
+                    // Reload widget by removing and recreating it
+                    widget.remove();
+                    instructionsDiv.style.display = 'none';
+                    localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                    // Recreate widget after a short delay
+                    setTimeout(() => {
+                        this.createCustomSpotifyWidget(spotifyUrl);
+                    }, 500);
+                });
+            }
+        }
+        
         // Set up timeout handling (same as Tron)
         let loadTimeout;
         let isLoaded = false;
