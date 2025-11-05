@@ -1317,6 +1317,141 @@ class PomodoroTimer {
         }
     }
 
+    // Show Pro Feature modal for Cassettes
+    showCassetteProModal(customMessage = null) {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        
+        // Check if user is authenticated (Free) or Guest
+        const isAuthenticated = this.isAuthenticated;
+        
+        // Use custom message if provided, otherwise use default
+        const message = customMessage || 'Create custom focus environments tailored to your workflow!';
+        
+        if (isAuthenticated) {
+            // Free user modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCassetteModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <path d="M9 9h6v6H9z"/>
+                        </svg>
+                    </div>
+                    <h3>Create Cassette</h3>
+                    <p>${message}</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Guest user modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCassetteModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <path d="M9 9h6v6H9z"/>
+                        </svg>
+                    </div>
+                    <h3>Create Cassette</h3>
+                    <p>${message}</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Close modal function
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+        
+        // Close button
+        const closeBtn = modal.querySelector('#closeCassetteModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+        
+        // Button event listeners
+        const learnMoreBtn = modal.querySelector('#cassetteLearnMoreBtn');
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', () => {
+                closeModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        if (isAuthenticated) {
+            // Free user - Upgrade to Pro button
+            const upgradeBtn = modal.querySelector('#cassetteUpgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', async () => {
+                    // Track Create cassette modal upgrade click
+                    const eventProperties = {
+                        button_type: 'subscribe',
+                        source: 'create_cassette_modal',
+                        location: 'custom_cassette_modal',
+                        user_type: 'free',
+                        modal_type: 'create_cassette'
+                    };
+                    this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds(eventProperties);
+                    
+                    closeModal();
+                    // Redirect directly to Stripe checkout
+                    await this.handleUpgrade();
+                });
+            }
+        } else {
+            // Guest user - Sign up button
+            const signupBtn = modal.querySelector('#cassetteSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', () => {
+                    // Track Create cassette modal Sign up click
+                    this.trackEvent('Sign Up Clicked', {
+                        modal_type: 'create_cassette',
+                        button_text: 'Sign up',
+                        user_type: 'guest',
+                        source: 'create_cassette_modal'
+                    });
+                    closeModal();
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                });
+            }
+        }
+    }
+
     // Hide custom form
     hideCustomForm() {
         const form = document.getElementById('customForm');
@@ -16054,7 +16189,7 @@ class PomodoroTimer {
                     modal_type: 'upgrade_prompt'
                 });
                 
-                this.showCustomTechniqueProModal('Create custom focus environments! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
+                this.showCassetteProModal('Create custom focus environments! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
             } else {
                 // Guest users - show Pro Feature modal
                 this.trackEvent('Pro Feature Modal Shown', {
@@ -16065,7 +16200,7 @@ class PomodoroTimer {
                 });
                 
                 // Show Pro Feature modal for Guest users
-                this.showCustomTechniqueProModal();
+                this.showCassetteProModal();
             }
             return;
         }
