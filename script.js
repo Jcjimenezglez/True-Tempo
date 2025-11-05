@@ -16987,27 +16987,55 @@ class PomodoroTimer {
                             
                             // Force immediate re-render
                             if (publicCassettesList && publicCassettesSection) {
+                                // Ensure section is visible (force it)
+                                publicCassettesSection.style.display = 'block';
+                                publicCassettesSection.style.visibility = 'visible';
+                                
                                 // Re-render with updated data
                                 this.renderPublicCassettes(cachedCassettes, isGuest);
                                 console.log('✅ Re-rendered public cassettes with updated data');
                                 
-                                // Double-check that the update was applied
-                                setTimeout(() => {
+                                // Force a synchronous reflow to ensure DOM updates
+                                const forceReflow = publicCassettesList.offsetHeight;
+                                
+                                // Double-check that the update was applied immediately
+                                requestAnimationFrame(() => {
                                     const updatedCard = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
                                     if (updatedCard) {
                                         const titleElement = updatedCard.querySelector('h4');
-                                        const descElement = updatedCard.querySelector('p');
+                                        const descElement = updatedCard.querySelectorAll('p')[0]; // First p is description
                                         console.log('✅ Card updated:', {
-                                            title: titleElement?.textContent,
-                                            description: descElement?.textContent
+                                            title: titleElement?.textContent?.trim(),
+                                            description: descElement?.textContent?.trim(),
+                                            cardFound: true
                                         });
+                                        
+                                        // Verify the data is correct
+                                        if (titleElement?.textContent?.trim() !== cassette.title) {
+                                            console.warn('⚠️ Title mismatch, forcing update:', {
+                                                expected: cassette.title,
+                                                actual: titleElement?.textContent?.trim()
+                                            });
+                                            // Force update directly
+                                            titleElement.textContent = cassette.title;
+                                        }
+                                        if (descElement?.textContent?.trim() !== cassette.description) {
+                                            console.warn('⚠️ Description mismatch, forcing update:', {
+                                                expected: cassette.description,
+                                                actual: descElement?.textContent?.trim()
+                                            });
+                                            // Force update directly
+                                            descElement.textContent = cassette.description || 'Public focus environment';
+                                        }
                                     } else {
-                                        console.warn('⚠️ Updated card not found in DOM');
+                                        console.warn('⚠️ Updated card not found in DOM, retrying render...');
+                                        // Retry render
+                                        this.renderPublicCassettes(cachedCassettes, isGuest);
                                     }
                                     
                                     // Apply active state after rendering
                                     this.applyActiveStateToPublicCassettes();
-                                }, 50);
+                                });
                             } else {
                                 console.warn('⚠️ Public cassettes elements not found:', {
                                     list: !!publicCassettesList,
