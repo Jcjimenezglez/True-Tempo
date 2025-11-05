@@ -15819,14 +15819,14 @@ class PomodoroTimer {
                     </div>
                     ${isOwnCassette ? `
                     <div style="position: absolute; top: 8px; right: 8px; z-index: 100; pointer-events: none;">
-                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" style="pointer-events: auto;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" style="pointer-events: auto; position: relative; z-index: 101;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1"/>
                                 <circle cx="19" cy="12" r="1"/>
                                 <circle cx="5" cy="12" r="1"/>
                             </svg>
                         </button>
-                        <div class="cassette-options-dropdown" id="publicCassetteOptionsDropdown${cassette.id}" style="display: none;">
+                        <div class="cassette-options-dropdown" id="publicCassetteOptionsDropdown${cassette.id}" style="display: none; pointer-events: auto; position: relative; z-index: 102;">
                             <div class="cassette-options-menu">
                                 <button class="cassette-option-item edit-public-cassette-option" data-cassette-id="${cassette.id}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -15920,58 +15920,69 @@ class PomodoroTimer {
                 const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
                 const isOwnCassette = cassetteOption.getAttribute('data-is-own') === 'true';
                 
-                // Handle options button clicks
-                if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
-                    // Check if it's own cassette by comparing creatorId with current user
-                    const isOwn = this.user?.id && cassette.creatorId === this.user.id;
-                    
-                    if (isOwn) {
-                        const optionsBtn = cassetteOption.querySelector(`.cassette-options-btn[data-cassette-id="${cassetteId}"]`);
-                        const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassetteId}`);
-                        
-                        // Handle click on the 3 dots button
-                        if (e.target.closest('.cassette-options-btn')) {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            if (optionsDropdown) {
-                                const isVisible = optionsDropdown.style.display === 'block';
-                                // Close all other dropdowns first
-                                document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
-                                    dropdown.style.display = 'none';
-                                });
-                                optionsDropdown.style.display = isVisible ? 'none' : 'block';
-                            }
-                            return;
-                        }
-                        
-                        // Handle edit option
-                        if (e.target.closest('.edit-public-cassette-option')) {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            if (optionsDropdown) optionsDropdown.style.display = 'none';
-                            // Find cassette in localStorage to edit
-                            const localCassettes = this.getCustomCassettes();
-                            const localCassette = localCassettes.find(c => c.id === cassetteId);
-                            if (localCassette) {
-                                this.showCassetteForm(cassetteId);
-                            } else {
-                                // If not found in localStorage, use cassette from cache
-                                console.warn('Cassette not found in localStorage, using API data');
-                                this.showCassetteForm(cassetteId);
-                            }
-                            return;
-                        }
-                        
-                        // Handle delete option
-                        if (e.target.closest('.delete-public-cassette-option')) {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            if (optionsDropdown) optionsDropdown.style.display = 'none';
-                            this.deleteCustomCassette(cassetteId);
-                            return;
-                        }
+                // Handle options button and dropdown clicks
+                const clickedOptionsBtn = e.target.closest('.cassette-options-btn');
+                const clickedDropdown = e.target.closest('.cassette-options-dropdown');
+                const clickedEditBtn = e.target.closest('.edit-public-cassette-option');
+                const clickedDeleteBtn = e.target.closest('.delete-public-cassette-option');
+                
+                // Check if it's own cassette by comparing creatorId with current user
+                const isOwn = this.user?.id && cassette.creatorId === this.user.id;
+                
+                if (clickedOptionsBtn || clickedDropdown || clickedEditBtn || clickedDeleteBtn) {
+                    if (!isOwn) {
+                        return; // Not own cassette, ignore
                     }
-                    return;
+                    
+                    const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassetteId}`);
+                    
+                    // Handle click on the 3 dots button
+                    if (clickedOptionsBtn && clickedOptionsBtn.getAttribute('data-cassette-id') === cassetteId) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (optionsDropdown) {
+                            const isVisible = optionsDropdown.style.display === 'block';
+                            // Close all other dropdowns first
+                            document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                                dropdown.style.display = 'none';
+                            });
+                            optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                        }
+                        return;
+                    }
+                    
+                    // Handle edit option
+                    if (clickedEditBtn && clickedEditBtn.getAttribute('data-cassette-id') === cassetteId) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (optionsDropdown) optionsDropdown.style.display = 'none';
+                        // Find cassette in localStorage to edit
+                        const localCassettes = this.getCustomCassettes();
+                        const localCassette = localCassettes.find(c => c.id === cassetteId);
+                        if (localCassette) {
+                            this.showCassetteForm(cassetteId);
+                        } else {
+                            // If not found in localStorage, use cassette from cache
+                            console.warn('Cassette not found in localStorage, using API data');
+                            this.showCassetteForm(cassetteId);
+                        }
+                        return;
+                    }
+                    
+                    // Handle delete option
+                    if (clickedDeleteBtn && clickedDeleteBtn.getAttribute('data-cassette-id') === cassetteId) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (optionsDropdown) optionsDropdown.style.display = 'none';
+                        this.deleteCustomCassette(cassetteId);
+                        return;
+                    }
+                    
+                    // If clicking inside dropdown but not on a button, don't propagate
+                    if (clickedDropdown) {
+                        e.stopPropagation();
+                        return;
+                    }
                 }
                 
                 // Handle cassette selection (only if not clicking on options)

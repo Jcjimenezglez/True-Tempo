@@ -6494,6 +6494,7 @@ input:checked + .toggle-slider:before {
     z-index: 1001;
     min-width: 160px;
     margin-top: 4px;
+    pointer-events: auto;
 }
 
 .cassette-options-menu {
