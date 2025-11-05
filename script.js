@@ -267,6 +267,12 @@ class PomodoroTimer {
         this.loadingScreen = document.getElementById('loadingScreen');
         this.isLoading = false;
         this.loadingStartTime = null;
+        
+        // Track if public cassettes are currently loading to prevent duplicate calls
+        this.isLoadingPublicCassettes = false;
+        
+        // Track last applied active cassette to prevent redundant state applications
+        this._lastAppliedActiveCassette = null;
         this.minLoadingTime = 0; // No enforced minimum - never delay normal users
         
         // Task form state
@@ -15723,10 +15729,22 @@ class PomodoroTimer {
     }
 
     async loadPublicCassettes(forceRefresh = false) {
+        // Prevent duplicate concurrent calls
+        if (this.isLoadingPublicCassettes) {
+            console.log('⏳ Public cassettes already loading, skipping duplicate call');
+            return;
+        }
+        
         const publicCassettesList = document.getElementById('publicCassettesList');
         const publicCassettesSection = document.getElementById('publicCassettesSection');
         
-        if (!publicCassettesList || !publicCassettesSection) return;
+        if (!publicCassettesList || !publicCassettesSection) {
+            this.isLoadingPublicCassettes = false;
+            return;
+        }
+        
+        // Mark as loading
+        this.isLoadingPublicCassettes = true;
         
         const isGuest = !this.isAuthenticated;
         
@@ -15796,6 +15814,8 @@ class PomodoroTimer {
             if (publicCassettesSection) {
                 publicCassettesSection.style.display = 'block';
             }
+            // Reset active state tracking when re-rendering to allow fresh application
+            this._lastAppliedActiveCassette = null;
             // Apply active state after rendering from cache
             setTimeout(() => {
                 this.applyActiveStateToPublicCassettes();
@@ -15886,12 +15906,14 @@ class PomodoroTimer {
                 // Always re-render when forceRefresh to ensure fresh data from server is displayed
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
                 console.log('🔄 Updated public cassettes UI with fresh data + user cassettes', forceRefresh ? '(forced refresh)' : '');
+                // Reset active state tracking when re-rendering to allow fresh application
+                this._lastAppliedActiveCassette = null;
                 // Apply active state after re-rendering
                 setTimeout(() => {
                     this.applyActiveStateToPublicCassettes();
                 }, 200);
             } else {
-                // Even if data is the same, ensure active state is applied
+                // Even if data is the same, ensure active state is applied (only if not already applied)
                 setTimeout(() => {
                     this.applyActiveStateToPublicCassettes();
                 }, 200);
@@ -15902,6 +15924,9 @@ class PomodoroTimer {
             if (!cachedData && userPublicCassettesWithCreator.length === 0) {
                 publicCassettesSection.style.display = 'none';
             }
+        } finally {
+            // Always reset loading flag when done
+            this.isLoadingPublicCassettes = false;
         }
     }
     
@@ -16211,8 +16236,18 @@ class PomodoroTimer {
         if (currentTheme && currentTheme.startsWith('custom_')) {
             const cassetteId = currentTheme.replace('custom_', '');
             
+            // Track if active state has been applied to prevent duplicate calls
+            if (this._lastAppliedActiveCassette === cassetteId) {
+                // Already applied, skip to avoid redundant work
+                return;
+            }
+            
             // Try multiple times with increasing delays to ensure DOM is ready
+            let applied = false;
             const tryApplyActive = (attempt = 0) => {
+                // If already applied, cancel any pending attempts
+                if (applied) return;
+                
                 const activeOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
                 if (activeOption) {
                     // Remove active from all other options
@@ -16227,19 +16262,23 @@ class PomodoroTimer {
                     });
                     // Add active to current cassette
                     activeOption.classList.add('active');
+                    applied = true;
+                    this._lastAppliedActiveCassette = cassetteId;
                     console.log('✅ Applied active state to public cassette:', cassetteId);
-                } else if (attempt < 5) {
+                } else if (attempt < 3) {
                     // Try again after a delay if not found and haven't exceeded attempts
                     setTimeout(() => tryApplyActive(attempt + 1), 100 * (attempt + 1));
-                } else {
-                    console.log('⚠️ Public cassette not found in DOM for active state after multiple attempts:', cassetteId);
+                } else if (attempt === 3) {
+                    // Last attempt failed, log warning
+                    console.log('⚠️ Public cassette not found in DOM for active state:', cassetteId);
                 }
             };
             
-            // Start trying immediately, then with delays
+            // Start trying immediately
             tryApplyActive(0);
-            setTimeout(() => tryApplyActive(1), 100);
-            setTimeout(() => tryApplyActive(2), 300);
+        } else {
+            // Not a public cassette, reset tracking
+            this._lastAppliedActiveCassette = null;
         }
     }
 
@@ -16335,6 +16374,11 @@ class PomodoroTimer {
         const cassette = cassettes.find(c => c.id === cassetteId);
         
         if (!cassette) return;
+        
+        // Reset active cassette tracking when selecting a new cassette
+        if (this._lastAppliedActiveCassette !== cassetteId) {
+            this._lastAppliedActiveCassette = null;
+        }
         
         // Remove active from all preset themes
         document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
@@ -18857,12 +18901,8 @@ class SidebarManager {
             // Initialize immersive theme panel controls
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
-                
-                // Check for public cassettes updates when panel is opened
-                // Force refresh to ensure users see latest cassettes from server
-                // This ensures users see new cassettes without needing to reload
-                console.log('🔄 Checking for public cassettes updates...');
-                window.pomodoroTimer.loadPublicCassettes(true);
+                // Note: loadPublicCassettes is already called in initializeMyCassettes()
+                // which is called by initializeImmersiveThemePanel(), so no need to call it again here
             }
         }
     }
