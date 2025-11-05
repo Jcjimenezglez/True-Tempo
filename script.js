@@ -15617,7 +15617,63 @@ class PomodoroTimer {
     }
 
     async loadPublicCassettesFromAPI() {
-        // Load public cassettes for all users (including Guest to show restriction)
+        const cacheKey = 'publicCassettesCache';
+        const cacheChecksumKey = 'publicCassettesChecksum';
+        
+        // Step 1: Check for changes using lightweight endpoint
+        try {
+            const checkResponse = await fetch('/api/public-cassettes-check', {
+                method: 'GET',
+                headers: this.user?.id ? {
+                    'x-clerk-userid': this.user.id
+                } : {}
+            });
+
+            if (checkResponse.ok) {
+                const checkData = await checkResponse.json();
+                if (checkData.success && checkData.checksum) {
+                    // Get cached checksum
+                    const cachedChecksum = localStorage.getItem(cacheChecksumKey);
+                    const cachedData = localStorage.getItem(cacheKey);
+                    
+                    // If checksum matches, use cache (no changes)
+                    if (cachedChecksum === checkData.checksum && cachedData) {
+                        console.log('📦 Using cached public cassettes (no changes detected)');
+                        return JSON.parse(cachedData);
+                    }
+                    
+                    // Checksum changed or no cache, fetch full data
+                    console.log('🔄 Changes detected, fetching updated public cassettes...');
+                    const fullResponse = await fetch('/api/public-cassettes', {
+                        method: 'GET',
+                        headers: this.user?.id ? {
+                            'x-clerk-userid': this.user.id
+                        } : {}
+                    });
+
+                    if (fullResponse.ok) {
+                        const fullData = await fullResponse.json();
+                        if (fullData.success && Array.isArray(fullData.publicCassettes)) {
+                            // Update cache with new data and checksum
+                            localStorage.setItem(cacheKey, JSON.stringify(fullData.publicCassettes));
+                            localStorage.setItem(cacheChecksumKey, checkData.checksum);
+                            console.log(`✅ Loaded ${fullData.publicCassettes.length} public cassettes from API (updated)`);
+                            return fullData.publicCassettes;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error checking public cassettes:', e);
+            // Fallback: try to use cache even if check failed
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
+                console.log('⚠️ Check failed, using cached data as fallback');
+                return JSON.parse(cachedData);
+            }
+        }
+
+        // Fallback: if check endpoint fails, try full endpoint
         try {
             const response = await fetch('/api/public-cassettes', {
                 method: 'GET',
@@ -15629,7 +15685,9 @@ class PomodoroTimer {
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && Array.isArray(data.publicCassettes)) {
-                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API`);
+                    // Cache the results
+                    localStorage.setItem(cacheKey, JSON.stringify(data.publicCassettes));
+                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API (fallback)`);
                     return data.publicCassettes;
                 }
             }
@@ -15638,6 +15696,13 @@ class PomodoroTimer {
         }
 
         return [];
+    }
+    
+    // Method to invalidate public cassettes cache
+    invalidatePublicCassettesCache() {
+        localStorage.removeItem('publicCassettesCache');
+        localStorage.removeItem('publicCassettesChecksum');
+        console.log('🗑️ Public cassettes cache invalidated');
     }
 
     async getCustomCassettesWithPublic() {
@@ -15931,6 +15996,9 @@ class PomodoroTimer {
                 });
             }
             
+            // Invalidate cache when saving (changes may have been made)
+            this.invalidatePublicCassettesCache();
+            
             // Reload both custom cassettes and public cassettes to reflect changes
             this.loadCustomCassettes();
             this.loadPublicCassettes();
@@ -15970,6 +16038,9 @@ class PomodoroTimer {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
                 });
             }
+            
+            // Invalidate cache when deleting (changes may have been made)
+            this.invalidatePublicCassettesCache();
             
             // If this was the active theme, switch to lofi
             if (this.currentTheme === `custom_${cassetteId}`) {
