@@ -15467,24 +15467,29 @@ class PomodoroTimer {
             cassette.style.display = matches ? 'flex' : 'none';
         });
         
-        // Hide "Public Cassettes" section if all public cassettes are hidden
-        const publicCassettesSection = document.getElementById('publicCassettesSection');
-        if (publicCassettesSection) {
-            const visiblePublicCassettes = Array.from(publicCassettes).filter(c => c.style.display !== 'none');
-            if (visiblePublicCassettes.length === 0 && searchQuery) {
-                publicCassettesSection.style.display = 'none';
-            } else if (visiblePublicCassettes.length > 0) {
-                publicCassettesSection.style.display = 'block';
-            }
-        }
+        // Count visible results
+        const visiblePresets = Array.from(presetOptions).filter(opt => opt.style.display !== 'none');
+        const visiblePublicCassettes = Array.from(publicCassettes).filter(c => c.style.display !== 'none');
         
-        // Hide "Cassette presets" section if all presets are hidden
-        const presetSection = document.querySelector('.settings-section');
-        if (presetSection) {
-            const visiblePresets = Array.from(presetOptions).filter(opt => opt.style.display !== 'none');
-            const presetTitle = presetSection.querySelector('.section-title');
-            if (presetTitle) {
-                presetTitle.parentElement.style.display = visiblePresets.length === 0 && searchQuery ? 'none' : 'block';
+        // Handle section visibility based on search results
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        const cassettePresetsSection = document.getElementById('cassettePresetsSection');
+        
+        if (searchQuery) {
+            // During search: show only the section with results, hide the other
+            if (publicCassettesSection) {
+                publicCassettesSection.style.display = visiblePublicCassettes.length > 0 ? 'block' : 'none';
+            }
+            if (cassettePresetsSection) {
+                cassettePresetsSection.style.display = visiblePresets.length > 0 ? 'block' : 'none';
+            }
+        } else {
+            // No search: show sections normally based on their content
+            if (publicCassettesSection) {
+                publicCassettesSection.style.display = visiblePublicCassettes.length > 0 ? 'block' : 'none';
+            }
+            if (cassettePresetsSection) {
+                cassettePresetsSection.style.display = 'block';
             }
         }
     }
