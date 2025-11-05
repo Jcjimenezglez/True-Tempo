@@ -16057,30 +16057,33 @@ class PomodoroTimer {
                         'x-clerk-userid': this.user.id
                     },
                     body: JSON.stringify({ cassettes: allCassettes })
-                }).then(response => {
+                }).then(async (response) => {
                     if (response.ok) {
                         console.log('✅ Cassettes synced to Clerk');
                         // Invalidate cache after successful sync
                         this.invalidatePublicCassettesCache();
                         // Reload both custom cassettes and public cassettes to reflect changes
                         this.loadCustomCassettes();
-                        this.loadPublicCassettes();
-                        return true;
+                        await this.loadPublicCassettes();
+                        // Return cassette for re-application if it's currently selected
+                        return cassette;
                     } else {
                         console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
                         // Even if sync fails, invalidate cache and reload locally
                         this.invalidatePublicCassettesCache();
                         this.loadCustomCassettes();
-                        this.loadPublicCassettes();
-                        return true;
+                        await this.loadPublicCassettes();
+                        // Return cassette for re-application if it's currently selected
+                        return cassette;
                     }
-                }).catch(err => {
+                }).catch(async (err) => {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
                     // Even if sync fails, invalidate cache and reload locally
                     this.invalidatePublicCassettesCache();
                     this.loadCustomCassettes();
-                    this.loadPublicCassettes();
-                    return true;
+                    await this.loadPublicCassettes();
+                    // Return cassette for re-application if it's currently selected
+                    return cassette;
                 });
             } else {
                 // Not authenticated, just invalidate cache and reload locally
