@@ -6967,6 +6967,11 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.5);
 }
 
+.search-box input:focus {
+    outline: none;
+    border: none;
+}
+
 .projects-section {
     max-height: 400px;
     overflow-y: auto;
