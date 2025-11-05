@@ -15233,6 +15233,9 @@ class PomodoroTimer {
             this.loadCustomCassettes();
         }
         
+        // Load and render public cassettes (for all users, with restriction for Guest)
+        this.loadPublicCassettes();
+        
         // Add create button event (remove existing listeners first to avoid duplicates)
         if (createCassetteBtn) {
             // Clone and replace to remove all event listeners
@@ -15300,6 +15303,26 @@ class PomodoroTimer {
             const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
             cassette.style.display = matches ? 'flex' : 'none';
         });
+        
+        // Filter public cassettes
+        const publicCassettes = document.querySelectorAll('.public-cassette');
+        publicCassettes.forEach(cassette => {
+            const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const description = cassette.querySelector('p')?.textContent?.toLowerCase() || '';
+            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+            cassette.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Hide "Public Cassettes" section if all public cassettes are hidden
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        if (publicCassettesSection) {
+            const visiblePublicCassettes = Array.from(publicCassettes).filter(c => c.style.display !== 'none');
+            if (visiblePublicCassettes.length === 0 && searchQuery) {
+                publicCassettesSection.style.display = 'none';
+            } else if (visiblePublicCassettes.length > 0) {
+                publicCassettesSection.style.display = 'block';
+            }
+        }
         
         // Hide "Cassette presets" section if all presets are hidden
         const presetSection = document.querySelector('.settings-section');
@@ -15442,16 +15465,13 @@ class PomodoroTimer {
     }
 
     async loadPublicCassettesFromAPI() {
-        if (!this.isAuthenticated || !this.user?.id) {
-            return [];
-        }
-
+        // Load public cassettes for all users (including Guest to show restriction)
         try {
             const response = await fetch('/api/public-cassettes', {
                 method: 'GET',
-                headers: {
+                headers: this.user?.id ? {
                     'x-clerk-userid': this.user.id
-                }
+                } : {}
             });
 
             if (response.ok) {
@@ -15485,6 +15505,69 @@ class PomodoroTimer {
         });
         
         return mergedCassettes;
+    }
+
+    async loadPublicCassettes() {
+        const publicCassettesList = document.getElementById('publicCassettesList');
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        
+        if (!publicCassettesList || !publicCassettesSection) return;
+        
+        // Load public cassettes from API
+        const publicCassettes = await this.loadPublicCassettesFromAPI();
+        const isGuest = !this.isAuthenticated;
+        
+        if (publicCassettes.length === 0) {
+            publicCassettesSection.style.display = 'none';
+            return;
+        }
+        
+        // Show section
+        publicCassettesSection.style.display = 'block';
+        
+        // Render public cassettes
+        publicCassettesList.innerHTML = publicCassettes.map(cassette => {
+            const previewStyle = cassette.imageUrl 
+                ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
+                : 'background: #0a0a0a;';
+            
+            // Add restriction for guest users
+            const requiresAuth = isGuest;
+            const signupText = requiresAuth ? '<span class="signup-required-text">(Sign up required)</span>' : '';
+            
+            return `
+                <div class="theme-option public-cassette ${requiresAuth ? '' : 'authenticated'}" 
+                     data-cassette-id="${cassette.id}" 
+                     data-requires-auth="${requiresAuth}"
+                     style="position: relative;">
+                    <div class="theme-preview" style="${previewStyle}"></div>
+                    <div class="theme-info">
+                        <h4>${cassette.title} ${signupText}</h4>
+                        <p>${cassette.description || 'Public focus environment'}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add event listeners for public cassettes
+        publicCassettes.forEach(cassette => {
+            const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+            if (cassetteOption) {
+                const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
+                
+                if (requiresAuth) {
+                    // Disable for guest users
+                    cassetteOption.style.opacity = '0.5';
+                    cassetteOption.style.cursor = 'not-allowed';
+                    cassetteOption.style.pointerEvents = 'none';
+                } else {
+                    // Enable for Free and Pro users
+                    cassetteOption.addEventListener('click', (e) => {
+                        this.selectCustomCassette(cassette.id);
+                    });
+                }
+            }
+        });
     }
 
     saveCustomCassette(cassette) {
