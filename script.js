@@ -15983,8 +15983,8 @@ class PomodoroTimer {
         if (currentTheme && currentTheme.startsWith('custom_')) {
             const cassetteId = currentTheme.replace('custom_', '');
             
-            // Try to find in rendered public cassettes
-            setTimeout(() => {
+            // Try multiple times with increasing delays to ensure DOM is ready
+            const tryApplyActive = (attempt = 0) => {
                 const activeOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
                 if (activeOption) {
                     // Remove active from all other options
@@ -16000,10 +16000,18 @@ class PomodoroTimer {
                     // Add active to current cassette
                     activeOption.classList.add('active');
                     console.log('✅ Applied active state to public cassette:', cassetteId);
+                } else if (attempt < 5) {
+                    // Try again after a delay if not found and haven't exceeded attempts
+                    setTimeout(() => tryApplyActive(attempt + 1), 100 * (attempt + 1));
                 } else {
-                    console.log('⚠️ Public cassette not found in DOM for active state:', cassetteId);
+                    console.log('⚠️ Public cassette not found in DOM for active state after multiple attempts:', cassetteId);
                 }
-            }, 150);
+            };
+            
+            // Start trying immediately, then with delays
+            tryApplyActive(0);
+            setTimeout(() => tryApplyActive(1), 100);
+            setTimeout(() => tryApplyActive(2), 300);
         }
     }
 
