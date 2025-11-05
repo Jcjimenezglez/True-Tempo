@@ -15730,12 +15730,60 @@ class PomodoroTimer {
         
         if (!publicCassettesList || !publicCassettesSection) return;
         
-        // Load public cassettes from API
-        const publicCassettes = await this.loadPublicCassettesFromAPI();
         const isGuest = !this.isAuthenticated;
         
-        // Include all public cassettes (including user's own cassettes for editing)
-        const filteredPublicCassettes = publicCassettes;
+        // Step 1: Render immediately from cache if available (optimistic rendering)
+        const cacheKey = 'publicCassettesCache';
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            try {
+                const cachedCassettes = JSON.parse(cachedData);
+                if (Array.isArray(cachedCassettes) && cachedCassettes.length > 0) {
+                    // Render immediately from cache
+                    this.renderPublicCassettes(cachedCassettes, isGuest);
+                    console.log('📦 Rendered public cassettes from cache immediately');
+                }
+            } catch (e) {
+                console.error('Error parsing cached data:', e);
+            }
+        }
+        
+        // Step 2: Check for updates in background
+        try {
+            const publicCassettes = await this.loadPublicCassettesFromAPI();
+            
+            // Include all public cassettes (including user's own cassettes for editing)
+            const filteredPublicCassettes = publicCassettes;
+            
+            if (filteredPublicCassettes.length === 0) {
+                publicCassettesSection.style.display = 'none';
+                return;
+            }
+            
+            // Show section
+            publicCassettesSection.style.display = 'block';
+            
+            // Re-render with updated data (only if different from cache)
+            const cacheKeyForCompare = 'publicCassettesCache';
+            const cachedDataForCompare = localStorage.getItem(cacheKeyForCompare);
+            if (!cachedDataForCompare || JSON.stringify(filteredPublicCassettes) !== cachedDataForCompare) {
+                this.renderPublicCassettes(filteredPublicCassettes, isGuest);
+                console.log('🔄 Updated public cassettes UI with fresh data');
+            }
+        } catch (e) {
+            console.error('Error loading public cassettes:', e);
+            // If error and no cache was rendered, hide section
+            if (!cachedData) {
+                publicCassettesSection.style.display = 'none';
+            }
+        }
+    }
+    
+    renderPublicCassettes(filteredPublicCassettes, isGuest) {
+        const publicCassettesList = document.getElementById('publicCassettesList');
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        
+        if (!publicCassettesList || !publicCassettesSection) return;
         
         if (filteredPublicCassettes.length === 0) {
             publicCassettesSection.style.display = 'none';
@@ -15850,8 +15898,28 @@ class PomodoroTimer {
                 const cassetteId = cassetteOption.getAttribute('data-cassette-id');
                 if (!cassetteId) return;
                 
-                const cassette = filteredPublicCassettes.find(c => c.id === cassetteId);
-                if (!cassette) return;
+                // Get cassette from the current rendered list
+                const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                if (!cassetteOption) return;
+                
+                // Get cassette data from cache or try to find it
+                const cacheKey = 'publicCassettesCache';
+                const cachedData = localStorage.getItem(cacheKey);
+                let cassette = null;
+                
+                if (cachedData) {
+                    try {
+                        const cachedCassettes = JSON.parse(cachedData);
+                        cassette = cachedCassettes.find(c => c.id === cassetteId);
+                    } catch (e) {
+                        console.error('Error parsing cached data for cassette:', e);
+                    }
+                }
+                
+                if (!cassette) {
+                    console.warn('Cassette not found in cache:', cassetteId);
+                    return;
+                }
                 
                 const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
                 const isOwnCassette = cassetteOption.getAttribute('data-is-own') === 'true';
