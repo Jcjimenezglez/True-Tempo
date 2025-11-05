@@ -16941,9 +16941,19 @@ class PomodoroTimer {
             const result = this.saveCustomCassette(cassette);
             
             // Handle both Promise and boolean return values
-            const handleSuccess = () => {
+            const handleSuccess = async () => {
                 // Reload cassettes (already done in saveCustomCassette, but ensure it's done)
                 this.loadCustomCassettes();
+                
+                // Wait a bit for cassettes to be loaded and rendered in DOM
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Reload public cassettes if it's a public cassette
+                if (cassette.isPublic) {
+                    await this.loadPublicCassettes();
+                    // Wait a bit more for public cassettes to render
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
                 
                 // If editing an existing cassette, check if it's currently selected
                 if (cassetteId) {
@@ -16953,15 +16963,12 @@ class PomodoroTimer {
                     if (isCurrentlySelected) {
                         // Re-apply the updated cassette immediately
                         console.log('🔄 Re-applying updated cassette:', cassette.title);
-                        setTimeout(() => {
-                            this.applyCustomCassette(cassette);
-                        }, 300); // Wait for sync to complete
+                        this.applyCustomCassette(cassette);
                     }
                 } else {
                     // If this is a new cassette (not editing), select it automatically
-                    setTimeout(() => {
-                        this.selectCustomCassette(cassette.id);
-                    }, 100);
+                    console.log('🔄 Selecting new cassette:', cassette.id);
+                    this.selectCustomCassette(cassette.id);
                 }
                 
                 // Track event
@@ -16979,13 +16986,13 @@ class PomodoroTimer {
             };
             
             if (result instanceof Promise) {
-                result.then(savedCassette => {
+                result.then(async (savedCassette) => {
                     if (savedCassette) {
                         // Update the cassette object with the saved one (in case it was updated)
                         if (savedCassette.id) {
                             Object.assign(cassette, savedCassette);
                         }
-                        handleSuccess();
+                        await handleSuccess();
                     } else {
                         alert('Error saving cassette. Please try again.');
                     }
