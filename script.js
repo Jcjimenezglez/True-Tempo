@@ -17036,8 +17036,39 @@ class PomodoroTimer {
                     this.invalidatePublicCassettesCache();
                     // Reload public cassettes in background (don't wait for it)
                     this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
-                } else if (isNowPublic || changedFromPrivateToPublic) {
-                    // If it's a public cassette or changed to public, update public cassettes section in background
+                } else if (isNowPublic || changedFromPrivateToPublic || (cassetteId && cassette.isPublic)) {
+                    // If it's a public cassette or changed to public, or editing an existing public cassette
+                    // First, update the card in the UI immediately with new data from localStorage
+                    if (cassetteId && cassette.isPublic) {
+                        const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                        if (publicCassetteElement) {
+                            // Update the card immediately with new data
+                            const previewDiv = publicCassetteElement.querySelector('.theme-preview');
+                            const titleH4 = publicCassetteElement.querySelector('.theme-info h4');
+                            const descriptionP = publicCassetteElement.querySelector('.theme-info p:first-of-type');
+                            
+                            if (previewDiv) {
+                                previewDiv.style.backgroundImage = cassette.imageUrl 
+                                    ? `url('${cassette.imageUrl}')` 
+                                    : 'none';
+                                previewDiv.style.backgroundSize = 'cover';
+                                previewDiv.style.backgroundPosition = 'center';
+                                if (!cassette.imageUrl) {
+                                    previewDiv.style.background = '#0a0a0a';
+                                }
+                            }
+                            if (titleH4) {
+                                const signupText = titleH4.querySelector('.signup-required-text')?.outerHTML || '';
+                                titleH4.innerHTML = `${cassette.title} ${signupText}`;
+                            }
+                            if (descriptionP) {
+                                descriptionP.textContent = cassette.description || 'Public focus environment';
+                            }
+                            console.log('✅ Updated public cassette card immediately:', cassette.id);
+                        }
+                    }
+                    
+                    // Then update public cassettes section in background
                     // Force refresh from server to ensure consistency across users
                     // Don't invalidate cache before loading - keep other users' cassettes visible
                     // The cache will be updated with fresh data from server, and user's cassettes will be merged in
