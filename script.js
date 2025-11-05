@@ -16939,11 +16939,55 @@ class PomodoroTimer {
                 // Update the UI immediately from localStorage (no delay)
                 this.loadCustomCassettes();
                 
-                // If it's a public cassette, also update public cassettes section
+                // If it's a public cassette, update public cassettes section immediately
                 if (cassette.isPublic) {
-                    // Invalidate cache first to force fresh load
-                    this.invalidatePublicCassettesCache();
-                    await this.loadPublicCassettes();
+                    // Update the cache with the edited cassette data immediately
+                    const cacheKey = 'publicCassettesCache';
+                    const cachedData = localStorage.getItem(cacheKey);
+                    if (cachedData) {
+                        try {
+                            const cachedCassettes = JSON.parse(cachedData);
+                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassette.id);
+                            if (cassetteIndex >= 0) {
+                                // Update the cassette in cache with latest data
+                                cachedCassettes[cassetteIndex] = {
+                                    ...cassette,
+                                    creatorId: this.user?.id,
+                                    creatorName: this.user?.username || (this.user?.emailAddresses?.[0]?.emailAddress || '').split('@')[0]
+                                };
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
+                                console.log('✅ Updated public cassette in cache');
+                            } else {
+                                // Cassette not in cache, add it
+                                cachedCassettes.push({
+                                    ...cassette,
+                                    creatorId: this.user?.id,
+                                    creatorName: this.user?.username || (this.user?.emailAddresses?.[0]?.emailAddress || '').split('@')[0]
+                                });
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
+                                console.log('✅ Added public cassette to cache');
+                            }
+                            
+                            // Re-render immediately with updated cache
+                            const isGuest = !this.isAuthenticated;
+                            this.renderPublicCassettes(cachedCassettes, isGuest);
+                            console.log('🔄 Re-rendered public cassettes with updated data');
+                            
+                            // Apply active state after rendering
+                            setTimeout(() => {
+                                this.applyActiveStateToPublicCassettes();
+                            }, 100);
+                        } catch (e) {
+                            console.error('Error updating cache:', e);
+                            // Fallback: invalidate and reload
+                            this.invalidatePublicCassettesCache();
+                            await this.loadPublicCassettes();
+                        }
+                    } else {
+                        // No cache, invalidate and reload
+                        this.invalidatePublicCassettesCache();
+                        await this.loadPublicCassettes();
+                    }
                 }
                 
                 // If editing an existing cassette, check if it's currently selected
