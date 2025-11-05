@@ -16234,27 +16234,8 @@ class PomodoroTimer {
         if (cassette.imageUrl) {
             console.log('🎨 Setting custom cassette background image:', cassette.imageUrl);
             
-            // Test if image loads before applying
-            const testImg = new Image();
-            testImg.onload = () => {
-                console.log('✅ Image loaded successfully');
-                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
-                timerSection.style.setProperty('background-size', 'cover', 'important');
-                timerSection.style.setProperty('background-position', 'center', 'important');
-                timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
-                timerSection.style.setProperty('background-color', 'transparent', 'important');
-            };
-            testImg.onerror = () => {
-                console.error('❌ Image failed to load:', cassette.imageUrl);
-                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
-                // Fallback to black background
-                timerSection.style.removeProperty('background-image');
-                timerSection.style.setProperty('background', '#0a0a0a', 'important');
-            };
-            
-            // Set crossOrigin to allow CORS if needed
-            testImg.crossOrigin = 'anonymous';
-            testImg.src = cassette.imageUrl;
+            // Check if this cassette belongs to the current user
+            const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             
             // Apply immediately (will be overridden if image fails)
             timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
@@ -16262,6 +16243,55 @@ class PomodoroTimer {
             timerSection.style.setProperty('background-position', 'center', 'important');
             timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
             timerSection.style.setProperty('background-color', 'transparent', 'important');
+            
+            // Test if image loads (silently, no alerts for public cassettes from other users)
+            const testImg = new Image();
+            let imageLoaded = false;
+            let errorTimeout;
+            
+            testImg.onload = () => {
+                imageLoaded = true;
+                if (errorTimeout) clearTimeout(errorTimeout);
+                console.log('✅ Image loaded successfully');
+                // Image is already applied above, just verify
+                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+                timerSection.style.setProperty('background-size', 'cover', 'important');
+                timerSection.style.setProperty('background-position', 'center', 'important');
+                timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
+                timerSection.style.setProperty('background-color', 'transparent', 'important');
+            };
+            
+            testImg.onerror = () => {
+                // Only show error if image truly failed AND it's the user's own cassette
+                // For public cassettes from other users, fail silently
+                if (isOwnCassette) {
+                    console.error('❌ Image failed to load:', cassette.imageUrl);
+                    // Only show alert for own cassettes
+                    alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
+                } else {
+                    console.warn('⚠️ Image may have CORS issues (public cassette from another user):', cassette.imageUrl);
+                    // Don't remove the background - it might still work despite CORS warning
+                    // The browser will handle it gracefully
+                }
+                
+                // Only apply fallback if image truly failed after a delay
+                // This gives time for CORS issues to resolve
+                errorTimeout = setTimeout(() => {
+                    if (!imageLoaded) {
+                        // Check if background is actually working by checking computed style
+                        const computedBg = window.getComputedStyle(timerSection).backgroundImage;
+                        if (!computedBg || computedBg === 'none' || computedBg === '') {
+                            // Only remove background if it's truly not working
+                            timerSection.style.removeProperty('background-image');
+                            timerSection.style.setProperty('background', '#0a0a0a', 'important');
+                        }
+                    }
+                }, 3000); // Give 3 seconds for CORS to resolve
+            };
+            
+            // Set crossOrigin to allow CORS if needed
+            testImg.crossOrigin = 'anonymous';
+            testImg.src = cassette.imageUrl;
             
             // Verify it was set
             console.log('🎨 Applied background styles:', {
