@@ -15893,6 +15893,27 @@ class PomodoroTimer {
         }
     }
     
+    // Format views count: 458, 1K, 1.9K, 1M, etc.
+    formatViewsCount(views) {
+        if (!views || views === 0) return '0';
+        if (views < 1000) return views.toString();
+        if (views < 1000000) {
+            const thousands = views / 1000;
+            if (thousands < 10) {
+                // Show one decimal for numbers < 10K (e.g., 1.9K)
+                return `${thousands.toFixed(1)}K`.replace(/\.0K$/, 'K');
+            }
+            // Show whole numbers for >= 10K (e.g., 10K, 99K)
+            return `${Math.floor(thousands)}K`;
+        }
+        // Millions
+        const millions = views / 1000000;
+        if (millions < 10) {
+            return `${millions.toFixed(1)}M`.replace(/\.0M$/, 'M');
+        }
+        return `${Math.floor(millions)}M`;
+    }
+
     renderPublicCassettes(filteredPublicCassettes, isGuest) {
         const publicCassettesList = document.getElementById('publicCassettesList');
         const publicCassettesSection = document.getElementById('publicCassettesSection');
@@ -15919,6 +15940,10 @@ class PomodoroTimer {
             const requiresAuth = isGuest;
             const signupText = requiresAuth ? '<span class="signup-required-text">(Sign up required)</span>' : '';
             
+            // Format views count
+            const views = cassette.views || 0;
+            const formattedViews = this.formatViewsCount(views);
+            
             return `
                 <div class="theme-option public-cassette ${requiresAuth ? '' : 'authenticated'}" 
                      data-cassette-id="${cassette.id}" 
@@ -15930,6 +15955,14 @@ class PomodoroTimer {
                         <h4>${cassette.title} ${signupText}</h4>
                         <p>${cassette.description || 'Public focus environment'}</p>
                         ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">created by ${cassette.creatorName}</p>` : ''}
+                    </div>
+                    <!-- Views counter in bottom right -->
+                    <div class="views-counter" style="position: absolute; bottom: 8px; right: 8px; z-index: 10; display: flex; align-items: center; gap: 4px; background: rgba(0, 0, 0, 0.6); padding: 4px 8px; border-radius: 12px; backdrop-filter: blur(4px);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedViews}</span>
                     </div>
                     ${isOwnCassette ? `
                     <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
@@ -16057,6 +16090,9 @@ class PomodoroTimer {
                     localStorage.setItem('lastSelectedTheme', themeName);
                     this.currentTheme = themeName;
                     
+                    // Increment views count when cassette is clicked
+                    this.incrementCassetteViews(cassette.id, cassetteOption);
+                    
                     // Track event
                     this.trackEvent('Cassette Selected', {
                         button_type: 'cassette',
@@ -16095,6 +16131,49 @@ class PomodoroTimer {
                 document.addEventListener('click', closeDropdowns);
                 this.publicCassettesDropdownListenerAdded = true;
             }, 100);
+        }
+    }
+
+    // Increment views count for a public cassette
+    async incrementCassetteViews(cassetteId, cassetteElement) {
+        try {
+            const response = await fetch('/api/increment-cassette-views', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cassetteId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.views !== undefined) {
+                    // Update the views count in the UI immediately
+                    const viewsSpan = cassetteElement?.querySelector('.views-counter span');
+                    if (viewsSpan) {
+                        viewsSpan.textContent = this.formatViewsCount(data.views);
+                    }
+                    
+                    // Also update the cassette in cache for future loads
+                    const cacheKey = 'publicCassettesCache';
+                    const cachedData = localStorage.getItem(cacheKey);
+                    if (cachedData) {
+                        try {
+                            const cachedCassettes = JSON.parse(cachedData);
+                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassetteId);
+                            if (cassetteIndex >= 0) {
+                                cachedCassettes[cassetteIndex].views = data.views;
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
+                            }
+                        } catch (e) {
+                            console.error('Error updating cache:', e);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error incrementing cassette views:', error);
+            // Don't show error to user, just log it
         }
     }
     
@@ -17018,6 +17097,7 @@ class PomodoroTimer {
             spotifyUrl: spotifyUrl || '',
             websiteUrl: websiteUrl || '',
             isPublic: isPublic,
+            views: cassetteId ? (previousCassette?.views || 0) : 0, // Initialize views to 0 for new cassettes, keep existing for edits
             createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
