@@ -16970,13 +16970,29 @@ class PomodoroTimer {
                             
                             // Re-render immediately with updated cache
                             const isGuest = !this.isAuthenticated;
-                            this.renderPublicCassettes(cachedCassettes, isGuest);
-                            console.log('🔄 Re-rendered public cassettes with updated data');
+                            const publicCassettesList = document.getElementById('publicCassettesList');
+                            const publicCassettesSection = document.getElementById('publicCassettesSection');
                             
-                            // Apply active state after rendering
-                            setTimeout(() => {
-                                this.applyActiveStateToPublicCassettes();
-                            }, 100);
+                            // Ensure section is visible before rendering
+                            if (publicCassettesSection) {
+                                publicCassettesSection.style.display = 'block';
+                            }
+                            
+                            // Force immediate re-render
+                            if (publicCassettesList && publicCassettesSection) {
+                                this.renderPublicCassettes(cachedCassettes, isGuest);
+                                console.log('🔄 Re-rendered public cassettes with updated data');
+                                
+                                // Force a reflow to ensure DOM updates are visible
+                                void publicCassettesList.offsetHeight;
+                                
+                                // Apply active state after rendering
+                                setTimeout(() => {
+                                    this.applyActiveStateToPublicCassettes();
+                                }, 100);
+                            } else {
+                                console.warn('⚠️ Public cassettes elements not found, cannot update UI');
+                            }
                         } catch (e) {
                             console.error('Error updating cache:', e);
                             // Fallback: invalidate and reload
