@@ -16033,6 +16033,20 @@ class PomodoroTimer {
             }
         });
         
+        // Close dropdown when clicking outside (only add listener once)
+        if (!this.publicCassettesDropdownListenerAdded) {
+            setTimeout(() => {
+                const closeDropdowns = (e) => {
+                    if (!e.target.closest('.cassette-options-btn') && !e.target.closest('.cassette-options-dropdown')) {
+                        document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                            dropdown.style.display = 'none';
+                        });
+                    }
+                };
+                document.addEventListener('click', closeDropdowns);
+                this.publicCassettesDropdownListenerAdded = true;
+            }, 100);
+        }
     }
     
     applyActiveStateToPublicCassettes() {
@@ -16970,7 +16984,8 @@ class PomodoroTimer {
                 // If it's a public cassette, update public cassettes section immediately
                 if (cassette.isPublic) {
                     // Force refresh from server to ensure consistency across users
-                    this.invalidatePublicCassettesCache();
+                    // Don't invalidate cache before loading - keep other users' cassettes visible
+                    // The cache will be updated with fresh data from server, and user's cassettes will be merged in
                     await this.loadPublicCassettes(true);
                 }
                 
