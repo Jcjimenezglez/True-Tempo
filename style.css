@@ -5668,7 +5668,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     gap: 12px;
     justify-content: stretch;
-    margin-top: 20px;
+    margin-top: 0px;
     width: 100%;
 }
 
