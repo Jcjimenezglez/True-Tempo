@@ -15771,6 +15771,11 @@ class PomodoroTimer {
             if (!cachedDataForCompare || JSON.stringify(filteredPublicCassettes) !== cachedDataForCompare) {
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
                 console.log('🔄 Updated public cassettes UI with fresh data');
+                // Apply active state after re-rendering
+                this.applyActiveStateToPublicCassettes();
+            } else {
+                // Even if data is the same, ensure active state is applied
+                this.applyActiveStateToPublicCassettes();
             }
         } catch (e) {
             console.error('Error loading public cassettes:', e);
