@@ -15850,12 +15850,30 @@ class PomodoroTimer {
             const cachedCassettesForCompare = cachedDataForCompare ? JSON.parse(cachedDataForCompare) : [];
             
             // Compare by IDs and updatedAt to detect changes
-            const hasChanges = JSON.stringify(filteredPublicCassettes.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id))) !== 
-                              JSON.stringify(cachedCassettesForCompare.map(c => ({ id: c.id, updatedAt: c.updatedAt })).sort((a, b) => a.id.localeCompare(b.id)));
+            // Also compare title, description, and imageUrl to detect content changes
+            const currentData = filteredPublicCassettes.map(c => ({ 
+                id: c.id, 
+                updatedAt: c.updatedAt,
+                title: c.title,
+                description: c.description,
+                imageUrl: c.imageUrl
+            })).sort((a, b) => a.id.localeCompare(b.id));
             
-            if (hasChanges || !cachedDataForCompare) {
+            const cachedData = cachedCassettesForCompare.map(c => ({ 
+                id: c.id, 
+                updatedAt: c.updatedAt,
+                title: c.title,
+                description: c.description,
+                imageUrl: c.imageUrl
+            })).sort((a, b) => a.id.localeCompare(b.id));
+            
+            const hasChanges = JSON.stringify(currentData) !== JSON.stringify(cachedData);
+            
+            // Always re-render when forceRefresh is true or changes detected to ensure UI is updated
+            if (hasChanges || !cachedDataForCompare || forceRefresh) {
+                // Always re-render when forceRefresh to ensure fresh data from server is displayed
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
-                console.log('🔄 Updated public cassettes UI with fresh data + user cassettes');
+                console.log('🔄 Updated public cassettes UI with fresh data + user cassettes', forceRefresh ? '(forced refresh)' : '');
                 // Apply active state after re-rendering
                 setTimeout(() => {
                     this.applyActiveStateToPublicCassettes();
