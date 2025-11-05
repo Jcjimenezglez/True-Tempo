@@ -16285,32 +16285,44 @@ class PomodoroTimer {
             document.body.appendChild(instructionsDiv);
             
             // Add direct event listeners to buttons for better reliability
-            const closeBtn = instructionsDiv.querySelector('#spotifyInstructionsClose');
-            const loggedInBtn = instructionsDiv.querySelector('#spotifyLoggedInBtn');
-            
-            if (closeBtn) {
-                closeBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    instructionsDiv.style.display = 'none';
-                    localStorage.setItem('spotify_widget_instructions_seen', 'true');
-                });
-            }
-            
-            if (loggedInBtn) {
-                loggedInBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Reload widget by removing and recreating it
-                    widget.remove();
-                    instructionsDiv.style.display = 'none';
-                    localStorage.setItem('spotify_widget_instructions_seen', 'true');
-                    // Recreate widget after a short delay
-                    setTimeout(() => {
-                        this.createCustomSpotifyWidget(spotifyUrl);
-                    }, 500);
-                });
-            }
+            // Use setTimeout to ensure DOM is fully ready
+            setTimeout(() => {
+                const closeBtn = instructionsDiv.querySelector('#spotifyInstructionsClose');
+                const loggedInBtn = instructionsDiv.querySelector('#spotifyLoggedInBtn');
+                
+                let isClosing = false;
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', (e) => {
+                        if (isClosing) return;
+                        isClosing = true;
+                        
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        instructionsDiv.style.display = 'none';
+                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                    }, { once: true, capture: true });
+                }
+                
+                if (loggedInBtn) {
+                    loggedInBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        // Reload widget by removing and recreating it
+                        widget.remove();
+                        instructionsDiv.style.display = 'none';
+                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                        // Recreate widget after a short delay
+                        setTimeout(() => {
+                            this.createCustomSpotifyWidget(spotifyUrl);
+                        }, 500);
+                    }, { once: true, capture: true });
+                }
+            }, 0);
         }
         
         // Set up timeout handling (same as Tron)
