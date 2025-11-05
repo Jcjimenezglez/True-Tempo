@@ -18591,6 +18591,11 @@ class SidebarManager {
             // Initialize immersive theme panel controls
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
+                
+                // Check for public cassettes updates when panel is opened
+                // This ensures users see new cassettes without needing to reload
+                console.log('🔄 Checking for public cassettes updates...');
+                window.pomodoroTimer.loadPublicCassettes();
             }
         }
     }
