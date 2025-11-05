@@ -15898,11 +15898,7 @@ class PomodoroTimer {
                 const cassetteId = cassetteOption.getAttribute('data-cassette-id');
                 if (!cassetteId) return;
                 
-                // Get cassette from the current rendered list
-                const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
-                if (!cassetteOption) return;
-                
-                // Get cassette data from cache or try to find it
+                // Get cassette data from cache
                 const cacheKey = 'publicCassettesCache';
                 const cachedData = localStorage.getItem(cacheKey);
                 let cassette = null;
