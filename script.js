@@ -16796,13 +16796,16 @@ class PomodoroTimer {
         });
         
         // Add click handler
-        link.addEventListener('click', async () => {
-            // Increment website clicks if this is a public cassette
-            if (cassetteId) {
-                await this.incrementCassetteWebsiteClicks(cassetteId, link);
-            }
-            // Open website in new tab
+        link.addEventListener('click', () => {
+            // Open website in new tab immediately (no delay)
             window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+            
+            // Increment website clicks in background (don't wait for it)
+            if (cassetteId) {
+                this.incrementCassetteWebsiteClicks(cassetteId, link).catch(err => {
+                    console.error('Error counting website click:', err);
+                });
+            }
         });
         
         // Append to timer section (like Tron does)
