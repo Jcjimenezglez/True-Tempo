@@ -16313,6 +16313,69 @@ class PomodoroTimer {
             // Don't show error to user, just log it
         }
     }
+
+    // Increment website clicks count for a public cassette (unique clicks per user)
+    async incrementCassetteWebsiteClicks(cassetteId, linkElement) {
+        // Only increment for authenticated users
+        if (!this.isAuthenticated || !this.user?.id) {
+            return; // Guest users don't count clicks
+        }
+        
+        try {
+            const response = await fetch('/api/increment-cassette-website-clicks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ cassetteId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.websiteClicks !== undefined) {
+                    // Update the clicks count in the UI immediately
+                    if (linkElement) {
+                        const clicksContainer = linkElement.querySelector('.website-clicks-counter');
+                        if (clicksContainer) {
+                            const formattedClicks = this.formatViewsCount(data.websiteClicks);
+                            clicksContainer.textContent = `(${formattedClicks})`;
+                            clicksContainer.style.color = 'rgba(255, 255, 255, 0.7)';
+                        }
+                    }
+                    
+                    // Update the cassette in cache and localStorage for future loads
+                    const cacheKey = 'publicCassettesCache';
+                    const cachedData = localStorage.getItem(cacheKey);
+                    if (cachedData) {
+                        try {
+                            const cachedCassettes = JSON.parse(cachedData);
+                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassetteId);
+                            if (cassetteIndex >= 0) {
+                                cachedCassettes[cassetteIndex].websiteClicks = data.websiteClicks;
+                                cachedCassettes[cassetteIndex].clickedBy = data.clickedBy || cachedCassettes[cassetteIndex].clickedBy || [];
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
+                            }
+                        } catch (e) {
+                            console.error('Error updating cache:', e);
+                        }
+                    }
+                    
+                    // Also update websiteClicks in localStorage cassette for consistency
+                    const localCassettes = this.getCustomCassettes();
+                    const localCassetteIndex = localCassettes.findIndex(c => c.id === cassetteId);
+                    if (localCassetteIndex >= 0) {
+                        localCassettes[localCassetteIndex].websiteClicks = data.websiteClicks;
+                        localCassettes[localCassetteIndex].clickedBy = data.clickedBy || localCassettes[localCassetteIndex].clickedBy || [];
+                        localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error incrementing cassette website clicks:', error);
+            // Don't show error to user, just log it
+        }
+    }
     
     applyActiveStateToPublicCassettes() {
         // Check if current theme is a public cassette and mark it as active
@@ -16648,7 +16711,7 @@ class PomodoroTimer {
         
         // Create Website URL link if provided
         if (cassette.websiteUrl) {
-            this.createWebsiteLink(cassette.websiteUrl);
+            this.createWebsiteLink(cassette.websiteUrl, cassette.id, cassette.websiteClicks);
         }
         
         // Save as current theme
@@ -16662,7 +16725,7 @@ class PomodoroTimer {
         console.log('🎨 Custom cassette applied:', cassette.title);
     }
 
-    createWebsiteLink(websiteUrl) {
+    createWebsiteLink(websiteUrl, cassetteId, websiteClicks) {
         // Remove existing website link
         const existingLink = document.getElementById('customWebsiteLink');
         if (existingLink) {
@@ -16676,9 +16739,16 @@ class PomodoroTimer {
             return;
         }
         
+        // Format clicks count
+        const clicks = websiteClicks || 0;
+        const formattedClicks = this.formatViewsCount(clicks);
+        
         // Create website link button matching Tron style
         const link = document.createElement('div');
         link.id = 'customWebsiteLink';
+        if (cassetteId) {
+            link.setAttribute('data-cassette-id', cassetteId);
+        }
         link.style.cssText = `
             position: absolute !important;
             bottom: 20px !important;
@@ -16708,6 +16778,7 @@ class PomodoroTimer {
                     </svg>
                 </div>
                 <div style="font-weight: 500; font-size: 14px; flex-shrink: 0;">Visit Website</div>
+                <div class="website-clicks-counter" style="font-weight: 500; font-size: 14px; flex-shrink: 0; color: rgba(255, 255, 255, 0.7);">${clicks > 0 ? `(${formattedClicks})` : ''}</div>
             </div>
         `;
         
@@ -16725,7 +16796,12 @@ class PomodoroTimer {
         });
         
         // Add click handler
-        link.addEventListener('click', () => {
+        link.addEventListener('click', async () => {
+            // Increment website clicks if this is a public cassette
+            if (cassetteId) {
+                await this.incrementCassetteWebsiteClicks(cassetteId, link);
+            }
+            // Open website in new tab
             window.open(websiteUrl, '_blank', 'noopener,noreferrer');
         });
         
