@@ -16336,11 +16336,27 @@ class PomodoroTimer {
                 if (data.success && data.websiteClicks !== undefined) {
                     // Update the clicks count in the UI immediately
                     if (linkElement) {
-                        const clicksContainer = linkElement.querySelector('.website-clicks-counter');
+                        let clicksContainer = linkElement.querySelector('.website-clicks-counter');
                         if (clicksContainer) {
+                            // Update existing counter
+                            const span = clicksContainer.querySelector('span');
+                            if (span) {
+                                span.textContent = this.formatViewsCount(data.websiteClicks);
+                            }
+                        } else {
+                            // Create counter if it doesn't exist
                             const formattedClicks = this.formatViewsCount(data.websiteClicks);
-                            clicksContainer.textContent = `(${formattedClicks})`;
-                            clicksContainer.style.color = 'rgba(255, 255, 255, 0.7)';
+                            clicksContainer = document.createElement('div');
+                            clicksContainer.className = 'website-clicks-counter';
+                            clicksContainer.style.cssText = 'display: flex; align-items: center; gap: 4px; margin-left: 4px;';
+                            clicksContainer.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedClicks}</span>
+                            `;
+                            linkElement.querySelector('div').appendChild(clicksContainer);
                         }
                     }
                     
@@ -16569,6 +16585,35 @@ class PomodoroTimer {
         const timerSection = document.querySelector('.timer-section');
         if (!timerSection) return;
         
+        // If this is a public cassette, try to get latest data from server cache
+        if (cassette.isPublic && cassette.id) {
+            const cacheKey = 'publicCassettesCache';
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
+                try {
+                    const cachedCassettes = JSON.parse(cachedData);
+                    const serverCassette = cachedCassettes.find(c => c.id === cassette.id);
+                    if (serverCassette) {
+                        // Update cassette with server data (server is source of truth)
+                        if (serverCassette.views !== undefined) {
+                            cassette.views = serverCassette.views;
+                        }
+                        if (serverCassette.viewedBy !== undefined) {
+                            cassette.viewedBy = serverCassette.viewedBy || [];
+                        }
+                        if (serverCassette.websiteClicks !== undefined) {
+                            cassette.websiteClicks = serverCassette.websiteClicks;
+                        }
+                        if (serverCassette.clickedBy !== undefined) {
+                            cassette.clickedBy = serverCassette.clickedBy || [];
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing cache when applying cassette:', e);
+                }
+            }
+        }
+        
         // Pause timer when changing cassettes
         if (this.isRunning) {
             this.pauseTimer();
@@ -16778,7 +16823,15 @@ class PomodoroTimer {
                     </svg>
                 </div>
                 <div style="font-weight: 500; font-size: 14px; flex-shrink: 0;">Visit Website</div>
-                <div class="website-clicks-counter" style="font-weight: 500; font-size: 14px; flex-shrink: 0; color: rgba(255, 255, 255, 0.7);">${clicks > 0 ? `(${formattedClicks})` : ''}</div>
+                ${clicks > 0 ? `
+                <div class="website-clicks-counter" style="display: flex; align-items: center; gap: 4px; margin-left: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedClicks}</span>
+                </div>
+                ` : ''}
             </div>
         `;
         
@@ -17324,20 +17377,32 @@ class PomodoroTimer {
         const changedFromPublicToPrivate = wasPublic && !isNowPublic;
         const changedFromPrivateToPublic = !wasPublic && isNowPublic;
         
-        // Get views and viewedBy from server if available (server is source of truth for views)
+        // Get views, viewedBy, websiteClicks, and clickedBy from server if available (server is source of truth)
         let serverViews = 0;
         let serverViewedBy = [];
+        let serverWebsiteClicks = 0;
+        let serverClickedBy = [];
         if (cassetteId && previousCassette?.isPublic) {
-            // Try to get views from server cache
+            // Try to get data from server cache
             const cacheKey = 'publicCassettesCache';
             const cachedData = localStorage.getItem(cacheKey);
             if (cachedData) {
                 try {
                     const cachedCassettes = JSON.parse(cachedData);
                     const serverCassette = cachedCassettes.find(c => c.id === cassetteId);
-                    if (serverCassette && serverCassette.views !== undefined) {
-                        serverViews = serverCassette.views;
-                        serverViewedBy = serverCassette.viewedBy || [];
+                    if (serverCassette) {
+                        if (serverCassette.views !== undefined) {
+                            serverViews = serverCassette.views;
+                        }
+                        if (serverCassette.viewedBy !== undefined) {
+                            serverViewedBy = serverCassette.viewedBy || [];
+                        }
+                        if (serverCassette.websiteClicks !== undefined) {
+                            serverWebsiteClicks = serverCassette.websiteClicks;
+                        }
+                        if (serverCassette.clickedBy !== undefined) {
+                            serverClickedBy = serverCassette.clickedBy || [];
+                        }
                     }
                 } catch (e) {
                     console.error('Error parsing cache:', e);
@@ -17358,6 +17423,10 @@ class PomodoroTimer {
             views: cassetteId && previousCassette?.isPublic && serverViews !== undefined && serverViews !== null ? serverViews : (previousCassette?.views !== undefined && previousCassette.views !== null ? previousCassette.views : 0),
             // Preserve viewedBy from server if available (server is source of truth for viewedBy)
             viewedBy: cassetteId && previousCassette?.isPublic && serverViewedBy.length > 0 ? serverViewedBy : (previousCassette?.viewedBy || []),
+            // Preserve websiteClicks from server if available (server is source of truth for websiteClicks)
+            websiteClicks: cassetteId && previousCassette?.isPublic && serverWebsiteClicks !== undefined && serverWebsiteClicks !== null ? serverWebsiteClicks : (previousCassette?.websiteClicks !== undefined && previousCassette.websiteClicks !== null ? previousCassette.websiteClicks : 0),
+            // Preserve clickedBy from server if available (server is source of truth for clickedBy)
+            clickedBy: cassetteId && previousCassette?.isPublic && serverClickedBy.length > 0 ? serverClickedBy : (previousCassette?.clickedBy || []),
             createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
