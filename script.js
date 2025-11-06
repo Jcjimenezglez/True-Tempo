@@ -1209,8 +1209,8 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>Create timer</h3>
-                    <p>Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.</p>
+                    <h3>Unlock Custom Timers</h3>
+                    <p>You're missing out on custom timers tailored to your workflow! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Get Lifetime Access</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
@@ -1234,8 +1234,8 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>Create Timer</h3>
-                    <p>Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.</p>
+                    <h3>Unlock Custom Timers</h3>
+                    <p>You're missing out on custom timers tailored to your workflow! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
@@ -1359,8 +1359,8 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>Create Cassette</h3>
-                    <p>${message}</p>
+                    <h3>Unlock Custom Cassettes</h3>
+                    <p>You're missing out on custom focus environments! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Get Lifetime Access</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
@@ -1385,8 +1385,8 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>Create Cassette</h3>
-                    <p>${message}</p>
+                    <h3>Unlock Custom Cassettes</h3>
+                    <p>You're missing out on custom focus environments! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
@@ -2743,6 +2743,19 @@ class PomodoroTimer {
         // Always pause and block controls while visible
         this.pauseTimerSilent();
         this.dailyLimitModalOverlay.style.display = 'flex';
+        
+        // Update message with progress
+        const focusHoursUsed = Math.floor((this.focusSecondsToday || 0) / 3600);
+        const focusMinutesUsed = Math.floor(((this.focusSecondsToday || 0) % 3600) / 60);
+        const limitHours = Math.floor(this.DAILY_FOCUS_LIMIT_SECONDS / 3600);
+        const limitMinutes = Math.floor((this.DAILY_FOCUS_LIMIT_SECONDS % 3600) / 60);
+        
+        const progressText = `${focusHoursUsed}h ${focusMinutesUsed > 0 ? focusMinutesUsed + 'm' : ''} / ${limitHours}h used today`;
+        const dailyLimitMessage = document.getElementById('dailyLimitMessage');
+        if (dailyLimitMessage) {
+            dailyLimitMessage.textContent = `Unlock unlimited focus time and never hit limits again. Join Pro users who focus without restrictions. (${progressText})`;
+        }
+        
         // 🎯 Track Daily Limit Modal Opened event to Mixpanel
         if (window.mixpanelTracker) {
             const focusMinutesUsed = Math.floor((this.focusSecondsToday || 0) / 60);
@@ -3841,37 +3854,12 @@ class PomodoroTimer {
                         return;
                     }
 
-                    const resp = await fetch('/api/create-checkout-session', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-clerk-userid': userId,
-                            'x-clerk-user-email': userEmail,
-                        },
-                    });
-
-                    let data = null;
-                    try {
-                        data = await resp.json();
-                    } catch (_) {
-                        // non-JSON error
-                    }
-
-                    if (!resp.ok) {
-                        const errMsg = (data && data.error) ? data.error : `HTTP ${resp.status}`;
-                        console.error('Checkout session error response:', data);
-                        throw new Error(errMsg);
-                    }
-
-                    const url = data && data.url;
-                    if (url) {
-                        window.location.assign(url);
-                    } else {
-                        throw new Error('No checkout url returned');
-                    }
+                    // Redirect to pricing page first so users see full value proposition
+                    window.location.href = '/pricing';
                 } catch (err) {
-                    console.error('Error creating checkout session:', err);
-                    alert(`Error processing payment: ${err.message || err}`);
+                    console.error('Error in upgrade flow:', err);
+                    // Fallback to pricing page even on error
+                    window.location.href = '/pricing';
                 }
             });
         }
@@ -4190,28 +4178,8 @@ class PomodoroTimer {
                     // Guest user - show signup
                     this.handleSignup();
                 } else {
-                    // Free user - redirect to Stripe checkout
-                    try {
-                        const response = await fetch('/api/create-checkout-session', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-clerk-userid': this.user?.id || ''
-                            },
-                        });
-                        
-                        if (response.ok) {
-                            const { url } = await response.json();
-                            window.location.href = url;
-                        } else {
-                            // Fallback to pricing page if Stripe fails
-                            window.location.href = '/pricing';
-                        }
-                    } catch (error) {
-                        console.error('Error creating checkout session:', error);
-                        // Fallback to pricing page if error
-                        window.location.href = '/pricing';
-                    }
+                    // Free user - redirect to pricing page
+                    window.location.href = '/pricing';
                 }
             });
         }
@@ -4280,29 +4248,8 @@ class PomodoroTimer {
                     user_type: this.isAuthenticated ? 'free_user' : 'guest'
                 });
                 if (this.isAuthenticated) {
-                    // Free user - redirect to Stripe checkout
-                    try {
-                        const response = await fetch('/api/create-checkout-session', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-clerk-userid': this.user?.id || ''
-                            }
-                        });
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            window.location.href = data.url;
-                        } else {
-                            console.error('Checkout session creation failed:', response.status);
-                            // Fallback to pricing page
-                            window.location.href = '/pricing';
-                        }
-                    } catch (error) {
-                        console.error('Error creating checkout session:', error);
-                        // Fallback to pricing page
-                        window.location.href = '/pricing';
-                    }
+                    // Free user - redirect to pricing page
+                    window.location.href = '/pricing';
                 } else {
                     // Guest user - redirect to pricing
                     window.location.href = '/pricing';
@@ -4365,29 +4312,19 @@ class PomodoroTimer {
 
     async handleUpgrade() {
         try {
-            // 🎯 TRACKING: Stripe Checkout Opened
+            // 🎯 TRACKING: Stripe Checkout Opened (tracking before redirect to pricing)
             this.trackEvent('Stripe Checkout Opened', {
                 source: 'upgrade_flow',
                 user_type: this.isAuthenticated ? 'free_user' : 'guest',
                 timestamp: new Date().toISOString()
             });
             
-            const response = await fetch('/api/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to create checkout session');
-            }
-
-            const { url } = await response.json();
-            window.location.href = url;
+            // Always redirect to pricing page first so users see full value proposition
+            window.location.href = '/pricing';
         } catch (error) {
-            console.error('Error creating checkout session:', error);
-            alert('Error processing payment. Please try again.');
+            console.error('Error in handleUpgrade:', error);
+            // Fallback to pricing page even on error
+            window.location.href = '/pricing';
         }
     }
 
