@@ -12614,42 +12614,44 @@ class PomodoroTimer {
         }
         
         if (paymentSuccess === 'success' || premiumStatus === '1') {
-            // Track successful subscription conversion
-            this.trackEvent('Subscribe Success', {
-                conversion_type: 'signup_to_pro',
-                user_journey: 'signup → pro',
-                source: 'stripe_payment',
-                revenue: 9.0,
-                timestamp: new Date().toISOString()
-            });
-            
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
+            // Track successful subscription conversion
+            this.trackEvent('Subscribe Success', {
+                conversion_type: 'signup_to_premium',
+                user_journey: 'signup → premium',
+                source: 'stripe_payment',
+                timestamp: new Date().toISOString()
+            });
             
             // Track subscription conversion immediately
-            this.trackConversion('subscription', 9.0);
+            this.trackConversion('subscription', 0); // 0 for trial
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSubscriptionUpgrade('pro');
+                window.mixpanelTracker.trackSubscriptionUpgrade('premium');
                 console.log('📊 Subscription upgrade event tracked to Mixpanel');
             }
             
-            // Show success message for payment and refresh premium status
+            // Refresh premium status immediately and wait for webhook to update
             setTimeout(() => {
-                this.showPaymentSuccessMessage();
                 this.updatePremiumUI(); // Refresh premium status
                 
-                // If user is still not premium after 3 seconds, try to sync manually
+                // Force refresh Clerk user data
+                if (window.Clerk && window.Clerk.user) {
+                    window.Clerk.user.reload();
+                }
+                
+                // If user is still not premium after 5 seconds, try to sync manually
                 setTimeout(() => {
                     if (!this.isPremium) {
                         console.log('User still not premium after payment, attempting manual sync...');
                         this.attemptPremiumSync();
                     }
-                }, 3000);
-            }, 1000); // Small delay to let the page fully load
+                }, 5000);
+            }, 2000); // Wait 2 seconds for webhook to process
         }
     }
 

@@ -126,26 +126,36 @@ module.exports = async (req, res) => {
   }
 
   try {
+    console.log(`📥 Webhook event received: ${event.type}`);
+    
     switch (event.type) {
       case 'checkout.session.completed':
+        console.log('🛒 Processing checkout.session.completed...');
         await handleCheckoutCompleted(event.data.object, clerk);
         break;
       
       case 'customer.subscription.created':
+        console.log('📝 Processing customer.subscription.created...');
+        await handleSubscriptionChange(event.data.object, clerk);
+        break;
+      
       case 'customer.subscription.updated':
+        console.log('🔄 Processing customer.subscription.updated...');
         await handleSubscriptionChange(event.data.object, clerk);
         break;
       
       case 'customer.subscription.deleted':
+        console.log('🗑️ Processing customer.subscription.deleted...');
         await handleSubscriptionDeleted(event.data.object, clerk);
         break;
       
       case 'customer.subscription.trial_will_end':
+        console.log('⏰ Processing customer.subscription.trial_will_end...');
         await handleTrialWillEnd(event.data.object, clerk);
         break;
       
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
 
     res.status(200).json({ received: true });
@@ -162,13 +172,26 @@ async function handleCheckoutCompleted(session, clerk) {
   const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
   const isSubscription = session.mode === 'subscription';
 
+  console.log('🔔 Checkout completed event received:', {
+    customerId,
+    clerkUserId,
+    paymentType,
+    mode: session.mode,
+    subscriptionId: session.subscription
+  });
+
   if (!customerId) {
-    console.log('Missing customer ID in checkout session');
+    console.log('❌ Missing customer ID in checkout session');
     return;
   }
 
   try {
     let targetUserId = clerkUserId;
+    
+    // If clerk_user_id is not in metadata, log warning
+    if (!targetUserId) {
+      console.warn('⚠️ No clerk_user_id in session metadata, will try to find by email');
+    }
 
     // If no Clerk user ID in metadata (Apple Pay case), find by email
     if (!targetUserId) {
@@ -224,19 +247,33 @@ async function handleCheckoutCompleted(session, clerk) {
         console.log('Could not get user email for tracking');
       }
 
+      // Get current user metadata to preserve existing data
+      let currentUser;
+      try {
+        currentUser = await clerk.users.getUser(targetUserId);
+      } catch (e) {
+        console.error('❌ Error getting current user:', e);
+        throw e;
+      }
+
       // Update Clerk user with Stripe customer ID and premium status
       // The subscription status will be updated by handleSubscriptionChange
+      const updatedMetadata = {
+        ...(currentUser.publicMetadata || {}),
+        stripeCustomerId: customerId,
+        isPremium: true, // Set immediately for trial, will be confirmed by subscription.created event
+        premiumSince: currentUser.publicMetadata?.premiumSince || new Date().toISOString(),
+        paymentType: paymentType || 'premium', // premium, monthly, or yearly
+        isTrial: paymentType === 'premium', // Mark as trial if Premium plan
+        lastUpdated: new Date().toISOString(),
+      };
+
       await clerk.users.updateUser(targetUserId, {
-        publicMetadata: {
-          stripeCustomerId: customerId,
-          isPremium: true, // Set immediately for trial, will be confirmed by subscription.created event
-          premiumSince: new Date().toISOString(),
-          paymentType: paymentType || 'premium', // premium, monthly, or yearly
-          isTrial: paymentType === 'premium', // Mark as trial if Premium plan
-        },
+        publicMetadata: updatedMetadata,
       });
 
       console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status (trial: ${paymentType === 'premium'})`);
+      console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
       
       // Track Google Ads conversion for Premium plan (real conversion, not just intent)
       if (paymentType === 'premium') {
