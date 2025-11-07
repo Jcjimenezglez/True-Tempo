@@ -704,7 +704,7 @@
         <div class="pricing-page-header-section">
             <h1>The ultimate<br>home for<br>focus</h1>
             
-            <button class="pricing-cta-spotify" id="pricingPageUpgrade">Try 3 months for $0</button>
+            <button class="pricing-cta-spotify" id="pricingPageUpgrade" disabled style="opacity: 0.5; cursor: not-allowed;">Try 3 months for $0 (Temporarily disabled)</button>
             
             <div class="pricing-offer-explanation">
                 $0 for 3 months, then $3.99 per month after. Offer only available if you haven't tried Premium before. <a href="/terms" target="_blank">Terms apply</a>.
@@ -815,6 +815,16 @@
             
             console.log('Button found, adding event listener...');
             
+            // Button temporarily disabled - trial not working correctly
+            premiumButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Premium button clicked but disabled');
+                alert('This feature is temporarily disabled. Please check back later.');
+                return;
+            });
+            
+            // Original event listener disabled for now
+            /*
             premiumButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 console.log('Premium button clicked');
@@ -870,6 +880,7 @@
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 }
             });
+            */
             
             console.log('✅ Event listener added successfully');
             
