@@ -10,8 +10,9 @@ module.exports = async (req, res) => {
     return;
   }
 
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
+  // Allow both GET and POST for easier testing
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed. Use GET or POST' });
     return;
   }
 
