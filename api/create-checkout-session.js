@@ -73,7 +73,8 @@ module.exports = async (req, res) => {
     // Determine mode based on planType
     const mode = planType === 'lifetime' ? 'payment' : 'subscription';
 
-    const session = await stripe.checkout.sessions.create({
+    // For Premium plan with trial, add subscription data to clarify $0 today
+    const sessionConfig = {
       mode: mode,
       line_items: [
         {
@@ -88,7 +89,7 @@ module.exports = async (req, res) => {
         app_version: '1.0',
         business_name: 'Superfocus',
         business_type: 'Pomodoro Timer & Focus App',
-        payment_type: planType, // monthly, yearly, or lifetime
+        payment_type: planType, // premium, monthly, yearly, or lifetime
       },
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
@@ -107,7 +108,19 @@ module.exports = async (req, res) => {
       ],
       // Use the Superfocus payment configuration (includes all payment methods)
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
-    });
+    };
+
+    // For Premium plan with trial, add subscription description to clarify $0 today
+    if (planType === 'premium' && mode === 'subscription') {
+      sessionConfig.subscription_data = {
+        description: '3 months free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
+        metadata: {
+          trial_info: '3 months free, then $3.99/month',
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log(`✅ Checkout session created for ${planType} plan`);
     res.status(200).json({ url: session.url });

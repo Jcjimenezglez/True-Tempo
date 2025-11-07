@@ -58,7 +58,7 @@ async function createPremiumTrialProduct() {
     // Create product
     const product = await stripe.products.create({
       name: 'Superfocus Premium',
-      description: 'Premium access to all Superfocus features with 3 months free trial',
+      description: '3 months free trial. Pay $0 today, then $3.99/month after trial ends. Cancel anytime.',
     });
 
     console.log('✅ Product created:', product.id);
