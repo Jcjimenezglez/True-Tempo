@@ -3,23 +3,74 @@ const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 // Function to send conversion tracking to Google Ads (server-side)
-async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null) {
+// Tracks real conversions when checkout is completed (not just intent)
+async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null) {
   try {
-    const conversionId = conversionType === 'signup' 
-      ? 'AW-17614436696/HLp9CM6Plq0bENjym89B'
-      : 'AW-17614436696/uBZgCNz9pq0bENjym89B';
+    // Google Ads Conversion ID and Label for Subscribe Clicked conversion
+    const conversionId = 'AW-17614436696';
+    const conversionLabel = 'zsizCNqYgbgbENjym89B'; // Subscribe Clicked conversion
     
+    // Track conversion using Google Ads Measurement Protocol
+    // This tracks the actual conversion when checkout is completed
+    const conversionUrl = `https://www.google-analytics.com/mp/collect?api_secret=${process.env.GOOGLE_ADS_API_SECRET || ''}&measurement_id=${conversionId}`;
+    
+    // Build client ID from email or use transaction ID
+    const clientId = email 
+      ? email.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) 
+      : `client_${transactionId || Date.now()}`;
+    
+    // Build conversion payload
     const payload = {
-      conversion_action: conversionId,
-      conversion_value: value,
-      currency_code: 'USD',
-      transaction_id: transactionId || `server_${conversionType}_${Date.now()}`
+      client_id: clientId,
+      events: [{
+        name: 'purchase',
+        params: {
+          currency: 'USD',
+          value: value,
+          transaction_id: transactionId || `conv_${Date.now()}`,
+          items: [{
+            item_id: 'premium_subscription',
+            item_name: 'Superfocus Premium',
+            price: value,
+            quantity: 1
+          }]
+        }
+      }]
     };
 
-    // Note: This is a placeholder for server-side conversion tracking
-    // In practice, you would need to implement server-side conversion tracking
-    // using Google Ads API or Measurement Protocol
-    console.log(`🎯 Server-side conversion tracking: ${conversionType}`, payload);
+    // Send conversion to Google Ads via Measurement Protocol
+    if (process.env.GOOGLE_ADS_API_SECRET) {
+      try {
+        const response = await fetch(conversionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          console.log(`✅ Google Ads conversion tracked: ${conversionType}`, {
+            value,
+            transactionId,
+            conversionLabel
+          });
+        } else {
+          const errorText = await response.text();
+          console.warn(`⚠️ Google Ads conversion tracking failed: ${response.status}`, errorText);
+        }
+      } catch (fetchError) {
+        console.error(`❌ Error sending Google Ads conversion:`, fetchError);
+      }
+    } else {
+      // Log conversion details even if API secret is not configured
+      console.log(`🎯 Google Ads conversion (API secret not configured): ${conversionType}`, {
+        value,
+        transactionId,
+        conversionLabel,
+        clientId
+      });
+    }
     
     return true;
   } catch (error) {
@@ -89,6 +140,10 @@ module.exports = async (req, res) => {
         await handleSubscriptionDeleted(event.data.object, clerk);
         break;
       
+      case 'customer.subscription.trial_will_end':
+        await handleTrialWillEnd(event.data.object, clerk);
+        break;
+      
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -103,7 +158,7 @@ module.exports = async (req, res) => {
 async function handleCheckoutCompleted(session, clerk) {
   const customerId = session.customer;
   const clerkUserId = session.metadata?.clerk_user_id;
-  const paymentType = session.metadata?.payment_type; // monthly, yearly, or lifetime
+  const paymentType = session.metadata?.payment_type; // premium, monthly, yearly, or lifetime
   const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
   const isSubscription = session.mode === 'subscription';
 
@@ -158,24 +213,47 @@ async function handleCheckoutCompleted(session, clerk) {
       return; // Don't process as subscription
     }
 
-    // For subscriptions (monthly or yearly)
+    // For subscriptions (premium, monthly, or yearly)
     if (isSubscription) {
+      // Get user email for tracking
+      let userEmail = null;
+      try {
+        const user = await clerk.users.getUser(targetUserId);
+        userEmail = user.emailAddresses?.[0]?.emailAddress || null;
+      } catch (e) {
+        console.log('Could not get user email for tracking');
+      }
+
       // Update Clerk user with Stripe customer ID and premium status
       // The subscription status will be updated by handleSubscriptionChange
       await clerk.users.updateUser(targetUserId, {
         publicMetadata: {
           stripeCustomerId: customerId,
-          isPremium: true, // Set immediately, will be confirmed by subscription.created event
+          isPremium: true, // Set immediately for trial, will be confirmed by subscription.created event
           premiumSince: new Date().toISOString(),
-          paymentType: paymentType || 'monthly', // monthly or yearly
+          paymentType: paymentType || 'premium', // premium, monthly, or yearly
+          isTrial: paymentType === 'premium', // Mark as trial if Premium plan
         },
       });
 
-      console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status`);
+      console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status (trial: ${paymentType === 'premium'})`);
       
-      // Track subscription conversion server-side
-      const conversionValue = paymentType === 'yearly' ? 12.0 : 1.99;
-      await trackConversionServerSide('subscription', conversionValue, session.id);
+      // Track Google Ads conversion for Premium plan (real conversion, not just intent)
+      if (paymentType === 'premium') {
+        // Track Premium subscription conversion to Google Ads
+        // Value is 0 for trial, but we track it as a conversion
+        await trackConversionServerSide('subscription', 0, session.id, null, userEmail);
+        console.log(`✅ Google Ads conversion tracked for Premium subscription: ${targetUserId}`);
+      } else {
+        // Track other subscription types
+        let conversionValue = 1.99; // Default to monthly (old plan)
+        if (paymentType === 'yearly') {
+          conversionValue = 12.0;
+        } else if (paymentType === 'monthly') {
+          conversionValue = 1.99; // Old monthly plan
+        }
+        await trackConversionServerSide('subscription', conversionValue, session.id, null, userEmail);
+      }
     }
 
   } catch (error) {
@@ -186,6 +264,8 @@ async function handleCheckoutCompleted(session, clerk) {
 async function handleSubscriptionChange(subscription, clerk) {
   const customerId = subscription.customer;
   const isActive = ['active', 'trialing'].includes(subscription.status);
+  const isTrialing = subscription.status === 'trialing';
+  const isActiveAfterTrial = subscription.status === 'active' && subscription.trial_end && subscription.trial_end < Math.floor(Date.now() / 1000);
 
   try {
     // Find Clerk user by Stripe customer ID
@@ -200,11 +280,13 @@ async function handleSubscriptionChange(subscription, clerk) {
     if (user) {
       // Determine payment type from subscription
       const priceId = subscription.items.data[0]?.price?.id;
-      let paymentType = user.publicMetadata?.paymentType || 'monthly';
+      let paymentType = user.publicMetadata?.paymentType || 'premium';
       
-      // You can also check the price ID to determine if it's yearly or monthly
-      // This would require checking against your Stripe price IDs
-      // For now, we keep the existing paymentType from metadata
+      // Update isTrial flag based on subscription status
+      const isTrial = isTrialing;
+      
+      // If trial ended and subscription is now active, remove isTrial flag
+      const shouldRemoveTrialFlag = isActiveAfterTrial && user.publicMetadata?.isTrial;
 
       await clerk.users.updateUser(user.id, {
         publicMetadata: {
@@ -212,15 +294,56 @@ async function handleSubscriptionChange(subscription, clerk) {
           isPremium: isActive,
           premiumSince: isActive ? (user.publicMetadata?.premiumSince || new Date().toISOString()) : null,
           paymentType: paymentType, // Keep existing paymentType
+          isTrial: isTrial && !shouldRemoveTrialFlag, // Update trial status
         },
       });
 
-      console.log(`✅ Updated subscription status for user ${user.id}: ${subscription.status} (${paymentType})`);
+      console.log(`✅ Updated subscription status for user ${user.id}: ${subscription.status} (${paymentType}, trial: ${isTrial})`);
     } else {
       console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
     }
   } catch (error) {
     console.error('❌ Error updating subscription status:', error);
+  }
+}
+
+async function handleTrialWillEnd(subscription, clerk) {
+  const customerId = subscription.customer;
+  
+  try {
+    // Find Clerk user by Stripe customer ID
+    const users = await clerk.users.getUserList({
+      limit: 100,
+    });
+
+    const user = users.data.find(u => 
+      u.publicMetadata?.stripeCustomerId === customerId
+    );
+
+    if (user) {
+      // Calculate days until trial ends
+      const trialEnd = subscription.trial_end * 1000; // Convert to milliseconds
+      const now = Date.now();
+      const daysUntilEnd = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+      
+      // Update user metadata to indicate trial ending soon
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          trialEndingSoon: true,
+          trialEndsAt: new Date(trialEnd).toISOString(),
+        },
+      });
+
+      console.log(`✅ Trial ending soon for user ${user.id}: ${daysUntilEnd} days remaining`);
+      
+      // Note: You can send an email notification here using your email service
+      // For now, we just log it. The frontend can check trialEndingSoon to show a notification
+    } else {
+      console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
+    }
+  } catch (error) {
+    console.error('❌ Error handling trial will end:', error);
   }
 }
 

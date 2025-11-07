@@ -13,25 +13,27 @@ module.exports = async (req, res) => {
   // Read and sanitize env vars
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
   
-  // Get planType from request body (monthly, yearly, lifetime)
-  let planType = 'monthly'; // Default to monthly
+  // Get planType from request body (premium, monthly, yearly, lifetime)
+  let planType = 'premium'; // Default to premium
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    planType = (body.planType || 'monthly').toLowerCase();
+    planType = (body.planType || 'premium').toLowerCase();
   } catch (e) {
-    // If body parsing fails, default to monthly
-    planType = 'monthly';
+    // If body parsing fails, default to premium
+    planType = 'premium';
   }
   
   // Validate planType
-  if (!['monthly', 'yearly', 'lifetime'].includes(planType)) {
-    res.status(400).json({ error: 'Invalid planType. Must be monthly, yearly, or lifetime' });
+  if (!['premium', 'monthly', 'yearly', 'lifetime'].includes(planType)) {
+    res.status(400).json({ error: 'Invalid planType. Must be premium, monthly, yearly, or lifetime' });
     return;
   }
-
+  
   // Get price ID from environment variables based on planType
   let priceId;
-  if (planType === 'monthly') {
+  if (planType === 'premium') {
+    priceId = (process.env.STRIPE_PRICE_ID_PREMIUM || '').trim();
+  } else if (planType === 'monthly') {
     priceId = (process.env.STRIPE_PRICE_ID_MONTHLY || '').trim();
   } else if (planType === 'yearly') {
     priceId = (process.env.STRIPE_PRICE_ID_YEARLY || '').trim();

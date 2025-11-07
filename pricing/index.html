@@ -163,21 +163,73 @@
         }
         
         .pricing-page-header-section {
-            text-align: center;
+            text-align: left;
             margin-bottom: 3rem;
+            max-width: 600px;
         }
         
         .pricing-page-header-section h1 {
-            font-size: 2.5rem;
+            font-size: 4rem;
             font-weight: 700;
-            margin: 0 0 1rem 0;
+            margin: 0 0 2rem 0;
             color: #ffffff;
+            line-height: 1.1;
         }
         
         .pricing-page-header-section p {
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.7);
             margin: 0;
+        }
+        
+        .pricing-cta-spotify {
+            background: #1db954;
+            border: none;
+            border-radius: 500px;
+            padding: 1rem 2rem;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        
+        .pricing-cta-spotify:hover {
+            background: #1ed760;
+            transform: scale(1.05);
+        }
+        
+        .pricing-cta-spotify:disabled,
+        .pricing-cta-spotify.disabled {
+            background: #1db954;
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .pricing-offer-explanation {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+        
+        .pricing-offer-explanation a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: underline;
+        }
+        
+        .pricing-offer-explanation a:hover {
+            color: #ffffff;
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-page-header-section h1 {
+                font-size: 2.5rem;
+            }
         }
         
         .pricing-grid {
@@ -650,101 +702,12 @@
     <!-- Main Content -->
     <main class="pricing-page-container">
         <div class="pricing-page-header-section">
-            <h1>Which is best for you?</h1>
-            <p>Monthly, yearly, or lifetime—same unlimited features.</p>
-        </div>
-        
-        <div class="pricing-grid">
-            <!-- Unlimited Plan -->
-            <div class="pricing-card featured">
-                <!-- 3 Pricing Options -->
-                <div class="pricing-options">
-                    <div class="pricing-option active" data-plan="monthly">
-                        <div class="option-header">
-                            <span class="option-label">Monthly</span>
-                        </div>
-                        <div class="option-price">
-                            <span class="price">$1.99</span>
-                            <span class="period">/month</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pricing-option" data-plan="yearly">
-                        <div class="option-header">
-                            <span class="option-label">Yearly</span>
-                        </div>
-                        <div class="option-price">
-                            <span class="price">$12</span>
-                            <span class="period">/year</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pricing-option" data-plan="lifetime">
-                        <div class="option-header">
-                            <span class="option-label">Lifetime</span>
-                        </div>
-                        <div class="option-price">
-                            <span class="price">$48</span>
-                            <span class="period">one-time</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="pricing-cta featured" id="pricingPageUpgrade" data-plan="monthly">Get Monthly Now</button>
-                
-                <div class="pricing-features">
-                    <div class="pricing-feature-title">
-                        <span>Includes:</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Unlimited hours daily</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Create custom timers</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Create custom cassettes</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Unlimited tasks</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Notion integration</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Todoist integration</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Advanced Analytics & Insights</span>
-                    </div>
-                    <div class="pricing-feature enabled highlight">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        <span>Promote your projects through Public Cassettes</span>
-                    </div>
-                </div>
+            <h1>The ultimate<br>home for<br>focus</h1>
+            
+            <button class="pricing-cta-spotify" id="pricingPageUpgrade">Try 3 months for $0</button>
+            
+            <div class="pricing-offer-explanation">
+                $0 for 3 months, then $3.99 per month after. Offer only available if you haven't tried Premium before. <a href="/terms" target="_blank">Terms apply</a>.
             </div>
         </div>
         
@@ -839,145 +802,96 @@
     </footer>
     
     <script>
-        // Current selected plan (default: monthly)
-        let selectedPlan = 'monthly';
-        
-        // Initialize buttons immediately on DOM load
+        // Initialize button on DOM load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing buttons...');
+            console.log('DOM loaded, initializing pricing button...');
             
-            const proButton = document.getElementById('pricingPageUpgrade');
-            const pricingOptions = document.querySelectorAll('.pricing-option');
+            const premiumButton = document.getElementById('pricingPageUpgrade');
             
-            if (!proButton) {
+            if (!premiumButton) {
                 console.error('Could not find pricing button');
                 return;
             }
             
-            console.log('Button found, adding event listeners...');
+            console.log('Button found, adding event listener...');
             
-            // Function to update CTA button text based on selected plan
-            function updateCTAButtonText(planType) {
-                const planName = planType.charAt(0).toUpperCase() + planType.slice(1);
-                proButton.textContent = `Get ${planName} Now`;
-            }
-            
-            // Initialize button text with default selected plan (monthly)
-            updateCTAButtonText(selectedPlan);
-            
-            // Handle pricing option selection
-            pricingOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const planType = this.dataset.plan;
-                    selectedPlan = planType;
-                    
-                    // Update active state
-                    pricingOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update button data attribute
-                    proButton.dataset.plan = planType;
-                    
-                    // Update button text
-                    updateCTAButtonText(planType);
-                    
-                    console.log('Selected plan:', planType);
-                });
-            });
-            
-            proButton.addEventListener('click', function(e) {
+            premiumButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                const planType = this.dataset.plan || selectedPlan;
-                console.log('Pro button clicked, plan:', planType);
+                console.log('Premium button clicked');
                 
                 // Check if user is authenticated
                 const isAuthenticated = window.Clerk && window.Clerk.user;
                 const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
                 
-                // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page (ALWAYS TRACK)
+                // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
                 if (window.mixpanel && window.mixpanel.track) {
                     window.mixpanel.track('Stripe Checkout Opened', {
                         source: 'pricing_page',
                         user_type: isAuthenticated ? 'free_user' : 'guest',
-                        plan_type: planType,
+                        plan_type: 'premium',
                         timestamp: new Date().toISOString()
                     });
                     console.log('✅ Mixpanel tracking sent: Stripe Checkout Opened');
                     
-                    // Also track as Subscribe Clicked for consistency
+                    // Also track as Subscribe Clicked
                     window.mixpanel.track('Subscribe Clicked', {
                         button_type: 'subscribe',
                         source: 'pricing_page',
                         location: 'pricing_page',
-                        user_type: isAuthenticated ? (isPremium ? 'pro' : 'free') : 'guest',
+                        user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
                         modal_type: 'pricing_page',
-                        plan_type: planType
+                        plan_type: 'premium'
                     });
                     console.log('✅ Mixpanel tracking sent: Subscribe Clicked');
                 } else {
                     console.log('❌ Mixpanel not available');
                 }
                 
-                // 🎯 TRACKING: Subscribe Clicked to Google Ads - Track intent to checkout
-                // Track for each plan type
-                if (typeof gtag !== 'undefined') {
-                    try {
-                        // Track Google Ads conversion event (Subscribe Clicked goal)
-                        gtag('event', 'conversion', {
-                            'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
-                            'value': 1.0,
-                            'currency': 'USD',
-                            'plan_type': planType
-                        });
-                        
-                        console.log(`✅ Subscribe Clicked tracked to Google Ads: pricing_page (${planType})`);
-                    } catch (error) {
-                        console.error('❌ Error tracking to Google Ads:', error);
-                    }
-                } else {
-                    console.warn('⚠️ gtag not available for Google Ads tracking');
-                }
+                // Note: Google Ads conversion tracking moved to server-side (webhook)
+                // This tracks actual conversions when checkout is completed, not just intent
                 
                 if (isPremium) {
-                    // Already pro
-                    console.log('User already has Pro');
+                    // Already premium
+                    console.log('User already has Premium');
+                    premiumButton.textContent = 'You have Premium';
+                    premiumButton.disabled = true;
+                    premiumButton.classList.add('disabled');
                     return;
                 }
                 
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
-                    console.log('Creating checkout session for authenticated user...');
-                    createCheckoutSession(planType);
+                    console.log('Creating checkout session for Premium trial...');
+                    createCheckoutSession('premium');
                 } else {
                     // Guest user - redirect to signup with upgrade intent
                     console.log('Redirecting guest to signup with upgrade intent...');
                     localStorage.setItem('upgradeAfterLogin', 'true');
-                    localStorage.setItem('selectedPlan', planType);
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 }
             });
             
-            console.log('✅ Event listeners added successfully');
+            console.log('✅ Event listener added successfully');
             
             // Update button states after Clerk loads
             setTimeout(updateButtonStates, 500);
         });
         
         function updateButtonStates() {
-            const proButton = document.getElementById('pricingPageUpgrade');
+            const premiumButton = document.getElementById('pricingPageUpgrade');
             
-            if (!proButton) return;
+            if (!premiumButton) return;
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
             
             console.log('Updating button states:', { isAuthenticated, isPremium });
             
-            // Update Pro button
+            // Update Premium button
             if (isPremium) {
-                proButton.textContent = 'Current';
-                proButton.disabled = true;
-                proButton.classList.add('disabled');
+                premiumButton.textContent = 'You have Premium';
+                premiumButton.disabled = true;
+                premiumButton.classList.add('disabled');
             }
             
             // Check for Clerk again if not loaded yet
@@ -986,7 +900,7 @@
             }
         }
 
-        async function createCheckoutSession(planType = 'monthly') {
+        async function createCheckoutSession(planType = 'premium') {
             try {
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
@@ -1019,34 +933,15 @@
         // Check if user came from login with upgrade intent
         function checkUpgradeIntent() {
             const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
-            const savedPlan = localStorage.getItem('selectedPlan') || 'monthly';
             
             if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
                 console.log('User returned after login with upgrade intent');
                 localStorage.removeItem('upgradeAfterLogin');
-                localStorage.removeItem('selectedPlan');
-                
-                // Update selected plan if saved
-                if (savedPlan) {
-                    selectedPlan = savedPlan;
-                    const option = document.querySelector(`.pricing-option[data-plan="${savedPlan}"]`);
-                    if (option) {
-                        document.querySelectorAll('.pricing-option').forEach(opt => opt.classList.remove('active'));
-                        option.classList.add('active');
-                        const proButton = document.getElementById('pricingPageUpgrade');
-                        if (proButton) {
-                            proButton.dataset.plan = savedPlan;
-                            // Update button text
-                            const planName = savedPlan.charAt(0).toUpperCase() + savedPlan.slice(1);
-                            proButton.textContent = `Get ${planName} Now`;
-                        }
-                    }
-                }
                 
                 // Wait for page to be fully updated
                 setTimeout(() => {
-                    console.log('Opening Stripe checkout...');
-                    createCheckoutSession(savedPlan);
+                    console.log('Opening Stripe checkout for Premium...');
+                    createCheckoutSession('premium');
                 }, 2000);
             }
         }
