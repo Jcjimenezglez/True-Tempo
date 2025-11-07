@@ -4,32 +4,31 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 // Function to send conversion tracking to Google Ads (server-side)
 // Tracks real conversions when checkout is completed (not just intent)
+// This is critical for Performance Max campaigns to optimize for actual Premium subscriptions
 async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null) {
   try {
     // Google Ads Conversion ID and Label for Subscribe Clicked conversion
     const conversionId = 'AW-17614436696';
     const conversionLabel = 'zsizCNqYgbgbENjym89B'; // Subscribe Clicked conversion
     
-    // For Google Ads, we need to use the Measurement Protocol with the correct format
-    // If GOOGLE_ADS_API_SECRET is set, use GA4 Measurement Protocol (connected to Google Ads)
-    // Otherwise, use the gtag conversion tracking endpoint
-    
-    const apiSecret = process.env.GOOGLE_ADS_API_SECRET;
-    const measurementId = process.env.GOOGLE_ADS_MEASUREMENT_ID || 'G-XXXXXXXXXX'; // GA4 Measurement ID (starts with G-)
-    
     // Build client ID from email or use transaction ID
+    // Google Ads uses client_id to match conversions with clicks
     const clientId = email 
       ? email.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) 
       : `client_${transactionId || Date.now()}`;
     
-    // Method 1: Use GA4 Measurement Protocol (if API secret is configured)
+    // Use GA4 Measurement Protocol (connected to Google Ads)
+    // This is the recommended method for server-side conversion tracking
+    const apiSecret = process.env.GOOGLE_ADS_API_SECRET;
+    const measurementId = process.env.GOOGLE_ADS_MEASUREMENT_ID; // GA4 Measurement ID (starts with G-)
+    
     if (apiSecret && measurementId && measurementId.startsWith('G-')) {
       const conversionUrl = `https://www.google-analytics.com/mp/collect?api_secret=${apiSecret}&measurement_id=${measurementId}`;
       
       const payload = {
         client_id: clientId,
         events: [{
-          name: 'purchase',
+          name: 'purchase', // GA4 purchase event (automatically tracked as conversion in Google Ads)
           params: {
             currency: 'USD',
             value: value,
@@ -54,11 +53,13 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
         });
 
         if (response.ok) {
-          console.log(`✅ Google Ads conversion tracked via GA4: ${conversionType}`, {
+          console.log(`✅ Google Ads conversion tracked (GA4): ${conversionType}`, {
             value,
             transactionId,
             conversionLabel,
-            clientId
+            conversionId,
+            clientId,
+            email: email ? email.substring(0, 5) + '***' : 'N/A'
           });
           return true;
         } else {
@@ -68,62 +69,23 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       } catch (fetchError) {
         console.error(`❌ Error sending GA4 conversion:`, fetchError);
       }
-    }
-    
-    // Method 2: Use Google Ads Conversion Tracking API (fallback)
-    // This uses the conversion ID and label directly
-    const conversionTrackingUrl = `https://www.google-analytics.com/m/collect?api_secret=${apiSecret || ''}&measurement_id=${conversionId}`;
-    
-    // Build conversion payload for Google Ads
-    const conversionPayload = {
-      client_id: clientId,
-      events: [{
-        name: 'conversion',
-        params: {
-          send_to: `${conversionId}/${conversionLabel}`,
-          value: value,
-          currency: 'USD',
-          transaction_id: transactionId || `conv_${Date.now()}`,
-        }
-      }]
-    };
-
-    // Try Google Ads conversion tracking
-    try {
-      const response = await fetch(conversionTrackingUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(conversionPayload)
+    } else {
+      console.warn(`⚠️ Google Ads tracking not configured:`, {
+        hasApiSecret: !!apiSecret,
+        hasMeasurementId: !!measurementId,
+        measurementId: measurementId || 'NOT SET'
       });
-
-      if (response.ok) {
-        console.log(`✅ Google Ads conversion tracked: ${conversionType}`, {
-          value,
-          transactionId,
-          conversionLabel,
-          conversionId,
-          clientId
-        });
-        return true;
-      } else {
-        const errorText = await response.text();
-        console.warn(`⚠️ Google Ads conversion tracking failed: ${response.status}`, errorText);
-      }
-    } catch (fetchError) {
-      console.error(`❌ Error sending Google Ads conversion:`, fetchError);
     }
     
-    // Log conversion details even if tracking failed
+    // Always log conversion attempt for debugging
     console.log(`🎯 Google Ads conversion attempt: ${conversionType}`, {
       value,
       transactionId,
       conversionLabel,
       conversionId,
       clientId,
-      hasApiSecret: !!apiSecret,
-      hasMeasurementId: !!measurementId
+      email: email ? email.substring(0, 5) + '***' : 'N/A',
+      configured: !!(apiSecret && measurementId)
     });
     
     return true;
