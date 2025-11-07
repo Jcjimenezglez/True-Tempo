@@ -694,7 +694,7 @@
                     </div>
                 </div>
                 
-                <button class="pricing-cta featured" id="pricingPageUpgrade" data-plan="monthly">Get Unlimited Now</button>
+                <button class="pricing-cta featured" id="pricingPageUpgrade" data-plan="monthly">Get Monthly Now</button>
                 
                 <div class="pricing-features">
                     <div class="pricing-feature-title">
@@ -860,6 +860,15 @@
             
             console.log('Button found, adding event listeners...');
             
+            // Function to update CTA button text based on selected plan
+            function updateCTAButtonText(planType) {
+                const planName = planType.charAt(0).toUpperCase() + planType.slice(1);
+                proButton.textContent = `Get ${planName} Now`;
+            }
+            
+            // Initialize button text with default selected plan (monthly)
+            updateCTAButtonText(selectedPlan);
+            
             // Handle pricing option selection
             pricingOptions.forEach(option => {
                 option.addEventListener('click', function() {
@@ -872,6 +881,9 @@
                     
                     // Update button data attribute
                     proButton.dataset.plan = planType;
+                    
+                    // Update button text
+                    updateCTAButtonText(planType);
                     
                     console.log('Selected plan:', planType);
                 });
@@ -1028,6 +1040,9 @@
                         const proButton = document.getElementById('pricingPageUpgrade');
                         if (proButton) {
                             proButton.dataset.plan = savedPlan;
+                            // Update button text
+                            const planName = savedPlan.charAt(0).toUpperCase() + savedPlan.slice(1);
+                            proButton.textContent = `Get ${planName} Now`;
                         }
                     }
                 }
