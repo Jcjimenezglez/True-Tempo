@@ -1,90 +1,133 @@
-// Fix specific user premium status
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const Stripe = require('stripe');
 
 module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  const clerkSecret = process.env.CLERK_SECRET_KEY;
+  const stripeSecret = process.env.STRIPE_SECRET_KEY;
+
+  if (!clerkSecret || !stripeSecret) {
+    res.status(500).json({ error: 'Server configuration error' });
+    return;
+  }
+
+  const { clerkUserId, stripeCustomerId } = req.body;
+
+  if (!clerkUserId || !stripeCustomerId) {
+    res.status(400).json({ error: 'clerkUserId and stripeCustomerId are required' });
+    return;
+  }
+
   try {
-    const clerkSecret = process.env.CLERK_SECRET_KEY;
-    const stripeSecret = process.env.STRIPE_SECRET_KEY;
-    
-    if (!clerkSecret || !stripeSecret) {
-      return res.status(500).json({ error: 'Missing environment variables' });
-    }
-
     const clerk = createClerkClient({ secretKey: clerkSecret });
-    const stripe = Stripe(stripeSecret);
-    
-    const targetEmail = 'omrvieito@gmail.com';
-    
-    // 1. Find user in Clerk
-    const users = await clerk.users.getUserList({ limit: 100 });
-    const clerkUser = users.data.find(user => 
-      user.emailAddresses?.some(email => email.emailAddress === targetEmail)
-    );
+    const stripe = new Stripe(stripeSecret, { apiVersion: '2022-11-15' });
 
-    if (!clerkUser) {
-      return res.status(404).json({ 
-        error: 'User not found in Clerk',
-        email: targetEmail
-      });
-    }
+    console.log('🔧 Fixing user premium sync...');
+    console.log('Clerk User ID:', clerkUserId);
+    console.log('Stripe Customer ID:', stripeCustomerId);
 
-    // 2. Find customer in Stripe
-    const customers = await stripe.customers.list({ limit: 100 });
-    const stripeCustomer = customers.data.find(customer => 
-      customer.email === targetEmail
-    );
+    // Get user from Clerk
+    const user = await clerk.users.getUser(clerkUserId);
+    console.log('Current isPremium:', user.publicMetadata?.isPremium);
+    console.log('Current stripeCustomerId:', user.publicMetadata?.stripeCustomerId);
 
-    if (!stripeCustomer) {
-      return res.status(404).json({ 
-        error: 'Customer not found in Stripe',
-        email: targetEmail
-      });
-    }
-
-    // 3. Check subscriptions
+    // Get subscription from Stripe
     const subscriptions = await stripe.subscriptions.list({
-      customer: stripeCustomer.id,
-      limit: 10
+      customer: stripeCustomerId,
+      limit: 10,
     });
 
-    const hasActiveSubscription = subscriptions.data.some(sub =>
-      ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
-    );
-
-    if (!hasActiveSubscription) {
-      return res.status(400).json({ 
-        error: 'No active subscription found',
-        email: targetEmail,
-        subscriptions: subscriptions.data.map(sub => ({
-          id: sub.id,
-          status: sub.status
-        }))
-      });
+    if (subscriptions.data.length === 0) {
+      res.status(404).json({ error: 'No subscriptions found in Stripe for this customer' });
+      return;
     }
 
-    // 4. Update Clerk user metadata
-    await clerk.users.updateUserMetadata(clerkUser.id, {
-      publicMetadata: {
-        ...clerkUser.publicMetadata,
-        isPremium: true,
-        stripeCustomerId: stripeCustomer.id,
-        premiumSince: new Date().toISOString()
-      }
+    const subscription = subscriptions.data[0];
+    console.log('Subscription Status:', subscription.status);
+    console.log('Trial End:', subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : 'N/A');
+
+    // Check if subscription is active or trialing
+    const isActive = ['active', 'trialing'].includes(subscription.status);
+    const isTrialing = subscription.status === 'trialing';
+    
+    // Determine payment type from price ID
+    const priceId = subscription.items.data[0]?.price?.id;
+    const premiumPriceId = process.env.STRIPE_PRICE_ID_PREMIUM || 'price_1SQr4sIMJUHQfsp7sx96CCxe';
+    const paymentType = priceId === premiumPriceId ? 'premium' : 'monthly';
+
+    // Update Clerk user with correct information
+    const updatedMetadata = {
+      ...(user.publicMetadata || {}),
+      stripeCustomerId: stripeCustomerId, // Update to correct Stripe customer ID
+      isPremium: isActive, // Set to true if subscription is active or trialing
+      premiumSince: isActive ? (user.publicMetadata?.premiumSince || new Date().toISOString()) : null,
+      paymentType: paymentType,
+      isTrial: isTrialing,
+      lastUpdated: new Date().toISOString(),
+      syncedManually: true,
+      syncedAt: new Date().toISOString(),
+    };
+
+    await clerk.users.updateUser(clerkUserId, {
+      publicMetadata: updatedMetadata,
     });
 
-    res.json({
+    console.log('✅ Updated Clerk user with correct information');
+    console.log('isPremium:', updatedMetadata.isPremium);
+    console.log('paymentType:', updatedMetadata.paymentType);
+    console.log('isTrial:', updatedMetadata.isTrial);
+
+    // Check why trial didn't work
+    let trialIssue = null;
+    if (subscription.status === 'active' && subscription.trial_end) {
+      const trialEnd = new Date(subscription.trial_end * 1000);
+      const now = new Date();
+      if (trialEnd > now) {
+        trialIssue = 'Subscription is active but trial should still be running';
+      }
+    }
+
+    // Get recent payments
+    const payments = await stripe.paymentIntents.list({
+      customer: stripeCustomerId,
+      limit: 10,
+    });
+
+    res.status(200).json({
+      success: true,
       message: 'User premium status updated successfully',
-      email: targetEmail,
-      clerkUserId: clerkUser.id,
-      stripeCustomerId: stripeCustomer.id,
-      subscriptionStatus: subscriptions.data[0]?.status
+      user: {
+        id: clerkUserId,
+        email: user.emailAddresses?.[0]?.emailAddress,
+        isPremium: updatedMetadata.isPremium,
+        paymentType: updatedMetadata.paymentType,
+        isTrial: updatedMetadata.isTrial,
+        stripeCustomerId: updatedMetadata.stripeCustomerId,
+      },
+      subscription: {
+        id: subscription.id,
+        status: subscription.status,
+        trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+        priceId: priceId,
+        amount: `$${(subscription.items.data[0]?.price?.unit_amount / 100).toFixed(2)}`,
+        trialPeriodDays: subscription.items.data[0]?.price?.recurring?.trial_period_days || null,
+      },
+      payments: payments.data.map(p => ({
+        amount: `$${(p.amount / 100).toFixed(2)}`,
+        status: p.status,
+        created: new Date(p.created * 1000).toISOString(),
+      })),
+      trialIssue: trialIssue,
     });
 
   } catch (error) {
-    console.error('Error fixing user premium status:', error);
+    console.error('❌ Error fixing user premium sync:', error);
     res.status(500).json({ 
-      error: 'Failed to fix user premium status',
+      error: 'Failed to fix user premium sync', 
       details: error.message 
     });
   }
