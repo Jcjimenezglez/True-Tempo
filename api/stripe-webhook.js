@@ -103,8 +103,9 @@ module.exports = async (req, res) => {
 async function handleCheckoutCompleted(session, clerk) {
   const customerId = session.customer;
   const clerkUserId = session.metadata?.clerk_user_id;
-  const paymentType = session.metadata?.payment_type;
+  const paymentType = session.metadata?.payment_type; // monthly, yearly, or lifetime
   const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
+  const isSubscription = session.mode === 'subscription';
 
   if (!customerId) {
     console.log('Missing customer ID in checkout session');
@@ -149,31 +150,36 @@ async function handleCheckoutCompleted(session, clerk) {
         },
       });
 
-      console.log(`Updated Clerk user ${targetUserId} with LIFETIME premium status`);
+      console.log(`✅ Updated Clerk user ${targetUserId} with LIFETIME premium status`);
       
       // Track lifetime deal conversion server-side
-      await trackConversionServerSide('subscription', 9.99, session.id);
+      await trackConversionServerSide('subscription', 48.0, session.id);
       
       return; // Don't process as subscription
     }
 
-    // For subscriptions (backward compatibility)
-    // Update Clerk user with Stripe customer ID and premium status
-    await clerk.users.updateUser(targetUserId, {
-      publicMetadata: {
-        stripeCustomerId: customerId,
-        isPremium: true,
-        premiumSince: new Date().toISOString(),
-      },
-    });
+    // For subscriptions (monthly or yearly)
+    if (isSubscription) {
+      // Update Clerk user with Stripe customer ID and premium status
+      // The subscription status will be updated by handleSubscriptionChange
+      await clerk.users.updateUser(targetUserId, {
+        publicMetadata: {
+          stripeCustomerId: customerId,
+          isPremium: true, // Set immediately, will be confirmed by subscription.created event
+          premiumSince: new Date().toISOString(),
+          paymentType: paymentType || 'monthly', // monthly or yearly
+        },
+      });
 
-    console.log(`Updated Clerk user ${targetUserId} with premium status`);
-    
-    // Track subscription conversion server-side
-    await trackConversionServerSide('subscription', 9.0, session.id);
-    
+      console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status`);
+      
+      // Track subscription conversion server-side
+      const conversionValue = paymentType === 'yearly' ? 12.0 : 1.99;
+      await trackConversionServerSide('subscription', conversionValue, session.id);
+    }
+
   } catch (error) {
-    console.error('Error updating Clerk user:', error);
+    console.error('❌ Error updating Clerk user:', error);
   }
 }
 
@@ -192,18 +198,29 @@ async function handleSubscriptionChange(subscription, clerk) {
     );
 
     if (user) {
+      // Determine payment type from subscription
+      const priceId = subscription.items.data[0]?.price?.id;
+      let paymentType = user.publicMetadata?.paymentType || 'monthly';
+      
+      // You can also check the price ID to determine if it's yearly or monthly
+      // This would require checking against your Stripe price IDs
+      // For now, we keep the existing paymentType from metadata
+
       await clerk.users.updateUser(user.id, {
         publicMetadata: {
           ...user.publicMetadata,
           isPremium: isActive,
           premiumSince: isActive ? (user.publicMetadata?.premiumSince || new Date().toISOString()) : null,
+          paymentType: paymentType, // Keep existing paymentType
         },
       });
 
-      console.log(`Updated subscription status for user ${user.id}: ${subscription.status}`);
+      console.log(`✅ Updated subscription status for user ${user.id}: ${subscription.status} (${paymentType})`);
+    } else {
+      console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
     }
   } catch (error) {
-    console.error('Error updating subscription status:', error);
+    console.error('❌ Error updating subscription status:', error);
   }
 }
 

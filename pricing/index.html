@@ -380,6 +380,108 @@
             background: white;
         }
         
+        /* Pricing Options Styles */
+        .pricing-options {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pricing-option {
+            flex: 1;
+            min-width: 140px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .pricing-option:hover {
+            border-color: rgba(6, 78, 59, 0.5);
+            background: rgba(6, 78, 59, 0.1);
+        }
+        
+        .pricing-option.active {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.2), rgba(6, 78, 59, 0.1));
+            border-color: rgba(6, 78, 59, 0.8);
+            box-shadow: 0 0 0 2px rgba(6, 78, 59, 0.3);
+        }
+        
+        .option-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .option-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .option-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .option-badge.best-value {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .option-badge.most-popular {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            color: white;
+        }
+        
+        .pricing-option .option-price {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .pricing-option .option-price .price {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .pricing-option .option-price .period {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .save-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #10b981;
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-options {
+                flex-direction: column;
+            }
+            
+            .pricing-option {
+                min-width: 100%;
+            }
+        }
+        
         /* Comparison Section Styles */
         .comparison-section {
             margin-top: 4rem;
@@ -560,10 +662,10 @@
         </div>
         
         <div class="pricing-grid">
-            <!-- Free Plan -->
+            <!-- Starter Plan (Free) -->
             <div class="pricing-card">
                 <div class="pricing-card-header">
-                    <h3>Free</h3>
+                    <h3>Starter</h3>
                     <div class="pricing-price">
                         <span class="price">$0</span>
                         <span class="period">Forever free</span>
@@ -599,21 +701,51 @@
             
             <!-- Unlimited Plan -->
             <div class="pricing-card featured">
-                <div class="pricing-badge">LIFETIME DEAL</div>
                 <div class="pricing-card-header">
                     <h3>Unlimited</h3>
-                    <div class="pricing-price">
-                        <div style="display: flex; align-items: baseline; justify-content: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <span class="price">$9.99</span>
-                            <span style="text-decoration: line-through; color: rgba(255, 255, 255, 0.5); font-size: 1.5rem; font-weight: 500;">$25</span>
+                    
+                    <!-- 3 Pricing Options -->
+                    <div class="pricing-options">
+                        <div class="pricing-option active" data-plan="monthly">
+                            <div class="option-header">
+                                <span class="option-label">Monthly</span>
+                                <span class="option-badge">Most Flexible</span>
+                            </div>
+                            <div class="option-price">
+                                <span class="price">$1.99</span>
+                                <span class="period">/month</span>
+                            </div>
                         </div>
-                        <span class="period">one-time payment</span>
+                        
+                        <div class="pricing-option" data-plan="yearly">
+                            <div class="option-header">
+                                <span class="option-label">Yearly</span>
+                                <span class="option-badge best-value">Best Value</span>
+                            </div>
+                            <div class="option-price">
+                                <span class="price">$12</span>
+                                <span class="period">/year</span>
+                                <span class="save-badge">Save 50%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="pricing-option" data-plan="lifetime">
+                            <div class="option-header">
+                                <span class="option-label">Lifetime</span>
+                                <span class="option-badge most-popular">Most Popular</span>
+                            </div>
+                            <div class="option-price">
+                                <span class="price">$48</span>
+                                <span class="period">one-time</span>
+                                <span class="save-badge">Save 80%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="pricing-features">
                     <div class="pricing-feature-title">
-                        <span>Everything included in Free plus:</span>
+                        <span>Everything included in Starter plus:</span>
                     </div>
                     <div class="pricing-feature enabled highlight">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -665,7 +797,7 @@
                     </div>
                 </div>
                 
-                <button class="pricing-cta featured" id="pricingPageUpgrade">Get Unlimited Access</button>
+                <button class="pricing-cta featured" id="pricingPageUpgrade" data-plan="monthly">Get Unlimited Now</button>
             </div>
         </div>
         
@@ -690,7 +822,7 @@
                     <tbody>
                         <tr>
                             <td class="feature-name">Price</td>
-                            <td class="highlight-cell">$9.99 lifetime</td>
+                            <td class="highlight-cell">$1.99/month, $12/year, or $48 lifetime</td>
                             <td>$58 lifetime</td>
                             <td>$99 lifetime</td>
                             <td>$4.99/month ($59.88/year)</td>
@@ -767,12 +899,16 @@
     </footer>
     
     <script>
+        // Current selected plan (default: monthly)
+        let selectedPlan = 'monthly';
+        
         // Initialize buttons immediately on DOM load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing buttons...');
             
             const freeButton = document.getElementById('pricingPageSignup');
             const proButton = document.getElementById('pricingPageUpgrade');
+            const pricingOptions = document.querySelectorAll('.pricing-option');
             
             if (!freeButton || !proButton) {
                 console.error('Could not find pricing buttons');
@@ -780,6 +916,23 @@
             }
             
             console.log('Buttons found, adding event listeners...');
+            
+            // Handle pricing option selection
+            pricingOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const planType = this.dataset.plan;
+                    selectedPlan = planType;
+                    
+                    // Update active state
+                    pricingOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update button data attribute
+                    proButton.dataset.plan = planType;
+                    
+                    console.log('Selected plan:', planType);
+                });
+            });
             
             // Add event listeners immediately for guest users
             freeButton.addEventListener('click', function(e) {
@@ -817,7 +970,8 @@
             
             proButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('Pro button clicked');
+                const planType = this.dataset.plan || selectedPlan;
+                console.log('Pro button clicked, plan:', planType);
                 
                 // Check if user is authenticated
                 const isAuthenticated = window.Clerk && window.Clerk.user;
@@ -828,6 +982,7 @@
                     window.mixpanel.track('Stripe Checkout Opened', {
                         source: 'pricing_page',
                         user_type: isAuthenticated ? 'free_user' : 'guest',
+                        plan_type: planType,
                         timestamp: new Date().toISOString()
                     });
                     console.log('✅ Mixpanel tracking sent: Stripe Checkout Opened');
@@ -838,7 +993,8 @@
                         source: 'pricing_page',
                         location: 'pricing_page',
                         user_type: isAuthenticated ? (isPremium ? 'pro' : 'free') : 'guest',
-                        modal_type: 'pricing_page'
+                        modal_type: 'pricing_page',
+                        plan_type: planType
                     });
                     console.log('✅ Mixpanel tracking sent: Subscribe Clicked');
                 } else {
@@ -846,18 +1002,18 @@
                 }
                 
                 // 🎯 TRACKING: Subscribe Clicked to Google Ads - Track intent to checkout
-                // This is the only place we track Subscribe Clicked because it's the only button
-                // that leads directly to Stripe checkout
+                // Track for each plan type
                 if (typeof gtag !== 'undefined') {
                     try {
                         // Track Google Ads conversion event (Subscribe Clicked goal)
                         gtag('event', 'conversion', {
                             'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
                             'value': 1.0,
-                            'currency': 'USD'
+                            'currency': 'USD',
+                            'plan_type': planType
                         });
                         
-                        console.log('✅ Subscribe Clicked tracked to Google Ads: pricing_page');
+                        console.log(`✅ Subscribe Clicked tracked to Google Ads: pricing_page (${planType})`);
                     } catch (error) {
                         console.error('❌ Error tracking to Google Ads:', error);
                     }
@@ -874,11 +1030,12 @@
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
                     console.log('Creating checkout session for authenticated user...');
-                    createCheckoutSession();
+                    createCheckoutSession(planType);
                 } else {
                     // Guest user - redirect to signup with upgrade intent
                     console.log('Redirecting guest to signup with upgrade intent...');
                     localStorage.setItem('upgradeAfterLogin', 'true');
+                    localStorage.setItem('selectedPlan', planType);
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 }
             });
@@ -923,18 +1080,22 @@
             }
         }
 
-        async function createCheckoutSession() {
+        async function createCheckoutSession(planType = 'monthly') {
             try {
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'x-clerk-userid': window.Clerk?.user?.id || ''
-                    }
+                    },
+                    body: JSON.stringify({
+                        planType: planType
+                    })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to create checkout session');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create checkout session');
                 }
 
                 const data = await response.json();
@@ -952,13 +1113,31 @@
         // Check if user came from login with upgrade intent
         function checkUpgradeIntent() {
             const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
+            const savedPlan = localStorage.getItem('selectedPlan') || 'monthly';
+            
             if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
                 console.log('User returned after login with upgrade intent');
                 localStorage.removeItem('upgradeAfterLogin');
+                localStorage.removeItem('selectedPlan');
+                
+                // Update selected plan if saved
+                if (savedPlan) {
+                    selectedPlan = savedPlan;
+                    const option = document.querySelector(`.pricing-option[data-plan="${savedPlan}"]`);
+                    if (option) {
+                        document.querySelectorAll('.pricing-option').forEach(opt => opt.classList.remove('active'));
+                        option.classList.add('active');
+                        const proButton = document.getElementById('pricingPageUpgrade');
+                        if (proButton) {
+                            proButton.dataset.plan = savedPlan;
+                        }
+                    }
+                }
+                
                 // Wait for page to be fully updated
                 setTimeout(() => {
                     console.log('Opening Stripe checkout...');
-                    createCheckoutSession();
+                    createCheckoutSession(savedPlan);
                 }, 2000);
             }
         }
