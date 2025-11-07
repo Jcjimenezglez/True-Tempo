@@ -382,16 +382,14 @@
         
         /* Pricing Options Styles */
         .pricing-options {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin: 1.5rem 0;
-            flex-wrap: wrap;
-            justify-content: center;
+            width: 100%;
         }
         
         .pricing-option {
-            flex: 1;
-            min-width: 140px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -474,11 +472,7 @@
         
         @media (max-width: 768px) {
             .pricing-options {
-                flex-direction: column;
-            }
-            
-            .pricing-option {
-                min-width: 100%;
+                grid-template-columns: 1fr;
             }
         }
         
@@ -657,8 +651,8 @@
     <!-- Main Content -->
     <main class="pricing-page-container">
         <div class="pricing-page-header-section">
-            <h1>Focus on what matters</h1>
-            <p>Reclaim your lost time and accomplish what truly matters.</p>
+            <h1>Choose your focus plan</h1>
+            <p>Start free or unlock unlimited productivity with flexible pricing that fits your workflow.</p>
         </div>
         
         <div class="pricing-grid">
@@ -820,13 +814,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="feature-name">Price</td>
-                            <td class="highlight-cell">$1.99/month, $12/year, or $48 lifetime</td>
-                            <td>$58 lifetime</td>
-                            <td>$99 lifetime</td>
-                            <td>$4.99/month ($59.88/year)</td>
-                        </tr>
                         <tr>
                             <td class="feature-name">Web App</td>
                             <td class="highlight-cell">✓</td>
