@@ -65,8 +65,12 @@ module.exports = async (req, res) => {
     // Check if this is the Premium price (price_1SQr4sIMJUHQfsp7sx96CCxe)
     // This is the known Premium price ID
     let paymentType = 'monthly';
-    if (priceId === 'price_1SQr4sIMJUHQfsp7sx96CCxe' || priceId === premiumPriceId) {
+    
+    // The Premium price ID is price_1SQr4sIMJUHQfsp7sx96CCxe
+    // Check if priceId matches this or the env variable
+    if (priceId && (priceId === 'price_1SQr4sIMJUHQfsp7sx96CCxe' || priceId === premiumPriceId)) {
       paymentType = 'premium';
+      console.log('✅ Detected Premium price');
     } else {
       // Check if it's one of the old prices
       const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
@@ -76,6 +80,7 @@ module.exports = async (req, res) => {
       } else if (priceId === yearlyPriceId) {
         paymentType = 'yearly';
       }
+      console.log('⚠️ Price ID does not match Premium, using:', paymentType);
     }
     
     console.log('Final Payment Type:', paymentType);
