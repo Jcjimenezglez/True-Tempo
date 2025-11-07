@@ -4206,13 +4206,7 @@ class PomodoroTimer {
         if (this.guestTaskLimitCancelBtn) {
             this.guestTaskLimitCancelBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.trackEvent('Learn More from Task Limit Modal', {
-                    button_type: 'learn_more',
-                    source: 'task_limit_modal',
-                    user_type: this.isAuthenticated ? 'free_user' : 'guest'
-                });
                 this.hideGuestTaskLimitModal();
-                window.location.href = '/pricing';
             });
         }
         
@@ -4278,13 +4272,8 @@ class PomodoroTimer {
         
         if (this.integrationModalSecondaryBtn) {
             this.integrationModalSecondaryBtn.addEventListener('click', () => {
-                if (this.isAuthenticated) {
-                    // Free user - redirect to pricing
-                    window.location.href = '/pricing';
-                } else {
-                    // Guest user - close modal
-                    this.hideIntegrationModal();
-                }
+                // Cancel button - always close modal
+                this.hideIntegrationModal();
             });
         }
         
