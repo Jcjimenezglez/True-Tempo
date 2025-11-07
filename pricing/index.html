@@ -704,7 +704,7 @@
         <div class="pricing-page-header-section">
             <h1>The ultimate<br>home for<br>focus</h1>
             
-            <button class="pricing-cta-spotify" id="pricingPageUpgrade" disabled style="opacity: 0.5; cursor: not-allowed;">Try 3 months for $0</button>
+            <button class="pricing-cta-spotify" id="pricingPageUpgrade">Try 3 months for $0</button>
             
             <div class="pricing-offer-explanation">
                 $0 for 3 months, then $3.99 per month after. Offer only available if you haven't tried Premium before. <a href="/terms" target="_blank">Terms apply</a>.
@@ -813,44 +813,11 @@
                 return;
             }
             
-            // Detect if we're in preview/staging environment
-            const hostname = window.location.hostname;
-            const isProduction = hostname === 'www.superfocus.live' || hostname === 'superfocus.live';
-            const isPreview = hostname.includes('vercel.app') && !isProduction;
-            const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-            
-            // Enable button only in preview/staging environments
-            if (isPreview || isLocalhost) {
-                console.log('✅ Preview/Staging environment detected - enabling Premium trial button');
-                premiumButton.disabled = false;
-                premiumButton.style.opacity = '1';
-                premiumButton.style.cursor = 'pointer';
-                premiumButton.textContent = 'Try 3 months for $0';
-            } else {
-                console.log('⚠️ Production environment - Premium trial button disabled');
-                premiumButton.disabled = true;
-                premiumButton.style.opacity = '0.5';
-                premiumButton.style.cursor = 'not-allowed';
-                premiumButton.textContent = 'Try 3 months for $0 (Preview only)';
-            }
-            
             console.log('Button found, adding event listener...');
             
             premiumButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 console.log('Premium button clicked');
-                
-                // Double-check we're in preview/staging (safety check)
-                const hostname = window.location.hostname;
-                const isProduction = hostname === 'www.superfocus.live' || hostname === 'superfocus.live';
-                const isPreview = hostname.includes('vercel.app') && !isProduction;
-                const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-                
-                if (!isPreview && !isLocalhost) {
-                    console.error('❌ Premium trial button clicked in production - blocked');
-                    alert('This feature is only available in preview/staging environments for testing.');
-                    return;
-                }
                 
                 // Check if user is authenticated
                 const isAuthenticated = window.Clerk && window.Clerk.user;
