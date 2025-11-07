@@ -1316,9 +1316,6 @@ class PomodoroTimer {
                     };
                     this.trackEvent('Subscribe Clicked', eventProperties);
                     
-                    // Track to Google Ads for Performance Max optimization
-                    this.trackSubscribeClickedToGoogleAds(eventProperties);
-                    
                     closeModal();
                     // Redirect to pricing page
                     await this.handleUpgrade();
@@ -1464,9 +1461,6 @@ class PomodoroTimer {
                         modal_type: 'create_cassette'
                     };
                     this.trackEvent('Subscribe Clicked', eventProperties);
-                    
-                    // Track to Google Ads for Performance Max optimization
-                    this.trackSubscribeClickedToGoogleAds(eventProperties);
                     
                     closeModal();
                     // Redirect to pricing page
@@ -3418,9 +3412,6 @@ class PomodoroTimer {
                 };
                 this.trackEvent('Subscribe Clicked', eventProperties);
                 
-                // Track to Google Ads for Performance Max optimization
-                this.trackSubscribeClickedToGoogleAds(eventProperties);
-                
                 window.location.href = 'https://www.superfocus.live/pricing';
             });
         }
@@ -3529,9 +3520,6 @@ class PomodoroTimer {
                     modal_type: 'profile_menu'
                 };
                 this.trackEvent('Subscribe Clicked', eventProperties);
-                
-                // Track to Google Ads for Performance Max optimization
-                this.trackSubscribeClickedToGoogleAds(eventProperties);
                 
                 this.settingsDropdown.style.display = 'none';
                 window.location.href = '/pricing';
@@ -3826,9 +3814,6 @@ class PomodoroTimer {
                 };
                 this.trackEvent('Subscribe Clicked', eventProperties);
                 
-                // Track to Google Ads for Performance Max optimization
-                this.trackSubscribeClickedToGoogleAds(eventProperties);
-                
                 this.hidePricingModal();
                 await this.handleUpgrade();
             });
@@ -3939,9 +3924,6 @@ class PomodoroTimer {
                         user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest'
                     };
                     this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
-                    
-                    // Track to Google Ads for Performance Max optimization
-                    this.trackSubscribeClickedToGoogleAds && this.trackSubscribeClickedToGoogleAds(eventProperties);
                 } catch (_) {}
                 window.open('/pricing/', '_blank');
             });
@@ -4001,9 +3983,6 @@ class PomodoroTimer {
                     modal_type: 'settings_modal'
                 };
                 this.trackEvent('Subscribe Clicked', eventProperties);
-                
-                // Track to Google Ads for Performance Max optimization
-                this.trackSubscribeClickedToGoogleAds(eventProperties);
                 
                 this.hideSettingsModal();
                 window.location.href = '/pricing';
@@ -4174,9 +4153,6 @@ class PomodoroTimer {
                         task_count: this.getLocalTasks().length
                     };
                     this.trackEvent('Subscribe Clicked', eventProperties);
-                    
-                    // Track to Google Ads for Performance Max optimization
-                    this.trackSubscribeClickedToGoogleAds(eventProperties);
                     
                     // Redirect to upgrade flow
                     await this.handleUpgrade();
@@ -8769,9 +8745,6 @@ class PomodoroTimer {
                 integration_type: integrationType
             };
             this.trackEvent('Subscribe Clicked', eventProperties);
-            
-            // Track to Google Ads for Performance Max optimization
-            this.trackSubscribeClickedToGoogleAds(eventProperties);
             
             if (isGuest) {
                 // Guest user - show signup
