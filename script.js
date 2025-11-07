@@ -502,11 +502,39 @@ class PomodoroTimer {
     }
 
     // Clerk Authentication Methods
+    getClerkPublishableKey() {
+        // Detect if we're in a preview/staging environment
+        const hostname = window.location.hostname;
+        const isProduction = hostname === 'www.superfocus.live' || hostname === 'superfocus.live';
+        const isPreview = hostname.includes('vercel.app') && !isProduction;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+        
+        // Production key
+        const productionKey = 'pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA';
+        
+        // Test/Development key from Clerk Dashboard
+        const testKey = 'pk_test_c2V0LW1pbmstNi5jbGVyay5hY2NvdW50cy5kZXYk';
+        
+        if (isProduction) {
+            console.log('🔐 Using Clerk PRODUCTION key');
+            return productionKey;
+        } else if (isPreview || isLocalhost) {
+            console.log('🔐 Using Clerk TEST key (preview/staging environment detected)');
+            return testKey;
+        } else {
+            // Default to production for unknown environments
+            console.log('🔐 Using Clerk PRODUCTION key (default)');
+            return productionKey;
+        }
+    }
+
     async initClerk() {
         try {
             console.log('Initializing Clerk...');
             await this.waitForClerk();
             console.log('Clerk loaded, waiting for user...');
+            
+            const clerkKey = this.getClerkPublishableKey();
             
             // Load Clerk with configuration to hide development banner
             await window.Clerk.load({
@@ -515,7 +543,7 @@ class PomodoroTimer {
                         '::before': { content: 'none' }
                     }
                 },
-                publishableKey: 'pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA'
+                publishableKey: clerkKey
             });
             
             // Hydrate initial auth state
