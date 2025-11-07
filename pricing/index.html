@@ -227,9 +227,96 @@
             color: #ffffff;
         }
         
+        /* Benefits Section Styles */
+        .benefits-section {
+            margin-top: 8rem;
+            padding: 0 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .benefits-intro {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .benefits-intro-text {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0 0 1.5rem 0;
+        }
+        
+        .benefits-intro-text:last-child {
+            margin-bottom: 0;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .benefit-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+        
+        .benefit-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+        }
+        
+        .benefit-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
         @media (max-width: 768px) {
             .pricing-page-header-section h1 {
                 font-size: 2.5rem;
+            }
+            
+            .benefits-section {
+                margin-top: 4rem;
+                padding: 0 1rem;
+            }
+            
+            .benefits-intro-text {
+                font-size: 1.25rem;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .benefit-item {
+                padding: 1.5rem;
             }
         }
         
@@ -559,6 +646,56 @@
             
             <div class="pricing-offer-explanation">
                 $0 for 3 months, then $3.99 per month after. Offer only available if you haven't tried Premium before. <a href="/terms" target="_blank">Terms apply</a>.
+            </div>
+        </div>
+        
+        <!-- Benefits Section -->
+        <div class="benefits-section">
+            <div class="benefits-intro">
+                <p class="benefits-intro-text">
+                    As the world's focus hub, Superfocus is where productivity and clarity come together.
+                </p>
+                <p class="benefits-intro-text">
+                    It's the place to discover the perfect timer for the moment. The place that brings focus to your whole life.
+                </p>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎯</div>
+                    <h3 class="benefit-title">Custom Timers</h3>
+                    <p class="benefit-description">Create timers that match how you actually work—not how someone else thinks you should.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎵</div>
+                    <h3 class="benefit-title">Focus Soundscapes</h3>
+                    <p class="benefit-description">Build your own sound environment—the one that actually helps you get into flow.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">📊</div>
+                    <h3 class="benefit-title">Analytics & Insights</h3>
+                    <p class="benefit-description">See what you're missing. Track your focus time and understand your productivity patterns.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🔗</div>
+                    <h3 class="benefit-title">Integrations</h3>
+                    <p class="benefit-description">Connect Todoist and Notion. Bring everything together and focus on what matters.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">♾️</div>
+                    <h3 class="benefit-title">Unlimited Tasks</h3>
+                    <p class="benefit-description">Remove all limits. Never stop your workflow again with unlimited task management.</p>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">⏱️</div>
+                    <h3 class="benefit-title">Unlimited Focus Time</h3>
+                    <p class="benefit-description">Keep going without limits. Your momentum stays, your progress continues.</p>
+                </div>
             </div>
         </div>
         
