@@ -1237,11 +1237,11 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>⚙️ Build your perfect timer</h3>
+                    <h3>Build your perfect timer</h3>
                     <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
             `;
@@ -1262,11 +1262,11 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>⚙️ Build your perfect timer</h3>
+                    <h3>Build your perfect timer</h3>
                     <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
             `;
@@ -1294,11 +1294,10 @@ class PomodoroTimer {
         });
         
         // Button event listeners
-        const learnMoreBtn = modal.querySelector('#customLearnMoreBtn');
-        if (learnMoreBtn) {
-            learnMoreBtn.addEventListener('click', () => {
+        const cancelBtn = modal.querySelector('#customLearnMoreBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
                 closeModal();
-                window.location.href = '/pricing';
             });
         }
         
@@ -1343,12 +1342,11 @@ class PomodoroTimer {
                 });
             }
             
-            // Guest user - Learn more button (same as authenticated users)
-            const learnMoreBtn = modal.querySelector('#customLearnMoreBtn');
-            if (learnMoreBtn) {
-                learnMoreBtn.addEventListener('click', () => {
+            // Guest user - Cancel button
+            const cancelBtn = modal.querySelector('#customLearnMoreBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
                     closeModal();
-                    window.location.href = '/pricing';
                 });
             }
         }
@@ -1387,11 +1385,11 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>🎵 Create your focus soundtrack</h3>
+                    <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Custom Sounds</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Custom Cassette</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
             `;
@@ -1413,11 +1411,11 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>🎵 Create your focus soundtrack</h3>
+                    <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
             `;
@@ -1445,11 +1443,10 @@ class PomodoroTimer {
         });
         
         // Button event listeners
-        const learnMoreBtn = modal.querySelector('#cassetteLearnMoreBtn');
-        if (learnMoreBtn) {
-            learnMoreBtn.addEventListener('click', () => {
+        const cancelBtn = modal.querySelector('#cassetteLearnMoreBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
                 closeModal();
-                window.location.href = '/pricing';
             });
         }
         
@@ -2595,7 +2592,7 @@ class PomodoroTimer {
         if (this.integrationModalOverlay) {
             const integrationData = {
                 todoist: {
-                    title: '📋 Connect Todoist',
+                    title: 'Connect Todoist',
                     message: 'Your tasks live in Todoist. Why keep switching between apps? Bring them here, focus on them, and sync everything back. One workflow, no context switching.',
                     icon: `
                         <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
@@ -2603,10 +2600,10 @@ class PomodoroTimer {
                         </div>
                     `,
                     primaryText: this.isAuthenticated ? 'Connect Todoist' : 'Learn More',
-                    secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
+                    secondaryText: 'Cancel'
                 },
                 notion: {
-                    title: '📝 Connect Notion',
+                    title: 'Connect Notion',
                     message: 'Your tasks are in Notion databases. Your focus is here. Connect them and work from one place. Import tasks, track time, sync back—no more jumping between apps.',
                     icon: `
                         <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
@@ -2614,7 +2611,7 @@ class PomodoroTimer {
                         </div>
                     `,
                     primaryText: this.isAuthenticated ? 'Connect Notion' : 'Learn More',
-                    secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
+                    secondaryText: 'Cancel'
                 }
             };
             
@@ -2668,7 +2665,7 @@ class PomodoroTimer {
             <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
             <div class="logout-modal-buttons">
                 <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up</button>
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Learn more</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Cancel</button>
             </div>
         `;
         
@@ -2705,13 +2702,7 @@ class PomodoroTimer {
         });
         
         learnMoreBtn.addEventListener('click', () => {
-            this.trackEvent('Learn More from Technique Modal', {
-                button_type: 'learn_more',
-                source: 'technique_modal',
-                technique_name: technique
-            });
             closeModal();
-            window.open('/pricing/', '_blank');
         });
     }
     
@@ -2731,12 +2722,12 @@ class PomodoroTimer {
             
             if (!this.isAuthenticated) {
                 // Guest user
-                title.textContent = '📋 Your tasks are blocked';
+                title.textContent = 'Your tasks are blocked';
                 message.textContent = 'You can\'t add more tasks right now. That project you wanted to start? That idea you just had? They\'re waiting. Sign up to remove the limit and never stop your workflow again.';
                 button.textContent = 'Sign up';
             } else {
                 // Free user (authenticated but not Pro)
-                title.textContent = '📋 Your tasks are blocked';
+                title.textContent = 'Your tasks are blocked';
                 message.textContent = 'You can\'t add more tasks right now. That project you wanted to start? That idea you just had? They\'re waiting. Remove the limit and never stop your workflow again.';
                 button.textContent = 'Remove All Limits';
             }
@@ -12151,7 +12142,7 @@ class PomodoroTimer {
 
                 <!-- Upgrade Prompt -->
                 <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
-                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">📊 See what you're missing</h4>
+                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">See what you're missing</h4>
                     <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Heatmaps show when you focus best. Trends reveal your patterns. Comparisons show your growth. This is the data that helps you work smarter, not harder.</p>
                     <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Analytics</button>
                 </div>
