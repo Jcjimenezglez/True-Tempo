@@ -10,17 +10,20 @@ module.exports = async (req, res) => {
 
     const clerk = createClerkClient({ secretKey: clerkSecret });
     
-    // Get all users and find the one with omrvieito@gmail.com
+    // Get email from query parameter or use default
+    const email = req.query.email || 'julio93.314@gmail.com';
+    
+    // Get all users and find the one with the specified email
     const users = await clerk.users.getUserList({ limit: 100 });
     
     const targetUser = users.data.find(user => 
-      user.emailAddresses?.some(email => email.emailAddress === 'omrvieito@gmail.com')
+      user.emailAddresses?.some(e => e.emailAddress === email)
     );
 
     if (!targetUser) {
       return res.status(404).json({ 
         error: 'User not found',
-        searchedEmail: 'omrvieito@gmail.com',
+        searchedEmail: email,
         totalUsers: users.data.length
       });
     }
