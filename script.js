@@ -1,9 +1,16 @@
 class PomodoroTimer {
     constructor() {
-        // Pomodoro Technique structure
-        this.workTime = 25 * 60; // 25 minutes
-        this.shortBreakTime = 5 * 60; // 5 minutes
-        this.longBreakTime = 15 * 60; // 15 minutes
+        // Initialize Mixpanel tracking removed - Page Loaded event no longer needed
+        
+        
+        // Pomodoro Technique structure - Load from localStorage if authenticated
+        const savedPomodoroTime = localStorage.getItem('pomodoroTime');
+        const savedShortBreakTime = localStorage.getItem('shortBreakTime');
+        const savedLongBreakTime = localStorage.getItem('longBreakTime');
+        
+        this.workTime = savedPomodoroTime ? parseInt(savedPomodoroTime) : 25 * 60; // 25 minutes default
+        this.shortBreakTime = savedShortBreakTime ? parseInt(savedShortBreakTime) : 5 * 60; // 5 minutes default
+        this.longBreakTime = savedLongBreakTime ? parseInt(savedLongBreakTime) : 15 * 60; // 15 minutes default
         this.sessionsPerCycle = 4; // 4 work sessions before long break
         
         // Current state
@@ -22,59 +29,96 @@ class PomodoroTimer {
         this.actualFocusTimeCompleted = 0; // tracks actual seconds of focus completed in current cycle
         this.requiredFocusTimeForCycle = 0; // total focus time required for a complete cycle
 
+        // Day streak tracking
+        this.streakData = this.loadStreakData();
+        this.hasCompletedFocusToday = false; // tracks if user completed focus session today
+        // Track focused seconds today for 1-minute streak rule
+        try {
+            const savedFocusDate = localStorage.getItem('focusSecondsTodayDate');
+            const savedFocusSecs = parseInt(localStorage.getItem('focusSecondsToday') || '0', 10);
+            const todayStr = new Date().toDateString();
+            this.focusSecondsToday = savedFocusDate === todayStr ? Math.max(0, savedFocusSecs) : 0;
+            if (savedFocusDate !== todayStr) {
+                localStorage.setItem('focusSecondsTodayDate', todayStr);
+                localStorage.setItem('focusSecondsToday', '0');
+            }
+        } catch (_) {
+            this.focusSecondsToday = 0;
+        }
+
+        // Daily focus cap for non‑Pro users (in seconds) and cooldown
+        this.DAILY_FOCUS_LIMIT_SECONDS = 120 * 60; // 2 hours
+        this.FOCUS_LIMIT_COOLDOWN_MS = 22 * 60 * 60 * 1000; // 22 hours
+        
+        // Load cooldown timestamp (if any) and prune if expired
+        try {
+            const rawUntil = localStorage.getItem('focusLimitCooldownUntil');
+            this.focusLimitCooldownUntil = rawUntil ? parseInt(rawUntil, 10) : 0;
+            if (isNaN(this.focusLimitCooldownUntil)) this.focusLimitCooldownUntil = 0;
+            if (this.focusLimitCooldownUntil && Date.now() >= this.focusLimitCooldownUntil) {
+                this.focusLimitCooldownUntil = 0;
+                localStorage.removeItem('focusLimitCooldownUntil');
+            }
+        } catch (_) {
+            this.focusLimitCooldownUntil = 0;
+        }
+
         // Task execution queue (built from selected tasks and their session counts)
         this.taskQueue = [];
         this.currentTaskIndex = 0;
         this.currentTask = null;
         
-        // Todoist integration (free users beta)
+        // Todoist integration (Pro feature)
         this.todoistToken = localStorage.getItem('todoistToken') || '';
         this.todoistTasks = [];
         this.todoistProjectsById = {};
         this.currentTask = null; // { id, content, project_id }
         
-		// Ambient sounds system
-		this.ambientPlaying = false;
-		// Default guest volume starts at 50% (0.5). Authenticated users will load saved volume in updateAuthState()
-		this.ambientVolume = 0.5;
-		// Persisted enable flag (default On)
-		const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
-		this.ambientEnabled = savedAmbientEnabled === null ? true : savedAmbientEnabled === 'true';
-
-
-		this.playlist = [
-            "Chasing Clouds.mp3",
-            "Clouds Drift By.mp3",
-            "Clouds Drift By 2.mp3",
-            "Cloudy Minds.mp3",
-            "Cloudy Minds 2.mp3",
-            "Coffee Clouds.mp3",
-            "Coffee Clouds 2.mp3",
-            "Dreaming in Loops.mp3",
-            "Drift and Dream.mp3",
-            "Drift and Dream 2.mp3",
-            "Drifting in the Static.mp3",
-            "Drifting in the Static 2.mp3",
-            "Midnight Whispers.mp3",
-            "Midnight Whispers 2.mp3",
-            "Moonlit Scribbles.mp3",
-            "Nightfall Notebook.mp3",
-            "Nightfall Notebook 2.mp3",
-            "Nightlight Dreams.mp3",
-            "Under the Neon Moon.mp3",
-            "Under the Neon Moon 2.mp3"
-        ];
-		this.currentTrackIndex = 0;
+        
+        // Notion integration (Pro feature)
+        this.notionPages = [];
+        
+		// Lofi music system with shuffle
+		this.lofiPlaying = false;
+		const savedLofiEnabled = localStorage.getItem('lofiEnabled');
+		this.lofiEnabled = savedLofiEnabled === null ? true : savedLofiEnabled === 'true';
+		
+		// Lofi playlist - will be dynamically loaded from /audio/Lofi/
+		this.lofiPlaylist = [];
+		this.lofiShuffledPlaylist = [];
+		this.currentLofiTrackIndex = 0;
+		
+		// Load saved volume if exists, otherwise default to 25%
+		const savedVolume = localStorage.getItem('lofiVolume');
+		this.lofiVolume = savedVolume !== null ? Math.max(0, Math.min(1, parseFloat(savedVolume))) : 0.25;
 		// Fade/ducking state
 		this.isDucked = false;
 		this.duckRestoreTimer = null;
 		this.fadeTimer = null;
         
-        // Welcome modal elements
-        this.welcomeModalOverlay = document.getElementById('welcomeModalOverlay');
-        this.welcomeLoginBtn = document.getElementById('welcomeLoginBtn');
-        this.welcomeSignupBtn = document.getElementById('welcomeSignupBtn');
-        this.stayLoggedOutBtn = document.getElementById('stayLoggedOutBtn');
+		// Immersive Theme System
+		// Only load saved immersive theme if user is authenticated
+		if (this.isAuthenticated) {
+			this.currentImmersiveTheme = localStorage.getItem('selectedImmersiveTheme') || 'none';
+		} else {
+			this.currentImmersiveTheme = 'none'; // Always default for guests
+		}
+		// Tron Spotify Widget Configuration
+		this.tronSpotifyWidget = null;
+		this.tronSpotifyPlaylistId = '47pjW3XDPW99NShtkeewxl'; // TRON: Ares Soundtrack by Nine Inch Nails
+		this.tronSpotifyEmbedUrl = `https://open.spotify.com/embed/album/${this.tronSpotifyPlaylistId}?utm_source=generator`;
+		this.tronSpotifyWidgetReady = false;
+		this.spotifyLoadingElement = null;
+		this.tronSpotifyWidgetActivated = false; // Track if widget has been activated
+		
+		// Custom Spotify widget URL tracking
+		this.currentSpotifyUrl = null; // Track current Spotify URL to avoid unnecessary recreations
+		
+		
+		// Note: We don't save Spotify connecting state - always show loading
+		
+        // Load last selected theme (for both authenticated and guest users)
+        this.loadLastSelectedTheme();
         
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
@@ -95,9 +139,17 @@ class PomodoroTimer {
         this.timeElement = document.getElementById('time');
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.currentTaskElement = document.getElementById('currentTask');
+        this.sessionLabelElement = document.getElementById('sessionLabel');
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
         this.nextSectionBtn = document.getElementById('nextSectionBtn');
+        // Daily limit modal elements
+        this.dailyLimitModalOverlay = document.getElementById('dailyLimitModalOverlay');
+        this.dailyLimitSubscribeBtn = document.getElementById('dailyLimitSubscribeBtn');
+        this.dailyLimitLaterBtn = document.getElementById('dailyLimitLaterBtn');
+        this.closeDailyLimitModalX = document.getElementById('closeDailyLimitModalX');
+        this.dailyLimitCountdownEl = document.getElementById('dailyLimitCountdown');
+        this.dailyLimitCountdownTimer = null;
         this.musicToggleBtn = document.getElementById('musicToggleBtn');
         this.taskToggleBtn = document.getElementById('taskToggleBtn');
         this.progressSegments = document.querySelectorAll('.progress-segment');
@@ -114,25 +166,63 @@ class PomodoroTimer {
         this.cancelCustomTimer = document.getElementById('cancelCustomTimer');
         this.saveCustomTimer = document.getElementById('saveCustomTimer');
         this.customPreview = document.getElementById('customPreview');
-		this.backgroundAudio = document.getElementById('backgroundAudio');
+        this.backgroundAudio = document.getElementById('backgroundAudio');
         if (this.backgroundAudio) {
-			this.backgroundAudio.addEventListener('ended', () => {
-				this.nextTrack();
-			});
+            this.backgroundAudio.addEventListener('ended', () => {
+                // Advance to next Lofi track
+                if (this.lofiPlaying || this.lofiEnabled) {
+                    this.nextLofiTrack();
+                }
+            });
+            // Defensive: when play() resolves, mark the correct flag
+            this.backgroundAudio.addEventListener('play', () => {
+                const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+                const isLofi = /\/audio\/Lofi\//.test(src);
+                this.lofiPlaying = isLofi;
+            });
         }
 
-		// Shuffle playlist order on each load so it doesn't always start with the same track
-		this.shufflePlaylist();
+		// Load Lofi playlist from /audio/Lofi/ directory
+		this.loadLofiPlaylist();
         
         // Auth elements
         this.authContainer = document.getElementById('authContainer');
         this.loginButton = document.getElementById('loginButton');
         this.signupButton = document.getElementById('signupButton');
         
+        // Settings dropdown elements
+        this.headerSettingsBtn = document.getElementById('headerSettingsBtn');
+        this.headerSettingsIcon = document.getElementById('headerSettingsIcon');
+        this.headerSettingsAvatar = document.getElementById('headerSettingsAvatar');
+        this.settingsDropdown = document.getElementById('settingsDropdown');
+        this.settingsUserInfo = document.getElementById('settingsUserInfo');
+        this.settingsUserEmail = document.getElementById('settingsUserEmail');
+        this.settingsProBadge = document.getElementById('settingsProBadge');
+        this.settingsAuthSection = document.getElementById('settingsAuthSection');
+        this.settingsAccountSection = document.getElementById('settingsAccountSection');
+        this.settingsReportSection = document.getElementById('settingsReportSection');
+        this.settingsSettingsSection = document.getElementById('settingsSettingsSection');
+        this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
+        this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
+        this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
+        this.settingsManageSubscriptionBtn = document.getElementById('settingsManageSubscriptionBtn');
+        this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
+        this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
+        this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
+        this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
+        this.settingsUserDivider = document.getElementById('settingsUserDivider');
+        this.shortcutsItem = document.getElementById('shortcutsItem');
+        this.helpToggle = document.getElementById('helpToggle');
+        this.helpPanel = document.getElementById('helpPanel');
+        this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
+        this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
+        
         // Logo and achievement elements
         this.logoIcon = document.getElementById('logoIcon');
         this.achievementIcon = document.getElementById('achievementIcon');
         this.achievementCounter = document.getElementById('achievementCounter');
+        this.streakInfo = document.getElementById('streakInfo');
+        this.streakDays = document.getElementById('streakDays');
         // User profile elements (shown when authenticated)
         this.userProfileContainer = document.getElementById('userProfileContainer');
         this.userProfileButton = document.getElementById('userProfileButton');
@@ -152,9 +242,38 @@ class PomodoroTimer {
         this.confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
         this.cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
         
+        // Integration Modal elements
+        this.integrationModalOverlay = document.getElementById('integrationModalOverlay');
+        this.integrationModalMessage = document.getElementById('integrationModalMessage');
+        this.closeIntegrationModalX = document.getElementById('closeIntegrationModalX');
+        this.integrationModalPrimaryBtn = document.getElementById('integrationModalPrimaryBtn');
+        this.integrationModalSecondaryBtn = document.getElementById('integrationModalSecondaryBtn');
+        
+        // Guest task limit modal elements
+        this.guestTaskLimitModalOverlay = document.getElementById('guestTaskLimitModalOverlay');
+        this.guestTaskLimitSignupBtn = document.getElementById('guestTaskLimitSignupBtn');
+        this.guestTaskLimitCancelBtn = document.getElementById('guestTaskLimitCancelBtn');
+        
+        
+        
         // Auth state
         this.isAuthenticated = false;
         this.user = null;
+        this.isPro = false;
+        // Signals when Clerk auth has fully hydrated for this session
+        this.authReady = false;
+        
+        // Loading screen management
+        this.loadingScreen = document.getElementById('loadingScreen');
+        this.isLoading = false;
+        this.loadingStartTime = null;
+        
+        // Track if public cassettes are currently loading to prevent duplicate calls
+        this.isLoadingPublicCassettes = false;
+        
+        // Track last applied active cassette to prevent redundant state applications
+        this._lastAppliedActiveCassette = null;
+        this.minLoadingTime = 0; // No enforced minimum - never delay normal users
         
         // Task form state
         this.editingTaskId = null;
@@ -168,6 +287,114 @@ class PomodoroTimer {
         this.pendingSelectedTechnique = null;
 
         this.init();
+        
+        // Mark window as active to detect if it was closed vs refreshed
+        sessionStorage.setItem('windowActive', 'true');
+        
+        // Listen for window close events
+        window.addEventListener('beforeunload', () => {
+            sessionStorage.removeItem('windowActive');
+        });
+        
+        // Also listen for visibility change (tab switching)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Tab is hidden, but window is still open
+                // Keep windowActive flag
+            } else {
+                // Tab is visible again, ensure windowActive flag exists
+                sessionStorage.setItem('windowActive', 'true');
+            }
+        });
+    }
+    
+    // Mixpanel Analytics Functions
+    trackEvent(eventName, properties = {}) {
+        console.log('🔍 Attempting to track event:', eventName);
+        console.log('🔍 Mixpanel available:', typeof window.mixpanel);
+        console.log('🔍 Mixpanel track function:', typeof window.mixpanel?.track);
+        
+        if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
+            try {
+                const eventProperties = {
+                    ...properties,
+                    timestamp: new Date().toISOString(),
+                    user_authenticated: this.isAuthenticated,
+                    user_pro: this.isPro,
+                    user_id: this.user?.id || 'guest'
+                };
+                
+                window.mixpanel.track(eventName, eventProperties);
+                console.log('✅ Event tracked successfully:', eventName, eventProperties);
+            } catch (error) {
+                console.error('❌ Error tracking event:', error);
+            }
+        } else {
+            console.warn('⚠️ Mixpanel not available or track function missing');
+        }
+    }
+    
+    identifyUser() {
+        if (this.isAuthenticated && this.user && typeof window.mixpanel !== 'undefined') {
+            try {
+                window.mixpanel.identify(this.user.id);
+                window.mixpanel.people.set({
+                    '$email': this.user.emailAddresses[0]?.emailAddress,
+                    '$name': this.user.fullName,
+                    'pro_user': this.isPro,
+                    'signup_date': this.user.createdAt
+                });
+                console.log('✅ User identified:', this.user.id);
+            } catch (error) {
+                console.error('❌ Error identifying user:', error);
+            }
+        }
+    }
+    
+    // Track Subscribe Clicked to Google Ads (for Performance Max optimization)
+    trackSubscribeClickedToGoogleAds(properties = {}) {
+        if (typeof gtag !== 'undefined') {
+            try {
+                const source = properties.source || 'unknown';
+                const userType = properties.user_type || (this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest');
+                
+                // Track as engagement event (intent signal, not conversion)
+                gtag('event', 'subscribe_clicked', {
+                    'event_category': 'engagement',
+                    'event_label': source,
+                    'source': source,
+                    'user_type': userType,
+                    'value': 0.1, // Intent value (not conversion)
+                    'currency': 'USD',
+                    'non_interaction': false
+                });
+                
+                // Track Google Ads conversion event (for conversion tracking)
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                    'value': 1.0,
+                    'currency': 'USD',
+                    'source': source,
+                    'user_type': userType
+                });
+                
+                console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
+                console.log('✅ Google Ads conversion event sent');
+            } catch (error) {
+                console.error('❌ Error tracking to Google Ads:', error);
+            }
+        } else {
+            console.warn('⚠️ gtag not available for Google Ads tracking');
+        }
+    }
+    
+    getCurrentTaskCount() {
+        try {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            return tasks.length;
+        } catch (error) {
+            return 0;
+        }
     }
     
     init() {
@@ -176,12 +403,43 @@ class PomodoroTimer {
         this.updateProgress();
         this.updateSections();
         this.updateSessionInfo();
+        this.updateStreakDisplay();
         this.bindEvents();
         this.updateTechniqueTitle();
         this.loadAudio();
         this.loadCassetteSounds();
+        this.loadTronAssets();
         this.updateNavigationButtons();
         this.initClerk();
+        
+        // Apply saved background and overlay on init
+        // Initialize new theme system (default to lofi)
+        // Load last selected theme from localStorage (works for both authenticated and guest users)
+        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        // Track if we must defer Tron application until auth hydrates
+        this.pendingThemeApply = null;
+        if (lastSelectedTheme) {
+            this.currentTheme = lastSelectedTheme;
+            if (lastSelectedTheme === 'tron') {
+                // Don't decide yet based on auth = false (not hydrated). Defer applying.
+                this.pendingThemeApply = 'tron';
+            }
+        } else {
+            this.currentTheme = 'lofi'; // Only default when nothing saved
+        }
+        
+            // Clear any saved immersive theme for guests
+        if (!this.isAuthenticated) {
+            this.currentImmersiveTheme = 'none';
+        }
+        this.overlayOpacity = parseFloat(localStorage.getItem('themeOverlayOpacity')) || 0.20;
+        
+        // Apply theme now only if not deferring Tron until auth hydration
+        if (this.pendingThemeApply !== 'tron') {
+            this.applyTheme(this.currentTheme);
+        }
+        
+        this.applyOverlay(this.overlayOpacity);
         
         // Initialize tasks for each focus session
         this.initializeSessionTasks();
@@ -200,7 +458,18 @@ class PomodoroTimer {
 
         // Try to apply saved technique (will re-run after auth hydrates)
         this.applySavedTechniqueOnce();
-        this.checkWelcomeModal();
+        
+        // For guest users, ensure Pomodoro is selected by default in UI
+        if (!this.isAuthenticated) {
+            this.setDefaultTechniqueForGuest();
+        }
+        
+        // Enable Custom section for all users (functionality varies by user type)
+        this.enableCustomSection();
+        
+        // Welcome modal removed
+        
+        // Pomodoro intro modal removed
         
         // Additional check when page is fully loaded
         if (document.readyState === 'complete') {
@@ -210,6 +479,11 @@ class PomodoroTimer {
                 setTimeout(() => this.checkAuthState(), 2000);
             });
         }
+        
+        // Ensure logout button is properly bound after DOM is fully loaded
+        window.addEventListener('load', () => {
+            this.ensureLogoutButtonBinding();
+        });
 
         // Build task queue at startup
         this.rebuildTaskQueue();
@@ -219,6 +493,12 @@ class PomodoroTimer {
 
         // Ensure badge shows current total focus time immediately
         this.updateFocusHoursDisplay();
+
+        // Try to load saved timer state (must be last to ensure all UI is ready)
+        // Uses sessionStorage so state persists on reload/navigation but not when closing tab
+        setTimeout(() => {
+            this.loadTimerState();
+        }, 500);
     }
 
     // Clerk Authentication Methods
@@ -284,9 +564,12 @@ class PomodoroTimer {
                 });
             } catch (_) {}
             
+            // Wait a bit more for Clerk to fully hydrate before updating UI
+            setTimeout(() => {
             this.updateAuthState();
             // Auth may have hydrated; attempt to apply saved technique now
             this.applySavedTechniqueOnce();
+            }, 500);
             
             // Force check auth state after a short delay to catch post-redirect state
             setTimeout(() => {
@@ -297,6 +580,12 @@ class PomodoroTimer {
             setTimeout(() => {
                 this.checkAuthState();
             }, 3000);
+
+            // Mark auth system as ready and re-run UI gates that depend on it
+            this.authReady = true;
+            // Ensure techniques reflect correct state (guest vs free vs pro)
+            try { this.updateDropdownItemsState(); } catch (_) {}
+            // Removed extra welcome modal trigger to avoid duplicate rendering
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }
@@ -333,10 +622,13 @@ class PomodoroTimer {
                     this.updateAuthState();
                     console.log('Auth state verified:', { user: currentUser, session: currentSession });
                 } else {
-                    this.isAuthenticated = false;
-                    this.user = null;
-                    this.updateAuthState();
-                    console.log('No authenticated user found');
+                    // Only update to unauthenticated if we're sure there's no user
+                    // This prevents showing login modal when user is actually authenticated
+                    if (this.isAuthenticated === false) {
+                        this.user = null;
+                        this.updateAuthState();
+                        console.log('No authenticated user found');
+                    }
                 }
             }
         } catch (error) {
@@ -375,22 +667,1309 @@ class PomodoroTimer {
         });
     }
     
+    debugAuthState() {
+        try {
+            console.log('🔍 Auth Debug Info:');
+            console.log('- isAuthenticated:', this.isAuthenticated);
+            console.log('- user:', this.user);
+            console.log('- Clerk exists:', !!window.Clerk);
+            console.log('- Clerk.user:', window.Clerk?.user);
+            console.log('- Clerk.session:', window.Clerk?.session);
+            console.log('- localStorage hasAccount:', localStorage.getItem('hasAccount'));
+            console.log('- sessionStorage just_logged_out:', sessionStorage.getItem('just_logged_out'));
+            
+            // Check for multiple account issues
+            if (window.Clerk?.user && !this.isAuthenticated) {
+                console.warn('⚠️ Potential multiple account issue: Clerk has user but app shows not authenticated');
+                console.log('Attempting to sync auth state...');
+                this.isAuthenticated = true;
+                this.user = window.Clerk.user;
+            }
+            
+            // Check for session conflicts
+            if (this.isAuthenticated && !window.Clerk?.user) {
+                console.warn('⚠️ Session conflict: App shows authenticated but Clerk has no user');
+                console.log('Clearing auth state...');
+                this.isAuthenticated = false;
+                this.user = null;
+            }
+            
+            // Check for button/panel functionality issues
+            this.debugPanelFunctionality();
+            
+        } catch (error) {
+            console.error('Debug auth state error:', error);
+        }
+    }
+    
+    debugPanelFunctionality() {
+        try {
+            console.log('🔧 Panel Functionality Debug:');
+            
+            // Check if panels are properly initialized
+            const taskPanel = document.getElementById('taskSidePanel');
+            const timerPanel = document.getElementById('settingsSidePanel');
+            const musicPanel = document.getElementById('musicSidePanel');
+            
+            console.log('- Task Panel exists:', !!taskPanel);
+            console.log('- Timer Panel exists:', !!timerPanel);
+            console.log('- Music Panel exists:', !!musicPanel);
+            
+            // Check if event listeners are working
+            if (taskPanel) {
+                const taskButtons = taskPanel.querySelectorAll('button');
+                console.log('- Task Panel buttons:', taskButtons.length);
+            }
+            
+            if (timerPanel) {
+                const timerButtons = timerPanel.querySelectorAll('button');
+                console.log('- Timer Panel buttons:', timerButtons.length);
+            }
+            
+            if (musicPanel) {
+                const musicButtons = musicPanel.querySelectorAll('button');
+                console.log('- Music Panel buttons:', musicButtons.length);
+            }
+            
+            // Check for disabled states
+            const disabledButtons = document.querySelectorAll('button[disabled]');
+            console.log('- Disabled buttons:', disabledButtons.length);
+            
+            // Check for opacity issues
+            const lowOpacityElements = document.querySelectorAll('[style*="opacity: 0.5"]');
+            console.log('- Low opacity elements:', lowOpacityElements.length);
+            
+            // Check for pointer-events issues
+            const noPointerElements = document.querySelectorAll('[style*="pointer-events: none"]');
+            console.log('- No pointer events elements:', noPointerElements.length);
+            
+        } catch (error) {
+            console.error('Debug panel functionality error:', error);
+        }
+    }
+    
+    // Force clear all auth state to resolve multiple account issues
+    forceClearAuthState() {
+        try {
+            console.log('🧹 Force clearing all auth state...');
+            
+            // Clear app state
+            this.isAuthenticated = false;
+            this.user = null;
+            this.isPro = false;
+            
+            // Clear localStorage
+            localStorage.removeItem('hasAccount');
+            localStorage.removeItem('selectedImmersiveTheme');
+            localStorage.removeItem('lastSelectedTheme');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('just_logged_out');
+            
+            // Clear Clerk state if possible
+            if (window.Clerk && window.Clerk.signOut) {
+                try {
+                    window.Clerk.signOut();
+                } catch (e) {
+                    console.log('Could not sign out from Clerk:', e);
+                }
+            }
+            
+            // Clear Todoist tasks
+            this.clearTodoistTasks();
+            
+            // Update UI
+            this.updateAuthState();
+            
+            console.log('✅ Auth state cleared successfully');
+            
+            // Make function available globally for debugging
+            window.debugAuth = () => this.debugAuthState();
+            window.clearAuth = () => this.forceClearAuthState();
+            window.fixPanels = () => this.forceReinitializePanels();
+            console.log('🔧 Debug functions available: window.debugAuth(), window.clearAuth(), window.fixPanels()');
+            
+        } catch (error) {
+            console.error('Error clearing auth state:', error);
+        }
+    }
+    
+    // Force reinitialize panels to fix button/action issues
+    forceReinitializePanels() {
+        try {
+            console.log('🔧 Force reinitializing panels...');
+            
+            // Re-setup Timer panel
+            const timerPanel = document.getElementById('settingsSidePanel');
+            if (timerPanel) {
+                console.log('Re-setting up Timer panel...');
+                this.setupTimerSidebar();
+            }
+            
+            // Re-setup Task panel
+            const taskPanel = document.getElementById('taskSidePanel');
+            if (taskPanel) {
+                console.log('Re-setting up Task panel...');
+                this.setupTaskSidebar();
+            }
+            
+            // Re-setup Music panel
+            const musicPanel = document.getElementById('musicSidePanel');
+            if (musicPanel) {
+                console.log('Re-setting up Music panel...');
+                this.setupMusicSidebar();
+            }
+            
+            // Force update auth state
+            this.updateAuthState();
+            
+            console.log('✅ Panels reinitialized successfully');
+            
+        } catch (error) {
+            console.error('Error reinitializing panels:', error);
+        }
+    }
+    
+    // Auto-fix common panel issues for authenticated users
+    autoFixPanelIssues() {
+        try {
+            console.log('🔧 Auto-fixing panel issues...');
+            
+            // Fix disabled buttons in panels
+            const panels = ['taskSidePanel', 'settingsSidePanel', 'musicSidePanel'];
+            panels.forEach(panelId => {
+                const panel = document.getElementById(panelId);
+                if (panel) {
+                    const buttons = panel.querySelectorAll('button');
+                    buttons.forEach(button => {
+                        if (button.disabled && this.isAuthenticated) {
+                            console.log(`Enabling disabled button in ${panelId}:`, button.textContent);
+                            button.disabled = false;
+                            button.style.opacity = '1';
+                            button.style.cursor = 'pointer';
+                        }
+                    });
+                }
+            });
+            
+            // Fix low opacity elements
+            const lowOpacityElements = document.querySelectorAll('[style*="opacity: 0.5"]');
+            lowOpacityElements.forEach(element => {
+                if (this.isAuthenticated) {
+                    console.log('Fixing low opacity element:', element);
+                    element.style.opacity = '1';
+                    element.style.pointerEvents = 'auto';
+                    element.style.cursor = 'auto';
+                }
+            });
+            
+            // Fix pointer-events: none elements
+            const noPointerElements = document.querySelectorAll('[style*="pointer-events: none"]');
+            noPointerElements.forEach(element => {
+                if (this.isAuthenticated) {
+                    console.log('Fixing no pointer events element:', element);
+                    element.style.pointerEvents = 'auto';
+                }
+            });
+            
+            console.log('✅ Panel issues auto-fixed');
+            
+        } catch (error) {
+            console.error('Error auto-fixing panel issues:', error);
+        }
+    }
+    
+    // Enable Timer panel features for authenticated users
+    enableTimerPanelFeatures() {
+        try {
+            console.log('🔓 Enabling Timer panel features for authenticated user');
+            
+            // Enable sessions card
+            const sessionsSlider = document.querySelector('#sidebarSessionsSlider');
+            const sessionsValue = document.querySelector('#sidebarSessionsValue');
+            const sessionsCard = sessionsSlider?.closest('.duration-item');
+            
+            if (sessionsSlider && sessionsValue && sessionsCard) {
+                sessionsCard.style.opacity = '1';
+                sessionsCard.style.pointerEvents = 'auto';
+                sessionsCard.style.cursor = 'auto';
+                sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+            }
+            
+            // Enable Long Break card
+            const longBreakSlider = document.querySelector('#sidebarLongBreakSlider');
+            const longBreakCard = longBreakSlider?.closest('.duration-item');
+            
+            if (longBreakSlider && longBreakCard) {
+                longBreakCard.style.opacity = '1';
+                longBreakCard.style.pointerEvents = 'auto';
+                longBreakCard.style.cursor = 'auto';
+            }
+            
+            // Enable advanced techniques
+            const techniquePresets = document.querySelectorAll('.technique-preset');
+            techniquePresets.forEach(preset => {
+                const technique = preset.dataset.technique;
+                if (technique !== 'pomodoro') {
+                    preset.style.opacity = '1';
+                    preset.style.cursor = 'pointer';
+                    preset.style.pointerEvents = 'auto';
+                    
+                    // Hide "(Sign up required)" text
+                    const signupText = preset.querySelector('.signup-required-text');
+                    if (signupText) {
+                        signupText.classList.add('hidden');
+                    }
+                }
+            });
+            
+            // Hide "(Sign up required)" text from sessions and long break labels
+            const sessionsSignupText = document.querySelector('#sidebarSessionsSlider')?.closest('.duration-item')?.querySelector('.signup-required-text');
+            if (sessionsSignupText) {
+                sessionsSignupText.classList.add('hidden');
+            }
+            
+            const longBreakSignupText = document.querySelector('#sidebarLongBreakSlider')?.closest('.duration-item')?.querySelector('.signup-required-text');
+            if (longBreakSignupText) {
+                longBreakSignupText.classList.add('hidden');
+            }
+            
+            // Initialize save button as disabled (will be enabled when changes are made)
+            const saveBtn = document.querySelector('#sidebarSaveSettings');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+            }
+            
+            // Enable Custom section for Pro users
+            this.enableCustomSection();
+            
+            console.log('✅ Timer panel features enabled');
+            
+        } catch (error) {
+            console.error('Error enabling Timer panel features:', error);
+        }
+    }
+
+    enableSaveButton() {
+        const saveBtn = document.querySelector('#sidebarSaveSettings');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+        }
+    }
+
+    resetSaveButton() {
+        const saveBtn = document.querySelector('#sidebarSaveSettings');
+        if (saveBtn) {
+            saveBtn.disabled = true;
+        }
+    }
+    
+    // Enable Custom section for Pro users
+    enableCustomSection() {
+        try {
+            console.log('🔓 Enabling Custom section for all users');
+            
+            const customSection = document.getElementById('customSection');
+            if (customSection) {
+                customSection.style.display = 'block';
+                console.log('✅ Custom section displayed');
+                
+                // Set up basic listeners for all users
+                this.setupBasicCustomListeners();
+                console.log('✅ Basic custom listeners set up');
+                
+                // Initialize full functionality for all authenticated users (Free and Pro)
+                // Free users can create 1 timer, Pro users can create unlimited
+                if (this.isAuthenticated && this.user) {
+                    console.log('✅ User is authenticated, initializing full custom functionality');
+                    this.initializeCustomSection();
+                } else {
+                    console.log('ℹ️ User is not authenticated, basic custom functionality only');
+                }
+            } else {
+                console.log('❌ Custom section not found');
+            }
+            
+        } catch (error) {
+            console.error('Error enabling Custom section:', error);
+        }
+    }
+    
+    // Initialize Custom section functionality
+    initializeCustomSection() {
+        try {
+            // Prevent multiple initializations
+            if (this.customSectionInitialized) {
+                console.log('⚠️ Custom section already initialized, skipping...');
+                return;
+            }
+            
+            // Load existing custom techniques from localStorage
+            this.loadCustomTechniques();
+            
+            // Set up event listeners
+            this.setupCustomSectionListeners();
+            
+            // Mark as initialized
+            this.customSectionInitialized = true;
+            
+            console.log('✅ Custom section initialized');
+            
+        } catch (error) {
+            console.error('Error initializing Custom section:', error);
+        }
+    }
+    
+    // Set up basic event listeners for all users (Create Custom button)
+    setupBasicCustomListeners() {
+        console.log('🔧 Setting up basic custom listeners');
+        // Create Custom button - works for all users
+        const createBtn = document.getElementById('createCustomBtn');
+        console.log('🔧 Create button found:', !!createBtn);
+        console.log('🔧 Button already has listener:', createBtn?.hasAttribute('data-listener-added'));
+        
+        if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
+            console.log('✅ Adding click listener to create button');
+            createBtn.addEventListener('click', () => {
+                console.log('🖱️ Create Custom button clicked!');
+                // Track Create Custom button click
+                this.trackEvent('Create Custom Button Clicked', {
+                    button_type: 'create_custom',
+                    source: 'timer_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    feature_access: this.isPremiumUser() ? 'allowed' : 'restricted'
+                });
+                
+                this.showCustomForm();
+            });
+            createBtn.setAttribute('data-listener-added', 'true');
+            console.log('✅ Click listener added and marked');
+        } else {
+            console.log('⚠️ Could not add listener - button not found or already has listener');
+        }
+    }
+    
+    // Set up event listeners for Custom section
+    setupCustomSectionListeners() {
+        // Create Custom button
+        const createBtn = document.getElementById('createCustomBtn');
+        if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
+            createBtn.addEventListener('click', () => this.showCustomForm());
+            createBtn.setAttribute('data-listener-added', 'true');
+        }
+        
+        // Cancel button
+        const cancelBtn = document.getElementById('cancelCustomBtn');
+        if (cancelBtn && !cancelBtn.hasAttribute('data-listener-added')) {
+            cancelBtn.addEventListener('click', () => this.hideCustomForm());
+            cancelBtn.setAttribute('data-listener-added', 'true');
+        }
+        
+        // Save button
+        const saveBtn = document.getElementById('saveCustomBtn');
+        if (saveBtn && !saveBtn.hasAttribute('data-listener-added')) {
+            saveBtn.addEventListener('click', () => this.saveCustomTechnique());
+            saveBtn.setAttribute('data-listener-added', 'true');
+        }
+        
+        // Emoji picker
+        const emojiOptions = document.querySelectorAll('.emoji-option');
+        emojiOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove active class from all options
+                emojiOptions.forEach(opt => opt.classList.remove('active'));
+                // Add active class to clicked option
+                option.classList.add('active');
+            });
+        });
+        
+        // Custom work slider
+        const workSlider = document.getElementById('customWorkSlider');
+        const workValue = document.getElementById('customWorkValue');
+        if (workSlider && workValue) {
+            workSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                workValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom short break slider
+        const shortBreakSlider = document.getElementById('customShortBreakSlider');
+        const shortBreakValue = document.getElementById('customShortBreakValue');
+        if (shortBreakSlider && shortBreakValue) {
+            shortBreakSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                shortBreakValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom long break slider
+        const longBreakSlider = document.getElementById('customLongBreakSlider');
+        const longBreakValue = document.getElementById('customLongBreakValue');
+        if (longBreakSlider && longBreakValue) {
+            longBreakSlider.addEventListener('input', (e) => {
+                const minutes = parseInt(e.target.value);
+                longBreakValue.textContent = `${minutes} min`;
+            });
+        }
+        
+        // Custom sessions slider
+        const sessionsSlider = document.getElementById('customSessionsSlider');
+        const sessionsValue = document.getElementById('customSessionsValue');
+        if (sessionsSlider && sessionsValue) {
+            sessionsSlider.addEventListener('input', (e) => {
+                const sessions = parseInt(e.target.value);
+                sessionsValue.textContent = `${sessions} sesh`;
+            });
+        }
+        
+        // Custom name input validation with word count
+        const nameInput = document.getElementById('customName');
+        const wordCount = document.getElementById('wordCount');
+        if (nameInput && wordCount) {
+            nameInput.addEventListener('input', () => {
+                this.validateCustomForm();
+                this.updateWordCount();
+            });
+        }
+    }
+    
+    // Show custom form
+    showCustomForm() {
+        // Check if user is Pro
+        if (this.isPremiumUser()) {
+            // Pro users can create unlimited custom timers
+            const form = document.getElementById('customForm');
+            const createBtn = document.getElementById('createCustomBtn');
+            
+            if (form && createBtn) {
+                form.style.display = 'block';
+                createBtn.style.display = 'none';
+                
+                // Focus on name input
+                const nameInput = document.getElementById('customName');
+                if (nameInput) {
+                    setTimeout(() => nameInput.focus(), 100);
+                }
+                
+                // Reset form and validate to ensure proper state
+                this.resetCustomForm();
+            }
+        } else if (this.isAuthenticated && this.user) {
+            // Free users - show Subscribe modal
+            this.trackEvent('Pro Feature Modal Shown', {
+                feature: 'custom_techniques',
+                source: 'create_custom_button',
+                user_type: 'free',
+                modal_type: 'upgrade_prompt'
+            });
+            
+            this.showCustomTechniqueProModal('Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
+        } else {
+            // Guest users - show Pro Feature modal
+            this.trackEvent('Pro Feature Modal Shown', {
+                feature: 'custom_techniques',
+                source: 'create_custom_button',
+                user_type: 'guest',
+                modal_type: 'upgrade_prompt'
+            });
+            
+            // Show Pro Feature modal for Guest and Free users
+            this.showCustomTechniqueProModal();
+        }
+    }
+    
+    // Show Pro Feature modal for Custom Techniques
+    showCustomTechniqueProModal(customMessage = null) {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        
+        // Check if user is authenticated (Free) or Guest
+        const isAuthenticated = this.isAuthenticated;
+        
+        // Use custom message if provided, otherwise use default
+        const message = customMessage || 'Create custom focus techniques tailored to your workflow!';
+        
+        if (isAuthenticated) {
+            // Free user modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCustomModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <h3>Unlock Custom Timers</h3>
+                    <p>You're missing out on custom timers tailored to your workflow! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Guest user modal - Custom message for guest users
+            const guestMessage = 'Create personalized focus timers tailored to your workflow! Set custom work periods, break times, and session cycles that match your productivity style.';
+            
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCustomModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <h3>Unlock Custom Timers</h3>
+                    <p>You're missing out on custom timers tailored to your workflow! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Close modal function
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+        
+        // Close button
+        const closeBtn = modal.querySelector('#closeCustomModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+        
+        // Button event listeners
+        const learnMoreBtn = modal.querySelector('#customLearnMoreBtn');
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', () => {
+                closeModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        if (isAuthenticated) {
+            // Free user - Upgrade to Pro button
+            const upgradeBtn = modal.querySelector('#customUpgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', async () => {
+                    // Track Create timer modal upgrade click
+                    const eventProperties = {
+                        button_type: 'subscribe',
+                        source: 'create_timer_modal',
+                        location: 'custom_timer_modal',
+                        user_type: 'free',
+                        modal_type: 'create_timer'
+                    };
+                    this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds(eventProperties);
+                    
+                    closeModal();
+                    // Redirect to pricing page
+                    await this.handleUpgrade();
+                });
+            }
+        } else {
+            // Guest user - Sign up button
+            const signupBtn = modal.querySelector('#customSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', () => {
+                    // Track Create timer modal Sign up click
+                    this.trackEvent('Sign Up Clicked', {
+                        modal_type: 'create_timer',
+                        button_text: 'Sign up',
+                        user_type: 'guest',
+                        source: 'create_timer_modal'
+                    });
+                    
+                    closeModal();
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                });
+            }
+            
+            // Guest user - Learn more button (same as authenticated users)
+            const learnMoreBtn = modal.querySelector('#customLearnMoreBtn');
+            if (learnMoreBtn) {
+                learnMoreBtn.addEventListener('click', () => {
+                    closeModal();
+                    window.location.href = '/pricing';
+                });
+            }
+        }
+    }
+
+    // Show Pro Feature modal for Cassettes
+    showCassetteProModal(customMessage = null) {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        
+        // Check if user is authenticated (Free) or Guest
+        const isAuthenticated = this.isAuthenticated;
+        
+        // Use custom message if provided, otherwise use default
+        const message = customMessage || 'Create custom focus environments tailored to your workflow!';
+        
+        if (isAuthenticated) {
+            // Free user modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCassetteModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cassette-tape-icon lucide-cassette-tape">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/>
+                            <circle cx="8" cy="10" r="2"/>
+                            <path d="M8 12h8"/>
+                            <circle cx="16" cy="10" r="2"/>
+                            <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
+                        </svg>
+                    </div>
+                    <h3>Unlock Custom Cassettes</h3>
+                    <p>You're missing out on custom focus environments! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Guest user modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCassetteModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cassette-tape-icon lucide-cassette-tape">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/>
+                            <circle cx="8" cy="10" r="2"/>
+                            <path d="M8 12h8"/>
+                            <circle cx="16" cy="10" r="2"/>
+                            <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
+                        </svg>
+                    </div>
+                    <h3>Unlock Custom Cassettes</h3>
+                    <p>You're missing out on custom focus environments! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Close modal function
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+        
+        // Close button
+        const closeBtn = modal.querySelector('#closeCassetteModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+        
+        // Button event listeners
+        const learnMoreBtn = modal.querySelector('#cassetteLearnMoreBtn');
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', () => {
+                closeModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        if (isAuthenticated) {
+            // Free user - Upgrade to Pro button
+            const upgradeBtn = modal.querySelector('#cassetteUpgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', async () => {
+                    // Track Create cassette modal upgrade click
+                    const eventProperties = {
+                        button_type: 'subscribe',
+                        source: 'create_cassette_modal',
+                        location: 'custom_cassette_modal',
+                        user_type: 'free',
+                        modal_type: 'create_cassette'
+                    };
+                    this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds(eventProperties);
+                    
+                    closeModal();
+                    // Redirect to pricing page
+                    await this.handleUpgrade();
+                });
+            }
+        } else {
+            // Guest user - Sign up button
+            const signupBtn = modal.querySelector('#cassetteSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', () => {
+                    // Track Create cassette modal Sign up click
+                    this.trackEvent('Sign Up Clicked', {
+                        modal_type: 'create_cassette',
+                        button_text: 'Sign up',
+                        user_type: 'guest',
+                        source: 'create_cassette_modal'
+                    });
+                    closeModal();
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                });
+            }
+        }
+    }
+
+    // Hide custom form
+    hideCustomForm() {
+        const form = document.getElementById('customForm');
+        const createBtn = document.getElementById('createCustomBtn');
+        
+        if (form && createBtn) {
+            form.style.display = 'none';
+            createBtn.style.display = 'flex';
+            
+            // Reset form
+            this.resetCustomForm();
+        }
+    }
+    
+    // Reset custom form
+    resetCustomForm() {
+        const nameInput = document.getElementById('customName');
+        const workValue = document.getElementById('customWorkValue');
+        const shortBreakValue = document.getElementById('customShortBreakValue');
+        const longBreakValue = document.getElementById('customLongBreakValue');
+        const sessionsValue = document.getElementById('customSessionsValue');
+        const emojiOptions = document.querySelectorAll('.emoji-option');
+        
+        if (nameInput) {
+            nameInput.value = '';
+        }
+        if (workValue) workValue.textContent = '25 min';
+        if (shortBreakValue) shortBreakValue.textContent = '5 min';
+        if (longBreakValue) longBreakValue.textContent = '15 min';
+        if (sessionsValue) sessionsValue.textContent = '4 sesh';
+        
+        // Reset emoji to default
+        emojiOptions.forEach(option => option.classList.remove('active'));
+        if (emojiOptions[0]) emojiOptions[0].classList.add('active');
+        
+        // Clear editing state
+        this.editingTechnique = null;
+        
+        this.updateWordCount();
+        this.validateCustomForm();
+    }
+    
+    // Update character count
+    updateWordCount() {
+        const nameInput = document.getElementById('customName');
+        const wordCount = document.getElementById('wordCount');
+        
+        if (nameInput && wordCount) {
+            const characterCount = nameInput.value.length;
+            
+            wordCount.textContent = `${characterCount}/15 characters`;
+            
+            // Update styling based on character count
+            wordCount.classList.remove('warning', 'error');
+            if (characterCount > 15) {
+                wordCount.classList.add('error');
+            } else if (characterCount > 12) {
+                wordCount.classList.add('warning');
+            }
+        }
+    }
+    
+    // Validate custom form
+    validateCustomForm() {
+        const nameInput = document.getElementById('customName');
+        const saveBtn = document.getElementById('saveCustomBtn');
+        
+        if (nameInput && saveBtn) {
+            saveBtn.disabled = !nameInput.value.trim();
+        }
+    }
+    
+    // Save custom technique
+    saveCustomTechnique() {
+        try {
+            const nameInput = document.getElementById('customName');
+            const workValue = document.getElementById('customWorkValue');
+            const shortBreakValue = document.getElementById('customShortBreakValue');
+            const longBreakValue = document.getElementById('customLongBreakValue');
+            const sessionsValue = document.getElementById('customSessionsValue');
+            const selectedEmoji = document.querySelector('.emoji-option.active');
+            
+            if (!nameInput || !workValue || !shortBreakValue || !longBreakValue || !sessionsValue) return;
+            
+            const name = nameInput.value.trim();
+            const workMinutes = parseInt(workValue.textContent);
+            const shortBreakMinutes = parseInt(shortBreakValue.textContent);
+            const longBreakMinutes = parseInt(longBreakValue.textContent);
+            const sessions = parseInt(sessionsValue.textContent);
+            const emoji = selectedEmoji ? selectedEmoji.dataset.emoji : '🎯';
+            
+            if (!name) {
+                alert('Please enter a name for your technique');
+                return;
+            }
+            
+            // Validate character count
+            if (name.length > 15) {
+                alert('Technique name cannot exceed 15 characters. Please shorten your name.');
+                return;
+            }
+            
+            // Check if we're editing an existing technique
+            if (this.editingTechnique) {
+                // Update existing technique
+                this.editingTechnique.name = name;
+                this.editingTechnique.workMinutes = workMinutes;
+                this.editingTechnique.shortBreakMinutes = shortBreakMinutes;
+                this.editingTechnique.longBreakMinutes = longBreakMinutes;
+                this.editingTechnique.sessions = sessions;
+                this.editingTechnique.updatedAt = new Date().toISOString();
+                
+                // Update in localStorage
+                this.updateCustomTechniqueInStorage(this.editingTechnique);
+                
+                // Update card in UI
+                this.updateCustomTechniqueCard(this.editingTechnique);
+                
+                // Clear editing state
+                this.editingTechnique = null;
+            } else {
+                // Create new custom technique object
+                const customTechnique = {
+                    id: `custom_${Date.now()}`,
+                    name: name,
+                    emoji: emoji,
+                    workMinutes: workMinutes,
+                    shortBreakMinutes: shortBreakMinutes,
+                    longBreakMinutes: longBreakMinutes,
+                    sessions: sessions,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                this.saveCustomTechniqueToStorage(customTechnique);
+                
+                // Add to UI
+                this.addCustomTechniqueCard(customTechnique);
+                
+                // Select and apply the new technique immediately
+                this.selectCustomTechnique(customTechnique);
+                
+                // Track successful custom technique creation
+                this.trackEvent('Custom Technique Created', {
+                    feature: 'custom_techniques',
+                    technique_name: customTechnique.name,
+                    work_minutes: customTechnique.workMinutes,
+                    short_break_minutes: customTechnique.shortBreakMinutes,
+                    long_break_minutes: customTechnique.longBreakMinutes,
+                    sessions: customTechnique.sessions,
+                    emoji: customTechnique.emoji,
+                    user_type: 'pro'
+                });
+            }
+            
+            // Hide form
+            this.hideCustomForm();
+            
+            console.log('✅ Custom technique saved and applied:', customTechnique);
+            
+        } catch (error) {
+            console.error('Error saving custom technique:', error);
+        }
+    }
+    
+    // Save custom technique to localStorage
+    saveCustomTechniqueToStorage(technique) {
+        try {
+            const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            existing.push(technique);
+            localStorage.setItem('customTechniques', JSON.stringify(existing));
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
+        }
+    }
+    
+    // Update custom technique in localStorage
+    updateCustomTechniqueInStorage(technique) {
+        try {
+            const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const index = existing.findIndex(t => t.id === technique.id);
+            if (index !== -1) {
+                existing[index] = technique;
+                localStorage.setItem('customTechniques', JSON.stringify(existing));
+            }
+        } catch (error) {
+            console.error('Error updating in localStorage:', error);
+        }
+    }
+    
+    // Update custom technique card in UI
+    updateCustomTechniqueCard(technique) {
+        try {
+            const card = document.querySelector(`[data-technique-id="${technique.id}"]`);
+            if (card) {
+                const nameElement = card.querySelector('.custom-card-name');
+                const durationElement = card.querySelector('.custom-card-duration');
+                const breakElement = card.querySelector('.custom-card-break');
+                const longBreakElement = card.querySelector('.custom-card-long-break');
+                const sessionsElement = card.querySelector('.custom-card-sessions');
+                
+                if (nameElement) nameElement.textContent = technique.name;
+                if (durationElement) durationElement.textContent = `${technique.workMinutes}min work`;
+                if (breakElement) breakElement.textContent = `${technique.shortBreakMinutes}min short break`;
+                if (longBreakElement) longBreakElement.textContent = `${technique.longBreakMinutes}min long break`;
+                if (sessionsElement) sessionsElement.textContent = `${technique.sessions} sessions`;
+            }
+        } catch (error) {
+            console.error('Error updating card in UI:', error);
+        }
+    }
+    
+    // Load custom techniques from localStorage
+    loadCustomTechniques() {
+        try {
+            // Clear existing cards first to prevent duplicates
+            const container = document.getElementById('customCardsContainer');
+            if (container) {
+                container.innerHTML = '';
+            }
+            
+            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const selectedTechnique = localStorage.getItem('selectedTechnique');
+            
+            console.log(`📋 Loading ${techniques.length} custom techniques`);
+            
+            techniques.forEach(technique => {
+                this.addCustomTechniqueCard(technique);
+                
+                // Mark as active if this is the selected technique
+                if (selectedTechnique === `custom_${technique.id}`) {
+                    const card = document.querySelector(`[data-technique-id="${technique.id}"]`);
+                    if (card) {
+                        card.classList.add('active');
+                        console.log(`✅ Custom technique '${technique.name}' marked as active`);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error loading custom techniques:', error);
+        }
+    }
+    
+    // Add custom technique card to UI
+    addCustomTechniqueCard(technique) {
+        const container = document.getElementById('customCardsContainer');
+        if (!container) return;
+        
+        // Check if card already exists to prevent duplicates
+        const existingCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
+        if (existingCard) {
+            console.log(`⚠️ Custom technique '${technique.name}' already exists, skipping...`);
+            return;
+        }
+        
+        const card = document.createElement('div');
+        card.className = 'custom-card';
+        card.dataset.techniqueId = technique.id;
+        
+        card.innerHTML = `
+            <div class="custom-card-icon">${technique.emoji || '🎯'}</div>
+            <div class="custom-card-name">${technique.name}</div>
+            <div class="custom-card-duration">${technique.workMinutes}min work</div>
+            <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
+            <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
+            <div class="custom-card-sessions">${technique.sessions} sessions</div>
+            <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
+        `;
+        
+        // Add click handler to select technique
+        card.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('custom-card-delete')) {
+                this.selectCustomTechnique(technique);
+            }
+        });
+        
+        container.appendChild(card);
+    }
+    
+    // Edit custom technique
+    editCustomTechnique(technique) {
+        try {
+            // Store the technique being edited
+            this.editingTechnique = technique;
+            
+            // Show the form
+            this.showCustomForm();
+            
+            // Populate form with technique data
+            const nameInput = document.getElementById('customName');
+            const workSlider = document.getElementById('customWorkSlider');
+            const workValue = document.getElementById('customWorkValue');
+            const shortBreakSlider = document.getElementById('customShortBreakSlider');
+            const shortBreakValue = document.getElementById('customShortBreakValue');
+            const longBreakSlider = document.getElementById('customLongBreakSlider');
+            const longBreakValue = document.getElementById('customLongBreakValue');
+            const sessionsSlider = document.getElementById('customSessionsSlider');
+            const sessionsValue = document.getElementById('customSessionsValue');
+            
+            if (nameInput) nameInput.value = technique.name;
+            if (workSlider && workValue) {
+                workSlider.value = technique.workMinutes;
+                workValue.textContent = `${technique.workMinutes} min`;
+            }
+            if (shortBreakSlider && shortBreakValue) {
+                shortBreakSlider.value = technique.shortBreakMinutes;
+                shortBreakValue.textContent = `${technique.shortBreakMinutes} min`;
+            }
+            if (longBreakSlider && longBreakValue) {
+                longBreakSlider.value = technique.longBreakMinutes;
+                longBreakValue.textContent = `${technique.longBreakMinutes} min`;
+            }
+            if (sessionsSlider && sessionsValue) {
+                sessionsSlider.value = technique.sessions;
+                sessionsValue.textContent = `${technique.sessions} sesh`;
+            }
+            
+            // Update word count
+            this.updateWordCount();
+            this.validateCustomForm();
+            
+            console.log('✅ Editing custom technique:', technique);
+            
+        } catch (error) {
+            console.error('Error editing custom technique:', error);
+        }
+    }
+    
+    // Apply technique immediately (all users)
+    applyTechniqueImmediately(technique) {
+        try {
+            console.log('⚡ Applying technique immediately for all users:', technique);
+            
+            // Update timer settings
+            this.workTime = technique.workMinutes * 60;
+            this.shortBreakTime = technique.shortBreakMinutes * 60;
+            this.longBreakTime = technique.longBreakMinutes * 60;
+            this.sessionsPerCycle = technique.sessions;
+            
+            // Update cycle sections (like Save Changes did)
+            this.cycleSections = [
+                { type: 'work', duration: this.workTime, name: 'Work 1' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                { type: 'work', duration: this.workTime, name: 'Work 2' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                { type: 'work', duration: this.workTime, name: 'Work 3' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                { type: 'work', duration: this.workTime, name: 'Work 4' },
+                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+            ];
+            
+            // Reset timer to first section using the complete reset function (like Save Changes)
+            this.resetTimer();
+            
+            // Save automatically to localStorage
+            this.saveTechniqueSettings(technique);
+            
+            console.log('✅ Technique applied immediately');
+            
+        } catch (error) {
+            console.error('Error applying technique immediately:', error);
+        }
+    }
+    
+    // Save technique settings to localStorage
+    saveTechniqueSettings(technique) {
+        try {
+            if (this.isAuthenticated) {
+                localStorage.setItem('pomodoroTime', String(this.workTime));
+                localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
+                localStorage.setItem('longBreakTime', String(this.longBreakTime));
+                localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
+                
+                // Save technique identifier properly
+                if (technique.id) {
+                    // Custom technique
+                    localStorage.setItem('selectedTechnique', `custom_${technique.id}`);
+                    console.log(`✅ Custom technique '${technique.name}' (ID: ${technique.id}) saved to localStorage`);
+                } else {
+                    // Regular technique
+                    localStorage.setItem('selectedTechnique', technique.name || 'custom');
+                    console.log(`✅ Regular technique '${technique.name}' saved to localStorage`);
+                }
+            }
+        } catch (error) {
+            console.error('Error saving technique settings:', error);
+        }
+    }
+    
+    // Select custom technique
+    selectCustomTechnique(technique) {
+        try {
+            // Remove active class from all custom cards
+            const allCustomCards = document.querySelectorAll('.custom-card');
+            allCustomCards.forEach(card => card.classList.remove('active'));
+            
+            // Remove active class from all regular techniques
+            const allTechniquePresets = document.querySelectorAll('.technique-preset');
+            allTechniquePresets.forEach(preset => preset.classList.remove('active'));
+            
+            // Add active class to selected custom card
+            const selectedCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active');
+            }
+            
+            // Apply immediately for all users
+            this.applyTechniqueImmediately(technique);
+            
+            console.log('✅ Custom technique selected:', technique);
+            
+        } catch (error) {
+            console.error('Error selecting custom technique:', error);
+        }
+    }
+    
+    // Delete custom technique
+    deleteCustomTechnique(techniqueId) {
+        try {
+            // Remove from localStorage
+            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const filtered = techniques.filter(t => t.id !== techniqueId);
+            localStorage.setItem('customTechniques', JSON.stringify(filtered));
+            
+            // Remove from UI
+            const card = document.querySelector(`[data-technique-id="${techniqueId}"]`);
+            if (card) {
+                card.remove();
+            }
+            
+            console.log('✅ Custom technique deleted:', techniqueId);
+            
+        } catch (error) {
+            console.error('Error deleting custom technique:', error);
+        }
+    }
+    
     updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
         
-        // Force check current auth state from Clerk
-        if (window.Clerk && window.Clerk.user) {
+        // Debug multiple account issues
+        this.debugAuthState();
+        
+        // If we just logged out, do NOT rehydrate from Clerk even if window.Clerk.user still exists momentáneamente
+        let justLoggedOut = false;
+        try { justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true'; } catch (_) {}
+
+        // Force check current auth state from Clerk unless we just logged out
+        if (window.Clerk && window.Clerk.user && !justLoggedOut) {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
         }
         
+        // Update Pro status
+        const wasPro = this.isPro;
+        this.isPro = this.isPremiumUser();
+        
+        // Track Pro conversion if user just became Pro
+        if (!wasPro && this.isPro && this.isAuthenticated) {
+            this.trackEvent('User Upgraded to Pro', {
+                user_id: this.user?.id,
+                email: this.user?.emailAddresses[0]?.emailAddress,
+                conversion_type: 'free_to_pro',
+                user_journey: 'free → pro',
+                source: 'stripe_webhook',
+                revenue: 9.0,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
         if (this.isAuthenticated && this.user) {
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
+            
+            // Track user authentication (first time or returning)
+            this.trackEvent('User Authenticated', {
+                user_id: this.user.id,
+                email: this.user.emailAddresses[0]?.emailAddress,
+                is_pro: this.isPro,
+                signup_date: this.user.createdAt,
+                authentication_type: 'clerk_auth'
+            });
+            
+            // Identify user in Mixpanel
+            this.identifyUser();
+            
+            // Enable Timer panel features for authenticated users
+            this.enableTimerPanelFeatures();
+            
+            // Auto-fix panel issues for authenticated users
+            this.autoFixPanelIssues();
+            
+            // 🎯 Track User Login event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackUserLogin('clerk');
+                console.log('📊 User login event tracked to Mixpanel');
+            }
+            
             if (this.authContainer) this.authContainer.style.display = 'none';
-            if (this.userProfileContainer) this.userProfileContainer.style.display = 'flex';
+            if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
+            // Streak info is now always visible via CSS
             this.updateUserProfile();
             // Initialize cycle counter for authenticated users
             this.initializeCycleCounter();
@@ -398,14 +1977,88 @@ class PomodoroTimer {
             this.updateFocusHoursDisplay();
             // Update premium UI
             this.updatePremiumUI();
+            // Update technique presets visibility
+            this.updateTechniquePresetsVisibility();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
-            // Hide welcome modal if user is authenticated
-            this.hideWelcomeModal();
+            
+            // Ensure cassette auth gating and saved Tron theme are applied post-hydration
+            try { this.updateThemeAuthState(); } catch (_) {}
+            try {
+                const savedTheme = localStorage.getItem('lastSelectedTheme');
+                // If we deferred Tron application, and user is authenticated now, apply it
+                if (this.pendingThemeApply === 'tron' && this.isAuthenticated) {
+                    console.log('🎨 Auth hydrated: applying deferred Tron theme');
+                    this.applyTheme('tron');
+                    this.pendingThemeApply = null;
+                } else if (savedTheme && savedTheme !== this.currentTheme) {
+                    // Ensure saved cassette is honored
+                    this.applyTheme(savedTheme);
+                }
+            } catch (_) {}
+            // Check admin access for Developer tab
+            this.checkAdminAccess();
+            // Welcome modal removed
+            // Hide loading screen when user is authenticated
+            this.hideLoadingScreen();
             console.log('User is authenticated, showing profile avatar');
+            
+            // Update settings dropdown for authenticated user
+            if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'flex';
+            if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'none';
+            
+            // Add authenticated-user class to dropdown for proper width handling
+            if (this.settingsDropdown) {
+                this.settingsDropdown.classList.add('authenticated-user');
+            }
+            if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'block';
+            if (this.settingsReportSection) this.settingsReportSection.style.display = 'block';
+            if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'none';
+            if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
+            if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
+            
+            // Hide timer header auth buttons when authenticated
+            const timerHeaderAuth = document.getElementById('timerHeaderAuth');
+            if (timerHeaderAuth) timerHeaderAuth.style.display = 'none';
+            
+            // Show Report header when authenticated
+            const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
+            if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'block';
+            
+            // Show/hide Subscribe button based on user type
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            if (subscribeBtn) {
+                if (this.isPro) {
+                    // Hide Subscribe button for Pro users
+                    subscribeBtn.style.display = 'none';
+                } else {
+                    // Show Subscribe button for Free users
+                    subscribeBtn.style.display = 'flex';
+                }
+            }
 
-            // Ensure developer tab visibility according to current user
-            this.updateDeveloperTabVisibility();
+            // Sync stats to Clerk on authentication
+            const stats = this.getFocusStats();
+            if (stats.totalHours) {
+                this.syncStatsToClerk(stats.totalHours);
+            }
+            
+            // Hide content section and footer when authenticated (only show timer)
+            const contentSection = document.querySelector('.content-section');
+            const mainFooter = document.querySelector('.main-footer');
+            if (contentSection) contentSection.style.display = 'none';
+            if (mainFooter) mainFooter.style.display = 'none';
+            
+            // Update user display name in settings dropdown (First name if available, email if not)
+            if (this.settingsUserEmail && this.user) {
+                const firstName = this.user.firstName;
+                const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress;
+                
+                // Use first name if available, otherwise use email
+                const displayName = firstName || email || 'User';
+                this.settingsUserEmail.textContent = displayName;
+            }
+
 
             // Apply saved technique now that auth is ready
             this.applySavedTechniqueOnce();
@@ -417,36 +2070,119 @@ class PomodoroTimer {
                     if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
                 }
             } catch (_) {}
+            
+            // Restore user's saved music preferences when authenticated
+            try {
+                const savedAmbientEnabled = localStorage.getItem('ambientEnabled');
+                if (savedAmbientEnabled !== null) {
+                    this.ambientEnabled = savedAmbientEnabled === 'true';
+                }
+                const savedRainEnabled = localStorage.getItem('rainEnabled');
+                if (savedRainEnabled !== null) {
+                    this.rainEnabled = savedRainEnabled === 'true';
+                }
+            } catch (_) {}
         } else {
+            // Double-check with Clerk before showing login UI
+            if (window.Clerk && window.Clerk.user) {
+                console.log('Clerk user found, updating auth state');
+                this.isAuthenticated = true;
+                this.user = window.Clerk.user;
+                // Recursively call updateAuthState to handle authenticated case
+                this.updateAuthState();
+                return;
+            }
+            
+            // Reset Pro status for unauthenticated users
+            this.isPro = false;
+            
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
 
             // Clear Todoist tasks when user is not authenticated
             this.clearTodoistTasks();
             
-            if (this.authContainer) this.authContainer.style.display = 'flex';
+            if (this.authContainer) this.authContainer.style.display = 'none'; // Always hidden, use settings menu instead
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
             // Always show logo, never show achievement icon
             if (this.logoIcon) this.logoIcon.style.display = 'flex';
             if (this.achievementIcon) this.achievementIcon.style.display = 'none';
+            // Streak info is now always visible via CSS
             if (this.loginButton) this.loginButton.textContent = 'Login';
-            // Don't force display of signup button - let CSS handle mobile visibility
-            if (this.signupButton) this.signupButton.style.display = '';
-            console.log('User is not authenticated, showing login/signup buttons');
+            // Keep header buttons hidden - they're now in the settings menu
+            if (this.signupButton) this.signupButton.style.display = 'none';
+            if (this.loginButton) this.loginButton.style.display = 'none';
+            console.log('User is not authenticated, showing settings menu with login/signup options');
+            
+            // Reset header settings button to show user icon (not logged in)
+            if (this.headerSettingsIcon) this.headerSettingsIcon.style.display = 'block';
+            if (this.headerSettingsAvatar) this.headerSettingsAvatar.style.display = 'none';
+            
+            // Update settings dropdown for non-authenticated user
+            if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
+            if (this.settingsAuthSection) this.settingsAuthSection.style.display = 'block';
+            
+            // Remove authenticated-user class from dropdown for guest users
+            if (this.settingsDropdown) {
+                this.settingsDropdown.classList.remove('authenticated-user');
+            }
+            if (this.settingsAccountSection) this.settingsAccountSection.style.display = 'none';
+            if (this.settingsReportSection) this.settingsReportSection.style.display = 'none';
+            if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
+            if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
+            if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
+            
+            // Show timer header auth buttons when not authenticated
+            const timerHeaderAuth = document.getElementById('timerHeaderAuth');
+            if (timerHeaderAuth) timerHeaderAuth.style.display = 'block';
+            
+            // Hide Report header when not authenticated
+            const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
+            if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'none';
+            
+            // Hide Subscribe button for Guest users
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            if (subscribeBtn) {
+                subscribeBtn.style.display = 'none';
+            }
+            
+            // Show content section and footer when not authenticated (guest user)
+            const contentSection = document.querySelector('.content-section');
+            const mainFooter = document.querySelector('.main-footer');
+            if (contentSection) contentSection.style.display = 'block';
+            if (mainFooter) mainFooter.style.display = 'block';
+            
             // Reset badge to zero time for guests
             if (this.achievementCounter) {
                 this.achievementCounter.textContent = '00h:00m';
             }
-            // Ensure guest default volume (50%) when not authenticated
-            this.ambientVolume = 0.5;
+            // Ensure guest default volume (25%) when not authenticated
+            // Don't override if user has a saved volume (they might logout and login again)
+            const savedVolume = localStorage.getItem('ambientVolume');
+            if (savedVolume === null) {
+                this.ambientVolume = 0.25;
             if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
-            // Hide developer tab when not authenticated
-            this.updateDeveloperTabVisibility();
-            // reset already handled at top of branch
+            }
+            
+            // Keep music state for logged-out users (they just can't change it)
+            // Only new users without saved preferences will have 'false' by default (from initialization)
+            // This allows logged-out users to maintain their previous music selection visually
         }
         
         // Update dropdown badges based on authentication state
         this.updateDropdownState();
+        
+        // Check and reset streak if needed (after auth state is updated)
+        this.checkAndResetStreakIfNeeded();
+        
+        // Update streak display based on authentication state
+        this.updateStreakDisplay();
+        
+        // Update dropdown items disabled state
+        this.updateDropdownItemsState();
+        
+        // Update technique presets visibility based on user type
+        this.updateTechniquePresetsVisibility();
     }
 
     // Close all open modals to focus on timer
@@ -457,9 +2193,6 @@ class PomodoroTimer {
             try { document.body.removeChild(overlay); } catch (_) {}
         });
         
-        // Close welcome modal
-        const welcomeModal = document.getElementById('welcomeModalOverlay');
-        if (welcomeModal) welcomeModal.style.display = 'none';
         
         // Close logout modal
         const logoutModal = document.getElementById('logoutModalOverlay');
@@ -497,67 +2230,133 @@ class PomodoroTimer {
         const savedTechnique = localStorage.getItem('selectedTechnique');
         if (!savedTechnique) return;
         
-        // Check if the saved technique requires authentication
-        const proTechniques = ['pomodoro-plus', 'ultradian-rhythm', 'custom'];
+        // Check if the saved technique requires Pro
+        const proTechniques = ['custom'];
         if (proTechniques.includes(savedTechnique)) {
-            // Reset to default Pomodoro technique
-            const alreadyPomodoro = savedTechnique === 'pomodoro';
-            if (!alreadyPomodoro) {
+            // Reset to default Pomodoro technique if user is not Pro
+            if (!this.isPremiumUser()) {
                 localStorage.setItem('selectedTechnique', 'pomodoro');
-            }
-            
-            // Update UI to show Pomodoro
-            if (this.techniqueTitle) {
-                this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
-            }
-            
-            // Update dropdown selection to show check icon on Pomodoro
-            if (this.dropdownItems) {
-                this.dropdownItems.forEach(item => {
-                    item.classList.remove('selected');
-                    if (item.dataset.technique === 'pomodoro') {
-                        item.classList.add('selected');
-                    }
-                });
-            }
-            
-            // Load the default Pomodoro technique only if not already applied
-            if (this.currentTechniqueKey !== 'pomodoro') {
-                this.loadTechnique('pomodoro');
+                
+                // Update UI to show Pomodoro
+                if (this.techniqueTitle) {
+                    this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+                }
+                
+                // Update dropdown selection to show check icon on Pomodoro
+                if (this.dropdownItems) {
+                    this.dropdownItems.forEach(item => {
+                        item.classList.remove('selected');
+                        if (item.dataset.technique === 'pomodoro') {
+                            item.classList.add('selected');
+                        }
+                    });
+                }
+                
+                // Load the default Pomodoro technique only if not already applied
+                if (this.currentTechniqueKey !== 'pomodoro') {
+                    this.loadTechnique('pomodoro');
+                }
             }
         }
     }
 
-    // Controls visibility of the Developer tab based on current user
-    updateDeveloperTabVisibility() {
-        const developerTab = document.querySelector('[data-tab="developer"]');
-        const developerContent = document.getElementById('developer-tab');
-        const developerDropdownItem = document.getElementById('developerButton');
-        
-        if (!developerTab || !developerContent) return;
 
-        const user = (window.Clerk && window.Clerk.user) ? window.Clerk.user : this.user;
-        let isDeveloper = false;
-        if (user) {
-            try {
-                if (user.emailAddresses && user.emailAddresses.length > 0) {
-                    isDeveloper = user.emailAddresses.some(e => e.emailAddress === 'jcjimenezglez@gmail.com');
-                } else if (user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) {
-                    isDeveloper = user.primaryEmailAddress.emailAddress === 'jcjimenezglez@gmail.com';
-                } else if (user.emailAddress) {
-                    isDeveloper = user.emailAddress === 'jcjimenezglez@gmail.com';
-                }
-            } catch (_) {}
+    // Sync the settings panel technique selection with the main timer
+    syncSettingsPanelTechnique(technique) {
+        // Don't sync if technique is 'custom'
+        if (technique === 'custom') {
+            this.deselectTechniqueInPanel();
+            return;
         }
+        
+        // For guest users, don't interfere with the default Pomodoro selection
+        if (!this.isAuthenticated && technique === 'pomodoro') {
+            console.log('✅ Guest user - keeping default Pomodoro selection');
+            return;
+        }
+        
+        // Use setTimeout to ensure the panel is rendered
+        setTimeout(() => {
+            const settingsPanel = document.getElementById('settingsSidePanel');
+            if (!settingsPanel) {
+                console.log('⚠️ Settings panel not found in DOM');
+                return;
+            }
+            
+            const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+            if (!techniquePresets.length) {
+                console.log('⚠️ No technique presets found in panel');
+                return;
+            }
+            
+            // Remove active class from all presets
+            techniquePresets.forEach(preset => {
+                preset.classList.remove('active');
+            });
+            
+            // Add active class to the matching technique
+            const matchingPreset = Array.from(techniquePresets).find(preset => 
+                preset.dataset.technique === technique
+            );
+            
+            if (matchingPreset) {
+                matchingPreset.classList.add('active');
+                console.log(`✅ Settings panel synced with technique: ${technique}`);
+                
+                // Also update the sliders to reflect current settings
+                this.updateSettingsPanelSliders();
+            } else {
+                console.log(`⚠️ Technique '${technique}' not found in settings panel`);
+            }
+        }, 100);
+    }
+    
+    // Deselect technique in panel when user manually changes duration
+    deselectTechniqueInPanel() {
+        const settingsPanel = document.getElementById('settingsSidePanel');
+        if (!settingsPanel) return;
+        
+        const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+        techniquePresets.forEach(preset => {
+            preset.classList.remove('active');
+        });
+        
+        console.log('🔄 Technique deselected due to manual duration change');
+    }
 
-        if (isDeveloper) {
-            developerTab.style.display = '';
-            developerContent.style.display = '';
-            if (developerDropdownItem) developerDropdownItem.style.display = '';
-        } else {
-            developerTab.style.display = 'none';
-            developerContent.style.display = 'none';
-            if (developerDropdownItem) developerDropdownItem.style.display = 'none';
+    // Update the sliders in the settings panel to reflect current values
+    updateSettingsPanelSliders() {
+        const pomodoroSlider = document.getElementById('sidebarPomodoroSlider');
+        const shortBreakSlider = document.getElementById('sidebarShortBreakSlider');
+        const longBreakSlider = document.getElementById('sidebarLongBreakSlider');
+        const sessionsSlider = document.getElementById('sidebarSessionsSlider');
+        
+        const pomodoroValue = document.getElementById('sidebarPomodoroValue');
+        const shortBreakValue = document.getElementById('sidebarShortBreakValue');
+        const longBreakValue = document.getElementById('sidebarLongBreakValue');
+        const sessionsValue = document.getElementById('sidebarSessionsValue');
+        
+        if (pomodoroSlider && pomodoroValue) {
+            const minutes = Math.floor(this.workTime / 60);
+            pomodoroSlider.value = minutes;
+            pomodoroValue.textContent = `${minutes} min`;
+        }
+        
+        if (shortBreakSlider && shortBreakValue) {
+            const minutes = Math.floor(this.shortBreakTime / 60);
+            shortBreakSlider.value = minutes;
+            shortBreakValue.textContent = `${minutes} min`;
+        }
+        
+        if (longBreakSlider && longBreakValue) {
+            const minutes = Math.floor(this.longBreakTime / 60);
+            longBreakSlider.value = minutes;
+            longBreakValue.textContent = `${minutes} min`;
+        }
+        
+        if (sessionsSlider && sessionsValue) {
+            sessionsSlider.value = this.sessionsPerCycle;
+            sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
         }
     }
 
@@ -575,6 +2374,44 @@ class PomodoroTimer {
 
         // Custom selected
         if (saved === 'custom') {
+            // Check if we have custom durations saved (from manual changes)
+            const savedPomodoroTime = localStorage.getItem('pomodoroTime');
+            const savedShortBreakTime = localStorage.getItem('shortBreakTime');
+            const savedLongBreakTime = localStorage.getItem('longBreakTime');
+            const savedSessionsPerCycle = localStorage.getItem('sessionsPerCycle');
+            
+            if (savedPomodoroTime || savedShortBreakTime || savedLongBreakTime || savedSessionsPerCycle) {
+                // Apply saved custom durations
+                if (savedPomodoroTime) this.workTime = parseInt(savedPomodoroTime);
+                if (savedShortBreakTime) this.shortBreakTime = parseInt(savedShortBreakTime);
+                if (savedLongBreakTime) this.longBreakTime = parseInt(savedLongBreakTime);
+                if (savedSessionsPerCycle) this.sessionsPerCycle = parseInt(savedSessionsPerCycle);
+                
+                // Update cycle sections with custom durations
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                
+                // Update UI to reflect custom durations
+                this.updateDisplay();
+                this.updateProgress();
+                this.updateSections();
+                this.updateSessionInfo();
+                this.updateCurrentSessionTask();
+                
+                console.log('✅ Applied saved custom configuration');
+                this.hasAppliedSavedTechnique = true;
+                return;
+            }
+            
+            // Check for saved custom timer config
             if (savedCustom) {
                 try {
                     const config = JSON.parse(savedCustom);
@@ -593,16 +2430,50 @@ class PomodoroTimer {
             return;
         }
 
-        // Built-in technique
+        // Built-in technique - load technique first
         const item = document.querySelector(`[data-technique="${saved}"]`);
         if (item) {
-            const requiresAccount = item.dataset.requiresAccount === 'true';
-            if (requiresAccount && !this.isAuthenticated) {
-                // Defer until auth is ready; do NOT mark as applied yet
-                this.pendingSelectedTechnique = saved;
-                return;
-            }
             this.selectTechnique(item);
+            
+            // After loading technique, check if there are saved custom durations
+            // and apply them if they exist (user had customized the technique)
+            const savedPomodoroTime = localStorage.getItem('pomodoroTime');
+            const savedShortBreakTime = localStorage.getItem('shortBreakTime');
+            const savedLongBreakTime = localStorage.getItem('longBreakTime');
+            const savedSessionsPerCycle = localStorage.getItem('sessionsPerCycle');
+            
+            if (savedPomodoroTime || savedShortBreakTime || savedLongBreakTime || savedSessionsPerCycle) {
+                // Apply saved custom durations
+                if (savedPomodoroTime) this.workTime = parseInt(savedPomodoroTime);
+                if (savedShortBreakTime) this.shortBreakTime = parseInt(savedShortBreakTime);
+                if (savedLongBreakTime) this.longBreakTime = parseInt(savedLongBreakTime);
+                if (savedSessionsPerCycle) this.sessionsPerCycle = parseInt(savedSessionsPerCycle);
+                
+                // Update cycle sections with custom durations
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                
+                // Update UI to reflect custom durations
+                this.updateDisplay();
+                this.updateProgress();
+                this.updateSections();
+                this.updateSessionInfo();
+                this.updateCurrentSessionTask();
+                
+                console.log('✅ Applied saved custom durations to technique');
+            }
+            
+            // Sync settings panel with the loaded technique
+            this.syncSettingsPanelTechnique(saved);
+            
             this.hasAppliedSavedTechnique = true;
             return;
         }
@@ -614,11 +2485,15 @@ class PomodoroTimer {
     updateUserProfile() {
         if (!this.user) return;
         
-        // Update user email in dropdown
+        // Update user display name in dropdown (First name if available, email if not)
         const userEmailElement = document.getElementById('userEmail');
         if (userEmailElement) {
-            const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress || 'user@example.com';
-            userEmailElement.textContent = email;
+            const firstName = this.user.firstName;
+            const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress;
+            
+            // Use first name if available, otherwise use email
+            const displayName = firstName || email || 'User';
+            userEmailElement.textContent = displayName;
         }
         
         // Update user avatar
@@ -632,6 +2507,23 @@ class PomodoroTimer {
                     <text x="18" y="22" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">${initials}</text>
                 </svg>`;
             this.userAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+        }
+        
+        // Update header settings button with user profile image
+        if (this.user.imageUrl && this.headerSettingsAvatar && this.headerSettingsIcon) {
+            this.headerSettingsAvatar.src = this.user.imageUrl;
+            this.headerSettingsAvatar.style.display = 'block';
+            this.headerSettingsIcon.style.display = 'none';
+        } else if (this.headerSettingsAvatar && this.headerSettingsIcon) {
+            const initials = this.getInitials(this.user.fullName || this.user.firstName || (this.user.emailAddresses?.[0]?.emailAddress || 'U'));
+            const svg = `
+                <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" fill="#555" rx="16"/>
+                    <text x="16" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="11" font-weight="bold">${initials}</text>
+                </svg>`;
+            this.headerSettingsAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+            this.headerSettingsAvatar.style.display = 'block';
+            this.headerSettingsIcon.style.display = 'none';
         }
     }
 
@@ -670,7 +2562,260 @@ class PomodoroTimer {
             this.feedbackModalOverlay.style.display = 'none';
         }
     }
+    
+    showIntegrationModal(integrationType) {
+        if (this.integrationModalOverlay) {
+            const integrationData = {
+                todoist: {
+                    title: 'Todoist Integration',
+                    message: 'Sync your Todoist tasks directly into your focus sessions! Import tasks from your projects and track your productivity seamlessly.',
+                    icon: `
+                        <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                            <img src="/images/todoist.svg" alt="Todoist" style="width: 48px; height: 48px;">
+                        </div>
+                    `,
+                    primaryText: this.isAuthenticated ? 'Get Lifetime Access' : 'Learn More',
+                    secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
+                },
+                notion: {
+                    title: 'Notion Integration',
+                    message: 'Connect your Notion workspace to import tasks from your databases! Sync your productivity workflow and manage tasks across platforms.',
+                    icon: `
+                        <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                            <img src="/images/notion.svg" alt="Notion" style="width: 48px; height: 48px;">
+                        </div>
+                    `,
+                    primaryText: this.isAuthenticated ? 'Get Lifetime Access' : 'Learn More',
+                    secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
+                }
+            };
+            
+            const data = integrationData[integrationType] || integrationData.todoist;
+            
+            // Update modal content
+            const iconElement = document.getElementById('integrationModalIcon');
+            const titleElement = document.getElementById('integrationModalTitle');
+            const messageElement = document.getElementById('integrationModalMessage');
+            const primaryBtn = document.getElementById('integrationModalPrimaryBtn');
+            const secondaryBtn = document.getElementById('integrationModalSecondaryBtn');
+            
+            if (iconElement) iconElement.innerHTML = data.icon;
+            if (titleElement) titleElement.textContent = data.title;
+            if (messageElement) messageElement.textContent = data.message;
+            if (primaryBtn) primaryBtn.textContent = data.primaryText;
+            if (secondaryBtn) secondaryBtn.textContent = data.secondaryText;
+            
+            this.integrationModalOverlay.style.display = 'flex';
+        }
+    }
+    
+    showTechniqueModal(technique) {
+        
+        // Get technique name
+        const techniqueNames = {
+            'sprint': 'Sprint',
+            'focus': 'Focus', 
+            'flow': 'Flow State',
+            'marathon': 'Marathon',
+            'deepwork': 'Deep Work'
+        };
+        
+        const techniqueName = techniqueNames[technique] || 'Advanced Technique';
+        
+        // Create technique modal using exact same structure as Task limit reached
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        
+        modal.innerHTML = `
+            <button class="close-logout-modal-x" id="closeTechniqueModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3 class="logout-modal-title">${techniqueName}</h3>
+            <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Learn more</button>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Show modal
+        modalOverlay.style.display = 'flex';
+        
+        // Event listeners
+        const closeBtn = modal.querySelector('#closeTechniqueModal');
+        const signupBtn = modal.querySelector('#techniqueSignupBtn');
+        const learnMoreBtn = modal.querySelector('#techniqueLearnMoreBtn');
+        
+        const closeModal = () => {
+            modalOverlay.remove();
+        };
+        
+        closeBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        
+        signupBtn.addEventListener('click', () => {
+            this.trackEvent('Signup from Technique Modal', {
+                button_type: 'signup',
+                source: 'technique_modal',
+                technique_name: technique,
+                user_type: this.isAuthenticated ? 'free_user' : 'guest',
+                conversion_funnel: 'technique_interest'
+            });
+            closeModal();
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+        });
+        
+        learnMoreBtn.addEventListener('click', () => {
+            this.trackEvent('Learn More from Technique Modal', {
+                button_type: 'learn_more',
+                source: 'technique_modal',
+                technique_name: technique
+            });
+            closeModal();
+            window.open('/pricing/', '_blank');
+        });
+    }
+    
+    hideIntegrationModal() {
+        if (this.integrationModalOverlay) {
+            this.integrationModalOverlay.style.display = 'none';
+        }
+    }
+    
+    showTaskLimitModal() {
+        if (this.guestTaskLimitModalOverlay) {
+            
+            // Update modal content based on user type
+            const title = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-title');
+            const message = this.guestTaskLimitModalOverlay.querySelector('.logout-modal-message');
+            const button = this.guestTaskLimitModalOverlay.querySelector('#guestTaskLimitSignupBtn');
+            
+            if (!this.isAuthenticated) {
+                // Guest user
+                title.textContent = 'Task limit reached';
+                message.textContent = 'Guest users can have up to 1 active task. Sign up to create unlimited tasks and unlock all features!';
+                button.textContent = 'Sign up';
+            } else {
+                // Free user (authenticated but not Pro)
+                title.textContent = 'Task limit reached';
+                message.textContent = 'Free users can have up to 3 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
+                button.textContent = 'Get Lifetime Access';
+            }
+            
+            this.guestTaskLimitModalOverlay.style.display = 'flex';
+        }
+    }
+    
+    showGuestTaskLimitModal() {
+        if (this.guestTaskLimitModalOverlay) {
+            this.guestTaskLimitModalOverlay.style.display = 'flex';
+        }
+    }
+    
+    hideGuestTaskLimitModal() {
+        if (this.guestTaskLimitModalOverlay) {
+            this.guestTaskLimitModalOverlay.style.display = 'none';
+        }
+    }
+    
+    // Daily focus limit helpers
+    hasReachedDailyFocusLimit() {
+        // Pro users are unlimited; guests and free users are limited
+        const isLimitedUser = !this.isPremiumUser();
+        if (!isLimitedUser) return false;
+        // If cooldown is active, limit is reached
+        return !!this.focusLimitCooldownUntil && Date.now() < this.focusLimitCooldownUntil;
+    }
+    
+    showDailyLimitModal() {
+        if (!this.dailyLimitModalOverlay) return;
+        // Always pause and block controls while visible
+        this.pauseTimerSilent();
+        this.dailyLimitModalOverlay.style.display = 'flex';
+        
+        // Update message with progress
+        const focusHoursUsed = Math.floor((this.focusSecondsToday || 0) / 3600);
+        const focusMinutesUsed = Math.floor(((this.focusSecondsToday || 0) % 3600) / 60);
+        const limitHours = Math.floor(this.DAILY_FOCUS_LIMIT_SECONDS / 3600);
+        const limitMinutes = Math.floor((this.DAILY_FOCUS_LIMIT_SECONDS % 3600) / 60);
+        
+        const progressText = `${focusHoursUsed}h ${focusMinutesUsed > 0 ? focusMinutesUsed + 'm' : ''} / ${limitHours}h used today`;
+        const dailyLimitMessage = document.getElementById('dailyLimitMessage');
+        if (dailyLimitMessage) {
+            dailyLimitMessage.textContent = `Unlock unlimited focus time and never hit limits again. Join Pro users who focus without restrictions. (${progressText})`;
+        }
+        
+        // 🎯 Track Daily Limit Modal Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            const focusMinutesUsed = Math.floor((this.focusSecondsToday || 0) / 60);
+            window.mixpanelTracker.trackCustomEvent('Daily Limit Modal Opened', {
+                focus_minutes_used: focusMinutesUsed,
+                user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest',
+                cooldown_remaining_ms: this.focusLimitCooldownUntil ? Math.max(0, this.focusLimitCooldownUntil - Date.now()) : 0
+            });
+            console.log('📊 Daily limit modal opened event tracked to Mixpanel');
+        }
+        // Start countdown updates
+        this.startDailyLimitCountdown();
+        // Keep controls clickable; Start will re-open modal via guard in startTimer
+    }
+    
+    hideDailyLimitModal() {
+        if (!this.dailyLimitModalOverlay) return;
+        this.dailyLimitModalOverlay.style.display = 'none';
+        this.stopDailyLimitCountdown();
+    }
 
+    // Countdown handling for daily limit modal
+    startDailyLimitCountdown() {
+        if (!this.dailyLimitCountdownEl) return;
+        this.stopDailyLimitCountdown();
+        const update = () => {
+            // If cooldown expired, clear and close
+            if (!this.focusLimitCooldownUntil || Date.now() >= this.focusLimitCooldownUntil) {
+                this.focusLimitCooldownUntil = 0;
+                try { localStorage.removeItem('focusLimitCooldownUntil'); } catch (_) {}
+                this.dailyLimitCountdownEl.textContent = 'You can start now.';
+                this.hideDailyLimitModal();
+                return;
+            }
+            const remainingMs = this.focusLimitCooldownUntil - Date.now();
+            this.dailyLimitCountdownEl.textContent = `Your timer will be available again in ${this.formatMsHHMMSS(remainingMs)}.`;
+        };
+        update();
+        this.dailyLimitCountdownTimer = setInterval(update, 1000);
+    }
+    stopDailyLimitCountdown() {
+        if (this.dailyLimitCountdownTimer) {
+            clearInterval(this.dailyLimitCountdownTimer);
+            this.dailyLimitCountdownTimer = null;
+        }
+    }
+    formatMsHHMMSS(ms) {
+        const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+    }
+    
+    
+    
+    
     async submitFeedback() {
         const feedbackText = this.feedbackText?.value?.trim();
         
@@ -736,8 +2881,57 @@ class PomodoroTimer {
         }
     }
     
+    ensureLogoutButtonBinding() {
+        // Ensure logout button is properly bound
+        const confirmBtn = document.getElementById('confirmLogoutBtn');
+        if (confirmBtn && !confirmBtn.hasAttribute('data-bound')) {
+            confirmBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                this.hideLogoutModal();
+                await this.performLogout();
+            });
+            confirmBtn.setAttribute('data-bound', 'true');
+        }
+        
+        const cancelBtn = document.getElementById('cancelLogoutBtn');
+        if (cancelBtn && !cancelBtn.hasAttribute('data-bound')) {
+            cancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideLogoutModal();
+            });
+            cancelBtn.setAttribute('data-bound', 'true');
+        }
+    }
+    
+    resetThemeAndMusicForGuest() {
+        // Reset theme to minimalist if it's premium
+        const currentTheme = localStorage.getItem('selectedTheme');
+        // All themes are now available for guests, no reset needed
+        
+        // Reset music to none if it's premium
+        if (this.rainEnabled || this.ambientEnabled) {
+            this.stopRainPlaylist();
+            this.stopAmbientPlaylist();
+            this.rainEnabled = false;
+            this.ambientEnabled = false;
+            localStorage.setItem('rainEnabled', 'false');
+            localStorage.setItem('ambientEnabled', 'false');
+        }
+        
+        // Clear saved timer state (guests don't get session restore)
+        sessionStorage.removeItem('timerState');
+        
+        console.log('🔄 Reset theme, music, and timer state to guest defaults');
+    }
+
     async performLogout() {
         try {
+            // 🎯 Track User Logout event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackUserLogout();
+                console.log('📊 User logout event tracked to Mixpanel');
+            }
+            
             // Add loading state to confirm button
             if (this.confirmLogoutBtn) {
                 this.confirmLogoutBtn.textContent = 'Logging out...';
@@ -751,20 +2945,32 @@ class PomodoroTimer {
             // Wait a moment for the fade effect
             await new Promise(resolve => setTimeout(resolve, 300));
             
-            // Mark that user just logged out to prevent welcome modal
+            // Mark that user just logged out to prevent re-hydration and welcome modal
             try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
+            // Force clear any forced view mode and premium hints
+            try {
+                localStorage.removeItem('viewMode');
+                localStorage.removeItem('hasAccount');
+                localStorage.setItem('isPremium', 'false');
+                localStorage.setItem('hasPaidSubscription', 'false');
+            } catch (_) {}
             
-            // Optimistic UI update
+            // Sign out from Clerk (all sessions) without adding extra query params FIRST
+            try {
+                await window.Clerk.signOut({ signOutAll: true });
+            } catch (_) { /* ignore */ }
+
+            // Now optimistic UI update to guest mode
             this.isAuthenticated = false;
             this.user = null;
             // Clear Todoist tasks when user logs out
             this.clearTodoistTasks();
+            
+            // Don't reset theme and music - keep them visible but disabled for logged out users
+            // Only clear saved timer state (guests don't get session restore)
+            sessionStorage.removeItem('timerState');
+            
             this.updateAuthState();
-
-            // Sign out from Clerk (all sessions) without adding extra query params
-            try {
-                await window.Clerk.signOut({ signOutAll: true });
-            } catch (_) { /* ignore */ }
 
             // Clean Clerk params and hard reload the page without query string
             this.stripClerkParamsFromUrl();
@@ -789,9 +2995,17 @@ class PomodoroTimer {
                 this.showLogoutModal();
             } else {
                 console.log('Redirecting to Clerk hosted Sign In...');
-                window.Clerk.redirectToSignIn({
-                    fallbackRedirectUrl: window.location.origin + window.location.pathname,
-                });
+                
+                // 🎯 Track Login Attempt event to Mixpanel
+                if (window.mixpanelTracker) {
+                    window.mixpanelTracker.trackCustomEvent('Login Attempt', {
+                        method: 'clerk_redirect'
+                    });
+                    console.log('📊 Login attempt event tracked to Mixpanel');
+                }
+                
+                // Fixed redirect to homepage as requested
+                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent('https://www.superfocus.live/');
             }
         } catch (error) {
             console.error('Login/logout failed:', error);
@@ -801,9 +3015,19 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             console.log('Redirecting to Clerk hosted Sign Up...');
-            // Redirect to signup success page after successful signup
-            const successUrl = window.location.origin + '/?signup=success';
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
+            
+            // 🎯 Track Signup Attempt event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackCustomEvent('Signup Attempt', {
+                    method: 'clerk_redirect'
+                });
+                console.log('📊 Signup attempt event tracked to Mixpanel');
+            }
+            
+            // Redirect to signup with success URL that includes signup=success parameter
+            const successUrl = 'https://www.superfocus.live/?signup=success';
+            const signupUrl = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
+            window.location.assign(signupUrl);
         } catch (error) {
             console.error('Sign up failed:', error);
         }
@@ -828,11 +3052,15 @@ class PomodoroTimer {
     }
     
     toggleDropdown() {
-        this.techniqueDropdown.classList.toggle('open');
+        if (this.techniqueDropdown) {
+            this.techniqueDropdown.classList.toggle('open');
+        }
     }
     
     closeDropdown() {
-        this.techniqueDropdown.classList.remove('open');
+        if (this.techniqueDropdown) {
+            this.techniqueDropdown.classList.remove('open');
+        }
     }
     
     selectTechnique(item) {
@@ -877,6 +3105,9 @@ class PomodoroTimer {
         
         // Here you could implement different timer configurations based on technique
         this.loadTechnique(technique);
+        
+        // Sync the settings panel with the selected technique
+        this.syncSettingsPanelTechnique(technique);
     }
     
     loadTechnique(technique) {
@@ -887,6 +3118,22 @@ class PomodoroTimer {
 
         // Different timer configurations based on technique
         switch(technique) {
+            case 'sprint':
+                this.workTime = 15 * 60;
+                this.shortBreakTime = 3 * 60;
+                this.longBreakTime = 10 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
             case 'pomodoro':
                 this.workTime = 25 * 60;
                 this.shortBreakTime = 5 * 60;
@@ -900,6 +3147,66 @@ class PomodoroTimer {
                     { type: 'work', duration: this.workTime, name: 'Work 3' },
                     { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
                     { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'focus':
+                this.workTime = 30 * 60;
+                this.shortBreakTime = 6 * 60;
+                this.longBreakTime = 20 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'flow':
+                this.workTime = 45 * 60;
+                this.shortBreakTime = 8 * 60;
+                this.longBreakTime = 25 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'marathon':
+                this.workTime = 60 * 60;
+                this.shortBreakTime = 10 * 60;
+                this.longBreakTime = 30 * 60;
+                this.sessionsPerCycle = 4;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                    { type: 'work', duration: this.workTime, name: 'Work 3' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                    { type: 'work', duration: this.workTime, name: 'Work 4' },
+                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+                ];
+                break;
+            case 'deepwork':
+                this.workTime = 90 * 60;
+                this.shortBreakTime = 20 * 60;
+                this.longBreakTime = 30 * 60;
+                this.sessionsPerCycle = 2;
+                this.cycleSections = [
+                    { type: 'work', duration: this.workTime, name: 'Work 1' },
+                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                    { type: 'work', duration: this.workTime, name: 'Work 2' },
                     { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
                 ];
                 break;
@@ -980,44 +3287,46 @@ class PomodoroTimer {
         const progressSegments = document.querySelector('.progress-segments');
         if (!progressSegments) return;
         
+        // Preserve existing opacity before clearing
+        const existingOpacity = progressSegments.style.opacity || '';
+        
         // Clear existing segments
         progressSegments.innerHTML = '';
         
-        // Create segments based on current technique
+        // Create all 8 segments for the complete cycle
         this.cycleSections.forEach((section, index) => {
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('class', `progress-segment ${section.type}-segment`);
-            circle.setAttribute('data-section', index + 1);
-            circle.setAttribute('data-minutes', section.duration / 60);
+            circle.setAttribute('class', `progress-segment ${section.type === 'work' ? 'work-segment' : section.type === 'long-break' ? 'long-break-segment' : 'break-segment'}`);
+            circle.setAttribute('data-section', (index + 1).toString());
+            circle.setAttribute('data-minutes', Math.floor(section.duration / 60).toString());
             circle.setAttribute('cx', '50');
             circle.setAttribute('cy', '50');
             circle.setAttribute('r', '45');
             circle.setAttribute('fill', 'none');
             circle.setAttribute('stroke-width', '4');
-            circle.setAttribute('stroke-linecap', 'round');
-            circle.setAttribute('stroke-linejoin', 'round');
-            
-            // Set stroke color based on section type
-            if (section.type === 'work') {
                 circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            } else if (section.type === 'break') {
-                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            } else if (section.type === 'long-break') {
-                circle.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-            }
             
             progressSegments.appendChild(circle);
         });
+            
+        // Restore opacity if it existed
+        if (existingOpacity) {
+            progressSegments.style.opacity = existingOpacity;
+        }
         
-        // Update overlays
+        // Update overlays: create 8 overlays for each section
         const progressOverlays = document.querySelector('.progress-overlays');
         if (progressOverlays) {
+            // Preserve existing opacity before clearing
+            const existingOverlayOpacity = progressOverlays.style.opacity || '';
+            
             progressOverlays.innerHTML = '';
             
-            this.cycleSections.forEach((section, index) => {
+            // Create 8 overlays for each section
+            for (let i = 1; i <= 8; i++) {
                 const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 overlay.setAttribute('class', 'progress-overlay');
-                overlay.setAttribute('data-ol', index + 1);
+                overlay.setAttribute('data-ol', i.toString());
                 overlay.setAttribute('cx', '50');
                 overlay.setAttribute('cy', '50');
                 overlay.setAttribute('r', '45');
@@ -1026,9 +3335,13 @@ class PomodoroTimer {
                 overlay.setAttribute('stroke-linecap', 'round');
                 overlay.setAttribute('stroke-linejoin', 'round');
                 overlay.setAttribute('stroke', 'url(#liquidGlassOverlay)');
-                
                 progressOverlays.appendChild(overlay);
-            });
+            }
+                
+            // Restore opacity if it existed
+            if (existingOverlayOpacity) {
+                progressOverlays.style.opacity = existingOverlayOpacity;
+            }
         }
         
         // Refresh cached NodeLists so subsequent layout uses the new elements
@@ -1040,57 +3353,261 @@ class PomodoroTimer {
         this.updateProgress();
     }
 
-    // Layout segments proportionally starting from 12 o'clock, with small gaps
+    // Minimal layout: ensure background circle is full and store circumference
     layoutSegments() {
         const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
-        // Target visible gap 2px → with round caps and width 4, use GAP ≈ 6
-        const GAP = 6;
+        this._segmentMeta = { CIRCUMFERENCE };
 
-        // Use cycleSections data instead of DOM
-        const minutes = this.cycleSections.map(section => section.duration / 60); // Convert seconds to minutes
-        const totalMinutes = minutes.reduce((a, b) => a + b, 0);
-
-        // Compute raw lengths proportionally based on actual duration
-        const lengths = minutes.map(m => (m / totalMinutes) * CIRCUMFERENCE);
-
-        // Apply gaps: ensure each gap is GAP length, subtract proportionally from each segment
-        const totalGaps = GAP * this.cycleSections.length;
-        const scale = (CIRCUMFERENCE - totalGaps) / CIRCUMFERENCE;
-        const scaledLengths = lengths.map(len => Math.max(6, len * scale)); // min length
-        this._segmentMeta = { CIRCUMFERENCE, GAP, scaledLengths };
-
-        // Set dasharray and offsets so the first segment starts at 12 o'clock.
-        // Because we rotate the group and indicator -90deg in CSS, here we start at 0.
-        let offset = 0;
-        this.progressSegments.forEach((seg, idx) => {
-            if (idx < scaledLengths.length) {
-                const segLen = scaledLengths[idx];
-                seg.setAttribute('stroke-dasharray', `${segLen} ${CIRCUMFERENCE}`);
-                seg.setAttribute('stroke-dashoffset', `${-offset}`);
-                offset += segLen + GAP;
-            } else {
-                // Hide extra segments if current technique has fewer sections
-                seg.style.display = 'none';
-            }
+        // Ensure any existing background circle is a FULL circle (no dasharray)
+        const bgSegments = document.querySelectorAll('.progress-segment');
+        bgSegments.forEach(seg => {
+            seg.removeAttribute('stroke-dasharray');
+            seg.removeAttribute('stroke-dashoffset');
+            seg.style.display = 'inline';
         });
     }
-    
     bindEvents() {
-        this.startPauseBtn.addEventListener('click', () => this.toggleTimer());
-        this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
-        this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
-        this.musicToggleBtn.addEventListener('click', (e) => {
+        // Primary binding for Play/Pause button (original behavior)
+        if (this.startPauseBtn) this.startPauseBtn.addEventListener('click', () => {
+            this.trackEvent('Start Button Clicked', {
+                button_type: 'start_pause',
+                timer_state: this.isRunning ? 'running' : 'paused',
+                current_section: this.currentSection
+            });
+            this.toggleTimer();
+        });
+        if (this.prevSectionBtn) this.prevSectionBtn.addEventListener('click', () => this.goToPreviousSection());
+        if (this.nextSectionBtn) this.nextSectionBtn.addEventListener('click', () => this.goToNextSection());
+        if (this.musicToggleBtn) this.musicToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.toggleMusic();
         });
-        this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
-        this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
+        if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
+        if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
+        if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
+        
+        // Subscribe button event listener
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        if (subscribeBtn) {
+            subscribeBtn.addEventListener('click', () => {
+                const eventProperties = {
+                    button_type: 'subscribe',
+                    source: 'timer_header',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    location: 'timer_header'
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
+                
+                window.location.href = 'https://www.superfocus.live/pricing';
+            });
+        }
+
+        // Streak button event listener
+        const streakInfo = document.getElementById('streakInfo');
+        if (streakInfo) {
+            streakInfo.addEventListener('click', () => {
+                this.trackEvent('Report Clicked', {
+                    button_type: 'report',
+                    source: 'timer_header'
+                });
+                this.showStreakInfo();
+            });
+        }
+        
+        // Timer Settings button event listeners (footer legacy)
+        const timerSettingsBtn = document.getElementById('timerSettingsBtn');
+        if (timerSettingsBtn) {
+            timerSettingsBtn.addEventListener('click', () => this.showTimerSettingsModal());
+        }
+        
+        // Header Settings dropdown toggle
+        if (this.headerSettingsBtn) {
+            this.headerSettingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Track account button click in Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'account_button_click', {
+                        'event_category': 'navigation',
+                        'event_label': 'account_settings',
+                        'value': 1
+                    });
+                    console.log('📊 Account button click tracked');
+                }
+                
+                if (this.settingsDropdown) {
+                    const isShown = this.settingsDropdown.style.display === 'block';
+                    // Close user profile dropdown if open
+                    if (this.userProfileDropdown) {
+                        this.userProfileDropdown.style.display = 'none';
+                    }
+                    // Close help panel when closing settings dropdown
+                    if (!isShown && this.helpPanel) {
+                        this.helpPanel.style.display = 'none';
+                    }
+                    this.settingsDropdown.style.display = isShown ? 'none' : 'block';
+                }
+            });
+        }
+        
+        // Settings dropdown - Login button
+        if (this.settingsLoginBtn) {
+            this.settingsLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Login Clicked', {
+                    button_type: 'login',
+                    source: 'account_menu'
+                });
+                this.settingsDropdown.style.display = 'none';
+                this.handleLogin();
+            });
+        }
+        
+        // Settings dropdown - Signup button
+        if (this.settingsSignupBtn) {
+            this.settingsSignupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Signup Clicked', {
+                    modal_type: 'account_menu',
+                    button_type: 'signup',
+                    source: 'account_menu'
+                });
+                this.settingsDropdown.style.display = 'none';
+                this.handleSignup();
+            });
+        }
+        
+        // Settings dropdown - Shortcuts
+        if (this.shortcutsItem) {
+            this.shortcutsItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Help Clicked', {
+                    button_type: 'help',
+                    source: 'account_menu',
+                    help_option: 'shortcuts'
+                });
+                this.settingsDropdown.style.display = 'none';
+                this.showShortcutsModal();
+            });
+        }
+        
+        // Settings dropdown - Upgrade to Pro
+        if (this.settingsUpgradeToProBtn) {
+            this.settingsUpgradeToProBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Track Profile menu Upgrade to Pro click
+                const eventProperties = {
+                    button_type: 'subscribe',
+                    source: 'profile_dropdown',
+                    location: 'settings_dropdown',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    modal_type: 'profile_menu'
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
+                
+                this.settingsDropdown.style.display = 'none';
+                window.location.href = '/pricing';
+            });
+        }
+        
+        // Settings dropdown - Manage Subscription
+        if (this.settingsManageSubscriptionBtn) {
+            this.settingsManageSubscriptionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.handleManageSubscription();
+            });
+        }
+        
+        // Settings dropdown - Account
+        if (this.settingsAccountBtn) {
+            this.settingsAccountBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Account Clicked', {
+                    button_type: 'account',
+                    source: 'account_menu'
+                });
+                this.settingsDropdown.style.display = 'none';
+                this.showSettingsModal();
+            });
+        }
+        
+        // Settings dropdown - Integrations (removed from menu, now only in Account)
+        // if (this.settingsIntegrationsBtn) {
+        //     this.settingsIntegrationsBtn.addEventListener('click', (e) => {
+        //         e.preventDefault();
+        //         this.settingsDropdown.style.display = 'none';
+        //         this.showIntegrationsModal();
+        //     });
+        // }
+        
+        // Settings dropdown - Report (Guest) - REMOVED
+        // Guest users can now use the streak-info button directly
+        // if (this.settingsStatisticsGuestBtn) {
+        //     this.settingsStatisticsGuestBtn.addEventListener('click', (e) => {
+        //         e.preventDefault();
+        //         this.settingsDropdown.style.display = 'none';
+        //         this.showGuestFocusReportTeaser();
+        //     });
+        // }
+        
+        // Settings dropdown - Feedback
+        if (this.settingsFeedbackBtn) {
+            this.settingsFeedbackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Help Clicked', {
+                    button_type: 'help',
+                    source: 'account_menu',
+                    help_option: 'feedback'
+                });
+                this.settingsDropdown.style.display = 'none';
+                this.showFeedbackModal();
+            });
+        }
+        
+        // Settings dropdown - Help Toggle
+        if (this.helpToggle) {
+            this.helpToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.helpPanel) {
+                    const isOpen = this.helpPanel.style.display === 'block';
+                    this.helpPanel.style.display = isOpen ? 'none' : 'block';
+                }
+            });
+        }
+        
+        // Close help panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (this.helpPanel && this.helpPanel.style.display === 'block') {
+                if (!this.helpPanel.contains(e.target) && !this.helpToggle.contains(e.target)) {
+                    this.helpPanel.style.display = 'none';
+                }
+            }
+        });
+        
+        // Settings dropdown - Logout
+        if (this.settingsLogoutBtn) {
+            this.settingsLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showLogoutModal();
+            });
+        }
         
         // Custom timer event listeners
-        this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
-        this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
-        this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
+        if (this.closeCustomTimer) this.closeCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        if (this.cancelCustomTimer) this.cancelCustomTimer.addEventListener('click', () => this.hideCustomTimerModal());
+        if (this.saveCustomTimer) this.saveCustomTimer.addEventListener('click', () => this.saveCustomTimerConfig());
         
         // Custom timer form inputs
         const customInputs = ['customName', 'focusTime', 'breakTime', 'longBreakTime', 'cycles'];
@@ -1109,7 +3626,7 @@ class PomodoroTimer {
             const inTechniqueInfo = e.target.closest && e.target.closest('.technique-info-overlay');
             if (inTechniqueInfo) return;
 
-            if (!this.techniqueDropdown.contains(e.target)) {
+            if (this.techniqueDropdown && !this.techniqueDropdown.contains(e.target)) {
                 this.closeDropdown();
             }
         });
@@ -1119,13 +3636,34 @@ class PomodoroTimer {
             item.addEventListener('click', (e) => {
                 // Don't select technique if clicking on learn more link
                 if (e.target.classList.contains('learn-more-link')) {
+                    e.preventDefault();
                     e.stopPropagation();
                     this.showTechniqueInfo(e.target.dataset.technique);
                     return;
                 }
 
+                // Don't select technique if clicking on login button
+                if (e.target.classList.contains('login-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
                 const technique = item.getAttribute('data-technique');
+                    this.showLoginRequiredModal(technique);
+                    return;
+                }
+
+                const technique = item.getAttribute('data-technique');
+                
+                // Check if technique requires authentication
+                const proTechniques = ['custom'];
+                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showLoginRequiredModal(technique);
+                    return;
+                }
+                
                 if (technique === 'custom') {
+                    e.preventDefault();
                     e.stopPropagation();
                     this.handleCustomTechniqueClick(item);
                     return;
@@ -1134,16 +3672,43 @@ class PomodoroTimer {
             });
         });
         
-        // Setup welcome modal events
-        this.setupWelcomeModalEvents();
+        // Handle login buttons for advanced techniques
+        this.setupLoginButtons();
+        
+        // Initialize dropdown items state after auth state is determined
+        setTimeout(() => {
+            this.initializeDropdownItemsState();
+        }, 100);
+        
+        // Force update dropdown state after auth is fully determined
+        setTimeout(() => {
+            this.updateDropdownItemsState();
+        }, 500);
+        
         
         // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeydown(e));
+
+        // Improve scroll performance by pausing heavy animations while scrolling
+        let scrollTimeoutId = null;
+        window.addEventListener('scroll', () => {
+            document.body.classList.add('is-scrolling');
+            if (scrollTimeoutId) {
+                clearTimeout(scrollTimeoutId);
+            }
+            scrollTimeoutId = setTimeout(() => {
+                document.body.classList.remove('is-scrolling');
+            }, 150);
+        }, { passive: true });
         
         // Handle login button
         if (this.loginButton) {
             this.loginButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Login Button Clicked', {
+                    button_type: 'login',
+                    source: 'main_header'
+                });
                 this.handleLogin();
             });
         }
@@ -1152,6 +3717,11 @@ class PomodoroTimer {
         if (this.signupButton) {
             this.signupButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Signup Button Clicked', {
+                    modal_type: 'main_header',
+                    button_type: 'signup',
+                    source: 'main_header'
+                });
                 this.handleSignup();
             });
         }
@@ -1180,6 +3750,10 @@ class PomodoroTimer {
         if (this.logoIcon) {
             this.logoIcon.addEventListener('click', (e) => {
                 e.preventDefault();
+                this.trackEvent('Logo Clicked', {
+                    button_type: 'logo',
+                    destination: 'homepage'
+                });
                 window.location.href = 'https://superfocus.live';
             });
         }
@@ -1195,6 +3769,11 @@ class PomodoroTimer {
             closeSettingsX.addEventListener('click', () => this.hideSettingsModal());
         }
 
+        const closePricingX = document.querySelector('.close-pricing-x');
+        if (closePricingX) {
+            closePricingX.addEventListener('click', () => this.hidePricingModal());
+        }
+
         // Close modals when clicking overlay
         const upgradeModal = document.getElementById('upgradeModal');
         if (upgradeModal) {
@@ -1205,11 +3784,55 @@ class PomodoroTimer {
             });
         }
 
+        const pricingModal = document.getElementById('pricingModal');
+        if (pricingModal) {
+            pricingModal.addEventListener('click', (e) => {
+                if (e.target === pricingModal) {
+                    this.hidePricingModal();
+                }
+            });
+        }
+
+        // Pricing modal buttons
+        const upgradeToProFromPricing = document.getElementById('upgradeToProFromPricing');
+        if (upgradeToProFromPricing) {
+            upgradeToProFromPricing.addEventListener('click', async () => {
+                // Track Pricing modal Subscribe click
+                const eventProperties = {
+                    button_type: 'subscribe',
+                    source: 'pricing_modal',
+                    location: 'pricing_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    modal_type: 'pricing_modal'
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
+                
+                this.hidePricingModal();
+                await this.handleUpgrade();
+            });
+        }
+
+        const signupFromPricing = document.getElementById('signupFromPricing');
+        if (signupFromPricing) {
+            signupFromPricing.addEventListener('click', () => {
+                this.hidePricingModal();
+                if (this.signupButton) {
+                    this.signupButton.click();
+                }
+            });
+        }
+
         // Settings modal tab navigation
         this.setupSettingsTabs();
         
         // View mode toggle buttons
         this.setupViewModeButtons();
+        
+        // Check if user is admin and show/hide Developer tab
+        this.checkAdminAccess();
 
         // Upgrade button
         const upgradeBtn = document.querySelector('.upgrade-btn');
@@ -1231,37 +3854,12 @@ class PomodoroTimer {
                         return;
                     }
 
-                    const resp = await fetch('/api/create-checkout-session', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-clerk-userid': userId,
-                            'x-clerk-user-email': userEmail,
-                        },
-                    });
-
-                    let data = null;
-                    try {
-                        data = await resp.json();
-                    } catch (_) {
-                        // non-JSON error
-                    }
-
-                    if (!resp.ok) {
-                        const errMsg = (data && data.error) ? data.error : `HTTP ${resp.status}`;
-                        console.error('Checkout session error response:', data);
-                        throw new Error(errMsg);
-                    }
-
-                    const url = data && data.url;
-                    if (url) {
-                        window.location.assign(url);
-                    } else {
-                        throw new Error('No checkout url returned');
-                    }
+                    // Redirect to pricing page first so users see full value proposition
+                    window.location.href = '/pricing';
                 } catch (err) {
-                    console.error('Error creating checkout session:', err);
-                    alert(`Error processing payment: ${err.message || err}`);
+                    console.error('Error in upgrade flow:', err);
+                    // Fallback to pricing page even on error
+                    window.location.href = '/pricing';
                 }
             });
         }
@@ -1286,6 +3884,8 @@ class PomodoroTimer {
         // Close dropdown when clicking outside
         document.addEventListener('click', () => {
             if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
+            if (this.settingsDropdown) this.settingsDropdown.style.display = 'none';
+            if (this.helpPanel) this.helpPanel.style.display = 'none';
         });
         
         // Logout action
@@ -1296,13 +3896,107 @@ class PomodoroTimer {
             });
         }
 
+        // Wire daily limit modal buttons
+        if (this.dailyLimitSubscribeBtn && !this.dailyLimitSubscribeBtn.hasAttribute('data-bound')) {
+            this.dailyLimitSubscribeBtn.setAttribute('data-bound', 'true');
+            this.dailyLimitSubscribeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideDailyLimitModal();
+                // 🎯 Track Daily Limit Subscribe Click event to Mixpanel
+                if (window.mixpanelTracker) {
+                    const focusMinutesUsed = Math.floor((this.focusSecondsToday || 0) / 60);
+                    window.mixpanelTracker.trackCustomEvent('Daily Limit Subscribe Clicked', {
+                        focus_minutes_used: focusMinutesUsed,
+                        user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest',
+                        cooldown_remaining_ms: this.focusLimitCooldownUntil ? Math.max(0, this.focusLimitCooldownUntil - Date.now()) : 0,
+                        source: 'daily_limit_modal'
+                    });
+                    console.log('📊 Daily limit subscribe clicked event tracked to Mixpanel');
+                }
+                try {
+                    const eventProperties = {
+                        button_type: 'subscribe',
+                        source: 'daily_limit_modal',
+                        user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest'
+                    };
+                    this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds && this.trackSubscribeClickedToGoogleAds(eventProperties);
+                } catch (_) {}
+                window.open('/pricing/', '_blank');
+            });
+        }
+        
+        // If user already at limit when loading, ensure modal will show on Start (we don't disable Start)
+        if (this.dailyLimitLaterBtn && !this.dailyLimitLaterBtn.hasAttribute('data-bound')) {
+            this.dailyLimitLaterBtn.setAttribute('data-bound', 'true');
+            this.dailyLimitLaterBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideDailyLimitModal();
+            });
+        }
+        if (this.closeDailyLimitModalX && !this.closeDailyLimitModalX.hasAttribute('data-bound')) {
+            this.closeDailyLimitModalX.setAttribute('data-bound', 'true');
+            this.closeDailyLimitModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideDailyLimitModal();
+            });
+        }
+
         // Reset focus stats (from settings modal)
         const settingsResetButton = document.getElementById('settingsResetButton');
         if (settingsResetButton) {
             settingsResetButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.resetFocusStats();
+                if (confirm('Are you sure you want to reset all your focus data? This action cannot be undone.')) {
+                    this.resetAllData();
                 this.hideSettingsModal();
+                }
+            });
+        }
+        
+        // Manage Account button (from settings modal)
+        const manageAccountBtn = document.getElementById('manageAccountBtn');
+        if (manageAccountBtn) {
+            manageAccountBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.Clerk && window.Clerk.user) {
+                    window.Clerk.openUserProfile();
+                }
+            });
+        }
+        
+        // Upgrade to Pro button (from settings modal)
+        const upgradeToProModalBtn = document.getElementById('upgradeToProModalBtn');
+        if (upgradeToProModalBtn) {
+            upgradeToProModalBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Track Settings modal Upgrade to Pro click
+                const eventProperties = {
+                    button_type: 'subscribe',
+                    source: 'settings_modal',
+                    location: 'settings_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    modal_type: 'settings_modal'
+                };
+                this.trackEvent('Subscribe Clicked', eventProperties);
+                
+                // Track to Google Ads for Performance Max optimization
+                this.trackSubscribeClickedToGoogleAds(eventProperties);
+                
+                this.hideSettingsModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        // Manage Subscription button (from settings modal)
+        const manageSubscriptionModalBtn = document.getElementById('manageSubscriptionModalBtn');
+        if (manageSubscriptionModalBtn) {
+            manageSubscriptionModalBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleManageSubscription();
             });
         }
 
@@ -1364,7 +4058,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Pro') {
+                } else if (text === 'Get Lifetime Access') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -1375,10 +4069,6 @@ class PomodoroTimer {
                 } else if (text === 'Integrations') {
                     e.preventDefault();
                     this.showIntegrationsModal();
-                    if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Developer') {
-                    e.preventDefault();
-                    this.showDeveloperModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
                 } else if (text === 'Feedback') {
                     e.preventDefault();
@@ -1395,6 +4085,16 @@ class PomodoroTimer {
                 this.hideLogoutModal();
                 await this.performLogout();
             });
+        } else {
+            // Fallback: try to find the button again and bind the event
+            const confirmBtn = document.getElementById('confirmLogoutBtn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    this.hideLogoutModal();
+                    await this.performLogout();
+                });
+            }
         }
         
         if (this.cancelLogoutBtn) {
@@ -1405,8 +4105,16 @@ class PomodoroTimer {
         }
 
         // Feedback modal actions
+        const closeFeedbackModalX = document.getElementById('closeFeedbackModalX');
         const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
         const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+        
+        if (closeFeedbackModalX) {
+            closeFeedbackModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideFeedbackModal();
+            });
+        }
         
         if (cancelFeedbackBtn) {
             cancelFeedbackBtn.addEventListener('click', (e) => {
@@ -1420,6 +4128,85 @@ class PomodoroTimer {
                 this.submitFeedback();
             });
         }
+
+        // Guest task limit modal actions
+        const closeGuestTaskLimitModalX = document.getElementById('closeGuestTaskLimitModalX');
+        
+        if (closeGuestTaskLimitModalX) {
+            closeGuestTaskLimitModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideGuestTaskLimitModal();
+            });
+        }
+        
+        if (this.guestTaskLimitSignupBtn) {
+            this.guestTaskLimitSignupBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                
+                // Check if user is authenticated (Free user trying to upgrade)
+                if (this.isAuthenticated) {
+                    // Track Task limit modal upgrade click
+                    const eventProperties = {
+                        button_type: 'subscribe',
+                        source: 'task_limit_modal',
+                        location: 'task_limit_modal',
+                        user_type: 'free',
+                        modal_type: 'task_limit_reached',
+                        task_count: this.getLocalTasks().length
+                    };
+                    this.trackEvent('Subscribe Clicked', eventProperties);
+                    
+                    // Track to Google Ads for Performance Max optimization
+                    this.trackSubscribeClickedToGoogleAds(eventProperties);
+                    
+                    // Redirect to upgrade flow
+                    await this.handleUpgrade();
+                    return;
+                }
+                
+                this.trackEvent('Signup from Task Limit Modal', {
+                    button_type: 'signup',
+                    source: 'task_limit_modal',
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest',
+                    task_count: this.getLocalTasks().length,
+                    conversion_funnel: 'task_limit_reached'
+                });
+                
+                this.hideGuestTaskLimitModal();
+                
+                if (!this.isAuthenticated) {
+                    // Guest user - show signup
+                    this.handleSignup();
+                } else {
+                    // Free user - redirect to pricing page
+                    window.location.href = '/pricing';
+                }
+            });
+        }
+        
+        if (this.guestTaskLimitCancelBtn) {
+            this.guestTaskLimitCancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Learn More from Task Limit Modal', {
+                    button_type: 'learn_more',
+                    source: 'task_limit_modal',
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest'
+                });
+                this.hideGuestTaskLimitModal();
+                window.location.href = '/pricing';
+            });
+        }
+        
+        // Close guest task limit modal when clicking overlay
+        if (this.guestTaskLimitModalOverlay) {
+            this.guestTaskLimitModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.guestTaskLimitModalOverlay) {
+                    this.hideGuestTaskLimitModal();
+                }
+            });
+        }
+        
+        
         
         // Close modal when clicking overlay
         if (this.logoutModalOverlay) {
@@ -1438,6 +4225,50 @@ class PomodoroTimer {
             });
         }
         
+        // Integration Modal event listeners
+        if (this.closeIntegrationModalX) {
+            this.closeIntegrationModalX.addEventListener('click', () => {
+                this.hideIntegrationModal();
+            });
+        }
+        
+        if (this.integrationModalOverlay) {
+            this.integrationModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.integrationModalOverlay) {
+                    this.hideIntegrationModal();
+                }
+            });
+        }
+        
+        if (this.integrationModalPrimaryBtn) {
+            this.integrationModalPrimaryBtn.addEventListener('click', async () => {
+                this.trackEvent('Upgrade to Pro from Integration Modal', {
+                    button_type: 'upgrade_to_pro',
+                    source: 'integration_modal',
+                    user_type: this.isAuthenticated ? 'free_user' : 'guest'
+                });
+                if (this.isAuthenticated) {
+                    // Free user - redirect to pricing page
+                    window.location.href = '/pricing';
+                } else {
+                    // Guest user - redirect to pricing
+                    window.location.href = '/pricing';
+                }
+            });
+        }
+        
+        if (this.integrationModalSecondaryBtn) {
+            this.integrationModalSecondaryBtn.addEventListener('click', () => {
+                if (this.isAuthenticated) {
+                    // Free user - redirect to pricing
+                    window.location.href = '/pricing';
+                } else {
+                    // Guest user - close modal
+                    this.hideIntegrationModal();
+                }
+            });
+        }
+        
     }
 
     resetFocusStats() {
@@ -1452,33 +4283,48 @@ class PomodoroTimer {
         this.completedFocusSessionsInCycle = 0;
         this.cheatedDuringFocusInCycle = false;
         this.actualFocusTimeCompleted = 0;
+        this.focusSecondsToday = 0;
+        try {
+            localStorage.setItem('focusSecondsToday', '0');
+            localStorage.setItem('focusSecondsTodayDate', new Date().toDateString());
+        } catch (_) {}
     }
 
     showUpgradeModal() {
-        const upgradeModal = document.getElementById('upgradeModal');
-        if (upgradeModal) {
-            upgradeModal.style.display = 'flex';
+        const pricingModal = document.getElementById('pricingModal');
+        if (pricingModal) {
+            pricingModal.style.display = 'flex';
+            
+            // 🎯 Track Modal Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackModalOpened('pricing');
+                console.log('📊 Pricing modal opened event tracked to Mixpanel');
+            }
+        }
+    }
+    
+    hidePricingModal() {
+        const pricingModal = document.getElementById('pricingModal');
+        if (pricingModal) {
+            pricingModal.style.display = 'none';
         }
     }
 
     async handleUpgrade() {
         try {
-            const response = await fetch('/api/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+            // 🎯 TRACKING: Upgrade flow initiated (tracking before redirect to pricing)
+            this.trackEvent('Stripe Checkout Opened', {
+                source: 'upgrade_flow',
+                user_type: this.isAuthenticated ? 'free_user' : 'guest',
+                timestamp: new Date().toISOString()
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to create checkout session');
-            }
-
-            const { url } = await response.json();
-            window.location.href = url;
+            
+            // Always redirect to pricing page - never direct checkout
+            window.location.href = '/pricing';
         } catch (error) {
-            console.error('Error creating checkout session:', error);
-            alert('Error processing payment. Please try again.');
+            console.error('Error in handleUpgrade:', error);
+            // Always redirect to pricing page even on error
+            window.location.href = '/pricing';
         }
     }
 
@@ -1492,9 +4338,41 @@ class PomodoroTimer {
     showSettingsModal() {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
-            // Ensure developer tab visibility at open time
-            this.updateDeveloperTabVisibility();
             settingsModal.style.display = 'flex';
+            
+            // 🎯 Track Modal Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackModalOpened('settings');
+                console.log('📊 Settings modal opened event tracked to Mixpanel');
+            }
+            
+            // Populate user info
+            const emailElement = document.getElementById('settingsModalUserEmail');
+            const planElement = document.getElementById('settingsUserPlan');
+            const upgradeBtn = document.getElementById('upgradeToProModalBtn');
+            const manageSubBtn = document.getElementById('manageSubscriptionModalBtn');
+            
+            if (emailElement && window.Clerk && window.Clerk.user) {
+                const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
+                                window.Clerk.user.emailAddresses?.[0]?.emailAddress || 
+                                'Not available';
+                emailElement.textContent = userEmail;
+            }
+            
+            if (planElement) {
+                planElement.textContent = this.isPremium ? 'Pro' : 'Free';
+            }
+            
+            // Show/hide buttons based on premium status
+            if (upgradeBtn && manageSubBtn) {
+                if (this.isPremium) {
+                    upgradeBtn.style.display = 'none';
+                    manageSubBtn.style.display = 'block';
+                } else {
+                    upgradeBtn.style.display = 'block';
+                    manageSubBtn.style.display = 'none';
+                }
+            }
         }
     }
 
@@ -1512,19 +4390,6 @@ class PomodoroTimer {
         }
     }
 
-    showDeveloperModal() {
-        const settingsModal = document.getElementById('settingsModal');
-        if (settingsModal) {
-            // Switch to developer tab and make it active
-            this.switchToSettingsTab('developer');
-            // Make developer nav item active
-            const developerNav = document.querySelector('[data-tab="developer"]');
-            if (developerNav) {
-                developerNav.classList.add('active');
-            }
-            settingsModal.style.display = 'flex';
-        }
-    }
 
     switchToSettingsTab(tabName) {
         // Hide all tabs
@@ -1552,33 +4417,356 @@ class PomodoroTimer {
 
     // Sound system methods
     isPremiumUser() {
-        const forcedMode = localStorage.getItem('viewMode');
-        if (forcedMode === 'pro') return true;
-        if (forcedMode === 'free' || forcedMode === 'guest') return false;
-        
-        // Prefer Clerk metadata when available
+        // 1) Prefer real Pro from Clerk metadata regardless of any previous forced mode
         try {
             if (window.Clerk && window.Clerk.user) {
                 const meta = window.Clerk.user.publicMetadata || {};
+                console.log('Checking Pro status from Clerk:', {
+                    isPremium: meta.isPremium,
+                    metadata: meta,
+                    userId: window.Clerk.user.id
+                });
                 if (meta.isPremium === true) return true;
             }
         } catch (_) {}
+
+        // 2) Then check if a forced view mode exists (legacy/dev only)
+        const forcedMode = localStorage.getItem('viewMode');
+        if (forcedMode === 'pro') {
+            console.log('Pro status from forced viewMode');
+            return true;
+        }
+        if (forcedMode === 'free' || forcedMode === 'guest') return false;
 
         const urlParams = new URLSearchParams(window.location.search);
         const hasPremiumParam = urlParams.get('premium') === '1';
         const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
         const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
         if (hasPremiumParam) {
+            // Clear any forced mode to avoid overriding real Pro
+            try { localStorage.removeItem('viewMode'); } catch (_) {}
             localStorage.setItem('isPremium', 'true');
             localStorage.setItem('hasPaidSubscription', 'true');
             return true;
         }
-        return hasPremiumStorage || hasPaidSubscription;
+        
+        const result = hasPremiumStorage || hasPaidSubscription;
+        console.log('Pro status from localStorage:', {
+            isPremium: hasPremiumStorage,
+            hasPaidSubscription: hasPaidSubscription,
+            result: result
+        });
+        return result;
     }
 
     // Simple ambient sounds system
     toggleMusic() {
         this.showAmbientModal();
+    }
+    
+    showTimerSettingsModal() {
+        // Get current durations in minutes
+        const pomodoroMin = Math.floor(this.workTime / 60);
+        const shortBreakMin = Math.floor(this.shortBreakTime / 60);
+        const longBreakMin = Math.floor(this.longBreakTime / 60);
+        
+        const modalContent = `
+            <div class="focus-stats-modal timer-settings-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="modal-header">
+                    <h3>Timer Settings</h3>
+                    <p class="modal-subtitle">Customize your focus sessions</p>
+                </div>
+                
+                <!-- Sessions Count -->
+                <div class="settings-section">
+                    <h4 class="section-title">Sessions</h4>
+                    <div class="sessions-control">
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Number of Sessions</label>
+                                <span class="duration-value" id="sessionsValue">${this.sessionsPerCycle} sessions</span>
+                            </div>
+                            <input type="range" id="sessionsSlider" min="1" max="12" value="${this.sessionsPerCycle}" class="duration-slider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Techniques -->
+                <div class="settings-section">
+                    <h4 class="section-title">Techniques</h4>
+                    <div class="techniques-grid">
+                        <button class="technique-preset" data-technique="pomodoro">
+                            <div class="technique-icon">🍅</div>
+                            <div class="technique-name">Pomodoro</div>
+                            <div class="technique-desc">25min work, 5min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="flow">
+                            <div class="technique-icon">🌊</div>
+                            <div class="technique-name">Flow State</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="technique-desc">45min work, 15min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="deepwork">
+                            <div class="technique-icon">🧠</div>
+                            <div class="technique-name">Deep Work</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="technique-desc">90min work, 20min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="sprint">
+                            <div class="technique-icon">⚡</div>
+                            <div class="technique-name">Sprint</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="technique-desc">15min work, 3min break</div>
+                        </button>
+                        <button class="technique-preset" data-technique="marathon">
+                            <div class="technique-icon">🏃</div>
+                            <div class="technique-name">Marathon</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="technique-desc">60min work, 10min break</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Timer Durations -->
+                <div class="settings-section">
+                    <h4 class="section-title">Duration</h4>
+                    <div class="duration-controls">
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Pomodoro</label>
+                                <span class="duration-value" id="pomodoroValue">${pomodoroMin} min</span>
+                            </div>
+                            <input type="range" id="pomodoroSlider" min="1" max="90" value="${pomodoroMin}" class="duration-slider">
+                        </div>
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Short Break</label>
+                                <span class="duration-value" id="shortBreakValue">${shortBreakMin} min</span>
+                            </div>
+                            <input type="range" id="shortBreakSlider" min="1" max="30" value="${shortBreakMin}" class="duration-slider">
+                        </div>
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Long Break</label>
+                                <span class="duration-value" id="longBreakValue">${longBreakMin} min</span>
+                            </div>
+                            <input type="range" id="longBreakSlider" min="1" max="60" value="${longBreakMin}" class="duration-slider">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Save Button -->
+                <div class="modal-actions">
+                    <button class="save-settings-btn" id="saveTimerSettings">Save Changes</button>
+                </div>
+            </div>
+        `;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+        
+        // Duration sliders
+        const pomodoroSlider = modalOverlay.querySelector('#pomodoroSlider');
+        const shortBreakSlider = modalOverlay.querySelector('#shortBreakSlider');
+        const longBreakSlider = modalOverlay.querySelector('#longBreakSlider');
+        const pomodoroValue = modalOverlay.querySelector('#pomodoroValue');
+        const shortBreakValue = modalOverlay.querySelector('#shortBreakValue');
+        const longBreakValue = modalOverlay.querySelector('#longBreakValue');
+        
+        pomodoroSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'pomodoro',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
+            pomodoroValue.textContent = `${e.target.value} min`;
+        });
+        shortBreakSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'short_break',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
+            shortBreakValue.textContent = `${e.target.value} min`;
+        });
+        longBreakSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'long_break',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
+            longBreakValue.textContent = `${e.target.value} min`;
+        });
+        
+        // Sessions slider
+        const sessionsSlider = modalOverlay.querySelector('#sessionsSlider');
+        const sessionsValue = modalOverlay.querySelector('#sessionsValue');
+        sessionsSlider.addEventListener('input', (e) => {
+            this.trackEvent('Duration Control Changed', {
+                button_type: 'duration_control',
+                control_name: 'sessions',
+                value: e.target.value,
+                source: 'timer_modal'
+            });
+            sessionsValue.textContent = `${e.target.value} sessions`;
+        });
+
+        // Techniques presets
+        const techniquePresets = modalOverlay.querySelectorAll('.technique-preset');
+        techniquePresets.forEach(preset => {
+            // Remove any existing event listeners to prevent duplicates
+            const newPreset = preset.cloneNode(true);
+            preset.parentNode.replaceChild(newPreset, preset);
+            
+            newPreset.addEventListener('click', () => {
+                const technique = newPreset.dataset.technique;
+                
+                // Check if preset is disabled (opacity 0.5 means disabled)
+                if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
+                    return; // Don't do anything if preset is disabled
+                }
+                
+                // Check if technique requires Pro
+                const proTechniques = [];
+                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                    return; // Don't show modal, preset is already disabled
+                }
+                
+                // Check if technique requires authentication (Sprint, Focus for guests)
+                if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                    return; // Don't show modal, preset is already disabled
+                }
+                
+                this.trackEvent('Technique Selected', {
+                    modal_type: 'timer_modal',
+                    button_type: 'technique_preset',
+                    technique_name: technique,
+                    source: 'timer_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'technique_exploration'
+                });
+                
+                // Get fresh reference to all presets after cloning
+                const currentTechniquePresets = modalOverlay.querySelectorAll('.technique-preset');
+                // Remove active class from all presets
+                currentTechniquePresets.forEach(p => p.classList.remove('active'));
+                // Add active class to clicked preset
+                newPreset.classList.add('active');
+                
+                // Apply technique settings
+                this.applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
+            });
+        });
+        
+        // Update preset visibility/disabled state after adding event listeners
+        setTimeout(() => {
+            this.updateTechniquePresetsVisibility();
+        }, 0);
+
+        // Close button
+        modalOverlay.querySelector('.close-focus-stats-x').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Save button
+        modalOverlay.querySelector('#saveTimerSettings').addEventListener('click', () => {
+            // Save new durations
+            this.workTime = parseInt(pomodoroSlider.value) * 60;
+            this.shortBreakTime = parseInt(shortBreakSlider.value) * 60;
+            this.longBreakTime = parseInt(longBreakSlider.value) * 60;
+            this.sessionsPerCycle = parseInt(sessionsSlider.value);
+            
+            // Save to localStorage
+            localStorage.setItem('pomodoroTime', String(this.workTime));
+            localStorage.setItem('shortBreakTime', String(this.shortBreakTime));
+            localStorage.setItem('longBreakTime', String(this.longBreakTime));
+            localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
+            
+            // Update cycle sections
+            this.cycleSections = [
+                { type: 'work', duration: this.workTime, name: 'Work 1' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
+                { type: 'work', duration: this.workTime, name: 'Work 2' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
+                { type: 'work', duration: this.workTime, name: 'Work 3' },
+                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
+                { type: 'work', duration: this.workTime, name: 'Work 4' },
+                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
+            ];
+            
+            // Reset timer to first section
+            this.pauseTimerSilent();
+            this.currentSection = 1;
+            this.loadCurrentSection();
+            this.updateProgressRing();
+            
+            // Close modal
+            document.body.removeChild(modalOverlay);
+        });
+    }
+
+    applyTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider) {
+        
+        const presets = {
+            pomodoro: { work: 25, shortBreak: 5, longBreak: 15, sessions: 4 },
+            flow: { work: 45, shortBreak: 15, longBreak: 30, sessions: 3 },
+            deepwork: { work: 90, shortBreak: 20, longBreak: 45, sessions: 2 },
+            sprint: { work: 15, shortBreak: 3, longBreak: 10, sessions: 6 },
+            marathon: { work: 60, shortBreak: 10, longBreak: 20, sessions: 4 }
+        };
+
+        const preset = presets[technique];
+        if (preset) {
+            pomodoroSlider.value = preset.work;
+            shortBreakSlider.value = preset.shortBreak;
+            longBreakSlider.value = preset.longBreak;
+            sessionsSlider.value = preset.sessions;
+
+            // Update display values
+            document.querySelector('#pomodoroValue').textContent = `${preset.work} min`;
+            document.querySelector('#shortBreakValue').textContent = `${preset.shortBreak} min`;
+            document.querySelector('#longBreakValue').textContent = `${preset.longBreak} min`;
+            document.querySelector('#sessionsValue').textContent = `${preset.sessions} sessions`;
+        }
+    }
+
+    applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider) {
+        const presets = {
+            pomodoro: { work: 25, shortBreak: 5, longBreak: 15, sessions: 4 },
+            flow: { work: 45, shortBreak: 15, longBreak: 30, sessions: 3 },
+            deepwork: { work: 90, shortBreak: 20, longBreak: 45, sessions: 2 },
+            sprint: { work: 15, shortBreak: 3, longBreak: 10, sessions: 6 },
+            marathon: { work: 60, shortBreak: 10, longBreak: 20, sessions: 4 },
+            focus: { work: 30, shortBreak: 8, longBreak: 20, sessions: 4 }
+        };
+
+        const preset = presets[technique];
+        if (preset) {
+            pomodoroSlider.value = preset.work;
+            shortBreakSlider.value = preset.shortBreak;
+            longBreakSlider.value = preset.longBreak;
+            sessionsSlider.value = preset.sessions;
+
+            // Update display values
+            document.querySelector('#sidebarPomodoroValue').textContent = `${preset.work} min`;
+            document.querySelector('#sidebarShortBreakValue').textContent = `${preset.shortBreak} min`;
+            document.querySelector('#sidebarLongBreakValue').textContent = `${preset.longBreak} min`;
+            document.querySelector('#sidebarSessionsValue').textContent = `${preset.sessions} sesh`;
+        }
     }
 
     showAmbientLoginModal() {
@@ -1695,10 +4883,77 @@ class PomodoroTimer {
             }
         });
     }
+    
+    showShortcutsModal() {
+        const modalContent = `
+            <div class="focus-stats-modal timer-settings-modal">
+                <button class="close-focus-stats-x">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="modal-header">
+                    <h3>Keyboard Shortcuts</h3>
+                    <p class="modal-subtitle">Quick actions to boost your productivity</p>
+                </div>
+                
+                <div class="settings-section">
+                    <div class="shortcuts-list">
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Start/Pause Timer</span>
+                            <kbd class="shortcut-key">Space</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Reset Timer</span>
+                            <kbd class="shortcut-key">R</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Next Section</span>
+                            <kbd class="shortcut-key">→</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Previous Section</span>
+                            <kbd class="shortcut-key">←</kbd>
+                        </div>
+                        <div class="shortcut-item">
+                            <span class="shortcut-description">Open Shortcuts</span>
+                            <kbd class="shortcut-key">⌘K</kbd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.innerHTML = modalContent;
+        document.body.appendChild(modalOverlay);
+        modalOverlay.style.display = 'flex';
+        
+        // Close button
+        const closeBtn = modalOverlay.querySelector('.close-focus-stats-x');
+        closeBtn.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            if (modalOverlay.parentNode) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+                if (modalOverlay.parentNode) {
+                    document.body.removeChild(modalOverlay);
+                }
+            }
+        });
+    }
 
     showAmbientModal() {
         const initialVolumePct = Math.round(this.ambientVolume * 100);
-        const isEnabled = this.ambientEnabled;
+        const lofiEnabled = this.ambientEnabled;
+        const rainEnabled = this.rainEnabled;
         const modalContent = `
             <div class="focus-stats-modal background-music-modal">
                 <button class="close-focus-stats-x">
@@ -1708,8 +4963,8 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <div class="modal-header">
-                    <h3>Background Music</h3>
-                    <p class="modal-subtitle">Enhance your focus with ambient sounds</p>
+                    <h3>Focus Sounds - UPDATED</h3>
+                    <p class="modal-subtitle">Set the mood for deep concentration</p>
                 </div>
                 <div class="music-controls">
                     <div class="volume-section">
@@ -1725,17 +4980,45 @@ class PomodoroTimer {
                         <div class="music-header">
                             <div class="music-info">
                                 <div class="music-details">
+                                    <h4>Rain Sounds</h4>
+                                    <p>Natural rain and thunder for deep concentration</p>
+                                </div>
+                            </div>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="musicRainToggle" ${rainEnabled ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        ${this.isAuthenticated ? `
+                        <div class="music-header">
+                            <div class="music-info">
+                                <div class="music-details">
                                     <h4>Lofi Music</h4>
                                     <p>Relaxing beats for deep focus</p>
                                 </div>
                             </div>
                             <div class="toggle-container">
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="lofiToggle" ${isEnabled ? 'checked' : ''}>
+                                    <input type="checkbox" id="musicLofiToggle" ${lofiEnabled ? 'checked' : ''}>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
                         </div>
+                        ` : `
+                        <div class="music-header disabled">
+                            <div class="music-info">
+                                <div class="music-details">
+                                    <h4 style="color: #666;">Lofi Music</h4>
+                                    <p style="color: #888;">Relaxing beats for deep focus</p>
+                                </div>
+                            </div>
+                            <div class="login-container">
+                                <button id="lofiLoginBtn" class="login-btn">Sign up</button>
+                            </div>
+                        </div>
+                        `}
                             </div>
                 </div>
             </div>
@@ -1754,26 +5037,94 @@ class PomodoroTimer {
 
         const volumeSlider = modalOverlay.querySelector('#ambientVolume');
         const volumeValue = modalOverlay.querySelector('#ambientVolumeValue');
-        const lofiToggle = modalOverlay.querySelector('#lofiToggle');
+        const musicLofiToggle = modalOverlay.querySelector('#musicLofiToggle');
+        const musicRainToggle = modalOverlay.querySelector('#musicRainToggle');
         const previewBtn = modalOverlay.querySelector('#previewBtn');
+        const lofiLoginBtn = modalOverlay.querySelector('#lofiLoginBtn');
         
-        // Initialize controls with current state
-        volumeSlider.disabled = !isEnabled;
-		if (previewBtn) previewBtn.disabled = !isEnabled;
+        // Initialize controls with current state (volume applies to active source)
+        volumeSlider.disabled = !(lofiEnabled || rainEnabled);
+        // The same slider controls the single <audio> element, regardless of source
+		if (previewBtn) previewBtn.disabled = !lofiEnabled;
+        
+        // Initialize toggle states based on current settings
+        if (musicLofiToggle) musicLofiToggle.checked = lofiEnabled;
+        if (musicRainToggle) musicRainToggle.checked = rainEnabled;
 
-        // Toggle logic with persistence
-        lofiToggle.addEventListener('change', (e) => {
-            const enabled = e.target.checked;
-            this.ambientEnabled = enabled;
-            localStorage.setItem('ambientEnabled', String(enabled));
-            volumeSlider.disabled = !enabled;
-			if (previewBtn) previewBtn.disabled = !enabled;
-            
-            if (!enabled) {
-                this.stopPlaylist();
-				if (previewBtn) previewBtn.textContent = 'Preview';
+        // Lofi toggle logic
+        if (musicLofiToggle) {
+            musicLofiToggle.addEventListener('change', (e) => {
+                const enabled = e.target.checked;
+                this.ambientEnabled = enabled;
+                localStorage.setItem('ambientEnabled', String(enabled));
+                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
+                if (previewBtn) previewBtn.disabled = !enabled;
+                
+                if (enabled) {
+                    // If enabling lofi, disable rain
+                    this.rainEnabled = false;
+                    localStorage.setItem('rainEnabled', 'false');
+                    if (musicRainToggle) musicRainToggle.checked = false;
+                    this.stopRainPlaylist();
+                    
+                    // Start lofi music if timer is running
+                    if (this.isRunning) {
+                        this.playPlaylist();
+                    }
+                } else {
+                    this.stopPlaylist();
+                }
+            });
+        }
+
+
+        // Lofi Login button and card (for guests)
+        if (lofiLoginBtn) {
+            // Make the entire disabled card clickable
+            const disabledLofiCard = modalOverlay.querySelector('.music-header.disabled');
+            if (disabledLofiCard) {
+                disabledLofiCard.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    document.body.removeChild(modalOverlay);
+                    this.showLofiLoginModal();
+                });
             }
-        });
+            
+            // Keep button click handler for backwards compatibility
+            lofiLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.body.removeChild(modalOverlay);
+                this.showLofiLoginModal();
+            });
+        }
+
+        // Rain toggle logic
+        if (musicRainToggle) {
+            musicRainToggle.addEventListener('change', (e) => {
+                const enabled = e.target.checked;
+                this.rainEnabled = enabled;
+                localStorage.setItem('rainEnabled', String(enabled));
+                volumeSlider.disabled = !(this.ambientEnabled || this.rainEnabled);
+                if (previewBtn) previewBtn.disabled = true;
+                
+                if (enabled) {
+                    // If enabling rain, disable lofi
+                    this.ambientEnabled = false;
+                    localStorage.setItem('ambientEnabled', 'false');
+                    if (musicLofiToggle) musicLofiToggle.checked = false;
+                    this.stopPlaylist();
+                    
+                    // Start Rain music if timer is running
+                    if (this.isRunning) {
+                        this.playRainPlaylist();
+                    }
+                } else {
+                    this.stopRainPlaylist();
+                }
+            });
+        }
 
         // Preview button (play/pause functionality)
 		if (previewBtn) {
@@ -1817,11 +5168,14 @@ class PomodoroTimer {
             alert('No background tracks available yet. Upload MP3s to /audio/lofi');
             return;
         }
+        // If switching from Bury the Light, ensure src actually changes to lofi
+        this.backgroundAudio.pause();
         this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
         this.backgroundAudio.loop = false;
         this.backgroundAudio.volume = this.ambientVolume;
         try { await this.backgroundAudio.play(); } catch (_) {}
         this.ambientPlaying = true;
+        this.buryTheLightPlaying = false; // Ensure only one flag is set
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
@@ -1832,30 +5186,181 @@ class PomodoroTimer {
         if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
     }
 
-    pausePlaylist() {
-        if (!this.backgroundAudio) return;
-        try { this.backgroundAudio.pause(); } catch (_) {}
-        this.ambientPlaying = false;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    // Lofi music methods
+    setLofiVolume(vol) {
+        this.lofiVolume = Math.max(0, Math.min(1, vol));
+        localStorage.setItem('lofiVolume', String(this.lofiVolume));
+        if (this.backgroundAudio) this.backgroundAudio.volume = this.lofiVolume;
     }
 
-    resumePlaylist() {
+    shuffleLofiPlaylist() {
+        // Fisher-Yates shuffle algorithm for random order
+        this.lofiShuffledPlaylist = [...this.lofiPlaylist];
+        for (let i = this.lofiShuffledPlaylist.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.lofiShuffledPlaylist[i], this.lofiShuffledPlaylist[j]] = [this.lofiShuffledPlaylist[j], this.lofiShuffledPlaylist[i]];
+        }
+        this.currentLofiTrackIndex = 0;
+    }
+
+    async playLofiPlaylist() {
+        // Don't play Lofi music if immersive theme is active
+        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+            console.log(`🎵 Lofi music blocked - immersive theme '${this.currentImmersiveTheme}' is active`);
+            return;
+        }
+        
+        // Don't play if lofi is disabled
+        if (!this.lofiEnabled) {
+            console.log(`🎵 Lofi music blocked - lofi disabled`);
+            return;
+        }
+        
         if (!this.backgroundAudio) return;
-        if (!this.ambientEnabled) return;
-        try { this.backgroundAudio.play(); } catch (_) {}
-        this.ambientPlaying = true;
+        if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0) {
+            console.log('❌ No Lofi tracks available yet');
+            return;
+        }
+        
+        this.backgroundAudio.pause();
+        this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        this.backgroundAudio.loop = false;
+        this.backgroundAudio.volume = this.lofiVolume;
+        
+        try { 
+            await this.backgroundAudio.play(); 
+            console.log('✅ Lofi music started:', this.lofiShuffledPlaylist[this.currentLofiTrackIndex]);
+        } catch (error) {
+            console.log('❌ Error playing Lofi:', error);
+        }
+        
+        this.lofiPlaying = true;
         if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
     }
 
-    setAmbientVolume(vol) {
-        this.ambientVolume = Math.max(0, Math.min(1, vol));
-        localStorage.setItem('ambientVolume', String(this.ambientVolume));
-        if (this.backgroundAudio) this.backgroundAudio.volume = this.ambientVolume;
+
+    stopLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.lofiPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.lofiPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    resumeLofiPlaylist() {
+        if (!this.backgroundAudio) return;
+        if (!this.lofiEnabled) return;
+        
+        const src = this.backgroundAudio.currentSrc || this.backgroundAudio.src || '';
+        const isLofiSrc = /\/audio\/Lofi\//.test(src);
+        
+        if (!isLofiSrc && this.lofiShuffledPlaylist.length > 0) {
+            this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        }
+        
+        try { this.backgroundAudio.play(); } catch (_) {}
+        this.lofiPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    // Missing music pause methods
+    pausePlaylist() {
+        // Generic pause method for background music
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.lofiPlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseNatureSound() {
+        // Pause nature sounds if playing
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        this.naturePlaying = false;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    pauseTronMusic() {
+        // Pause Tron music if playing
+        if (!this.backgroundAudio) return;
+        try { this.backgroundAudio.pause(); } catch (_) {}
+        // Reset any Tron-specific music state if needed
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.remove('playing');
+    }
+
+    nextLofiTrack() {
+        if (!this.lofiShuffledPlaylist || this.lofiShuffledPlaylist.length === 0 || !this.backgroundAudio) return;
+        
+        this.currentLofiTrackIndex = (this.currentLofiTrackIndex + 1) % this.lofiShuffledPlaylist.length;
+        
+        // Re-shuffle when playlist loops back to beginning
+        if (this.currentLofiTrackIndex === 0) {
+            this.shuffleLofiPlaylist();
+        }
+        
+        this.backgroundAudio.src = '/audio/Lofi/' + this.lofiShuffledPlaylist[this.currentLofiTrackIndex];
+        this.backgroundAudio.volume = this.lofiVolume;
+        this.backgroundAudio.play().catch(() => {});
+        this.lofiPlaying = true;
+        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
+    }
+
+    async loadLofiPlaylist() {
+        try {
+            // Lofi playlist - 27 relaxing tracks
+            this.lofiPlaylist = [
+                "A Sip of Yesterday.mp3",
+                "Autumn Reverie.mp3",
+                "Autumn's Whisper.mp3",
+                "Dream in Slow Motion.mp3",
+                "Dreaming in Dandelions.mp3",
+                "Dreaming in Pastels.mp3",
+                "Dreams in Sepia.mp3",
+                "Dreams in the Windowlight.mp3",
+                "Driftwood Dreams.mp3",
+                "Evening in a Teacup.mp3",
+                "Evening's Gentle Glow.mp3",
+                "Falling for Yesterday.mp3",
+                "Golden Glow.mp3",
+                "Golden Hour Glow.mp3",
+                "Golden Hour Memory.mp3",
+                "Lantern Glow.mp3",
+                "Lost in the Glow.mp3",
+                "Lost in the Quiet.mp3",
+                "Moonlight Whispers.mp3",
+                "Starlit Whispers.mp3",
+                "Under the Velvet Sky.mp3",
+                "Whispered Breezes.mp3",
+                "Whispered Dreams.mp3",
+                "Whispered Horizons.mp3",
+                "Whispered Memories.mp3",
+                "Whispered Pines.mp3",
+                "Whispering Lights.mp3"
+            ];
+            
+            console.log(`📂 Loaded ${this.lofiPlaylist.length} Lofi tracks`);
+            
+            // Shuffle the playlist for first playback
+            if (this.lofiPlaylist.length > 0) {
+                this.shuffleLofiPlaylist();
+            }
+        } catch (error) {
+            console.error('❌ Error loading Lofi playlist:', error);
+        }
     }
 
     // Smooth fades
     fadeMusicTo(targetVolume, durationMs) {
         if (!this.backgroundAudio) return;
+        // Only fade if music is actually playing
+        if (!this.lofiPlaying) return;
+        
         if (this.fadeTimer) {
             clearInterval(this.fadeTimer);
             this.fadeTimer = null;
@@ -1879,41 +5384,20 @@ class PomodoroTimer {
 
     fadeMusicIn(durationMs) {
         if (!this.backgroundAudio) return;
-        const target = this.ambientVolume;
+        // Only fade in if music is actually playing
+        if (!this.lofiPlaying) return;
+        
+        const target = this.lofiVolume;
         if (this.backgroundAudio.volume > 0.001) this.backgroundAudio.volume = 0;
         this.fadeMusicTo(target, durationMs);
     }
 
     fadeMusicOut(durationMs) {
         if (!this.backgroundAudio) return;
+        // Only fade out if music is actually playing
+        if (!this.lofiPlaying) return;
+        
         this.fadeMusicTo(0, durationMs);
-    }
-
-    nextTrack() {
-        if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
-        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
-        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
-        this.backgroundAudio.volume = this.ambientVolume;
-        this.backgroundAudio.play().catch(() => {});
-        this.ambientPlaying = true;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    prevTrack() {
-        if (!this.playlist || this.playlist.length === 0 || !this.backgroundAudio) return;
-        this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
-        this.backgroundAudio.src = '/audio/lofi/' + this.playlist[this.currentTrackIndex];
-        this.backgroundAudio.volume = this.ambientVolume;
-        this.backgroundAudio.play().catch(() => {});
-        this.ambientPlaying = true;
-        if (this.musicToggleBtn) this.musicToggleBtn.classList.add('playing');
-    }
-
-    shufflePlaylist() {
-        for (let i = this.playlist.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.playlist[i], this.playlist[j]] = [this.playlist[j], this.playlist[i]];
-        }
     }
 
     updatePremiumUI() {
@@ -1921,6 +5405,7 @@ class PomodoroTimer {
         const manageSubscriptionButton = document.getElementById('manageSubscriptionButton');
         const userProBadge = document.getElementById('userProBadge');
         const integrationsButton = document.getElementById('integrationsButton');
+        const integrationsSection = document.getElementById('integrationsSection');
         
         if (this.isPremiumUser()) {
             // Show Manage subscription, hide Upgrade, show Pro badge, show Integrations
@@ -1928,13 +5413,32 @@ class PomodoroTimer {
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
             if (userProBadge) userProBadge.style.display = 'inline-block';
             if (integrationsButton) integrationsButton.style.display = 'flex';
+            if (integrationsSection) integrationsSection.style.display = 'block';
+            
+            // Settings dropdown elements
+            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
+            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'flex';
+            if (this.settingsProBadge) this.settingsProBadge.style.display = 'inline-block';
+            // Integrations removed from menu
+            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
         } else {
-            // Show Upgrade, hide Manage subscription, hide Pro badge, hide Integrations
+            // Show Upgrade, hide Manage subscription, hide Pro badge
             if (upgradeButton) upgradeButton.style.display = 'flex';
             if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'none';
             if (userProBadge) userProBadge.style.display = 'none';
             if (integrationsButton) integrationsButton.style.display = 'none';
+            if (integrationsSection) integrationsSection.style.display = 'none';
+            
+            // Settings dropdown elements
+            if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'flex';
+            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'none';
+            if (this.settingsProBadge) this.settingsProBadge.style.display = 'none';
+            // Integrations removed from menu
+            // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'none';
         }
+        
+        // Update technique presets visibility based on user type
+        this.updateTechniquePresetsVisibility();
     }
 
     async refreshPremiumFromServer() {
@@ -1962,6 +5466,12 @@ class PomodoroTimer {
 
 
     toggleTaskList() {
+        // 🎯 Track Sidebar Panel Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('tasks');
+            console.log('📊 Tasks panel opened event tracked to Mixpanel');
+        }
+        
         // Check user type and subscription level
         if (!this.isAuthenticated || !this.user) {
             // Guest users: show local tasks only
@@ -2008,24 +5518,91 @@ class PomodoroTimer {
         }
     }
     
+    resetTimer() {
+        // Pause timer if running
+        if (this.isRunning) {
+            this.pauseTimer();
+        }
+        
+        // Reset to first section
+        this.currentSection = 1;
+        
+        // Reload the current section (now section 1)
+        this.loadCurrentSection();
+        
+        // Update navigation buttons
+        this.updateNavigationButtons();
+        
+        // Update session info display
+        this.updateSessionInfo();
+        
+        // Update progress ring
+        this.updateProgressRing();
+        
+        // Clear saved timer state
+        this.clearTimerState();
+        
+        // Play UI sound for feedback
+        this.playUiSound('click');
+    }
+    
     startTimer() {
+        // Enforce daily focus limit for non‑Pro users
+        if (this.hasReachedDailyFocusLimit()) {
+            this.pauseTimerSilent();
+            this.showDailyLimitModal();
+            return;
+        }
+        
+        // Check if Tron theme is active and widget is not ready
+        // Widget is visible and ready, no checks needed
+        
         this.isRunning = true;
         this.startPauseBtn.classList.add('running');
         this.playUiSound('play');
         
+        // Show keyboard shortcut hint on first play
+        this.showKeyboardHint();
+        
+        // 🎯 Track Timer Started event to Google Analytics
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'timer_started', {
+                event_category: 'engagement',
+                event_label: 'User started focus timer',
+                value: 1
+            });
+            
+            console.log('📊 Timer started event tracked to Analytics');
+        }
+        
+        // 🎯 Track Timer Started event to Mixpanel
+        if (window.mixpanelTracker) {
+            const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+            const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                               currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+            
+            window.mixpanelTracker.trackTimerStart(
+                sessionType, 
+                currentSectionInfo.duration, 
+                this.currentTaskName
+            );
+            
+            console.log('📊 Timer started event tracked to Mixpanel');
+        }
+        
         // Close all open modals to focus on timer
         this.closeAllModals();
         
-        // Resume background music if enabled (persisted flag)
-        if (this.ambientEnabled) {
-            if (this.backgroundAudio && this.backgroundAudio.src && this.backgroundAudio.currentTime > 0) {
-                // Music was paused, resume from where it left off
-                this.resumePlaylist();
+        // Resume background music if enabled
+        if (this.lofiEnabled) {
+            const hasProgress = this.backgroundAudio && !isNaN(this.backgroundAudio.currentTime) && this.backgroundAudio.currentTime > 0;
+            if (hasProgress && /\/audio\/Lofi\//.test(this.backgroundAudio.currentSrc || '')) {
+                this.resumeLofiPlaylist();
             } else {
-                // No music was playing, start fresh
-            this.playPlaylist();
+                this.playLofiPlaylist();
             }
         }
+        
         
         this.interval = setInterval(() => {
             this.timeLeft--;
@@ -2033,7 +5610,24 @@ class PomodoroTimer {
             this.updateProgress();
             this.updateSections();
             this.updateSessionInfo();
+            
+            // Save timer state every second (uses sessionStorage - persists on reload but not on tab close)
+            this.saveTimerState();
+            
             // Music ducking: fade out 2s before end of section to prioritize alerts
+            // Accumulate focus seconds for day streak when on a focus session and not cheating
+            if (this.isWorkSession && !this.isLongBreak) {
+                // If user skipped sections, we mark cheatedDuringFocusInCycle elsewhere; here we only count naturally ticking time
+                this.focusSecondsToday = (this.focusSecondsToday || 0) + 1;
+                try {
+                    localStorage.setItem('focusSecondsToday', String(this.focusSecondsToday));
+                    localStorage.setItem('focusSecondsTodayDate', new Date().toDateString());
+                } catch (_) {}
+                // Once we pass 60s and haven't counted a streak yet today, award it
+                if ((this.focusSecondsToday >= 60) && !this.hasCompletedFocusToday) {
+                    this.updateStreak();
+                }
+            }
             if (this.timeLeft === 2) {
                 this.fadeMusicOut(2000);
                 this.isDucked = true;
@@ -2042,6 +5636,16 @@ class PomodoroTimer {
             // Realtime tracking: focus-only for total focus time
             if (this.currentSection % 2 === 1) {
                 this.addFocusTime(1);
+                // If user crosses the 120-minute threshold now, start cooldown
+                if (!this.isPremiumUser() && (this.focusSecondsToday || 0) >= this.DAILY_FOCUS_LIMIT_SECONDS && !this.focusLimitCooldownUntil) {
+                    this.focusLimitCooldownUntil = Date.now() + this.FOCUS_LIMIT_COOLDOWN_MS;
+                    try { localStorage.setItem('focusLimitCooldownUntil', String(this.focusLimitCooldownUntil)); } catch (_) {}
+                }
+                if (this.hasReachedDailyFocusLimit()) {
+                    this.pauseTimer();
+                    this.showDailyLimitModal();
+                    return; // stop ticking further
+                }
             }
             // Realtime tracking: technique time (focus + breaks) for Most Used Technique
             this.addTechniqueTime(1);
@@ -2059,13 +5663,23 @@ class PomodoroTimer {
         clearInterval(this.interval);
         this.playUiSound('pause');
         
+        // 🎯 Track Timer Paused event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackTimerPause();
+            console.log('📊 Timer paused event tracked to Mixpanel');
+        }
+        
         // Close all open modals to focus on timer
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying) {
-            this.pausePlaylist();
+        if (this.lofiPlaying) {
+            this.pauseLofiPlaylist();
         }
+        
+        
+        // Update session info to potentially show "Ready to focus?"
+        this.updateSessionInfo();
         
         // Update title to show paused state
         const minutes = Math.floor(this.timeLeft / 60);
@@ -2096,9 +5710,19 @@ class PomodoroTimer {
         this.closeAllModals();
         
         // Pause background music if playing
-        if (this.ambientPlaying) {
-            this.pausePlaylist();
+        if (this.ambientPlaying || this.buryTheLightPlaying || this.rainPlaying || this.naturePlaying) {
+            if (this.naturePlaying) {
+                this.pauseNatureSound();
+            } else {
+                this.pausePlaylist();
+            }
         }
+        
+        // Pause Tron music if Tron theme is active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.pauseTronMusic();
+        }
+        
         // No sound - silent pause
         
         // Update title to show paused state
@@ -2123,6 +5747,17 @@ class PomodoroTimer {
     goToPreviousSection() {
         if (this.currentSection > 1) {
             this.pauseTimerSilent(); // Pause without sound
+            
+            // 🎯 Track Timer Skipped event to Mixpanel
+            if (window.mixpanelTracker) {
+                const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+                const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                                   currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+                
+                window.mixpanelTracker.trackTimerSkip(sessionType, 'navigation');
+                console.log('📊 Timer skipped (previous) event tracked to Mixpanel');
+            }
+            
             // Track time completed in current focus session before jumping
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
@@ -2137,6 +5772,17 @@ class PomodoroTimer {
     goToNextSection() {
         if (this.currentSection < this.cycleSections.length) {
             this.pauseTimerSilent(); // Pause without sound
+            
+            // 🎯 Track Timer Skipped event to Mixpanel
+            if (window.mixpanelTracker) {
+                const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+                const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                                   currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+                
+                window.mixpanelTracker.trackTimerSkip(sessionType, 'navigation');
+                console.log('📊 Timer skipped (next) event tracked to Mixpanel');
+            }
+            
             // Track time completed in current focus session before jumping
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
@@ -2191,6 +5837,7 @@ class PomodoroTimer {
             this.currentTaskName = this.currentTask.content;
         }
         
+        this.updateCurrentTaskFromQueue();
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
@@ -2210,7 +5857,14 @@ class PomodoroTimer {
     }
     
     handleKeydown(e) {
-        // Only handle shortcuts if no input/textarea is focused
+        // Command+K or Ctrl+K to open shortcuts modal (handle before input check)
+        if ((e.metaKey || e.ctrlKey) && e.code === 'KeyK') {
+            e.preventDefault();
+            this.showShortcutsModal();
+            return;
+        }
+        
+        // Only handle other shortcuts if no input/textarea is focused
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
@@ -2220,6 +5874,13 @@ class PomodoroTimer {
             e.preventDefault(); // Prevent page scroll on space
             this.toggleTimer();
         }
+        
+        // R to reset timer (with confirmation)
+        if (e.code === 'KeyR') {
+            e.preventDefault();
+            this.showResetConfirmationModal();
+        }
+        
         
         // A or ArrowLeft for previous section
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
@@ -2233,13 +5894,22 @@ class PomodoroTimer {
             this.goToNextSection();
         }
     }
-    
     completeSession() {
         // Always stop ticking immediately
         this.pauseTimer();
         
         // Play notification sound
         this.playNotification();
+        
+        // 🎯 Track Timer Completed event to Mixpanel
+        if (window.mixpanelTracker) {
+            const currentSectionInfo = this.cycleSections[this.currentSection - 1];
+            const sessionType = currentSectionInfo.type === 'work' ? 'work' : 
+                               currentSectionInfo.type === 'long-break' ? 'long_break' : 'short_break';
+            
+            window.mixpanelTracker.trackTimerComplete(sessionType, true);
+            console.log('📊 Timer completed event tracked to Mixpanel');
+        }
         
         // Advance section pointer
         const finishedWasFocus = this.isWorkSession === true;
@@ -2262,6 +5932,18 @@ class PomodoroTimer {
             lastCycleWasLegitimate = (this.actualFocusTimeCompleted >= this.requiredFocusTimeForCycle);
             if (lastCycleWasLegitimate) {
                 this.updateCycleCounter();
+                
+                // 🎯 Track Cycle Completed event to Mixpanel
+                if (window.mixpanelTracker) {
+                    const currentTechnique = this.getCurrentTechniqueName();
+                    const cycleDuration = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+                    const workSessions = this.cycleSections.filter(section => section.type === 'work').length;
+                    const shortBreaks = this.cycleSections.filter(section => section.type === 'break').length;
+                    const longBreaks = this.cycleSections.filter(section => section.type === 'long-break').length;
+                    
+                    window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
+                    console.log('📊 Cycle completed event tracked to Mixpanel');
+                }
             }
             // Reset focus time tracker for next cycle
             this.actualFocusTimeCompleted = 0;
@@ -2274,6 +5956,14 @@ class PomodoroTimer {
             // Mark todoist task and advance queue BEFORE loading next section so the label updates immediately
             this.completeCurrentTodoistTaskIfAny();
             this.advanceTaskQueueAfterFocus();
+            
+            // Refresh task panel if it's open to show real-time updates
+            this.refreshTaskModalIfOpen();
+            
+            // Update day streak only if no cheating occurred during focus session
+            if (!this.cheatedDuringFocusInCycle) {
+                this.updateStreak();
+            }
         }
 
         // Load current section data
@@ -2283,6 +5973,7 @@ class PomodoroTimer {
         this.isLongBreak = currentSectionInfo.type === 'long-break';
         
         // Update UI to reflect the next section
+        this.updateCurrentTaskFromQueue();
         this.updateDisplay();
         this.updateProgress();
         this.updateSections();
@@ -2294,6 +5985,8 @@ class PomodoroTimer {
             this.pauseTimerSilent();
             this.startPauseBtn.classList.remove('running');
             this.isRunning = false;
+            // Clear saved timer state when cycle completes
+            this.clearTimerState();
             // No modal, just stop at end of cycle
             return;
         }
@@ -2326,7 +6019,7 @@ class PomodoroTimer {
         } else {
             // Fallback to session type if no current task
             if (this.isWorkSession) {
-                titleText = 'Focus';
+                titleText = 'Work';
             } else {
                 titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
             }
@@ -2342,21 +6035,24 @@ class PomodoroTimer {
         const elapsedInSection = currentSectionInfo.duration - this.timeLeft;
         const sectionProgress = Math.max(0, Math.min(1, elapsedInSection / totalTime));
         
-        // Build progress distance in SVG units INCLUDING gaps so that
-        // segment starts line up perfectly with visual gaps.
-        const { GAP, scaledLengths } = this._segmentMeta;
-        let distanceWithGaps = 0;
-        // Sum fully completed previous segments (length + gap each)
-        for (let i = 0; i < this.currentSection - 1 && i < scaledLengths.length; i++) {
-            distanceWithGaps += scaledLengths[i] + GAP;
-        }
-        // Add partial length within current segment
-        const currentSegIndex = Math.min(this.currentSection - 1, scaledLengths.length - 1);
-        const currentSegLen = scaledLengths[currentSegIndex] || 0;
-        distanceWithGaps += currentSegLen * sectionProgress;
+        // SIMPLIFIED: Only show current section progress (Tesla style)
+        // Show a simple circular progress for the current session only
+        const CIRCUMFERENCE = 2 * Math.PI * 45; // 283
+        const progressLength = CIRCUMFERENCE * sectionProgress;
         
-        // Update overlays based on computed distance along whole ring (with gaps)
-        this.updateSegmentedProgress(distanceWithGaps);
+        // Hide all overlays except the first one (we'll use it for current progress)
+        this.progressOverlays.forEach((ol, i) => {
+            if (i === 0) {
+                // Show only the current section progress
+                ol.style.display = 'inline';
+                ol.style.stroke = '#ffffff';
+                ol.setAttribute('stroke-dasharray', `${progressLength} ${CIRCUMFERENCE}`);
+                ol.setAttribute('stroke-dashoffset', '0');
+            } else {
+                // Hide all other overlays
+                ol.style.display = 'none';
+            }
+        });
     }
     
     updateSegmentedProgress(totalProgress) {
@@ -2470,11 +6166,14 @@ class PomodoroTimer {
     }
 
     getCurrentTaskLabel() {
-        if (!this.taskQueue || this.taskQueue.length === 0) return 'Focus';
-        const current = this.taskQueue[this.currentTaskIndex] || null;
-        // Return "Focus" for empty slots (sessions without assigned tasks)
-        if (!current || current.source === 'empty' || !current.content) return 'Focus';
-        return current.content;
+        // Show session type instead of "Add Task"
+        if (this.isWorkSession) {
+            return 'Pomodoro';
+        } else if (this.isLongBreak) {
+            return 'Long Break';
+        } else {
+            return 'Short Break';
+        }
     }
 
     // Advance to next task slot after finishing a focus session
@@ -2524,7 +6223,11 @@ class PomodoroTimer {
             // Extract original Todoist ID if we used a local prefix
             const originalId = String(current.id).startsWith('todoist_') ? String(current.id).replace('todoist_', '') : current.id;
             
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, {
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
+            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}${devModeParam}`, {
                 method: 'POST'
             });
         } catch (_) {}
@@ -2559,8 +6262,12 @@ class PomodoroTimer {
             // Extract original Todoist ID if we used a local prefix
             const originalId = String(taskId).startsWith('todoist_') ? String(taskId).replace('todoist_', '') : taskId;
             
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
             // Call the API to mark task as completed in Todoist (using query parameter)
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}`, {
+            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}${devModeParam}`, {
                 method: 'POST'
             });
         } catch (error) {
@@ -2571,26 +6278,72 @@ class PomodoroTimer {
     showTaskCompletedModal() {}
     
     updateSessionInfo() {
-        const currentSectionInfo = this.cycleSections[this.currentSection - 1];
-        
-        // Calculate progress percentage
-        let totalCycleProgress = 0;
-        for (let i = 0; i < this.currentSection - 1; i++) {
-            totalCycleProgress += this.cycleSections[i].duration;
+        // Tesla-style: Combined label "Pomodoro 1/4" OR "Ready to focus?"
+        if (this.sessionLabelElement) {
+            // Show "Ready to focus?" ONLY for Pomodoro/Focus sessions when:
+            // 1. Timer hasn't been started (!isRunning)
+            // 2. Timer is at initial time (fresh state)
+            // 3. Currently in a work session (not break)
+            const isAtInitialTime = this.timeLeft === this.cycleSections[this.currentSection - 1]?.duration;
+            const shouldShowReadyToFocus = !this.isRunning && isAtInitialTime && this.isWorkSession;
+            
+            // Helper function to add chevron icon to session label
+            const createSessionLabelHTML = (text) => {
+                return `<span>${text}</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="session-label-icon"><path d="m9 18 6-6-6-6"/></svg>`;
+            };
+            
+            if (shouldShowReadyToFocus) {
+                this.sessionLabelElement.innerHTML = createSessionLabelHTML('Ready to focus?');
+            } else {
+                // Show session info: "Pomodoro 1/4", "Short Break", etc.
+                const workSessions = this.cycleSections.filter(s => s.type === 'work');
+                const totalWorkSessions = workSessions.length;
+                
+                // Calculate current work session number
+                let currentWorkSession = 0;
+                for (let i = 0; i < this.currentSection; i++) {
+                    if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                        currentWorkSession++;
+                    }
+                }
+                
+                // Get session type
+                const sessionLabel = this.getCurrentTaskLabel();
+                
+                // Helper function to truncate text to max 15 characters
+                const truncateText = (text, maxLength = 15) => {
+                    if (!text) return text;
+                    // Count actual characters including emojis, spaces, etc.
+                    const chars = Array.from(text);
+                    if (chars.length <= maxLength) return text;
+                    return chars.slice(0, maxLength).join('') + '...';
+                };
+                
+                // Combine: "Task Name 1/4" or "Pomodoro 1/4", "Short Break", "Long Break"
+                if (this.isWorkSession) {
+                    // Use task name if available, otherwise use session label (Pomodoro)
+                    const displayName = this.currentTaskName ? truncateText(this.currentTaskName) : sessionLabel;
+                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(`${displayName} ${currentWorkSession}/${totalWorkSessions}`);
+                } else {
+                    this.sessionLabelElement.innerHTML = createSessionLabelHTML(sessionLabel);
+                }
+            }
         }
-        totalCycleProgress += (currentSectionInfo.duration - this.timeLeft);
         
-        // Calculate total cycle time dynamically
-        const totalCycleTime = this.cycleSections.reduce((total, section) => total + section.duration, 0);
-        const progressPercentage = Math.round((totalCycleProgress / totalCycleTime) * 100);
+        // Keep for backward compatibility (hidden via CSS)
+        if (this.sessionInfoElement) {
+            const workSessions = this.cycleSections.filter(s => s.type === 'work');
+            const totalWorkSessions = workSessions.length;
+            let currentWorkSession = 0;
+            for (let i = 0; i < this.currentSection; i++) {
+                if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                    currentWorkSession++;
+                }
+            }
+            this.sessionInfoElement.textContent = `${currentWorkSession}/${totalWorkSessions}`;
+        }
         
-        // Format as "X/Y Sessions (Z%)"
-        const sessionNumber = this.currentSection;
-        const totalSessions = this.cycleSections.length;
-        let text = `${sessionNumber}/${totalSessions} Sessions (${progressPercentage}%)`;
-        this.sessionInfoElement.textContent = text;
-        
-        // Update current task display
+        // Update current task display (hidden via CSS)
         this.updateCurrentTaskDisplay();
     }
     
@@ -2606,22 +6359,26 @@ class PomodoroTimer {
     
     updateCurrentTaskDisplay() {
         if (this.currentTaskElement) {
-            if (this.currentTaskName) {
-                this.currentTaskElement.textContent = this.currentTaskName;
+            // Show session type: Pomodoro, Short Break, or Long Break
+            const sessionLabel = this.getCurrentTaskLabel();
+            this.currentTaskElement.textContent = sessionLabel;
                 this.currentTaskElement.style.display = 'block';
-            } else {
-                // Show "Focus" when no task is assigned
-                this.currentTaskElement.textContent = 'Focus';
-                this.currentTaskElement.style.display = 'block';
-            }
         }
     }
 
     updateCurrentTaskFromQueue() {
+        console.log('🎯 updateCurrentTaskFromQueue called', {
+            isWorkSession: this.isWorkSession,
+            taskQueueLength: this.taskQueue?.length,
+            taskQueue: this.taskQueue?.map(t => t.content)
+        });
+        
         // Update current task based on task queue and current session
         if (this.isWorkSession && this.taskQueue && this.taskQueue.length > 0) {
             // Calculate how many task slots have been completed so far
             const selected = this.getSelectedTasks();
+            console.log('🎯 Selected tasks:', selected.map(t => t.content));
+            
             let slotsCompleted = 0;
             selected.forEach(task => {
                 const cfg = this.getTaskConfig(task.id);
@@ -2630,25 +6387,32 @@ class PomodoroTimer {
                 slotsCompleted += done;
             });
             
+            console.log('🎯 slotsCompleted:', slotsCompleted, 'taskQueue.length:', this.taskQueue.length);
+            
             if (slotsCompleted >= this.taskQueue.length) {
                 this.currentTaskIndex = this.taskQueue.length; // beyond queue → Focus label
                 this.currentTask = null;
                 this.currentTaskName = null;
+                console.log('🎯 All tasks completed, setting currentTaskName to null');
             } else {
                 this.currentTaskIndex = slotsCompleted;
                 this.currentTask = this.taskQueue[this.currentTaskIndex];
                 this.currentTaskName = this.currentTask ? this.currentTask.content : null;
+                console.log('🎯 Setting currentTaskName to:', this.currentTaskName);
             }
         } else if (this.isWorkSession) {
             // In work session but no tasks selected - show "Focus"
             this.currentTask = null;
             this.currentTaskName = null;
+            console.log('🎯 Work session but no tasks, setting currentTaskName to null');
         } else {
             // Not in work session
             this.currentTask = null;
             this.currentTaskName = null;
+            console.log('🎯 Not in work session, setting currentTaskName to null');
         }
         
+        console.log('🎯 Final currentTaskName:', this.currentTaskName);
         this.updateCurrentTaskDisplay();
     }
     
@@ -2793,84 +6557,362 @@ class PomodoroTimer {
         }
     }
     
-    checkWelcomeModal() {
-        // Wait a bit to ensure auth state is properly checked
-        setTimeout(() => {
-            // Double check auth state
-            if (window.Clerk && window.Clerk.user) {
-                this.isAuthenticated = true;
-                return; // Don't show for authenticated users
-            }
-            if (this.isAuthenticated) {
-                return; // Don't show for authenticated users
-            }
+    // checkWelcomeModal() - REMOVED
+    
+    // checkPomodoroIntro() - REMOVED
+    // showPomodoroIntro() - REMOVED  
+    // closePomodoroIntro() - REMOVED
 
-            // If this navigation is a plain reload, do not show modal
-            try {
-                const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-                const isReload = nav && nav.type === 'reload';
-                if (isReload) {
-                    return; // Refresh/F5 → never show
+    showLofiLoginModal() {
+        // Create login required modal using upgrade modal styling (same as techniques)
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay signup-reminder';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeLofiLoginModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"/>
+                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="18" cy="16" r="3"/>
+                    </svg>
+                </div>
+                <h3>Lofi Music</h3>
+                <p>Curated beats for deep focus. Create a free account to unlock this premium background music.</p>
+                <div class="upgrade-features">
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Curated lofi beats for optimal focus</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Multiple playlists to match your mood</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">High-quality audio for immersive experience</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Seamless integration with all focus techniques</span>
+                </div>
+                </div>
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="lofiSignupBtn">Sign up for free</button>
+                    <button class="cancel-btn" id="lofiMaybeLaterBtn">Maybe later</button>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Event listeners
+        const closeBtn = modal.querySelector('#closeLofiLoginModal');
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        const signupBtn = modal.querySelector('#lofiSignupBtn');
+        signupBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
+        });
+        
+        const cancelBtn = modal.querySelector('#lofiMaybeLaterBtn');
+        cancelBtn.addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showLoginRequiredModal(technique) {
+        // Get technique information
+        const techniqueInfo = {
+            'pomodoro-plus': {
+                name: 'Long Pomodoro',
+                description: 'Extended focus sessions for deep work',
+                benefits: [
+                    'Perfect for complex projects requiring sustained attention',
+                    'Reduces context switching between tasks',
+                    'Ideal for deep work and creative projects',
+                    'Maintains focus for longer periods'
+                ]
+            },
+            'ultradian-rhythm': {
+                name: 'Ultradian Rhythm',
+                description: 'Natural biological rhythm-based focus technique',
+                benefits: [
+                    'Aligns with your body\'s natural energy cycles',
+                    'Optimizes energy levels and cognitive performance',
+                    'Reduces mental fatigue during long sessions',
+                    'Based on scientific research on attention spans'
+                ]
+            },
+            'flow': {
+                name: 'Flow State',
+                description: 'Extended focus sessions for immersive work',
+                benefits: [
+                    '45-minute work sessions for deep focus',
+                    'Perfect for tasks requiring sustained attention',
+                    'Reduces interruptions and context switching',
+                    'Ideal for creative and complex projects'
+                ]
+            },
+            'marathon': {
+                name: 'Marathon',
+                description: 'Extended focus sessions for intensive work',
+                benefits: [
+                    '60-minute work sessions for maximum productivity',
+                    'Perfect for completing large projects',
+                    'Longer breaks for better recovery',
+                    'Ideal for deep work and intensive tasks'
+                ]
+            },
+            'deepwork': {
+                name: 'Deep Work',
+                description: 'Extended focus sessions for intensive cognitive work',
+                benefits: [
+                    '90-minute work sessions for maximum concentration',
+                    'Perfect for complex cognitive tasks',
+                    'Longer breaks for optimal recovery',
+                    'Based on Cal Newport\'s Deep Work methodology'
+                ]
+            },
+            'custom': {
+                name: 'Custom Timer',
+                description: 'Create your own personalized focus technique',
+                benefits: [
+                    'Fully customizable to your work style',
+                    'Experiment with different timing patterns',
+                    'Adapt to your unique attention span',
+                    'Create the perfect technique for your needs'
+                ]
+            }
+        };
+        
+        const info = techniqueInfo[technique];
+        if (!info) return;
+        
+        // Check if user is authenticated but not Pro (Free user)
+        const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
+        
+        // Create modal using upgrade modal styling
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        
+        if (isFreeUser) {
+            // Free user - show Subscribe modal
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeLoginRequiredModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <h3>${info.name}</h3>
+                    <p>${info.description}. Upgrade to Pro to unlock this advanced focus technique and all productivity features!</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="dismissLoginRequiredBtn">Maybe later</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Guest user - show signup modal
+            modal.innerHTML = `
+                <button class="close-upgrade-x" id="closeLoginRequiredModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
+                            <path d="M10 2v2"/>
+                            <path d="M14 2v2"/>
+                            <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
+                            <path d="M6 2v2"/>
+                        </svg>
+                    </div>
+                    <h3>${info.name}</h3>
+                    <p>${info.description}. Create a free account to unlock this advanced focus technique.</p>
+                    <div class="upgrade-features">
+                        ${info.benefits.map(benefit => `
+                            <div class="upgrade-feature">
+                                <span class="upgrade-feature-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6 9 17l-5-5"/>
+                                    </svg>
+                                </span>
+                                <span class="upgrade-feature-text">${benefit}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="upgrade-required-buttons">
+                        <button class="upgrade-btn" id="loginRequiredSignupBtn">Sign up for free</button>
+                        <button class="cancel-btn" id="dismissLoginRequiredBtn">Maybe later</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+
+        // Prevent background scroll while modal open
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        
+        // Add event listeners
+        if (isFreeUser) {
+            // Free user - Subscribe button
+            document.getElementById('loginRequiredSubscribeBtn').addEventListener('click', () => {
+                document.body.style.overflow = previousOverflow;
+                document.body.removeChild(modalOverlay);
+                window.location.href = '/pricing';
+            });
+        } else {
+            // Guest user - Signup button
+            document.getElementById('loginRequiredSignupBtn').addEventListener('click', () => {
+                document.body.style.overflow = previousOverflow;
+                document.body.removeChild(modalOverlay);
+                if (this.signupButton) {
+                    this.signupButton.click();
                 }
-            } catch (_) {}
-
-            // Check if user just logged out - don't show modal after logout
-            const justLoggedOut = sessionStorage.getItem('just_logged_out');
-            if (justLoggedOut === 'true') {
-                sessionStorage.removeItem('just_logged_out');
-                return; // Don't show modal after logout
-            }
-
-            // First visit? mark and skip
-            const hasVisitedBefore = localStorage.getItem('truetempo_has_visited');
-            if (!hasVisitedBefore) {
-                try { localStorage.setItem('truetempo_has_visited', 'true'); } catch (_) {}
-                return;
-            }
-
-            // Returning guest (new navigation, not reload) → show modal
-            this.showWelcomeModal();
-        }, 1000); // slight delay so Clerk can hydrate
-    }
-    
-    showWelcomeModal() {
-        if (this.welcomeModalOverlay) {
-            this.welcomeModalOverlay.style.display = 'flex';
-        }
-    }
-    
-    hideWelcomeModal() {
-        if (this.welcomeModalOverlay) {
-            this.welcomeModalOverlay.style.display = 'none';
-        }
-    }
-    
-    setupWelcomeModalEvents() {
-        if (this.welcomeLoginBtn) {
-            this.welcomeLoginBtn.addEventListener('click', () => {
-                this.hideWelcomeModal();
-                this.handleLogin();
             });
         }
         
-        if (this.welcomeSignupBtn) {
-            this.welcomeSignupBtn.addEventListener('click', () => {
-                this.hideWelcomeModal();
-                this.handleSignup();
-            });
-        }
-        
-        if (this.stayLoggedOutBtn) {
-            this.stayLoggedOutBtn.addEventListener('click', () => {
-                this.hideWelcomeModal();
-            });
+        document.getElementById('dismissLoginRequiredBtn').addEventListener('click', () => {
+            document.body.style.overflow = previousOverflow;
+            document.body.removeChild(modalOverlay);
+        });
+
+        document.getElementById('closeLoginRequiredModal').addEventListener('click', () => {
+            document.body.style.overflow = previousOverflow;
+            document.body.removeChild(modalOverlay);
+        });
+
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.style.overflow = previousOverflow;
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showLoadingScreen() {
+        if (this.loadingScreen && !this.isLoading) {
+            this.loadingScreen.style.display = 'flex';
+            this.isLoading = true;
+            this.loadingStartTime = Date.now();
         }
     }
+
+    hideLoadingScreen() {
+        if (this.loadingScreen && this.isLoading) {
+            const elapsed = Date.now() - (this.loadingStartTime || 0);
+            
+            // Only hide if we've shown it for minimum time or if it's been too long
+            if (elapsed >= this.minLoadingTime || elapsed > 5000) {
+                this.loadingScreen.style.display = 'none';
+                this.isLoading = false;
+                // Remove from DOM immediately - no transition
+                if (this.loadingScreen && this.loadingScreen.parentNode) {
+                    this.loadingScreen.parentNode.removeChild(this.loadingScreen);
+                }
+            } else {
+                // Wait for minimum time
+                setTimeout(() => this.hideLoadingScreen(), this.minLoadingTime - elapsed);
+            }
+        }
+    }
+
+    checkConnectionSpeed() {
+        // Prefer explicit network information when available
+        try {
+            if ('connection' in navigator && navigator.connection) {
+                const { effectiveType, downlink, rtt } = navigator.connection;
+                // Consider slow only on 2G/3G or very poor 4G
+                if (effectiveType === 'slow-2g' || effectiveType === '2g' || effectiveType === '3g') {
+                    return true;
+                }
+                if (effectiveType === '4g') {
+                    // Treat as slow 4G only if bandwidth is clearly low or RTT very high
+                    if ((typeof downlink === 'number' && downlink < 0.8) || (typeof rtt === 'number' && rtt > 400)) {
+                        return true;
+                    }
+                }
+                // 5g typically reports as 4g in many browsers; above thresholds avoid false positives
+            }
+        } catch (_) {}
+        
+        // Fallback: do NOT infer slowness from generic timers to avoid false positives on fast networks
+        return false;
+    }
+
+    checkIfStillLoading() {
+        // Determine readiness based on essential UI presence only (avoid auth timing noise)
+        const essentialElements = [
+            document.getElementById('timerDisplay'),
+            document.getElementById('startBtn'),
+            document.getElementById('techniqueDropdown')
+        ];
+        if (essentialElements.some(el => !el)) {
+            return true;
+        }
+        return false;
+    }
+
+    // hideWelcomeModal() - REMOVED
+    // showSignupReminderModal() - REMOVED
 
     loadCassetteSounds() {
         try {
             this.cassetteSounds = new Audio('audio/ui/cassette-player-button-1.mp3');
-            this.cassetteSounds.volume = 0.3; // Set volume to 30%
+            this.cassetteSounds.volume = 0.75; // Set volume to 75%
             this.cassetteSounds.preload = 'auto';
             
             // Create audio context for pitch and speed control
@@ -2892,7 +6934,6 @@ class PomodoroTimer {
             console.log('Could not load audio buffer:', error);
         }
     }
-
     playUiSound(type) {
         // Try to use real cassette sounds with pitch/speed control first
         if (this.audioBuffer && this.audioContext) {
@@ -2922,91 +6963,58 @@ class PomodoroTimer {
         this.playSyntheticSound(type);
     }
     
+    // Minimal implementation: play decoded buffer with slight rate differences
     playProcessedCassetteSound(type) {
+        if (!this.audioContext || !this.audioBuffer) throw new Error('No audio buffer');
         const source = this.audioContext.createBufferSource();
-        const gainNode = this.audioContext.createGain();
-        
         source.buffer = this.audioBuffer;
+        
+        // Create gain node for volume control
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = 0.75; // 75% volume
+        
+        // Original speed for play, slower for pause
+        try {
+            source.playbackRate.value = type === 'play' ? 1.0 : 0.75;
+        } catch (_) {}
+        
         source.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
         
-        // Adjust pitch and speed only for pause
-        if (type === 'play') {
-            // Play: Original sound - no adjustments
-            source.playbackRate.value = 1.0; // Normal speed
-            source.detune.value = 0; // Original pitch
-        } else {
-            // Pause: Higher pitch and slower speed
-            source.playbackRate.value = 0.6; // Slower
-            source.detune.value = 500; // Higher pitch (cents)
-        }
-        
-        // Set volume
-        gainNode.gain.value = 0.3;
-        
-        // Play the sound
-        source.start();
+        try { if (this.audioContext.state === 'suspended') this.audioContext.resume(); } catch (_) {}
+        source.start(0);
+        // Full duration for original sound
+        try { source.stop(this.audioContext.currentTime + 0.5); } catch (_) {}
     }
     
+    // Synthetic short beep as last-resort feedback
     playSyntheticSound(type) {
         try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            if (type === 'play') {
-                // Play: Cassette deck mechanical click - sharp and metallic
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                const filter = audioContext.createBiquadFilter();
-                
-                oscillator.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Cassette play click: 800Hz with metallic resonance
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.type = 'square'; // More metallic than sine
-                
-                // Band-pass filter for metallic sound
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(800, audioContext.currentTime);
-                filter.Q.setValueAtTime(3, audioContext.currentTime);
-                
-                // Sharp attack, quick decay - like mechanical click
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.005);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.06);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.06);
-                
-            } else {
-                // Pause: Cassette deck thunk - deeper mechanical sound
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                const filter = audioContext.createBiquadFilter();
-                
-                oscillator.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Cassette pause thunk: 200Hz with mechanical resonance
-                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-                oscillator.type = 'square'; // More mechanical than sine
-                
-                // Low-pass filter for deeper mechanical sound
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(400, audioContext.currentTime);
-                filter.Q.setValueAtTime(2, audioContext.currentTime);
-                
-                // Slower attack, longer decay - like mechanical thunk
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.18, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.12);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.12);
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
-        } catch (_) { /* no-op */ }
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            // Subtle click sound
+            oscillator.type = 'sine';
+            oscillator.frequency.value = type === 'play' ? 1200 : 800;
+            
+            // Very short, quick envelope for a subtle click
+            const now = ctx.currentTime;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.05, now + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
+            if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
+        } catch (_) {
+            // As a final fallback, do nothing silently
+        }
     }
     
     loadAudio() {
@@ -3057,6 +7065,133 @@ class PomodoroTimer {
             // Remove authenticated class to show badges
             body.classList.remove('authenticated-user');
         }
+    }
+
+    initializeDropdownItemsState() {
+        // Initialize dropdown items state immediately to prevent flash of enabled state
+        const proTechniques = ['custom'];
+        
+        this.dropdownItems.forEach(item => {
+            const technique = item.getAttribute('data-technique');
+            const requiresPro = proTechniques.includes(technique);
+            
+            if (requiresPro) {
+                // Check if user is already authenticated (for immediate login scenarios)
+                if (this.isPremiumUser()) {
+                    // Enable item for Pro users
+                    item.classList.remove('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'none';
+                    }
+                } else {
+                    // Start with disabled state for non-Pro users (will be updated when auth state is known)
+                    item.classList.add('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'block';
+                    }
+                }
+            }
+        });
+    }
+
+    // Update technique presets visibility based on user type
+    // Disable presets that require signup/subscribe and show appropriate text
+    updateTechniquePresetsVisibility() {
+        const techniquePresets = document.querySelectorAll('.technique-preset');
+        const proTechniques = [];
+        const freeTechniques = ['sprint', 'focus'];
+        
+        techniquePresets.forEach(preset => {
+            const technique = preset.dataset.technique;
+            if (!technique) return;
+            
+            const signupText = preset.querySelector('.signup-required-text');
+            const subscribeText = preset.querySelector('.subscribe-required-text');
+            
+            // Hide both texts initially
+            if (signupText) signupText.classList.add('hidden');
+            if (subscribeText) subscribeText.classList.add('hidden');
+            
+            // Reset preset state
+            preset.style.opacity = '1';
+            preset.style.pointerEvents = 'auto';
+            preset.style.cursor = 'pointer';
+            
+            // Guest users: disable all except Pomodoro
+            if (!this.isAuthenticated) {
+                if (technique !== 'pomodoro') {
+                    preset.style.opacity = '0.5';
+                    preset.style.pointerEvents = 'none';
+                    preset.style.cursor = 'not-allowed';
+                    if (signupText) signupText.classList.remove('hidden');
+                }
+            }
+            // Free users: disable Pro techniques
+            else if (this.isAuthenticated && !this.isPremiumUser()) {
+                if (proTechniques.includes(technique)) {
+                    preset.style.opacity = '0.5';
+                    preset.style.pointerEvents = 'none';
+                    preset.style.cursor = 'not-allowed';
+                    if (subscribeText) subscribeText.classList.remove('hidden');
+                }
+            }
+        });
+    }
+
+    updateDropdownItemsState() {
+        const proTechniques = ['custom'];
+        
+        this.dropdownItems.forEach(item => {
+            const technique = item.getAttribute('data-technique');
+            const requiresPro = proTechniques.includes(technique);
+            
+            if (requiresPro) {
+                // If auth readiness isn't known yet, keep items disabled to avoid flicker
+                if (!this.authReady) {
+                    item.classList.add('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) loginBtn.style.display = 'block';
+                    return;
+                }
+                if (this.isPremiumUser()) {
+                    // Enable item for Pro users
+                    item.classList.remove('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'none';
+                    }
+                } else {
+                    // Disable item for non-Pro users
+                    item.classList.add('disabled');
+                    const loginBtn = item.querySelector('.login-btn');
+                    if (loginBtn) {
+                        loginBtn.style.display = 'block';
+                    }
+                }
+            }
+        });
+    }
+
+    setupLoginButtons() {
+        // Setup login buttons for advanced techniques
+        const loginButtons = [
+            { id: 'loginPomodoroPlusBtn', technique: 'pomodoro-plus' },
+            { id: 'loginUltradianBtn', technique: 'ultradian-rhythm' },
+            { id: 'loginCustomBtn', technique: 'custom' }
+        ];
+        
+        loginButtons.forEach(({ id, technique }) => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showLoginRequiredModal(technique);
+                });
+            }
+        });
     }
 
     showCycleCompletedCelebration(wasLegitimate) {}
@@ -3198,7 +7333,11 @@ class PomodoroTimer {
                 completeBtn.title = 'Mark as completed';
                 completeBtn.addEventListener('click', async () => {
                     try {
-                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}`, { method: 'POST' });
+                        // Check if Developer Mode is active
+                        const viewMode = localStorage.getItem('viewMode');
+                        const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+                        
+                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}${devModeParam}`, { method: 'POST' });
                     } catch (_) {}
                     await this.fetchTodoistData();
                     renderTasks();
@@ -3214,6 +7353,12 @@ class PomodoroTimer {
         };
 
         connectBtn.addEventListener('click', () => {
+            this.trackEvent('Todoist Connect Clicked', {
+                button_type: 'todoist_connect',
+                source: 'tasks_modal',
+                user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                conversion_funnel: 'integration_interest'
+            });
             window.location.href = '/api/todoist-auth-start';
         });
 
@@ -3263,7 +7408,6 @@ class PomodoroTimer {
             }
         })();
     }
-
     showTaskListModal() {
         // Build modal for task list only (no integration controls)
         const overlay = document.createElement('div');
@@ -3340,20 +7484,22 @@ class PomodoroTimer {
                 </div>
             </div>
             
-            ${isFreeUser ? `
-                <div class="pro-upgrade-banner">
-                    <div class="pro-banner-content">
-                        <div class="pro-banner-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                </div>
-                        <div class="pro-banner-text">
-                            <h4>Upgrade to Pro</h4>
-                            <p>Connect Todoist and sync your tasks across devices</p>
-            </div>
-                        <button class="pro-banner-btn" id="upgradeFromTasksBtn">Upgrade</button>
+            ${isGuest ? `
+                <div style="background: var(--onyx-dark, #064e3b); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                    <div style="flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                            <line x1="6" x2="6" y1="2" y2="4"/>
+                            <line x1="10" x2="10" y1="2" y2="4"/>
+                            <line x1="14" x2="14" y1="2" y2="4"/>
+                        </svg>
                     </div>
+                    <div style="flex: 1;">
+                        <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Save your progress</div>
+                        <div style="color: white; font-size: 13px; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
+                    </div>
+                    <button id="guestTaskSignupBtn" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
                 </div>
             ` : ''}
             <div id="todoistTasksList" class="tasks-list"></div>
@@ -3416,13 +7562,13 @@ class PomodoroTimer {
             if (e.target === overlay) close();
         });
 
-        // Add upgrade button event listener for free users
-        if (isFreeUser) {
-            const upgradeBtn = modal.querySelector('#upgradeFromTasksBtn');
-            if (upgradeBtn) {
-                upgradeBtn.addEventListener('click', () => {
+        // Guest signup button from Todoist banner
+        if (isGuest) {
+            const guestTaskSignupBtn = modal.querySelector('#guestTaskSignupBtn');
+            if (guestTaskSignupBtn) {
+                guestTaskSignupBtn.addEventListener('click', () => {
                     close();
-                    this.showUpgradeModal();
+                    window.location.href = '/pricing';
                 });
             }
         }
@@ -3500,19 +7646,25 @@ class PomodoroTimer {
                 const totalSessions = taskConfig.sessions || 1;
                 const isCompleted = task.completed || (completedSessions >= totalSessions);
                 
+                // Check if task should be disabled for Guest users
+                const isGuest = !this.isAuthenticated || !this.user;
+                const shouldDisableForGuest = isGuest && index >= 1; // Disable tasks 2+ for guests
+                
                 const itemContent = `
                     <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${shouldDisableForGuest ? 'disabled' : ''}>
                         <label for="task-${task.id}"></label>
                     </div>
                     <div class="task-content">
-                        <div class="task-title">
+                        <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
                             ${task.content || '(untitled)'}
+                            ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
                         </div>
-                            </div>
+                    </div>
                     <div class="task-progress">
-                        <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                        </div>
+                        <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
+                    </div>
+                    ${!shouldDisableForGuest ? `
                     <div class="task-menu" data-task-id="${task.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="1"/>
@@ -3520,9 +7672,15 @@ class PomodoroTimer {
                             <circle cx="5" cy="12" r="1"/>
                         </svg>
                     </div>
+                    ` : ''}
                 `;
                 
                 item.innerHTML = itemContent;
+                
+                // Add disabled class for guest users
+                if (shouldDisableForGuest) {
+                    item.classList.add('disabled-for-guest');
+                }
                 
                 // Set initial selected state
                 if (taskConfig.selected) {
@@ -3553,6 +7711,34 @@ class PomodoroTimer {
         const addTaskForm = modal.querySelector('#addTaskForm');
         if (addTaskBtn && addTaskForm) {
             addTaskBtn.addEventListener('click', () => {
+                this.trackEvent('Add Task Button Clicked', {
+                    button_type: 'add_task',
+                    source: 'tasks_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    task_count: this.getLocalTasks().length
+                });
+                // Check task limit BEFORE showing the form
+                // Only count tasks in To-do (not completed), not tasks in Done
+                const currentTasks = this.getLocalTasks().filter(task => !task.completed);
+                
+                // Define limits based on user type
+                let taskLimit;
+                if (!this.isAuthenticated) {
+                    // Guest users: 1 task
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
+                    // Free users: 3 tasks
+                    taskLimit = 3;
+                } else {
+                    // Pro users: unlimited
+                    taskLimit = Infinity;
+                }
+                
+                if (currentTasks.length >= taskLimit) {
+                    this.showTaskLimitModal();
+                    return;
+                }
+                
                 // Enter add mode
                 this.editingTaskId = null;
                 addTaskForm.style.display = 'block';
@@ -3607,6 +7793,11 @@ class PomodoroTimer {
             const tabs = modal.querySelectorAll('.task-tab');
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
+                    this.trackEvent('Task Tab Clicked', {
+                        button_type: 'task_tab',
+                        tab_name: tab.dataset.tab,
+                        source: 'tasks_modal'
+                    });
                     // Remove active class from all tabs
                     tabs.forEach(t => t.classList.remove('active'));
                     // Add active class to clicked tab
@@ -3662,6 +7853,15 @@ class PomodoroTimer {
             mainImportBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // Track Todoist import button click
+                this.trackEvent('Todoist Import Clicked', {
+                    button_type: 'todoist_import',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                
                 try {
                     // Check if Todoist is connected first
                     const isConnected = await this.checkTodoistConnection();
@@ -3743,6 +7943,8 @@ class PomodoroTimer {
                 if (typeof renderTasks === 'function') renderTasks();
                 this.updateCurrentTaskBanner();
                 this.rebuildTaskQueue();
+                this.updateCurrentTaskFromQueue();
+                this.updateDisplay();
             });
         }
 
@@ -3770,7 +7972,7 @@ class PomodoroTimer {
                         if (addSection) addSection.style.display = '';
                     } else {
                         // Create new task
-                    this.addLocalTask(description, pomodoros);
+                        this.addLocalTask(description, pomodoros);
                     }
                     // Clear form
                     taskInput.value = '';
@@ -3778,6 +7980,9 @@ class PomodoroTimer {
                     // Refresh task list
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
+                    // Update header to reflect changes immediately
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
                     // Enable button now that there is at least one task, and hide form
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
@@ -3820,6 +8025,169 @@ class PomodoroTimer {
         }
     }
 
+    setupAddTaskFormControlsForPanel(panel, renderTasks) {
+        const addTaskForm = panel.querySelector('#addTaskForm');
+        const addTaskBtn = panel.querySelector('#showAddTaskForm');
+        const cancelBtn = panel.querySelector('#cancelAddTask');
+        const saveBtn = panel.querySelector('#saveTask');
+        const deleteBtn = panel.querySelector('#deleteTask');
+        const taskInput = panel.querySelector('#taskDescription');
+        const pomodorosInput = panel.querySelector('#pomodorosCount');
+        const decreaseBtn = panel.querySelector('#decreasePomodoros');
+        const increaseBtn = panel.querySelector('#increasePomodoros');
+
+        // Remove old event listeners by cloning
+        if (cancelBtn) {
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.replaceWith(newCancelBtn);
+            newCancelBtn.addEventListener('click', () => {
+                // Show back the hidden task item if we were editing
+                if (this.editingTaskId) {
+                    const hiddenTaskItem = panel.querySelector(`[data-task-id="${this.editingTaskId}"]`);
+                    if (hiddenTaskItem) {
+                        hiddenTaskItem.style.display = '';
+                    }
+                }
+                
+                const tasks = this.getAllTasks();
+                if (!tasks || tasks.length === 0) {
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                } else {
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                }
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+                this.editingTaskId = null;
+                const listEl = panel.querySelector('#todoistTasksList');
+                const addSection = panel.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = '';
+                if (addSection) addSection.style.display = '';
+            });
+        }
+
+        if (deleteBtn) {
+            const newDeleteBtn = deleteBtn.cloneNode(true);
+            deleteBtn.replaceWith(newDeleteBtn);
+            newDeleteBtn.addEventListener('click', () => {
+                if (!this.editingTaskId) return;
+                const tasks = this.getLocalTasks().filter(t => t.id !== this.editingTaskId);
+                this.setLocalTasks(tasks);
+                const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+                delete configs[this.editingTaskId];
+                localStorage.setItem('taskConfigs', JSON.stringify(configs));
+                this.editingTaskId = null;
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+                addTaskForm.style.display = 'none';
+                addTaskBtn.disabled = false;
+                const listEl = panel.querySelector('#todoistTasksList');
+                const addSection = panel.querySelector('.add-task-section');
+                if (listEl) listEl.style.display = '';
+                if (addSection) addSection.style.display = '';
+                this.loadAllTasks();
+                if (typeof renderTasks === 'function') renderTasks();
+                this.updateCurrentTaskBanner();
+                this.rebuildTaskQueue();
+                this.updateCurrentTaskFromQueue();
+                this.updateDisplay();
+            });
+        }
+
+        if (saveBtn) {
+            const newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.replaceWith(newSaveBtn);
+            newSaveBtn.addEventListener('click', () => {
+                console.log('💾 Save button clicked');
+                const finalTaskInput = panel.querySelector('#taskDescription');
+                const finalPomodorosInput = panel.querySelector('#pomodorosCount');
+                const description = finalTaskInput ? finalTaskInput.value.trim() : '';
+                const pomodoros = finalPomodorosInput ? parseInt(finalPomodorosInput.value) : 1;
+                
+                console.log('💾 Task description:', description, 'Pomodoros:', pomodoros);
+                
+                if (description) {
+                    if (this.editingTaskId) {
+                        console.log('💾 Editing task:', this.editingTaskId);
+                        const tasks = this.getLocalTasks();
+                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                        if (idx !== -1) {
+                            tasks[idx].content = description;
+                            this.setLocalTasks(tasks);
+                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
+                        }
+                        this.editingTaskId = null;
+                    } else {
+                        console.log('💾 Adding new task');
+                        // Create new task
+                        this.addLocalTask(description, pomodoros);
+                    }
+                    if (finalTaskInput) finalTaskInput.value = '';
+                    if (finalPomodorosInput) finalPomodorosInput.value = '1';
+                    this.loadAllTasks();
+                    if (typeof renderTasks === 'function') {
+                        console.log('💾 Calling renderTasks');
+                        renderTasks();
+                    }
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                    console.log('💾 Task saved successfully');
+                } else {
+                    console.warn('⚠️ No description provided');
+                }
+            });
+        }
+
+        if (decreaseBtn && pomodorosInput) {
+            const newDecreaseBtn = decreaseBtn.cloneNode(true);
+            decreaseBtn.replaceWith(newDecreaseBtn);
+            newDecreaseBtn.addEventListener('click', () => {
+                const current = parseInt(pomodorosInput.value);
+                if (current > 1) {
+                    pomodorosInput.value = current - 1;
+                }
+            });
+        }
+
+        if (increaseBtn && pomodorosInput) {
+            const newIncreaseBtn = increaseBtn.cloneNode(true);
+            increaseBtn.replaceWith(newIncreaseBtn);
+            newIncreaseBtn.addEventListener('click', () => {
+                const current = parseInt(pomodorosInput.value);
+                if (current < 10) {
+                    pomodorosInput.value = current + 1;
+                }
+            });
+        }
+
+        if (taskInput) {
+            const newTaskInput = taskInput.cloneNode(true);
+            taskInput.replaceWith(newTaskInput);
+            
+            // Get fresh references after all replacements
+            const finalTaskInput = panel.querySelector('#taskDescription');
+            const finalSaveBtn = panel.querySelector('#saveTask');
+            
+            if (finalTaskInput && finalSaveBtn) {
+                finalTaskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        finalSaveBtn.click();
+                    }
+                });
+                
+                finalTaskInput.addEventListener('input', () => {
+                    finalSaveBtn.disabled = !finalTaskInput.value.trim();
+                });
+                
+                // Set initial state
+                finalSaveBtn.disabled = !finalTaskInput.value.trim();
+            }
+        }
+    }
+
     setupTaskOptions(modal, renderTasks) {
         const optionsBtn = modal.querySelector('#taskOptionsBtn');
         const optionsDropdown = modal.querySelector('#taskOptionsDropdown');
@@ -3853,18 +8221,43 @@ class PomodoroTimer {
         // Clear all tasks
         if (clearAllBtn) {
             clearAllBtn.addEventListener('click', () => {
+                this.trackEvent('Clear All Tasks Clicked', {
+                    button_type: 'clear_all_tasks',
+                    source: 'tasks_modal'
+                });
                 if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
-                    // Clear local tasks
-                    this.setLocalTasks([]);
-                    // Clear task configs
+                    // Remove from local tasks - EXACT COPY from Delete Task but filter ALL tasks
+                    const tasks = this.getLocalTasks().filter(t => false); // This removes ALL tasks
+                    this.setLocalTasks(tasks);
+                    // Remove any config for ALL tasks - EXACT COPY from Delete Task but clear all
                     localStorage.removeItem('taskConfigs');
-                    // Clear task order
-                    localStorage.removeItem('taskOrder');
-                    // Refresh UI
+                    // Reset state and UI - EXACT COPY from Delete Task
+                    this.editingTaskId = null;
+                    // Restore list and add-section - EXACT COPY from Delete Task
+                    const listEl = modal.querySelector('#todoistTasksList');
+                    const addSection = modal.querySelector('.add-task-section');
+                    if (listEl) listEl.style.display = '';
+                    if (addSection) addSection.style.display = '';
+                    // Refresh list/banner/queue - EXACT COPY from Delete Task
                     this.loadAllTasks();
-                    renderTasks();
+                    if (typeof renderTasks === 'function') renderTasks();
                     this.updateCurrentTaskBanner();
                     this.rebuildTaskQueue();
+                    this.updateCurrentTaskFromQueue();
+                    this.updateDisplay();
+                    
+                    // Force a small delay to ensure DOM updates
+                    setTimeout(() => {
+                        this.updateCurrentTaskBanner();
+                        this.updateCurrentTaskFromQueue();
+                        this.updateDisplay(); // Update window title again
+                    }, 100);
+                    
+                    // Additional delay to ensure title updates even if timer is paused
+                    setTimeout(() => {
+                        this.updateDisplay(); // Force title update
+                    }, 200);
+                    
                     // Close dropdown
                     optionsDropdown.style.display = 'none';
                 }
@@ -3874,6 +8267,10 @@ class PomodoroTimer {
         // Clear done tasks
         if (clearDoneBtn) {
             clearDoneBtn.addEventListener('click', () => {
+                this.trackEvent('Clear Done Tasks Clicked', {
+                    button_type: 'clear_done_tasks',
+                    source: 'tasks_modal'
+                });
                 if (confirm('Are you sure you want to clear all completed tasks?')) {
                     const allTasks = this.getAllTasks();
                     const activeTasks = allTasks.filter(task => !task.completed);
@@ -3904,50 +8301,6 @@ class PomodoroTimer {
         }
     }
 
-    showTodoistConnectionPrompt() {
-        // Create overlay (same as logout modal)
-        const overlay = document.createElement('div');
-        overlay.className = 'logout-modal-overlay';
-        overlay.style.display = 'flex';
-        overlay.style.zIndex = '100002';
-
-        // Create modal (same structure as logout modal)
-        const modal = document.createElement('div');
-        modal.className = 'logout-modal';
-        modal.innerHTML = `
-            <h3 class="logout-modal-title">Connect to Todoist</h3>
-            <p class="logout-modal-message">You need to connect your Todoist account to import tasks</p>
-            <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="connectTodoistPromptBtn">Connect to Todoist</button>
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelConnectionPrompt">Cancel</button>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        // Setup event listeners
-        const connectBtn = modal.querySelector('#connectTodoistPromptBtn');
-        const cancelBtn = modal.querySelector('#cancelConnectionPrompt');
-
-        const closeModal = () => {
-            document.body.removeChild(overlay);
-        };
-
-        cancelBtn.addEventListener('click', closeModal);
-        
-        connectBtn.addEventListener('click', () => {
-            // Redirect to Todoist auth
-            window.location.href = '/api/todoist-auth-start';
-        });
-
-        // Close on overlay click (same as logout modal)
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                closeModal();
-            }
-        });
-    }
 
     async showTodoistProjectsModal() {
         // Create overlay (ensure on top of Tasks modal)
@@ -4038,43 +8391,49 @@ class PomodoroTimer {
             }
         }
     }
-
     async loadTodoistTasks(modal) {
         const loadingState = modal.querySelector('#todoistImportLoadingState');
         const tasksList = modal.querySelector('#todoistImportTasksList');
         const importActions = modal.querySelector('#todoistImportActions');
         
-            try {
-                // Fetch both tasks and projects
-                const [tasksResponse, projectsResponse] = await Promise.all([
-                    fetch('/api/todoist-tasks'),
-                    fetch('/api/todoist-projects')
-                ]);
+        try {
+            // Build query params (Developer Mode + uid) just like other flows
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
 
-                if (!tasksResponse.ok || !projectsResponse.ok) {
-                    throw new Error('Failed to fetch data');
-                }
+            // Fetch both tasks and projects
+            const [tasksResponse, projectsResponse] = await Promise.all([
+                fetch(`/api/todoist-tasks${qs}`),
+                fetch(`/api/todoist-projects${qs}`)
+            ]);
 
-                const tasks = await tasksResponse.json();
-                const projects = await projectsResponse.json();
-                
-                // Create project ID to name mapping
-                const projectMap = {};
-                projects.forEach(project => {
-                    projectMap[project.id] = project.name;
-                });
-                
-                // Add project_name to each task
-                tasks.forEach(task => {
-                    task.project_name = projectMap[task.project_id] || 'Inbox';
-                });
-                
-                // Debug: Log tasks to see project_name values
-                console.log('Todoist tasks:', tasks);
-                console.log('Project names found:', [...new Set(tasks.map(t => t.project_name))]);
-                
-                // Hide loading state
-                if (loadingState) loadingState.style.display = 'none';
+            if (!tasksResponse.ok || !projectsResponse.ok) {
+                throw new Error('Failed to fetch data');
+            }
+
+            const tasks = await tasksResponse.json();
+            const projects = await projectsResponse.json();
+            
+            // Create project ID to name mapping
+            const projectMap = {};
+            projects.forEach(project => {
+                projectMap[project.id] = project.name;
+            });
+            
+            // Add project_name to each task
+            tasks.forEach(task => {
+                task.project_name = projectMap[task.project_id] || 'Inbox';
+            });
+            
+            // Hide loading state
+            if (loadingState) loadingState.style.display = 'none';
             
             if (tasks.length === 0) {
                 // Show empty state
@@ -4093,10 +8452,7 @@ class PomodoroTimer {
                 // Group tasks by project
                 const tasksByProject = this.groupTasksByProject(tasks);
                 
-                // Debug: Log grouped projects
-                console.log('Grouped projects:', Object.keys(tasksByProject));
-                
-                    // Render tasks grouped by project
+                // Render tasks grouped by project
                     const projectEntries = Object.entries(tasksByProject);
                     
                     // Sort projects: Inbox first, then others alphabetically
@@ -4170,6 +8526,18 @@ class PomodoroTimer {
         taskItems.forEach(item => {
             const checkbox = item.querySelector('.task-checkbox-input');
             if (checkbox) {
+                // Toggle checkbox when clicking anywhere on the task item
+                item.addEventListener('click', (e) => {
+                    // Don't toggle if clicking directly on the checkbox or label (let native behavior handle it)
+                    if (e.target === checkbox || e.target.classList.contains('task-checkbox-label')) {
+                        return;
+                    }
+                    checkbox.checked = !checkbox.checked;
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateTodoistImportButton(modal);
+                });
+                
+                // Also handle native checkbox change
                 checkbox.addEventListener('change', () => {
                     item.classList.toggle('selected', checkbox.checked);
                     this.updateTodoistImportButton(modal);
@@ -4267,16 +8635,849 @@ class PomodoroTimer {
             // Refresh task modal if it's open
             this.refreshTaskModalIfOpen();
             
-            // Show success message
-            alert(`Successfully imported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}!`);
-            
         } catch (error) {
             console.error('Error importing Todoist tasks:', error);
             throw error;
         }
     }
 
+    // Show integration upgrade modal for Guest and Free users - Dynamic modal like showTaskListModal
+    showIntegrationUpgradeModal(integrationType) {
+        const integrationData = {
+            todoist: {
+                title: 'Todoist Integration',
+                subtitle: 'Sync your tasks seamlessly',
+                icon: '/images/todoist.svg',
+                benefits: [
+                    'Import tasks from Todoist projects',
+                    'Two-way sync keeps everything updated',
+                    'Focus on tasks with Pomodoro timer',
+                    'Track productivity across platforms'
+                ]
+            },
+            notion: {
+                title: 'Notion Integration',
+                subtitle: 'Connect your workspace',
+                icon: '/images/notion.svg',
+                benefits: [
+                    'Import tasks from Notion databases',
+                    'Keep your workflow centralized',
+                    'Sync task progress automatically',
+                    'Boost productivity with seamless integration'
+                ]
+            },
+        };
+        
+        const data = integrationData[integrationType];
+        if (!data) return;
+        
+        // Determine user type and message
+        const isGuest = !this.isAuthenticated || !this.user;
+        const isFree = this.isAuthenticated && this.user && !this.isPro;
+        
+        let upgradeMessage, buttonText;
+        if (isGuest) {
+            upgradeMessage = 'Sign up to unlock integrations and sync your tasks seamlessly!';
+            buttonText = 'Sign up';
+        } else if (isFree) {
+            upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
+            buttonText = 'Get Lifetime Access';
+        } else {
+            upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
+            buttonText = 'Get Lifetime Access';
+        }
+        
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '500px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div style="margin-bottom: 16px; display: flex; justify-content: center;">
+                    <div style="background: white; border-radius: 12px; padding: 12px; display: inline-flex; align-items: center; justify-content: center;">
+                        <img src="${data.icon}" alt="${data.title}" style="width: 64px; height: 64px; display: block;">
+                    </div>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 8px; color: white;">${data.title}</h3>
+                <p style="color: rgba(255,255,255,0.7); font-size: 14px;">${data.subtitle}</p>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                ${data.benefits.map(benefit => `
+                    <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span style="color: rgba(255,255,255,0.9); font-size: 14px;">${benefit}</span>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 24px;">
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.5;">${upgradeMessage}</p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-primary" id="integrationSignupBtn" style="width: 100%;">${buttonText}</button>
+                <button class="btn-secondary" id="integrationCancelBtn" style="width: 100%;">Cancel</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Close handlers
+        modal.querySelector('.close-focus-stats-x').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+        
+        // Button handlers
+        modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
+        modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
+            // Track which integration modal was clicked
+            const eventProperties = {
+                button_type: 'subscribe',
+                source: 'integration_modal',
+                location: `${integrationType}_integration_modal`,
+                user_type: isGuest ? 'guest' : 'free',
+                modal_type: `${integrationType}_integration`,
+                integration_type: integrationType
+            };
+            this.trackEvent('Subscribe Clicked', eventProperties);
+            
+            // Track to Google Ads for Performance Max optimization
+            this.trackSubscribeClickedToGoogleAds(eventProperties);
+            
+            if (isGuest) {
+                // Guest user - show signup
+                this.handleSignup();
+            } else {
+                // Free user - redirect to pricing page
+                window.location.href = '/pricing';
+            }
+        });
+    }
+
+    // Wrapper functions for integration buttons
+    async showTodoistProjects() {
+        console.log('🔍 Todoist click - Auth state:', {
+            isAuthenticated: this.isAuthenticated,
+            hasUser: !!this.user,
+            isPro: this.isPro,
+            isPremiumUser: this.isPremiumUser()
+        });
+        
+        // Check if user is Pro (double check with isPremiumUser)
+        const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
+        
+        if (isProUser) {
+            // Pro users can access integrations
+            try {
+                // Check if Todoist is connected first
+                const isConnected = await this.checkTodoistConnection();
+                console.log('🔍 Todoist connection status:', isConnected);
+                
+                if (!isConnected) {
+                    // Pro user not connected → redirect to auth (same as Settings Connect button)
+                    console.log('🔗 Redirecting to Todoist auth...');
+                    window.location.href = '/api/todoist-auth-start';
+                    return;
+                }
+                // Pro user connected → show projects modal
+                console.log('📋 Showing Todoist projects modal...');
+                await this.showTodoistProjectsModal();
+            } catch (error) {
+                console.error('Error opening Todoist projects modal:', error);
+                alert('Error loading Todoist projects. Please try again.');
+            }
+        } else {
+            // Guest and Free users show integration modal
+            console.log('💰 Showing integration modal for non-Pro user');
+            this.showIntegrationModal('todoist');
+        }
+    }
+    
+    showNotionIntegration() {
+        // Check if user is Pro
+        if (this.isAuthenticated && this.user && this.isPro) {
+            // Pro users can access integrations
+            // Check if already connected
+            fetch('/api/notion-status')
+                .then(res => res.json())
+                .then(data => {
+                if (data.connected) {
+                    // Already connected, show import modal
+                    this.showNotionPagesModal();
+                } else {
+                    // Not connected, initiate connection
+                    const userId = window.Clerk?.user?.id || '';
+                    const viewMode = localStorage.getItem('viewMode');
+                    const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+                    window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                }
+            })
+            .catch(() => {
+                alert('Error checking Notion connection. Please try again.');
+            });
+        } else {
+            // Guest and Free users show integration modal
+            this.showIntegrationModal('notion');
+        }
+    }
+    
+    async showNotionPagesModal() {
+        // Create overlay (ensure on top of Tasks modal)
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        overlay.style.zIndex = '100001';
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'focus-stats-modal';
+        modal.style.maxWidth = '600px';
+        modal.innerHTML = `
+            <button class="close-focus-stats-x" id="closeNotionPagesModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="tasks-header">
+                <h3>Import Tasks from Notion</h3>
+                <p class="tasks-subtitle">Select pages to import as tasks</p>
+            </div>
+            
+            <div class="todoist-projects-container">
+                <div class="loading-state" id="notionImportLoadingState">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your Notion pages...</p>
+                </div>
+                <div class="todoist-tasks-list" id="notionImportPagesList" style="display: none;">
+                    <!-- Pages will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="todoist-import-actions" id="notionImportActions" style="display: none;">
+                <button class="btn-secondary" id="clearNotionSelection">Clear Selection</button>
+                <button class="btn-primary" id="importSelectedPages">Import Selected</button>
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Close modal function
+        const closeModal = () => {
+            try {
+                document.body.removeChild(overlay);
+            } catch (_) {}
+        };
+
+        // Event listeners
+        const closeBtn = modal.querySelector('#closeNotionPagesModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+
+        // Close on overlay click (but not when clicking inside modal)
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
+
+        // Load Notion pages
+        try {
+            await this.loadNotionPages(modal);
+        } catch (error) {
+            console.error('Error loading Notion pages:', error);
+            // Show error state
+            const pagesList = modal.querySelector('#notionImportPagesList');
+            const loadingState = modal.querySelector('#notionImportLoadingState');
+            if (loadingState) loadingState.style.display = 'none';
+            if (pagesList) {
+                pagesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">Error loading pages</div>
+                        <div class="empty-subtext">Please check your Notion connection and try again</div>
+                    </div>
+                `;
+                pagesList.style.display = 'block';
+            }
+        }
+    }
+    
+    async loadNotionPages(modal) {
+        const loadingState = modal.querySelector('#notionImportLoadingState');
+        const pagesList = modal.querySelector('#notionImportPagesList');
+        const importActions = modal.querySelector('#notionImportActions');
+        
+        try {
+            // Build query params (Developer Mode + uid) - define qs at the beginning
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+
+            // Check if we have cached databases
+            const cacheKey = 'notion_databases_cache';
+            const cachedData = localStorage.getItem(cacheKey);
+            const cacheTime = localStorage.getItem(cacheKey + '_time');
+            const now = Date.now();
+            const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+            
+            let databases;
+            
+            // Use cache if it's fresh (less than 2 minutes old)
+            if (cachedData && cacheTime && (now - parseInt(cacheTime)) < CACHE_DURATION) {
+                databases = JSON.parse(cachedData);
+                console.log('Using cached Notion databases');
+                // Skip loading state for cached data
+                if (loadingState) loadingState.style.display = 'none';
+            } else {
+                // Fetch databases from Notion
+                const response = await fetch(`/api/notion-pages${qs}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Notion databases');
+                }
+
+                databases = await response.json();
+                
+                // Cache the results
+                localStorage.setItem(cacheKey, JSON.stringify(databases));
+                localStorage.setItem(cacheKey + '_time', now.toString());
+            }
+            
+            // Hide loading state
+            if (loadingState) loadingState.style.display = 'none';
+        
+            if (databases.length === 0) {
+                // Show empty state
+                pagesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No databases found</div>
+                        <div class="empty-subtext">Create a database in Notion to import tasks</div>
+                    </div>
+                `;
+            } else {
+                // Render databases as clickable items
+                pagesList.innerHTML = `
+                    <div class="notion-database-list">
+                        <div class="notion-instruction">Select a database to view its tasks:</div>
+                        ${databases.map(db => `
+                            <div class="notion-database-item" data-database-id="${db.id}">
+                                <div class="database-info">
+                                    <div class="database-name">${db.name}</div>
+                                    <div class="database-meta">
+                                        ${db.hasCheckbox ? '<span class="db-feature">✓ Checkbox</span>' : ''}
+                                        ${db.hasStatus ? '<span class="db-feature">📊 Status</span>' : ''}
+                                    </div>
+                                </div>
+                                <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // Setup database selection
+                this.setupNotionDatabaseSelection(modal, databases, qs);
+            }
+        
+            pagesList.style.display = 'block';
+        
+        } catch (error) {
+            console.error('Error in loadNotionPages:', error);
+            throw error;
+        }
+    }
+    
+    setupNotionDatabaseSelection(modal, databases, qs) {
+        const databaseItems = modal.querySelectorAll('.notion-database-item');
+        
+        databaseItems.forEach(item => {
+            item.addEventListener('click', async () => {
+                const databaseId = item.dataset.databaseId;
+                const database = databases.find(db => db.id === databaseId);
+                
+                if (!database) return;
+                
+                // Load tasks from this database
+                await this.loadNotionDatabaseItems(modal, database, qs);
+            });
+        });
+    }
+    
+    async loadNotionDatabaseItems(modal, database, qs) {
+        const pagesList = modal.querySelector('#notionImportPagesList');
+        const importActions = modal.querySelector('#notionImportActions');
+        
+        try {
+            // Show loading
+            pagesList.innerHTML = `
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Loading tasks...</div>
+                </div>
+            `;
+            
+            // Fetch items from the database
+            const response = await fetch(`/api/notion-database-items?databaseId=${database.id}&${qs}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch database items');
+            }
+            
+            const items = await response.json();
+            
+            // Filter out completed items (only show incomplete tasks)
+            const incompleteTasks = items.filter(item => !item.completed);
+            
+            if (incompleteTasks.length === 0) {
+                pagesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="back-button" onclick="window.pomodoroTimer.loadNotionPages(this.closest('.focus-stats-modal'))">
+                            ← Back to Databases
+                        </div>
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No incomplete tasks</div>
+                        <div class="empty-subtext">All tasks in this database are completed</div>
+                    </div>
+                `;
+                importActions.style.display = 'none';
+            } else {
+                // Render tasks
+                pagesList.innerHTML = `
+                    <div class="back-button" onclick="window.pomodoroTimer.loadNotionPages(this.closest('.focus-stats-modal'))">
+                        ← Back to Databases
+                    </div>
+                    <div class="todoist-project-section">
+                        <div class="project-header">
+                            <h4 class="project-title">${database.name}</h4>
+                            <span class="project-task-count">${incompleteTasks.length} task${incompleteTasks.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="project-tasks">
+                            ${incompleteTasks.map(task => `
+                                <div class="todoist-task-item" data-task-id="${task.id}" data-checkbox-property="${task.checkboxPropertyName || ''}" data-status-property="${task.statusPropertyName || ''}">
+                                    <div class="task-checkbox">
+                                        <input type="checkbox" id="notion-${task.id}" class="task-checkbox-input">
+                                        <label for="notion-${task.id}" class="task-checkbox-label"></label>
+                                    </div>
+                                    <div class="task-info">
+                                        <div class="task-content">${task.content}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                importActions.style.display = 'flex';
+                
+                // Setup task selection
+                this.setupNotionTaskSelection(modal);
+            }
+            
+        } catch (error) {
+            console.error('Error loading database items:', error);
+            pagesList.innerHTML = `
+                <div class="empty-state">
+                    <div class="back-button" onclick="window.pomodoroTimer.loadNotionPages(this.closest('.focus-stats-modal'))">
+                        ← Back to Databases
+                    </div>
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
+                    <div class="empty-text">Error loading tasks</div>
+                    <div class="empty-subtext">${error.message}</div>
+                </div>
+            `;
+        }
+    }
+    
+    setupNotionTaskSelection(modal) {
+        const taskItems = modal.querySelectorAll('.todoist-task-item');
+        const clearSelectionBtn = modal.querySelector('#clearNotionSelection');
+        const importBtn = modal.querySelector('#importSelectedPages');
+        
+        // Handle task selection
+        taskItems.forEach(item => {
+            const checkbox = item.querySelector('.task-checkbox-input');
+            if (checkbox) {
+                // Only checkbox changes selection
+                checkbox.addEventListener('change', () => {
+                    item.classList.toggle('selected', checkbox.checked);
+                    this.updateNotionImportButton(modal);
+                });
+            }
+        });
+
+        // Clear selection
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', () => {
+                taskItems.forEach(item => {
+                    const checkbox = item.querySelector('.task-checkbox-input');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        item.classList.remove('selected');
+                    }
+                });
+                this.updateNotionImportButton(modal);
+            });
+        }
+
+        // Import selected tasks
+        if (importBtn) {
+            importBtn.addEventListener('click', async () => {
+                const selectedTasks = Array.from(taskItems)
+                    .filter(item => item.querySelector('.task-checkbox-input')?.checked)
+                    .map(item => {
+                        const taskId = item.dataset.taskId;
+                        const taskContent = item.querySelector('.task-content')?.textContent || '';
+                        const checkboxProperty = item.dataset.checkboxProperty;
+                        const statusProperty = item.dataset.statusProperty;
+                        return { 
+                            id: taskId, 
+                            content: taskContent,
+                            checkboxPropertyName: checkboxProperty,
+                            statusPropertyName: statusProperty
+                        };
+                    });
+
+                if (selectedTasks.length === 0) return;
+
+                // Import tasks as local tasks with notion source
+                const localTasks = this.getLocalTasks();
+                const newTasks = selectedTasks.map(task => ({
+                    id: `notion_${task.id}`,
+                    content: task.content,
+                    completed: false,
+                    source: 'notion',
+                    notionPageId: task.id,
+                    checkboxPropertyName: task.checkboxPropertyName,
+                    statusPropertyName: task.statusPropertyName
+                }));
+                
+                this.setLocalTasks([...localTasks, ...newTasks]);
+
+                // Close modal and refresh task list
+                modal.style.display = 'none';
+                this.refreshTaskModalIfOpen();
+
+                // Show success message
+                this.showNotification(`Imported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''} from Notion`);
+            });
+        }
+
+        this.updateNotionImportButton(modal);
+    }
+
+    updateNotionImportButton(modal) {
+        const importBtn = modal.querySelector('#importSelectedPages');
+        const selectedCount = modal.querySelectorAll('.todoist-task-item.selected').length;
+        
+        if (importBtn) {
+            if (selectedCount > 0) {
+                importBtn.textContent = `Import ${selectedCount} Page${selectedCount > 1 ? 's' : ''}`;
+                importBtn.disabled = false;
+            } else {
+                importBtn.textContent = 'Import Selected';
+                importBtn.disabled = true;
+            }
+        }
+    }
+
+    async completeNotionTask(task, isCompleted) {
+        try {
+            // Build query params for Pro check
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+            
+            // Call the API to update the task in Notion
+            const response = await fetch(`/api/notion-complete-task${qs}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    pageId: task.notionPageId,
+                    checkboxPropertyName: task.checkboxPropertyName,
+                    statusPropertyName: task.statusPropertyName,
+                    completed: isCompleted
+                })
+            });
+            
+            if (!response.ok) {
+                console.error('Failed to update Notion task');
+            }
+        } catch (error) {
+            console.error('Error completing Notion task:', error);
+        }
+    }
+    
+    showGoogleCalendarIntegration() {
+        // Check if user is Pro
+        if (this.isAuthenticated && this.user && this.isPro) {
+            // Pro users can access integrations
+        
+        // Check if already connected
+        fetch('/api/google-calendar-status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.connected) {
+                    // Already connected
+                    alert('Google Calendar is already connected! Manage it in Settings.');
+                } else {
+                    // Not connected, initiate connection
+                    const userId = window.Clerk?.user?.id || '';
+                    const viewMode = localStorage.getItem('viewMode');
+                    const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+                    window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                }
+            })
+            .catch(() => {
+                alert('Error checking Google Calendar connection. Please try again.');
+            });
+        } else {
+            // Guest and Free users go to pricing page
+            window.location.href = '/pricing';
+        }
+    }
+
     refreshTaskModalIfOpen() {
+        // Check if task sidebar panel is open
+        const taskSidePanel = document.getElementById('taskSidePanel');
+        if (taskSidePanel && taskSidePanel.classList.contains('open')) {
+            console.log('🔄 Refreshing Task sidebar panel');
+            // Get the tasks list element
+            const listEl = taskSidePanel.querySelector('#todoistTasksList');
+            if (listEl) {
+                // Get current active tab
+                const activeTabEl = taskSidePanel.querySelector('.task-tab.active');
+                const currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo';
+                
+                // Clear only task items and headers, preserve the form
+                const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
+                taskItems.forEach(item => item.remove());
+                
+                const allTasks = this.getAllTasks();
+                
+                // Filter tasks based on current tab
+                let filteredTasks = allTasks;
+                if (currentTab === 'todo') {
+                    filteredTasks = allTasks.filter(task => !task.completed);
+                } else if (currentTab === 'done') {
+                    filteredTasks = allTasks.filter(task => task.completed);
+                }
+                
+                if (filteredTasks.length === 0) {
+                    if (currentTab === 'done') {
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'empty-state';
+                        emptyState.innerHTML = `
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                </svg>
+                            </div>
+                            <div class="empty-text">No completed tasks yet</div>
+                            <div class="empty-subtext">Complete some tasks to see them here</div>
+                        `;
+                        listEl.appendChild(emptyState);
+                    }
+                } else {
+                    // Group tasks by source
+                    const tasksBySource = {
+                        'local': [],
+                        'todoist': [],
+                        'notion': []
+                    };
+                    
+                    filteredTasks.forEach(task => {
+                        const source = task.source || 'local';
+                        if (tasksBySource[source]) {
+                            tasksBySource[source].push(task);
+                        } else {
+                            tasksBySource['local'].push(task);
+                        }
+                    });
+                    
+                    // Apply saved task order within each source
+                    const savedOrder = this.getTaskOrder();
+                    Object.keys(tasksBySource).forEach(source => {
+                        const tasks = tasksBySource[source];
+                        if (savedOrder.length > 0 && tasks.length > 0) {
+                            const taskMap = new Map(tasks.map(task => [task.id, task]));
+                            const orderedTasks = [];
+                            savedOrder.forEach(orderItem => {
+                                if (taskMap.has(orderItem.id)) {
+                                    orderedTasks.push(taskMap.get(orderItem.id));
+                                    taskMap.delete(orderItem.id);
+                                }
+                            });
+                            taskMap.forEach(task => orderedTasks.push(task));
+                            tasksBySource[source] = orderedTasks;
+                        }
+                    });
+                    
+                    // Get the form element to insert before it (if it exists)
+                    const addTaskFormEl = listEl.querySelector('#addTaskForm');
+                    
+                    // Source labels
+                    const sourceConfig = {
+                        'local': { label: 'My Tasks' },
+                        'todoist': { label: 'From Todoist' },
+                        'notion': { label: 'From Notion' }
+                    };
+                    
+                    // Check how many sources have tasks
+                    const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
+                    const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
+                    
+                    // Render tasks grouped by source
+                    let globalIndex = 0;
+                    ['local', 'todoist', 'notion'].forEach(source => {
+                        const tasks = tasksBySource[source];
+                        if (tasks.length === 0) return;
+                        
+                        // Create source header (only if needed)
+                        if (showHeaders) {
+                            const sourceHeader = document.createElement('div');
+                            sourceHeader.className = 'task-source-header';
+                            const config = sourceConfig[source];
+                            sourceHeader.innerHTML = `
+                                <span class="source-label">${config.label}</span>
+                                <span class="source-count">${tasks.length}</span>
+                            `;
+                            
+                            // Insert before the form if it exists, otherwise append
+                            if (addTaskFormEl) {
+                                listEl.insertBefore(sourceHeader, addTaskFormEl);
+                            } else {
+                                listEl.appendChild(sourceHeader);
+                            }
+                        }
+                        
+                        // Render tasks for this source
+                        tasks.forEach((task) => {
+                            const item = document.createElement('div');
+                            item.className = 'task-item';
+                            item.draggable = true;
+                            item.dataset.taskId = task.id;
+                            item.dataset.index = globalIndex++;
+                            item.dataset.source = source;
+                            
+                            const taskConfig = this.getTaskConfig(task.id);
+                            const completedSessions = taskConfig.completedSessions || 0;
+                            const totalSessions = taskConfig.sessions || 1;
+                            const isCompleted = task.completed || (completedSessions >= totalSessions);
+                            
+                            const itemContent = `
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                                    <label for="task-${task.id}"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        ${task.content || '(untitled)'}
+                                    </div>
+                                </div>
+                                <div class="task-progress">
+                                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                                </div>
+                                ${!isCompleted ? `
+                                <div class="task-menu" data-task-id="${task.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="1"/>
+                                        <circle cx="19" cy="12" r="1"/>
+                                        <circle cx="5" cy="12" r="1"/>
+                                    </svg>
+                                </div>
+                                ` : ''}
+                            `;
+                            
+                            item.innerHTML = itemContent;
+                            
+                            // Add completed class if task is completed
+                            if (isCompleted) {
+                                item.classList.add('completed');
+                            }
+                            
+                            // Only apply 'selected' class if task is NOT completed
+                            if (taskConfig.selected && !isCompleted) {
+                                item.classList.add('selected');
+                            }
+                            
+                            // Insert before the form if it exists, otherwise append
+                            if (addTaskFormEl) {
+                                listEl.insertBefore(item, addTaskFormEl);
+                            } else {
+                                listEl.appendChild(item);
+                            }
+                        });
+                    });
+                    
+                    // Re-setup event listeners after rendering
+                    this.setupTaskEventListeners(taskSidePanel);
+                    this.setupDragAndDrop(taskSidePanel);
+                }
+            }
+            return;
+        }
+        
         // Check if task modal is currently open
         const taskModal = document.querySelector('.focus-stats-overlay');
         if (taskModal) {
@@ -4382,8 +9583,10 @@ class PomodoroTimer {
                 taskItem.classList.toggle('selected', newSelected);
                 btn.classList.toggle('active', newSelected);
                 
-                // Update task button state
+                // Update task button state and header
                 this.updateTaskButtonState();
+                this.updateCurrentTaskFromQueue();
+                this.updateSessionInfo();
             });
         });
     }
@@ -4416,28 +9619,37 @@ class PomodoroTimer {
     }
 
     setupTaskEventListeners(modal) {
-        // Task item click listeners (select task, not checkbox)
-        const taskItems = modal.querySelectorAll('.task-item');
-        taskItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                // Don't trigger if clicking on the menu or checkbox
-                if (e.target.closest('.task-menu') || e.target.closest('.task-checkbox')) {
-                    return;
-                }
+        // Task checkbox click listeners - manual completion toggle
+        const taskCheckboxes = modal.querySelectorAll('.task-checkbox input[type="checkbox"]');
+        taskCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const taskId = checkbox.id.replace('task-', '');
+                const isChecked = checkbox.checked;
                 
-                const taskId = item.dataset.taskId;
-                const currentConfig = this.getTaskConfig(taskId);
-                const newSelected = !currentConfig.selected;
-                
-                // Toggle selection
-                this.setTaskConfig(taskId, { ...currentConfig, selected: newSelected });
+                // Update task completion status
+                this.toggleTaskCompletion(taskId, isChecked);
                 
                 // Update visual state
-                this.updateTaskSelectionVisual(modal, taskId, newSelected);
+                this.updateTaskCompletionVisual(modal, taskId, isChecked);
                 
-                // Update the main timer banner
-                this.updateCurrentTaskBanner();
-                this.rebuildTaskQueue();
+                // Update window title immediately
+                this.updateDisplay();
+
+                // If we're on To-do and the task just got completed, remove it immediately
+                // If we're on Done and the task was unchecked, remove it immediately
+                const activeTab = modal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                const taskItem = modal.querySelector(`[data-task-id="${taskId}"]`);
+                if (taskItem) {
+                    const shouldRemoveFromCurrentView = (currentTab === 'todo' && isChecked) || (currentTab === 'done' && !isChecked);
+                    if (shouldRemoveFromCurrentView) {
+                        try { taskItem.remove(); } catch (_) {}
+                    }
+                }
+
+                // Ensure counts/empty state reflect the change
+                this.rerenderTaskList();
             });
         });
 
@@ -4491,6 +9703,214 @@ class PomodoroTimer {
         }
     }
 
+    toggleTaskCompletion(taskId, isCompleted) {
+        // Get all tasks to determine the source
+        const allTasks = this.getAllTasks();
+        const task = allTasks.find(t => t.id === taskId);
+        
+        if (task) {
+            if (task.source === 'local') {
+                // Update local task completion status
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
+            } else if (task.source === 'todoist') {
+                // For Todoist tasks imported to local storage, update them there
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
+                
+                // Also track completion state for live Todoist tasks
+                this.updateTodoistTaskCompletionState(taskId, isCompleted);
+                
+                // If completing, also call the API
+                if (isCompleted) {
+                    this.completeTodoistTaskInTodoist(taskId);
+                }
+            } else if (task.source === 'notion') {
+                // For Notion tasks, update in local tasks
+                const localTasks = this.getLocalTasks();
+                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    localTasks[taskIndex].completed = isCompleted;
+                    this.setLocalTasks(localTasks);
+                }
+                
+                // Update task in Notion
+                this.completeNotionTask(task, isCompleted);
+            }
+        }
+        
+        // Update task config to reflect completion
+        const taskConfig = this.getTaskConfig(taskId);
+        if (isCompleted) {
+            // Mark as completed by setting completed sessions to total sessions
+            this.setTaskConfig(taskId, { 
+                ...taskConfig, 
+                completedSessions: taskConfig.sessions || 1 
+            });
+        } else {
+            // Reset completion by setting completed sessions to 0
+            this.setTaskConfig(taskId, { 
+                ...taskConfig, 
+                completedSessions: 0 
+            });
+        }
+        
+        // Update the main timer banner
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
+        this.updateDisplay();
+        
+        // Re-render tasks to move between tabs
+        this.rerenderTaskList();
+    }
+
+    updateTaskCompletionVisual(modal, taskId, isCompleted) {
+        const taskItem = modal.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskItem) {
+            if (isCompleted) {
+                taskItem.classList.add('completed');
+            } else {
+                taskItem.classList.remove('completed');
+            }
+        }
+    }
+
+    rerenderTaskList() {
+        // Update the task sidebar panel if it's open
+        const taskSidePanel = document.getElementById('taskSidePanel');
+        if (taskSidePanel && taskSidePanel.classList.contains('open')) {
+            this.refreshTaskModalIfOpen();
+        }
+        
+        // Find the tasks modal and re-render the task list
+        // The modal uses the class 'focus-stats-overlay'/'focus-stats-modal' for the tasks UI
+        const modal = document.querySelector('.focus-stats-modal');
+        if (modal) {
+            const listEl = modal.querySelector('#todoistTasksList');
+            if (listEl) {
+                // Get current tab
+                const activeTab = modal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                
+                // Re-render tasks with current tab filter
+                this.renderTasksInModal(modal, currentTab);
+            }
+        }
+    }
+
+    renderTasksInModal(modal, currentTab) {
+        const listEl = modal.querySelector('#todoistTasksList');
+        if (!listEl) return;
+        
+        listEl.innerHTML = '';
+        const allTasks = this.getAllTasks();
+        
+        // Filter tasks based on current tab
+        let filteredTasks = allTasks;
+        if (currentTab === 'todo') {
+            filteredTasks = allTasks.filter(task => !task.completed);
+        } else if (currentTab === 'done') {
+            filteredTasks = allTasks.filter(task => task.completed);
+        }
+        
+        if (filteredTasks.length === 0) {
+            // Show appropriate message based on current tab
+            if (currentTab === 'done') {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
+                    </div>
+                `;
+            } else {
+                // For todo tab, show empty list without message
+                listEl.innerHTML = '';
+            }
+            return;
+        }
+        
+        // Apply saved task order
+        const savedOrder = this.getTaskOrder();
+        let orderedTasks = filteredTasks;
+        
+        if (savedOrder.length > 0) {
+            orderedTasks = filteredTasks.sort((a, b) => {
+                const aIndex = savedOrder.indexOf(a.id);
+                const bIndex = savedOrder.indexOf(b.id);
+                if (aIndex === -1 && bIndex === -1) return 0;
+                if (aIndex === -1) return 1;
+                if (bIndex === -1) return -1;
+                return aIndex - bIndex;
+            });
+        }
+        
+        orderedTasks.forEach((task, index) => {
+            const item = document.createElement('div');
+            item.className = 'task-item';
+            item.draggable = true;
+            item.dataset.taskId = task.id;
+            item.dataset.index = index;
+            
+            const taskConfig = this.getTaskConfig(task.id);
+            const completedSessions = taskConfig.completedSessions || 0;
+            const totalSessions = taskConfig.sessions || 1;
+            const isCompleted = task.completed || (completedSessions >= totalSessions);
+            
+            const itemContent = `
+                <div class="task-checkbox">
+                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                    <label for="task-${task.id}"></label>
+                </div>
+                <div class="task-content">
+                    <div class="task-title">
+                        ${task.content || '(untitled)'}
+                    </div>
+                </div>
+                <div class="task-progress">
+                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                </div>
+                <div class="task-menu" data-task-id="${task.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                </div>
+            `;
+            
+            item.innerHTML = itemContent;
+            
+            // Set initial selected state
+            if (taskConfig.selected) {
+                item.classList.add('selected');
+            }
+            
+            // Add completed class if task is completed
+            if (isCompleted) {
+                item.classList.add('completed');
+            }
+            
+            listEl.appendChild(item);
+        });
+        
+        // Re-setup event listeners for the new elements
+        this.setupTaskEventListeners(modal);
+    }
     showEditTaskInline(taskId, modal) {
         const task = this.getLocalTasks().find(t => t.id === taskId);
         if (!task) return;
@@ -4711,6 +10131,9 @@ class PomodoroTimer {
                     };
                     
                     renderTasks();
+                    // Update header to reflect changes immediately
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
                 }
             });
         }
@@ -4753,13 +10176,21 @@ class PomodoroTimer {
         const selectedTasks = this.getSelectedTasks();
         const taskBanner = document.getElementById('currentTaskBanner');
         
+        console.log('🔄 updateCurrentTaskBanner called', { 
+            selectedTasksCount: selectedTasks.length, 
+            bannerExists: !!taskBanner,
+            selectedTasks: selectedTasks.map(t => ({ id: t.id, content: t.content, selected: this.getTaskConfig(t.id).selected }))
+        });
+        
         if (!taskBanner) {
             // Create task banner if it doesn't exist
+            console.log('🔄 Creating task banner...');
             this.createTaskBanner();
             return;
         }
 
         if (selectedTasks.length === 0) {
+            console.log('🔄 No selected tasks, hiding banner');
             taskBanner.style.display = 'none';
             return;
         }
@@ -4771,6 +10202,9 @@ class PomodoroTimer {
         } else {
             currentTask = selectedTasks[0];
         }
+        
+        console.log('🔄 Showing task in banner', { currentTask: currentTask?.content });
+        
         const taskInfo = document.getElementById('currentTaskInfo');
         const taskProgress = document.getElementById('taskProgress');
         
@@ -4790,6 +10224,7 @@ class PomodoroTimer {
         }
 
         taskBanner.style.display = 'block';
+        console.log('🔄 Banner should now be visible');
         
         // Update task button state
         this.updateTaskButtonState();
@@ -4862,11 +10297,20 @@ class PomodoroTimer {
     getSelectedTasks() {
         const allTasks = this.getAllTasks();
         
+        console.log('🔍 getSelectedTasks - allTasks:', allTasks.map(t => ({ id: t.id, content: t.content, completed: t.completed })));
+        
         // Get selected tasks
         const selectedTasks = allTasks.filter(task => {
             const config = this.getTaskConfig(task.id);
-            // Only include tasks that are selected AND not completed
-            return config.selected && !task.completed;
+            const isSelected = config.selected && !task.completed;
+            console.log('🔍 Task filter:', { 
+                id: task.id, 
+                content: task.content, 
+                selected: config.selected, 
+                completed: task.completed, 
+                isSelected 
+            });
+            return isSelected;
         }).map(task => {
             const config = this.getTaskConfig(task.id);
             return {
@@ -4875,15 +10319,24 @@ class PomodoroTimer {
             };
         });
         
+        console.log('🔍 getSelectedTasks - selectedTasks COUNT:', selectedTasks.length);
+        console.log('🔍 getSelectedTasks - selectedTasks:', selectedTasks.map(t => ({ id: t.id, content: t.content })));
+        console.log('🔍 getSelectedTasks - selectedTasks FULL:', selectedTasks);
+        
         // Apply saved task order
         const savedOrder = this.getTaskOrder();
+        console.log('🔍 savedOrder:', savedOrder);
+        console.log('🔍 savedOrder.length:', savedOrder.length);
+        
         if (savedOrder.length > 0) {
             // Create a map for quick lookup
             const taskMap = new Map(selectedTasks.map(task => [task.id, task]));
+            console.log('🔍 taskMap has', taskMap.size, 'tasks');
             
             // Sort by saved order
             const orderedTasks = [];
             savedOrder.forEach(orderItem => {
+                console.log('🔍 Checking orderItem:', orderItem.id, 'has?', taskMap.has(orderItem.id));
                 if (taskMap.has(orderItem.id)) {
                     orderedTasks.push(taskMap.get(orderItem.id));
                     taskMap.delete(orderItem.id);
@@ -4891,11 +10344,17 @@ class PomodoroTimer {
             });
             
             // Add any remaining tasks that weren't in the saved order
-            taskMap.forEach(task => orderedTasks.push(task));
+            console.log('🔍 Remaining tasks in map:', taskMap.size);
+            taskMap.forEach(task => {
+                console.log('🔍 Adding remaining task:', task.content);
+                orderedTasks.push(task);
+            });
             
+            console.log('🔍 orderedTasks final:', orderedTasks.map(t => ({ id: t.id, content: t.content })));
             return orderedTasks;
         }
         
+        console.log('🔍 Returning selectedTasks as-is (no savedOrder)');
         return selectedTasks;
     }
 
@@ -4908,14 +10367,36 @@ class PomodoroTimer {
         localStorage.setItem('localTasks', JSON.stringify(tasks));
     }
 
+    // Todoist task completion state management
+    getTodoistTaskCompletionState() {
+        return JSON.parse(localStorage.getItem('todoistTaskCompletionState') || '{}');
+    }
+
+    setTodoistTaskCompletionState(state) {
+        localStorage.setItem('todoistTaskCompletionState', JSON.stringify(state));
+    }
+
+    updateTodoistTaskCompletionState(taskId, isCompleted) {
+        const currentState = this.getTodoistTaskCompletionState();
+        currentState[taskId] = isCompleted;
+        this.setTodoistTaskCompletionState(currentState);
+    }
+
     getAllTasks() {
         const localTasks = this.getLocalTasks();
         const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
         
-        // Combine and mark source
+        // Get local completion state for Todoist tasks
+        const todoistCompletionState = this.getTodoistTaskCompletionState();
+        
+        // Combine and mark source (preserve existing source if present)
         const allTasks = [
-            ...localTasks.map(task => ({ ...task, source: 'local' })),
-            ...todoistTasks.map(task => ({ ...task, source: 'todoist' }))
+            ...localTasks.map(task => ({ ...task, source: task.source || 'local' })),
+            ...todoistTasks.map(task => ({ 
+                ...task, 
+                source: 'todoist',
+                completed: todoistCompletionState[task.id] || false
+            }))
         ];
         
         return allTasks;
@@ -5201,13 +10682,36 @@ class PomodoroTimer {
             content: description,
             pomodoros: pomodoros,
             created: new Date().toISOString(),
-            completed: false
+            completed: false,
+            source: 'local'
         };
         
         tasks.push(newTask);
         this.setLocalTasks(tasks);
         // Persist planned sessions so the card progress matches the chosen value
         this.setTaskConfig(newTask.id, { sessions: pomodoros, selected: true, completedSessions: 0 });
+        
+        console.log('🔄 Task created, updating banner...', { taskId: newTask.id, description });
+        
+        // Update the main task banner immediately
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
+        this.updateDisplay(); // Update window title immediately
+        
+        // Force a small delay to ensure DOM updates
+        setTimeout(() => {
+            console.log('🔄 Delayed banner update...');
+            this.updateCurrentTaskBanner();
+            this.updateCurrentTaskFromQueue();
+            this.updateDisplay(); // Update window title again
+        }, 100);
+        
+        // 🎯 Track Task Created event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackTaskCreated(description, pomodoros);
+            console.log('📊 Task created event tracked to Mixpanel');
+        }
     }
 
     showImportModal() {
@@ -5264,17 +10768,27 @@ class PomodoroTimer {
         // Load projects and tasks
         this.loadImportData(modal);
     }
-
     async loadImportData(modal) {
         const projectsList = modal.querySelector('#projectsList');
         
         try {
+            // Build query params (Developer Mode + uid) just like other flows
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            if (userId) params.append('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+
             // Load projects
-            const projectsRes = await fetch('/api/todoist-projects');
+            const projectsRes = await fetch(`/api/todoist-projects${qs}`);
             const projects = projectsRes.ok ? await projectsRes.json() : [];
             
             // Load tasks
-            const tasksRes = await fetch('/api/todoist-tasks');
+            const tasksRes = await fetch(`/api/todoist-tasks${qs}`);
             const tasks = tasksRes.ok ? await tasksRes.json() : [];
             
             // Group tasks by project
@@ -5363,16 +10877,145 @@ class PomodoroTimer {
         const tasks = this.getLocalTasks();
         const activeTasks = tasks.filter(task => !task.completed);
         this.setLocalTasks(activeTasks);
+        
+        // Update UI immediately
+        this.updateCurrentTaskBanner();
+        this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
+        
         this.showTaskListModal();
     }
 
+    clearCompletedTasks() {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeClearDoneModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+                Clear Done Tasks
+            </h3>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
+                Are you sure you want to clear all completed tasks? This action cannot be undone.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelClearDone">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmClearDone">OK</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Close X button
+        modal.querySelector('#closeClearDoneModal').addEventListener('click', close);
+        
+        // Cancel button
+        modal.querySelector('#cancelClearDone').addEventListener('click', close);
+        
+        // Confirm button
+        modal.querySelector('#confirmClearDone').addEventListener('click', () => {
+            const tasks = this.getLocalTasks();
+            const activeTasks = tasks.filter(task => !task.completed);
+            this.setLocalTasks(activeTasks);
+            
+            // Update UI immediately
+            this.updateCurrentTaskBanner();
+            this.rebuildTaskQueue();
+            this.updateCurrentTaskFromQueue();
+            
+            // Re-render Task Sidebar immediately
+            this.renderTasksInSidePanel();
+            
+            close();
+        });
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+    }
+
     clearAllTasks() {
-        if (confirm('Are you sure you want to clear all tasks?')) {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeClearAllModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+                Clear All Tasks
+            </h3>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
+                Are you sure you want to clear all tasks? This action cannot be undone.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelClearAll">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmClearAll">OK</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Close X button
+        modal.querySelector('#closeClearAllModal').addEventListener('click', close);
+        
+        // Cancel button
+        modal.querySelector('#cancelClearAll').addEventListener('click', close);
+        
+        // Confirm button
+        modal.querySelector('#confirmClearAll').addEventListener('click', () => {
             this.setLocalTasks([]);
             // Explicit clear is OK here since the user is clearing everything
             localStorage.removeItem('taskConfigs');
-            this.showTaskListModal();
-        }
+            
+            // Update UI immediately
+            this.updateCurrentTaskBanner();
+            this.rebuildTaskQueue();
+            this.updateCurrentTaskFromQueue();
+            
+            // Re-render Task Sidebar immediately
+            this.renderTasksInSidePanel();
+            
+            close();
+        });
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
     }
 
     clearActPomodoros() {
@@ -5400,25 +11043,47 @@ class PomodoroTimer {
             return;
         }
         try {
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            
+            // Build query params
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true'); // Extra bypass flag for testing
+            }
+            if (userId) params.append('uid', userId);
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            console.log('🚀 Fetching Todoist data with params:', queryString);
+            console.log('🚀 viewMode:', viewMode);
+            console.log('🚀 userId:', userId);
+            
             // Fetch projects via proxy
-            const projRes = await fetch('/api/todoist-projects');
+            const projRes = await fetch(`/api/todoist-projects${queryString}`);
             if (projRes.ok) {
                 const projects = await projRes.json();
                 this.todoistProjectsById = {};
                 projects.forEach(p => { this.todoistProjectsById[p.id] = p; });
+                console.log('Todoist projects loaded:', projects.length);
             } else {
+                console.error('Failed to fetch projects:', projRes.status, await projRes.text());
                 this.todoistProjectsById = {};
             }
 
             // Fetch tasks via proxy
-            const tasksRes = await fetch('/api/todoist-tasks');
+            const tasksRes = await fetch(`/api/todoist-tasks${queryString}`);
             if (tasksRes.ok) {
                 const tasks = await tasksRes.json();
                 this.todoistTasks = tasks;
+                console.log('Todoist tasks loaded:', tasks.length);
             } else {
+                console.error('Failed to fetch tasks:', tasksRes.status, await tasksRes.text());
                 this.todoistTasks = [];
             }
-        } catch (_) {
+        } catch (e) {
+            console.error('Error fetching Todoist data:', e);
             this.todoistTasks = [];
             this.todoistProjectsById = {};
         }
@@ -5434,6 +11099,11 @@ class PomodoroTimer {
     }
 
     updateCycleCounter() {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         // Increment completed cycles counter without adding hours here
         // Focus time is already tracked in real-time during sessions
         const stats = this.getFocusStats();
@@ -5456,6 +11126,11 @@ class PomodoroTimer {
     }
 
     addFocusTime(seconds) {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         const hours = seconds / 3600; // Convert seconds to hours
         const now = new Date();
         const today = now.toDateString();
@@ -5485,11 +11160,19 @@ class PomodoroTimer {
         // Save to localStorage
         localStorage.setItem('focusStats', JSON.stringify(stats));
 
+        // Sync stats to Clerk (async, don't wait)
+        this.syncStatsToClerk(stats.totalHours);
+
         // Update display in real-time
         this.updateFocusHoursDisplay();
     }
 
     addTechniqueTime(seconds) {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         // Track total technique time (focus + breaks) for Most Used Technique
         const hours = seconds / 3600;
         const stats = this.getFocusStats();
@@ -5502,6 +11185,11 @@ class PomodoroTimer {
     }
 
     addFocusHours(hours) {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
         const today = new Date().toDateString();
         const stats = this.getFocusStats();
         
@@ -5525,6 +11213,9 @@ class PomodoroTimer {
         
         // Save back to localStorage
         localStorage.setItem('focusStats', JSON.stringify(stats));
+
+        // Sync stats to Clerk (async, don't wait)
+        this.syncStatsToClerk(stats.totalHours);
     }
 
     getFocusStats() {
@@ -5533,6 +11224,1235 @@ class PomodoroTimer {
         } catch {
             return {};
         }
+    }
+
+    // Report helper functions
+    calculateCurrentStreak(stats) {
+        return this.streakData?.currentStreak || 0;
+    }
+
+    calculateLongestStreak(stats) {
+        return this.streakData?.longestStreak || 0;
+    }
+
+    getLastNDaysData(stats, n) {
+        const days = [];
+        const today = new Date();
+        
+        for (let i = n - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            const hours = stats.daily?.[dateStr] || 0;
+            
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+            days.push({
+                date: dateStr,
+                label: dayName,
+                hours: hours
+            });
+        }
+        
+        return days;
+    }
+
+    getLastNWeeksData(stats, n) {
+        const weeks = [];
+        const today = new Date();
+        
+        for (let i = n - 1; i >= 0; i--) {
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - (today.getDay() + i * 7));
+            weekStart.setHours(0, 0, 0, 0);
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            
+            let weekHours = 0;
+            for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toDateString();
+                weekHours += stats.daily?.[dateStr] || 0;
+            }
+            
+            const label = `${weekStart.getMonth() + 1}/${weekStart.getDate()}`;
+            weeks.push({
+                start: weekStart.toDateString(),
+                end: weekEnd.toDateString(),
+                label: label,
+                hours: weekHours
+            });
+        }
+        
+        return weeks;
+    }
+
+    getLastNMonthsData(stats, n) {
+        const months = [];
+        const today = new Date();
+        
+        for (let i = n - 1; i >= 0; i--) {
+            const monthDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+            const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+            
+            let monthHours = 0;
+            for (let d = new Date(monthStart); d <= monthEnd; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toDateString();
+                monthHours += stats.daily?.[dateStr] || 0;
+            }
+            
+            const label = monthDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            months.push({
+                start: monthStart.toDateString(),
+                end: monthEnd.toDateString(),
+                label: label,
+                hours: monthHours
+            });
+        }
+        
+        return months;
+    }
+
+    generateHeatmapData(stats, days) {
+        const heatmapData = [];
+        const today = new Date();
+        
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            const hours = stats.daily?.[dateStr] || 0;
+            
+            heatmapData.push({
+                date: dateStr,
+                hours: hours
+            });
+        }
+        
+        return heatmapData;
+    }
+
+    getHeatmapColor(intensity) {
+        // GitHub-style heatmap colors
+        if (intensity === 0) return '#161b22';
+        if (intensity < 0.25) return '#0e4429';
+        if (intensity < 0.5) return '#006d32';
+        if (intensity < 0.75) return '#26a641';
+        return '#39d353';
+    }
+
+    calculateInsights(stats, last30Days) {
+        const insights = [];
+        
+        // Find best day
+        const bestDay = last30Days.reduce((best, day) => day.hours > best.hours ? day : best, { hours: 0, label: 'None' });
+        if (bestDay.hours > 0) {
+            insights.push({
+                title: `Your best day was ${bestDay.label}`,
+                description: `You focused for ${bestDay.hours.toFixed(1)} hours on ${bestDay.date}`
+            });
+        }
+        
+        // Calculate average
+        const totalHours = last30Days.reduce((sum, day) => sum + day.hours, 0);
+        const avgHours = totalHours / last30Days.length;
+        if (avgHours > 0) {
+            insights.push({
+                title: `Daily average: ${avgHours.toFixed(1)} hours`,
+                description: `You've been consistent with your focus time`
+            });
+        }
+        
+        // Find improvement
+        const firstHalf = last30Days.slice(0, 15).reduce((sum, day) => sum + day.hours, 0) / 15;
+        const secondHalf = last30Days.slice(15).reduce((sum, day) => sum + day.hours, 0) / 15;
+        if (secondHalf > firstHalf * 1.1) {
+            const improvement = ((secondHalf - firstHalf) / firstHalf * 100).toFixed(0);
+            insights.push({
+                title: `You've improved ${improvement}%!`,
+                description: `Your focus time has increased in the last 15 days`
+            });
+        }
+        
+        // Find most active days
+        const dayCounts = {};
+        last30Days.forEach(day => {
+            const dayName = new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' });
+            if (day.hours > 0) {
+                dayCounts[dayName] = (dayCounts[dayName] || 0) + 1;
+            }
+        });
+        const mostActiveDay = Object.entries(dayCounts).reduce((best, [day, count]) => 
+            count > best.count ? { day, count } : best, { day: 'None', count: 0 }
+        );
+        if (mostActiveDay.count > 0) {
+            insights.push({
+                title: `${mostActiveDay.day} is your most productive day`,
+                description: `You've been active ${mostActiveDay.count} times on ${mostActiveDay.day}s`
+            });
+        }
+        
+        return insights;
+    }
+
+    renderComparison(stats) {
+        const today = new Date();
+        const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        
+        const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+        
+        let currentMonthHours = 0;
+        let lastMonthHours = 0;
+        
+        for (let d = new Date(currentMonth); d <= currentMonthEnd; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toDateString();
+            currentMonthHours += stats.daily?.[dateStr] || 0;
+        }
+        
+        for (let d = new Date(lastMonth); d <= lastMonthEnd; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toDateString();
+            lastMonthHours += stats.daily?.[dateStr] || 0;
+        }
+        
+        const change = currentMonthHours - lastMonthHours;
+        const changePercent = lastMonthHours > 0 ? ((change / lastMonthHours) * 100).toFixed(0) : 0;
+        const isPositive = change >= 0;
+        
+        return `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentMonthHours.toFixed(1)}h</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">This Month</div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px;">${lastMonthHours.toFixed(1)}h</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">Last Month</div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: ${isPositive ? '#39d353' : '#ff4444'}; margin-bottom: 4px;">
+                        ${isPositive ? '+' : ''}${change.toFixed(1)}h
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${isPositive ? '+' : ''}${changePercent}%</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Day streak functions
+    loadStreakData() {
+        try {
+            const data = JSON.parse(localStorage.getItem('streakData') || '{}');
+            return {
+                currentStreak: data.currentStreak || 0,
+                lastActiveDate: data.lastActiveDate || null,
+                ...data
+            };
+        } catch {
+            return {
+                currentStreak: 0,
+                lastActiveDate: null
+            };
+        }
+    }
+
+    checkAndResetStreakIfNeeded() {
+        // Only check for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+
+        const today = new Date().toDateString();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+
+        // If we have a last active date, check if streak should be reset
+        if (this.streakData.lastActiveDate) {
+            // If last active date is not today and not yesterday, reset streak
+            if (this.streakData.lastActiveDate !== today && this.streakData.lastActiveDate !== yesterdayStr) {
+                console.log(`🔄 Streak reset: Last active was ${this.streakData.lastActiveDate}, today is ${today}`);
+                // Only reset currentStreak, preserve longestStreak as personal record
+                this.streakData.currentStreak = 0;
+                this.streakData.lastActiveDate = null;
+                this.saveStreakData();
+                this.updateStreakDisplay();
+            }
+        }
+    }
+
+    saveStreakData() {
+        try {
+            localStorage.setItem('streakData', JSON.stringify(this.streakData));
+        } catch (error) {
+            console.error('Error saving streak data:', error);
+        }
+    }
+
+    updateStreak() {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
+        const today = new Date().toDateString();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+
+        // Check if we already completed focus today
+        if (this.hasCompletedFocusToday) {
+            return; // Already counted today
+        }
+
+        // Mark that we completed focus today
+        this.hasCompletedFocusToday = true;
+
+        // If this is the first time today, update streak
+        if (this.streakData.lastActiveDate !== today) {
+            if (this.streakData.lastActiveDate === yesterdayStr) {
+                // Consecutive day - increment streak
+                this.streakData.currentStreak += 1;
+            } else if (this.streakData.lastActiveDate === null) {
+                // First time ever
+                this.streakData.currentStreak = 1;
+            } else {
+                // Streak broken - reset to 1
+                this.streakData.currentStreak = 1;
+            }
+            
+            // Update longest streak if current streak is higher
+            if (this.streakData.currentStreak > (this.streakData.longestStreak || 0)) {
+                this.streakData.longestStreak = this.streakData.currentStreak;
+                console.log(`🏆 New longest streak record: ${this.streakData.longestStreak} days!`);
+            }
+            
+            this.streakData.lastActiveDate = today;
+            this.saveStreakData();
+            this.updateStreakDisplay();
+        }
+    }
+
+    updateStreakDisplay() {
+        const streakDaysElement = document.getElementById('streakDays');
+        if (streakDaysElement) {
+            // In guest mode, always show 0. Only show real streak for authenticated users
+            if (this.isAuthenticated) {
+            streakDaysElement.textContent = this.streakData.currentStreak;
+            } else {
+                streakDaysElement.textContent = '0';
+            }
+        }
+    }
+
+    showStreakInfo() {
+        // If user is not authenticated, show guest modal
+        if (!this.isAuthenticated) {
+            this.showGuestStreakModal();
+            return;
+        }
+        
+        // For authenticated users, open the Report panel in the sidebar
+        if (window.sidebarManager) {
+            window.sidebarManager.openReportPanel();
+        } else {
+            // Fallback to modal if sidebarManager is not available
+            this.showStatisticsModal();
+        }
+    }
+
+    showGuestStreakModal() {
+        // Redirect to the full guest report teaser with 4 graphs
+        this.showGuestFocusReportTeaser();
+    }
+
+    showGuestFocusReportTeaser() {
+        // For guests, show 0 values since stats are not saved
+        // Stats are only tracked for authenticated users
+        const totalHours = 0;
+        const completedCycles = 0;
+        
+        // Format hours
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+        
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeGuestReportX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3>Your Focus Progress</h3>
+                <p style="color: #a3a3a3; margin-bottom: 24px;">Here's what you've accomplished so far</p>
+                
+                <div style="background: var(--onyx-dark, #064e3b); border-radius: 12px; padding: 20px; margin: 24px 0; display: flex; align-items: center; gap: 16px;">
+                    <div style="flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+                            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+                            <line x1="6" x2="6" y1="2" y2="4"/>
+                            <line x1="10" x2="10" y1="2" y2="4"/>
+                            <line x1="14" x2="14" y1="2" y2="4"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1; text-align: left;">
+                        <div style="font-weight: 600; color: #fff; margin-bottom: 4px; font-size: 16px;">Save your progress</div>
+                        <div style="font-size: 14px; color: white; opacity: 0.95;">Sync your tasks and stats across all your devices</div>
+                    </div>
+                    <button id="guestReportSignupBtn" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px;">Sign up</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+                    <!-- Total Focus Hours -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; filter: blur(2px); opacity: 0.6;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Focus Time</div>
+                    </div>
+                    
+                    <!-- Completed Cycles -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; filter: blur(2px); opacity: 0.6;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${completedCycles}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Cycles Done</div>
+                    </div>
+                    
+                    <!-- Day Streak - BLURRED -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; filter: blur(2px); opacity: 0.6;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">0</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    </div>
+                    
+                    <!-- Longest Streak - BLURRED -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center; filter: blur(2px); opacity: 0.6;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">0</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Event listeners
+        document.getElementById('guestReportSignupBtn').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            window.location.href = '/pricing';
+        });
+        
+        document.getElementById('closeGuestReportX').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    showStatisticsModal() {
+        // Get user statistics
+        const stats = this.getFocusStats();
+        const currentStreak = this.streakData.currentStreak || 0;
+        const longestStreak = this.streakData.longestStreak || currentStreak;
+        const totalHours = stats.totalHours || 0;
+        const completedCycles = stats.completedCycles || 0;
+        
+        // Format total hours
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+        
+        // Create statistics modal using upgrade modal styling
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'upgrade-modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        
+        modal.innerHTML = `
+            <button class="close-upgrade-x" id="closeReportX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3>Report</h3>
+                <p>Your productivity summary</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+                    <!-- Day Streak -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    </div>
+                    
+                    <!-- Longest Streak -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 36px; font-weight: 700; color: #fff; margin-bottom: 4px;">${longestStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Longest Streak</div>
+                    </div>
+                </div>
+                
+                <!-- Total Focus Hours - Full width below -->
+                <div style="margin: 16px 0;">
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; text-align: center;">
+                        <div style="color: #a3a3a3; margin-bottom: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Add event listeners
+        document.getElementById('closeReportX').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+            }
+        });
+    }
+
+    async syncStatsToClerk(totalHours) {
+        // Only sync if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/sync-stats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ totalHours })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to sync stats to Clerk');
+            }
+        } catch (error) {
+            console.error('Error syncing stats to Clerk:', error);
+        }
+    }
+
+    async loadLeaderboard(modalElement) {
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/leaderboard', {
+                method: 'GET',
+                headers: {
+                    'x-clerk-userid': this.user.id
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch leaderboard');
+            }
+
+            const data = await response.json();
+            if (data.success && data.leaderboard) {
+                this.displayLeaderboard(modalElement, data.leaderboard, data.currentUserPosition);
+            }
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
+        }
+    }
+
+    async loadLeaderboardForPanel(page = 1) {
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            if (leaderboardContent) {
+                leaderboardContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Please log in to view the leaderboard.
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const leaderboardContent = document.getElementById('leaderboardContent');
+        if (!leaderboardContent) return;
+
+        // Show loading state
+        leaderboardContent.innerHTML = `
+            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                Loading leaderboard...
+            </div>
+        `;
+
+        // Sync local stats to Clerk if they exist (one-time sync for existing users)
+        // Only sync on page 1 to avoid unnecessary calls
+        if (page === 1) {
+            const stats = this.getFocusStats();
+            if (stats.totalHours && stats.totalHours > 0) {
+                // Sync stats to ensure they're in Clerk (async, don't wait)
+                this.syncStatsToClerk(stats.totalHours);
+            }
+        }
+
+        try {
+            const response = await fetch(`/api/leaderboard?page=${page}&limit=100`, {
+                method: 'GET',
+                headers: {
+                    'x-clerk-userid': this.user.id
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch leaderboard');
+            }
+
+            const data = await response.json();
+            if (data.success && data.leaderboard) {
+                // Log debug info if available
+                if (data.debug) {
+                    console.log('Leaderboard Debug:', data.debug);
+                }
+                this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition, {
+                    page: data.page,
+                    totalPages: data.totalPages,
+                    totalUsers: data.totalUsers,
+                    hasMore: data.hasMore
+                });
+            } else {
+                leaderboardContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Failed to load leaderboard.
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
+            leaderboardContent.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    Error loading leaderboard. Please try again later.
+                </div>
+            `;
+        }
+    }
+
+    displayLeaderboardInPanel(containerElement, leaderboard, currentUserPosition, pagination = null) {
+        // Find current user's stats
+        const stats = this.getFocusStats();
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const userTimeString = `${hours}h ${minutes}m`;
+
+        let html = '';
+
+        // Header with user position
+        if (currentUserPosition) {
+            const totalUsersText = pagination?.totalUsers || leaderboard.length;
+            html += `
+                <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                    <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
+                    <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} total users</div>
+                </div>
+            `;
+        }
+
+        // Leaderboard list
+        const topUsers = leaderboard;
+        const currentPage = pagination?.page || 1;
+        const totalPages = pagination?.totalPages || 1;
+        const startRank = (currentPage - 1) * 100 + 1;
+        
+        if (topUsers.length === 0) {
+            html += `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    No users yet. Be the first!
+                </div>
+            `;
+        } else {
+            html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            html += topUsers.map((user, index) => {
+                const isCurrentUser = user.isCurrentUser;
+                const userHours = Math.floor(user.totalFocusHours);
+                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
+                const userTimeStr = `${userHours}h ${userMinutes}m`;
+                
+                const globalRank = startRank + index;
+                
+                // Medal emojis for top 3 (only on page 1)
+                let rankDisplay = `${globalRank}.`;
+                if (currentPage === 1 && index === 0) rankDisplay = '🥇 1.';
+                else if (currentPage === 1 && index === 1) rankDisplay = '🥈 2.';
+                else if (currentPage === 1 && index === 2) rankDisplay = '🥉 3.';
+
+                return `
+                    <div style="
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                        border-radius: 8px;
+                        border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
+                            <span style="color: ${isCurrentUser ? '#22c55e' : '#fff'}; font-size: 14px; font-weight: ${isCurrentUser ? '600' : '500'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${this.escapeHtml(user.username)}
+                            </span>
+                        </div>
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
+                    </div>
+                `;
+            }).join('');
+            html += '</div>';
+        }
+
+        // Pagination controls (only show if there are more than 100 users)
+        if (pagination && totalPages > 1) {
+            html += `
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <button 
+                        id="leaderboardPrevPage" 
+                        style="
+                            padding: 8px 16px;
+                            background: ${currentPage > 1 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                            color: ${currentPage > 1 ? '#fff' : '#666'};
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            cursor: ${currentPage > 1 ? 'pointer' : 'not-allowed'};
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s;
+                            ${currentPage > 1 ? '' : 'opacity: 0.5;'}
+                        "
+                        ${currentPage > 1 ? '' : 'disabled'}
+                    >
+                        ← Previous
+                    </button>
+                    <div style="color: #a3a3a3; font-size: 14px;">
+                        Page ${currentPage} of ${totalPages}
+                    </div>
+                    <button 
+                        id="leaderboardNextPage" 
+                        style="
+                            padding: 8px 16px;
+                            background: ${currentPage < totalPages ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                            color: ${currentPage < totalPages ? '#fff' : '#666'};
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            cursor: ${currentPage < totalPages ? 'pointer' : 'not-allowed'};
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s;
+                            ${currentPage < totalPages ? '' : 'opacity: 0.5;'}
+                        "
+                        ${currentPage < totalPages ? '' : 'disabled'}
+                    >
+                        Next →
+                    </button>
+                </div>
+            `;
+        }
+
+        containerElement.innerHTML = html;
+
+        // Add event listeners for pagination buttons
+        if (pagination && totalPages > 1) {
+            const prevBtn = document.getElementById('leaderboardPrevPage');
+            const nextBtn = document.getElementById('leaderboardNextPage');
+            
+            if (prevBtn && currentPage > 1) {
+                prevBtn.addEventListener('click', () => {
+                    this.loadLeaderboardForPanel(currentPage - 1);
+                });
+            }
+            
+            if (nextBtn && currentPage < totalPages) {
+                nextBtn.addEventListener('click', () => {
+                    this.loadLeaderboardForPanel(currentPage + 1);
+                });
+            }
+        }
+    }
+
+    async loadReportForPanel() {
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            const reportContent = document.getElementById('reportContent');
+            if (reportContent) {
+                reportContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Please log in to view your report.
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const reportContent = document.getElementById('reportContent');
+        if (!reportContent) return;
+
+        // Check if user is premium
+        const isPremium = this.isPremiumUser();
+
+        // Show loading state
+        reportContent.innerHTML = `
+            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                Loading report...
+            </div>
+        `;
+
+        // Get stats
+        const stats = this.getFocusStats();
+        
+        // Display report based on premium status
+        if (isPremium) {
+            this.displayAdvancedReport(reportContent, stats);
+        } else {
+            this.displayBasicReport(reportContent, stats);
+        }
+    }
+
+    displayBasicReport(containerElement, stats) {
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+
+        // Calculate current streak
+        const currentStreak = this.calculateCurrentStreak(stats);
+        const longestStreak = this.calculateLongestStreak(stats);
+
+        // Get last 7 days data
+        const last7Days = this.getLastNDaysData(stats, 7);
+
+        const html = `
+            <div style="padding: 0;">
+                <!-- Basic Stats -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                    </div>
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    </div>
+                </div>
+
+                <!-- Simple Chart (Last 7 Days) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Last 7 Days</h4>
+                    <div style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
+                        ${(() => {
+                            const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
+                            return last7Days.map(day => {
+                                const height = (day.hours / maxHours) * 100;
+                                return `
+                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
+                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                        <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
+                                        <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
+                                    </div>
+                                `;
+                            }).join('');
+                        })()}
+                    </div>
+                </div>
+
+                <!-- Upgrade Prompt -->
+                <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
+                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">Unlock Advanced Analytics</h4>
+                    <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Get heatmap, trends, comparisons, and insights with Unlimited plan.</p>
+                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Get Lifetime Access</button>
+                </div>
+            </div>
+        `;
+
+        containerElement.innerHTML = html;
+
+        // Add upgrade button event
+        const upgradeBtn = document.getElementById('upgradeToUnlimitedFromReport');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', () => {
+                // 🎯 Track Subscribe Clicked event to Mixpanel
+                if (window.pomodoroTimer) {
+                    window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                        button_type: 'subscribe',
+                        source: 'report_panel',
+                        location: 'report_panel',
+                        user_type: window.pomodoroTimer.isAuthenticated ? (window.pomodoroTimer.isPremiumUser() ? 'pro' : 'free') : 'guest',
+                        modal_type: 'report_upgrade_prompt'
+                    });
+                }
+                window.location.href = '/pricing';
+            });
+        }
+    }
+
+    displayAdvancedReport(containerElement, stats) {
+        // This will be implemented with heatmap, trends, comparisons, and insights
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const timeString = `${hours}h ${minutes}m`;
+
+        // Calculate streaks
+        const currentStreak = this.calculateCurrentStreak(stats);
+        const longestStreak = this.calculateLongestStreak(stats);
+
+        // Get data for different time periods
+        const last7Days = this.getLastNDaysData(stats, 7);
+        const last30Days = this.getLastNDaysData(stats, 30);
+        const last4Weeks = this.getLastNWeeksData(stats, 4);
+        const last12Months = this.getLastNMonthsData(stats, 12);
+
+        // Calculate insights
+        const insights = this.calculateInsights(stats, last30Days);
+
+        // Generate heatmap data
+        const heatmapData = this.generateHeatmapData(stats, 365); // Last year
+
+        const html = `
+            <div style="padding: 0;">
+                <!-- Stats Overview -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
+                    </div>
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
+                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
+                    </div>
+                </div>
+
+                <!-- Trends Chart with Toggle -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h4 style="margin: 0; color: #fff; font-size: 16px;" id="trendsChartTitle">Last 4 Weeks</h4>
+                        <div style="display: flex; gap: 8px; background: #1a1a1a; padding: 4px; border-radius: 8px;">
+                            <button id="toggleToWeeks" class="trends-toggle-btn active" style="padding: 6px 12px; border: none; border-radius: 6px; background: var(--onyx-dark, #064e3b); color: white; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Weeks</button>
+                            <button id="toggleToDays" class="trends-toggle-btn" style="padding: 6px 12px; border: none; border-radius: 6px; background: transparent; color: #a3a3a3; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Days</button>
+                        </div>
+                    </div>
+                    <div id="trendsChartContent" style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
+                        ${(() => {
+                            const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
+                            return last4Weeks.map(week => {
+                                const height = (week.hours / maxHours) * 100;
+                                return `
+                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
+                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                                        <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
+                                        <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
+                                    </div>
+                                `;
+                            }).join('');
+                        })()}
+                    </div>
+                </div>
+
+                <!-- Heatmap -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity Heatmap (Last Year)</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        ${heatmapData.map(day => {
+                            const intensity = Math.min(day.hours / 4, 1); // Max 4 hours = full intensity
+                            const color = this.getHeatmapColor(intensity);
+                            return `
+                                <div 
+                                    style="width: 12px; height: 12px; background: ${color}; border-radius: 2px; cursor: pointer;"
+                                    title="${day.date}: ${day.hours.toFixed(1)}h"
+                                ></div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; color: #a3a3a3;">
+                        <span>Less</span>
+                        <div style="display: flex; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background: #161b22; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #0e4429; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #006d32; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #26a641; border-radius: 2px;"></div>
+                            <div style="width: 12px; height: 12px; background: #39d353; border-radius: 2px;"></div>
+                        </div>
+                        <span>More</span>
+                    </div>
+                </div>
+
+                <!-- Comparison -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">This Month vs Last Month</h4>
+                    ${this.renderComparison(stats)}
+                </div>
+
+                <!-- Insights -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Insights</h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${insights.map(insight => `
+                            <div style="padding: 12px; background: #1a1a1a; border-radius: 8px; border-left: 3px solid var(--onyx-dark, #064e3b);">
+                                <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${insight.title}</div>
+                                <div style="color: #a3a3a3; font-size: 12px;">${insight.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        containerElement.innerHTML = html;
+
+        // Add toggle functionality for trends chart
+        // Store data in variables accessible to event listeners
+        const trendsData = {
+            last7Days: last7Days,
+            last4Weeks: last4Weeks
+        };
+
+        const toggleToWeeks = document.getElementById('toggleToWeeks');
+        const toggleToDays = document.getElementById('toggleToDays');
+        const trendsChartTitle = document.getElementById('trendsChartTitle');
+        const trendsChartContent = document.getElementById('trendsChartContent');
+
+        if (toggleToWeeks && toggleToDays && trendsChartContent) {
+            const renderWeeksChart = () => {
+                const maxHours = Math.max(...trendsData.last4Weeks.map(w => w.hours), 1);
+                trendsChartContent.innerHTML = trendsData.last4Weeks.map(week => {
+                    const height = (week.hours / maxHours) * 100;
+                    return `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
+                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
+                            <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
+                            <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            const renderDaysChart = () => {
+                const maxHours = Math.max(...trendsData.last7Days.map(d => d.hours), 1);
+                trendsChartContent.innerHTML = trendsData.last7Days.map(day => {
+                    const height = (day.hours / maxHours) * 100;
+                    return `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
+                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                            <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
+                            <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            toggleToWeeks.addEventListener('click', () => {
+                if (trendsChartTitle) trendsChartTitle.textContent = 'Last 4 Weeks';
+                toggleToWeeks.style.background = 'var(--onyx-dark, #064e3b)';
+                toggleToWeeks.style.color = 'white';
+                toggleToDays.style.background = 'transparent';
+                toggleToDays.style.color = '#a3a3a3';
+                renderWeeksChart();
+            });
+
+            toggleToDays.addEventListener('click', () => {
+                if (trendsChartTitle) trendsChartTitle.textContent = 'Last 7 Days';
+                toggleToDays.style.background = 'var(--onyx-dark, #064e3b)';
+                toggleToDays.style.color = 'white';
+                toggleToWeeks.style.background = 'transparent';
+                toggleToWeeks.style.color = '#a3a3a3';
+                renderDaysChart();
+            });
+        }
+    }
+
+    displayLeaderboard(modalElement, leaderboard, currentUserPosition) {
+        const contentDiv = modalElement.querySelector('.upgrade-content');
+        if (!contentDiv) return;
+
+        // Find current user's stats
+        const stats = this.getFocusStats();
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const userTimeString = `${hours}h ${minutes}m`;
+
+        // Create leaderboard section
+        const leaderboardSection = document.createElement('div');
+        leaderboardSection.style.marginTop = '24px';
+        leaderboardSection.style.paddingTop = '24px';
+        leaderboardSection.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
+
+        // Leaderboard header
+        const leaderboardHeader = document.createElement('div');
+        leaderboardHeader.style.marginBottom = '16px';
+        leaderboardHeader.innerHTML = `
+            <h4 style="color: #fff; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Leaderboard</h4>
+            <p style="color: #a3a3a3; font-size: 14px; margin: 0;">
+                ${currentUserPosition ? `You're ranked #${currentUserPosition} of ${leaderboard.length}` : 'Top Focus Hours'}
+            </p>
+        `;
+        leaderboardSection.appendChild(leaderboardHeader);
+
+        // Leaderboard list container
+        const leaderboardList = document.createElement('div');
+        leaderboardList.style.maxHeight = '300px';
+        leaderboardList.style.overflowY = 'auto';
+        leaderboardList.style.borderRadius = '12px';
+        leaderboardList.style.background = '#1a1a1a';
+
+        // Show top 10 users
+        const topUsers = leaderboard.slice(0, 10);
+        
+        if (topUsers.length === 0) {
+            leaderboardList.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    No users yet. Be the first!
+                </div>
+            `;
+        } else {
+            leaderboardList.innerHTML = topUsers.map((user, index) => {
+                const isCurrentUser = user.isCurrentUser;
+                const userHours = Math.floor(user.totalFocusHours);
+                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
+                const userTimeStr = `${userHours}h ${userMinutes}m`;
+                
+                // Medal emojis for top 3
+                let rankDisplay = `${index + 1}.`;
+                if (index === 0) rankDisplay = '🥇 1.';
+                else if (index === 1) rankDisplay = '🥈 2.';
+                else if (index === 2) rankDisplay = '🥉 3.';
+
+                return `
+                    <div style="
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                        ${isCurrentUser ? 'background: rgba(34, 197, 94, 0.1); border-left: 3px solid #22c55e;' : ''}
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
+                            <span style="color: ${isCurrentUser ? '#22c55e' : '#fff'}; font-size: 14px; font-weight: ${isCurrentUser ? '600' : '500'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${this.escapeHtml(user.username)}
+                            </span>
+                        </div>
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        leaderboardSection.appendChild(leaderboardList);
+
+        // Add current user's position if not in top 10
+        if (currentUserPosition && currentUserPosition > 10) {
+            const currentUserRow = document.createElement('div');
+            currentUserRow.style.marginTop = '12px';
+            currentUserRow.style.padding = '12px 16px';
+            currentUserRow.style.background = 'rgba(34, 197, 94, 0.1)';
+            currentUserRow.style.borderRadius = '12px';
+            currentUserRow.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+            currentUserRow.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">#${currentUserPosition}</span>
+                        <span style="color: #22c55e; font-size: 14px; font-weight: 600;">You</span>
+                    </div>
+                    <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeString}</span>
+                </div>
+            `;
+            leaderboardSection.appendChild(currentUserRow);
+        }
+
+        contentDiv.appendChild(leaderboardSection);
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    resetAllData() {
+        // Reset focus stats
+        localStorage.removeItem('focusStats');
+        
+        // Reset streak data
+        this.streakData = {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastActiveDate: null
+        };
+        localStorage.removeItem('streakData');
+        
+        // Update displays
+        this.updateFocusHoursDisplay();
+        this.updateStreakDisplay();
+        
+        // Show confirmation
+        alert('All focus data has been reset.');
     }
 
     updateConsecutiveDays(stats) {
@@ -5576,35 +12496,6 @@ class PomodoroTimer {
         const navItems = document.querySelectorAll('.settings-nav-item');
         const tabs = document.querySelectorAll('.settings-tab');
         
-        // Hide Developer tab if user is not the developer
-        const developerTab = document.querySelector('[data-tab="developer"]');
-        const developerContent = document.getElementById('developer-tab');
-        
-        if (developerTab && developerContent) {
-            // Check if user is the developer
-            let isDeveloper = false;
-            
-            if (this.user) {
-                // Try different ways to access the email
-                if (this.user.emailAddresses && this.user.emailAddresses.length > 0) {
-                    isDeveloper = this.user.emailAddresses.some(email => 
-                        email.emailAddress === 'jcjimenezglez@gmail.com'
-                    );
-                } else if (this.user.primaryEmailAddress) {
-                    isDeveloper = this.user.primaryEmailAddress.emailAddress === 'jcjimenezglez@gmail.com';
-                } else if (this.user.emailAddress) {
-                    isDeveloper = this.user.emailAddress === 'jcjimenezglez@gmail.com';
-                }
-            }
-            
-            console.log('User object:', this.user);
-            console.log('Is developer:', isDeveloper);
-            
-            if (!isDeveloper) {
-                developerTab.style.display = 'none';
-                developerContent.style.display = 'none';
-            }
-        }
         
         navItems.forEach(item => {
             item.addEventListener('click', () => {
@@ -5623,46 +12514,160 @@ class PomodoroTimer {
             });
         });
         
-        // Setup Todoist integration controls in settings
+        // Setup integration controls in settings
         this.setupTodoistIntegrationControls();
+        this.setupNotionIntegrationControls();
         
-        // Check if user just connected to Todoist and should open task list
-        this.checkTodoistConnectionRedirect();
         
         // Check if user just signed up successfully
         this.checkSignupSuccessRedirect();
+        
+        // Check if user tried to access Pro feature without subscription
+        this.checkProRequiredError();
     }
     
-    checkTodoistConnectionRedirect() {
-        // Check if user just connected to Todoist
+    checkProRequiredError() {
         const urlParams = new URLSearchParams(window.location.search);
-        const todoistConnected = urlParams.get('todoist');
-        
-        if (todoistConnected === 'connected') {
-            // Remove the parameter from URL without page reload
-            const newUrl = window.location.pathname;
+        if (urlParams.get('error') === 'pro_required') {
+            // Only show modal if user is actually not Pro
+            // If they're in Developer Mode as Pro, don't show it
+            // Clean URL regardless of Pro status
+            const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
-            
-            // Show success message and open task list
-            setTimeout(() => {
-                this.showTodoistConnectionSuccess();
-            }, 1000); // Small delay to let the page fully load
+        }
+    }
+
+
+
+    // Centralized conversion tracking function
+    trackConversion(type, value = 1.0, additionalData = {}) {
+        console.log(`🎯 Tracking ${type} conversion...`);
+        
+        try {
+            if (typeof gtag === 'undefined') {
+                console.warn('⚠️ gtag not available for tracking');
+                return false;
+            }
+
+            let conversionId;
+            let eventName;
+            let eventData = {
+                'value': value,
+                'currency': 'USD',
+                ...additionalData
+            };
+
+            switch (type) {
+                case 'signup':
+                    conversionId = 'AW-17614436696/HLp9CM6Plq0bENjym89B';
+                    eventName = 'sign_up';
+                    eventData.method = 'clerk';
+                    eventData.event_category = 'engagement';
+                    eventData.event_label = 'user_signup';
+                    break;
+                case 'subscription':
+                    conversionId = 'AW-17614436696/uBZgCNz9pq0bENjym89B';
+                    eventName = 'purchase';
+                    eventData.transaction_id = 'superfocus_pro_' + Date.now();
+                    eventData.event_category = 'ecommerce';
+                    eventData.event_label = 'pro_subscription';
+                    break;
+                default:
+                    console.error('❌ Unknown conversion type:', type);
+                    return false;
+            }
+
+            // Track Google Ads conversion
+            gtag('event', 'conversion', {
+                'send_to': conversionId,
+                'value': value,
+                'currency': 'USD'
+            });
+
+            // Track Google Analytics event
+            gtag('event', eventName, eventData);
+
+            console.log(`✅ ${type} conversion tracked successfully`);
+            return true;
+
+        } catch (error) {
+            console.error(`❌ Error tracking ${type} conversion:`, error);
+            return false;
         }
     }
 
     checkSignupSuccessRedirect() {
-        // Check if user just signed up successfully
+        // Check if user just signed up successfully or completed payment
         const urlParams = new URLSearchParams(window.location.search);
         const signupSuccess = urlParams.get('signup');
+        const paymentSuccess = urlParams.get('payment');
+        const premiumStatus = urlParams.get('premium');
         
         if (signupSuccess === 'success') {
+            // Track successful signup conversion
+            this.trackEvent('Signup Success', {
+                conversion_type: 'guest_to_signup',
+                user_journey: 'guest → signup',
+                source: 'clerk_signup',
+                timestamp: new Date().toISOString()
+            });
+            
             // Remove the parameter from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
-            // Show success message for signup
+            
+            // Track signup conversion
+            this.trackConversion('signup');
+            
+            // 🎯 Track User Signup event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackUserSignup('clerk');
+                console.log('📊 User signup event tracked to Mixpanel');
+            }
+            
+            // Show success message for signup - DISABLED
+            // setTimeout(() => {
+            //     this.showSignupSuccessMessage();
+            // }, 1000); // Small delay to let the page fully load
+        }
+        
+        if (paymentSuccess === 'success' || premiumStatus === '1') {
+            // Track successful subscription conversion
+            this.trackEvent('Subscribe Success', {
+                conversion_type: 'signup_to_pro',
+                user_journey: 'signup → pro',
+                source: 'stripe_payment',
+                revenue: 9.0,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Remove the parameters from URL without page reload
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            
+            // Track subscription conversion immediately
+            this.trackConversion('subscription', 9.0);
+            
+            // 🎯 Track Subscription Upgrade event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackSubscriptionUpgrade('pro');
+                console.log('📊 Subscription upgrade event tracked to Mixpanel');
+            }
+            
+            // Show success message for payment and refresh premium status
             setTimeout(() => {
-                this.showSignupSuccessMessage();
+                this.showPaymentSuccessMessage();
+                this.updatePremiumUI(); // Refresh premium status
+                
+                // If user is still not premium after 3 seconds, try to sync manually
+                setTimeout(() => {
+                    if (!this.isPremium) {
+                        console.log('User still not premium after payment, attempting manual sync...');
+                        this.attemptPremiumSync();
+                    }
+                }, 3000);
             }, 1000); // Small delay to let the page fully load
         }
     }
@@ -5710,17 +12715,20 @@ class PomodoroTimer {
         }, 5000);
     }
 
-    showTodoistConnectionSuccess() {
-        // Show success notification
+    showPaymentSuccessMessage() {
+        // Note: Conversion tracking is now handled in checkSignupSuccessRedirect()
+        // to avoid duplicate tracking
+        
+        // Show success notification for payment
         const notification = document.createElement('div');
-        notification.className = 'todoist-success-notification';
+        notification.className = 'payment-success-notification';
         notification.innerHTML = `
             <div class="notification-content">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 12l2 2 4-4"/>
                     <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                 </svg>
-                <span>Successfully connected to Todoist!</span>
+                <span>Payment successful! You now have Pro access to Superfocus.</span>
             </div>
         `;
         
@@ -5740,22 +12748,102 @@ class PomodoroTimer {
             gap: 8px;
             font-size: 14px;
             font-weight: 500;
+            max-width: 400px;
         `;
         
         document.body.appendChild(notification);
         
-        // Auto remove after 3 seconds
+        // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.parentNode.removeChild(notification);
             }
-        }, 3000);
-        
-        // Open task list modal automatically
-        setTimeout(() => {
-            this.showTaskListModal();
-        }, 500);
+        }, 5000);
     }
+
+    async attemptPremiumSync() {
+        try {
+            console.log('Attempting to sync premium status...');
+            
+            // Try to sync premium users from Stripe
+            const response = await fetch('/api/sync-premium-users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (response.ok) {
+                console.log('Premium sync successful, updating UI...');
+                
+                // Force Clerk to reload user data
+                if (window.Clerk && window.Clerk.user) {
+                    try {
+                        await window.Clerk.user.reload();
+                        console.log('Clerk user data reloaded');
+                    } catch (error) {
+                        console.log('Could not reload Clerk user:', error);
+                    }
+                }
+                
+                // Wait a bit for the sync to complete, then refresh
+                setTimeout(() => {
+                    this.updateAuthState();
+                    this.updatePremiumUI();
+                    
+                    // Show success notification
+                    this.showPremiumSyncSuccessMessage();
+                }, 1000);
+            } else {
+                console.error('Premium sync failed:', response.status);
+            }
+        } catch (error) {
+            console.error('Error during premium sync:', error);
+        }
+    }
+    showPremiumSyncSuccessMessage() {
+        // Show success notification for premium sync
+        const notification = document.createElement('div');
+        notification.className = 'premium-sync-success-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12l2 2 4-4"/>
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                </svg>
+                <span>Pro status activated! Welcome to Superfocus Pro.</span>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            max-width: 400px;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+
 
     setupTodoistIntegrationControls() {
         const connectBtn = document.getElementById('connectTodoistBtn');
@@ -5765,14 +12853,34 @@ class PomodoroTimer {
         if (!connectBtn || !disconnectBtn || !statusText) return;
         
         connectBtn.addEventListener('click', () => {
-            window.location.href = '/api/todoist-auth-start';
+            this.trackEvent('Todoist Connect Clicked', {
+                button_type: 'todoist_connect',
+                source: 'settings_modal',
+                user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                conversion_funnel: 'integration_interest'
+            });
+            // Add user ID to URL for server-side verification
+            const userId = window.Clerk?.user?.id || '';
+            const viewMode = localStorage.getItem('viewMode');
+            
+            console.log('🔗 Connecting Todoist:', { 
+                userId, 
+                viewMode,
+                clerkUser: window.Clerk?.user 
+            });
+            
+            // Check if Developer Mode is active
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+            
+            // Let the server verify Pro status - it will redirect with error if not Pro
+            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
             try {
                 await fetch('/api/todoist-disconnect', { method: 'POST' });
             } catch (_) {}
-            statusText.textContent = 'Disconnected';
+            statusText.textContent = 'Not connected';
             disconnectBtn.style.display = 'none';
             connectBtn.style.display = '';
             this.todoistTasks = [];
@@ -5788,21 +12896,250 @@ class PomodoroTimer {
                 const json = await resp.json();
                 const connected = !!json.connected;
                 if (connected) {
-                    statusText.textContent = 'Connected to Todoist';
+                    statusText.textContent = 'Connected';
                     connectBtn.style.display = 'none';
                     disconnectBtn.style.display = '';
                     this.fetchTodoistData();
                 } else {
-                    statusText.textContent = 'Disconnected';
+                    statusText.textContent = 'Not connected';
                     connectBtn.style.display = '';
                     disconnectBtn.style.display = 'none';
                 }
             } catch (_) {
-                statusText.textContent = 'Disconnected';
+                statusText.textContent = 'Not connected';
                 connectBtn.style.display = '';
                 disconnectBtn.style.display = 'none';
             }
         })();
+    }
+
+    setupGoogleCalendarIntegrationControls() {
+        const connectBtn = document.getElementById('connectGoogleCalendarBtn');
+        const disconnectBtn = document.getElementById('disconnectGoogleCalendarBtn');
+        const statusText = document.getElementById('googleCalendarStatusText');
+        
+        if (!connectBtn || !disconnectBtn || !statusText) return;
+        
+        connectBtn.addEventListener('click', () => {
+            // Add user ID to URL for server-side verification
+            const userId = window.Clerk?.user?.id || '';
+            console.log('Connecting Google Calendar:', { userId, clerkUser: window.Clerk?.user });
+            
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
+            // Let the server verify Pro status - it will redirect with error if not Pro
+            window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+        });
+
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/google-calendar-disconnect', { method: 'POST' });
+            } catch (_) {}
+            statusText.textContent = 'Not connected';
+            disconnectBtn.style.display = 'none';
+            connectBtn.style.display = '';
+            this.googleCalendarEvents = [];
+        });
+
+        // Check connection status and update UI
+        (async () => {
+            try {
+                const resp = await fetch('/api/google-calendar-status');
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusText.textContent = 'Connected';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    this.fetchGoogleCalendarData();
+                } else {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                }
+            } catch (_) {
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+            }
+        })();
+    }
+
+    setupNotionIntegrationControls() {
+        const connectBtn = document.getElementById('connectNotionBtn');
+        const disconnectBtn = document.getElementById('disconnectNotionBtn');
+        const statusText = document.getElementById('notionStatusText');
+        
+        if (!connectBtn || !disconnectBtn || !statusText) return;
+        
+        connectBtn.addEventListener('click', () => {
+            this.trackEvent('Notion Connect Clicked', {
+                button_type: 'notion_connect',
+                source: 'settings_modal',
+                user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                conversion_funnel: 'integration_interest'
+            });
+            // Add user ID to URL for server-side verification
+            const userId = window.Clerk?.user?.id || '';
+            console.log('Connecting Notion:', { userId, clerkUser: window.Clerk?.user });
+            
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
+            
+            // Let the server verify Pro status - it will redirect with error if not Pro
+            window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+        });
+
+        disconnectBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/notion-disconnect', { method: 'POST' });
+            } catch (_) {}
+            statusText.textContent = 'Not connected';
+            disconnectBtn.style.display = 'none';
+            connectBtn.style.display = '';
+            this.notionPages = [];
+        });
+
+        // Check connection status and update UI
+        (async () => {
+            try {
+                const resp = await fetch('/api/notion-status');
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusText.textContent = 'Connected';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    this.fetchNotionData();
+                } else {
+                    statusText.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                }
+            } catch (_) {
+                statusText.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+            }
+        })();
+    }
+
+    async fetchGoogleCalendarData() {
+        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
+            this.googleCalendarEvents = [];
+            return;
+        }
+        try {
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            
+            // Build query params
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') params.append('devMode', 'pro');
+            if (userId) params.append('uid', userId);
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            console.log('Fetching Google Calendar data with params:', queryString);
+            
+            const resp = await fetch(`/api/google-calendar-events${queryString}`);
+            if (resp.ok) {
+                const events = await resp.json();
+                this.googleCalendarEvents = events;
+                console.log('Google Calendar events loaded:', events.length);
+            } else {
+                console.error('Failed to fetch calendar events:', resp.status, await resp.text());
+                this.googleCalendarEvents = [];
+            }
+        } catch (e) {
+            console.error('Error fetching Google Calendar data:', e);
+            this.googleCalendarEvents = [];
+        }
+    }
+
+    async fetchNotionData() {
+        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
+            this.notionPages = [];
+            return;
+        }
+        try {
+            // Check if Developer Mode is active
+            const viewMode = localStorage.getItem('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            
+            // Build query params
+            const params = new URLSearchParams();
+            if (viewMode === 'pro') params.append('devMode', 'pro');
+            if (userId) params.append('uid', userId);
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            console.log('Fetching Notion data with params:', queryString);
+            
+            const resp = await fetch(`/api/notion-pages${queryString}`);
+            if (resp.ok) {
+                const pages = await resp.json();
+                this.notionPages = pages;
+                console.log('Notion pages loaded:', pages.length);
+            } else {
+                console.error('Failed to fetch Notion pages:', resp.status, await resp.text());
+                this.notionPages = [];
+            }
+        } catch (e) {
+            console.error('Error fetching Notion data:', e);
+            this.notionPages = [];
+        }
+    }
+
+    checkAdminAccess() {
+        // Hide Developer tab for all users (including jcjimenezglez@gmail.com)
+        const developerNavItem = document.getElementById('developerNavItem');
+        
+        if (!developerNavItem) return;
+        
+        // Always hide Developer tab - no more admin access
+        developerNavItem.style.display = 'none';
+        console.log('❌ Developer tab hidden for all users');
+    }
+
+    async handleManageSubscription() {
+        try {
+            // Get user email for Stripe customer portal
+            let userEmail = '';
+            if (window.Clerk && window.Clerk.user) {
+                userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress || 
+                           window.Clerk.user.emailAddresses?.[0]?.emailAddress || '';
+            }
+            
+            if (!userEmail) {
+                console.error('No user email found');
+                return;
+            }
+            
+            // Call Stripe customer portal API
+            const response = await fetch('/api/customer-portal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: userEmail })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    console.error('No portal URL returned');
+                }
+            } else {
+                console.error('Failed to create customer portal session');
+            }
+        } catch (error) {
+            console.error('Error managing subscription:', error);
+        }
     }
 
     setupViewModeButtons() {
@@ -5812,7 +13149,7 @@ class PomodoroTimer {
         const applyViewModeBtn = document.getElementById('applyViewModeBtn');
         
         // Store selected mode (not applied yet)
-        this.selectedViewMode = localStorage.getItem('viewMode') || 'pro';
+        this.selectedViewMode = localStorage.getItem('viewMode') || 'guest';
         
         if (guestModeBtn) {
             guestModeBtn.addEventListener('click', () => {
@@ -5891,10 +13228,16 @@ class PomodoroTimer {
     }
 
     updateViewModeButtons() {
-        const currentMode = this.selectedViewMode || localStorage.getItem('viewMode') || 'pro';
+        const currentMode = this.selectedViewMode || localStorage.getItem('viewMode') || 'guest';
         const guestModeBtn = document.getElementById('guestModeBtn');
         const freeModeBtn = document.getElementById('freeModeBtn');
         const proModeBtn = document.getElementById('proModeBtn');
+        const currentViewModeText = document.getElementById('currentViewMode');
+        
+        // Update current mode text
+        if (currentViewModeText) {
+            currentViewModeText.textContent = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+        }
         
         // Remove active class from all buttons
         [guestModeBtn, freeModeBtn, proModeBtn].forEach(btn => {
@@ -5940,6 +13283,19 @@ class PomodoroTimer {
 
     getCurrentTechniqueName() {
         const selectedTechnique = localStorage.getItem('selectedTechnique');
+        
+        // Handle custom techniques
+        if (selectedTechnique && selectedTechnique.startsWith('custom_')) {
+            const customId = selectedTechnique.replace('custom_', '');
+            try {
+                const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                const customTechnique = techniques.find(t => t.id === customId);
+                return customTechnique ? customTechnique.name : 'Custom Technique';
+            } catch (_) {
+                return 'Custom Technique';
+            }
+        }
+        
         if (selectedTechnique === 'custom') {
             const savedCustomTimer = localStorage.getItem('customTimer');
             if (savedCustomTimer) {
@@ -6094,7 +13450,9 @@ class PomodoroTimer {
             evt.stopPropagation();
             document.body.removeChild(modalOverlay);
             // Keep dropdown open after closing modal
-            this.techniqueDropdown.classList.add('open');
+            if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
         });
         
         closeBtnX.addEventListener('click', (evt) => {
@@ -6102,7 +13460,9 @@ class PomodoroTimer {
             evt.stopPropagation();
             document.body.removeChild(modalOverlay);
             // Keep dropdown open after closing modal
-            this.techniqueDropdown.classList.add('open');
+            if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
         });
 
         modalOverlay.addEventListener('click', (e) => {
@@ -6116,7 +13476,9 @@ class PomodoroTimer {
                 e.stopPropagation();
                 document.body.removeChild(modalOverlay);
                 // Keep dropdown open after closing modal
+                if (this.techniqueDropdown) {
                 this.techniqueDropdown.classList.add('open');
+            }
             }
         });
 
@@ -6133,8 +13495,35 @@ class PomodoroTimer {
 
             if (!connectBtn || !disconnectBtn || !openBtn || !statusText) return;
 
+            // Check if this is jcjimenezglez@gmail.com and clear Spotify data
+            const isSpecificUser = window.Clerk && window.Clerk.user && 
+                (window.Clerk.user.primaryEmailAddress?.emailAddress === 'jcjimenezglez@gmail.com' ||
+                 window.Clerk.user.emailAddresses?.[0]?.emailAddress === 'jcjimenezglez@gmail.com');
+            
+            if (isSpecificUser) {
+                // Clear any Spotify-related localStorage data for this specific user
+                try {
+                    localStorage.removeItem('spotify_access_token');
+                    localStorage.removeItem('spotify_refresh_token');
+                    localStorage.removeItem('spotify_connected');
+                    localStorage.removeItem('spotify_user_data');
+                    console.log('✅ Cleared Spotify data for jcjimenezglez@gmail.com');
+                } catch (e) {
+                    console.log('Error clearing Spotify data:', e);
+                }
+            }
+
             const refreshStatus = async () => {
                 try {
+                    // Skip Spotify API calls for jcjimenezglez@gmail.com to avoid timeouts
+                    if (isSpecificUser) {
+                        statusText.textContent = 'Not connected';
+                        connectBtn.style.display = '';
+                        disconnectBtn.style.display = 'none';
+                        openBtn.style.display = 'none';
+                        return;
+                    }
+                    
                     const resp = await fetch('/api/spotify-status');
                     const data = await resp.json();
                     if (data.connected) {
@@ -6157,15 +13546,31 @@ class PomodoroTimer {
             };
 
             connectBtn.addEventListener('click', async () => {
+                // Skip Spotify auth for jcjimenezglez@gmail.com
+                if (isSpecificUser) {
+                    alert('Spotify integration is not available at the moment.');
+                    return;
+                }
                 window.location.href = '/api/spotify-auth-start';
             });
 
             disconnectBtn.addEventListener('click', async () => {
+                // Skip Spotify disconnect for jcjimenezglez@gmail.com
+                if (isSpecificUser) {
+                    alert('Spotify integration is not available at the moment.');
+                    refreshStatus();
+                    return;
+                }
                 await fetch('/api/spotify-disconnect');
                 refreshStatus();
             });
 
             openBtn.addEventListener('click', () => {
+                // Skip Spotify modal for jcjimenezglez@gmail.com
+                if (isSpecificUser) {
+                    alert('Spotify integration is not available at the moment.');
+                    return;
+                }
                 this.showSpotifyModal();
             });
 
@@ -6209,6 +13614,17 @@ class PomodoroTimer {
 
     async loadSpotifyDevices(modal) {
         const el = modal.querySelector('#spotifyDevices');
+        
+        // Check if this is jcjimenezglez@gmail.com and skip API calls
+        const isSpecificUser = window.Clerk && window.Clerk.user && 
+            (window.Clerk.user.primaryEmailAddress?.emailAddress === 'jcjimenezglez@gmail.com' ||
+             window.Clerk.user.emailAddresses?.[0]?.emailAddress === 'jcjimenezglez@gmail.com');
+        
+        if (isSpecificUser) {
+            el.innerHTML = '<div>Spotify integration not available</div>';
+            return;
+        }
+        
         try {
             const resp = await fetch('/api/spotify-devices');
             const data = await resp.json();
@@ -6221,6 +13637,17 @@ class PomodoroTimer {
 
     async loadSpotifyPlaylists(modal) {
         const el = modal.querySelector('#spotifyPlaylists');
+        
+        // Check if this is jcjimenezglez@gmail.com and skip API calls
+        const isSpecificUser = window.Clerk && window.Clerk.user && 
+            (window.Clerk.user.primaryEmailAddress?.emailAddress === 'jcjimenezglez@gmail.com' ||
+             window.Clerk.user.emailAddresses?.[0]?.emailAddress === 'jcjimenezglez@gmail.com');
+        
+        if (isSpecificUser) {
+            el.innerHTML = '<div>Spotify integration not available</div>';
+            return;
+        }
+        
         try {
             const resp = await fetch('/api/spotify-playlists');
             const data = await resp.json();
@@ -6284,7 +13711,9 @@ class PomodoroTimer {
         
         this.customTimerModal.style.display = 'flex';
         // Keep dropdown open
-        this.techniqueDropdown.classList.add('open');
+        if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
         
         // Add real-time validation
         this.setupCustomTimerValidation();
@@ -6293,7 +13722,9 @@ class PomodoroTimer {
     hideCustomTimerModal() {
         this.customTimerModal.style.display = 'none';
         // Keep dropdown open
-        this.techniqueDropdown.classList.add('open');
+        if (this.techniqueDropdown) {
+                this.techniqueDropdown.classList.add('open');
+            }
     }
 
     resetCustomTimerForm() {
@@ -6408,8 +13839,6 @@ class PomodoroTimer {
         // Initial validation
         validateAll();
     }
-
-
     saveCustomTimerConfig() {
         const name = document.getElementById('customName').value.trim();
         const focusTime = parseInt(document.getElementById('focusTime').value);
@@ -6608,12 +14037,7 @@ class PomodoroTimer {
         if (lastSelectedTechnique) {
             const techniqueItem = document.querySelector(`[data-technique="${lastSelectedTechnique}"]`);
             if (techniqueItem) {
-                const requiresAccount = techniqueItem.dataset.requiresAccount === 'true';
-                if (requiresAccount && !this.isAuthenticated) {
-                    this.loadDefaultTechnique();
-                } else {
-                    this.selectTechnique(techniqueItem);
-                }
+                this.selectTechnique(techniqueItem);
                 return;
             }
         }
@@ -6628,6 +14052,31 @@ class PomodoroTimer {
             this.selectTechnique(pomodoroItem);
         }
     }
+    
+    setDefaultTechniqueForGuest() {
+        // Set Pomodoro as selected in the main technique dropdown for guest users
+        if (this.techniqueTitle) {
+            this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        }
+        
+        // Mark Pomodoro as selected in dropdown items
+        if (this.dropdownItems) {
+            this.dropdownItems.forEach(item => {
+                item.classList.remove('selected');
+                if (item.dataset.technique === 'pomodoro') {
+                    item.classList.add('selected');
+                }
+            });
+        }
+        
+        // Set current technique key
+        this.currentTechniqueKey = 'pomodoro';
+        
+        // For guest users, ensure Pomodoro stays active in settings panel
+        // Don't remove the active class that's already in the HTML
+        console.log('✅ Pomodoro set as default technique for guest user');
+    }
+    
 
     pauseSpotify() {
         // Implement logic to pause Spotify playback
@@ -6639,9 +14088,5178 @@ class PomodoroTimer {
         console.log('Playing Spotify URI:', uri);
     }
 
+    // Show keyboard shortcut hint (only once per session)
+    showKeyboardHint() {
+        // Only show hint once per session
+        if (sessionStorage.getItem('keyboardHintShown')) return;
+        
+        // Create hint tooltip
+        const hint = document.createElement('div');
+        hint.className = 'keyboard-hint';
+        hint.innerHTML = `
+            <span>💡 Tip: Press <kbd>R</kbd> to reset timer</span>
+        `;
+        
+        document.body.appendChild(hint);
+        
+        // Function to position hint above Play/Pause button
+        const positionHint = () => {
+            if (!this.startPauseBtn) return;
+            const buttonRect = this.startPauseBtn.getBoundingClientRect();
+            const hintRect = hint.getBoundingClientRect();
+            
+            // Position above the button, centered horizontally
+            const left = buttonRect.left + (buttonRect.width / 2) - (hintRect.width / 2);
+            const top = buttonRect.top - hintRect.height - 20; // 20px gap above button
+            
+            hint.style.left = `${left}px`;
+            hint.style.top = `${top}px`;
+        };
+        
+        // Position initially
+        setTimeout(() => {
+            positionHint();
+            hint.classList.add('show');
+        }, 100);
+        
+        // Update position on window resize
+        const resizeHandler = () => positionHint();
+        window.addEventListener('resize', resizeHandler);
+        
+        // Hide after 4 seconds
+        setTimeout(() => {
+            hint.classList.remove('show');
+            setTimeout(() => {
+                hint.remove();
+                window.removeEventListener('resize', resizeHandler);
+            }, 300);
+        }, 4000);
+        
+        // Mark as shown for this session
+        sessionStorage.setItem('keyboardHintShown', 'true');
+    }
+
+
+    // Save timer state to sessionStorage (persists on reload/navigation but not on tab close)
+    saveTimerState() {
+        // Save state as soon as timer has any progress
+        const section = this.cycleSections[this.currentSection - 1];
+        if (!section) return;
+        
+        const sectionDuration = section.duration;
+        const timeElapsed = sectionDuration - this.timeLeft;
+        
+        // Don't save if less than 1 second has elapsed
+        if (timeElapsed < 1) return;
+        
+        // Don't save if in "Ready to focus" state
+        const isAtInitialTime = this.timeLeft === sectionDuration;
+        if (!this.isRunning && isAtInitialTime && this.isWorkSession) return;
+        
+        const state = {
+            currentSection: this.currentSection,
+            timeLeft: this.timeLeft,
+            isRunning: this.isRunning, // Save actual running state
+            isWorkSession: this.isWorkSession,
+            isLongBreak: this.isLongBreak,
+            currentTaskIndex: this.currentTaskIndex,
+            currentTaskName: this.currentTaskName,
+            selectedTechnique: this.selectedTechnique?.name || 'Pomodoro',
+            selectedTheme: this.currentTheme || 'lofi', // Save current theme
+            timestamp: Date.now(),
+            sectionDuration: sectionDuration,
+            timeElapsed: timeElapsed
+        };
+        
+        sessionStorage.setItem('timerState', JSON.stringify(state));
+    }
+
+    // Load timer state from sessionStorage (persists on reload/navigation but not on tab close)
+    loadTimerState() {
+        // Only restore session for authenticated users
+        if (!this.isAuthenticated) {
+            sessionStorage.removeItem('timerState');
+            return false;
+        }
+        
+        const savedState = sessionStorage.getItem('timerState');
+        if (!savedState) return false;
+        
+        try {
+            const state = JSON.parse(savedState);
+            
+            // Check if state is recent (within last 30 minutes)
+            const timeDiff = Date.now() - state.timestamp;
+            if (timeDiff > 30 * 60 * 1000) {
+                sessionStorage.removeItem('timerState');
+                return false;
+            }
+            
+            // Check if at least 1 second had elapsed when saved
+            if (state.timeElapsed < 1) {
+                sessionStorage.removeItem('timerState');
+                return false;
+            }
+            
+            // Check if window was closed (sessionStorage cleared) vs just refreshed
+            const windowClosed = !sessionStorage.getItem('windowActive');
+            if (windowClosed) {
+                console.log('Window was closed, resetting timer');
+                sessionStorage.removeItem('timerState');
+                return false;
+            }
+            
+            // Always continue session without modal (window was not closed)
+            console.log('Continuing session automatically (window not closed)');
+            this.restoreTimerState(state);
+            
+            return true;
+        } catch (error) {
+            console.error('Error loading timer state:', error);
+            sessionStorage.removeItem('timerState');
+            return false;
+        }
+    }
+
+
+    // Restore timer state
+    restoreTimerState(state) {
+        // Restore technique if different
+        if (state.selectedTechnique !== this.selectedTechnique?.name) {
+            const techniqueItem = Array.from(document.querySelectorAll('.technique-item'))
+                .find(item => item.dataset.technique === state.selectedTechnique);
+            if (techniqueItem) {
+                this.selectTechnique(techniqueItem);
+            }
+        }
+        
+        // Restore state
+        this.currentSection = state.currentSection;
+        this.timeLeft = state.timeLeft;
+        this.isWorkSession = state.isWorkSession;
+        this.isLongBreak = state.isLongBreak;
+        this.currentTaskIndex = state.currentTaskIndex;
+        this.currentTaskName = state.currentTaskName;
+        
+        // Restore theme if it was saved in the state
+        if (state.selectedTheme) {
+            console.log('🎨 Restoring theme from saved state:', state.selectedTheme);
+            this.applyTheme(state.selectedTheme);
+        }
+        
+        // Always restore as paused (user decides when to continue)
+        this.isRunning = false;
+        
+        // Update UI
+        this.updateDisplay();
+        this.updateProgressRing();
+        this.updateProgress();
+        this.updateSessionInfo();
+        this.updateNavigationButtons();
+        this.updateCurrentTaskFromQueue();
+        
+        // Show user that timer was paused due to refresh
+        if (state.isRunning) {
+            console.log('Timer was running, paused due to refresh - user can resume when ready');
+        }
+        
+        // Clear saved state
+        sessionStorage.removeItem('timerState');
+        
+        console.log('Timer state restored successfully:', {
+            section: this.currentSection,
+            timeLeft: this.timeLeft,
+            technique: state.selectedTechnique,
+            wasRunning: state.isRunning,
+            restoredAsPaused: true
+        });
+    }
+
+    // Clear timer state from sessionStorage
+    clearTimerState() {
+        sessionStorage.removeItem('timerState');
+    }
+
+    // Show reset confirmation modal
+    showResetConfirmationModal() {
+        // Don't show if timer is at initial state
+        const section = this.cycleSections[this.currentSection - 1];
+        if (!section) return;
+        
+        const sectionDuration = section.duration;
+        const timeElapsed = sectionDuration - this.timeLeft;
+        
+        // If less than 1 second elapsed, just reset without confirmation
+        if (timeElapsed < 1) {
+            this.resetTimer();
+            return;
+        }
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'upgrade-modal-overlay';
+        overlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal reset-confirmation-modal';
+        modal.innerHTML = `
+            <button class="close-upgrade-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                </div>
+                <h3>Reset Timer?</h3>
+                <p>Are you sure you want to reset the timer? Your current progress will be lost.</p>
+                <div class="upgrade-buttons">
+                    <button class="upgrade-btn" id="confirmResetBtn">Yes, Reset</button>
+                    <button class="cancel-btn" id="cancelResetBtn">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // Event listeners
+        setTimeout(() => {
+            const closeBtn = modal.querySelector('.close-upgrade-x');
+            const confirmBtn = modal.querySelector('#confirmResetBtn');
+            const cancelBtn = modal.querySelector('#cancelResetBtn');
+            
+            const close = () => {
+                overlay.remove();
+            };
+            
+            const confirmReset = () => {
+                this.resetTimer();
+                overlay.remove();
+            };
+            
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (cancelBtn) cancelBtn.addEventListener('click', close);
+            if (confirmBtn) confirmBtn.addEventListener('click', confirmReset);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close();
+            });
+        }, 100);
+    }
+    
+    // Render tasks in side panel - use exact same logic as showTaskListModal
+    renderTasksInSidePanel() {
+        console.log('🔵 renderTasksInSidePanel called');
+        const panel = document.getElementById('taskSidePanel');
+        if (!panel) {
+            console.error('❌ Panel not found!');
+            return;
+        }
+        console.log('✅ Panel found:', panel);
+        
+        // Check if user is authenticated and show/hide sections accordingly
+        const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
+        const isGuest = !this.isAuthenticated || !this.user;
+        
+        // Show/hide sections based on user status
+        const importSection = document.getElementById('importTodoistSection');
+        
+        if (importSection) {
+            importSection.style.display = (this.isAuthenticated && this.user && this.isPremiumUser()) ? 'block' : 'none';
+        }
+        
+        const listEl = panel.querySelector('#todoistTasksList');
+        console.log('🔵 listEl:', listEl);
+        
+        // Detect current active tab from DOM
+        const activeTabEl = panel.querySelector('.task-tab.active');
+        let currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo'; // Default to todo tab
+        
+        const renderTasks = () => {
+            console.log('🔵 renderTasks called, currentTab:', currentTab);
+            
+            // Clear only task items and headers, preserve the form
+            const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
+            taskItems.forEach(item => item.remove());
+            
+            const allTasks = this.getAllTasks();
+            
+            // Filter tasks based on current tab
+            let filteredTasks = allTasks;
+            if (currentTab === 'todo') {
+                filteredTasks = allTasks.filter(task => !task.completed);
+            } else if (currentTab === 'done') {
+                filteredTasks = allTasks.filter(task => task.completed);
+            }
+            
+            if (filteredTasks.length === 0) {
+                if (currentTab === 'done') {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
+                    `;
+                    listEl.appendChild(emptyState);
+                }
+                return;
+            }
+            
+            // Group tasks by source
+            const tasksBySource = {
+                'local': [],
+                'todoist': [],
+                'notion': []
+            };
+            
+            filteredTasks.forEach(task => {
+                const source = task.source || 'local';
+                if (tasksBySource[source]) {
+                    tasksBySource[source].push(task);
+                } else {
+                    tasksBySource['local'].push(task);
+                }
+            });
+            
+            // Apply saved task order within each source
+            const savedOrder = this.getTaskOrder();
+            Object.keys(tasksBySource).forEach(source => {
+                const tasks = tasksBySource[source];
+                if (savedOrder.length > 0 && tasks.length > 0) {
+                    const taskMap = new Map(tasks.map(task => [task.id, task]));
+                    const orderedTasks = [];
+                    savedOrder.forEach(orderItem => {
+                        if (taskMap.has(orderItem.id)) {
+                            orderedTasks.push(taskMap.get(orderItem.id));
+                            taskMap.delete(orderItem.id);
+                        }
+                    });
+                    taskMap.forEach(task => orderedTasks.push(task));
+                    tasksBySource[source] = orderedTasks;
+                }
+            });
+            
+            // Get the form element to insert before it (if it exists)
+            const addTaskFormEl = listEl.querySelector('#addTaskForm');
+            
+            // Source labels
+            const sourceConfig = {
+                'local': { label: 'My Tasks' },
+                'todoist': { label: 'From Todoist' },
+                'notion': { label: 'From Notion' }
+            };
+            
+            // Check how many sources have tasks
+            const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
+            const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
+            
+            // Render tasks grouped by source
+            let globalIndex = 0;
+            ['local', 'todoist', 'notion'].forEach(source => {
+                const tasks = tasksBySource[source];
+                if (tasks.length === 0) return;
+                
+                // Create source header (only if needed)
+                if (showHeaders) {
+                    const sourceHeader = document.createElement('div');
+                    sourceHeader.className = 'task-source-header';
+                    const config = sourceConfig[source];
+                    sourceHeader.innerHTML = `
+                        <span class="source-label">${config.label}</span>
+                        <span class="source-count">${tasks.length}</span>
+                    `;
+                    
+                    // Insert before the form if it exists, otherwise append
+                    if (addTaskFormEl) {
+                        listEl.insertBefore(sourceHeader, addTaskFormEl);
+                    } else {
+                        listEl.appendChild(sourceHeader);
+                    }
+                }
+                
+                // Render tasks for this source
+                tasks.forEach((task) => {
+                    const item = document.createElement('div');
+                    item.className = 'task-item';
+                    item.draggable = true;
+                    item.dataset.taskId = task.id;
+                    item.dataset.index = globalIndex++;
+                    item.dataset.source = source;
+                    
+                    const taskConfig = this.getTaskConfig(task.id);
+                    const sessions = taskConfig.sessions || 1;
+                    const completedSessions = taskConfig.completedSessions || 0;
+                    const totalSessions = taskConfig.sessions || 1;
+                    const isCompleted = task.completed || (completedSessions >= totalSessions);
+                    
+                    // Check if task should be disabled for Guest users
+                    const isGuest = !this.isAuthenticated || !this.user;
+                    const shouldDisableForGuest = isGuest && globalIndex > 1; // Disable tasks 2+ for guests
+                    
+                    const itemContent = `
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${shouldDisableForGuest ? 'disabled' : ''}>
+                            <label for="task-${task.id}"></label>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
+                                ${task.content || '(untitled)'}
+                                ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="task-progress">
+                            <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
+                        </div>
+                        ${!isCompleted && !shouldDisableForGuest ? `
+                        <div class="task-menu" data-task-id="${task.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </div>
+                        ` : ''}
+                    `;
+                    
+                    item.innerHTML = itemContent;
+                    
+                    // Add disabled class for guest users
+                    if (shouldDisableForGuest) {
+                        item.classList.add('disabled-for-guest');
+                    }
+                    
+                    // Add completed class if task is completed
+                    if (isCompleted) {
+                        item.classList.add('completed');
+                    }
+                    
+                    // Only apply 'selected' class if task is NOT completed
+                    if (taskConfig.selected && !isCompleted) {
+                        item.classList.add('selected');
+                    }
+                    
+                    // Insert before the form if it exists, otherwise append
+                    if (addTaskFormEl) {
+                        listEl.insertBefore(item, addTaskFormEl);
+                    } else {
+                        listEl.appendChild(item);
+                    }
+                });
+            });
+            
+            this.setupTaskEventListeners(panel);
+            this.setupDragAndDrop(panel);
+            
+            // Setup task menu (3 dots) click handlers for editing
+            const taskMenus = panel.querySelectorAll('.task-menu');
+            taskMenus.forEach(menu => {
+                menu.replaceWith(menu.cloneNode(true));
+            });
+            const newTaskMenus = panel.querySelectorAll('.task-menu');
+            newTaskMenus.forEach(menu => {
+                menu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    console.log('Task menu clicked');
+                    const taskId = menu.dataset.taskId;
+                    const addTaskForm = panel.querySelector('#addTaskForm');
+                    const addTaskBtn = panel.querySelector('#showAddTaskForm');
+                    if (!addTaskForm || !addTaskBtn) return;
+                    
+                    // Get task data
+                    const task = this.getLocalTasks().find(t => t.id === taskId);
+                    if (!task) return; // Only local tasks can be edited
+                    
+                    const config = this.getTaskConfig(taskId);
+                    const taskItem = menu.closest('.task-item');
+                    
+                    // Enter edit mode
+                    this.editingTaskId = taskId;
+                    
+                    // Hide the task item being edited
+                    if (taskItem) {
+                        taskItem.style.display = 'none';
+                        // Move form right after the hidden task item
+                        taskItem.parentNode.insertBefore(addTaskForm, taskItem.nextSibling);
+                    }
+                    
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                    
+                    // Fill form with task data
+                    const taskInput = addTaskForm.querySelector('#taskDescription');
+                    const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                    const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                    const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
+                    
+                    if (taskInput) taskInput.value = task.content || '';
+                    if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
+                    if (deleteBtn) deleteBtn.style.display = '';
+                    if (cancelBtn) cancelBtn.style.display = '';
+                    if (taskInput) taskInput.focus();
+                    
+                    // Scroll form into view
+                    try { 
+                        addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
+                    } catch (_) {}
+                });
+            });
+        };
+        
+        // Setup add task button
+        const addTaskBtn = panel.querySelector('#showAddTaskForm');
+        const addTaskForm = panel.querySelector('#addTaskForm');
+        if (addTaskBtn && addTaskForm) {
+            addTaskBtn.replaceWith(addTaskBtn.cloneNode(true));
+            const newAddTaskBtn = panel.querySelector('#showAddTaskForm');
+            newAddTaskBtn.addEventListener('click', () => {
+                console.log('Add Task button clicked');
+                
+                // Track Add Task button click in Tasks panel
+                this.trackEvent('Add Task Button Clicked', {
+                    button_type: 'add_task',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    task_count: this.getLocalTasks().length,
+                    conversion_funnel: 'task_creation'
+                });
+                
+                // Check task limit BEFORE showing the form
+                // Only count tasks in To-do (not completed), not tasks in Done
+                const currentTasks = this.getLocalTasks().filter(task => !task.completed);
+                
+                // Define limits based on user type
+                let taskLimit;
+                if (!this.isAuthenticated) {
+                    // Guest users: 1 task
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
+                    // Free users: 3 tasks
+                    taskLimit = 3;
+                } else {
+                    // Pro users: unlimited
+                    taskLimit = Infinity;
+                }
+                
+                if (currentTasks.length >= taskLimit) {
+                    this.showTaskLimitModal();
+                    return;
+                }
+                
+                this.editingTaskId = null;
+                addTaskForm.style.display = 'block';
+                newAddTaskBtn.disabled = true;
+                const taskInput = addTaskForm.querySelector('#taskDescription');
+                const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
+                const saveBtn = addTaskForm.querySelector('#saveTask');
+                if (taskInput) taskInput.value = '';
+                if (pomodorosInput) pomodorosInput.value = '1';
+                if (deleteBtn) deleteBtn.style.display = 'none';
+                const count = (this.getAllTasks() || []).length;
+                if (cancelBtn) cancelBtn.style.display = count === 0 ? 'none' : '';
+                if (saveBtn) saveBtn.disabled = !taskInput || !taskInput.value.trim();
+                if (taskInput) taskInput.focus();
+            });
+        }
+        
+        // Initial UI state
+        if (addTaskBtn && addTaskForm) {
+            const initialTasks = this.getAllTasks();
+            if (Array.isArray(initialTasks) && initialTasks.length === 0) {
+                addTaskForm.style.display = 'block';
+                addTaskBtn.disabled = true;
+                const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
+                const saveBtn0 = addTaskForm.querySelector('#saveTask');
+                const taskInput0 = addTaskForm.querySelector('#taskDescription');
+                if (cancelBtn0) cancelBtn0.style.display = 'none';
+                if (saveBtn0) saveBtn0.disabled = true;
+                if (taskInput0) taskInput0.focus();
+            } else {
+                addTaskForm.style.display = 'none';
+                addTaskBtn.disabled = false;
+            }
+        }
+        
+        // Setup tabs FIRST - remove all old listeners
+        const tabs = panel.querySelectorAll('.task-tab');
+        console.log('🔵 Found tabs:', tabs.length);
+        tabs.forEach(tab => {
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
+        });
+        
+        // Add new listeners to fresh tabs
+        const newTabs = panel.querySelectorAll('.task-tab');
+        console.log('🔵 Setting up listeners for', newTabs.length, 'tabs');
+        newTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('Tab clicked:', tab.dataset.tab);
+                
+                // Update active states
+                newTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                
+                const addTaskForm = panel.querySelector('#addTaskForm');
+                const addTaskBtn = panel.querySelector('#showAddTaskForm');
+                const addTaskSection = panel.querySelector('.add-task-section');
+                
+                if (currentTab === 'done') {
+                    // Hide add task elements in Done tab
+                    if (addTaskForm) addTaskForm.style.display = 'none';
+                    if (addTaskSection) addTaskSection.style.display = 'none';
+                } else {
+                    // Show add task elements in To-do tab
+                    if (addTaskSection) addTaskSection.style.display = 'block';
+                    if (addTaskForm && addTaskBtn) {
+                        const tasks = this.getAllTasks();
+                        if (Array.isArray(tasks) && tasks.length === 0) {
+                            addTaskForm.style.display = 'block';
+                            addTaskBtn.disabled = true;
+                        } else {
+                            addTaskForm.style.display = 'none';
+                            addTaskBtn.disabled = false;
+                        }
+                    }
+                }
+                
+                // Re-render tasks for the selected tab
+                renderTasks();
+            });
+        });
+        
+        // Setup form controls for the panel
+        this.setupAddTaskFormControlsForPanel(panel, renderTasks);
+        
+        // Setup task options dropdown
+        const taskOptionsBtn = panel.querySelector('#taskOptionsBtn');
+        const taskOptionsDropdown = panel.querySelector('#taskOptionsDropdown');
+        const clearAllBtn = panel.querySelector('#clearAllTasksBtn');
+        const clearDoneBtn = panel.querySelector('#clearDoneTasksBtn');
+        
+        if (taskOptionsBtn && taskOptionsDropdown) {
+            taskOptionsBtn.replaceWith(taskOptionsBtn.cloneNode(true));
+            const newTaskOptionsBtn = panel.querySelector('#taskOptionsBtn');
+            newTaskOptionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('Options button clicked');
+                const isVisible = taskOptionsDropdown.style.display === 'block';
+                taskOptionsDropdown.style.display = isVisible ? 'none' : 'block';
+            });
+            
+            // Close dropdown when clicking outside
+            setTimeout(() => {
+                const closeDropdown = (e) => {
+                    if (!newTaskOptionsBtn.contains(e.target) && !taskOptionsDropdown.contains(e.target)) {
+                        taskOptionsDropdown.style.display = 'none';
+                    }
+                };
+                document.addEventListener('click', closeDropdown);
+                
+                // Store reference to remove later if needed
+                if (!panel.dataset.hasOptionsListener) {
+                    panel.dataset.hasOptionsListener = 'true';
+                }
+            }, 100);
+        }
+        
+        if (clearAllBtn) {
+            clearAllBtn.replaceWith(clearAllBtn.cloneNode(true));
+            const newClearAllBtn = panel.querySelector('#clearAllTasksBtn');
+            newClearAllBtn.addEventListener('click', () => {
+                this.clearAllTasks();
+                renderTasks();
+                if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
+            });
+        }
+        
+        if (clearDoneBtn) {
+            clearDoneBtn.replaceWith(clearDoneBtn.cloneNode(true));
+            const newClearDoneBtn = panel.querySelector('#clearDoneTasksBtn');
+            newClearDoneBtn.addEventListener('click', () => {
+                this.clearCompletedTasks();
+                renderTasks();
+                if (taskOptionsDropdown) taskOptionsDropdown.style.display = 'none';
+            });
+        }
+        
+        // Setup integration buttons
+        const todoistBtn = panel.querySelector('#importTodoistMainBtn');
+        console.log('🔵 Todoist button found:', todoistBtn);
+        console.log('🔵 Panel element:', panel);
+        console.log('🔵 All buttons in panel:', panel.querySelectorAll('button'));
+        
+        if (todoistBtn) {
+            // Remove any existing listeners by cloning the button
+            const newTodoistBtn = todoistBtn.cloneNode(true);
+            todoistBtn.parentNode.replaceChild(newTodoistBtn, todoistBtn);
+            
+            console.log('🔵 New Todoist button created:', newTodoistBtn);
+            console.log('🔵 Adding click listener to Todoist button');
+            
+            newTodoistBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔵 Todoist button clicked - checking user type and connection status');
+                
+                // Track Todoist button click
+                this.trackEvent('Todoist Integration Clicked', {
+                    button_type: 'todoist_integration',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                
+                // Check if user is Pro (double check with isPremiumUser)
+                const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
+                
+                if (isProUser) {
+                    // Pro users can access integrations
+                    try {
+                        // Check if Todoist is connected first
+                        const isConnected = await this.checkTodoistConnection();
+                        console.log('🔍 Todoist connection status:', isConnected);
+                        
+                        if (!isConnected) {
+                            // Pro user not connected → redirect to auth
+                            console.log('🔗 Pro user not connected - redirecting to Todoist auth...');
+                            const userId = window.Clerk?.user?.id || '';
+                            const viewMode = localStorage.getItem('viewMode');
+                            
+                            console.log('🔗 Connecting Todoist:', { 
+                                userId, 
+                                viewMode,
+                                clerkUser: window.Clerk?.user 
+                            });
+                            
+                            const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                        } else {
+                            // Pro user connected → show tasks modal for import
+                            console.log('📋 Pro user connected - showing Todoist projects modal...');
+                            await this.showTodoistProjectsModal();
+                        }
+                    } catch (error) {
+                        console.error('Error checking Todoist connection:', error);
+                        // Fallback to auth redirect
+                        const userId = window.Clerk?.user?.id || '';
+                        const viewMode = localStorage.getItem('viewMode');
+                        const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                        window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                    }
+                } else {
+                    // Guest and Free users show integration modal
+                    console.log('💰 Showing integration modal for non-Pro user');
+                    this.showIntegrationModal('todoist');
+                }
+            });
+            
+            console.log('🔵 Event listener added successfully');
+        } else {
+            console.warn('⚠️ Todoist button not found in panel');
+        }
+        
+        const notionBtn = panel.querySelector('#importNotionMainBtn');
+        if (notionBtn) {
+            notionBtn.replaceWith(notionBtn.cloneNode(true));
+            const newNotionBtn = panel.querySelector('#importNotionMainBtn');
+            newNotionBtn.addEventListener('click', () => {
+                console.log('Notion button clicked');
+                
+                // Track Notion button click
+                this.trackEvent('Notion Integration Clicked', {
+                    button_type: 'notion_integration',
+                    source: 'tasks_panel',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                
+                this.showNotionIntegration();
+            });
+        }
+        
+        
+        // Initial render
+        console.log('🔵 Calling initial renderTasks');
+        renderTasks();
+        console.log('✅ renderTasksInSidePanel completed successfully');
+    }
+
+
+    async playPreview(type, button) {
+        console.log(`🎵 Playing ${type} preview`);
+        
+        // Stop any existing preview
+        if (this.previewAudio) {
+            this.previewAudio.pause();
+            this.previewAudio.currentTime = 0;
+        }
+        
+        // Remove playing class from all preview buttons
+        document.querySelectorAll('.preview-sound-btn').forEach(btn => {
+            btn.classList.remove('playing');
+        });
+        
+        // Clear any existing preview timeout
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+        }
+        
+        // Set the source based on type
+        let source = '';
+        if (type === 'lofi' && this.lofiShuffledPlaylist.length > 0) {
+            source = '/audio/Lofi/' + this.lofiShuffledPlaylist[0];
+        }
+        
+        if (!source) {
+            console.error('No preview source available');
+            return;
+        }
+        
+        // Add playing class to button
+        button.classList.add('playing');
+        
+        // Set source and volume
+        this.previewAudio.src = source;
+        this.previewAudio.volume = this.ambientVolume;
+        
+        try {
+            // Play the preview
+            await this.previewAudio.play();
+            console.log(`✅ Preview playing for 5 seconds`);
+            
+            // Stop after 5 seconds
+            this.previewTimeout = setTimeout(() => {
+                if (this.previewAudio) {
+                    this.previewAudio.pause();
+                    this.previewAudio.currentTime = 0;
+                }
+                button.classList.remove('playing');
+                console.log('⏹️ Preview stopped');
+            }, 5000);
+            
+        } catch (error) {
+            console.error('Error playing preview:', error);
+            button.classList.remove('playing');
+        }
+    }
+
+    initializeSettingsSidePanel() {
+        console.log('⚙️ Initializing settings side panel');
+        
+        // Sync panel with current technique when opening
+        const currentTechnique = localStorage.getItem('selectedTechnique');
+        if (currentTechnique && currentTechnique !== 'custom' && !currentTechnique.startsWith('custom_')) {
+            this.syncSettingsPanelTechnique(currentTechnique);
+        } else if (currentTechnique && currentTechnique.startsWith('custom_')) {
+            // Custom technique selected - deselect regular techniques
+            this.deselectTechniqueInPanel();
+            // The custom technique will be highlighted by loadCustomTechniques()
+        } else {
+            // Custom configuration - deselect all techniques
+            this.deselectTechniqueInPanel();
+        }
+        
+        const settingsPanel = document.getElementById('settingsSidePanel');
+        if (!settingsPanel) {
+            console.error('❌ Settings panel not found');
+            return;
+        }
+
+        // Get current durations
+        const pomodoroMin = Math.floor(this.workTime / 60);
+        const shortBreakMin = Math.floor(this.shortBreakTime / 60);
+        const longBreakMin = Math.floor(this.longBreakTime / 60);
+
+        // Set initial slider values
+        const pomodoroSlider = settingsPanel.querySelector('#sidebarPomodoroSlider');
+        const shortBreakSlider = settingsPanel.querySelector('#sidebarShortBreakSlider');
+        const longBreakSlider = settingsPanel.querySelector('#sidebarLongBreakSlider');
+        const pomodoroValue = settingsPanel.querySelector('#sidebarPomodoroValue');
+        const shortBreakValue = settingsPanel.querySelector('#sidebarShortBreakValue');
+        const longBreakValue = settingsPanel.querySelector('#sidebarLongBreakValue');
+
+        // Disable duration controls for guest users
+        if (!this.isAuthenticated) {
+            console.log('🔒 Disabling duration controls for guest user');
+            
+            // Disable Focus duration
+            const focusOption = document.getElementById('sidebarFocusOption');
+            if (focusOption) {
+                focusOption.style.opacity = '0.5';
+                focusOption.style.cursor = 'not-allowed';
+                const focusLabel = focusOption.querySelector('label');
+                if (focusLabel) {
+                    focusLabel.innerHTML = 'Work <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                }
+            }
+            if (pomodoroSlider) {
+                pomodoroSlider.disabled = true;
+                pomodoroSlider.style.cursor = 'not-allowed';
+            }
+            
+            // Disable Short Break duration
+            const shortBreakOption = document.getElementById('sidebarShortBreakOption');
+            if (shortBreakOption) {
+                shortBreakOption.style.opacity = '0.5';
+                shortBreakOption.style.cursor = 'not-allowed';
+                const shortBreakLabel = shortBreakOption.querySelector('label');
+                if (shortBreakLabel) {
+                    shortBreakLabel.innerHTML = 'Short Break <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                }
+            }
+            if (shortBreakSlider) {
+                shortBreakSlider.disabled = true;
+                shortBreakSlider.style.cursor = 'not-allowed';
+            }
+            
+            // Disable Long Break duration
+            const longBreakOption = document.getElementById('sidebarLongBreakOption');
+            if (longBreakOption) {
+                longBreakOption.style.opacity = '0.5';
+                longBreakOption.style.cursor = 'not-allowed';
+                const longBreakLabel = longBreakOption.querySelector('label');
+                if (longBreakLabel) {
+                    longBreakLabel.innerHTML = 'Long Break <span style="font-size: 0.75rem; color: #888;">(Sign up required)</span>';
+                }
+            }
+            if (longBreakSlider) {
+                longBreakSlider.disabled = true;
+                longBreakSlider.style.cursor = 'not-allowed';
+            }
+        }
+
+        if (pomodoroSlider && pomodoroValue) {
+            pomodoroSlider.value = pomodoroMin;
+            pomodoroValue.textContent = `${pomodoroMin} min`;
+            
+            pomodoroSlider.addEventListener('input', (e) => {
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'pomodoro',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
+                pomodoroValue.textContent = `${e.target.value} min`;
+                this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
+            });
+        }
+
+        if (shortBreakSlider && shortBreakValue) {
+            shortBreakSlider.value = shortBreakMin;
+            shortBreakValue.textContent = `${shortBreakMin} min`;
+            
+            shortBreakSlider.addEventListener('input', (e) => {
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'short_break',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
+                shortBreakValue.textContent = `${e.target.value} min`;
+                this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
+            });
+        }
+
+        if (longBreakSlider && longBreakValue) {
+            longBreakSlider.value = longBreakMin;
+            longBreakValue.textContent = `${longBreakMin} min`;
+            
+            const longBreakCard = longBreakSlider.closest('.duration-item');
+            
+            // Disable Long Break card for guest users
+            if (!this.isAuthenticated && longBreakCard) {
+                longBreakCard.style.opacity = '0.5';
+                longBreakCard.style.pointerEvents = 'none';
+                longBreakCard.style.cursor = 'not-allowed';
+                
+                // Show "(Sign up required)" in the label
+                const signupText = longBreakCard.querySelector('.signup-required-text');
+                if (signupText) {
+                    signupText.classList.remove('hidden');
+                }
+            }
+            
+            longBreakSlider.addEventListener('input', (e) => {
+                if (!this.isAuthenticated) {
+                    this.showLoginRequiredModal('longbreak');
+                    return;
+                }
+                
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'long_break',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
+                longBreakValue.textContent = `${e.target.value} min`;
+                this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
+            });
+        }
+
+        // Sessions slider
+        const sessionsSlider = settingsPanel.querySelector('#sidebarSessionsSlider');
+        const sessionsValue = settingsPanel.querySelector('#sidebarSessionsValue');
+        const sessionsCard = sessionsSlider?.closest('.duration-item');
+        
+        if (sessionsSlider && sessionsValue && sessionsCard) {
+            sessionsSlider.value = this.sessionsPerCycle;
+            sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+            
+            // Disable entire sessions card for guest users
+            if (!this.isAuthenticated) {
+                sessionsCard.style.opacity = '0.5';
+                sessionsCard.style.pointerEvents = 'none';
+                sessionsCard.style.cursor = 'not-allowed';
+                
+                // Show "(Sign up required)" in the label
+                const signupText = sessionsCard.querySelector('.signup-required-text');
+                if (signupText) {
+                    signupText.classList.remove('hidden');
+                }
+            }
+            
+            sessionsSlider.addEventListener('input', (e) => {
+                if (!this.isAuthenticated) {
+                    this.showLoginRequiredModal('sessions');
+                    return;
+                }
+                
+                // Track Mixpanel event for sidebar slider
+                this.trackEvent('Duration Control Changed', {
+                    button_type: 'duration_control',
+                    control_name: 'sessions',
+                    value: e.target.value,
+                    source: 'sidebar'
+                });
+                
+                sessionsValue.textContent = `${e.target.value} sesh`;
+                this.enableSaveButton();
+                // Deselect technique when manually changing duration
+                this.deselectTechniqueInPanel();
+            });
+        }
+
+        // Techniques presets
+        const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+        techniquePresets.forEach(preset => {
+            const technique = preset.dataset.technique;
+            
+            // Remove any existing event listeners to prevent duplicates
+            const newPreset = preset.cloneNode(true);
+            preset.parentNode.replaceChild(newPreset, preset);
+            
+            // For guest users, ensure Pomodoro has active class
+            if (technique === 'pomodoro' && !this.isAuthenticated) {
+                newPreset.classList.add('active');
+                console.log('✅ Pomodoro marked as active for guest user');
+            }
+            
+            newPreset.addEventListener('click', () => {
+                const technique = newPreset.dataset.technique;
+                
+                // Check if preset is disabled (opacity 0.5 means disabled)
+                if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
+                    return; // Don't do anything if preset is disabled
+                }
+                
+                // Check if technique requires Pro
+                const proTechniques = [];
+                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                    return; // Don't show modal, preset is already disabled
+                }
+                
+                // Check if technique requires authentication (Sprint, Focus for guests)
+                if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                    return; // Don't show modal, preset is already disabled
+                }
+                
+                this.trackEvent('Technique Selected', {
+                    modal_type: 'timer_sidebar',
+                    button_type: 'technique_preset',
+                    technique_name: technique,
+                    source: 'timer_sidebar',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'technique_exploration'
+                });
+                
+                // Get fresh reference to all presets after cloning
+                const currentTechniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+                // Remove active class from all presets
+                currentTechniquePresets.forEach(p => p.classList.remove('active'));
+                
+                // Remove active class from all custom cards
+                const allCustomCards = document.querySelectorAll('.custom-card');
+                allCustomCards.forEach(card => card.classList.remove('active'));
+                
+                // Add active class to clicked preset
+                newPreset.classList.add('active');
+                
+                // Apply technique settings
+                this.applySidebarTechniquePreset(technique, pomodoroSlider, shortBreakSlider, longBreakSlider, sessionsSlider);
+                
+                // Apply immediately for all users
+                const techniqueObj = {
+                    workMinutes: parseInt(pomodoroSlider.value),
+                    shortBreakMinutes: parseInt(shortBreakSlider.value),
+                    longBreakMinutes: parseInt(longBreakSlider.value),
+                    sessions: parseInt(sessionsSlider.value),
+                    name: technique
+                };
+                this.applyTechniqueImmediately(techniqueObj);
+            });
+        });
+
+        // Save button handler (hidden for all users - immediate application enabled)
+        const saveBtn = settingsPanel.querySelector('#sidebarSaveSettings');
+        if (saveBtn) {
+            // Hide save button for all users (immediate application enabled for everyone)
+            saveBtn.style.display = 'none';
+            console.log('🔒 Save button hidden for all users (immediate application enabled)');
+        }
+        
+    }
+
+
+    applyBackground(backgroundName) {
+        // Don't apply background if immersive theme is active
+        if (this.currentImmersiveTheme && this.currentImmersiveTheme !== 'none') {
+            console.log(`🎨 Background change blocked - immersive theme '${this.currentImmersiveTheme}' is active`);
+            return;
+        }
+        
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        // Remove all background classes
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Add new background class
+        timerSection.classList.add(`theme-${backgroundName}`);
+        
+        // Winter visit button removed - no longer needed
+        
+        // Save preference to localStorage
+        localStorage.setItem('selectedBackground', backgroundName);
+        this.currentBackground = backgroundName;
+        
+        // 🎯 Track Background Changed event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackCustomEvent('Background Changed', { background_name: backgroundName });
+            console.log('📊 Background changed event tracked to Mixpanel');
+        }
+        
+        console.log(`🎨 Background changed to: ${backgroundName}`);
+    }
+
+    // Immersive Theme Functions
+    async loadTronAssets() {
+        try {
+            console.log('🎨 Loading Tron assets...');
+            
+            // Load single Tron image
+            this.tronImage = '/themes/Tron/1395234.jpg';
+            
+            
+            console.log('🎨 Tron assets loaded successfully');
+            console.log('🎨 Image:', this.tronImage);
+        } catch (error) {
+            console.error('❌ Failed to load Tron assets:', error);
+        }
+    }
+
+    initializeImmersiveThemePanel() {
+        console.log('🎨 Initializing theme panel');
+        
+        // Get current theme from localStorage or default to 'lofi'
+        // Load last selected theme for both authenticated and guest users
+        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        const savedTheme = lastSelectedTheme || 'lofi';
+        
+        this.currentTheme = savedTheme;
+        
+        // Initialize volume control
+        this.initializeVolumeControl();
+        
+        // Get all theme options
+        const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
+        
+        themeOptions.forEach(option => {
+            const themeName = option.dataset.theme;
+            
+            // Set initial active state
+            if (themeName === savedTheme) {
+                option.classList.add('active');
+            }
+            
+            // Set up click handler
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Don't trigger if clicking edit/delete buttons on custom cassettes
+                if (e.target.closest('.edit-cassette-btn') || e.target.closest('.delete-cassette-btn')) {
+                    return;
+                }
+                
+                this.trackEvent('Cassette Selected', {
+                    button_type: 'cassette',
+                    cassette_name: themeName,
+                    source: 'cassettes_panel'
+                });
+                
+                // Check if theme requires authentication
+                const requiresAuth = option.dataset.requiresAuth === 'true';
+                if (requiresAuth && !this.isAuthenticated) {
+                    // Show modal with theme info
+                    this.showTronInfoModal();
+                    return;
+                }
+                
+                // Remove active from all preset themes
+                themeOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all custom cassettes
+                document.querySelectorAll('.custom-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all public cassettes
+                document.querySelectorAll('.public-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active to clicked option
+                option.classList.add('active');
+                
+                // Apply the selected theme
+                this.applyTheme(themeName);
+                
+                // Save to localStorage (for both authenticated and guest users)
+                localStorage.setItem('lastSelectedTheme', themeName);
+                this.currentTheme = themeName;
+            });
+        });
+        
+        // Don't reapply theme when opening sidebar - just update visual state
+        this.updateThemeActiveState(savedTheme);
+        
+        // Update theme authentication state
+        this.updateThemeAuthState();
+        
+        // Initialize My Cassettes section for Pro users
+        this.initializeMyCassettes();
+        
+        console.log('🎨 Theme panel initialized - no music reset');
+    }
+
+    initializeMyCassettes() {
+        const createCassetteSection = document.getElementById('createCassetteSection');
+        const createCassetteBtn = document.getElementById('createCassetteBtn');
+        const cancelCassetteBtn = document.getElementById('cancelCassetteBtn');
+        const saveCassetteBtn = document.getElementById('saveCassetteBtn');
+        
+        // Show create button for ALL users (similar to Create timer)
+        if (createCassetteSection) {
+            createCassetteSection.style.display = 'block';
+        }
+        
+        // Initialize search functionality for all users
+        this.initializeCassetteSearch();
+        
+        // Load and render custom cassettes (only Pro users have custom cassettes to load)
+        if (this.isPremiumUser()) {
+            this.loadCustomCassettes();
+        }
+        
+        // Load and render public cassettes (for all users, with restriction for Guest)
+        // Force refresh on initial load to ensure users see latest cassettes
+        this.loadPublicCassettes(true);
+        
+        // Add create button event (remove existing listeners first to avoid duplicates)
+        if (createCassetteBtn) {
+            // Clone and replace to remove all event listeners
+            const newBtn = createCassetteBtn.cloneNode(true);
+            createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
+            
+            // Add single event listener
+            newBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showCassetteForm();
+            });
+        }
+        
+        // Cancel button (only for Pro users who can see the form)
+        if (cancelCassetteBtn) {
+            cancelCassetteBtn.addEventListener('click', () => {
+                this.hideCassetteForm();
+            });
+        }
+        
+        // Save button (only for Pro users who can see the form)
+        if (saveCassetteBtn) {
+            saveCassetteBtn.addEventListener('click', async () => {
+                const cassetteId = saveCassetteBtn.dataset.editingId || null;
+                // Don't close form here - saveCassetteFromForm will handle it after UI is updated
+                await this.saveCassetteFromForm(cassetteId);
+            });
+        }
+    }
+    
+    initializeCassetteSearch() {
+        const searchInput = document.getElementById('cassetteSearchInput');
+        if (!searchInput) return;
+        
+        // Remove existing listeners to avoid duplicates
+        const newSearchInput = searchInput.cloneNode(true);
+        searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+        
+        // Add search event listener
+        newSearchInput.addEventListener('input', (e) => {
+            const searchQuery = (e.target.value || '').trim().toLowerCase();
+            this.filterCassettes(searchQuery);
+        });
+    }
+    
+    filterCassettes(searchQuery) {
+        // Filter presets
+        const presetOptions = document.querySelectorAll('.theme-option[data-theme]');
+        presetOptions.forEach(option => {
+            const title = option.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const description = option.querySelector('p')?.textContent?.toLowerCase() || '';
+            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+            option.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Filter custom cassettes (only public ones are searchable)
+        const customCassettes = document.querySelectorAll('.custom-cassette');
+        customCassettes.forEach(cassette => {
+            // For now, we'll search all visible cassettes (public cassettes will be loaded async)
+            const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const description = cassette.querySelector('p')?.textContent?.toLowerCase() || '';
+            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+            cassette.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Filter public cassettes
+        const publicCassettes = document.querySelectorAll('.public-cassette');
+        publicCassettes.forEach(cassette => {
+            const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const description = cassette.querySelector('p')?.textContent?.toLowerCase() || '';
+            const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
+            cassette.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Count visible results
+        const visiblePresets = Array.from(presetOptions).filter(opt => opt.style.display !== 'none');
+        const visiblePublicCassettes = Array.from(publicCassettes).filter(c => c.style.display !== 'none');
+        
+        // Handle section visibility based on search results
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        const cassettePresetsSection = document.getElementById('cassettePresetsSection');
+        
+        if (searchQuery) {
+            // During search: show only the section with results, hide the other
+            if (publicCassettesSection) {
+                publicCassettesSection.style.display = visiblePublicCassettes.length > 0 ? 'block' : 'none';
+            }
+            if (cassettePresetsSection) {
+                cassettePresetsSection.style.display = visiblePresets.length > 0 ? 'block' : 'none';
+            }
+        } else {
+            // No search: show sections normally based on their content
+            if (publicCassettesSection) {
+                publicCassettesSection.style.display = visiblePublicCassettes.length > 0 ? 'block' : 'none';
+            }
+            if (cassettePresetsSection) {
+                cassettePresetsSection.style.display = 'block';
+            }
+        }
+    }
+
+    loadCustomCassettes() {
+        const customCassettesList = document.getElementById('customCassettesList');
+        if (!customCassettesList) return;
+        
+        const customCassettes = this.getCustomCassettes();
+        
+        // Filter out public cassettes - only show private cassettes in "My Cassettes"
+        const privateCassettes = customCassettes.filter(c => !c.isPublic || c.isPublic === false);
+        
+        if (privateCassettes.length === 0) {
+            customCassettesList.innerHTML = '';
+            return;
+        }
+        
+        customCassettesList.innerHTML = privateCassettes.map(cassette => {
+            const previewStyle = cassette.imageUrl 
+                ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
+                : 'background: #0a0a0a;';
+            
+            return `
+                <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
+                    <div class="theme-preview" style="${previewStyle}"></div>
+                    <div class="theme-info">
+                        <h4>${cassette.title}</h4>
+                        <p>${cassette.description || 'Custom focus environment'}</p>
+                    </div>
+                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </button>
+                        <div class="cassette-options-dropdown" id="cassetteOptionsDropdown${cassette.id}" style="display: none;">
+                            <div class="cassette-options-menu">
+                                <button class="cassette-option-item edit-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add event listeners for custom cassettes
+        privateCassettes.forEach(cassette => {
+            const cassetteOption = document.querySelector(`[data-cassette-id="${cassette.id}"]`);
+            if (cassetteOption) {
+                cassetteOption.addEventListener('click', (e) => {
+                    // Don't trigger if clicking options button or dropdown
+                    if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                        return;
+                    }
+                    
+                    this.selectCustomCassette(cassette.id);
+                });
+            }
+            
+            // Options button (3 dots)
+            const optionsBtn = document.querySelector(`.cassette-options-btn[data-cassette-id="${cassette.id}"]`);
+            const optionsDropdown = document.getElementById(`cassetteOptionsDropdown${cassette.id}`);
+            
+            if (optionsBtn && optionsDropdown) {
+                optionsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = optionsDropdown.style.display === 'block';
+                    // Close all other dropdowns first
+                    document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                        dropdown.style.display = 'none';
+                    });
+                    optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                });
+            }
+            
+            // Edit option
+            const editOption = document.querySelector(`.edit-cassette-option[data-cassette-id="${cassette.id}"]`);
+            if (editOption) {
+                editOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (optionsDropdown) optionsDropdown.style.display = 'none';
+                    this.showCassetteForm(cassette.id);
+                });
+            }
+            
+            // Delete option
+            const deleteOption = document.querySelector(`.delete-cassette-option[data-cassette-id="${cassette.id}"]`);
+            if (deleteOption) {
+                deleteOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (optionsDropdown) optionsDropdown.style.display = 'none';
+                    this.deleteCustomCassette(cassette.id);
+                });
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        setTimeout(() => {
+            const closeDropdowns = (e) => {
+                if (!e.target.closest('.cassette-options-btn') && !e.target.closest('.cassette-options-dropdown')) {
+                    document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                        dropdown.style.display = 'none';
+                    });
+                }
+            };
+            document.addEventListener('click', closeDropdowns);
+        }, 100);
+    }
+
+    getCustomCassettes() {
+        try {
+            const cassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+            return cassettes;
+        } catch {
+            return [];
+        }
+    }
+
+    async loadPublicCassettesFromAPI(forceRefresh = false) {
+        const cacheKey = 'publicCassettesCache';
+        const cacheChecksumKey = 'publicCassettesChecksum';
+
+        if (!forceRefresh) {
+            try {
+                const checkResponse = await fetch('/api/public-cassettes-check', {
+                    method: 'GET',
+                    headers: this.user?.id ? {
+                        'x-clerk-userid': this.user.id
+                    } : {}
+                });
+
+                if (checkResponse.ok) {
+                    const checkData = await checkResponse.json();
+                    if (checkData.success && checkData.checksum) {
+                        const cachedChecksum = localStorage.getItem(cacheChecksumKey);
+                        const cachedData = localStorage.getItem(cacheKey);
+
+                        if (cachedChecksum === checkData.checksum && cachedData) {
+                            console.log('📦 Using cached public cassettes (no changes detected)');
+                            return JSON.parse(cachedData);
+                        }
+
+                        console.log('🔄 Changes detected, fetching updated public cassettes...');
+                        const fullResponse = await fetch('/api/public-cassettes', {
+                            method: 'GET',
+                            headers: this.user?.id ? {
+                                'x-clerk-userid': this.user.id
+                            } : {}
+                        });
+
+                        if (fullResponse.ok) {
+                            const fullData = await fullResponse.json();
+                            if (fullData.success && Array.isArray(fullData.publicCassettes)) {
+                                localStorage.setItem(cacheKey, JSON.stringify(fullData.publicCassettes));
+                                localStorage.setItem(cacheChecksumKey, checkData.checksum);
+                                console.log(`✅ Loaded ${fullData.publicCassettes.length} public cassettes from API (updated)`);
+                                return fullData.publicCassettes;
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking public cassettes:', e);
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    console.log('⚠️ Check failed, using cached data as fallback');
+                    return JSON.parse(cachedData);
+                }
+            }
+        }
+
+        try {
+            const response = await fetch('/api/public-cassettes', {
+                method: 'GET',
+                headers: this.user?.id ? {
+                    'x-clerk-userid': this.user.id
+                } : {}
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && Array.isArray(data.publicCassettes)) {
+                    localStorage.setItem(cacheKey, JSON.stringify(data.publicCassettes));
+                    if (!forceRefresh && data.checksum) {
+                        localStorage.setItem(cacheChecksumKey, data.checksum);
+                    } else if (forceRefresh) {
+                        localStorage.removeItem(cacheChecksumKey);
+                    }
+                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API (${forceRefresh ? 'forced' : 'fallback'})`);
+                    return data.publicCassettes;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading public cassettes from API:', e);
+        }
+
+        return [];
+    }
+    
+    // Method to invalidate public cassettes cache
+    invalidatePublicCassettesCache() {
+        localStorage.removeItem('publicCassettesCache');
+        localStorage.removeItem('publicCassettesChecksum');
+        console.log('🗑️ Public cassettes cache invalidated');
+    }
+
+    async getCustomCassettesWithPublic() {
+        const localCassettes = this.getCustomCassettes();
+        
+        // Load public cassettes from API in background
+        const publicCassettes = await this.loadPublicCassettesFromAPI();
+        
+        // Merge with local cassettes, avoiding duplicates
+        const existingIds = new Set(localCassettes.map(c => c.id));
+        const mergedCassettes = [...localCassettes];
+        
+        publicCassettes.forEach(publicCassette => {
+            if (!existingIds.has(publicCassette.id)) {
+                mergedCassettes.push(publicCassette);
+            }
+        });
+        
+        return mergedCassettes;
+    }
+
+    async loadPublicCassettes(forceRefresh = false) {
+        // Prevent duplicate concurrent calls
+        if (this.isLoadingPublicCassettes) {
+            console.log('⏳ Public cassettes already loading, skipping duplicate call');
+            return;
+        }
+        
+        const publicCassettesList = document.getElementById('publicCassettesList');
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        
+        if (!publicCassettesList || !publicCassettesSection) {
+            this.isLoadingPublicCassettes = false;
+            return;
+        }
+        
+        // Mark as loading
+        this.isLoadingPublicCassettes = true;
+        
+        const isGuest = !this.isAuthenticated;
+        
+        // Get user's own public cassettes from localStorage immediately
+        const userPublicCassettes = this.getCustomCassettes().filter(c => c.isPublic === true);
+        
+        // Add creator info to user's public cassettes
+        const userPublicCassettesWithCreator = userPublicCassettes.map(c => ({
+            ...c,
+            creatorName: this.user?.username || this.user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'You',
+            creatorId: this.user?.id
+        }));
+        
+        // Step 1: Render immediately from cache + user's public cassettes (optimistic rendering)
+        const cacheKey = 'publicCassettesCache';
+        const cachedData = localStorage.getItem(cacheKey);
+        let cachedCassettes = [];
+        
+        if (cachedData) {
+            try {
+                cachedCassettes = JSON.parse(cachedData);
+            } catch (e) {
+                console.error('Error parsing cached data:', e);
+            }
+        }
+        
+        // Merge user's public cassettes with cached cassettes (user's cassettes take priority)
+        // Only update/add user's cassettes that belong to the current user
+        const existingIds = new Set(cachedCassettes.map(c => c.id));
+        const mergedForDisplay = [...cachedCassettes];
+        
+        userPublicCassettesWithCreator.forEach(userCassette => {
+            const existingIndex = mergedForDisplay.findIndex(c => c.id === userCassette.id);
+            if (existingIndex >= 0) {
+                // Update existing with user's version only if it's the user's own cassette
+                const existingCassette = mergedForDisplay[existingIndex];
+                if (existingCassette.creatorId === this.user?.id || !existingCassette.creatorId) {
+                    // Preserve views and viewedBy from cache (cache has server data with views)
+                    // Server is source of truth for views, always prefer cache/server views
+                    mergedForDisplay[existingIndex] = {
+                        ...userCassette,
+                        views: existingCassette.views !== undefined && existingCassette.views !== null ? existingCassette.views : (userCassette.views !== undefined && userCassette.views !== null ? userCassette.views : 0),
+                        viewedBy: existingCassette.viewedBy || userCassette.viewedBy || []
+                    };
+                }
+            } else {
+                // Add new user's cassette
+                mergedForDisplay.push(userCassette);
+            }
+        });
+        
+        // Remove duplicates by ID before rendering (keep first occurrence)
+        const seenIdsForDisplay = new Set();
+        const uniqueMergedForDisplay = mergedForDisplay.filter(cassette => {
+            if (seenIdsForDisplay.has(cassette.id)) {
+                return false; // Duplicate, skip it
+            }
+            seenIdsForDisplay.add(cassette.id);
+            return true;
+        });
+        
+        if (uniqueMergedForDisplay.length > 0) {
+            // Render immediately from merged cache + user's cassettes
+            this.renderPublicCassettes(uniqueMergedForDisplay, isGuest);
+            console.log('📦 Rendered public cassettes from cache + user cassettes immediately');
+            // Ensure section is visible
+            if (publicCassettesSection) {
+                publicCassettesSection.style.display = 'block';
+            }
+            // Reset active state tracking when re-rendering to allow fresh application
+            this._lastAppliedActiveCassette = null;
+            // Apply active state after rendering from cache
+            setTimeout(() => {
+                this.applyActiveStateToPublicCassettes();
+            }, 200);
+        }
+        
+        // Step 2: Check for updates in background
+        try {
+            const publicCassettes = await this.loadPublicCassettesFromAPI(forceRefresh);
+            
+            // Merge user's public cassettes with server cassettes (user's cassettes take priority)
+            // Only add user's cassettes that are NOT already in the server response
+            // This prevents duplicates when the server already has the cassette
+            const serverExistingIds = new Set(publicCassettes.map(c => c.id));
+            const mergedCassettes = [...publicCassettes];
+            
+            userPublicCassettesWithCreator.forEach(userCassette => {
+                const existingIndex = mergedCassettes.findIndex(c => c.id === userCassette.id);
+                if (existingIndex >= 0) {
+                    // Update existing with user's version (has latest data)
+                    // But only if it's the user's own cassette (same creatorId)
+                    const existingCassette = mergedCassettes[existingIndex];
+                    if (existingCassette.creatorId === this.user?.id) {
+                        // Preserve views and viewedBy from server (server is source of truth for views)
+                        // Always prefer server views over localStorage views
+                        mergedCassettes[existingIndex] = {
+                            ...userCassette,
+                            views: existingCassette.views !== undefined && existingCassette.views !== null ? existingCassette.views : (userCassette.views !== undefined && userCassette.views !== null ? userCassette.views : 0),
+                            viewedBy: existingCassette.viewedBy || userCassette.viewedBy || []
+                        };
+                    }
+                } else {
+                    // Add new user's cassette only if it's not in the server response
+                    // This handles cases where the cassette was just created and not yet synced
+                    if (!serverExistingIds.has(userCassette.id)) {
+                        mergedCassettes.push(userCassette);
+                    }
+                }
+            });
+            
+            // Remove duplicates by ID (keep first occurrence)
+            const seenIds = new Set();
+            const filteredPublicCassettes = mergedCassettes.filter(cassette => {
+                if (seenIds.has(cassette.id)) {
+                    return false; // Duplicate, skip it
+                }
+                seenIds.add(cassette.id);
+                return true;
+            });
+            
+            if (filteredPublicCassettes.length === 0) {
+                publicCassettesSection.style.display = 'none';
+                return;
+            }
+            
+            // Show section
+            publicCassettesSection.style.display = 'block';
+            
+            // Always re-render with fresh data from API + user's cassettes to ensure consistency
+            // This ensures that when one user creates a cassette, other users see it immediately
+            // And user's own cassettes appear immediately even before server sync
+            const cacheKeyForCompare = 'publicCassettesCache';
+            const cachedDataForCompare = localStorage.getItem(cacheKeyForCompare);
+            const cachedCassettesForCompare = cachedDataForCompare ? JSON.parse(cachedDataForCompare) : [];
+            
+            // Compare by IDs and updatedAt to detect changes
+            // Also compare title, description, and imageUrl to detect content changes
+            const currentData = filteredPublicCassettes.map(c => ({ 
+                id: c.id, 
+                updatedAt: c.updatedAt,
+                title: c.title,
+                description: c.description,
+                imageUrl: c.imageUrl
+            })).sort((a, b) => a.id.localeCompare(b.id));
+            
+            const cachedData = cachedCassettesForCompare.map(c => ({ 
+                id: c.id, 
+                updatedAt: c.updatedAt,
+                title: c.title,
+                description: c.description,
+                imageUrl: c.imageUrl
+            })).sort((a, b) => a.id.localeCompare(b.id));
+            
+            const hasChanges = JSON.stringify(currentData) !== JSON.stringify(cachedData);
+            
+            // Always re-render when forceRefresh is true or changes detected to ensure UI is updated
+            if (hasChanges || !cachedDataForCompare || forceRefresh) {
+                // Always re-render when forceRefresh to ensure fresh data from server is displayed
+                this.renderPublicCassettes(filteredPublicCassettes, isGuest);
+                console.log('🔄 Updated public cassettes UI with fresh data + user cassettes', forceRefresh ? '(forced refresh)' : '');
+                // Reset active state tracking when re-rendering to allow fresh application
+                this._lastAppliedActiveCassette = null;
+                // Apply active state after re-rendering
+                setTimeout(() => {
+                    this.applyActiveStateToPublicCassettes();
+                }, 200);
+            } else {
+                // Even if data is the same, ensure active state is applied (only if not already applied)
+                setTimeout(() => {
+                    this.applyActiveStateToPublicCassettes();
+                }, 200);
+            }
+        } catch (e) {
+            console.error('Error loading public cassettes:', e);
+            // If error and no cache was rendered, hide section
+            if (!cachedData && userPublicCassettesWithCreator.length === 0) {
+                publicCassettesSection.style.display = 'none';
+            }
+        } finally {
+            // Always reset loading flag when done
+            this.isLoadingPublicCassettes = false;
+        }
+    }
+    
+    // Format views count: 458, 1K, 1.9K, 1M, etc.
+    formatViewsCount(views) {
+        if (!views || views === 0) return '0';
+        if (views < 1000) return views.toString();
+        if (views < 1000000) {
+            const thousands = views / 1000;
+            if (thousands < 10) {
+                // Show one decimal for numbers < 10K (e.g., 1.9K)
+                return `${thousands.toFixed(1)}K`.replace(/\.0K$/, 'K');
+            }
+            // Show whole numbers for >= 10K (e.g., 10K, 99K)
+            return `${Math.floor(thousands)}K`;
+        }
+        // Millions
+        const millions = views / 1000000;
+        if (millions < 10) {
+            return `${millions.toFixed(1)}M`.replace(/\.0M$/, 'M');
+        }
+        return `${Math.floor(millions)}M`;
+    }
+
+    renderPublicCassettes(filteredPublicCassettes, isGuest) {
+        const publicCassettesList = document.getElementById('publicCassettesList');
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        
+        if (!publicCassettesList || !publicCassettesSection) return;
+        
+        if (filteredPublicCassettes.length === 0) {
+            publicCassettesSection.style.display = 'none';
+            return;
+        }
+        
+        // Show section
+        publicCassettesSection.style.display = 'block';
+        
+        // Render public cassettes
+        publicCassettesList.innerHTML = filteredPublicCassettes.map(cassette => {
+            // Check if this cassette belongs to the current user
+            const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
+            const previewStyle = cassette.imageUrl 
+                ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
+                : 'background: #0a0a0a;';
+            
+            // Add restriction for guest users
+            const requiresAuth = isGuest;
+            const signupText = requiresAuth ? '<span class="signup-required-text">(Sign up required)</span>' : '';
+            
+            // Format views count
+            const views = cassette.views || 0;
+            const formattedViews = this.formatViewsCount(views);
+            
+            return `
+                <div class="theme-option public-cassette ${requiresAuth ? '' : 'authenticated'}" 
+                     data-cassette-id="${cassette.id}" 
+                     data-requires-auth="${requiresAuth}"
+                     data-is-own="${isOwnCassette}"
+                     style="position: relative;">
+                    <div class="theme-preview" style="${previewStyle}"></div>
+                    <div class="theme-info">
+                        <h4>${cassette.title} ${signupText}</h4>
+                        <p>${cassette.description || 'Public focus environment'}</p>
+                        ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">created by ${cassette.creatorName}</p>` : ''}
+                    </div>
+                    <!-- Views counter in bottom right -->
+                    <div class="views-counter" style="position: absolute; bottom: 8px; right: 8px; z-index: 10; display: flex; align-items: center; gap: 4px; background: rgba(0, 0, 0, 0.6); padding: 4px 8px; border-radius: 12px; backdrop-filter: blur(4px);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedViews}</span>
+                    </div>
+                    ${isOwnCassette ? `
+                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </button>
+                        <div class="cassette-options-dropdown" id="publicCassetteOptionsDropdown${cassette.id}" style="display: none;">
+                            <div class="cassette-options-menu">
+                                <button class="cassette-option-item edit-public-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+        
+        // Apply active state will be called separately after rendering
+        
+        // Add event listeners for public cassettes (same approach as private cassettes)
+        filteredPublicCassettes.forEach(cassette => {
+            const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+            if (!cassetteOption) return;
+            
+            const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
+            const requiresAuth = isGuest;
+            
+            // Options button (3 dots) - only for own cassettes
+            if (isOwnCassette) {
+                const optionsBtn = document.querySelector(`.cassette-options-btn[data-cassette-id="${cassette.id}"]`);
+                const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassette.id}`);
+                
+                if (optionsBtn && optionsDropdown) {
+                    optionsBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isVisible = optionsDropdown.style.display === 'block';
+                        // Close all other dropdowns first
+                        document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                            dropdown.style.display = 'none';
+                        });
+                        optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                    });
+                }
+                
+                // Edit option
+                const editOption = document.querySelector(`.edit-public-cassette-option[data-cassette-id="${cassette.id}"]`);
+                if (editOption) {
+                    editOption.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (optionsDropdown) optionsDropdown.style.display = 'none';
+                        // Find cassette in localStorage to edit
+                        const localCassettes = this.getCustomCassettes();
+                        const localCassette = localCassettes.find(c => c.id === cassette.id);
+                        if (localCassette) {
+                            this.showCassetteForm(cassette.id);
+                        } else {
+                            // If not found in localStorage, use cassette from cache
+                            console.warn('Cassette not found in localStorage, using API data');
+                            this.showCassetteForm(cassette.id);
+                        }
+                    });
+                }
+                
+                // Delete option
+                const deleteOption = document.querySelector(`.delete-public-cassette-option[data-cassette-id="${cassette.id}"]`);
+                if (deleteOption) {
+                    deleteOption.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (optionsDropdown) optionsDropdown.style.display = 'none';
+                        this.deleteCustomCassette(cassette.id);
+                    });
+                }
+            }
+            
+            // Handle cassette selection (only if not clicking on options)
+            if (!requiresAuth) {
+                cassetteOption.addEventListener('click', (e) => {
+                    // Don't trigger if clicking options button or dropdown
+                    if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                        return;
+                    }
+                    
+                    // Remove active from all preset themes
+                    document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Remove active from all custom cassettes
+                    document.querySelectorAll('.custom-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Remove active from all public cassettes
+                    document.querySelectorAll('.public-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Add active to selected cassette
+                    cassetteOption.classList.add('active');
+                    
+                    // Apply the public cassette directly
+                    this.applyCustomCassette(cassette);
+                    
+                    // Save to localStorage
+                    const themeName = `custom_${cassette.id}`;
+                    localStorage.setItem('lastSelectedTheme', themeName);
+                    this.currentTheme = themeName;
+                    
+                    // Increment views count when cassette is clicked
+                    this.incrementCassetteViews(cassette.id, cassetteOption);
+                    
+                    // Track event
+                    this.trackEvent('Cassette Selected', {
+                        button_type: 'cassette',
+                        cassette_name: cassette.title,
+                        cassette_type: 'public',
+                        source: 'cassettes_panel'
+                    });
+                });
+            }
+        });
+        
+        // Apply styles for guest users (disabled state)
+        filteredPublicCassettes.forEach(cassette => {
+            const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+            if (cassetteOption) {
+                const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
+                if (requiresAuth) {
+                    // Disable for guest users
+                    cassetteOption.style.opacity = '0.5';
+                    cassetteOption.style.cursor = 'not-allowed';
+                    cassetteOption.style.pointerEvents = 'none';
+                }
+            }
+        });
+        
+        // Close dropdown when clicking outside (only add listener once)
+        if (!this.publicCassettesDropdownListenerAdded) {
+            setTimeout(() => {
+                const closeDropdowns = (e) => {
+                    if (!e.target.closest('.cassette-options-btn') && !e.target.closest('.cassette-options-dropdown')) {
+                        document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                            dropdown.style.display = 'none';
+                        });
+                    }
+                };
+                document.addEventListener('click', closeDropdowns);
+                this.publicCassettesDropdownListenerAdded = true;
+            }, 100);
+        }
+    }
+
+    // Increment views count for a public cassette (unique views per user)
+    async incrementCassetteViews(cassetteId, cassetteElement) {
+        // Only increment for authenticated users
+        if (!this.isAuthenticated || !this.user?.id) {
+            return; // Guest users don't count views
+        }
+        
+        try {
+            const response = await fetch('/api/increment-cassette-views', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ cassetteId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.views !== undefined) {
+                    // Update the views count in the UI immediately
+                    const viewsSpan = cassetteElement?.querySelector('.views-counter span');
+                    if (viewsSpan) {
+                        viewsSpan.textContent = this.formatViewsCount(data.views);
+                    }
+                    
+                    // Also update the cassette in cache and localStorage for future loads
+                    const cacheKey = 'publicCassettesCache';
+                    const cachedData = localStorage.getItem(cacheKey);
+                    if (cachedData) {
+                        try {
+                            const cachedCassettes = JSON.parse(cachedData);
+                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassetteId);
+                            if (cassetteIndex >= 0) {
+                                cachedCassettes[cassetteIndex].views = data.views;
+                                cachedCassettes[cassetteIndex].viewedBy = data.viewedBy || cachedCassettes[cassetteIndex].viewedBy || [];
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
+                            }
+                        } catch (e) {
+                            console.error('Error updating cache:', e);
+                        }
+                    }
+                    
+                    // Also update views in localStorage cassette for consistency
+                    const localCassettes = this.getCustomCassettes();
+                    const localCassetteIndex = localCassettes.findIndex(c => c.id === cassetteId);
+                    if (localCassetteIndex >= 0) {
+                        localCassettes[localCassetteIndex].views = data.views;
+                        localCassettes[localCassetteIndex].viewedBy = data.viewedBy || localCassettes[localCassetteIndex].viewedBy || [];
+                        localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error incrementing cassette views:', error);
+            // Don't show error to user, just log it
+        }
+    }
+
+    // Increment website clicks count for a public cassette (unique clicks per user)
+    async incrementCassetteWebsiteClicks(cassetteId, linkElement) {
+        // Only increment for authenticated users
+        if (!this.isAuthenticated || !this.user?.id) {
+            return; // Guest users don't count clicks
+        }
+        
+        try {
+            const response = await fetch('/api/increment-cassette-website-clicks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ cassetteId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.websiteClicks !== undefined) {
+                    // Update the clicks count in the UI immediately
+                    if (linkElement) {
+                        let clicksContainer = linkElement.querySelector('.website-clicks-counter');
+                        if (clicksContainer) {
+                            // Update existing counter
+                            const span = clicksContainer.querySelector('span');
+                            if (span) {
+                                span.textContent = this.formatViewsCount(data.websiteClicks);
+                            }
+                        } else {
+                            // Create counter if it doesn't exist
+                            const formattedClicks = this.formatViewsCount(data.websiteClicks);
+                            clicksContainer = document.createElement('div');
+                            clicksContainer.className = 'website-clicks-counter';
+                            clicksContainer.style.cssText = 'display: flex; align-items: center; gap: 4px; margin-left: 4px;';
+                            clicksContainer.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedClicks}</span>
+                            `;
+                            linkElement.querySelector('div').appendChild(clicksContainer);
+                        }
+                    }
+                    
+                    // Update the cassette in cache and localStorage for future loads
+                    const cacheKey = 'publicCassettesCache';
+                    const cachedData = localStorage.getItem(cacheKey);
+                    if (cachedData) {
+                        try {
+                            const cachedCassettes = JSON.parse(cachedData);
+                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassetteId);
+                            if (cassetteIndex >= 0) {
+                                cachedCassettes[cassetteIndex].websiteClicks = data.websiteClicks;
+                                cachedCassettes[cassetteIndex].clickedBy = data.clickedBy || cachedCassettes[cassetteIndex].clickedBy || [];
+                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
+                            }
+                        } catch (e) {
+                            console.error('Error updating cache:', e);
+                        }
+                    }
+                    
+                    // Also update websiteClicks in localStorage cassette for consistency
+                    const localCassettes = this.getCustomCassettes();
+                    const localCassetteIndex = localCassettes.findIndex(c => c.id === cassetteId);
+                    if (localCassetteIndex >= 0) {
+                        localCassettes[localCassetteIndex].websiteClicks = data.websiteClicks;
+                        localCassettes[localCassetteIndex].clickedBy = data.clickedBy || localCassettes[localCassetteIndex].clickedBy || [];
+                        localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error incrementing cassette website clicks:', error);
+            // Don't show error to user, just log it
+        }
+    }
+    
+    applyActiveStateToPublicCassettes() {
+        // Check if current theme is a public cassette and mark it as active
+        const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+        if (currentTheme && currentTheme.startsWith('custom_')) {
+            const cassetteId = currentTheme.replace('custom_', '');
+            
+            // Track if active state has been applied to prevent duplicate calls
+            if (this._lastAppliedActiveCassette === cassetteId) {
+                // Already applied, skip to avoid redundant work
+                return;
+            }
+            
+            // Try multiple times with increasing delays to ensure DOM is ready
+            let applied = false;
+            const tryApplyActive = (attempt = 0) => {
+                // If already applied, cancel any pending attempts
+                if (applied) return;
+                
+                const activeOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                if (activeOption) {
+                    // Remove active from all other options
+                    document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    document.querySelectorAll('.custom-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    document.querySelectorAll('.public-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    // Add active to current cassette
+                    activeOption.classList.add('active');
+                    applied = true;
+                    this._lastAppliedActiveCassette = cassetteId;
+                    console.log('✅ Applied active state to public cassette:', cassetteId);
+                } else if (attempt < 3) {
+                    // Try again after a delay if not found and haven't exceeded attempts
+                    setTimeout(() => tryApplyActive(attempt + 1), 100 * (attempt + 1));
+                } else if (attempt === 3) {
+                    // Last attempt failed, log warning
+                    console.log('⚠️ Public cassette not found in DOM for active state:', cassetteId);
+                }
+            };
+            
+            // Start trying immediately
+            tryApplyActive(0);
+        } else {
+            // Not a public cassette, reset tracking
+            this._lastAppliedActiveCassette = null;
+        }
+    }
+
+    async saveCustomCassette(cassette) {
+        try {
+            const cassettes = this.getCustomCassettes();
+            const existingIndex = cassettes.findIndex(c => c.id === cassette.id);
+            
+            if (existingIndex >= 0) {
+                cassettes[existingIndex] = cassette;
+            } else {
+                cassettes.push(cassette);
+            }
+            
+            localStorage.setItem('customCassettes', JSON.stringify(cassettes));
+            
+            // Sync public cassettes to Clerk when authenticated
+            if (this.isAuthenticated && this.user?.id) {
+                const allCassettes = this.getCustomCassettes();
+                try {
+                    const response = await fetch('/api/sync-cassettes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-clerk-userid': this.user.id
+                        },
+                        body: JSON.stringify({ cassettes: allCassettes })
+                    });
+                    if (!response.ok) {
+                        console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                    } else {
+                        console.log('✅ Cassettes synced to Clerk');
+                    }
+                } catch (err) {
+                    console.error('❌ Error syncing cassettes to Clerk:', err);
+                }
+            }
+            
+            return cassette;
+        } catch (error) {
+            console.error('Error saving custom cassette:', error);
+            throw error;
+        }
+    }
+
+    deleteCustomCassette(cassetteId) {
+        try {
+            const cassettes = this.getCustomCassettes();
+            const filtered = cassettes.filter(c => c.id !== cassetteId);
+            localStorage.setItem('customCassettes', JSON.stringify(filtered));
+            
+            // Sync public cassettes to Clerk after deletion
+            if (this.isAuthenticated && this.user?.id) {
+                const allCassettes = this.getCustomCassettes();
+                
+                // Sync in background (don't wait for response)
+                fetch('/api/sync-cassettes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-clerk-userid': this.user.id
+                    },
+                    body: JSON.stringify({ cassettes: allCassettes })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('✅ Cassettes synced to Clerk after deletion');
+                    } else {
+                        console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                    }
+                }).catch(err => {
+                    console.error('❌ Error syncing cassettes to Clerk:', err);
+                });
+            }
+            
+            // Invalidate cache when deleting (changes may have been made)
+            this.invalidatePublicCassettesCache();
+            
+            // If this was the active theme, switch to lofi
+            if (this.currentTheme === `custom_${cassetteId}`) {
+                this.applyTheme('lofi');
+            }
+            
+            // Reload both custom cassettes and public cassettes to reflect changes
+            this.loadCustomCassettes();
+            this.loadPublicCassettes();
+        } catch (error) {
+            console.error('Error deleting custom cassette:', error);
+        }
+    }
+
+    selectCustomCassette(cassetteId) {
+        const cassettes = this.getCustomCassettes();
+        const cassette = cassettes.find(c => c.id === cassetteId);
+        
+        if (!cassette) return;
+        
+        // Reset active cassette tracking when selecting a new cassette
+        if (this._lastAppliedActiveCassette !== cassetteId) {
+            this._lastAppliedActiveCassette = null;
+        }
+        
+        // Remove active from all preset themes
+        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        
+        // Remove active from all custom cassettes
+        document.querySelectorAll('.custom-cassette').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        
+        // Remove active from all public cassettes
+        document.querySelectorAll('.public-cassette').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        
+        // Add active to selected cassette
+        const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
+        if (cassetteOption) {
+            cassetteOption.classList.add('active');
+        }
+        
+        // Apply the custom cassette
+        this.applyCustomCassette(cassette);
+        
+        // Save to localStorage
+        const themeName = `custom_${cassetteId}`;
+        localStorage.setItem('lastSelectedTheme', themeName);
+        this.currentTheme = themeName;
+        
+        // Track event
+        this.trackEvent('Cassette Selected', {
+            button_type: 'cassette',
+            cassette_name: cassette.title,
+            cassette_type: 'custom',
+            source: 'cassettes_panel'
+        });
+    }
+
+    applyCustomCassette(cassette) {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) return;
+        
+        // If this is a public cassette, try to get latest data from server cache
+        if (cassette.isPublic && cassette.id) {
+            const cacheKey = 'publicCassettesCache';
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
+                try {
+                    const cachedCassettes = JSON.parse(cachedData);
+                    const serverCassette = cachedCassettes.find(c => c.id === cassette.id);
+                    if (serverCassette) {
+                        // Update cassette with server data (server is source of truth)
+                        if (serverCassette.views !== undefined) {
+                            cassette.views = serverCassette.views;
+                        }
+                        if (serverCassette.viewedBy !== undefined) {
+                            cassette.viewedBy = serverCassette.viewedBy || [];
+                        }
+                        if (serverCassette.websiteClicks !== undefined) {
+                            cassette.websiteClicks = serverCassette.websiteClicks;
+                        }
+                        if (serverCassette.clickedBy !== undefined) {
+                            cassette.clickedBy = serverCassette.clickedBy || [];
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing cache when applying cassette:', e);
+                }
+            }
+        }
+        
+        // Pause timer when changing cassettes
+        if (this.isRunning) {
+            this.pauseTimer();
+        }
+        
+        // Stop other music and disable Lofi
+        this.stopLofiPlaylist();
+        this.lofiEnabled = false;
+        if (this.isAuthenticated) {
+            localStorage.setItem('lofiEnabled', 'false');
+        }
+        
+        // Stop Tron theme if active
+        if (this.currentImmersiveTheme === 'tron') {
+            this.deactivateImmersiveTheme();
+        }
+        
+        // Remove all background classes
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Remove custom Spotify widget from previous custom cassette only if URL is different
+        const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget) {
+            // Check if we need to recreate the widget (only if URL changed)
+            if (cassette.spotifyUrl && this.currentSpotifyUrl === cassette.spotifyUrl) {
+                // Same Spotify URL, keep the existing widget
+                console.log('🎵 Spotify widget already exists with same URL, keeping it');
+            } else {
+                // Different or no Spotify URL, remove existing widget
+                existingWidget.remove();
+                this.currentSpotifyUrl = null;
+            }
+        }
+        
+        // Remove custom website link from previous custom cassette
+        const existingLink = document.getElementById('customWebsiteLink');
+        if (existingLink) {
+            existingLink.remove();
+        }
+        
+        // Set background image if provided
+        if (cassette.imageUrl) {
+            console.log('🎨 Setting custom cassette background image:', cassette.imageUrl);
+            
+            // Check if this cassette belongs to the current user
+            const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
+            
+            // Apply immediately (will be overridden if image fails)
+            timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+            timerSection.style.setProperty('background-size', 'cover', 'important');
+            timerSection.style.setProperty('background-position', 'center', 'important');
+            timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
+            timerSection.style.setProperty('background-color', 'transparent', 'important');
+            
+            // Test if image loads (silently, no alerts for public cassettes from other users)
+            const testImg = new Image();
+            let imageLoaded = false;
+            let errorTimeout;
+            
+            testImg.onload = () => {
+                imageLoaded = true;
+                if (errorTimeout) clearTimeout(errorTimeout);
+                console.log('✅ Image loaded successfully');
+                // Image is already applied above, just verify
+                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+                timerSection.style.setProperty('background-size', 'cover', 'important');
+                timerSection.style.setProperty('background-position', 'center', 'important');
+                timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
+                timerSection.style.setProperty('background-color', 'transparent', 'important');
+            };
+            
+            testImg.onerror = () => {
+                // Don't show error immediately - check if image is actually displaying
+                // Sometimes CORS errors occur but the image still displays correctly
+                console.warn('⚠️ Image load test failed (may be CORS issue):', cassette.imageUrl);
+                
+                // Wait a bit to check if the image actually loaded despite the error
+                errorTimeout = setTimeout(() => {
+                    if (!imageLoaded) {
+                        // Check if background is actually working by checking computed style
+                        const computedBg = window.getComputedStyle(timerSection).backgroundImage;
+                        const bgImage = timerSection.style.backgroundImage;
+                        
+                        // If the background image is set and not 'none', it's working
+                        const isImageWorking = (computedBg && computedBg !== 'none' && computedBg !== '') || 
+                                               (bgImage && bgImage !== 'none' && bgImage !== '');
+                        
+                        if (!isImageWorking) {
+                            // Image truly failed - only show error for own cassettes
+                            if (isOwnCassette) {
+                                console.error('❌ Image failed to load:', cassette.imageUrl);
+                                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
+                                // Remove background only if truly failed
+                                timerSection.style.removeProperty('background-image');
+                                timerSection.style.setProperty('background', '#0a0a0a', 'important');
+                            } else {
+                                // For public cassettes from other users, fail silently
+                                timerSection.style.removeProperty('background-image');
+                                timerSection.style.setProperty('background', '#0a0a0a', 'important');
+                            }
+                        } else {
+                            // Image is working despite the error - just log it
+                            console.log('✅ Image is working despite load test error (CORS warning)');
+                        }
+                    }
+                }, 2000); // Give 2 seconds to check if image actually loaded
+            };
+            
+            // Set crossOrigin to allow CORS if needed
+            testImg.crossOrigin = 'anonymous';
+            testImg.src = cassette.imageUrl;
+            
+            // Verify it was set
+            console.log('🎨 Applied background styles:', {
+                backgroundImage: timerSection.style.backgroundImage,
+                backgroundSize: timerSection.style.backgroundSize,
+                backgroundPosition: timerSection.style.backgroundPosition
+            });
+        } else {
+            // Remove all background properties
+            timerSection.style.removeProperty('background-image');
+            timerSection.style.removeProperty('background-size');
+            timerSection.style.removeProperty('background-position');
+            timerSection.style.removeProperty('background-repeat');
+            timerSection.style.removeProperty('background-color');
+            timerSection.style.setProperty('background', '#0a0a0a', 'important');
+        }
+        
+        // Create Spotify widget if URL provided and different from current
+        if (cassette.spotifyUrl && this.currentSpotifyUrl !== cassette.spotifyUrl) {
+            this.createCustomSpotifyWidget(cassette.spotifyUrl);
+        } else if (!cassette.spotifyUrl && this.currentSpotifyUrl) {
+            // If no Spotify URL but one exists, remove it
+            const widgetToRemove = document.getElementById('customSpotifyWidget');
+            if (widgetToRemove) {
+                widgetToRemove.remove();
+            }
+            this.currentSpotifyUrl = null;
+        }
+        
+        // Create Website URL link if provided
+        if (cassette.websiteUrl) {
+            this.createWebsiteLink(cassette.websiteUrl, cassette.id, cassette.websiteClicks);
+        }
+        
+        // Save as current theme
+        const themeName = `custom_${cassette.id}`;
+        localStorage.setItem('lastSelectedTheme', themeName);
+        this.currentTheme = themeName;
+        
+        // Update visual active state
+        this.updateThemeActiveState(themeName);
+        
+        console.log('🎨 Custom cassette applied:', cassette.title);
+    }
+
+    createWebsiteLink(websiteUrl, cassetteId, websiteClicks) {
+        // Remove existing website link
+        const existingLink = document.getElementById('customWebsiteLink');
+        if (existingLink) {
+            existingLink.remove();
+        }
+        
+        // Get timer section to append button (like Tron does)
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('Timer section not found for website link');
+            return;
+        }
+        
+        // Format clicks count
+        const clicks = websiteClicks || 0;
+        const formattedClicks = this.formatViewsCount(clicks);
+        
+        // Create website link button matching Tron style
+        const link = document.createElement('div');
+        link.id = 'customWebsiteLink';
+        if (cassetteId) {
+            link.setAttribute('data-cassette-id', cassetteId);
+        }
+        link.style.cssText = `
+            position: absolute !important;
+            bottom: 20px !important;
+            left: 16px !important;
+            border-radius: 100px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: none !important;
+            backdrop-filter: blur(4px) !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+            padding: 12px 20px !important;
+            min-width: 140px !important;
+            white-space: nowrap !important;
+            z-index: 100 !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+        `;
+        
+        link.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
+                <div style="font-size: 16px; flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </div>
+                <div style="font-weight: 500; font-size: 14px; flex-shrink: 0;">Visit Website</div>
+                ${clicks > 0 ? `
+                <div class="website-clicks-counter" style="display: flex; align-items: center; gap: 4px; margin-left: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedClicks}</span>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        // Add hover effect matching Tron style
+        link.addEventListener('mouseenter', () => {
+            link.style.background = 'rgba(255, 255, 255, 0.15)';
+            link.style.transform = 'translateY(-1px)';
+            link.style.color = '#ffffff';
+        });
+        
+        link.addEventListener('mouseleave', () => {
+            link.style.background = 'rgba(255, 255, 255, 0.1)';
+            link.style.transform = 'translateY(0)';
+            link.style.color = 'rgba(255, 255, 255, 0.9)';
+        });
+        
+        // Add click handler
+        link.addEventListener('click', () => {
+            // Open website in new tab immediately (no delay)
+            window.open(websiteUrl, '_blank', 'noopener,noreferrer');
+            
+            // Increment website clicks in background (don't wait for it)
+            if (cassetteId) {
+                this.incrementCassetteWebsiteClicks(cassetteId, link).catch(err => {
+                    console.error('Error counting website click:', err);
+                });
+            }
+        });
+        
+        // Append to timer section (like Tron does)
+        timerSection.appendChild(link);
+        console.log('🔗 Website link created:', websiteUrl);
+    }
+
+    createCustomSpotifyWidget(spotifyUrl) {
+        // Check if widget already exists with same URL
+        const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget && this.currentSpotifyUrl === spotifyUrl) {
+            console.log('🎵 Spotify widget already exists with same URL, skipping recreation');
+            return;
+        }
+        
+        // Remove existing custom Spotify widget if URL is different
+        if (existingWidget) {
+            existingWidget.remove();
+        }
+        
+        // Save current Spotify URL
+        this.currentSpotifyUrl = spotifyUrl;
+        
+        // Extract Spotify track/playlist/album ID from URL
+        const spotifyId = this.extractSpotifyId(spotifyUrl);
+        if (!spotifyId) {
+            console.error('Invalid Spotify URL');
+            return;
+        }
+        
+        // Create Spotify iframe (same format as Tron)
+        const widget = document.createElement('iframe');
+        widget.id = 'customSpotifyWidget';
+        widget.src = `https://open.spotify.com/embed/${spotifyId.type}/${spotifyId.id}?utm_source=generator`;
+        widget.width = '100%';
+        widget.height = '352';
+        widget.frameBorder = '0';
+        widget.allowTransparency = 'true';
+        widget.setAttribute('title', 'Spotify Music Player');
+        widget.setAttribute('aria-label', 'Spotify Music Player');
+        widget.setAttribute('referrerpolicy', 'no-referrer');
+        widget.setAttribute('data-testid', 'embed-iframe');
+        widget.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        widget.loading = 'lazy';
+        
+        // Style the widget (same as Tron)
+        widget.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 352px;
+            z-index: 1000;
+            border-radius: 12px;
+            border: none;
+            pointer-events: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease;
+            opacity: 0.8;
+        `;
+        
+        // Create login instructions message
+        // Remove any existing instructions modal first
+        const existingInstructions = document.getElementById('spotifyWidgetInstructions');
+        if (existingInstructions) {
+            existingInstructions.remove();
+        }
+        
+        // Show instructions only the first time
+        const hasSeenInstructions = localStorage.getItem('spotify_widget_instructions_seen') === 'true';
+        if (!hasSeenInstructions) {
+            const instructionsDiv = document.createElement('div');
+            instructionsDiv.id = 'spotifyWidgetInstructions';
+            instructionsDiv.style.cssText = `
+                position: fixed;
+                bottom: 392px;
+                right: 20px;
+                width: 300px;
+                background: rgba(0, 0, 0, 0.95);
+                color: #ffffff;
+                padding: 16px;
+                border-radius: 12px;
+                border: none;
+                z-index: 1001;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 13px;
+                line-height: 1.5;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            `;
+            instructionsDiv.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="color: #1db954; font-size: 20px; flex-shrink: 0;">🎵</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #ffffff;">Listen to full songs</div>
+                        <div style="color: rgba(255, 255, 255, 0.9); margin-bottom: 12px;">
+                            Click on the Spotify logo inside the widget to log in and listen to full songs instead of just preview. Make sure third-party cookies are enabled in your browser settings.
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="spotifyLoggedInBtn" style="
+                                background: #1db954;
+                                color: #000000;
+                                border: none;
+                                border-radius: 6px;
+                                padding: 8px 16px;
+                                font-size: 12px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                flex: 1;
+                            ">I'm logged in</button>
+                            <button id="spotifyInstructionsClose" style="
+                                background: rgba(255, 255, 255, 0.1);
+                                color: #ffffff;
+                                border: 1px solid rgba(255, 255, 255, 0.2);
+                                border-radius: 6px;
+                                padding: 8px 12px;
+                                font-size: 12px;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                            ">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(instructionsDiv);
+            
+            // Add direct event listeners to buttons for better reliability
+            // Use setTimeout to ensure DOM is fully ready
+            setTimeout(() => {
+                const closeBtn = instructionsDiv.querySelector('#spotifyInstructionsClose');
+                const loggedInBtn = instructionsDiv.querySelector('#spotifyLoggedInBtn');
+                
+                let isClosing = false;
+                
+                if (closeBtn) {
+                    const closeHandler = (e) => {
+                        if (isClosing) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            return;
+                        }
+                        isClosing = true;
+                        
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        // Remove the modal completely instead of just hiding it
+                        if (instructionsDiv && instructionsDiv.parentNode) {
+                            instructionsDiv.parentNode.removeChild(instructionsDiv);
+                        }
+                        // Save to localStorage so message doesn't show again
+                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                    };
+                    
+                    closeBtn.addEventListener('click', closeHandler, { once: true, capture: true });
+                }
+                
+                if (loggedInBtn) {
+                    loggedInBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        // Reload widget by removing and recreating it
+                        widget.remove();
+                        instructionsDiv.style.display = 'none';
+                        // Save to localStorage so message doesn't show again
+                        localStorage.setItem('spotify_widget_instructions_seen', 'true');
+                        // Recreate widget after a short delay
+                        setTimeout(() => {
+                            this.createCustomSpotifyWidget(spotifyUrl);
+                        }, 500);
+                    }, { once: true, capture: true });
+                }
+            }, 0);
+        }
+        
+        // Set up timeout handling (same as Tron)
+        let loadTimeout;
+        let isLoaded = false;
+        
+        const handleLoad = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            widget.style.opacity = '1';
+            console.log('🎵 Custom Spotify widget loaded successfully');
+        };
+        
+        const handleError = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            console.error('❌ Custom Spotify widget failed to load');
+            widget.style.opacity = '0.7';
+        };
+        
+        const handleTimeout = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            console.warn('⚠️ Custom Spotify widget loading timeout');
+            widget.style.opacity = '0.7';
+        };
+        
+        // Set timeout for 10 seconds
+        loadTimeout = setTimeout(handleTimeout, 10000);
+        
+        // Add event listeners
+        widget.addEventListener('load', handleLoad);
+        widget.addEventListener('error', handleError);
+        
+        document.body.appendChild(widget);
+        
+        console.log('🎵 Custom Spotify widget created');
+    }
+
+    extractSpotifyId(url) {
+        // Extract type and ID from Spotify URL
+        // Format: https://open.spotify.com/track/... or /playlist/... or /album/...
+        const match = url.match(/open\.spotify\.com\/(track|playlist|album)\/([a-zA-Z0-9]+)/);
+        if (match) {
+            return {
+                type: match[1],
+                id: match[2]
+            };
+        }
+        return null;
+    }
+
+    showCassetteForm(cassetteId = null) {
+        // Check if user is Pro (similar to showCustomForm)
+        if (!this.isPremiumUser()) {
+            // Free users - show Subscribe modal
+            if (this.isAuthenticated && this.user) {
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_cassettes',
+                    source: 'create_cassette_button',
+                    user_type: 'free',
+                    modal_type: 'upgrade_prompt'
+                });
+                
+                this.showCassetteProModal('Create custom focus environments! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
+            } else {
+                // Guest users - show Pro Feature modal
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_cassettes',
+                    source: 'create_cassette_button',
+                    user_type: 'guest',
+                    modal_type: 'upgrade_prompt'
+                });
+                
+                // Show Pro Feature modal for Guest users
+                this.showCassetteProModal();
+            }
+            return;
+        }
+        
+        // Pro users can create cassettes
+        const form = document.getElementById('cassetteForm');
+        const createBtn = document.getElementById('createCassetteBtn');
+        const saveBtn = document.getElementById('saveCassetteBtn');
+        
+        if (!form || !createBtn) return;
+        
+        // Load cassette data if editing
+        if (cassetteId) {
+            let cassette = null;
+            
+            // First try to find in localStorage
+            const cassettes = this.getCustomCassettes();
+            cassette = cassettes.find(c => c.id === cassetteId);
+            
+            // If not found in localStorage, try to find in public cassettes cache
+            if (!cassette) {
+                const cacheKey = 'publicCassettesCache';
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    try {
+                        const cachedCassettes = JSON.parse(cachedData);
+                        cassette = cachedCassettes.find(c => c.id === cassetteId);
+                        // Check if it's the user's own cassette
+                        if (cassette && this.user?.id && cassette.creatorId === this.user.id) {
+                            console.log('📦 Found cassette in public cache for editing');
+                        } else {
+                            cassette = null; // Not user's own cassette
+                        }
+                    } catch (e) {
+                        console.error('Error parsing cached public cassettes:', e);
+                    }
+                }
+            }
+            
+            if (cassette) {
+                document.getElementById('cassetteTitle').value = cassette.title || '';
+                document.getElementById('cassetteDescription').value = cassette.description || '';
+                document.getElementById('cassetteImageUrl').value = cassette.imageUrl || '';
+                document.getElementById('cassetteSpotifyUrl').value = cassette.spotifyUrl || '';
+                document.getElementById('cassetteWebsiteUrl').value = cassette.websiteUrl || '';
+                const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+                if (isPublicCheckbox) {
+                    isPublicCheckbox.checked = cassette.isPublic === true;
+                }
+                
+                // Store editing ID in save button
+                if (saveBtn) {
+                    saveBtn.dataset.editingId = cassetteId;
+                    saveBtn.textContent = 'Update';
+                }
+            } else {
+                console.error('Cassette not found for editing:', cassetteId);
+                alert('Error: Cassette not found. Please try again.');
+                return;
+            }
+        } else {
+            // Clear form for new cassette
+            document.getElementById('cassetteTitle').value = '';
+            document.getElementById('cassetteDescription').value = '';
+            document.getElementById('cassetteImageUrl').value = '';
+            document.getElementById('cassetteSpotifyUrl').value = '';
+            document.getElementById('cassetteWebsiteUrl').value = '';
+            const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+            if (isPublicCheckbox) {
+                isPublicCheckbox.checked = false;
+            }
+            
+            if (saveBtn) {
+                delete saveBtn.dataset.editingId;
+                saveBtn.textContent = 'Save';
+            }
+        }
+        
+        // Show form and hide button
+        form.style.display = 'block';
+        createBtn.style.display = 'none';
+        
+        // Focus on title input
+        const titleInput = document.getElementById('cassetteTitle');
+        if (titleInput) {
+            setTimeout(() => titleInput.focus(), 100);
+        }
+    }
+    
+    hideCassetteForm() {
+        const form = document.getElementById('cassetteForm');
+        const createBtn = document.getElementById('createCassetteBtn');
+        const saveBtn = document.getElementById('saveCassetteBtn');
+        
+        if (!form || !createBtn) return;
+        
+        // Hide form and show button
+        form.style.display = 'none';
+        createBtn.style.display = 'block';
+        
+        // Clear editing ID
+        if (saveBtn) {
+            delete saveBtn.dataset.editingId;
+            saveBtn.textContent = 'Save';
+        }
+        
+        // Clear form
+        document.getElementById('cassetteTitle').value = '';
+        document.getElementById('cassetteDescription').value = '';
+        document.getElementById('cassetteImageUrl').value = '';
+        document.getElementById('cassetteSpotifyUrl').value = '';
+        document.getElementById('cassetteWebsiteUrl').value = '';
+        const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+        if (isPublicCheckbox) {
+            isPublicCheckbox.checked = false;
+        }
+    }
+
+    extractImageUrl(url) {
+        if (!url) return '';
+        
+        // If it's a Google Images URL, extract the actual image URL
+        if (url.includes('google.com/url') && url.includes('url=')) {
+            try {
+                // Extract the URL parameter from the query string
+                const urlObj = new URL(url);
+                const actualUrl = urlObj.searchParams.get('url');
+                if (actualUrl) {
+                    const decodedUrl = decodeURIComponent(actualUrl);
+                    console.log('🎨 Extracted URL from Google Images link:', decodedUrl);
+                    
+                    // Check if the extracted URL is actually an image URL
+                    // If it's not an image URL (ends with .jpg, .png, .gif, .webp, etc.), return empty
+                    // This means the user needs to get the direct image URL
+                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+                    const isImageUrl = imageExtensions.some(ext => 
+                        decodedUrl.toLowerCase().includes(ext) || 
+                        decodedUrl.toLowerCase().includes('image') ||
+                        decodedUrl.includes('i.imgur.com') ||
+                        decodedUrl.includes('cdn.') ||
+                        decodedUrl.includes('/images/')
+                    );
+                    
+                    if (!isImageUrl) {
+                        console.warn('⚠️ Extracted URL is not a direct image URL:', decodedUrl);
+                        return ''; // Return empty to trigger the error message
+                    }
+                    
+                    return decodedUrl;
+                }
+            } catch (e) {
+                console.error('Error extracting URL from Google Images link:', e);
+                // Try manual parsing as fallback
+                const match = url.match(/url=([^&]+)/);
+                if (match) {
+                    try {
+                        const decodedUrl = decodeURIComponent(match[1]);
+                        // Check if it's an image URL
+                        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+                        const isImageUrl = imageExtensions.some(ext => 
+                            decodedUrl.toLowerCase().includes(ext) || 
+                            decodedUrl.toLowerCase().includes('image') ||
+                            decodedUrl.includes('i.imgur.com') ||
+                            decodedUrl.includes('cdn.')
+                        );
+                        
+                        if (!isImageUrl) {
+                            return '';
+                        }
+                        
+                        return decodedUrl;
+                    } catch (e2) {
+                        console.error('Error decoding URL:', e2);
+                    }
+                }
+            }
+        }
+        
+        return url;
+    }
+
+    async saveCassetteFromForm(cassetteId = null) {
+        // Get cassetteId from save button if not provided
+        const saveBtn = document.getElementById('saveCassetteBtn');
+        if (!cassetteId && saveBtn && saveBtn.dataset.editingId) {
+            cassetteId = saveBtn.dataset.editingId;
+        }
+        
+        const titleEl = document.getElementById('cassetteTitle');
+        const descriptionEl = document.getElementById('cassetteDescription');
+        const imageUrlEl = document.getElementById('cassetteImageUrl');
+        const spotifyUrlEl = document.getElementById('cassetteSpotifyUrl');
+        const websiteUrlEl = document.getElementById('cassetteWebsiteUrl');
+        const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+        
+        if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl || !websiteUrlEl) {
+            console.error('Form elements not found', {
+                titleEl: !!titleEl,
+                descriptionEl: !!descriptionEl,
+                imageUrlEl: !!imageUrlEl,
+                spotifyUrlEl: !!spotifyUrlEl,
+                websiteUrlEl: !!websiteUrlEl
+            });
+            alert('Error: Form elements not found. Please try again.');
+            return false;
+        }
+        
+        // Get values with debug logging
+        const title = titleEl ? (titleEl.value || titleEl.textContent || '').trim() : '';
+        const description = descriptionEl ? (descriptionEl.value || descriptionEl.textContent || '').trim() : '';
+        let imageUrl = imageUrlEl ? (imageUrlEl.value || imageUrlEl.textContent || '').trim() : '';
+        const spotifyUrl = spotifyUrlEl ? (spotifyUrlEl.value || spotifyUrlEl.textContent || '').trim() : '';
+        const websiteUrl = websiteUrlEl ? (websiteUrlEl.value || websiteUrlEl.textContent || '').trim() : '';
+        const isPublic = isPublicCheckbox ? isPublicCheckbox.checked : false;
+        
+        console.log('💾 Saving cassette - Title value:', title, 'Title length:', title.length, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl?.value);
+        
+        // Validate title first (before any other processing)
+        if (!title || title.length === 0 || title.trim().length === 0) {
+            alert('Title is required');
+            if (titleEl) titleEl.focus();
+            return false;
+        }
+        
+        // Extract actual image URL if it's a Google Images redirect
+        if (imageUrl) {
+            const originalUrl = imageUrl;
+            imageUrl = this.extractImageUrl(imageUrl);
+            console.log('🎨 Original URL:', originalUrl);
+            console.log('🎨 Final image URL:', imageUrl);
+            
+            // Check if it's a valid image URL (direct .jpg, .png, etc. or extracted from Google redirect)
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const hasImageExtension = imageExtensions.some(ext => 
+                imageUrl.toLowerCase().includes(ext.toLowerCase())
+            );
+            
+            // Only show error if:
+            // 1. Extraction returned empty (invalid Google redirect)
+            // 2. Still contains google.com/url (not extracted properly)
+            // 3. Is a Google redirect that wasn't extracted (original === extracted and contains google.com/url)
+            const isGoogleRedirect = originalUrl.includes('google.com/url');
+            const isValidDirectImage = hasImageExtension || imageUrl.includes('i.imgur.com') || imageUrl.includes('cdn.') || imageUrl.includes('/images/');
+            
+            if (originalUrl && (!imageUrl || imageUrl.includes('google.com/url') || (isGoogleRedirect && !isValidDirectImage))) {
+                alert('⚠️ Error: The URL you provided is not a direct image URL.\n\n📝 How to get the correct URL from Google Images:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)\n- Upload to Imgur and use the direct image URL');
+                imageUrlEl.focus();
+                return false;
+            }
+        }
+        
+        // Get previous cassette state if editing
+        const previousCassette = cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId) : null;
+        const wasPublic = previousCassette?.isPublic === true;
+        const isNowPublic = isPublic === true;
+        const changedFromPublicToPrivate = wasPublic && !isNowPublic;
+        const changedFromPrivateToPublic = !wasPublic && isNowPublic;
+        
+        // Get views, viewedBy, websiteClicks, and clickedBy from server if available (server is source of truth)
+        let serverViews = 0;
+        let serverViewedBy = [];
+        let serverWebsiteClicks = 0;
+        let serverClickedBy = [];
+        if (cassetteId && previousCassette?.isPublic) {
+            // Try to get data from server cache
+            const cacheKey = 'publicCassettesCache';
+            const cachedData = localStorage.getItem(cacheKey);
+            if (cachedData) {
+                try {
+                    const cachedCassettes = JSON.parse(cachedData);
+                    const serverCassette = cachedCassettes.find(c => c.id === cassetteId);
+                    if (serverCassette) {
+                        if (serverCassette.views !== undefined) {
+                            serverViews = serverCassette.views;
+                        }
+                        if (serverCassette.viewedBy !== undefined) {
+                            serverViewedBy = serverCassette.viewedBy || [];
+                        }
+                        if (serverCassette.websiteClicks !== undefined) {
+                            serverWebsiteClicks = serverCassette.websiteClicks;
+                        }
+                        if (serverCassette.clickedBy !== undefined) {
+                            serverClickedBy = serverCassette.clickedBy || [];
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing cache:', e);
+                }
+            }
+        }
+        
+        const cassette = {
+            id: cassetteId || `cassette_${Date.now()}`,
+            title: title,
+            description: description || '',
+            imageUrl: imageUrl || '',
+            spotifyUrl: spotifyUrl || '',
+            websiteUrl: websiteUrl || '',
+            isPublic: isPublic,
+            // Preserve views from server if available (server is source of truth for views)
+            // Always prefer server views over localStorage for public cassettes
+            views: cassetteId && previousCassette?.isPublic && serverViews !== undefined && serverViews !== null ? serverViews : (previousCassette?.views !== undefined && previousCassette.views !== null ? previousCassette.views : 0),
+            // Preserve viewedBy from server if available (server is source of truth for viewedBy)
+            viewedBy: cassetteId && previousCassette?.isPublic && serverViewedBy.length > 0 ? serverViewedBy : (previousCassette?.viewedBy || []),
+            // Preserve websiteClicks from server if available (server is source of truth for websiteClicks)
+            websiteClicks: cassetteId && previousCassette?.isPublic && serverWebsiteClicks !== undefined && serverWebsiteClicks !== null ? serverWebsiteClicks : (previousCassette?.websiteClicks !== undefined && previousCassette.websiteClicks !== null ? previousCassette.websiteClicks : 0),
+            // Preserve clickedBy from server if available (server is source of truth for clickedBy)
+            clickedBy: cassetteId && previousCassette?.isPublic && serverClickedBy.length > 0 ? serverClickedBy : (previousCassette?.clickedBy || []),
+            createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        try {
+            const savedCassette = await this.saveCustomCassette(cassette);
+            
+            if (!savedCassette) {
+                alert('Error saving cassette. Please try again.');
+                return false;
+            }
+            
+            // Hide form immediately for better UX (no delay)
+            this.hideCassetteForm();
+            
+            // Update UI and handle async operations in background
+            const handleSuccess = async () => {
+                // The cassette is already saved to localStorage in saveCustomCassette
+                // Now we need to update the UI immediately
+                
+                // Update the UI immediately from localStorage (no delay)
+                this.loadCustomCassettes();
+                
+                // If cassette changed from public to private, remove it from public list immediately
+                if (changedFromPublicToPrivate) {
+                    // Remove the cassette from the public cassettes list in the UI immediately
+                    const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                    if (publicCassetteElement) {
+                        publicCassetteElement.remove();
+                        console.log('🗑️ Removed cassette from public list:', cassette.id);
+                    }
+                    
+                    // Invalidate cache to remove the cassette from public list
+                    this.invalidatePublicCassettesCache();
+                    // Reload public cassettes in background (don't wait for it)
+                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
+                } else if (isNowPublic || changedFromPrivateToPublic || (cassetteId && cassette.isPublic)) {
+                    // If it's a public cassette or changed to public, or editing an existing public cassette
+                    // First, update the card in the UI immediately with new data from localStorage
+                    if (cassetteId && cassette.isPublic) {
+                        const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                        if (publicCassetteElement) {
+                            // Update the card immediately with new data
+                            const previewDiv = publicCassetteElement.querySelector('.theme-preview');
+                            const titleH4 = publicCassetteElement.querySelector('.theme-info h4');
+                            const descriptionP = publicCassetteElement.querySelector('.theme-info p:first-of-type');
+                            
+                            if (previewDiv) {
+                                previewDiv.style.backgroundImage = cassette.imageUrl 
+                                    ? `url('${cassette.imageUrl}')` 
+                                    : 'none';
+                                previewDiv.style.backgroundSize = 'cover';
+                                previewDiv.style.backgroundPosition = 'center';
+                                if (!cassette.imageUrl) {
+                                    previewDiv.style.background = '#0a0a0a';
+                                }
+                            }
+                            if (titleH4) {
+                                const signupText = titleH4.querySelector('.signup-required-text')?.outerHTML || '';
+                                titleH4.innerHTML = `${cassette.title} ${signupText}`;
+                            }
+                            if (descriptionP) {
+                                descriptionP.textContent = cassette.description || 'Public focus environment';
+                            }
+                            console.log('✅ Updated public cassette card immediately:', cassette.id);
+                        }
+                    }
+                    
+                    // Then update public cassettes section in background
+                    // Force refresh from server to ensure consistency across users
+                    // Don't invalidate cache before loading - keep other users' cassettes visible
+                    // The cache will be updated with fresh data from server, and user's cassettes will be merged in
+                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
+                }
+                
+                // If editing an existing cassette, check if it's currently selected
+                if (cassetteId) {
+                    const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+                    const isCurrentlySelected = currentTheme === `custom_${cassetteId}`;
+                    
+                    if (isCurrentlySelected) {
+                        // Re-apply the updated cassette immediately with the latest data
+                        console.log('🔄 Re-applying updated cassette:', cassette.title);
+                        // Use the cassette object directly (already has latest data)
+                        this.applyCustomCassette(cassette);
+                    }
+                } else {
+                    // If this is a new cassette (not editing), select it automatically
+                    // Reduced delay for better UX
+                    const delay = cassette.isPublic ? 200 : 50;
+                    setTimeout(() => {
+                        console.log('🔄 Selecting new cassette:', cassette.id);
+                        if (cassette.isPublic) {
+                            // For public cassettes, try to select and apply active state
+                            this.selectCustomCassette(cassette.id);
+                            // Also ensure the active state is applied to public cassettes
+                            setTimeout(() => {
+                                this.applyActiveStateToPublicCassettes();
+                            }, 100);
+                        } else {
+                            // For private cassettes, just select normally
+                            this.selectCustomCassette(cassette.id);
+                        }
+                    }, delay);
+                }
+                
+                // Track event
+                this.trackEvent('Custom Cassette Created', {
+                    feature: 'custom_cassettes',
+                    cassette_title: cassette.title,
+                    has_image: !!cassette.imageUrl,
+                    has_spotify: !!cassette.spotifyUrl,
+                    has_website: !!cassette.websiteUrl,
+                    user_type: 'pro',
+                    is_edit: !!cassetteId
+                });
+                
+                console.log('✅ Custom cassette saved:', cassette);
+            };
+            
+            // Execute in background (don't wait)
+            handleSuccess().catch(err => console.error('Error in handleSuccess:', err));
+            return true;
+        } catch (error) {
+            console.error('Error saving cassette:', error);
+            alert('Error saving cassette: ' + (error.message || 'Unknown error'));
+            return false;
+        }
+    }
+    
+    initializeVolumeControl() {
+        const volumeSlider = document.getElementById('sidebarAmbientVolume');
+        const volumeValue = document.getElementById('sidebarVolumeValue');
+        
+        if (volumeSlider && volumeValue) {
+            // Set initial volume
+            volumeSlider.value = this.lofiVolume * 100;
+            volumeValue.textContent = Math.round(this.lofiVolume * 100) + '%';
+            
+            // Add event listener
+            volumeSlider.addEventListener('input', (e) => {
+                const newVolume = e.target.value / 100;
+                this.lofiVolume = newVolume;
+                volumeValue.textContent = e.target.value + '%';
+                
+                // Update audio volume if playing
+                const audio = document.getElementById('backgroundAudio');
+                if (audio) {
+                    audio.volume = newVolume;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('lofiVolume', newVolume.toString());
+            });
+        }
+    }
+
+    applyTheme(themeName) {
+        console.log(`🎨 Applying theme: ${themeName}`);
+        
+        // Check if this is a custom cassette
+        if (themeName && themeName.startsWith('custom_')) {
+            const cassetteId = themeName.replace('custom_', '');
+            const cassettes = this.getCustomCassettes();
+            let cassette = cassettes.find(c => c.id === cassetteId);
+            
+            if (cassette) {
+                // Found in local cassettes, apply it
+                this.applyCustomCassette(cassette);
+                return;
+            } else {
+                // Not found in local cassettes, try to find in public cassettes (async)
+                this.loadPublicCassettesFromAPI().then(publicCassettes => {
+                    const publicCassette = publicCassettes.find(c => c.id === cassetteId);
+                    if (publicCassette) {
+                        // Update active state visually
+                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        document.querySelectorAll('.custom-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        document.querySelectorAll('.public-cassette').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                        if (cassetteOption) {
+                            cassetteOption.classList.add('active');
+                        }
+                        this.applyCustomCassette(publicCassette);
+                    } else {
+                        // Not found in public cassettes either, fallback to lofi
+                        console.warn('Custom cassette not found in local or public cassettes, falling back to lofi');
+                        this.applyTheme('lofi');
+                    }
+                }).catch(err => {
+                    console.error('Error loading public cassettes:', err);
+                    // On error, fallback to lofi
+                    this.applyTheme('lofi');
+                });
+                // Return early since we're handling async
+                return;
+            }
+        }
+        
+        // Pause timer when changing cassettes for better UX
+        if (this.isRunning) {
+            this.pauseTimer();
+            console.log('🎨 Timer paused due to cassette change');
+        }
+        
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        // Remove all background classes
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Remove custom Spotify widget if switching from custom cassette
+        const existingWidget = document.getElementById('customSpotifyWidget');
+        if (existingWidget) {
+            existingWidget.remove();
+            this.currentSpotifyUrl = null; // Clear Spotify URL tracking
+        }
+        
+        // Remove custom website link if switching from custom cassette
+        const existingLink = document.getElementById('customWebsiteLink');
+        if (existingLink) {
+            existingLink.remove();
+        }
+        
+        // Remove custom cassette background image styles
+        timerSection.style.removeProperty('background-image');
+        timerSection.style.removeProperty('background-size');
+        timerSection.style.removeProperty('background-position');
+        timerSection.style.removeProperty('background-repeat');
+        timerSection.style.removeProperty('background-color');
+        
+        if (themeName === 'simple') {
+            // Simple theme: black background, no music
+            // Stop Tron music first if active
+            if (this.currentImmersiveTheme === 'tron') {
+                this.deactivateImmersiveTheme();
+            }
+            
+            timerSection.classList.add('theme-minimalist');
+            this.stopLofiPlaylist();
+            this.lofiEnabled = false;
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'false');
+            }
+            
+            // Always stop music for Simple theme (whether timer is running or not)
+            console.log('🎨 Simple theme applied - black background, no music');
+            
+        } else if (themeName === 'lofi') {
+            // Lofi theme: Garden Study background + lofi music
+            // Stop Tron music first if active
+            if (this.currentImmersiveTheme === 'tron') {
+                this.deactivateImmersiveTheme();
+            }
+            
+            timerSection.classList.add('theme-woman');
+            this.lofiEnabled = true;
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'true');
+            }
+            
+            // If timer is running, start music immediately
+            if (this.isRunning) {
+                this.playLofiPlaylist().catch(err => console.log('Lofi start error:', err));
+                console.log('🎨 Lofi theme applied - Garden Study background + lofi music (music started because timer is running)');
+            } else {
+                console.log('🎨 Lofi theme applied - Garden Study background + lofi music (music will start when timer starts)');
+            }
+            
+        } else if (themeName === 'tron') {
+            // Tron theme: slideshow + tron music
+            // Stop Lofi music first
+            this.stopLofiPlaylist();
+            this.lofiEnabled = false;
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'false');
+            }
+            
+            // Only deactivate if not already Tron theme
+            if (this.currentImmersiveTheme !== 'tron') {
+            this.deactivateImmersiveTheme();
+            }
+            
+            this.applyImmersiveTheme('tron');
+            
+            // Check if user is authenticated for Tron theme
+            if (!this.isAuthenticated) {
+                console.log('🎨 Tron theme requires authentication');
+                alert('Tron theme requires an account. Sign up for free to unlock all immersive themes!');
+                // Revert to default theme
+                this.applyTheme('lofi');
+                return;
+            }
+            
+            // Create Spotify widget for Tron theme (only if not already created)
+            if (!this.tronSpotifyWidget) {
+                this.createTronSpotifyWidget();
+                console.log('🎨 Tron theme applied - Spotify widget created');
+            } else if (this.tronSpotifyWidgetReady) {
+                console.log('🎨 Tron theme applied - Spotify widget already ready');
+            }
+            
+        }
+        
+        // Save theme preference (for both authenticated and guest users)
+        localStorage.setItem('lastSelectedTheme', themeName);
+        this.currentTheme = themeName;
+        
+        // Update visual active state
+        this.updateThemeActiveState(themeName);
+        
+        // Track theme change
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackCustomEvent('Theme Changed', { theme_name: themeName });
+            console.log('📊 Theme changed event tracked to Mixpanel');
+        }
+    }
+    
+    updateThemeActiveState(themeName) {
+        // Handle custom cassettes
+        if (themeName && themeName.startsWith('custom_')) {
+            const cassetteId = themeName.replace('custom_', '');
+            const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
+            if (cassetteOption) {
+                cassetteOption.classList.add('active');
+                const radio = cassetteOption.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
+            // Remove active from preset themes
+            document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                opt.classList.remove('active');
+                const radio = opt.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
+            });
+            // Remove active from other custom cassettes
+            document.querySelectorAll('.custom-cassette').forEach(opt => {
+                if (opt !== cassetteOption) {
+                    opt.classList.remove('active');
+                    const radio = opt.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = false;
+                }
+            });
+            console.log(`🎨 Theme active state updated to: ${themeName}`);
+            return;
+        }
+        
+        // Get all theme options
+        const themeOptions = document.querySelectorAll('.theme-option[data-theme]');
+        
+        themeOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            const optionThemeName = option.dataset.theme;
+            
+            // Remove active from all options
+            option.classList.remove('active');
+            if (radio) radio.checked = false;
+            
+            // Add active to the selected theme
+            if (optionThemeName === themeName) {
+                option.classList.add('active');
+                if (radio) radio.checked = true;
+            }
+        });
+        
+        // Remove active from custom cassettes
+        document.querySelectorAll('.custom-cassette').forEach(opt => {
+            opt.classList.remove('active');
+            const radio = opt.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        console.log(`🎨 Theme active state updated to: ${themeName}`);
+    }
+
+    applyImmersiveTheme(themeName) {
+        console.log(`🎨 Applying immersive theme: ${themeName}`);
+        
+        if (themeName === 'tron') {
+            this.activateTronTheme();
+        } else {
+            console.log(`🎨 Unknown immersive theme: ${themeName}`);
+        }
+    }
+
+    activateTronTheme() {
+        console.log('🎨 Activating Tron theme...');
+        console.log('🎨 Tron image available:', this.tronImage);
+        
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        if (!this.tronImage) {
+            console.error('❌ Tron image not loaded, loading assets first...');
+            this.loadTronAssets();
+        }
+        
+        console.log('🎨 Timer section found, setting Tron background...');
+        
+        // Remove ALL background classes and set Tron background
+        timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
+        
+        // Force Tron background with !important to override CSS
+        timerSection.style.setProperty('background-image', `url('${this.tronImage}')`, 'important');
+        timerSection.style.setProperty('background-size', 'cover', 'important');
+        timerSection.style.setProperty('background-position', 'center', 'important');
+        timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
+        timerSection.style.setProperty('background-color', 'transparent', 'important');
+        
+        console.log('🎨 Tron background set:', this.tronImage);
+        console.log('🎨 Applied styles:', {
+            backgroundImage: timerSection.style.backgroundImage,
+            backgroundSize: timerSection.style.backgroundSize,
+            backgroundPosition: timerSection.style.backgroundPosition
+        });
+        
+        // Clear Music and Background selections when Tron is active
+        this.clearMusicAndBackgroundSelections();
+        
+        // Switch to Tron music (will start when timer starts)
+        // Ensure lofi is not playing anymore
+        this.stopLofiPlaylist();
+        
+        // Save preference only if user is authenticated
+        if (this.isAuthenticated) {
+            localStorage.setItem('selectedImmersiveTheme', 'tron');
+        }
+        this.currentImmersiveTheme = 'tron';
+        
+        console.log('🎨 Tron theme activated successfully');
+    }
+
+    clearMusicAndBackgroundSelections() {
+        // Clear Music panel selections
+        const musicOptions = document.querySelectorAll('.music-option');
+        musicOptions.forEach(option => {
+            option.classList.remove('active');
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        // Clear Background panel selections
+        const backgroundOptions = document.querySelectorAll('.theme-option[data-background]');
+        backgroundOptions.forEach(option => {
+            option.classList.remove('active');
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
+        });
+        
+        console.log('🎨 Cleared Music and Background selections for Tron theme');
+    }
+
+    deactivateImmersiveTheme() {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) return;
+        
+        // Remove Tron background
+        timerSection.style.removeProperty('background-image');
+        timerSection.style.removeProperty('background-size');
+        timerSection.style.removeProperty('background-position');
+        timerSection.style.removeProperty('background-repeat');
+        timerSection.style.removeProperty('background-color');
+        
+        // Tron theme deactivated - remove Spotify widget
+        if (this.currentImmersiveTheme === 'tron') {
+            this.removeTronSpotifyWidget();
+            this.tronSpotifyWidgetReady = false;
+            this.tronSpotifyWidgetActivated = false;
+            console.log('🎨 Tron theme deactivated - background + Spotify widget removed');
+        }
+        
+        // Save preference only if user is authenticated
+        if (this.isAuthenticated) {
+            localStorage.setItem('selectedImmersiveTheme', 'none');
+        }
+        this.currentImmersiveTheme = 'none';
+        
+        // Don't close the panel automatically - let user control it
+        
+        console.log('🎨 Immersive theme deactivated');
+        
+        // Restore the current theme background
+        setTimeout(() => {
+            this.applyTheme(this.currentTheme);
+        }, 100);
+    }
+
+
+    
+
+
+
+    applyOverlay(opacity) {
+        const timerSection = document.querySelector('.timer-section');
+        if (!timerSection) {
+            console.error('❌ Timer section not found');
+            return;
+        }
+        
+        // Find or create overlay element
+        let overlayElement = timerSection.querySelector('.theme-overlay');
+        
+        if (!overlayElement) {
+            // Create overlay element if it doesn't exist
+            overlayElement = document.createElement('div');
+            overlayElement.className = 'theme-overlay';
+            timerSection.insertBefore(overlayElement, timerSection.firstChild);
+        }
+        
+        // Apply opacity directly to the overlay
+        overlayElement.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`;
+        
+        console.log(`🎨 Overlay opacity set to: ${Math.round(opacity * 100)}%`);
+    }
+
+
+    // Tron Spotify Widget Methods
+    createTronSpotifyWidget() {
+        console.log('🎵 Creating Tron Spotify widget...');
+        console.log('🎵 Spotify URL:', this.tronSpotifyEmbedUrl);
+
+        // Remove any existing widget first
+        this.removeTronSpotifyWidget();
+
+        // Create the iframe element
+        const widget = document.createElement('iframe');
+        widget.id = 'tron-spotify-widget';
+        widget.src = this.tronSpotifyEmbedUrl;
+        widget.width = '100%';
+        widget.height = '352';
+        widget.frameBorder = '0';
+        widget.allowTransparency = 'true';
+        widget.setAttribute('title', 'Spotify Music Player');
+        widget.setAttribute('aria-label', 'Spotify Music Player for Tron theme');
+        widget.setAttribute('referrerpolicy', 'no-referrer');
+        widget.setAttribute('data-testid', 'embed-iframe');
+        widget.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        widget.loading = 'lazy';
+        
+        // Style the widget
+        widget.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 352px;
+            z-index: 1000;
+            border-radius: 12px;
+            border: none;
+            pointer-events: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease;
+            opacity: 0.8; /* Show loading state */
+        `;
+
+        // Set up timeout handling
+        let loadTimeout;
+        let isLoaded = false;
+
+        const handleLoad = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            this.tronSpotifyWidgetReady = true;
+            widget.style.opacity = '1';
+            console.log('🎵 Spotify widget loaded successfully');
+        };
+
+        const handleError = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            console.warn('⚠️ TRON: Ares Soundtrack failed to load - this may be a temporary Spotify server issue');
+            widget.style.opacity = '0.5';
+            // Show a message to user about the issue
+            this.showSpotifyErrorMessage();
+        };
+
+        const handleTimeout = () => {
+            if (isLoaded) return;
+            isLoaded = true;
+            clearTimeout(loadTimeout);
+            
+            console.warn('⚠️ TRON: Ares Soundtrack loading timeout - Spotify servers may be slow');
+            widget.style.opacity = '0.7';
+            // Message removed per user request
+        };
+
+        // Set timeout for 10 seconds
+        loadTimeout = setTimeout(handleTimeout, 10000);
+
+        // Add event listeners
+        widget.addEventListener('load', handleLoad);
+        widget.addEventListener('error', handleError);
+
+        // Append to body
+        document.body.appendChild(widget);
+        this.tronSpotifyWidget = widget;
+        
+        // Create the image button
+        this.createTronImageButton();
+        
+        console.log('🎵 Tron Spotify widget created with timeout handling');
+    }
+
+    showSpotifyErrorMessage() {
+        // Show a temporary message about Spotify loading issue
+        const message = document.createElement('div');
+        message.id = 'spotify-error-message';
+        message.innerHTML = `
+            <div style="
+                position: fixed;
+                bottom: 380px;
+                right: 20px;
+                background: rgba(255, 0, 0, 0.9);
+                color: white;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1001;
+                max-width: 280px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            ">
+                ⚠️ TRON soundtrack temporarily unavailable<br>
+                <small>Spotify servers may be experiencing issues</small>
+            </div>
+        `;
+        
+        document.body.appendChild(message);
+        
+        // Remove message after 5 seconds
+        setTimeout(() => {
+            if (message.parentNode) {
+                message.parentNode.removeChild(message);
+            }
+        }, 5000);
+    }
+
+
+    removeTronSpotifyWidget() {
+        console.log('🎵 Removing Tron Spotify widget...');
+        
+        if (this.tronSpotifyWidget) {
+            this.tronSpotifyWidget.remove();
+            this.tronSpotifyWidget = null;
+            this.tronSpotifyWidgetReady = false;
+            console.log('🎵 Tron Spotify widget removed');
+        }
+        
+        // Remove image button
+        if (this.tronImageButton) {
+            this.tronImageButton.remove();
+            this.tronImageButton = null;
+            console.log('🖼️ Tron image button removed');
+        }
+        
+        // Also remove any error/timeout messages
+        const errorMsg = document.getElementById('spotify-error-message');
+        const timeoutMsg = document.getElementById('spotify-timeout-message');
+        if (errorMsg) errorMsg.remove();
+        if (timeoutMsg) timeoutMsg.remove();
+    }
+
+    showSpotifyLoading() {
+        console.log('🎵 Showing Spotify loading state...');
+        // No need to affect the Start/Pause button
+    }
+
+    createTronImageButton() {
+        // Create background image button
+        const imageButton = document.createElement('div');
+        imageButton.id = 'tron-image-button';
+        imageButton.innerHTML = `
+            <div class="tron-image-content">
+                <div class="tron-image-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-arrow-out-up-right-icon lucide-square-arrow-out-up-right">
+                        <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/>
+                        <path d="m21 3-9 9"/>
+                        <path d="M15 3h6v6"/>
+                    </svg>
+                </div>
+                <div class="tron-image-text">Visit Website</div>
+            </div>
+        `;
+        
+        // Styles are handled by CSS - no inline styles needed
+        
+        // Hover effects are now handled by CSS
+        
+        // Add click handler
+        imageButton.addEventListener('click', () => {
+            this.trackEvent('Tron Image Button Clicked', {
+                button_type: 'tron_image',
+                source: 'tron_theme',
+                destination: 'wallpaper_site'
+            });
+            
+            // Open the wallpaper site in a new tab
+            window.open('https://wall.alphacoders.com/big.php?i=1395234', '_blank');
+        });
+        
+        // Append to timer section instead of body
+        const timerSection = document.querySelector('.timer-section');
+        if (timerSection) {
+            timerSection.appendChild(imageButton);
+        } else {
+            document.body.appendChild(imageButton);
+        }
+        this.tronImageButton = imageButton;
+        
+        console.log('🖼️ Tron image button created');
+    }
+
+    // No button disabling needed - widget is visible and ready
+
+
+    loadLastSelectedTheme() {
+        // Load last selected theme from localStorage (works for both authenticated and guest users)
+        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        if (lastSelectedTheme && lastSelectedTheme !== 'lofi') {
+            // Check if Tron theme requires authentication
+            if (lastSelectedTheme === 'tron' && !this.isAuthenticated) {
+                console.log('🎨 Tron theme requires authentication, using default lofi');
+            return;
+        }
+        
+            // Only restore if it's not the default lofi theme
+            console.log('🎨 Restoring last selected theme:', lastSelectedTheme);
+            // Apply the theme after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                this.applyTheme(lastSelectedTheme);
+            }, 100);
+        } else {
+            console.log('🎨 Using default lofi theme for new user');
+        }
+    }
+
+    showTronInfoModal() {
+        const modal = document.getElementById('tronInfoModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    closeTronInfoModal() {
+        const modal = document.getElementById('tronInfoModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    updateThemeAuthState() {
+        // Update theme options based on authentication state
+        const themeOptions = document.querySelectorAll('.theme-option[data-requires-auth="true"]');
+        themeOptions.forEach(option => {
+            const signupText = option.querySelector('.signup-required-text');
+            
+            if (this.isAuthenticated) {
+                option.classList.add('authenticated');
+                option.style.pointerEvents = 'auto';
+                option.style.opacity = '1';
+                if (signupText) signupText.style.display = 'none';
+            } else {
+                option.classList.remove('authenticated');
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.5';
+                if (signupText) signupText.style.display = 'inline';
+            }
+        });
+    }
+
+
+    // Spotify control methods removed - will be reimplemented
+
+
+
 }
+
+// Global functions for modal
+function closeTronInfoModal() {
+    if (window.pomodoroTimer) {
+        window.pomodoroTimer.closeTronInfoModal();
+    }
+}
+
+function handleSignup() {
+    if (window.pomodoroTimer) {
+        window.pomodoroTimer.handleSignup();
+    }
+}
+
+// Mixpanel Tracker Class
+class MixpanelTracker {
+    constructor() {
+        this.isInitialized = false;
+    }
+
+    init() {
+        if (window.mixpanel && window.mixpanel.track) {
+            this.isInitialized = true;
+            console.log('🎯 MixpanelTracker initialized successfully');
+        } else {
+            console.warn('⚠️ Mixpanel not available for tracking');
+        }
+    }
+
+    trackTimerComplete(sessionType, completed) {
+        if (!this.isInitialized) {
+            console.warn('⚠️ MixpanelTracker not initialized');
+            return;
+        }
+
+        const eventData = {
+            session_type: sessionType,
+            completed: completed,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            page_url: window.location.href
+        };
+
+        // Track the session completion event
+        window.mixpanel.track('Timer Session Completed', eventData);
+        
+        // Also track specific session type events for easier analysis
+        const specificEventName = `Session ${sessionType.charAt(0).toUpperCase() + sessionType.slice(1)} Completed`;
+        window.mixpanel.track(specificEventName, eventData);
+
+        console.log(`📊 Tracked session completion: ${sessionType}`, eventData);
+        console.log(`📊 Event sent to Mixpanel: "Timer Session Completed" and "${specificEventName}"`);
+    }
+
+    trackCycleComplete(technique, cycleDuration, workSessions, shortBreaks, longBreaks) {
+        if (!this.isInitialized) {
+            console.warn('⚠️ MixpanelTracker not initialized');
+            return;
+        }
+
+        const eventData = {
+            technique: technique,
+            cycle_duration_seconds: cycleDuration,
+            cycle_duration_minutes: Math.round(cycleDuration / 60),
+            work_sessions: workSessions,
+            short_breaks: shortBreaks,
+            long_breaks: longBreaks,
+            total_sessions: workSessions + shortBreaks + longBreaks,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            page_url: window.location.href
+        };
+
+        // Track the cycle completion event
+        window.mixpanel.track('Cycle Completed', eventData);
+        
+        // Also track technique-specific cycle events for easier analysis
+        const techniqueEventName = `Cycle ${technique.charAt(0).toUpperCase() + technique.slice(1)} Completed`;
+        window.mixpanel.track(techniqueEventName, eventData);
+
+        console.log(`📊 Tracked cycle completion: ${technique}`, eventData);
+        console.log(`📊 Event sent to Mixpanel: "Cycle Completed" and "${techniqueEventName}"`);
+    }
+
+    trackUserLogin(method) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('User Login', {
+            method: method,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackUserLogout() {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('User Logout', {
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackCustomEvent(eventName, properties) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track(eventName, {
+            ...properties,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackModalOpened(modalType) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Modal Opened', {
+            modal_type: modalType,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackSidebarPanelOpened(panelType) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Sidebar Panel Opened', {
+            panel_type: panelType,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTimerStart(sessionType, duration, taskName) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Timer Started', {
+            session_type: sessionType,
+            duration: duration,
+            task_name: taskName,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTimerPause() {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Timer Paused', {
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTimerSkip(sessionType, reason) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Timer Skipped', {
+            session_type: sessionType,
+            reason: reason,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackTaskCreated(description, pomodoros) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Task Created', {
+            description: description,
+            pomodoros: pomodoros,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackUserSignup(method) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('User Signup', {
+            method: method,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    trackSubscriptionUpgrade(plan) {
+        if (!this.isInitialized) return;
+        
+        window.mixpanel.track('Subscription Upgrade', {
+            plan: plan,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+// Initialize Mixpanel Tracker
+window.mixpanelTracker = new MixpanelTracker();
 
 // Initialize the timer when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new PomodoroTimer();
+    const timer = new PomodoroTimer();
+    window.pomodoroTimer = timer; // Make it globally accessible
+    
+    // Initialize Mixpanel tracking
+    if (window.mixpanelTracker) {
+        window.mixpanelTracker.init();
+    }
+    
+    // Theme is applied inside constructor via applyTheme(this.currentTheme).
+    // Avoid re-applying a stale background here to prevent flashes or mismatches.
+    timer.applyOverlay(timer.overlayOpacity);
+    
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (mobileMenuToggle && sidebar) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+        
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+        
+        // Close sidebar when clicking on a nav item
+        const navItems = sidebar.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+    }
+    
+    // Show timer header auth buttons for guest users
+    const timerHeaderAuth = document.getElementById('timerHeaderAuth');
+    const timerLoginBtn = document.getElementById('timerLoginBtn');
+    const timerSignupBtn = document.getElementById('timerSignupBtn');
+    
+    if (timerHeaderAuth) {
+        if (!timer.isAuthenticated) {
+            timerHeaderAuth.style.display = 'block';
+            
+            if (timerLoginBtn) {
+                timerLoginBtn.addEventListener('click', () => {
+                    // Track Timer header Login click
+                    timer.trackEvent('Login Clicked', {
+                        button_type: 'login',
+                        source: 'timer_header',
+                        user_type: 'guest'
+                    });
+                    
+                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                });
+            }
+            
+            if (timerSignupBtn) {
+                timerSignupBtn.addEventListener('click', () => {
+                    // Track Timer header Sign up click
+                    timer.trackEvent('Sign Up Clicked', {
+                        modal_type: 'timer_header',
+                        button_type: 'signup',
+                        source: 'timer_header',
+                        user_type: 'guest'
+                    });
+                    
+                    timer.handleSignup();
+                });
+            }
+        } else {
+            // Hide buttons when user is authenticated
+            timerHeaderAuth.style.display = 'none';
+        }
+    }
+    
+    // Only show loader for Lighthouse or explicit query param
+    const shouldShowLoader = () => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('loader') === '1' || params.get('lh') === '1') return true;
+            const ua = navigator.userAgent || '';
+            return /Lighthouse|Chrome-Lighthouse/i.test(ua);
+        } catch (_) {
+            return false;
+        }
+    };
+    
+    if (shouldShowLoader()) {
+        timer.showLoadingScreen();
+        const tryHide = () => {
+            if (!timer.isLoading) return;
+            if (!timer.checkIfStillLoading()) {
+                timer.hideLoadingScreen();
+                return;
+            }
+            setTimeout(tryHide, 100);
+        };
+        setTimeout(tryHide, 200);
+        setTimeout(() => timer.hideLoadingScreen(), 4000);
+    }
 });
+
+// Sidebar functionality
+class SidebarManager {
+    constructor() {
+        this.sidebar = document.getElementById('sidebar');
+        this.mainContent = document.getElementById('mainContent');
+        this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        this.sidebarOverlay = document.getElementById('sidebarOverlay');
+        this.navItems = document.querySelectorAll('.nav-item');
+        this.taskSidePanel = document.getElementById('taskSidePanel');
+        this.taskPanelOverlay = document.getElementById('taskPanelOverlay');
+        this.settingsSidePanel = document.getElementById('settingsSidePanel');
+        this.settingsPanelOverlay = document.getElementById('settingsPanelOverlay');
+        this.immersiveThemeSidePanel = document.getElementById('immersiveThemeSidePanel');
+        this.immersiveThemePanelOverlay = document.getElementById('immersiveThemePanelOverlay');
+        this.leaderboardSidePanel = document.getElementById('leaderboardSidePanel');
+        this.leaderboardPanelOverlay = document.getElementById('leaderboardPanelOverlay');
+        this.reportSidePanel = document.getElementById('reportSidePanel');
+        this.reportPanelOverlay = document.getElementById('reportPanelOverlay');
+        
+        this.isCollapsed = true; // Always collapsed by default
+        this.isHidden = false;
+        this.isMobile = window.innerWidth <= 768;
+        this.isTaskPanelOpen = false;
+        this.isSettingsPanelOpen = false;
+        this.isImmersiveThemePanelOpen = false;
+        this.isLeaderboardPanelOpen = false;
+        this.isReportPanelOpen = false;
+        
+        this.init();
+    }
+    
+    init() {
+        this.bindEvents();
+        this.setupResponsive();
+        this.setupTaskPanelScrollBehavior();
+        // Don't set any nav item as active by default
+        
+        // Auto-open task panel for guest users - DISABLED
+        // Keep task panel closed by default, user can open it manually
+        // this.checkAndOpenForGuest();
+    }
+    
+    checkAndOpenForGuest() {
+        // Wait for pomodoroTimer to be initialized
+        setTimeout(() => {
+            if (window.pomodoroTimer) {
+                const isGuest = !window.pomodoroTimer.isAuthenticated || !window.pomodoroTimer.user;
+                
+                if (isGuest) {
+                    console.log('🎯 Guest user detected, opening task panel automatically');
+                    this.openTaskPanel();
+                }
+            }
+        }, 500); // Small delay to ensure pomodoroTimer is initialized
+    }
+    
+    setupTaskPanelScrollBehavior() {
+        // Handle scroll propagation when sidebar has no scrollable content
+        if (this.taskSidePanel) {
+            const panelContent = this.taskSidePanel.querySelector('.task-side-panel-content');
+            if (panelContent) {
+                panelContent.addEventListener('wheel', (e) => {
+                    const hasScroll = panelContent.scrollHeight > panelContent.clientHeight;
+                    
+                    if (!hasScroll) {
+                        // No scroll available, let it propagate to main page
+                        return;
+                    }
+                    
+                    const isAtTop = panelContent.scrollTop === 0;
+                    const isAtBottom = panelContent.scrollTop + panelContent.clientHeight >= panelContent.scrollHeight - 1;
+                    
+                    // Allow propagation only if scrolling beyond boundaries
+                    if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                        return; // Let it propagate
+                    }
+                    
+                    // Otherwise, prevent propagation (normal scroll within panel)
+                    e.stopPropagation();
+                }, { passive: true });
+            }
+        }
+        
+        // Same for music panel
+        if (this.musicSidePanel) {
+            const panelContent = this.musicSidePanel.querySelector('.task-side-panel-content');
+            if (panelContent) {
+                panelContent.addEventListener('wheel', (e) => {
+                    const hasScroll = panelContent.scrollHeight > panelContent.clientHeight;
+                    
+                    if (!hasScroll) {
+                        return;
+                    }
+                    
+                    const isAtTop = panelContent.scrollTop === 0;
+                    const isAtBottom = panelContent.scrollTop + panelContent.clientHeight >= panelContent.scrollHeight - 1;
+                    
+                    if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                        return;
+                    }
+                    
+                    e.stopPropagation();
+                }, { passive: true });
+            }
+        }
+        
+        // Same for settings panel
+        if (this.settingsSidePanel) {
+            const panelContent = this.settingsSidePanel.querySelector('.task-side-panel-content');
+            if (panelContent) {
+                panelContent.addEventListener('wheel', (e) => {
+                    const hasScroll = panelContent.scrollHeight > panelContent.clientHeight;
+                    
+                    if (!hasScroll) {
+                        return;
+                    }
+                    
+                    const isAtTop = panelContent.scrollTop === 0;
+                    const isAtBottom = panelContent.scrollTop + panelContent.clientHeight >= panelContent.scrollHeight - 1;
+                    
+                    if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                        return;
+                    }
+                    
+                    e.stopPropagation();
+                }, { passive: true });
+            }
+        }
+    }
+    
+    bindEvents() {
+        // Logo is just visual - no functionality needed
+        
+        // No click to expand functionality - sidebar always stays collapsed
+        
+        // Mobile menu toggle
+        if (this.mobileMenuToggle) {
+            this.mobileMenuToggle.addEventListener('click', () => {
+                this.toggleMobile();
+            });
+        }
+        
+        // Navigation items
+        this.navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                
+                // Track navigation clicks with specific panel names
+                if (window.pomodoroTimer) {
+                    let panelName = section;
+                    if (section === 'tasks') panelName = 'Tasks Panel';
+                    else if (section === 'settings') panelName = 'Timer Panel';
+                    else if (section === 'cassettes') panelName = 'Cassettes Panel';
+                    else if (section === 'leaderboard') panelName = 'Leaderboard Panel';
+                    else if (section === 'report') panelName = 'Report Panel';
+                    
+                    window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
+                        panel_name: panelName,
+                        section: section,
+                        button_type: 'sidebar_navigation',
+                        source: 'sidebar'
+                    });
+                }
+                
+                // For tasks, settings, music, and theme, active state is handled in their respective open/close methods
+                if (section !== 'tasks' && section !== 'settings' && section !== 'music' && section !== 'theme') {
+                    this.setActiveNavItem(section);
+                }
+                
+                this.handleNavigation(section);
+                
+                // Close mobile sidebar after navigation
+                if (this.isMobile) {
+                    this.hideMobile();
+                }
+            });
+        });
+        
+            // Overlay click to close sidebar AND all panels
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.addEventListener('click', () => {
+                this.hideMobile();
+                this.closeTaskPanel();
+                this.closeSettingsPanel();
+                this.closeImmersiveThemePanel();
+                this.closeLeaderboardPanel();
+                this.closeReportPanel();
+            });
+        }
+        
+        
+        // Settings panel overlay click to close settings panel
+        if (this.settingsPanelOverlay) {
+            this.settingsPanelOverlay.addEventListener('click', () => {
+                this.closeSettingsPanel();
+            });
+        }
+        
+        // Theme panel overlay click to close theme panel
+        if (this.themePanelOverlay) {
+            this.themePanelOverlay.addEventListener('click', () => {
+                this.closeThemePanel();
+            });
+        }
+        
+        // Task panel overlay click to close task panel
+        if (this.taskPanelOverlay) {
+            this.taskPanelOverlay.addEventListener('click', () => {
+                this.closeTaskPanel();
+            });
+        }
+        
+        // Close panel buttons (arrow left buttons)
+        const closeTaskPanelBtn = document.getElementById('closeTaskPanel');
+        if (closeTaskPanelBtn) {
+            closeTaskPanelBtn.addEventListener('click', () => {
+                this.closeTaskPanel();
+            });
+        }
+        
+        const closeSettingsPanelBtn = document.getElementById('closeSettingsPanel');
+        if (closeSettingsPanelBtn) {
+            closeSettingsPanelBtn.addEventListener('click', () => {
+                this.closeSettingsPanel();
+            });
+        }
+        
+        const closeThemePanelBtn = document.getElementById('closeThemePanel');
+        if (closeThemePanelBtn) {
+            closeThemePanelBtn.addEventListener('click', () => {
+                this.closeThemePanel();
+            });
+        }
+        
+        
+        const closeImmersiveThemePanelBtn = document.getElementById('closeImmersiveThemePanel');
+        if (closeImmersiveThemePanelBtn) {
+            closeImmersiveThemePanelBtn.addEventListener('click', () => {
+                this.closeImmersiveThemePanel();
+            });
+        }
+        
+        // Leaderboard panel overlay click to close leaderboard panel
+        if (this.leaderboardPanelOverlay) {
+            this.leaderboardPanelOverlay.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+        
+        // Leaderboard panel close button
+        const closeLeaderboardPanelBtn = document.getElementById('closeLeaderboardPanel');
+        if (closeLeaderboardPanelBtn) {
+            closeLeaderboardPanelBtn.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+        
+        // Report panel overlay click to close report panel
+        if (this.reportPanelOverlay) {
+            this.reportPanelOverlay.addEventListener('click', () => {
+                this.closeReportPanel();
+            });
+        }
+        
+        // Report panel close button
+        const closeReportPanelBtn = document.getElementById('closeReportPanel');
+        if (closeReportPanelBtn) {
+            closeReportPanelBtn.addEventListener('click', () => {
+                this.closeReportPanel();
+            });
+        }
+        
+        // Overlay is present but doesn't close panel on click
+        // Panel only closes when clicking the Tasks button
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+    }
+    
+    setupResponsive() {
+        if (this.isMobile) {
+            this.sidebar.classList.add('hidden');
+            this.sidebar.classList.remove('collapsed', 'expanded');
+            this.mainContent.style.marginLeft = '0';
+        } else {
+            this.sidebar.classList.remove('hidden');
+            this.sidebar.classList.remove('open');
+            // Always keep sidebar collapsed on desktop
+            this.sidebar.classList.add('collapsed');
+            this.sidebar.classList.remove('expanded');
+            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
+        }
+    }
+    
+    handleResize() {
+        const wasMobile = this.isMobile;
+        this.isMobile = window.innerWidth <= 768;
+        
+        if (wasMobile !== this.isMobile) {
+            this.setupResponsive();
+            
+            // Reset mobile state
+            if (!this.isMobile) {
+                this.sidebar.classList.remove('open');
+                if (this.sidebarOverlay) {
+                    this.sidebarOverlay.classList.remove('active');
+                }
+                document.body.style.overflow = '';
+            }
+        }
+    }
+    
+    toggleCollapse() {
+        console.log('toggleCollapse called, isMobile:', this.isMobile);
+        
+        if (this.isMobile) {
+            this.toggleMobile();
+            return;
+        }
+        
+        // On desktop, do nothing - sidebar always stays collapsed
+        console.log('Desktop mode - sidebar stays collapsed');
+    }
+    
+    toggleMobile() {
+        if (this.sidebar.classList.contains('open')) {
+            this.hideMobile();
+        } else {
+            this.showMobile();
+        }
+    }
+    
+    showMobile() {
+        this.sidebar.classList.add('open');
+        this.sidebar.classList.remove('hidden');
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.classList.add('active');
+        }
+        // Prevent body scroll when sidebar is open on mobile
+        document.body.style.overflow = 'hidden';
+    }
+    
+    hideMobile() {
+        this.sidebar.classList.remove('open');
+        this.sidebar.classList.add('hidden');
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.classList.remove('active');
+        }
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+    
+    setActiveNavItem(section) {
+        this.navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === section) {
+                item.classList.add('active');
+            }
+        });
+    }
+    
+    handleNavigation(section) {
+        // Track sidebar navigation clicks in Google Analytics
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'sidebar_navigation', {
+                'event_category': 'navigation',
+                'event_label': section,
+                'value': 1
+            });
+            console.log(`📊 Sidebar navigation tracked: ${section}`);
+        }
+        
+        switch (section) {
+            case 'tasks':
+                // Toggle task side panel
+                this.toggleTaskPanel();
+                break;
+            case 'settings':
+                // Toggle settings side panel
+                this.toggleSettingsPanel();
+                break;
+            case 'immersive-theme':
+                // Toggle immersive theme side panel
+                this.toggleImmersiveThemePanel();
+                break;
+            case 'leaderboard':
+                // Toggle leaderboard side panel
+                this.toggleLeaderboardPanel();
+                break;
+            case 'report':
+                // Toggle report side panel
+                this.toggleReportPanel();
+                break;
+            case 'timer':
+                // Scroll to timer section
+                const timerSection = document.querySelector('.timer-section');
+                if (timerSection) {
+                    timerSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                break;
+            case 'statistics':
+                // Open statistics modal or navigate to stats
+                console.log('Navigate to statistics');
+                break;
+            case 'help':
+                // Open help
+                const helpToggle = document.getElementById('helpToggle');
+                if (helpToggle) {
+                    helpToggle.click();
+                }
+                break;
+        }
+    }
+    
+    toggleTaskPanel() {
+        if (this.isTaskPanelOpen) {
+            this.closeTaskPanel();
+        } else {
+            this.openTaskPanel();
+        }
+    }
+    
+    openTaskPanel() {
+        if (this.taskSidePanel) {
+            // Close other panels if open
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
+            }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
+            }
+            if (this.isLeaderboardPanelOpen) {
+                this.closeLeaderboardPanel();
+            }
+            if (this.isReportPanelOpen) {
+                this.closeReportPanel();
+            }
+            
+            this.taskSidePanel.classList.add('open');
+            this.isTaskPanelOpen = true;
+            
+            // Show overlay
+            if (this.taskPanelOverlay) {
+                this.taskPanelOverlay.classList.add('active');
+            }
+            
+            // Set Tasks nav item as active
+            this.setActiveNavItem('tasks');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Trigger rendering of tasks
+            console.log('🟢 openTaskPanel - checking pomodoroTimer:', window.pomodoroTimer);
+            if (window.pomodoroTimer) {
+                console.log('🟢 Calling renderTasksInSidePanel');
+                window.pomodoroTimer.renderTasksInSidePanel();
+            } else {
+                console.error('❌ window.pomodoroTimer not found!');
+            }
+        }
+    }
+    
+    closeTaskPanel() {
+        if (this.taskSidePanel) {
+            this.taskSidePanel.classList.remove('open');
+            this.isTaskPanelOpen = false;
+            
+            // Hide overlay
+            if (this.taskPanelOverlay) {
+                this.taskPanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Tasks nav item
+            const tasksNavItem = document.querySelector('.nav-item[data-section="tasks"]');
+            if (tasksNavItem) {
+                tasksNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+    
+    
+    toggleSettingsPanel() {
+        if (this.isSettingsPanelOpen) {
+            this.closeSettingsPanel();
+        } else {
+            this.openSettingsPanel();
+        }
+    }
+    
+    openSettingsPanel() {
+        if (this.settingsSidePanel) {
+            // Close other panels if open
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
+            }
+            if (this.isLeaderboardPanelOpen) {
+                this.closeLeaderboardPanel();
+            }
+            if (this.isReportPanelOpen) {
+                this.closeReportPanel();
+            }
+            
+            this.settingsSidePanel.classList.add('open');
+            this.isSettingsPanelOpen = true;
+            
+            // Show overlay
+            if (this.settingsPanelOverlay) {
+                this.settingsPanelOverlay.classList.add('active');
+            }
+            
+            // Set Settings nav item as active
+            this.setActiveNavItem('settings');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Initialize settings panel controls
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.initializeSettingsSidePanel();
+            }
+        }
+    }
+    
+    closeSettingsPanel() {
+        if (this.settingsSidePanel) {
+            this.settingsSidePanel.classList.remove('open');
+            this.isSettingsPanelOpen = false;
+            
+            // Hide overlay
+            if (this.settingsPanelOverlay) {
+                this.settingsPanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Settings nav item
+            const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
+            if (settingsNavItem) {
+                settingsNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+    
+
+    toggleImmersiveThemePanel() {
+        if (this.isImmersiveThemePanelOpen) {
+            this.closeImmersiveThemePanel();
+        } else {
+            // 🎯 Track Sidebar Panel Opened event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackSidebarPanelOpened('immersive-theme');
+                console.log('📊 Immersive theme panel opened event tracked to Mixpanel');
+            }
+            this.openImmersiveThemePanel();
+        }
+    }
+    
+
+    openImmersiveThemePanel() {
+        if (this.immersiveThemeSidePanel) {
+            // Close other panels if open
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
+            }
+            if (this.isImmersiveThemePanelOpen) {
+                this.closeImmersiveThemePanel();
+            }
+            if (this.isLeaderboardPanelOpen) {
+                this.closeLeaderboardPanel();
+            }
+            if (this.isReportPanelOpen) {
+                this.closeReportPanel();
+            }
+            
+            this.immersiveThemeSidePanel.classList.add('open');
+            this.isImmersiveThemePanelOpen = true;
+            
+            // Show overlay
+            if (this.immersiveThemePanelOverlay) {
+                this.immersiveThemePanelOverlay.classList.add('active');
+            }
+            
+            // Set Theme nav item as active
+            this.setActiveNavItem('immersive-theme');
+            
+            // Push main content to the right
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Initialize immersive theme panel controls
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.initializeImmersiveThemePanel();
+                // Note: loadPublicCassettes is already called in initializeMyCassettes()
+                // which is called by initializeImmersiveThemePanel(), so no need to call it again here
+            }
+        }
+    }
+
+    initializeLeaderboardPanel() {
+        // Close button
+        const closeBtn = document.getElementById('closeLeaderboardPanel');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+
+        // Overlay click to close
+        if (this.leaderboardPanelOverlay) {
+            this.leaderboardPanelOverlay.addEventListener('click', () => {
+                this.closeLeaderboardPanel();
+            });
+        }
+    }
+
+    toggleLeaderboardPanel() {
+        if (this.isLeaderboardPanelOpen) {
+            this.closeLeaderboardPanel();
+        } else {
+            this.openLeaderboardPanel();
+        }
+    }
+
+    openLeaderboardPanel() {
+        // Close other panels first
+        if (this.isTaskPanelOpen) this.closeTaskPanel();
+        if (this.isSettingsPanelOpen) this.closeSettingsPanel();
+        if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+        if (this.isReportPanelOpen) this.closeReportPanel();
+
+        // 🎯 Track Leaderboard Panel Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('leaderboard');
+            console.log('📊 Leaderboard panel opened event tracked to Mixpanel');
+        }
+
+        if (this.leaderboardSidePanel) {
+            this.leaderboardSidePanel.classList.add('open');
+            this.isLeaderboardPanelOpen = true;
+
+            // Show overlay
+            if (this.leaderboardPanelOverlay) {
+                this.leaderboardPanelOverlay.classList.add('active');
+            }
+
+            // Set active state on nav item
+            const leaderboardNavItem = document.querySelector('.nav-item[data-section="leaderboard"]');
+            if (leaderboardNavItem) {
+                leaderboardNavItem.classList.add('active');
+            }
+
+            // Adjust main content position
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+
+            // Load leaderboard
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.loadLeaderboardForPanel();
+            }
+        }
+    }
+
+    closeLeaderboardPanel() {
+        if (this.leaderboardSidePanel) {
+            this.leaderboardSidePanel.classList.remove('open');
+            this.isLeaderboardPanelOpen = false;
+
+            // Hide overlay
+            if (this.leaderboardPanelOverlay) {
+                this.leaderboardPanelOverlay.classList.remove('active');
+            }
+
+            // Remove active state from Leaderboard nav item
+            const leaderboardNavItem = document.querySelector('.nav-item[data-section="leaderboard"]');
+            if (leaderboardNavItem) {
+                leaderboardNavItem.classList.remove('active');
+            }
+
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+
+    toggleReportPanel() {
+        if (this.isReportPanelOpen) {
+            this.closeReportPanel();
+        } else {
+            this.openReportPanel();
+        }
+    }
+
+    openReportPanel() {
+        // Close other panels first
+        if (this.isTaskPanelOpen) this.closeTaskPanel();
+        if (this.isSettingsPanelOpen) this.closeSettingsPanel();
+        if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+        if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
+
+        // 🎯 Track Report Panel Opened event to Mixpanel
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('report');
+            console.log('📊 Report panel opened event tracked to Mixpanel');
+        }
+
+        if (this.reportSidePanel) {
+            this.reportSidePanel.classList.add('open');
+            this.isReportPanelOpen = true;
+
+            // Show overlay
+            if (this.reportPanelOverlay) {
+                this.reportPanelOverlay.classList.add('active');
+            }
+
+            // Set active state on nav item
+            const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+            if (reportNavItem) {
+                reportNavItem.classList.add('active');
+            }
+
+            // Adjust main content position
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+
+            // Load report
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.loadReportForPanel();
+            }
+        }
+    }
+
+    closeReportPanel() {
+        if (this.reportSidePanel) {
+            this.reportSidePanel.classList.remove('open');
+            this.isReportPanelOpen = false;
+
+            // Hide overlay
+            if (this.reportPanelOverlay) {
+                this.reportPanelOverlay.classList.remove('active');
+            }
+
+            // Remove active state from Report nav item
+            const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+            if (reportNavItem) {
+                reportNavItem.classList.remove('active');
+            }
+
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+
+    closeImmersiveThemePanel() {
+        if (this.immersiveThemeSidePanel) {
+            this.immersiveThemeSidePanel.classList.remove('open');
+            this.isImmersiveThemePanelOpen = false;
+            
+            // Hide overlay
+            if (this.immersiveThemePanelOverlay) {
+                this.immersiveThemePanelOverlay.classList.remove('active');
+            }
+            
+            // Remove active state from Theme nav item
+            const themeNavItem = document.querySelector('.nav-item[data-section="immersive-theme"]');
+            if (themeNavItem) {
+                themeNavItem.classList.remove('active');
+            }
+            
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+}
+
+// Initialize sidebar when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.sidebarManager = new SidebarManager();
+});// Force redeploy for admin key

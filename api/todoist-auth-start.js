@@ -1,8 +1,18 @@
-// Start Todoist OAuth flow
+// Start Todoist OAuth flow (Pro only)
 // Env required: TODOIST_CLIENT_ID, TODOIST_REDIRECT_URI, TODOIST_SCOPE (optional)
+
+const { checkProStatus } = require('./_check-pro-status');
 
 module.exports = async (req, res) => {
   try {
+    // Verify Pro status
+    const proCheck = await checkProStatus(req);
+    if (!proCheck.isPro) {
+      res.writeHead(302, { Location: '/?error=pro_required' });
+      res.end();
+      return;
+    }
+
     const clientId = process.env.TODOIST_CLIENT_ID;
     const providedRedirect = process.env.TODOIST_REDIRECT_URI;
     const scope = process.env.TODOIST_SCOPE || 'data:read_write';

@@ -1,90 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Management Techniques - Pomodoro Timer & Focus App | Superfocus</title>
-    <meta name="description" content="Advanced time management techniques with Pomodoro timer. Features time blocking software, focus timer app, and productivity tools. Free Pomodoro technique with Todoist integration and custom timers.">
-    <meta name="keywords" content="pomodoro timer, focus timer, productivity app, time management techniques, time management methods, pomodoro time management, time management pomodoro technique, time management tools, time blocking software, pomodoro technique timer, focus timer app, time management timer, pomodoro timer for study, time management techniques for work, pomodoro technique time, study timer, work timer, focus music, todoist integration, ultradian rhythm, custom timer">
-    <meta name="author" content="Superfocus">
-    <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#1a1a1a">
+    <!-- Preconnect to Spotify to reduce TLS and DNS latency for embedded widget -->
+    <link rel="preconnect" href="https://open.spotify.com">
+    <link rel="dns-prefetch" href="https://open.spotify.com">
+    <link rel="preconnect" href="https://i.scdn.co">
+    <link rel="dns-prefetch" href="https://i.scdn.co">
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PWPTLLHZ');</script>
+    <!-- End Google Tag Manager -->
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.superfocus.live/">
-    <meta property="og:title" content="Focus Timer - Pomodoro Timer & Productivity App">
-    <meta property="og:description" content="Boost your productivity with our advanced Pomodoro timer. Features multiple focus techniques, Todoist integration, ambient music, and custom timers.">
-    <meta property="og:image" content="https://www.superfocus.live/og-image.svg">
-    <meta property="og:site_name" content="Superfocus">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://www.superfocus.live/">
-    <meta property="twitter:title" content="Focus Timer - Pomodoro Timer & Productivity App">
-    <meta property="twitter:description" content="Boost your productivity with our advanced Pomodoro timer. Features multiple focus techniques, Todoist integration, ambient music, and custom timers.">
-    <meta property="twitter:image" content="https://www.superfocus.live/og-image.svg">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.superfocus.live/">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS10YXJnZXQtaWNvbiBsdWNpZGUtdGFyZ2V0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjYiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIyIi8+PC9zdmc+">
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXR hcmdldC1pY29uIGx1Y2lkZS10YXJnZXQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNiIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjIiLz48L3N2Zz4=">
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS10YXJnZXQtaWNvbiBsdWNpZGUtdGFyZ2V0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjYiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIyIi8+PC9zdmc+">
-    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS10YXJnZXQtaWNvbiBsdWNpZGUtdGFyZ2V0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjYiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIyIi8+PC9zdmc+">
-    
-    <link rel="stylesheet" href="style.css?v=6.1">
-    
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Superfocus - Focus Timer",
-        "description": "Advanced time management techniques with Pomodoro timer. Features time blocking software, focus timer app, and productivity tools for enhanced work and study sessions.",
-        "url": "https://www.superfocus.live",
-        "applicationCategory": "ProductivityApplication",
-        "operatingSystem": "Web Browser",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD",
-            "description": "Free Pomodoro timer with basic features"
-        },
-        "featureList": [
-            "Time Management Techniques",
-            "Pomodoro Technique (25/5/15 minutes)",
-            "Time Blocking Software",
-            "Focus Timer App",
-            "Long Pomodoro (50/10 minutes)",
-            "Ultradian Rhythm (90/20 minutes)",
-            "Custom Timer Configuration",
-            "Time Management Tools",
-            "Todoist Integration",
-            "Ambient Background Music",
-            "Focus Statistics",
-            "Session Tracking",
-            "Study Timer",
-            "Work Productivity Tools"
-        ],
-        "author": {
-            "@type": "Organization",
-            "name": "Superfocus"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Superfocus"
-        },
-        "screenshot": "https://www.superfocus.live/screenshot.png",
-        "softwareVersion": "1.0",
-        "datePublished": "2024-01-01",
-        "dateModified": "2024-12-19"
-    }
-    </script>
-    
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T3T0PES8C0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -93,141 +23,395 @@
         gtag('config', 'G-T3T0PES8C0');
     </script>
     
-    <!-- Google Search Console Verification -->
-    <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE">
+    <!-- Google Ads Conversion Tracking -->
+    <script>
+        gtag('config', 'AW-17614436696');
+    </script>
     
-    <!-- Clerk Auth -->
-    <script async crossorigin="anonymous" 
+    <!-- Google tag (gtag.js) event -->
+    <script>
+        gtag('event', 'conversion_event_page_view', {
+            // <event_parameters>
+        });
+    </script>
+    <!-- End Google Ads -->
+    
+    <!-- Mixpanel -->
+    <script type="text/javascript">
+        (function(e,c){if(!c.__SV){var l,h;window.mixpanel=c;c._i=[];c.init=function(q,r,f){function t(d,a){var g=a.split(".");2==g.length&&(d=d[g[0]],a=g[1]);d[a]=function(){d.push([a].concat(Array.prototype.slice.call(arguments,0)))}}var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";b.people=b.people||[];b.toString=function(d){var a="mixpanel";"mixpanel"!==f&&(a+="."+f);d||(a+=" (stub)");return a};b.people.toString=function(){return b.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders start_session_recording stop_session_recording people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");
+        for(h=0;h<l.length;h++)t(b,l[h]);var n="set set_once union unset remove delete".split(" ");b.get_group=function(){function d(p){a[p]=function(){b.push([g,[p].concat(Array.prototype.slice.call(arguments,0))])}}for(var a={},g=["get_group"].concat(Array.prototype.slice.call(arguments,0)),m=0;m<n.length;m++)d(n[m]);return a};c._i.push([q,r,f])};c.__SV=1.2;var k=e.createElement("script");k.type="text/javascript";k.async=!0;k.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===
+        e.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=e.getElementsByTagName("script")[0];e.parentNode.insertBefore(k,e)}})(document,window.mixpanel||[])
+
+        mixpanel.init('bcf2edbf4f718b186314825c2d961256', {
+            autocapture: false,
+            record_sessions_percent: 0,
+            track_pageview: false,
+            persistence: 'localStorage',
+            debug: true,
+            ignore_dnt: true
+        })
+        
+        // Debug Mixpanel initialization
+        console.log('🔍 Mixpanel initialized:', typeof window.mixpanel);
+        console.log('🔍 Mixpanel track function:', typeof window.mixpanel.track);
+        
+        // Track pricing page signup buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track Free plan signup button
+            const freeSignupBtn = document.querySelector('a[href*="sign-up"]');
+            if (freeSignupBtn) {
+                freeSignupBtn.addEventListener('click', function() {
+                    mixpanel.track('Signup from Pricing Free Card', {
+                        button_type: 'signup',
+                        source: 'pricing_page',
+                        plan: 'free',
+                        conversion_funnel: 'pricing_page_signup'
+                    });
+                });
+            }
+            
+            // Track Pro plan upgrade button
+            const proUpgradeBtn = document.querySelector('a[href*="upgrade"]');
+            if (proUpgradeBtn) {
+                proUpgradeBtn.addEventListener('click', function() {
+                    mixpanel.track('Upgrade from Pricing Pro Card', {
+                        button_type: 'upgrade',
+                        source: 'pricing_page',
+                        plan: 'pro',
+                        conversion_funnel: 'pricing_page_upgrade'
+                    });
+                });
+            }
+        })
+    </script>
+    <!-- End Mixpanel -->
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Superfocus - Time Management & Pomodoro Timer for Focus</title>
+    <meta name="title" content="Superfocus - Time Management & Pomodoro Timer for Focus">
+    <meta name="description" content="Advanced time management techniques with Pomodoro timer. Features time blocking software, focus timer app, and productivity tools for better concentration.">
+    <meta name="keywords" content="time management techniques, pomodoro technique, time management methods, pomodoro timer, focus timer app, time blocking software, productivity tools">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://superfocus.live/">
+    <meta property="og:title" content="Superfocus - Time Management & Pomodoro Timer">
+    <meta property="og:description" content="Advanced time management techniques with Pomodoro timer. Master time blocking and focus techniques.">
+    <meta property="og:image" content="https://superfocus.live/superfocus-logo.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://superfocus.live/">
+    <meta property="twitter:title" content="Superfocus - Time Management & Pomodoro Timer">
+    <meta property="twitter:description" content="Advanced time management techniques with Pomodoro timer. Master time blocking and focus techniques.">
+    <meta property="twitter:image" content="https://superfocus.live/superfocus-logo.png">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="72x72" href="/icon-72x72.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/icon-144x144.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#1a1a1a">
+    
+    <!-- Robots -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://superfocus.live/">
+    
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Superfocus",
+        "url": "https://superfocus.live",
+        "logo": "https://superfocus.live/superfocus-logo.png",
+        "description": "Advanced time management techniques and Pomodoro timer for improved focus and productivity"
+    }
+    </script>
+    
+    <!-- Structured Data - WebApplication -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Superfocus",
+        "url": "https://superfocus.live",
+        "applicationCategory": "ProductivityApplication",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "1250"
+        }
+    }
+    </script>
+    
+    <!-- Structured Data - HowTo -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to Use the Pomodoro Technique for Time Management",
+        "description": "Learn how to implement the Pomodoro time management technique for better focus and productivity",
+        "step": [
+            {
+                "@type": "HowToStep",
+                "name": "Choose a task",
+                "text": "Select the task you want to work on"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Set timer for 25 minutes",
+                "text": "Start the Pomodoro timer for a 25-minute focused work session"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Work without distractions",
+                "text": "Focus completely on your task until the timer rings"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Take a 5-minute break",
+                "text": "Rest and recharge during the short break"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Repeat 4 times",
+                "text": "Complete 4 Pomodoro sessions"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Take long break",
+                "text": "After 4 Pomodoros, take a longer 15-30 minute break"
+            }
+        ]
+        }
+    </script>
+    
+    <!-- Structured Data - FAQ -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the Pomodoro Technique?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The Pomodoro Technique is a time management method that uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks. It's one of the most effective time management techniques for improving focus and productivity."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What are the best time management techniques?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The most effective time management techniques include the Pomodoro Technique, time blocking, the Ultradian Rhythm method, and custom time management methods. Each technique offers different benefits depending on your work style and tasks."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does time blocking software work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Time blocking software helps you schedule specific blocks of time for different tasks or activities. It's a time management method that involves planning your day in advance and dedicating focused time periods to specific work."
+                }
+            }
+        ]
+    }
+    </script>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Mixpanel -->
+    <script type="text/javascript">
+        (function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;d=function(a,b){return(m=a.match(RegExp(b+"=([^&]*)")))?m[1]:null};f&&d(f,"state")&&(j=JSON.parse(decodeURIComponent(d(f,"state"))),"mpeditor"===j.action&&(b.sessionStorage.setItem("_mpcehash",f),history.replaceState(j.desiredHash||"",c.title,k.pathname+k.search)))}catch(n){}var l,h;window.mixpanel=a;a._i=[];a.init=function(b,d,g){function c(b,i){var a=i.split(".");2==a.length&&(b=b[a[0]],i=a[1]);b[i]=function(){b.push([i].concat(Array.prototype.slice.call(arguments,0)))}}var e=a;"undefined"!==typeof g?e=a[g]=[]:g="mixpanel";e.people=e.people||[];e.toString=function(b){var a="mixpanel";"mixpanel"!==g&&(a+="."+g);b||(a+=" (stub)");return a};e.people.toString=function(){return e.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");for(h=0;h<l.length;h++)c(e,l[h]);var f=a._i;function d(b){var a=b.split(".");2==a.length&&(b=b[a[0]],a=a[1]);return b}function g(b){var a=b.split(".");2==a.length&&(b=b[a[0]],a=a[1]);return a}var j="init identify track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove add_group set_group remove_group".split(" ");for(h=0;h<j.length;h++)c(e,j[h]);a._i.push([b,d,g])};a.__SV=1.2;b=c.createElement("script");b.type="text/javascript";b.async=!0;b.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===c.location.protocol&&"//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js";d=c.getElementsByTagName("script")[0];d.parentNode.insertBefore(b,d)}})(document,window.mixpanel||[]);
+        
+    </script>
+    
+    <!-- Clerk -->
+    <script
+        async
+        crossorigin="anonymous"
             data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA" 
-            src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" 
-            type="text/javascript"></script>
+        onload="window.Clerk.load()"
+        src="https://accounts.superfocus.live/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript"
+    ></script>
 </head>
 <body>
-    <!-- Unified Header -->
-    <header class="main-header">
-        <div class="header-left">
-            <div class="logo-icon" id="logoIcon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target-icon lucide-target">
-                    <circle cx="12" cy="12" r="10"/>
-                    <circle cx="12" cy="12" r="6"/>
-                    <circle cx="12" cy="12" r="2"/>
-                </svg>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PWPTLLHZ"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" onclick="window.location.reload()" style="cursor: pointer;">
+                <img src="Superfocus-logo.svg" alt="Superfocus Logo" width="24" height="24">
             </div>
         </div>
         
-        <div class="header-center">
-            <div class="technique-dropdown" id="techniqueDropdown">
-                <button class="technique-title" id="techniqueTitle">
-                    Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <div class="dropdown-item" data-technique="pomodoro">
-                        <div class="item-content">
-                            <div class="item-title">Pomodoro</div>
-                            <div class="item-description">25 min focus, 5 min break, 15 min long break</div>
-                            <div class="item-link">
-                                <a href="#" class="learn-more-link" data-technique="pomodoro">Learn more</a>
-                            </div>
-                        </div>
-                        <div class="item-badge free">FREE</div>
-                    </div>
-                    <div class="dropdown-item requires-account" data-technique="pomodoro-plus" data-requires-account="true">
-                        <div class="item-content">
-                            <div class="item-title">Long Pomodoro</div>
-                            <div class="item-description">50 min focus, 10 min break</div>
-                            <div class="item-link">
-                                <a href="#" class="learn-more-link" data-technique="pomodoro-plus">Learn more</a>
-                            </div>
-                        </div>
-                        <div class="item-badge locked"><span>LOGIN</span></div>
-                    </div>
-                    <div class="dropdown-item requires-account" data-technique="ultradian-rhythm" data-requires-account="true">
-                        <div class="item-content">
-                            <div class="item-title">Ultradian Rhythm</div>
-                            <div class="item-description">90 min focus, 20 min break</div>
-                            <div class="item-link">
-                                <a href="#" class="learn-more-link" data-technique="ultradian-rhythm">Learn more</a>
-                            </div>
-                        </div>
-                        <div class="item-badge locked"><span>LOGIN</span></div>
-                    </div>
-                    <div class="dropdown-item requires-account" data-technique="custom" data-requires-account="true">
-                        <div class="item-content">
-                            <div class="item-title">Custom Timer</div>
-                            <div class="item-description">Create your own focus technique</div>
-                            <div class="item-link">
-                                <a href="#" class="learn-more-link" data-technique="custom">Configure</a>
-                            </div>
-                        </div>
-                        <div class="item-badge locked"><span>LOGIN</span></div>
-                    </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-item" data-section="settings" data-tooltip="Timer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="13" r="8"/>
+                        <path d="M12 9v4l2 2"/>
+                        <path d="m6.3 2.3 1.4 1.4"/>
+                        <path d="m16.3 2.3-1.4 1.4"/>
+                    </svg>
+                </div>
+                <div class="nav-item" data-section="tasks" data-tooltip="Tasks">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                    </svg>
+                </div>
+                <div class="nav-item" data-section="immersive-theme" data-tooltip="Cassettes">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cassette-tape-icon lucide-cassette-tape">
+                        <rect width="20" height="16" x="2" y="4" rx="2"/>
+                        <circle cx="8" cy="10" r="2"/>
+                        <path d="M8 12h8"/>
+                        <circle cx="16" cy="10" r="2"/>
+                        <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
+                    </svg>
+                </div>
+                <div class="nav-item" data-section="report" data-tooltip="Report">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"/>
+                        <path d="m19 9-5 5-4-4-3 3"/>
+                    </svg>
+                </div>
+                <div class="nav-item" data-section="leaderboard" data-tooltip="Leaderboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                        <path d="M4 22h16"/>
+                        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    </svg>
                 </div>
             </div>
-        </div>
+        </nav>
         
-        <div class="header-right">
-            <!-- Auth Buttons -->
-            <div class="auth-container" id="authContainer">
-                <button class="login-button" id="loginButton">Login</button>
-                <button class="signup-button" id="signupButton">Sign up for free</button>
-            </div>
-            
-            <!-- User Profile (shown when authenticated) -->
-            <div class="user-profile-container" id="userProfileContainer" style="display: none;">
-                <button class="user-profile-button" id="userProfileButton" aria-label="Account">
-                    <img id="userAvatar" alt="User avatar" />
+        <!-- User Profile Section -->
+        <div class="sidebar-user-section">
+            <!-- Settings Menu (always visible) -->
+            <div class="settings-menu-container">
+                <button class="header-settings-btn" id="headerSettingsBtn" title="Settings Menu" data-tooltip="Account">
+                    <svg id="headerSettingsIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <img id="headerSettingsAvatar" style="display: none;" alt="User avatar" />
                 </button>
-                <div class="user-profile-dropdown" id="userProfileDropdown" style="display: none;">
-                    <div class="user-dropdown-menu" id="userDropdownMenu">
-                        <div class="user-info">
-                            <div class="user-email" id="userEmail">Loading...</div>
-                            <div class="pro-badge" id="userProBadge" style="display: none;">PRO</div>
+                <div class="settings-dropdown" id="settingsDropdown" style="display: none;">
+                    <div class="settings-dropdown-menu">
+                        <!-- User Info (shown when logged in) -->
+                        <div class="settings-user-info" id="settingsUserInfo" style="display: none;">
+                            <div class="user-email" id="settingsUserEmail">Loading...</div>
+                            <div class="pro-badge" id="settingsProBadge" style="display: none;">PRO</div>
                         </div>
-                        <div class="dropdown-item" id="upgradeToProButton">
+                        
+                        <!-- Auth section (shown when not logged in) -->
+                        <div class="settings-auth-section" id="settingsAuthSection">
+                            <button class="settings-dropdown-item settings-login-btn" id="settingsLoginBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                    <polyline points="10 17 15 12 10 7"/>
+                                    <line x1="15" y1="12" x2="3" y2="12"/>
+                                </svg>
+                                <span>Login</span>
+                            </button>
+                            <button class="settings-dropdown-item settings-signup-btn" id="settingsSignupBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <line x1="19" y1="8" x2="19" y2="14"/>
+                                    <line x1="22" y1="11" x2="16" y2="11"/>
+                                </svg>
+                                <span>Sign up for free</span>
+                            </button>
+                            <div class="dropdown-divider"></div>
+                        </div>
+                        
+                        <!-- Account Section (shown when logged in) -->
+                        <div class="settings-account-section" id="settingsAccountSection" style="display: none;">
+                            <!-- Upgrade to Pro / Manage Subscription -->
+                            <div class="settings-dropdown-item" id="settingsUpgradeToProBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <span>Get Lifetime Access</span>
+                            </div>
+                            <div class="settings-dropdown-item" id="settingsManageSubscriptionBtn" style="display: none;">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <span>Manage subscription</span>
+                            </div>
+                            
+                            <!-- Account Settings -->
+                            <div class="settings-dropdown-item" id="settingsAccountBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                <span>Settings</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                        </div>
+                        
+                        
+                        <!-- Help Section (always visible) -->
+                        <div class="settings-dropdown-item" id="helpToggle">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
                             </svg>
-                            <span>Upgrade to Pro</span>
-                        </div>
-                        <div class="dropdown-item" id="manageSubscriptionButton" style="display: none;">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            <span>Help</span>
+                            <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m9 18 6-6-6-6"/>
                             </svg>
-                            <span>Manage subscription</span>
                         </div>
-                        <div class="dropdown-item" id="settingsButton" style="display: none;">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                            <span>Settings</span>
-                        </div>
-                        <div class="dropdown-item" id="integrationsButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22v-5"/>
-                                <path d="M9 8V2"/>
-                                <path d="M15 8V2"/>
-                                <path d="M18 8v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V8"/>
-                            </svg>
-                            <span>Integrations</span>
-                        </div>
-                        <div class="dropdown-item" id="developerButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="16,18 22,12 16,6"/>
-                                <polyline points="8,6 2,12 8,18"/>
-                            </svg>
-                            <span>Developer</span>
-                        </div>
-                        <div class="dropdown-item" id="feedbackButton">
-                            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                <path d="M13 8H7"/>
-                                <path d="M17 12H7"/>
-                            </svg>
-                            <span>Feedback</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item">
+                        
+                        <!-- Logout (shown when logged in) -->
+                        <div class="dropdown-divider" id="settingsLogoutDivider" style="display: none;"></div>
+                        <div class="settings-dropdown-item" id="settingsLogoutBtn" style="display: none;">
                             <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                                 <polyline points="16,17 21,12 16,7"/>
@@ -236,11 +420,632 @@
                             <span>Log out</span>
                         </div>
                     </div>
+                    
+                    <!-- Help Panel (shown when Help is clicked) -->
+                    <div class="help-panel" id="helpPanel" style="display: none;">
+                        <div class="help-panel-menu">
+                            <div class="settings-dropdown-item" id="shortcutsItem">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                    <path d="M6 8h.001"/>
+                                    <path d="M10 8h.001"/>
+                                    <path d="M14 8h.001"/>
+                                    <path d="M18 8h.001"/>
+                                    <path d="M8 12h.001"/>
+                                    <path d="M12 12h.001"/>
+                                    <path d="M16 12h.001"/>
+                                    <path d="M7 16h10"/>
+                                </svg>
+                                <span>Shortcuts</span>
+                                <kbd class="shortcut-hint">⌘K</kbd>
+                            </div>
+                            <div class="settings-dropdown-item" id="settingsFeedbackBtn">
+                                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    <path d="M13 8H7"/>
+                                    <path d="M17 12H7"/>
+                                </svg>
+                                <span>Feedback</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </header>
+    </aside>
+
+    <!-- Task Panel Overlay -->
+    <div class="task-panel-overlay" id="taskPanelOverlay"></div>
     
+    <!-- Settings Panel Overlay -->
+    <div class="task-panel-overlay" id="settingsPanelOverlay"></div>
+    
+    <!-- Tasks Side Panel -->
+    <div class="task-side-panel" id="taskSidePanel">
+        <button class="close-side-panel-btn" id="closeTaskPanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Tasks</h3>
+                <p class="tasks-subtitle">Manage your focus tasks</p>
+            </div>
+            
+            <!-- Integration Buttons -->
+            <div class="integration-buttons" id="integrationButtonsSection">
+                <button class="integration-btn" id="importNotionMainBtn" data-tooltip="Notion">
+                    <img src="/images/notion.svg" alt="Notion">
+                </button>
+                <button class="integration-btn" id="importTodoistMainBtn" data-tooltip="Todoist">
+                    <img src="/images/todoist.svg" alt="Todoist">
+                </button>
+            </div>
+            
+            <!-- Task Tabs -->
+            <div class="task-tabs">
+                <div class="task-tabs-left">
+                    <button class="task-tab active" data-tab="todo">To-do</button>
+                    <button class="task-tab" data-tab="done">Done</button>
+                </div>
+                <div class="task-tabs-right">
+                    <button class="task-options-btn" id="taskOptionsBtn" title="Task options">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="19" cy="12" r="1"/>
+                            <circle cx="5" cy="12" r="1"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Task Options Dropdown -->
+                    <div class="task-options-dropdown" id="taskOptionsDropdown" style="display: none;">
+                        <div class="task-options-menu">
+                            <button class="task-option-item" id="clearAllTasksBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <line x1="10" y1="11" x2="10" y2="17"/>
+                                    <line x1="14" y1="11" x2="14" y2="17"/>
+                                </svg>
+                                Clear All Tasks
+                            </button>
+                            <button class="task-option-item" id="clearDoneTasksBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 11 12 14 22 4"/>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                </svg>
+                                Clear Done Tasks
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tasks List -->
+            <div id="todoistTasksList" class="tasks-list">
+                <!-- Add Task Form (initially hidden) -->
+                <div id="addTaskForm" class="add-task-form" style="display: none;">
+                    <div class="form-group">
+                        <label>What are you working on?</label>
+                        <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Sessions</label>
+                        <div class="pomodoros-control">
+                            <button class="pomodoros-btn" id="decreasePomodoros">-</button>
+                            <input type="number" id="pomodorosCount" value="1" min="1" max="10">
+                            <button class="pomodoros-btn" id="increasePomodoros">+</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button id="deleteTask" title="Delete task" style="display:none; margin-right: auto; background: none; border: none; padding: 8px; color: rgba(255,255,255,0.6);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6"/>
+                                <path d="M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                        </button>
+                        <button class="btn-secondary" id="cancelAddTask">Cancel</button>
+                        <button class="btn-primary" id="saveTask">Save</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Task Button -->
+            <div class="add-task-section">
+                <button class="add-task-btn" id="showAddTaskForm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"/>
+                        <path d="M5 12h14"/>
+                    </svg>
+                    Add Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Side Panel -->
+    <div class="task-side-panel" id="settingsSidePanel">
+        <button class="close-side-panel-btn" id="closeSettingsPanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Timer</h3>
+                <p class="tasks-subtitle">Customize your focus sessions</p>
+            </div>
+            
+            <!-- Scrollable Content Panel -->
+            <div class="timer-scrollable-content">
+                <!-- Custom Section (Pro Users Only) -->
+                <div class="settings-section custom-section" id="customSection" style="display: none;">
+                    <div class="custom-controls">
+                        <button class="add-task-btn" id="createCustomBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14"/>
+                                <path d="M5 12h14"/>
+                            </svg>
+                            Create timer
+                        </button>
+                        
+                        <!-- Custom Form (Hidden by default) -->
+                        <div class="custom-form" id="customForm" style="display: none;">
+                            <div class="custom-form-content">
+                                <div class="custom-input-group">
+                                    <div class="name-header">
+                                        <label for="customName">Name your technique</label>
+                                        <div class="word-count" id="wordCount">0/15 characters</div>
+                                    </div>
+                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15">
+                                </div>
+                                
+                                <div class="custom-input-group">
+                                    <label for="customEmoji">Choose an emoji</label>
+                                    <div class="emoji-picker">
+                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
+                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
+                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
+                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
+                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
+                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
+                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
+                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
+                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
+                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Duration Options (Compact Controls) -->
+                                <div class="custom-duration-options">
+                                    <h5>Set your duration</h5>
+                                    <div class="duration-controls">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Work</label>
+                                                <span class="duration-value" id="customWorkValue">25 min</span>
+                                            </div>
+                                            <input type="range" id="customWorkSlider" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes">
+                                        </div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Short Break</label>
+                                                <span class="duration-value" id="customShortBreakValue">5 min</span>
+                                            </div>
+                                            <input type="range" id="customShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
+                                        </div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Long Break</label>
+                                                <span class="duration-value" id="customLongBreakValue">15 min</span>
+                                            </div>
+                                            <input type="range" id="customLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
+                                        </div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Sessions</label>
+                                                <span class="duration-value" id="customSessionsValue">4 sesh</span>
+                                            </div>
+                                            <input type="range" id="customSessionsSlider" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="custom-form-actions">
+                                    <button class="btn-cancel-custom" id="cancelCustomBtn">Cancel</button>
+                                    <button class="btn-primary" id="saveCustomBtn" disabled>Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Cards Container -->
+                        <div class="custom-cards-container" id="customCardsContainer">
+                            <!-- Custom cards will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Techniques -->
+                <div class="settings-section">
+                    <h4 class="section-title">Timer presets</h4>
+                    <div class="techniques-grid">
+                        <button class="technique-preset" data-technique="sprint">
+                            <div class="technique-icon">⚡</div>
+                            <div class="technique-name">Sprint</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="technique-desc">15min work</div>
+                            <div class="technique-break">3min short break</div>
+                            <div class="technique-long-break">10min long break</div>
+                            <div class="technique-sessions">6 sessions</div>
+                        </button>
+                        <button class="technique-preset active" data-technique="pomodoro">
+                            <div class="technique-icon">🍅</div>
+                            <div class="technique-name">Pomodoro</div>
+                            <div class="technique-desc">25min work</div>
+                            <div class="technique-break">5min short break</div>
+                            <div class="technique-long-break">15min long break</div>
+                            <div class="technique-sessions">4 sessions</div>
+                        </button>
+                        <button class="technique-preset" data-technique="focus">
+                            <div class="technique-icon">🎯</div>
+                            <div class="technique-name">Focus</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="technique-desc">30min work</div>
+                            <div class="technique-break">5min short break</div>
+                            <div class="technique-long-break">15min long break</div>
+                            <div class="technique-sessions">4 sessions</div>
+                        </button>
+                        <button class="technique-preset" data-technique="flow">
+                            <div class="technique-icon">🌊</div>
+                            <div class="technique-name">Flow State</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="technique-desc">45min work</div>
+                            <div class="technique-break">15min short break</div>
+                            <div class="technique-long-break">30min long break</div>
+                            <div class="technique-sessions">3 sessions</div>
+                        </button>
+                        <button class="technique-preset" data-technique="marathon">
+                            <div class="technique-icon">🏃</div>
+                            <div class="technique-name">Marathon</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="technique-desc">60min work</div>
+                            <div class="technique-break">10min short break</div>
+                            <div class="technique-long-break">20min long break</div>
+                            <div class="technique-sessions">4 sessions</div>
+                        </button>
+                        <button class="technique-preset" data-technique="deepwork">
+                            <div class="technique-icon">🧠</div>
+                            <div class="technique-name">Deep Work</div>
+                            <div class="signup-required-text hidden">(Sign up required)</div>
+                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="technique-desc">90min work</div>
+                            <div class="technique-break">20min short break</div>
+                            <div class="technique-long-break">45min long break</div>
+                            <div class="technique-sessions">2 sessions</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Duration Section -->
+                <div class="settings-duration-section">
+                    <h4 class="section-title">Duration</h4>
+                    <div class="duration-controls">
+                        <div class="duration-item" id="sidebarFocusOption">
+                            <div class="duration-header">
+                                <label>Work</label>
+                                <span class="duration-value" id="sidebarPomodoroValue">25 min</span>
+                            </div>
+                            <input type="range" id="sidebarPomodoroSlider" min="1" max="90" value="25" class="duration-slider" aria-label="Duration in minutes">
+                        </div>
+                        <div class="duration-item" id="sidebarShortBreakOption">
+                            <div class="duration-header">
+                                <label>Short Break</label>
+                                <span class="duration-value" id="sidebarShortBreakValue">5 min</span>
+                            </div>
+                            <input type="range" id="sidebarShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
+                        </div>
+                        <div class="duration-item" id="sidebarLongBreakOption">
+                            <div class="duration-header">
+                                <label>Long Break <span class="signup-required-text hidden">(Sign up required)</span></label>
+                                <span class="duration-value" id="sidebarLongBreakValue">15 min</span>
+                            </div>
+                            <input type="range" id="sidebarLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
+                        </div>
+                        <div class="duration-item">
+                            <div class="duration-header">
+                                <label>Sessions <span class="signup-required-text hidden">(Sign up required)</span></label>
+                                <span class="duration-value" id="sidebarSessionsValue">4 sesh</span>
+                            </div>
+                            <input type="range" id="sidebarSessionsSlider" min="1" max="12" value="4" class="duration-slider">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <!-- Immersive Theme Side Panel -->
+    <div class="task-side-panel" id="immersiveThemeSidePanel">
+        <button class="close-side-panel-btn" id="closeImmersiveThemePanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Cassettes</h3>
+                <p class="tasks-subtitle">Choose your focus experience</p>
+            </div>
+            
+            <!-- Search Box -->
+            <div class="search-section" style="margin-bottom: 0px;">
+                <div class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; color: rgba(255, 255, 255, 0.6);">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="cassetteSearchInput" placeholder="Search cassettes by title or description...">
+                </div>
+            </div>
+            
+            <!-- Create Cassette Section (Pro Only) -->
+            <div id="createCassetteSection" style="display: none; margin-bottom: 0px;">
+                <button class="add-task-btn" id="createCassetteBtn" style="width: 100%;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"/>
+                        <path d="M5 12h14"/>
+                    </svg>
+                    Create cassette
+                </button>
+                
+                <!-- Cassette Form (Hidden by default) -->
+                <div class="custom-form" id="cassetteForm" style="display: none;">
+                    <div class="custom-form-content">
+                        <div class="custom-input-group">
+                            <label for="cassetteTitle">Title *</label>
+                            <input type="text" id="cassetteTitle" placeholder="My Focus Environment" maxlength="50" required>
+                        </div>
+                        
+                        <div class="custom-input-group">
+                            <label for="cassetteDescription">Description</label>
+                            <input type="text" id="cassetteDescription" placeholder="Describe your focus environment..." maxlength="35">
+                        </div>
+                        
+                        <div class="custom-input-group">
+                            <label for="cassetteImageUrl">Image URL/Address</label>
+                            <input type="url" id="cassetteImageUrl" placeholder="https://example.com/image.jpg">
+                        </div>
+                        
+                        <div class="custom-input-group">
+                            <label for="cassetteSpotifyUrl">Spotify track, playlist, or album URL</label>
+                            <input type="url" id="cassetteSpotifyUrl" placeholder="https://open.spotify.com/track/...">
+                        </div>
+                        
+                        <div class="custom-input-group">
+                            <label for="cassetteWebsiteUrl">Website URL</label>
+                            <input type="url" id="cassetteWebsiteUrl" placeholder="https://example.com">
+                        </div>
+                        
+                        <div class="custom-input-group" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0;">
+                            <label for="cassetteIsPublic" style="margin: 0;">Public cassette</label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="cassetteIsPublic">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: -8px; margin-bottom: 0;">Share your cassette with the community. Perfect for promoting your projects, portfolio, or website through the 'Visit Website' button.</p>
+                        
+                        <div class="custom-form-actions">
+                            <button class="btn-cancel-custom" id="cancelCassetteBtn">Cancel</button>
+                            <button class="btn-primary" id="saveCassetteBtn">Save</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Custom Cassettes List (Pro Only) - Rendered below Create button -->
+                <div id="customCassettesList" class="theme-options" style="margin-top: 16px; margin-bottom: 16px;">
+                    <!-- Custom cassettes will be rendered here -->
+                </div>
+            </div>
+            
+            <!-- Theme Options -->
+            <div class="settings-section" id="cassettePresetsSection">
+                <h4 class="section-title">Cassette presets</h4>
+                <div class="theme-options">
+                    <div class="theme-option" data-theme="simple">
+                        <div class="theme-preview" style="background: #0a0a0a;"></div>
+                        <div class="theme-info">
+                            <h4>Simple</h4>
+                            <p>Pure dark background, no sound</p>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="lofi">
+                        <div class="theme-preview theme-preview-woman"></div>
+                        <div class="theme-info">
+                            <h4>Lofi</h4>
+                            <p>Garden Study ambiance with relaxing beats</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Public Cassettes Section -->
+            <div class="settings-section" id="publicCassettesSection" style="display: none;">
+                <h4 class="section-title">Public Cassettes</h4>
+                <div id="publicCassettesList" class="theme-options">
+                    <!-- Public cassettes will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Side Panel -->
+    <div class="task-side-panel" id="leaderboardSidePanel">
+        <button class="close-side-panel-btn" id="closeLeaderboardPanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Leaderboard</h3>
+                <p class="tasks-subtitle">Top Focus Hours</p>
+            </div>
+            
+            <div class="leaderboard-content" id="leaderboardContent">
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    Loading leaderboard...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tron Theme Info Modal -->
+    <div id="tronInfoModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tron Theme</h3>
+                <button class="modal-close" onclick="closeTronInfoModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Experience the futuristic world of Tron with:</p>
+                <ul>
+                    <li>🎨 Tron-style background</li>
+                    <li>🎨 Background themes</li>
+                    <li>⚡ Immersive cyberpunk atmosphere</li>
+                </ul>
+                <p><strong>This theme requires an account to access.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="handleSignup()">Sign up for free</button>
+                <button class="btn-secondary" onclick="closeTronInfoModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Immersive Theme Panel Overlay -->
+    <div class="task-panel-overlay" id="immersiveThemePanelOverlay"></div>
+
+    <!-- Leaderboard Panel Overlay -->
+    <div class="task-panel-overlay" id="leaderboardPanelOverlay"></div>
+
+    <!-- Report Side Panel -->
+    <div class="task-side-panel" id="reportSidePanel">
+        <button class="close-side-panel-btn" id="closeReportPanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Report</h3>
+                <p class="tasks-subtitle">Advanced Analytics & Insights</p>
+            </div>
+            
+            <div class="report-content" id="reportContent">
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    Loading report...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Panel Overlay -->
+    <div class="task-panel-overlay" id="reportPanelOverlay"></div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Mobile/Tablet Desktop Required Screen -->
+    <div id="desktopRequiredScreen" class="desktop-required-screen" style="display: none;">
+        <div class="desktop-required-content">
+            <div class="desktop-required-icon">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+            </div>
+            <h1>Desktop Experience Required</h1>
+            <p>For the best focus experience, please use SuperFocus on a desktop or laptop computer.</p>
+            <div class="desktop-required-features">
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">
+                        <h3>Full Timer Interface</h3>
+                        <p>Complete Pomodoro timer with all controls</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-text">
+                        <h3>Immersive Themes</h3>
+                        <p>Background themes</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">
+                        <h3>Task Management</h3>
+                        <p>Full task tracking and productivity features</p>
+                    </div>
+                </div>
+            </div>
+            <div class="desktop-required-cta">
+                <p>Switch to desktop for the complete experience</p>
+                <button class="desktop-required-btn" onclick="window.location.reload()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                        <path d="M3 21v-5h5"/>
+                    </svg>
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <main class="main-content" id="mainContent">
+        <!-- Timer Section - Full Viewport -->
+        <section class="timer-section">
+    
+    <!-- Timer Header with Auth Buttons (Guest Only) -->
+    <div class="timer-header" id="timerHeaderAuth" style="display: none;">
+        <div class="timer-auth-buttons">
+            <button class="timer-login-btn" id="timerLoginBtn">Log in</button>
+            <button class="timer-signup-btn" id="timerSignupBtn">Sign up for free</button>
+        </div>
+    </div>
+    
+    <!-- Timer Header with Report (Logged In Only) -->
+    <div class="timer-header" id="timerHeaderFocusReport" style="display: none;">
+        <div class="timer-auth-buttons">
+            <button class="subscribe-btn" id="subscribeBtn" title="Upgrade to Pro">
+                Get Lifetime Access
+            </button>
+            <button class="streak-info" id="streakInfo" title="Report">
+                <svg class="streak-fire" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
+                    <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                </svg>
+                <span class="streak-days" id="streakDays">0</span>
+            </button>
+        </div>
+    </div>
     
     <div class="container">
         <div class="timer-container">
@@ -267,10 +1072,10 @@
                         <stop offset="100%" style="stop-color:rgba(255,255,255,0.95);stop-opacity:1" />
                     </linearGradient>
                     <linearGradient id="breakIndicator" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#78dbff;stop-opacity:0.9" />
-                        <stop offset="30%" style="stop-color:#78dbff;stop-opacity:0.7" />
-                        <stop offset="70%" style="stop-color:#78dbff;stop-opacity:0.8" />
-                        <stop offset="100%" style="stop-color:#78dbff;stop-opacity:0.95" />
+                        <stop offset="0%" style="stop-color:#a3a3a3;stop-opacity:0.9" />
+                        <stop offset="30%" style="stop-color:#a3a3a3;stop-opacity:0.7" />
+                        <stop offset="70%" style="stop-color:#a3a3a3;stop-opacity:0.8" />
+                        <stop offset="100%" style="stop-color:#a3a3a3;stop-opacity:0.95" />
                     </linearGradient>
                     <linearGradient id="longBreakIndicator" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:#ff77c6;stop-opacity:0.9" />
@@ -318,48 +1123,62 @@
             </svg>
             
             <div class="timer-content">
+                <!-- Time display -->
                 <div class="time" id="time">25:00</div>
-                <div class="current-task" id="currentTask" style="display: none;">Aplicando a Jobs</div>
-                <div class="session-info" id="sessionInfo">Session 1 of 4</div>
             </div>
             </div>
         </div>
         
-    <!-- Footer with Start/Pause, Reset, and Navigation buttons -->
+    <!-- Footer with Play/Pause Button -->
     <footer class="timer-footer">
-        <button id="musicToggleBtn" class="nav-btn music-btn" title="Toggle Background Music">
+        <!-- Play/Pause Button -->
+        <button id="startPause" class="start-btn" title="Start/Pause Timer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
+                <polygon points="5,3 19,12 5,21"/>
+            </svg>
+            <span class="btn-text play-text">Start</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause pause-icon">
+                <rect x="14" y="3" width="5" height="18" rx="1"/>
+                <rect x="5" y="3" width="5" height="18" rx="1"/>
+            </svg>
+            <span class="btn-text pause-text">Pause</span>
+        </button>
+        
+        <!-- Timer Settings Button (hidden, moved to header) -->
+        <button class="timer-settings-btn" id="timerSettingsBtn" title="Timer Settings" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Settings</span>
+        </button>
+        
+        <!-- Hidden buttons kept for compatibility -->
+        <button id="musicToggleBtn" class="nav-btn music-btn" title="Background Music" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 18V5l12-2v13"/>
                 <circle cx="6" cy="18" r="3"/>
                 <circle cx="18" cy="16" r="3"/>
             </svg>
         </button>
-        <button id="prevSectionBtn" class="nav-btn prev-btn">
+        <button id="prevSectionBtn" class="nav-btn prev-btn" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15 18l-6-6 6-6"/>
             </svg>
         </button>
-        <button id="startPause" class="start-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
-                <polygon points="5,3 19,12 5,21"/>
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause pause-icon">
-                <rect x="14" y="3" width="5" height="18" rx="1"/>
-                <rect x="5" y="3" width="5" height="18" rx="1"/>
-            </svg>
-        </button>
-        <button id="nextSectionBtn" class="nav-btn next-btn">
+        <button id="nextSectionBtn" class="nav-btn next-btn" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 18l6-6-6-6"/>
             </svg>
         </button>
-        <button id="taskToggleBtn" class="nav-btn task-btn" title="Integrations">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-todo-icon lucide-list-todo">
-                <path d="M13 5h8"/>
-                <path d="M13 12h8"/>
-                <path d="M13 19h8"/>
-                <path d="m3 17 2 2 4-4"/>
-                <rect x="3" y="4" width="6" height="6" rx="1"/>
+        <button id="taskToggleBtn" class="nav-btn task-btn" title="Manage Tasks" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-pen-icon lucide-notebook-pen">
+                <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/>
+                <path d="M2 6h4"/>
+                <path d="M2 10h4"/>
+                <path d="M2 14h4"/>
+                <path d="M2 18h4"/>
+                <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>
             </svg>
         </button>
     </footer>
@@ -367,20 +1186,6 @@
     <!-- Hidden audio elements -->
     <audio id="backgroundAudio" loop></audio>
 
-    <!-- Welcome Back Modal for Guest Users -->
-    <div class="welcome-modal-overlay" id="welcomeModalOverlay" style="display: none;">
-        <div class="welcome-modal">
-            <h3 class="welcome-modal-title">Welcome back</h3>
-            <p class="welcome-modal-message">Log in or sign up to get smarter responses, upload files and images, and more.</p>
-            <div class="welcome-modal-buttons">
-                <button class="welcome-modal-btn welcome-modal-btn-primary" id="welcomeLoginBtn">Log in</button>
-                <button class="welcome-modal-btn welcome-modal-btn-secondary" id="welcomeSignupBtn">Sign up for free</button>
-            </div>
-            <div class="welcome-modal-footer">
-                <button class="welcome-modal-link" id="stayLoggedOutBtn">Stay logged out</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Logout Confirmation Modal -->
     <div class="logout-modal-overlay" id="logoutModalOverlay" style="display: none;">
@@ -394,126 +1199,111 @@
         </div>
     </div>
 
-    <!-- Feedback Modal -->
-    <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">
+    <!-- Free User Task Limit Modal -->
+    <div class="logout-modal-overlay" id="guestTaskLimitModalOverlay" style="display: none;">
         <div class="logout-modal">
-            <h3 class="logout-modal-title">Give feedback</h3>
-            <p class="logout-modal-message">We'd love to hear what went well or how we can improve the product experience.</p>
-            <div class="feedback-form">
-                <textarea id="feedbackText" placeholder="Your feedback" rows="4"></textarea>
-                <div class="feedback-actions">
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelFeedbackBtn">Cancel</button>
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="submitFeedbackBtn">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Custom Timer Configuration Modal -->
-    <div class="custom-timer-modal-overlay" id="customTimerModal">
-        <div class="custom-timer-modal">
-            <div class="custom-timer-header">
-                <h3>Configure Custom Timer</h3>
-                <button class="close-custom-timer-x" id="closeCustomTimer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-            </div>
-            <div class="custom-timer-content">
-                <div class="custom-timer-form">
-                    <div class="form-group">
-                        <label for="customName">Timer Name</label>
-                        <input type="text" id="customName" placeholder="e.g., My Focus" maxlength="10">
-                        <div class="error-message" id="customNameError" style="display: none;">Maximum 10 characters</div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="focusTime">Focus Time (minutes)</label>
-                            <input type="number" id="focusTime" min="1" max="180" value="25">
-                            <div class="error-message" id="focusTimeError" style="display: none;">Maximum 180 minutes</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="breakTime">Break Time (minutes)</label>
-                            <input type="number" id="breakTime" min="1" max="60" value="5">
-                            <div class="error-message" id="breakTimeError" style="display: none;">Maximum 60 minutes</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="longBreakTime">Long Break Time (minutes)</label>
-                            <input type="number" id="longBreakTime" min="0" max="60" value="15">
-                            <div class="error-message" id="longBreakTimeError" style="display: none;">Maximum 60 minutes</div>
-                            <small>Set to 0 to disable long breaks</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cycles">Number of Cycles</label>
-                            <input type="number" id="cycles" min="1" max="10" value="4">
-                            <div class="error-message" id="cyclesError" style="display: none;">Maximum 10 cycles</div>
-                            <small>How many focus sessions before long break</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="custom-timer-actions">
-                <button class="custom-timer-btn custom-timer-btn-primary" id="saveCustomTimer" disabled>Save</button>
-                <button class="custom-timer-btn custom-timer-btn-secondary" id="cancelCustomTimer">Cancel</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Upgrade to Pro Modal -->
-    <div class="upgrade-modal-overlay" id="upgradeModal" style="display: none;">
-        <div class="upgrade-modal">
-            <button class="close-upgrade-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x">
+            <button class="close-logout-modal-x" id="closeGuestTaskLimitModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/>
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
             <div class="upgrade-content">
                 <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gem-icon lucide-gem">
-                        <path d="M10.5 3 8 9l4 13 4-13-2.5-6"/>
-                        <path d="M17 3a2 2 0 0 1 1.6.8l3 4a2 2 0 0 1 .013 2.382l-7.99 10.986a2 2 0 0 1-3.247 0l-7.99-10.986A2 2 0 0 1 2.4 7.8l2.998-3.997A2 2 0 0 1 7 3z"/>
-                        <path d="M2 9h20"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list-icon lucide-clipboard-list">
+                        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <path d="M12 11h4"/>
+                        <path d="M12 16h4"/>
+                        <path d="M8 11h.01"/>
+                        <path d="M8 16h.01"/>
                     </svg>
                 </div>
-                <h3>Upgrade to Pro</h3>
-                <p>Unlock advanced features and get the most out of your focus sessions.</p>
-                <div class="upgrade-features">
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Support and integration with Todoist, Notion, and more (coming soon)</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Export/backup of data (coming soon)</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">PRO badge and early access to new features</span>
-                    </div>
+                <h3 class="logout-modal-title">You've reached your 3-task limit</h3>
+                <p class="logout-modal-message">Pro users get unlimited tasks. Unlock unlimited tasks and all productivity features!</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">Get Lifetime Access</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="guestTaskLimitCancelBtn">Learn more</button>
                 </div>
-                <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="upgradeToProButton">Upgrade Now - $9/year</button>
-                    <button class="cancel-btn" id="upgradeCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Modal -->
+    <div class="logout-modal-overlay" id="integrationModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeIntegrationModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon" id="integrationModalIcon">
+                    <!-- Icon will be dynamically inserted here -->
                 </div>
+                <h3 class="logout-modal-title" id="integrationModalTitle">Pro Feature</h3>
+                <p class="logout-modal-message" id="integrationModalMessage">Connect your favorite productivity tools and sync your tasks seamlessly!</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="integrationModalPrimaryBtn">Learn More</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="integrationModalSecondaryBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Daily Focus Limit Modal (Free/Guest) -->
+    <div class="logout-modal-overlay" id="dailyLimitModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeDailyLimitModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-8">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title" id="dailyLimitTitle">⏰ You've hit your 2-hour limit</h3>
+                <p class="logout-modal-message" id="dailyLimitMessage">Unlock unlimited focus time and never hit limits again. Join Pro users who focus without restrictions.</p>
+                <p class="logout-modal-message" id="dailyLimitCountdown" style="margin-top: 6px; opacity: 0.9;">Your timer will be available again soon…</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Get Lifetime Access</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeFeedbackModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3 class="logout-modal-title">Give feedback</h3>
+            <p class="logout-modal-message">We'd love to hear what went well or how we can improve the product experience.</p>
+            <div class="feedback-form">
+                <textarea 
+                    id="feedbackText" 
+                    class="feedback-textarea" 
+                    placeholder="Share your thoughts..."
+                    maxlength="500"
+                ></textarea>
+                <div class="feedback-char-count" style="display: none;">
+                    <span id="charCount">0</span>/500
+                </div>
+            </div>
+            <div class="logout-modal-buttons">
+                <button class="logout-modal-btn logout-modal-btn-primary" id="submitFeedbackBtn">Submit</button>
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelFeedbackBtn">Cancel</button>
             </div>
         </div>
     </div>
@@ -531,31 +1321,21 @@
             <div class="settings-container">
                 <!-- Left Navigation -->
                 <div class="settings-nav">
-                    <div class="settings-nav-item active" data-tab="general" style="display: none;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings">
-                            <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        <span>General</span>
-                    </div>
-                    <div class="settings-nav-item" data-tab="account" style="display: none;">
+                    <div class="settings-nav-item active" data-tab="account">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                         <span>Account</span>
                     </div>
-                    <div class="settings-nav-item" data-tab="integrations">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug-icon lucide-plug">
-                            <path d="M12 22v-5"/>
-                            <path d="M9 8V2"/>
-                            <path d="M15 8V2"/>
-                            <path d="M18 8v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V8"/>
+                    <div class="settings-nav-item" data-tab="data">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
-                        <span>Integrations</span>
+                        <span>Data</span>
                     </div>
-                    <div class="settings-nav-item" data-tab="developer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-icon lucide-code">
+                    <div class="settings-nav-item" data-tab="developer" id="developerNavItem" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="16,18 22,12 16,6"/>
                             <polyline points="8,6 2,12 8,18"/>
                         </svg>
@@ -565,129 +1345,300 @@
                 
                 <!-- Right Content -->
                 <div class="settings-content">
-                    <!-- General Tab -->
-                    <div class="settings-tab active" id="general-tab">
-                        <h3>General</h3>
-                        <div class="settings-section">
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Theme</span>
-                                    <span class="settings-description">Choose your preferred theme</span>
-                                </div>
-                                <select class="settings-select">
-                                    <option value="dark">Dark</option>
-                                    <option value="light">Light</option>
-                                    <option value="auto">Auto</option>
-                                </select>
-                            </div>
-                            
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Language</span>
-                                    <span class="settings-description">Select your preferred language</span>
-                                </div>
-                                <select class="settings-select">
-                                    <option value="en">English</option>
-                                    <option value="es">Spanish</option>
-                                    <option value="fr">French</option>
-                                </select>
-                            </div>
-                            
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Notifications</span>
-                                    <span class="settings-description">Enable session completion notifications</span>
-                                </div>
-                                <label class="settings-toggle">
-                                    <input type="checkbox" checked>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Account Tab -->
-                    <div class="settings-tab" id="account-tab">
+                    <div class="settings-tab active" id="account-tab">
                         <h3>Account</h3>
                         <div class="settings-section">
                             <div class="settings-item">
                                 <div class="settings-label-group">
-                                    <span class="settings-label">Reset Focus Stats</span>
-                                    <span class="settings-description">Clear all your focus statistics and start fresh</span>
+                                    <span class="settings-label">Email</span>
+                                    <span class="settings-description" id="settingsModalUserEmail">Loading...</span>
                                 </div>
-                                <button id="settingsResetButton" class="settings-reset-btn">Reset</button>
+                                <button id="manageAccountBtn" class="settings-action-btn">Manage</button>
                             </div>
                             
                             <div class="settings-item">
                                 <div class="settings-label-group">
-                                    <span class="settings-label">Export Data</span>
-                                    <span class="settings-description">Download your focus data as CSV</span>
+                                    <span class="settings-label">Plan</span>
+                                    <span class="settings-description" id="settingsUserPlan">Free</span>
                                 </div>
-                                <button class="settings-export-btn">Export</button>
+                                <button id="upgradeToProModalBtn" class="settings-action-btn">Get Lifetime Access</button>
+                                <button id="manageSubscriptionModalBtn" class="settings-action-btn" style="display: none;">Manage Subscription</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Integrations Section (Pro Only) -->
+                        <div class="settings-section" id="integrationsSection" style="display: none;">
+                            <h4 class="settings-section-title">Integrations</h4>
+                            
+                            <!-- Todoist -->
+                            <div class="settings-item integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-icon-small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 12l2 2 4-4"/>
+                                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="settings-label-group">
+                                        <span class="settings-label">Todoist</span>
+                                        <span class="settings-description integration-status-text" id="todoistStatusText">Not connected</span>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button id="connectTodoistBtn" class="settings-action-btn">Connect</button>
+                                    <button id="disconnectTodoistBtn" class="settings-action-btn-secondary" style="display:none;">Disconnect</button>
+                                </div>
+                            </div>
+                            
+                            
+                            <!-- Notion -->
+                            <div class="settings-item integration-item">
+                                <div class="integration-info">
+                                    <div class="integration-icon-small">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                            <polyline points="10,9 9,9 8,9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="settings-label-group">
+                                        <span class="settings-label">Notion</span>
+                                        <span class="settings-description integration-status-text" id="notionStatusText">Not connected</span>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button id="connectNotionBtn" class="settings-action-btn">Connect</button>
+                                    <button id="disconnectNotionBtn" class="settings-action-btn-secondary" style="display:none;">Disconnect</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Integrations Tab -->
-                    <div class="settings-tab" id="integrations-tab">
-                        <h3>Integrations</h3>
+                    <!-- Data Tab -->
+                    <div class="settings-tab" id="data-tab">
+                        <h3>Data</h3>
                         <div class="settings-section">
                             <div class="settings-item">
                                 <div class="settings-label-group">
-                                    <span class="settings-label">Todoist</span>
-                                    <span class="settings-description">Connect your Todoist account to sync tasks</span>
+                                    <span class="settings-label">Reset All Data</span>
+                                    <span class="settings-description">Clear all your focus statistics and streaks. This action cannot be undone.</span>
                                 </div>
-                                <div class="integration-controls">
-                                    <div class="integration-status">
-                                        <span id="todoistStatusText" class="status-text">Disconnected</span>
-                                    </div>
-                                    <div class="integration-actions">
-                                        <button id="connectTodoistBtn" class="btn-primary">Connect to Todoist</button>
-                                        <button id="disconnectTodoistBtn" class="btn-secondary" style="display:none;">Disconnect</button>
-                                    </div>
-                                </div>
+                                <button id="settingsResetButton" class="settings-reset-btn">Reset All Data</button>
                             </div>
-
-                            
                         </div>
                     </div>
                     
                     <!-- Developer Tab -->
                     <div class="settings-tab" id="developer-tab">
-                        <h3>Developer</h3>
+                        <h3>Developer Mode</h3>
                         <div class="settings-section">
                             <div class="settings-item">
                                 <div class="settings-label-group">
                                     <span class="settings-label">View Mode Toggle</span>
-                                    <span class="settings-description">Switch between different user views for testing</span>
+                                    <span class="settings-description">Switch between different user views for testing. Click a mode, then Apply.</span>
                                 </div>
-                                <div class="view-mode-buttons">
-                                    <button id="guestModeBtn" class="view-mode-btn">Guest</button>
-                                    <button id="freeModeBtn" class="view-mode-btn">Free</button>
-                                    <button id="proModeBtn" class="view-mode-btn active">Pro</button>
-                                </div>
-                                <div class="view-mode-actions">
-                                    <button id="applyViewModeBtn" class="apply-view-mode-btn">Apply</button>
+                                <div class="view-mode-controls">
+                                    <div class="view-mode-buttons">
+                                        <button id="guestModeBtn" class="view-mode-btn">Guest</button>
+                                        <button id="freeModeBtn" class="view-mode-btn">Free</button>
+                                        <button id="proModeBtn" class="view-mode-btn active">Pro</button>
+                                    </div>
+                                    <button id="applyViewModeBtn" class="apply-view-mode-btn">Apply & Reload</button>
                                 </div>
                             </div>
-                            
-                            <div class="settings-item">
-                                <div class="settings-label-group">
-                                    <span class="settings-label">Debug Mode</span>
-                                    <span class="settings-description">Enable console logging for debugging</span>
-                                </div>
-                                <label class="settings-toggle">
-                                    <input type="checkbox">
-                                    <span class="toggle-slider"></span>
-                                </label>
+                            <div class="dev-info">
+                                <p><strong>Current Mode:</strong> <span id="currentViewMode">Pro</span></p>
+                                <p style="margin-top: 8px; color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">
+                                    This allows you to test the app as different user types without creating multiple accounts.
+                                </p>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
         </div>
     </div>
     
-    <script src="script.js?v=8.2"></script>
+    </section>
+    
+    <!-- Content Section - Educational Content -->
+    <section class="content-section">
+        <div class="content-container">
+            <h1>Pomodoro Timer App<br class="desktop-break">for Focus and Time Management</h1>
+            
+            <div class="content-hero-image">
+                <img src="images/ChatGPT Image Oct 8, 2025, 08_08_24 AM.png" alt="Pomodoro Timer Illustration" loading="lazy">
+            </div>
+            
+            <h2>What is Superfocus?</h2>
+            <p>Superfocus is a pomodoro timer app that helps you focus and get more done. Simple time management—just press start and focus.</p>
+            
+            <h2>What is the Pomodoro Technique?</h2>
+            <p>The Pomodoro Technique is a time management method: focus for 25 minutes, take a 5-minute break, repeat. After 4 sessions, take a 15-minute break. <a href="https://www.youtube.com/watch?v=IlU-zDU6aQ0" target="_blank" rel="noopener noreferrer" class="inline-text-link">Learn more →</a></p>
+            
+            <h2>Benefits</h2>
+            <ul>
+                <li>Stay focused - 25-minute sessions keep you in deep work mode</li>
+                <li>Avoid burnout - Regular breaks keep your energy high</li>
+                <li>Track progress - See exactly how much you accomplish</li>
+            </ul>
+            
+            <h2>How to Use</h2>
+            <ol>
+                <li>Pick your task</li>
+                <li>Start the timer and focus for 25 minutes</li>
+                <li>Take a 5-minute break</li>
+                <li>Repeat 4 times, then take a longer break</li>
+            </ol>
+        </div>
+    </section>
+    
+    <!-- Site Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="/" class="footer-link">Home</a>
+                <a href="/pricing" class="footer-link">Pricing</a>
+                <a href="/privacy" class="footer-link">Privacy</a>
+                <a href="/terms" class="footer-link">Terms</a>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2025 Superfocus. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    </main> <!-- End main-content wrapper -->
+    
+    <!-- Pricing Modal -->
+    <div class="pricing-modal-overlay" id="pricingModal" style="display: none;">
+        <div class="pricing-modal">
+            <button class="close-pricing-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <div class="pricing-header">
+                <h2>Choose Your Plan</h2>
+                <p>Compare features and find the perfect plan for you</p>
+            </div>
+            
+            <div class="pricing-table">
+                <!-- Free Column -->
+                <div class="pricing-plan">
+                    <div class="plan-header">
+                        <h3>Free</h3>
+                        <div class="plan-price">
+                            <span class="price">$0</span>
+                            <span class="period">Forever free</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Basic timer</span>
+                        </div>
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Progress saved</span>
+                        </div>
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Task management (3 tasks max)</span>
+                        </div>
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Statistics & insights</span>
+                        </div>
+                        <div class="feature disabled">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            <span>Todoist integration</span>
+                        </div>
+                        <div class="feature disabled">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            <span>Notion integration</span>
+                        </div>
+                    </div>
+                    <button class="plan-button free" id="signupFromPricing">Sign up</button>
+                </div>
+                
+                <!-- Unlimited Column -->
+                <div class="pricing-plan featured">
+                    <div class="plan-badge">LIFETIME DEAL</div>
+                    <div class="plan-header">
+                        <h3>Unlimited</h3>
+                        <div class="plan-price">
+                            <div style="display: flex; align-items: baseline; justify-content: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <span class="price" style="font-size: 2.5rem;">$9.99</span>
+                                <span style="text-decoration: line-through; color: rgba(255, 255, 255, 0.5); font-size: 1.5rem; font-weight: 500;">$25</span>
+                            </div>
+                            <span class="period">one-time payment</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Basic timer</span>
+                        </div>
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Progress saved</span>
+                        </div>
+                        <div class="feature highlight">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Unlimited tasks</span>
+                        </div>
+                        <div class="feature">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Statistics & insights</span>
+                        </div>
+                        <div class="feature highlight">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Todoist integration</span>
+                        </div>
+                        <div class="feature highlight">
+                            <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Notion integration</span>
+                        </div>
+                    </div>
+                    <button class="plan-button pro" id="upgradeToProFromPricing">Get Lifetime Access</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cache-bust to ensure latest script loads in production -->
+    <script src="script.js?v=a558fc9"></script>
 </body>
 </html>

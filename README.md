@@ -4,6 +4,7 @@ A beautiful, minimalist Pomodoro timer with glassmorphism design and ambient sou
 
 ## Features
 
+### Core Features
 - **Pomodoro Technique**: 25min work / 5min break / 15min long break
 - **Multiple Techniques**: Pomodoro, Flowtime, Time Blocking, Pomodoro Plus
 - **Achievement System**: Track completed cycles with badge counter
@@ -12,6 +13,13 @@ A beautiful, minimalist Pomodoro timer with glassmorphism design and ambient sou
 - **Glassmorphism UI**: Modern, elegant interface
 - **Audio Feedback**: Cassette-style button sounds
 - **Persistent Settings**: Saves preferences in localStorage
+
+### Pro Features
+- **Todoist Integration**: Sync your tasks and focus on them
+- **Google Calendar Integration**: Import calendar events as focus sessions
+- **Notion Integration**: Connect your Notion workspace
+- **Advanced Statistics**: Detailed insights into your productivity
+- **Cross-device Sync**: Your progress follows you everywhere
 
 ## Quick Start
 
@@ -92,6 +100,24 @@ All styles are in `style.css` with clear comments for easy customization.
 
 MIT License - Feel free to use and modify.
 
+## Integrations
+
+Superfocus Pro includes powerful integrations with your favorite productivity tools:
+
+- **Todoist**: Sync tasks and mark them complete during focus sessions
+- **Google Calendar**: Import upcoming events to focus on
+- **Notion**: Connect your knowledge workspace pages
+
+For setup instructions, see [INTEGRATIONS_SETUP.md](./INTEGRATIONS_SETUP.md)
+
+## Documentation
+
+- [Development Setup](./DEVELOPMENT_SETUP.md) - Local development environment
+- [Production Setup](./PRODUCTION_SETUP.md) - Deployment to production
+- [Integrations Setup](./INTEGRATIONS_SETUP.md) - OAuth configuration for integrations
+- [SEO Setup](./SEO_SETUP.md) - SEO optimization guide
+
 ## Support
 
-For issues or questions, please check the code comments or create an issue in the repository.
+For issues or questions, please check the code comments or create an issue in the repository.# Force redeploy Tue Oct 21 08:48:30 EDT 2025
+# Force deploy Tue Oct 21 09:13:27 EDT 2025

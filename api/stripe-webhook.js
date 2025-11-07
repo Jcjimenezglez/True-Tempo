@@ -2,6 +2,46 @@
 const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+// Function to send conversion tracking to Google Ads (server-side)
+async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null) {
+  try {
+    const conversionId = conversionType === 'signup' 
+      ? 'AW-17614436696/HLp9CM6Plq0bENjym89B'
+      : 'AW-17614436696/uBZgCNz9pq0bENjym89B';
+    
+    const payload = {
+      conversion_action: conversionId,
+      conversion_value: value,
+      currency_code: 'USD',
+      transaction_id: transactionId || `server_${conversionType}_${Date.now()}`
+    };
+
+    // Note: This is a placeholder for server-side conversion tracking
+    // In practice, you would need to implement server-side conversion tracking
+    // using Google Ads API or Measurement Protocol
+    console.log(`🎯 Server-side conversion tracking: ${conversionType}`, payload);
+    
+    return true;
+  } catch (error) {
+    console.error(`❌ Error tracking server-side conversion:`, error);
+    return false;
+  }
+}
+
+// Helper to read raw body for Stripe signature verification on Vercel Node functions
+async function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    try {
+      const chunks = [];
+      req.on('data', (chunk) => chunks.push(chunk));
+      req.on('end', () => resolve(Buffer.concat(chunks)));
+      req.on('error', reject);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -25,7 +65,9 @@ module.exports = async (req, res) => {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    // Read raw body buffer to verify signature
+    const rawBody = await readRawBody(req);
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     res.status(400).json({ error: 'Invalid signature' });
@@ -61,6 +103,8 @@ module.exports = async (req, res) => {
 async function handleCheckoutCompleted(session, clerk) {
   const customerId = session.customer;
   const clerkUserId = session.metadata?.clerk_user_id;
+  const paymentType = session.metadata?.payment_type;
+  const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
 
   if (!customerId) {
     console.log('Missing customer ID in checkout session');
@@ -93,6 +137,27 @@ async function handleCheckoutCompleted(session, clerk) {
       return;
     }
 
+    // For lifetime deals, mark as premium permanently
+    if (isLifetime) {
+      await clerk.users.updateUser(targetUserId, {
+        publicMetadata: {
+          stripeCustomerId: customerId,
+          isPremium: true,
+          premiumSince: new Date().toISOString(),
+          paymentType: 'lifetime',
+          isLifetime: true,
+        },
+      });
+
+      console.log(`Updated Clerk user ${targetUserId} with LIFETIME premium status`);
+      
+      // Track lifetime deal conversion server-side
+      await trackConversionServerSide('subscription', 9.99, session.id);
+      
+      return; // Don't process as subscription
+    }
+
+    // For subscriptions (backward compatibility)
     // Update Clerk user with Stripe customer ID and premium status
     await clerk.users.updateUser(targetUserId, {
       publicMetadata: {
@@ -103,6 +168,10 @@ async function handleCheckoutCompleted(session, clerk) {
     });
 
     console.log(`Updated Clerk user ${targetUserId} with premium status`);
+    
+    // Track subscription conversion server-side
+    await trackConversionServerSide('subscription', 9.0, session.id);
+    
   } catch (error) {
     console.error('Error updating Clerk user:', error);
   }

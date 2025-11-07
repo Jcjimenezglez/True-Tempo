@@ -13,8 +13,10 @@ module.exports = async (req, res) => {
   // Read and sanitize env vars
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
   const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
-  const successUrl = (process.env.STRIPE_SUCCESS_URL || 'https://www.superfocus.live?premium=1').trim();
-  const cancelUrl = (process.env.STRIPE_CANCEL_URL || 'https://www.superfocus.live').trim();
+  
+  // Use hardcoded URLs to avoid environment variable issues
+  const finalSuccessUrl = 'https://www.superfocus.live?premium=1&payment=success';
+  const finalCancelUrl = 'https://www.superfocus.live';
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
@@ -29,9 +31,9 @@ module.exports = async (req, res) => {
     // Validate URLs to avoid Stripe "url_invalid"
     // Throws if invalid
     // eslint-disable-next-line no-new
-    new URL(successUrl);
+    new URL(finalSuccessUrl);
     // eslint-disable-next-line no-new
-    new URL(cancelUrl);
+    new URL(finalCancelUrl);
   } catch (_) {
     res.status(500).json({ error: 'Invalid redirect URLs for Stripe' });
     return;
@@ -41,7 +43,7 @@ module.exports = async (req, res) => {
     const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: 'payment', // Changed to one-time payment for lifetime deal
       line_items: [
         {
           price: priceId,
@@ -55,11 +57,12 @@ module.exports = async (req, res) => {
         app_version: '1.0',
         business_name: 'Superfocus',
         business_type: 'Pomodoro Timer & Focus App',
+        payment_type: 'lifetime', // Identify as lifetime deal
       },
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
       custom_fields: [
         {
           key: 'company_name',

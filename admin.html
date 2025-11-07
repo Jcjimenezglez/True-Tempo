@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superfocus Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+
+        .admin-header h1 {
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+
+        .admin-header p {
+            color: #888;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            color: #888;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: #333;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: #1a1a1a;
+            border-radius: 12px;
+            border: 1px solid #333;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .search-input::placeholder {
+            color: #888;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        .user-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .user-card {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .user-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-free {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-pro {
+            background: #10b981;
+            color: white;
+        }
+
+        .severity-high {
+            background: #ef4444;
+            color: white;
+        }
+
+        .severity-medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .severity-low {
+            background: #6b7280;
+            color: white;
+        }
+
+        .issue-card {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .issue-card:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .issue-info h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .issue-info p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .issue-details {
+            background: #333;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .issue-details h4 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .issue-details p {
+            color: #ccc;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .logs-section {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .log-success {
+            border-left: 4px solid #10b981;
+        }
+
+        .log-warning {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .log-info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .error-message {
+            background: #ef4444;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 10px;
+            }
+            
+            .admin-tabs {
+                flex-direction: column;
+            }
+            
+            .user-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .user-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🎯 Superfocus Admin Panel</h1>
+            <p>Manage users, monitor payments, and view system logs</p>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="tab-button active" data-tab="users">Users</button>
+            <button class="tab-button" data-tab="payment-issues">Payment Issues</button>
+            <button class="tab-button" data-tab="payments">Payment Logs</button>
+            <button class="tab-button" data-tab="webhooks">Webhook Logs</button>
+            <button class="tab-button" data-tab="stats">Statistics</button>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users" class="tab-content active">
+            <div class="search-section">
+                <input type="text" class="search-input" id="userSearch" placeholder="Search users by email...">
+            </div>
+            <div id="userList" class="user-list">
+                <div class="loading">Loading users...</div>
+            </div>
+        </div>
+
+        <!-- Payment Issues Tab -->
+        <div id="payment-issues" class="tab-content">
+            <div class="search-section">
+                <input type="text" class="search-input" id="issueSearch" placeholder="Search payment issues...">
+            </div>
+            <div id="paymentIssues" class="user-list">
+                <div class="loading">Loading payment issues...</div>
+            </div>
+        </div>
+
+        <!-- Payment Logs Tab -->
+        <div id="payments" class="tab-content">
+            <div class="search-section">
+                <input type="text" class="search-input" id="paymentSearch" placeholder="Search payment logs...">
+            </div>
+            <div id="paymentLogs" class="logs-section">
+                <div class="loading">Loading payment logs...</div>
+            </div>
+        </div>
+
+        <!-- Webhook Logs Tab -->
+        <div id="webhooks" class="tab-content">
+            <div class="search-section">
+                <input type="text" class="search-input" id="webhookSearch" placeholder="Search webhook logs...">
+            </div>
+            <div id="webhookLogs" class="logs-section">
+                <div class="loading">Loading webhook logs...</div>
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div id="stats" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">-</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="proUsers">-</div>
+                    <div class="stat-label">Pro Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="freeUsers">-</div>
+                    <div class="stat-label">Free Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRevenue">-</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Status Change Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change User Status</h3>
+                <p id="modalUserInfo"></p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="confirmStatusChange">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AdminPanel {
+            constructor() {
+                this.currentTab = 'users';
+                this.users = [];
+                this.paymentIssues = [];
+                this.paymentLogs = [];
+                this.webhookLogs = [];
+                this.currentUserId = null;
+                this.currentAction = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupTabs();
+                this.setupSearch();
+                this.loadData();
+            }
+
+            setupTabs() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabContents = document.querySelectorAll('.tab-content');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabId = button.dataset.tab;
+                        
+                        // Update active tab button
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        
+                        // Update active tab content
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        document.getElementById(tabId).classList.add('active');
+                        
+                        this.currentTab = tabId;
+                        this.loadTabData(tabId);
+                    });
+                });
+            }
+
+            setupSearch() {
+                const searchInputs = document.querySelectorAll('.search-input');
+                searchInputs.forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        this.filterData(e.target.id, e.target.value);
+                    });
+                });
+            }
+
+            async loadData() {
+                await this.loadUsers();
+                await this.loadPaymentIssues();
+                await this.loadPaymentLogs();
+                await this.loadWebhookLogs();
+                await this.loadStats();
+            }
+
+            async loadTabData(tabId) {
+                switch(tabId) {
+                    case 'users':
+                        await this.loadUsers();
+                        break;
+                    case 'payment-issues':
+                        await this.loadPaymentIssues();
+                        break;
+                    case 'payments':
+                        await this.loadPaymentLogs();
+                        break;
+                    case 'webhooks':
+                        await this.loadWebhookLogs();
+                        break;
+                    case 'stats':
+                        await this.loadStats();
+                        break;
+                }
+            }
+
+            async loadUsers() {
+                try {
+                    const response = await fetch('/api/admin/users');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.users = data.users;
+                        this.renderUsers();
+                    } else {
+                        this.showError('Failed to load users: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading users: ' + error.message);
+                }
+            }
+
+            async loadPaymentIssues() {
+                try {
+                    const response = await fetch('/api/admin/payment-issues');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.paymentIssues = data.issues;
+                        this.renderPaymentIssues();
+                    } else {
+                        this.showError('Failed to load payment issues: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading payment issues: ' + error.message);
+                }
+            }
+
+            async loadPaymentLogs() {
+                try {
+                    const response = await fetch('/api/admin/payment-logs');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.paymentLogs = data.logs;
+                        this.renderPaymentLogs();
+                    } else {
+                        this.showError('Failed to load payment logs: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading payment logs: ' + error.message);
+                }
+            }
+
+            async loadWebhookLogs() {
+                try {
+                    const response = await fetch('/api/admin/webhook-logs');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.webhookLogs = data.logs;
+                        this.renderWebhookLogs();
+                    } else {
+                        this.showError('Failed to load webhook logs: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading webhook logs: ' + error.message);
+                }
+            }
+
+            async loadStats() {
+                try {
+                    const response = await fetch('/api/admin/stats');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.renderStats(data.stats);
+                    } else {
+                        this.showError('Failed to load stats: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading stats: ' + error.message);
+                }
+            }
+
+            renderUsers() {
+                const container = document.getElementById('userList');
+                
+                if (this.users.length === 0) {
+                    container.innerHTML = '<div class="loading">No users found</div>';
+                    return;
+                }
+
+                container.innerHTML = this.users.map(user => `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-info">
+                                <h3>${user.email}</h3>
+                                <p>ID: ${user.id} | Created: ${new Date(user.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <div class="user-status ${user.isPremium ? 'status-pro' : 'status-free'}">
+                                ${user.isPremium ? 'PRO' : 'FREE'}
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn ${user.isPremium ? 'btn-danger' : 'btn-primary'}" 
+                                    onclick="adminPanel.changeUserStatus('${user.id}', '${user.email}', ${user.isPremium})">
+                                ${user.isPremium ? 'Remove Pro' : 'Make Pro'}
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminPanel.viewUserDetails('${user.id}')">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderPaymentIssues() {
+                const container = document.getElementById('paymentIssues');
+                
+                if (this.paymentIssues.length === 0) {
+                    container.innerHTML = '<div class="loading">No payment issues found</div>';
+                    return;
+                }
+
+                container.innerHTML = this.paymentIssues.map(issue => `
+                    <div class="issue-card">
+                        <div class="issue-header">
+                            <div class="issue-info">
+                                <h3>${issue.email}</h3>
+                                <p>${issue.issue}</p>
+                            </div>
+                            <div class="user-status severity-${issue.severity}">
+                                ${issue.severity.toUpperCase()}
+                            </div>
+                        </div>
+                        
+                        <div class="issue-details">
+                            <h4>Payment Details</h4>
+                            <p><strong>Amount:</strong> $${issue.amount} ${issue.currency.toUpperCase()}</p>
+                            <p><strong>Status:</strong> ${issue.subscriptionStatus}</p>
+                            <p><strong>Stripe Customer:</strong> ${issue.stripeCustomerId}</p>
+                            ${issue.subscriptionId ? `<p><strong>Subscription:</strong> ${issue.subscriptionId}</p>` : ''}
+                            ${issue.lastPayment ? `<p><strong>Last Payment:</strong> ${new Date(issue.lastPayment).toLocaleString()}</p>` : ''}
+                        </div>
+                        
+                        <div class="user-actions">
+                            ${issue.clerkUserId ? `
+                                <button class="btn btn-primary" onclick="adminPanel.fixPaymentIssue('${issue.email}', '${issue.stripeCustomerId}', 'fix_pro_status')">
+                                    Fix Pro Status
+                                </button>
+                                <button class="btn btn-secondary" onclick="adminPanel.fixPaymentIssue('${issue.email}', '${issue.stripeCustomerId}', 'sync_user')">
+                                    Sync User Data
+                                </button>
+                            ` : `
+                                <button class="btn btn-secondary" onclick="adminPanel.viewIssueDetails('${issue.email}')">
+                                    View Details
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderPaymentLogs() {
+                const container = document.getElementById('paymentLogs');
+                
+                if (this.paymentLogs.length === 0) {
+                    container.innerHTML = '<div class="loading">No payment logs found</div>';
+                    return;
+                }
+
+                container.innerHTML = this.paymentLogs.map(log => `
+                    <div class="log-entry ${this.getLogClass(log.level)}">
+                        <div><strong>${new Date(log.timestamp).toLocaleString()}</strong></div>
+                        <div>${log.message}</div>
+                        ${log.details ? `<div style="margin-top: 5px; color: #888;">${log.details}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            renderWebhookLogs() {
+                const container = document.getElementById('webhookLogs');
+                
+                if (this.webhookLogs.length === 0) {
+                    container.innerHTML = '<div class="loading">No webhook logs found</div>';
+                    return;
+                }
+
+                container.innerHTML = this.webhookLogs.map(log => `
+                    <div class="log-entry ${this.getLogClass(log.level)}">
+                        <div><strong>${new Date(log.timestamp).toLocaleString()}</strong></div>
+                        <div>${log.message}</div>
+                        ${log.details ? `<div style="margin-top: 5px; color: #888;">${log.details}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            renderStats(stats) {
+                document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+                document.getElementById('proUsers').textContent = stats.proUsers || 0;
+                document.getElementById('freeUsers').textContent = stats.freeUsers || 0;
+                document.getElementById('totalRevenue').textContent = `$${stats.totalRevenue || 0}`;
+            }
+
+            getLogClass(level) {
+                switch(level) {
+                    case 'error': return 'log-error';
+                    case 'success': return 'log-success';
+                    case 'warning': return 'log-warning';
+                    case 'info': return 'log-info';
+                    default: return 'log-info';
+                }
+            }
+
+            changeUserStatus(userId, email, currentStatus) {
+                this.currentUserId = userId;
+                this.currentAction = currentStatus ? 'remove' : 'add';
+                
+                document.getElementById('modalUserInfo').textContent = 
+                    `Change ${email} from ${currentStatus ? 'PRO' : 'FREE'} to ${currentStatus ? 'FREE' : 'PRO'}?`;
+                
+                document.getElementById('statusModal').style.display = 'block';
+            }
+
+            async confirmStatusChange() {
+                try {
+                    const response = await fetch('/api/admin/change-user-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: this.currentUserId,
+                            action: this.currentAction
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const newStatus = this.currentAction === 'add' ? 'PRO' : 'FREE';
+                        this.showSuccess(`✅ User status updated to ${newStatus}. The user needs to refresh their browser to see the changes.`);
+                        this.closeModal();
+                        this.loadUsers();
+                        this.loadStats();
+                    } else {
+                        this.showError('Failed to update user status: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error updating user status: ' + error.message);
+                }
+            }
+
+            closeModal() {
+                document.getElementById('statusModal').style.display = 'none';
+                this.currentUserId = null;
+                this.currentAction = null;
+            }
+
+            viewUserDetails(userId) {
+                const user = this.users.find(u => u.id === userId);
+                if (user) {
+                    alert(`User Details:\n\nEmail: ${user.email}\nID: ${user.id}\nStatus: ${user.isPremium ? 'PRO' : 'FREE'}\nCreated: ${new Date(user.createdAt).toLocaleString()}\nStripe Customer ID: ${user.stripeCustomerId || 'None'}`);
+                }
+            }
+
+            async fixPaymentIssue(email, stripeCustomerId, action) {
+                try {
+                    const response = await fetch('/api/admin/fix-payment-issues', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            stripeCustomerId: stripeCustomerId,
+                            action: action
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showSuccess(`Payment issue fixed successfully: ${data.message}`);
+                        this.loadPaymentIssues();
+                        this.loadUsers();
+                        this.loadStats();
+                    } else {
+                        this.showError('Failed to fix payment issue: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error fixing payment issue: ' + error.message);
+                }
+            }
+
+            viewIssueDetails(email) {
+                const issue = this.paymentIssues.find(i => i.email === email);
+                if (issue) {
+                    alert(`Payment Issue Details:\n\nEmail: ${issue.email}\nIssue: ${issue.issue}\nSeverity: ${issue.severity}\nAmount: $${issue.amount} ${issue.currency.toUpperCase()}\nStatus: ${issue.subscriptionStatus}\nStripe Customer: ${issue.stripeCustomerId}\nLast Payment: ${issue.lastPayment ? new Date(issue.lastPayment).toLocaleString() : 'N/A'}`);
+                }
+            }
+
+            filterData(searchId, query) {
+                // Implementation for filtering data based on search query
+                console.log(`Filtering ${searchId} with query: ${query}`);
+            }
+
+            showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                
+                const container = document.querySelector('.admin-container');
+                container.insertBefore(errorDiv, container.firstChild);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-message';
+                successDiv.textContent = message;
+                
+                const container = document.querySelector('.admin-container');
+                container.insertBefore(successDiv, container.firstChild);
+                
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 5000);
+            }
+        }
+
+        // Global functions
+        function closeModal() {
+            adminPanel.closeModal();
+        }
+
+        // Initialize admin panel
+        const adminPanel = new AdminPanel();
+
+        // Setup confirm button
+        document.getElementById('confirmStatusChange').addEventListener('click', () => {
+            adminPanel.confirmStatusChange();
+        });
+    </script>
+</body>
+</html>

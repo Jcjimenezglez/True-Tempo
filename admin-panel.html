@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superfocus Admin Panel</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-header h1 {
+            margin: 0 0 0.5rem 0;
+            color: #ffffff;
+            font-size: 2rem;
+        }
+        
+        .admin-header p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .login-section {
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-section h2 {
+            margin: 0 0 1.5rem 0;
+            text-align: center;
+            color: #ffffff;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #064e3b, #065f46);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #065f46, #047857);
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #047857;
+        }
+        
+        .admin-content {
+            display: none;
+        }
+        
+        .admin-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+            color: #10b981;
+        }
+        
+        .stat-card p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .users-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        
+        .users-section h2 {
+            margin: 0 0 1.5rem 0;
+            color: #ffffff;
+        }
+        
+        .user-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #ffffff;
+        }
+        
+        .user-info p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+        
+        .plan-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .plan-free {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+        
+        .plan-pro {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .error-message {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #fca5a5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🔧 Superfocus Admin Panel</h1>
+            <p>Manage users and subscription plans</p>
+        </div>
+        
+        <!-- Login Section -->
+        <div class="login-section" id="loginSection">
+            <h2>Admin Access</h2>
+            <div class="error-message" id="loginError"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminPassword">Admin Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Access Admin Panel</button>
+            </form>
+        </div>
+        
+        <!-- Admin Content -->
+        <div class="admin-content" id="adminContent">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalUsers">-</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="proUsers">-</h3>
+                    <p>Pro Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="freeUsers">-</h3>
+                    <p>Free Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="conversionRate">-</h3>
+                    <p>Conversion Rate</p>
+                </div>
+            </div>
+            
+            <!-- Users Management -->
+            <div class="users-section">
+                <h2>User Management</h2>
+                <div class="success-message" id="successMessage"></div>
+                <div class="error-message" id="errorMessage"></div>
+                <div class="loading" id="loadingUsers">Loading users...</div>
+                <div id="usersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = '314';
+        let isAuthenticated = false;
+        
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isAuthenticated = true;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminContent').classList.add('active');
+                loadUsers();
+            } else {
+                showError('loginError', 'Invalid password');
+            }
+        });
+        
+        // Show error message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Load users from your backend
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load users');
+                }
+                
+                const data = await response.json();
+                displayUsers(data.users);
+                updateStats(data.stats);
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('errorMessage', 'Failed to load users. Please try again.');
+            }
+        }
+        
+        // Display users in the UI
+        function displayUsers(users) {
+            const usersList = document.getElementById('usersList');
+            const loading = document.getElementById('loadingUsers');
+            
+            loading.style.display = 'none';
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<p style="text-align: center; color: rgba(255, 255, 255, 0.7);">No users found</p>';
+                return;
+            }
+            
+            usersList.innerHTML = users.map(user => `
+                <div class="user-card">
+                    <div class="user-info">
+                        <h4>${user.email}</h4>
+                        <p>ID: ${user.id} | Created: ${new Date(user.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="user-actions">
+                        <span class="plan-badge ${user.isPremium ? 'plan-pro' : 'plan-free'}">
+                            ${user.isPremium ? 'Pro' : 'Free'}
+                        </span>
+                        ${user.isPremium ? 
+                            `<button class="btn btn-danger btn-small" onclick="downgradeUser('${user.id}')">Downgrade to Free</button>` :
+                            `<button class="btn btn-success btn-small" onclick="upgradeUser('${user.id}')">Upgrade to Pro</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Update statistics
+        function updateStats(stats) {
+            document.getElementById('totalUsers').textContent = stats.total;
+            document.getElementById('proUsers').textContent = stats.pro;
+            document.getElementById('freeUsers').textContent = stats.free;
+            document.getElementById('conversionRate').textContent = stats.conversionRate + '%';
+        }
+        
+        // Upgrade user to Pro
+        async function upgradeUser(userId) {
+            try {
+                const response = await fetch('/api/admin/upgrade-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to upgrade user');
+                }
+                
+                showSuccess('User upgraded to Pro successfully!');
+                loadUsers(); // Reload users list
+                
+            } catch (error) {
+                console.error('Error upgrading user:', error);
+                showError('errorMessage', 'Failed to upgrade user. Please try again.');
+            }
+        }
+        
+        // Downgrade user to Free
+        async function downgradeUser(userId) {
+            try {
+                const response = await fetch('/api/admin/downgrade-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to downgrade user');
+                }
+                
+                showSuccess('User downgraded to Free successfully!');
+                loadUsers(); // Reload users list
+                
+            } catch (error) {
+                console.error('Error downgrading user:', error);
+                showError('errorMessage', 'Failed to downgrade user. Please try again.');
+            }
+        }
+        
+        // Check if already authenticated (for page refresh)
+        if (localStorage.getItem('adminAuthenticated') === 'true') {
+            isAuthenticated = true;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminContent').classList.add('active');
+            loadUsers();
+        }
+        
+        // Save authentication state
+        if (isAuthenticated) {
+            localStorage.setItem('adminAuthenticated', 'true');
+        }
+    </script>
+</body>
+</html>

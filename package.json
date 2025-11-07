@@ -3,7 +3,12 @@
   "private": true,
   "type": "commonjs",
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "setup-dev": "node scripts/setup-dev.js",
+    "logs": "vercel logs --follow"
   },
   "scripts": {
     "dev": "vercel dev",

@@ -1,3 +1,5 @@
+const { checkProStatus } = require('./_check-pro-status');
+
 function getToken(req) {
   const cookie = req.headers.cookie || '';
   const match = cookie.split(';').map(s => s.trim()).find(s => s.startsWith('todoist_access_token='));
@@ -7,6 +9,13 @@ function getToken(req) {
 
 module.exports = async (req, res) => {
   try {
+    // Verify Pro status
+    const proCheck = await checkProStatus(req);
+    if (!proCheck.isPro) {
+      res.statusCode = 403;
+      return res.end('Pro subscription required');
+    }
+
     const url = new URL(req.url, `https://${req.headers.host}`);
     const id = url.searchParams.get('id');
     if (!id) {
