@@ -296,6 +296,244 @@
             margin: 0;
         }
         
+        /* Use Cases Section Styles */
+        .use-cases-section {
+            margin-top: 8rem;
+            padding: 0 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .use-cases-intro {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .use-cases-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+        }
+        
+        .use-cases-subtitle {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .use-case-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .use-case-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        .use-case-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+        
+        .use-case-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+        }
+        
+        .use-case-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
+        /* Integration Showcase Section Styles */
+        .integration-showcase-section {
+            margin-top: 8rem;
+            padding: 0 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .integration-intro {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .integration-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+        }
+        
+        .integration-subtitle {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .integration-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .integration-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        .integration-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+        
+        .integration-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+        }
+        
+        .integration-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
+        /* FAQ Section Styles */
+        .faq-section {
+            margin-top: 8rem;
+            padding: 0 2rem 4rem 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .faq-intro {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .faq-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .faq-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .faq-question {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .faq-question span {
+            flex: 1;
+        }
+        
+        .faq-icon {
+            flex-shrink: 0;
+            margin-left: 1rem;
+            transition: transform 0.3s ease;
+            stroke: rgba(255, 255, 255, 0.7);
+        }
+        
+        .faq-item[aria-expanded="true"] .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 1.5rem;
+        }
+        
+        .faq-item[aria-expanded="true"] .faq-answer {
+            max-height: 500px;
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+        
+        .faq-answer p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+        
         @media (max-width: 768px) {
             .pricing-page-header-section h1 {
                 font-size: 2.5rem;
@@ -317,6 +555,72 @@
             
             .benefit-item {
                 padding: 1.5rem;
+            }
+            
+            .use-cases-section {
+                margin-top: 4rem;
+                padding: 0 1rem;
+            }
+            
+            .use-cases-title {
+                font-size: 2rem;
+            }
+            
+            .use-cases-subtitle {
+                font-size: 1rem;
+            }
+            
+            .use-cases-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .use-case-item {
+                padding: 1.5rem;
+            }
+            
+            .integration-showcase-section {
+                margin-top: 4rem;
+                padding: 0 1rem;
+            }
+            
+            .integration-title {
+                font-size: 2rem;
+            }
+            
+            .integration-subtitle {
+                font-size: 1rem;
+            }
+            
+            .integrations-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .integration-item {
+                padding: 1.5rem;
+            }
+            
+            .faq-section {
+                margin-top: 4rem;
+                padding: 0 1rem 2rem 1rem;
+            }
+            
+            .faq-title {
+                font-size: 2rem;
+            }
+            
+            .faq-question {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+            
+            .faq-answer {
+                padding: 0 1rem;
+            }
+            
+            .faq-item[aria-expanded="true"] .faq-answer {
+                padding: 0 1rem 1rem 1rem;
             }
         }
         
@@ -699,6 +1003,131 @@
             </div>
         </div>
         
+        <!-- Use Cases Section -->
+        <div class="use-cases-section">
+            <div class="use-cases-intro">
+                <h2 class="use-cases-title">Built for every focus moment</h2>
+                <p class="use-cases-subtitle">Whether you're deep in work, managing tasks, or tracking your progress—Superfocus adapts to how you work.</p>
+            </div>
+            
+            <div class="use-cases-grid">
+                <div class="use-case-item">
+                    <div class="use-case-icon">💼</div>
+                    <h3 class="use-case-title">Deep Work Sessions</h3>
+                    <p class="use-case-description">Create custom timers for your most important work. Match your rhythm, not someone else's.</p>
+                </div>
+                
+                <div class="use-case-item">
+                    <div class="use-case-icon">📝</div>
+                    <h3 class="use-case-title">Task Management</h3>
+                    <p class="use-case-description">Sync with Todoist and Notion. Focus on tasks without switching between apps.</p>
+                </div>
+                
+                <div class="use-case-item">
+                    <div class="use-case-icon">📈</div>
+                    <h3 class="use-case-title">Progress Tracking</h3>
+                    <p class="use-case-description">See where your time goes. Understand your patterns and optimize your workflow.</p>
+                </div>
+                
+                <div class="use-case-item">
+                    <div class="use-case-icon">🎧</div>
+                    <h3 class="use-case-title">Flow State</h3>
+                    <p class="use-case-description">Build your perfect sound environment. Get into the zone faster and stay there longer.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Integration Showcase Section -->
+        <div class="integration-showcase-section">
+            <div class="integration-intro">
+                <h2 class="integration-title">Connect your tools</h2>
+                <p class="integration-subtitle">Bring everything together. Work from one place without the context switching.</p>
+            </div>
+            
+            <div class="integrations-grid">
+                <div class="integration-item">
+                    <div class="integration-logo">📋</div>
+                    <h3 class="integration-name">Todoist</h3>
+                    <p class="integration-description">Import tasks, track time, and sync everything back. One workflow, no context switching.</p>
+                </div>
+                
+                <div class="integration-item">
+                    <div class="integration-logo">📝</div>
+                    <h3 class="integration-name">Notion</h3>
+                    <p class="integration-description">Connect your Notion databases. Import tasks, track time, sync back—all from one place.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <div class="faq-intro">
+                <h2 class="faq-title">Frequently asked questions</h2>
+            </div>
+            
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What happens after the 3-month trial?</span>
+                        <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>After your 3-month free trial, you'll be charged $3.99 per month. You can cancel anytime before the trial ends to avoid being charged.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Can I cancel anytime?</span>
+                        <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes, you can cancel your Premium subscription at any time. Your access will continue until the end of your current billing period.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What payment methods do you accept?</span>
+                        <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We accept all major credit cards, debit cards, and other payment methods through Stripe. All payments are secure and encrypted.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What if I've tried Premium before?</span>
+                        <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>The 3-month free trial is only available for new Premium users. If you've tried Premium before, you'll be charged $3.99/month immediately.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Will I be notified before the trial ends?</span>
+                        <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes, we'll notify you 7 days before your trial ends so you can decide whether to continue or cancel.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </main>
     
     <!-- Site Footer -->
@@ -864,6 +1293,28 @@
         // Check upgrade intent after page is updated
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(checkUpgradeIntent, 1000);
+        });
+        
+        // FAQ Accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const faqItem = this.closest('.faq-item');
+                    const isExpanded = faqItem.getAttribute('aria-expanded') === 'true';
+                    
+                    // Close all other FAQ items
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        if (item !== faqItem) {
+                            item.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                    
+                    // Toggle current item
+                    faqItem.setAttribute('aria-expanded', !isExpanded);
+                });
+            });
         });
     </script>
 </body>
