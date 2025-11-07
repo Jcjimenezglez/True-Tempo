@@ -304,6 +304,14 @@ async function handleSubscriptionChange(subscription, clerk) {
   const isTrialing = subscription.status === 'trialing';
   const isActiveAfterTrial = subscription.status === 'active' && subscription.trial_end && subscription.trial_end < Math.floor(Date.now() / 1000);
 
+  console.log('📝 Subscription change event:', {
+    customerId,
+    subscriptionId: subscription.id,
+    status: subscription.status,
+    isTrialing,
+    trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
+  });
+
   try {
     // Find Clerk user by Stripe customer ID
     const users = await clerk.users.getUserList({
@@ -319,25 +327,42 @@ async function handleSubscriptionChange(subscription, clerk) {
       const priceId = subscription.items.data[0]?.price?.id;
       let paymentType = user.publicMetadata?.paymentType || 'premium';
       
+      // Check if this is a Premium plan by checking the price ID
+      const premiumPriceId = process.env.STRIPE_PRICE_ID_PREMIUM;
+      if (priceId === premiumPriceId) {
+        paymentType = 'premium';
+      }
+      
       // Update isTrial flag based on subscription status
       const isTrial = isTrialing;
       
       // If trial ended and subscription is now active, remove isTrial flag
       const shouldRemoveTrialFlag = isActiveAfterTrial && user.publicMetadata?.isTrial;
 
+      // Get current metadata to preserve existing data
+      const updatedMetadata = {
+        ...(user.publicMetadata || {}),
+        stripeCustomerId: customerId,
+        isPremium: isActive, // Set to true for both 'active' and 'trialing' status
+        premiumSince: isActive ? (user.publicMetadata?.premiumSince || new Date().toISOString()) : null,
+        paymentType: paymentType,
+        isTrial: isTrial && !shouldRemoveTrialFlag,
+        lastUpdated: new Date().toISOString(),
+      };
+
       await clerk.users.updateUser(user.id, {
-        publicMetadata: {
-          ...user.publicMetadata,
-          isPremium: isActive,
-          premiumSince: isActive ? (user.publicMetadata?.premiumSince || new Date().toISOString()) : null,
-          paymentType: paymentType, // Keep existing paymentType
-          isTrial: isTrial && !shouldRemoveTrialFlag, // Update trial status
-        },
+        publicMetadata: updatedMetadata,
       });
 
       console.log(`✅ Updated subscription status for user ${user.id}: ${subscription.status} (${paymentType}, trial: ${isTrial})`);
+      console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
     } else {
       console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
+      console.log('   Available users with Stripe customer IDs:', users.data.map(u => ({
+        id: u.id,
+        email: u.emailAddresses?.[0]?.emailAddress,
+        stripeCustomerId: u.publicMetadata?.stripeCustomerId
+      })));
     }
   } catch (error) {
     console.error('❌ Error updating subscription status:', error);

@@ -112,6 +112,24 @@ module.exports = async (req, res) => {
 
     // For Premium plan with trial, add subscription description to clarify $0 today
     if (planType === 'premium' && mode === 'subscription') {
+      // Verify the price has trial configured
+      try {
+        const price = await stripe.prices.retrieve(priceId);
+        console.log('📋 Price details:', {
+          id: price.id,
+          amount: price.unit_amount,
+          recurring: price.recurring,
+          trial_period_days: price.recurring?.trial_period_days
+        });
+        
+        if (!price.recurring?.trial_period_days) {
+          console.error('❌ WARNING: Price does not have trial_period_days configured!');
+          console.error('   This will cause users to be charged immediately instead of getting a trial.');
+        }
+      } catch (priceError) {
+        console.error('❌ Error retrieving price:', priceError);
+      }
+      
       sessionConfig.subscription_data = {
         description: '3 months free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
         metadata: {
@@ -121,6 +139,15 @@ module.exports = async (req, res) => {
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
+    
+    // Log session details for debugging
+    console.log('📋 Checkout session created:', {
+      id: session.id,
+      mode: session.mode,
+      subscription: session.subscription,
+      customer: session.customer,
+      payment_status: session.payment_status
+    });
 
     console.log(`✅ Checkout session created for ${planType} plan`);
     res.status(200).json({ url: session.url });
