@@ -441,9 +441,27 @@
             margin: 0;
         }
         
+        /* CTA Before FAQ Section Styles */
+        .cta-before-faq-section {
+            margin-top: 8rem;
+            padding: 0 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        
+        .cta-before-faq-section .pricing-cta-spotify {
+            margin-bottom: 1rem;
+        }
+        
+        .cta-before-faq-section .pricing-offer-explanation {
+            margin: 0 auto;
+        }
+        
         /* FAQ Section Styles */
         .faq-section {
-            margin-top: 8rem;
+            margin-top: 4rem;
             padding: 0 2rem 4rem 2rem;
             max-width: 800px;
             margin-left: auto;
@@ -599,6 +617,11 @@
             
             .integration-item {
                 padding: 1.5rem;
+            }
+            
+            .cta-before-faq-section {
+                margin-top: 4rem;
+                padding: 0 1rem;
             }
             
             .faq-section {
@@ -1059,6 +1082,14 @@
             </div>
         </div>
         
+        <!-- CTA Section Before FAQ -->
+        <div class="cta-before-faq-section">
+            <button class="pricing-cta-spotify" id="ctaBeforeFaq">Try 3 months for $0</button>
+            <div class="pricing-offer-explanation">
+                $0 for 3 months, then $3.99 per month after. Offer only available if you haven't tried Premium before. <a href="/terms" target="_blank">Terms apply</a>.
+            </div>
+        </div>
+        
         <!-- FAQ Section -->
         <div class="faq-section">
             <div class="faq-intro">
@@ -1146,22 +1177,11 @@
     </footer>
     
     <script>
-        // Initialize button on DOM load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing pricing button...');
-            
-            const premiumButton = document.getElementById('pricingPageUpgrade');
-            
-            if (!premiumButton) {
-                console.error('Could not find pricing button');
-                return;
-            }
-            
-            console.log('Button found, adding event listener...');
-            
-            premiumButton.addEventListener('click', function(e) {
+        // Function to handle CTA button click
+        function handleCTAClick(button, source = 'pricing_page') {
+            return function(e) {
                 e.preventDefault();
-                console.log('Premium button clicked');
+                console.log('Premium button clicked from', source);
                 
                 // Check if user is authenticated
                 const isAuthenticated = window.Clerk && window.Clerk.user;
@@ -1170,7 +1190,7 @@
                 // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
                 if (window.mixpanel && window.mixpanel.track) {
                     window.mixpanel.track('Stripe Checkout Opened', {
-                        source: 'pricing_page',
+                        source: source,
                         user_type: isAuthenticated ? 'free_user' : 'guest',
                         plan_type: 'premium',
                         timestamp: new Date().toISOString()
@@ -1180,10 +1200,10 @@
                     // Also track as Subscribe Clicked
                     window.mixpanel.track('Subscribe Clicked', {
                         button_type: 'subscribe',
-                        source: 'pricing_page',
-                        location: 'pricing_page',
+                        source: source,
+                        location: source,
                         user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
-                        modal_type: 'pricing_page',
+                        modal_type: source,
                         plan_type: 'premium'
                     });
                     console.log('✅ Mixpanel tracking sent: Subscribe Clicked');
@@ -1197,9 +1217,9 @@
                 if (isPremium) {
                     // Already premium
                     console.log('User already has Premium');
-                    premiumButton.textContent = 'You have Premium';
-                    premiumButton.disabled = true;
-                    premiumButton.classList.add('disabled');
+                    button.textContent = 'You have Premium';
+                    button.disabled = true;
+                    button.classList.add('disabled');
                     return;
                 }
                 
@@ -1213,9 +1233,29 @@
                     localStorage.setItem('upgradeAfterLogin', 'true');
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 }
-            });
+            };
+        }
+        
+        // Initialize buttons on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing pricing buttons...');
             
-            console.log('✅ Event listener added successfully');
+            const premiumButton = document.getElementById('pricingPageUpgrade');
+            const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
+            
+            if (premiumButton) {
+                console.log('Main pricing button found, adding event listener...');
+                premiumButton.addEventListener('click', handleCTAClick(premiumButton, 'pricing_page'));
+                console.log('✅ Main button event listener added successfully');
+            } else {
+                console.error('Could not find main pricing button');
+            }
+            
+            if (ctaBeforeFaqButton) {
+                console.log('CTA before FAQ button found, adding event listener...');
+                ctaBeforeFaqButton.addEventListener('click', handleCTAClick(ctaBeforeFaqButton, 'cta_before_faq'));
+                console.log('✅ CTA before FAQ button event listener added successfully');
+            }
             
             // Update button states after Clerk loads
             setTimeout(updateButtonStates, 500);
@@ -1223,8 +1263,7 @@
         
         function updateButtonStates() {
             const premiumButton = document.getElementById('pricingPageUpgrade');
-            
-            if (!premiumButton) return;
+            const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
@@ -1232,10 +1271,17 @@
             console.log('Updating button states:', { isAuthenticated, isPremium });
             
             // Update Premium button
-            if (isPremium) {
+            if (premiumButton && isPremium) {
                 premiumButton.textContent = 'You have Premium';
                 premiumButton.disabled = true;
                 premiumButton.classList.add('disabled');
+            }
+            
+            // Update CTA before FAQ button
+            if (ctaBeforeFaqButton && isPremium) {
+                ctaBeforeFaqButton.textContent = 'You have Premium';
+                ctaBeforeFaqButton.disabled = true;
+                ctaBeforeFaqButton.classList.add('disabled');
             }
             
             // Check for Clerk again if not loaded yet
