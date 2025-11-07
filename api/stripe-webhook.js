@@ -19,9 +19,9 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       ? email.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) 
       : `client_${transactionId || Date.now()}`;
     
-    // Use Google Ads Conversion Tracking API directly
-    // This is the direct method without GA4
-    const conversionUrl = `https://www.google-analytics.com/m/collect?api_secret=${process.env.GOOGLE_ADS_API_SECRET || ''}&measurement_id=${conversionId}`;
+    // Use Google Ads Conversion Tracking API directly (server-side)
+    // This sends the conversion directly to Google Ads without GA4
+    // Format: https://www.google-analytics.com/m/collect with conversion event
     
     // Build conversion payload for Google Ads
     // Format: send_to = "AW-XXXXX/YYYYY" (conversion_id/conversion_label)
@@ -38,36 +38,47 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       }]
     };
 
-    // Send conversion to Google Ads
-    if (process.env.GOOGLE_ADS_API_SECRET) {
-      try {
-        const response = await fetch(conversionUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-          console.log(`✅ Google Ads conversion tracked (direct): ${conversionType}`, {
-            value,
-            transactionId,
-            conversionLabel,
-            conversionId,
-            clientId,
-            email: email ? email.substring(0, 5) + '***' : 'N/A'
-          });
-          return true;
-        } else {
-          const errorText = await response.text();
-          console.warn(`⚠️ Google Ads conversion tracking failed: ${response.status}`, errorText);
-        }
-      } catch (fetchError) {
-        console.error(`❌ Error sending Google Ads conversion:`, fetchError);
-      }
+    // For server-side tracking, we can use the Measurement Protocol
+    // If API secret is available, use it for better tracking
+    // Otherwise, we'll log the conversion attempt
+    const apiSecret = process.env.GOOGLE_ADS_API_SECRET;
+    let conversionUrl;
+    
+    if (apiSecret) {
+      // Use Measurement Protocol with API secret (more reliable)
+      conversionUrl = `https://www.google-analytics.com/m/collect?api_secret=${apiSecret}&measurement_id=${conversionId}`;
     } else {
-      console.warn(`⚠️ Google Ads API Secret not configured`);
+      // Use basic endpoint (may have limitations but should work)
+      conversionUrl = `https://www.google-analytics.com/m/collect?measurement_id=${conversionId}`;
+    }
+
+    // Send conversion to Google Ads
+    try {
+      const response = await fetch(conversionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        console.log(`✅ Google Ads conversion tracked (direct): ${conversionType}`, {
+          value,
+          transactionId,
+          conversionLabel,
+          conversionId,
+          clientId,
+          email: email ? email.substring(0, 5) + '***' : 'N/A',
+          hasApiSecret: !!apiSecret
+        });
+        return true;
+      } else {
+        const errorText = await response.text();
+        console.warn(`⚠️ Google Ads conversion tracking failed: ${response.status}`, errorText);
+      }
+    } catch (fetchError) {
+      console.error(`❌ Error sending Google Ads conversion:`, fetchError);
     }
     
     // Always log conversion attempt for debugging
