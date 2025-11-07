@@ -5,11 +5,13 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 // Function to send conversion tracking to Google Ads (server-side)
 // Tracks real conversions when checkout is completed (not just intent)
 // This is critical for Performance Max campaigns to optimize for actual Premium subscriptions
+// Uses direct Google Ads Conversion Tracking API (not GA4)
 async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null) {
   try {
-    // Google Ads Conversion ID and Label for Subscribe Clicked conversion
-    const conversionId = 'AW-17614436696';
-    const conversionLabel = 'zsizCNqYgbgbENjym89B'; // Subscribe Clicked conversion
+    // Google Ads Conversion ID and Label for Subscribe conversion
+    // These will be configured via environment variables
+    const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
+    const conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'zsizCNqYgbgbENjym89B';
     
     // Build client ID from email or use transaction ID
     // Google Ads uses client_id to match conversions with clicks
@@ -17,32 +19,27 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       ? email.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) 
       : `client_${transactionId || Date.now()}`;
     
-    // Use GA4 Measurement Protocol (connected to Google Ads)
-    // This is the recommended method for server-side conversion tracking
-    const apiSecret = process.env.GOOGLE_ADS_API_SECRET;
-    const measurementId = process.env.GOOGLE_ADS_MEASUREMENT_ID; // GA4 Measurement ID (starts with G-)
+    // Use Google Ads Conversion Tracking API directly
+    // This is the direct method without GA4
+    const conversionUrl = `https://www.google-analytics.com/m/collect?api_secret=${process.env.GOOGLE_ADS_API_SECRET || ''}&measurement_id=${conversionId}`;
     
-    if (apiSecret && measurementId && measurementId.startsWith('G-')) {
-      const conversionUrl = `https://www.google-analytics.com/mp/collect?api_secret=${apiSecret}&measurement_id=${measurementId}`;
-      
-      const payload = {
-        client_id: clientId,
-        events: [{
-          name: 'purchase', // GA4 purchase event (automatically tracked as conversion in Google Ads)
-          params: {
-            currency: 'USD',
-            value: value,
-            transaction_id: transactionId || `conv_${Date.now()}`,
-            items: [{
-              item_id: 'premium_subscription',
-              item_name: 'Superfocus Premium',
-              price: value,
-              quantity: 1
-            }]
-          }
-        }]
-      };
+    // Build conversion payload for Google Ads
+    // Format: send_to = "AW-XXXXX/YYYYY" (conversion_id/conversion_label)
+    const payload = {
+      client_id: clientId,
+      events: [{
+        name: 'conversion',
+        params: {
+          send_to: `${conversionId}/${conversionLabel}`,
+          value: value,
+          currency: 'USD',
+          transaction_id: transactionId || `conv_${Date.now()}`,
+        }
+      }]
+    };
 
+    // Send conversion to Google Ads
+    if (process.env.GOOGLE_ADS_API_SECRET) {
       try {
         const response = await fetch(conversionUrl, {
           method: 'POST',
@@ -53,7 +50,7 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
         });
 
         if (response.ok) {
-          console.log(`✅ Google Ads conversion tracked (GA4): ${conversionType}`, {
+          console.log(`✅ Google Ads conversion tracked (direct): ${conversionType}`, {
             value,
             transactionId,
             conversionLabel,
@@ -64,17 +61,13 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
           return true;
         } else {
           const errorText = await response.text();
-          console.warn(`⚠️ GA4 conversion tracking failed: ${response.status}`, errorText);
+          console.warn(`⚠️ Google Ads conversion tracking failed: ${response.status}`, errorText);
         }
       } catch (fetchError) {
-        console.error(`❌ Error sending GA4 conversion:`, fetchError);
+        console.error(`❌ Error sending Google Ads conversion:`, fetchError);
       }
     } else {
-      console.warn(`⚠️ Google Ads tracking not configured:`, {
-        hasApiSecret: !!apiSecret,
-        hasMeasurementId: !!measurementId,
-        measurementId: measurementId || 'NOT SET'
-      });
+      console.warn(`⚠️ Google Ads API Secret not configured`);
     }
     
     // Always log conversion attempt for debugging
@@ -85,7 +78,7 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       conversionId,
       clientId,
       email: email ? email.substring(0, 5) + '***' : 'N/A',
-      configured: !!(apiSecret && measurementId)
+      hasApiSecret: !!process.env.GOOGLE_ADS_API_SECRET
     });
     
     return true;
