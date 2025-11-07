@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Premium Trial</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+        }
+        h1 {
+            margin-top: 0;
+            color: #10b981;
+        }
+        button {
+            background: linear-gradient(135deg, #064e3b, #065f46);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #065f46, #047857);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        .error {
+            border-left-color: #ef4444;
+        }
+        .instructions {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        a {
+            color: #10b981;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Premium Trial</h1>
+        <p>This page helps you test the Premium trial flow without using your real account.</p>
+        
+        <button id="createTestCheckout">Create Test Checkout Session</button>
+        
+        <div id="result"></div>
+        <div id="instructions" style="display: none;"></div>
+    </div>
+
+    <script>
+        const button = document.getElementById('createTestCheckout');
+        const resultDiv = document.getElementById('result');
+        const instructionsDiv = document.getElementById('instructions');
+
+        button.addEventListener('click', async () => {
+            button.disabled = true;
+            button.textContent = 'Creating test checkout...';
+            resultDiv.innerHTML = '';
+            instructionsDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/test-premium-trial', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create test checkout');
+                }
+
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = `
+                    <h3>✅ Test Checkout Created Successfully!</h3>
+                    <p><strong>Checkout URL:</strong> <a href="${data.checkoutUrl}" target="_blank">${data.checkoutUrl}</a></p>
+                    <p><strong>Customer ID:</strong> <code>${data.customerId}</code></p>
+                    <p><strong>Customer Email:</strong> <code>${data.customerEmail}</code></p>
+                    <p><strong>Session ID:</strong> <code>${data.sessionId}</code></p>
+                    <p><strong>Trial Period:</strong> ${data.trialPeriodDays} days</p>
+                    <p><a href="${data.checkoutUrl}" target="_blank"><button style="margin-top: 10px;">Open Checkout</button></a></p>
+                `;
+
+                instructionsDiv.style.display = 'block';
+                instructionsDiv.innerHTML = `
+                    <h3>📋 Instructions:</h3>
+                    <ol>
+                        <li>Click "Open Checkout" or open the checkout URL above</li>
+                        <li>Use Stripe test card: <code>4242 4242 4242 4242</code></li>
+                        <li>Use any future expiry date (e.g., <code>12/34</code>)</li>
+                        <li>Use any 3-digit CVC (e.g., <code>123</code>)</li>
+                        <li>Use any ZIP code (e.g., <code>12345</code>)</li>
+                        <li>Complete the checkout</li>
+                        <li><strong>VERIFY:</strong> You should NOT be charged $3.99 immediately</li>
+                        <li><strong>VERIFY:</strong> The subscription should have status "trialing"</li>
+                        <li><strong>VERIFY:</strong> The trial_end should be set to 90 days from now</li>
+                    </ol>
+                `;
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Create Test Checkout Session';
+            }
+        });
+    </script>
+</body>
+</html>
+
