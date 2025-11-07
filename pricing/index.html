@@ -181,16 +181,14 @@
         }
         
         .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
+            display: flex;
+            justify-content: center;
             margin-bottom: 3rem;
         }
         
         @media (min-width: 768px) {
             .pricing-grid {
-                grid-template-columns: repeat(2, 1fr);
-                max-width: 800px;
+                max-width: 900px;
                 margin: 0 auto 3rem auto;
             }
         }
@@ -202,6 +200,8 @@
             padding: 2rem 4rem;
             display: flex;
             flex-direction: column;
+            width: 100%;
+            max-width: 800px;
         }
         
         .pricing-card:hover {
@@ -656,43 +656,6 @@
         </div>
         
         <div class="pricing-grid">
-            <!-- Starter Plan (Free) -->
-            <div class="pricing-card">
-                <div class="pricing-card-header">
-                    <h3>Starter</h3>
-                    <div class="pricing-price">
-                        <span class="price">$0</span>
-                        <span class="period">Forever free</span>
-                    </div>
-                </div>
-                
-                <div class="pricing-features">
-                    <div class="pricing-feature-title">
-                        <span>Includes:</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <span>2h daily limit</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <span>6 Timer presets</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <span>2 Cassette presets</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <span>3 tasks limit</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <span>Report</span>
-                    </div>
-                    <div class="pricing-feature enabled">
-                        <span>Progress saved</span>
-                    </div>
-                </div>
-                
-                <button class="pricing-cta free" id="pricingPageSignup">Sign up</button>
-            </div>
-            
             <!-- Unlimited Plan -->
             <div class="pricing-card featured">
                 <div class="pricing-card-header">
@@ -734,7 +697,7 @@
                 
                 <div class="pricing-features">
                     <div class="pricing-feature-title">
-                        <span>Everything included in Starter plus:</span>
+                        <span>Includes:</span>
                     </div>
                     <div class="pricing-feature enabled highlight">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -888,16 +851,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing buttons...');
             
-            const freeButton = document.getElementById('pricingPageSignup');
             const proButton = document.getElementById('pricingPageUpgrade');
             const pricingOptions = document.querySelectorAll('.pricing-option');
             
-            if (!freeButton || !proButton) {
-                console.error('Could not find pricing buttons');
+            if (!proButton) {
+                console.error('Could not find pricing button');
                 return;
             }
             
-            console.log('Buttons found, adding event listeners...');
+            console.log('Button found, adding event listeners...');
             
             // Handle pricing option selection
             pricingOptions.forEach(option => {
@@ -914,40 +876,6 @@
                     
                     console.log('Selected plan:', planType);
                 });
-            });
-            
-            // Add event listeners immediately for guest users
-            freeButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Free button clicked');
-                
-                // Check if user is authenticated
-                const isAuthenticated = window.Clerk && window.Clerk.user;
-                const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
-                
-                // Track Free plan Sign up click
-                if (window.mixpanel && window.mixpanel.track) {
-                    window.mixpanel.track('Sign Up Clicked', {
-                        modal_type: 'pricing_page',
-                        button_text: 'Sign up',
-                        user_type: isAuthenticated ? 'free' : 'guest',
-                        source: 'pricing_page',
-                        plan_type: 'free'
-                    });
-                    console.log('✅ Mixpanel tracking sent: Sign Up Clicked');
-                } else {
-                    console.log('❌ Mixpanel not available');
-                }
-                
-                if (isAuthenticated && !isPremium) {
-                    // Already on free plan
-                    console.log('User already on free plan');
-                    return;
-                }
-                
-                // Redirect to signup
-                console.log('Redirecting to signup...');
-                window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
             });
             
             proButton.addEventListener('click', function(e) {
@@ -1029,25 +957,14 @@
         });
         
         function updateButtonStates() {
-            const freeButton = document.getElementById('pricingPageSignup');
             const proButton = document.getElementById('pricingPageUpgrade');
             
-            if (!freeButton || !proButton) return;
+            if (!proButton) return;
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
             
             console.log('Updating button states:', { isAuthenticated, isPremium });
-            
-            // Update Free button
-            if (isAuthenticated && !isPremium) {
-                freeButton.textContent = 'Current';
-                freeButton.disabled = true;
-                freeButton.classList.add('disabled');
-            } else if (isPremium) {
-                freeButton.disabled = true;
-                freeButton.classList.add('disabled');
-            }
             
             // Update Pro button
             if (isPremium) {
