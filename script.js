@@ -1192,7 +1192,7 @@ class PomodoroTimer {
                 modal_type: 'upgrade_prompt'
             });
             
-            this.showCustomTechniqueProModal('Create custom timers tailored to your workflow! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
+            this.showCustomTechniqueProModal('25 minutes doesn\'t work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work.');
         } else {
             // Guest users - show Pro Feature modal
             this.trackEvent('Pro Feature Modal Shown', {
@@ -1237,10 +1237,10 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>Unlock Custom Timers</h3>
-                    <p>You're missing out on custom timers tailored to your workflow! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <h3>⚙️ Build your perfect timer</h3>
+                    <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
                     </div>
                 </div>
@@ -1262,8 +1262,8 @@ class PomodoroTimer {
                             <polyline points="12,6 12,12 16,14"/>
                         </svg>
                     </div>
-                    <h3>Unlock Custom Timers</h3>
-                    <p>You're missing out on custom timers tailored to your workflow! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <h3>⚙️ Build your perfect timer</h3>
+                    <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Learn more</button>
@@ -1387,10 +1387,10 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>Unlock Custom Cassettes</h3>
-                    <p>You're missing out on custom focus environments! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <h3>🎵 Create your focus soundtrack</h3>
+                    <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Custom Sounds</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
                     </div>
                 </div>
@@ -1413,8 +1413,8 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>Unlock Custom Cassettes</h3>
-                    <p>You're missing out on custom focus environments! Limited time: $9.99 lifetime deal. Unlock this feature and all productivity tools.</p>
+                    <h3>🎵 Create your focus soundtrack</h3>
+                    <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Learn more</button>
@@ -2595,25 +2595,25 @@ class PomodoroTimer {
         if (this.integrationModalOverlay) {
             const integrationData = {
                 todoist: {
-                    title: 'Todoist Integration',
-                    message: 'Sync your Todoist tasks directly into your focus sessions! Import tasks from your projects and track your productivity seamlessly.',
+                    title: '📋 Connect Todoist',
+                    message: 'Your tasks live in Todoist. Why keep switching between apps? Bring them here, focus on them, and sync everything back. One workflow, no context switching.',
                     icon: `
                         <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
                             <img src="/images/todoist.svg" alt="Todoist" style="width: 48px; height: 48px;">
                         </div>
                     `,
-                    primaryText: this.isAuthenticated ? 'Get Lifetime Access' : 'Learn More',
+                    primaryText: this.isAuthenticated ? 'Connect Todoist' : 'Learn More',
                     secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
                 },
                 notion: {
-                    title: 'Notion Integration',
-                    message: 'Connect your Notion workspace to import tasks from your databases! Sync your productivity workflow and manage tasks across platforms.',
+                    title: '📝 Connect Notion',
+                    message: 'Your tasks are in Notion databases. Your focus is here. Connect them and work from one place. Import tasks, track time, sync back—no more jumping between apps.',
                     icon: `
                         <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
                             <img src="/images/notion.svg" alt="Notion" style="width: 48px; height: 48px;">
                         </div>
                     `,
-                    primaryText: this.isAuthenticated ? 'Get Lifetime Access' : 'Learn More',
+                    primaryText: this.isAuthenticated ? 'Connect Notion' : 'Learn More',
                     secondaryText: this.isAuthenticated ? 'Learn more' : 'Cancel'
                 }
             };
@@ -2731,14 +2731,14 @@ class PomodoroTimer {
             
             if (!this.isAuthenticated) {
                 // Guest user
-                title.textContent = 'Task limit reached';
-                message.textContent = 'Guest users can have up to 1 active task. Sign up to create unlimited tasks and unlock all features!';
+                title.textContent = '📋 Your tasks are blocked';
+                message.textContent = 'You can\'t add more tasks right now. That project you wanted to start? That idea you just had? They\'re waiting. Sign up to remove the limit and never stop your workflow again.';
                 button.textContent = 'Sign up';
             } else {
                 // Free user (authenticated but not Pro)
-                title.textContent = 'Task limit reached';
-                message.textContent = 'Free users can have up to 3 active tasks. Upgrade to Pro for unlimited tasks and unlock all productivity features!';
-                button.textContent = 'Get Lifetime Access';
+                title.textContent = '📋 Your tasks are blocked';
+                message.textContent = 'You can\'t add more tasks right now. That project you wanted to start? That idea you just had? They\'re waiting. Remove the limit and never stop your workflow again.';
+                button.textContent = 'Remove All Limits';
             }
             
             this.guestTaskLimitModalOverlay.style.display = 'flex';
@@ -2781,7 +2781,7 @@ class PomodoroTimer {
         const progressText = `${focusHoursUsed}h ${focusMinutesUsed > 0 ? focusMinutesUsed + 'm' : ''} / ${limitHours}h used today`;
         const dailyLimitMessage = document.getElementById('dailyLimitMessage');
         if (dailyLimitMessage) {
-            dailyLimitMessage.textContent = `Unlock unlimited focus time and never hit limits again. Join Pro users who focus without restrictions. (${progressText})`;
+            dailyLimitMessage.textContent = `You were in the zone. That momentum you had? It's gone now. While you wait, your focus fades and your progress stalls. Keep going without limits. (${progressText})`;
         }
         
         // 🎯 Track Daily Limit Modal Opened event to Mixpanel
@@ -4086,7 +4086,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Get Lifetime Access') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Connect Your Tools' || text === 'Connect Todoist' || text === 'Connect Notion' || text === 'Unlock Analytics') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -4537,14 +4537,14 @@ class PomodoroTimer {
                             <div class="technique-icon">🌊</div>
                             <div class="technique-name">Flow State</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
                             <div class="technique-desc">45min work, 15min break</div>
                         </button>
                         <button class="technique-preset" data-technique="deepwork">
                             <div class="technique-icon">🧠</div>
                             <div class="technique-name">Deep Work</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
                             <div class="technique-desc">90min work, 20min break</div>
                         </button>
                         <button class="technique-preset" data-technique="sprint">
@@ -4557,7 +4557,7 @@ class PomodoroTimer {
                             <div class="technique-icon">🏃</div>
                             <div class="technique-name">Marathon</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
                             <div class="technique-desc">60min work, 10min break</div>
                         </button>
                     </div>
@@ -6781,7 +6781,7 @@ class PomodoroTimer {
                     <h3>${info.name}</h3>
                     <p>${info.description}. Upgrade to Pro to unlock this advanced focus technique and all productivity features!</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Get Lifetime Access</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Upgrade to Unlimited</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="dismissLoginRequiredBtn">Maybe later</button>
                     </div>
                 </div>
@@ -8708,11 +8708,11 @@ class PomodoroTimer {
             upgradeMessage = 'Sign up to unlock integrations and sync your tasks seamlessly!';
             buttonText = 'Sign up';
         } else if (isFree) {
-            upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Get Lifetime Access';
+            upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Connect them here and focus on what matters—not on managing tools.';
+            buttonText = 'Connect Your Tools';
         } else {
-            upgradeMessage = 'Upgrade to Pro to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Get Lifetime Access';
+            upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Connect them here and focus on what matters—not on managing tools.';
+            buttonText = 'Connect Your Tools';
         }
         
         // Create overlay
@@ -12151,9 +12151,9 @@ class PomodoroTimer {
 
                 <!-- Upgrade Prompt -->
                 <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
-                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">Unlock Advanced Analytics</h4>
-                    <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Get heatmap, trends, comparisons, and insights with Unlimited plan.</p>
-                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Get Lifetime Access</button>
+                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">📊 See what you're missing</h4>
+                    <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Heatmaps show when you focus best. Trends reveal your patterns. Comparisons show your growth. This is the data that helps you work smarter, not harder.</p>
+                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Analytics</button>
                 </div>
             </div>
         `;
@@ -17072,7 +17072,7 @@ class PomodoroTimer {
                     modal_type: 'upgrade_prompt'
                 });
                 
-                this.showCassetteProModal('Create custom focus environments! Get Lifetime Access to Pro to unlock this feature and all productivity tools.');
+                this.showCassetteProModal('Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.');
             } else {
                 // Guest users - show Pro Feature modal
                 this.trackEvent('Pro Feature Modal Shown', {

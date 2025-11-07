@@ -375,7 +375,7 @@
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
-                                <span>Get Lifetime Access</span>
+                                <span>Upgrade to Unlimited</span>
                             </div>
                             <div class="settings-dropdown-item" id="settingsManageSubscriptionBtn" style="display: none;">
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -705,7 +705,7 @@
                             <div class="technique-icon">🌊</div>
                             <div class="technique-name">Flow State</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
                             <div class="technique-desc">45min work</div>
                             <div class="technique-break">15min short break</div>
                             <div class="technique-long-break">30min long break</div>
@@ -715,7 +715,7 @@
                             <div class="technique-icon">🏃</div>
                             <div class="technique-name">Marathon</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
                             <div class="technique-desc">60min work</div>
                             <div class="technique-break">10min short break</div>
                             <div class="technique-long-break">20min long break</div>
@@ -725,7 +725,7 @@
                             <div class="technique-icon">🧠</div>
                             <div class="technique-name">Deep Work</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Get Lifetime Access required)</div>
+                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
                             <div class="technique-desc">90min work</div>
                             <div class="technique-break">20min short break</div>
                             <div class="technique-long-break">45min long break</div>
@@ -1036,7 +1036,7 @@
     <div class="timer-header" id="timerHeaderFocusReport" style="display: none;">
         <div class="timer-auth-buttons">
             <button class="subscribe-btn" id="subscribeBtn" title="Upgrade to Pro">
-                Get Lifetime Access
+                Upgrade to Unlimited
             </button>
             <button class="streak-info" id="streakInfo" title="Report">
                 <svg class="streak-fire" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
@@ -1219,10 +1219,10 @@
                         <path d="M8 16h.01"/>
                     </svg>
                 </div>
-                <h3 class="logout-modal-title">You've reached your 3-task limit</h3>
-                <p class="logout-modal-message">Pro users get unlimited tasks. Unlock unlimited tasks and all productivity features!</p>
+                <h3 class="logout-modal-title">📋 Your tasks are blocked</h3>
+                <p class="logout-modal-message">You can't add more tasks right now. That project you wanted to start? That idea you just had? They're waiting. Remove the limit and never stop your workflow again.</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">Get Lifetime Access</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">Remove All Limits</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="guestTaskLimitCancelBtn">Learn more</button>
                 </div>
             </div>
@@ -1242,10 +1242,10 @@
                 <div class="upgrade-icon" id="integrationModalIcon">
                     <!-- Icon will be dynamically inserted here -->
                 </div>
-                <h3 class="logout-modal-title" id="integrationModalTitle">Pro Feature</h3>
-                <p class="logout-modal-message" id="integrationModalMessage">Connect your favorite productivity tools and sync your tasks seamlessly!</p>
+                <h3 class="logout-modal-title" id="integrationModalTitle">🔗 Connect your tools</h3>
+                <p class="logout-modal-message" id="integrationModalMessage">Your tasks live in Todoist or Notion. Why keep switching between apps? Bring everything together and focus on what matters—not on managing tools.</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="integrationModalPrimaryBtn">Learn More</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="integrationModalPrimaryBtn">Connect Your Tools</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="integrationModalSecondaryBtn">Cancel</button>
                 </div>
             </div>
@@ -1268,11 +1268,11 @@
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
                 </div>
-                <h3 class="logout-modal-title" id="dailyLimitTitle">⏰ You've hit your 2-hour limit</h3>
-                <p class="logout-modal-message" id="dailyLimitMessage">Unlock unlimited focus time and never hit limits again. Join Pro users who focus without restrictions.</p>
+                <h3 class="logout-modal-title" id="dailyLimitTitle">⏰ Time's up—but you're not done</h3>
+                <p class="logout-modal-message" id="dailyLimitMessage">You were in the zone. That momentum you had? It's gone now. While you wait, your focus fades and your progress stalls. Keep going without limits.</p>
                 <p class="logout-modal-message" id="dailyLimitCountdown" style="margin-top: 6px; opacity: 0.9;">Your timer will be available again soon…</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Get Lifetime Access</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Unlock Unlimited Time</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn">Maybe later</button>
                 </div>
             </div>
@@ -1362,7 +1362,7 @@
                                     <span class="settings-label">Plan</span>
                                     <span class="settings-description" id="settingsUserPlan">Free</span>
                                 </div>
-                                <button id="upgradeToProModalBtn" class="settings-action-btn">Get Lifetime Access</button>
+                                <button id="upgradeToProModalBtn" class="settings-action-btn">Upgrade to Unlimited</button>
                                 <button id="manageSubscriptionModalBtn" class="settings-action-btn" style="display: none;">Manage Subscription</button>
                             </div>
                         </div>
@@ -1632,7 +1632,7 @@
                             <span>Notion integration</span>
                         </div>
                     </div>
-                    <button class="plan-button pro" id="upgradeToProFromPricing">Get Lifetime Access</button>
+                    <button class="plan-button pro" id="upgradeToProFromPricing">Get Unlimited Access</button>
                 </div>
             </div>
         </div>
