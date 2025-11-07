@@ -57,7 +57,28 @@ module.exports = async (req, res) => {
     // Determine payment type from price ID
     const priceId = subscription.items.data[0]?.price?.id;
     const premiumPriceId = process.env.STRIPE_PRICE_ID_PREMIUM || 'price_1SQr4sIMJUHQfsp7sx96CCxe';
-    const paymentType = priceId === premiumPriceId ? 'premium' : 'monthly';
+    
+    console.log('Price ID from subscription:', priceId);
+    console.log('Premium Price ID from env:', premiumPriceId);
+    console.log('Match:', priceId === premiumPriceId);
+    
+    // Check if this is the Premium price (price_1SQr4sIMJUHQfsp7sx96CCxe)
+    // This is the known Premium price ID
+    let paymentType = 'monthly';
+    if (priceId === 'price_1SQr4sIMJUHQfsp7sx96CCxe' || priceId === premiumPriceId) {
+      paymentType = 'premium';
+    } else {
+      // Check if it's one of the old prices
+      const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
+      const yearlyPriceId = process.env.STRIPE_PRICE_ID_YEARLY;
+      if (priceId === monthlyPriceId) {
+        paymentType = 'monthly';
+      } else if (priceId === yearlyPriceId) {
+        paymentType = 'yearly';
+      }
+    }
+    
+    console.log('Final Payment Type:', paymentType);
 
     // Update Clerk user with correct information
     const updatedMetadata = {
