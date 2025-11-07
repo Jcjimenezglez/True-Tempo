@@ -110,9 +110,10 @@ module.exports = async (req, res) => {
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     };
 
-    // For Premium plan with trial, add subscription description to clarify $0 today
+    // For Premium plan with trial, add subscription description and trial period
     if (planType === 'premium' && mode === 'subscription') {
       // Verify the price has trial configured
+      let trialPeriodDays = 90; // Default to 90 days
       try {
         const price = await stripe.prices.retrieve(priceId);
         console.log('📋 Price details:', {
@@ -122,20 +123,29 @@ module.exports = async (req, res) => {
           trial_period_days: price.recurring?.trial_period_days
         });
         
-        if (!price.recurring?.trial_period_days) {
+        if (price.recurring?.trial_period_days) {
+          trialPeriodDays = price.recurring.trial_period_days;
+          console.log(`✅ Using trial period from price: ${trialPeriodDays} days`);
+        } else {
           console.error('❌ WARNING: Price does not have trial_period_days configured!');
-          console.error('   This will cause users to be charged immediately instead of getting a trial.');
+          console.error('   Using default trial period of 90 days.');
         }
       } catch (priceError) {
         console.error('❌ Error retrieving price:', priceError);
+        console.log('   Using default trial period of 90 days.');
       }
       
+      // IMPORTANT: Stripe requires trial_period_days to be explicitly set in subscription_data
+      // even if the price has trial_period_days configured, due to deprecation of trial_from_plan
       sessionConfig.subscription_data = {
+        trial_period_days: trialPeriodDays, // Explicitly set trial period (required by Stripe)
         description: '3 months free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
         metadata: {
           trial_info: '3 months free, then $3.99/month',
         },
       };
+      
+      console.log(`✅ Premium trial configured: ${trialPeriodDays} days free trial`);
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
