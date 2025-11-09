@@ -113,6 +113,93 @@ async function readRawBody(req) {
   });
 }
 
+async function findClerkUserByStripeCustomerId(clerk, stripeCustomerId) {
+  if (!stripeCustomerId) {
+    return null;
+  }
+
+  const pageSize = 100;
+  let offset = 0;
+  let scanned = 0;
+
+  while (true) {
+    const { data, totalCount } = await clerk.users.getUserList({
+      limit: pageSize,
+      offset,
+    });
+
+    if (!Array.isArray(data) || data.length === 0) {
+      break;
+    }
+
+    scanned += data.length;
+
+    const match = data.find((user) => user.publicMetadata?.stripeCustomerId === stripeCustomerId);
+    if (match) {
+      console.log(`🔎 Found Clerk user ${match.id} for Stripe customer ${stripeCustomerId} after scanning ${scanned} users`);
+      return match;
+    }
+
+    offset += pageSize;
+
+    if (typeof totalCount === 'number' && offset >= totalCount) {
+      break;
+    }
+
+    if (data.length < pageSize) {
+      break;
+    }
+  }
+
+  console.warn(`⚠️ Clerk user not found for Stripe customer ${stripeCustomerId} after scanning ${scanned} users`);
+  return null;
+}
+
+async function findClerkUserByEmail(clerk, email) {
+  if (!email) {
+    return null;
+  }
+
+  const pageSize = 100;
+  let offset = 0;
+  let scanned = 0;
+
+  while (true) {
+    const { data, totalCount } = await clerk.users.getUserList({
+      limit: pageSize,
+      offset,
+    });
+
+    if (!Array.isArray(data) || data.length === 0) {
+      break;
+    }
+
+    scanned += data.length;
+
+    const match = data.find((user) =>
+      user.emailAddresses?.some((address) => address.emailAddress === email)
+    );
+
+    if (match) {
+      console.log(`🔎 Found Clerk user ${match.id} by email ${email} after scanning ${scanned} users`);
+      return match;
+    }
+
+    offset += pageSize;
+
+    if (typeof totalCount === 'number' && offset >= totalCount) {
+      break;
+    }
+
+    if (data.length < pageSize) {
+      break;
+    }
+  }
+
+  console.warn(`⚠️ Clerk user not found by email ${email} after scanning ${scanned} users`);
+  return null;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -219,14 +306,13 @@ async function handleCheckoutCompleted(session, clerk) {
       const customer = await stripe.customers.retrieve(customerId);
       
       if (customer.email) {
-        const users = await clerk.users.getUserList({ limit: 100 });
-        const user = users.data.find(u => 
-          u.emailAddresses?.some(email => email.emailAddress === customer.email)
-        );
-        
+        const user = await findClerkUserByEmail(clerk, customer.email);
+
         if (user) {
           targetUserId = user.id;
           console.log(`Found Clerk user by email: ${customer.email} -> ${targetUserId}`);
+        } else {
+          console.warn(`⚠️ Unable to locate Clerk user by email ${customer.email} for Stripe customer ${customerId}`);
         }
       }
     }
@@ -334,13 +420,7 @@ async function handleSubscriptionChange(subscription, clerk) {
 
   try {
     // Find Clerk user by Stripe customer ID
-    const users = await clerk.users.getUserList({
-      limit: 100,
-    });
-
-    const user = users.data.find(u => 
-      u.publicMetadata?.stripeCustomerId === customerId
-    );
+    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
 
     if (user) {
       // Determine payment type from subscription
@@ -378,11 +458,6 @@ async function handleSubscriptionChange(subscription, clerk) {
       console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
     } else {
       console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
-      console.log('   Available users with Stripe customer IDs:', users.data.map(u => ({
-        id: u.id,
-        email: u.emailAddresses?.[0]?.emailAddress,
-        stripeCustomerId: u.publicMetadata?.stripeCustomerId
-      })));
     }
   } catch (error) {
     console.error('❌ Error updating subscription status:', error);
@@ -394,13 +469,7 @@ async function handleTrialWillEnd(subscription, clerk) {
   
   try {
     // Find Clerk user by Stripe customer ID
-    const users = await clerk.users.getUserList({
-      limit: 100,
-    });
-
-    const user = users.data.find(u => 
-      u.publicMetadata?.stripeCustomerId === customerId
-    );
+    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
 
     if (user) {
       // Calculate days until trial ends
@@ -434,13 +503,7 @@ async function handleSubscriptionDeleted(subscription, clerk) {
 
   try {
     // Find Clerk user by Stripe customer ID
-    const users = await clerk.users.getUserList({
-      limit: 100,
-    });
-
-    const user = users.data.find(u => 
-      u.publicMetadata?.stripeCustomerId === customerId
-    );
+    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
 
     if (user) {
       await clerk.users.updateUser(user.id, {
