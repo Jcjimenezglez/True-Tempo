@@ -1,6 +1,23 @@
 // API endpoint to get leaderboard of Total Focus Hours
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+const ACTIVE_DAYS_DEFAULT = parseInt(process.env.LEADERBOARD_ACTIVE_DAYS || '7', 10);
+const MAX_USERS_TO_FETCH = parseInt(process.env.LEADERBOARD_MAX_USERS || '5000', 10);
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const parseDate = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -17,88 +34,85 @@ module.exports = async (req, res) => {
   
   // Get pagination parameters from query string
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 100;
-  const itemsPerPage = 100; // Fixed items per page
+  const limit = parseInt(req.query.limit, 10);
+  const itemsPerPage = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 200) : 100;
+  const requestedActiveDays = parseInt(req.query.activeDays, 10);
+  const activityWindowDays =
+    Number.isFinite(requestedActiveDays) && requestedActiveDays > 0
+      ? requestedActiveDays
+      : ACTIVE_DAYS_DEFAULT;
+  const activeSince = new Date(Date.now() - activityWindowDays * MS_PER_DAY);
 
   try {
     const clerk = createClerkClient({ secretKey: clerkSecret });
     
-    // For page 1, we can optimize by only loading enough users to get top 100
-    // For pages > 1, we need to load all users to properly sort and paginate
     let allUsers = [];
     let hasMore = true;
     let offset = 0;
     const clerkLimit = 100;
+    let batchesFetched = 0;
 
-    if (page === 1) {
-      // For page 1, load users in batches until we have enough users with hours
-      // We need to load enough to ensure we have at least 100 users with hours
-      // But we can stop early if we have enough
-      let usersWithHours = 0;
-      const maxBatches = 20; // Limit to prevent infinite loops (2000 users max)
-      let batchCount = 0;
+    while (hasMore && offset < MAX_USERS_TO_FETCH) {
+      const response = await clerk.users.getUserList({
+        limit: clerkLimit,
+        offset
+      });
 
-      while (hasMore && batchCount < maxBatches) {
-        const response = await clerk.users.getUserList({
-          limit: clerkLimit,
-          offset
-        });
-
-        allUsers = allUsers.concat(response.data);
-        hasMore = response.data.length === clerkLimit;
-        offset += clerkLimit;
-        batchCount++;
-
-        // Count users with hours in current batch
-        const batchUsersWithHours = response.data.filter(
-          user => (user.publicMetadata?.totalFocusHours || 0) > 0
-        ).length;
-        usersWithHours += batchUsersWithHours;
-
-        // If we have enough users with hours (with buffer), we can stop
-        // We continue loading a bit more to ensure we have the true top 100
-        if (usersWithHours >= 150) {
-          // Load one more batch to ensure accuracy, then stop
-          break;
-        }
-      }
-    } else {
-      // For pages > 1, we need all users to properly sort and paginate
-      // This is necessary because we can't know which users are on page 2+ without full sorting
-      while (hasMore) {
-        const response = await clerk.users.getUserList({
-          limit: clerkLimit,
-          offset
-        });
-
-        allUsers = allUsers.concat(response.data);
-        hasMore = response.data.length === clerkLimit;
-        offset += clerkLimit;
-      }
+      allUsers = allUsers.concat(response.data);
+      hasMore = response.data.length === clerkLimit;
+      offset += clerkLimit;
+      batchesFetched += 1;
     }
 
+    const fetchLimitReached = hasMore;
+
     // Filter users with totalFocusHours and create leaderboard
-    const allLeaderboardUsers = allUsers
-      .map(user => {
-        const totalHours = user.publicMetadata?.totalFocusHours || 0;
-        const email = user.emailAddresses[0]?.emailAddress || 'Unknown';
-        const username = user.username || email.split('@')[0];
-        
-        return {
-          userId: user.id,
-          username: username,
-          email: email,
-          totalFocusHours: totalHours,
-          isCurrentUser: clerkUserId ? user.id === clerkUserId : false
-        };
-      })
-      .filter(user => user.totalFocusHours > 0) // Only include users with hours
-      .sort((a, b) => b.totalFocusHours - a.totalFocusHours); // Sort descending
+    const leaderboardCandidates = allUsers.map(user => {
+      const totalHoursRaw = user.publicMetadata?.totalFocusHours;
+      const totalHours =
+        typeof totalHoursRaw === 'number'
+          ? totalHoursRaw
+          : parseFloat(totalHoursRaw) || 0;
+
+      const email = user.emailAddresses[0]?.emailAddress || 'Unknown';
+      const username = user.username || email.split('@')[0];
+      const statsLastUpdated = parseDate(user.publicMetadata?.statsLastUpdated);
+      const lastActiveFallback =
+        parseDate(user.lastActiveAt) ||
+        parseDate(user.lastSignInAt) ||
+        parseDate(user.createdAt);
+      const lastActiveAt = statsLastUpdated || lastActiveFallback;
+      const isActive = lastActiveAt ? lastActiveAt >= activeSince : false;
+
+      return {
+        userId: user.id,
+        username,
+        email,
+        totalFocusHours: totalHours,
+        isCurrentUser: clerkUserId ? user.id === clerkUserId : false,
+        lastActiveAt: lastActiveAt ? lastActiveAt.toISOString() : null,
+        isActive,
+        rawLastActiveSource: statsLastUpdated ? 'statsLastUpdated' : (lastActiveFallback ? 'clerkActivity' : 'unknown')
+      };
+    });
+
+    const usersWithHoursBeforeFilter = leaderboardCandidates.filter(
+      user => user.totalFocusHours > 0
+    ).length;
+
+    const allLeaderboardUsers = leaderboardCandidates
+      .filter(
+        user =>
+          user.totalFocusHours > 0 &&
+          (user.isActive || user.isCurrentUser)
+      )
+      .sort((a, b) => b.totalFocusHours - a.totalFocusHours);
 
     // Calculate pagination
     const totalUsers = allLeaderboardUsers.length;
-    const totalPages = Math.ceil(totalUsers / itemsPerPage);
-    const startIndex = (page - 1) * itemsPerPage;
+    const totalPages = totalUsers > 0 ? Math.ceil(totalUsers / itemsPerPage) : 1;
+    const safePage = totalPages > 0 ? Math.max(1, Math.min(page, totalPages)) : 1;
+    const startIndex = (safePage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const leaderboard = allLeaderboardUsers.slice(startIndex, endIndex);
 
@@ -114,10 +128,17 @@ module.exports = async (req, res) => {
     // Include debug info
     const debugInfo = {
       totalUsersFound: allUsers.length,
-      usersWithHours: totalUsers,
-      usersWithoutHours: allUsers.length - totalUsers,
-      page: page,
-      totalPages: totalPages
+      usersWithHoursBeforeFilter,
+      usersWithHoursAfterFilter: totalUsers,
+      usersFilteredOut: usersWithHoursBeforeFilter - totalUsers,
+      fetchBatches: batchesFetched,
+      fetchLimitReached,
+      maxUsersToFetch: MAX_USERS_TO_FETCH,
+      requestedPage: page,
+      pageServed: safePage,
+      totalPages,
+      activityWindowDays,
+      activeSince: activeSince.toISOString()
     };
 
     res.status(200).json({
@@ -125,9 +146,11 @@ module.exports = async (req, res) => {
       leaderboard: leaderboard,
       currentUserPosition: currentUserPosition,
       totalUsers: totalUsers,
-      page: page,
+      page: safePage,
       totalPages: totalPages,
-      hasMore: page < totalPages,
+      hasMore: safePage < totalPages,
+      activityWindowDays,
+      pageSize: itemsPerPage,
       debug: debugInfo
     });
   } catch (error) {

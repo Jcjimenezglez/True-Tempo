@@ -11857,7 +11857,8 @@ class PomodoroTimer {
                     page: data.page,
                     totalPages: data.totalPages,
                     totalUsers: data.totalUsers,
-                    hasMore: data.hasMore
+                    hasMore: data.hasMore,
+                    activityWindowDays: data.activityWindowDays
                 });
             } else {
                 leaderboardContent.innerHTML = `
@@ -11888,7 +11889,7 @@ class PomodoroTimer {
 
         // Header with user position
         if (currentUserPosition) {
-            const totalUsersText = pagination?.totalUsers || leaderboard.length;
+            const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
             html += `
                 <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
                     <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
@@ -11898,16 +11899,36 @@ class PomodoroTimer {
             `;
         }
 
+        const activityWindowDays = pagination?.activityWindowDays;
+        if (activityWindowDays) {
+            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
+            html += `
+                <div style="padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border-radius: 12px; margin-bottom: 16px; color: #a3a3a3; font-size: 12px;">
+                    Showing users active in the last ${activityWindowDays} ${dayLabel}.
+                </div>
+            `;
+
+            if (!currentUserPosition && totalHours > 0) {
+                html += `
+                    <div style="padding: 12px 16px; background: rgba(234, 179, 8, 0.1); border-radius: 12px; margin-bottom: 16px; color: #facc15; font-size: 12px; border: 1px solid rgba(234, 179, 8, 0.2);">
+                        You haven't logged focus time in the last ${activityWindowDays} ${dayLabel}. Start a session to rejoin the leaderboard.
+                    </div>
+                `;
+            }
+        }
+
         // Leaderboard list
         const topUsers = leaderboard;
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
-        const startRank = (currentPage - 1) * 100 + 1;
+        const pageSize = pagination?.pageSize || 100;
+        const startRank = (currentPage - 1) * pageSize + 1;
         
         if (topUsers.length === 0) {
+            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    No users yet. Be the first!
+                    ${activityWindowDays ? `No users have been active in the last ${activityWindowDays} ${dayLabel}.` : 'No users yet. Be the first!'}
                 </div>
             `;
         } else {
