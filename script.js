@@ -12574,7 +12574,7 @@ class PomodoroTimer {
 
             switch (type) {
                 case 'signup':
-                    conversionId = 'AW-17614436696/HLp9CM6Plq0bENjym89B';
+                    conversionId = 'AW-17614436696/vADkCJb01b0bENjym89B';
                     eventName = 'sign_up';
                     eventData.method = 'clerk';
                     eventData.event_category = 'engagement';
