@@ -313,6 +313,7 @@ class PomodoroTimer {
         console.log('🔍 Attempting to track event:', eventName);
         console.log('🔍 Mixpanel available:', typeof window.mixpanel);
         console.log('🔍 Mixpanel track function:', typeof window.mixpanel?.track);
+        let enrichedProperties = properties;
         
         if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
             try {
@@ -326,11 +327,23 @@ class PomodoroTimer {
                 
                 window.mixpanel.track(eventName, eventProperties);
                 console.log('✅ Event tracked successfully:', eventName, eventProperties);
+                enrichedProperties = eventProperties;
             } catch (error) {
                 console.error('❌ Error tracking event:', error);
             }
         } else {
             console.warn('⚠️ Mixpanel not available or track function missing');
+        }
+
+        try {
+            if (
+                typeof eventName === 'string' &&
+                eventName.toLowerCase().includes('subscribe clicked')
+            ) {
+                this.trackSubscribeClickedToGoogleAds(enrichedProperties || properties);
+            }
+        } catch (adsError) {
+            console.error('❌ Error triggering Google Ads tracking:', adsError);
         }
     }
     
@@ -12568,7 +12581,7 @@ class PomodoroTimer {
                     eventData.event_label = 'user_signup';
                     break;
                 case 'subscription':
-                    conversionId = 'AW-17614436696/uBZgCNz9pq0bENjym89B';
+                    conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
                     eventName = 'purchase';
                     eventData.transaction_id = 'superfocus_pro_' + Date.now();
                     eventData.event_category = 'ecommerce';

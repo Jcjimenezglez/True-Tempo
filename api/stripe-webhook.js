@@ -11,7 +11,7 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
     // Google Ads Conversion ID and Label for Subscribe conversion
     // These will be configured via environment variables
     const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
-    const conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || '9vW7COnp47sbENjym89B';
+    const conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'PHPkCOP1070bENjym89B';
     
     // Build client ID from email or use transaction ID
     // Google Ads uses client_id to match conversions with clicks

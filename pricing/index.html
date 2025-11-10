@@ -16,6 +16,7 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-T3T0PES8C0');
+        gtag('config', 'AW-17614436696');
     </script>
     
     <!-- Mixpanel -->
@@ -1370,8 +1371,30 @@
                     console.log('❌ Mixpanel not available');
                 }
                 
-                // Note: Google Ads conversion tracking moved to server-side (webhook)
-                // This tracks actual conversions when checkout is completed, not just intent
+                const userTypeForAds = isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest';
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', 'subscribe_clicked', {
+                        event_category: 'engagement',
+                        event_label: source,
+                        source: source,
+                        user_type: userTypeForAds,
+                        value: 0.1,
+                        currency: 'USD',
+                        non_interaction: false
+                    });
+                    
+                    window.gtag('event', 'conversion', {
+                        send_to: 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                        value: 1.0,
+                        currency: 'USD',
+                        source: source,
+                        user_type: userTypeForAds
+                    });
+                    
+                    console.log('✅ Google Ads tracking sent: Subscribe Clicked');
+                } else {
+                    console.warn('⚠️ gtag not available for Google Ads tracking');
+                }
                 
                 if (isPremium) {
                     // Already premium
