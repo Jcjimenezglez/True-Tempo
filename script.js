@@ -12598,6 +12598,12 @@ class PomodoroTimer {
                 'value': value,
                 'currency': 'USD'
             });
+            
+            console.log(`✅ Google Ads conversion tracked: ${type}`, {
+                conversion_id: conversionId,
+                value: value,
+                currency: 'USD'
+            });
 
             // Track Google Analytics event
             gtag('event', eventName, eventData);
