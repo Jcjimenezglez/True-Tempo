@@ -4069,7 +4069,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Unlimited' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Connect Your Tools' || text === 'Connect Todoist' || text === 'Connect Notion' || text === 'Unlock Analytics') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Explore Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Connect Your Tools' || text === 'Connect Todoist' || text === 'Connect Notion' || text === 'Unlock Analytics') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
