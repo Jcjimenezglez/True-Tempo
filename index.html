@@ -1641,5 +1641,19 @@
     
     <!-- Cache-bust to ensure latest script loads in production -->
     <script src="script.js?v=a558fc9"></script>
+    
+    <!-- Hide Notion and Todoist integration items -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide integration items that contain Todoist or Notion labels
+            const integrationItems = document.querySelectorAll('.settings-item.integration-item');
+            integrationItems.forEach(item => {
+                const label = item.querySelector('.settings-label');
+                if (label && (label.textContent.includes('Todoist') || label.textContent.includes('Notion'))) {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

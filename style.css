@@ -9099,3 +9099,25 @@ input:checked + .toggle-slider:before {
     height: 14px;
 }
 
+/* Hide Notion and Todoist integration buttons */
+#importNotionMainBtn,
+#importTodoistMainBtn {
+    display: none !important;
+}
+
+/* Hide Notion and Todoist integration items in settings */
+.settings-item.integration-item:has(#connectTodoistBtn),
+.settings-item.integration-item:has(#disconnectTodoistBtn),
+.settings-item.integration-item:has(#connectNotionBtn),
+.settings-item.integration-item:has(#disconnectNotionBtn) {
+    display: none !important;
+}
+
+/* Hide Todoist and Notion buttons directly */
+#connectTodoistBtn,
+#disconnectTodoistBtn,
+#connectNotionBtn,
+#disconnectNotionBtn {
+    display: none !important;
+}
+
