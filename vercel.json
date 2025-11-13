@@ -53,5 +53,7 @@
       "destination": "https://superfocus.live/$1",
       "permanent": true
     }
-  ]
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
