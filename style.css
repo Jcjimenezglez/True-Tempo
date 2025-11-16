@@ -1902,7 +1902,7 @@ body.is-scrolling .streak-fire {
 .custom-timer-modal-content {
     display: flex;
     gap: 2rem;
-    align-items: flex-start;
+    align-items: stretch;
     padding: 0;
 }
 
@@ -1919,18 +1919,37 @@ body.is-scrolling .streak-fire {
     flex: 1;
     min-width: 0;
     padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.custom-timer-modal-right .upgrade-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 500px;
+    justify-content: space-between;
+    text-align: center;
+    padding: 1rem 0 0 0;
+}
+
+.custom-timer-modal-right .logout-modal-buttons {
+    margin-top: auto;
 }
 
 .custom-timer-form-preview {
     width: 100%;
     max-width: 400px;
-    max-height: 500px;
+    height: 500px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 20px;
     overflow-y: auto;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .custom-timer-form-preview::-webkit-scrollbar {
