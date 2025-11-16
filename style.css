@@ -9315,11 +9315,7 @@ input:checked + .toggle-slider:before {
     height: 14px;
 }
 
-/* Hide Notion and Todoist integration buttons */
-#importNotionMainBtn,
-#importTodoistMainBtn {
-    display: none !important;
-}
+/* Notion and Todoist integration buttons are now visible */
 
 /* Hide Notion and Todoist integration items in settings */
 .settings-item.integration-item:has(#connectTodoistBtn),
