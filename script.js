@@ -1246,66 +1246,64 @@ class PomodoroTimer {
                 <div class="custom-timer-modal-content">
                     <div class="custom-timer-modal-left">
                         <div class="custom-timer-form-preview">
-                            <div class="form-preview-header">
-                                <div class="form-preview-name-group">
-                                    <div class="form-preview-name-header">
-                                        <label>Name your technique</label>
-                                        <div class="form-preview-word-count">8/15 characters</div>
+                            <div class="custom-form-content">
+                                <div class="custom-input-group">
+                                    <div class="name-header">
+                                        <label for="customName">Name your technique</label>
+                                        <div class="word-count">0/15 characters</div>
                                     </div>
-                                    <div class="form-preview-input">Deep Work</div>
+                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15" readonly style="cursor: default; opacity: 0.8;">
                                 </div>
                                 
-                                <div class="form-preview-emoji-group">
-                                    <label>Choose an emoji</label>
-                                    <div class="form-preview-emoji-picker">
-                                        <button class="form-preview-emoji-option active">🎯</button>
-                                        <button class="form-preview-emoji-option">🍅</button>
-                                        <button class="form-preview-emoji-option">⚡</button>
-                                        <button class="form-preview-emoji-option">🌊</button>
-                                        <button class="form-preview-emoji-option">🧠</button>
+                                <div class="custom-input-group">
+                                    <label for="customEmoji">Choose an emoji</label>
+                                    <div class="emoji-picker">
+                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
+                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
+                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
+                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
+                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
+                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
+                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
+                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
+                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
+                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
                                     </div>
                                 </div>
                                 
-                                <div class="form-preview-duration-group">
+                                <!-- Duration Options (Compact Controls) -->
+                                <div class="custom-duration-options">
                                     <h5>Set your duration</h5>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Work</label>
-                                            <span class="form-preview-duration-value">52 min</span>
+                                    <div class="duration-controls">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Work</label>
+                                                <span class="duration-value">25 min</span>
+                                            </div>
+                                            <input type="range" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 57%;"></div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Short Break</label>
+                                                <span class="duration-value">5 min</span>
+                                            </div>
+                                            <input type="range" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
-                                    </div>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Short Break</label>
-                                            <span class="form-preview-duration-value">10 min</span>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Long Break</label>
+                                                <span class="duration-value">15 min</span>
+                                            </div>
+                                            <input type="range" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Long Break</label>
-                                            <span class="form-preview-duration-value">20 min</span>
-                                        </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Sessions</label>
-                                            <span class="form-preview-duration-value">3 sesh</span>
-                                        </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 25%;"></div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Sessions</label>
+                                                <span class="duration-value">4 sesh</span>
+                                            </div>
+                                            <input type="range" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
                                     </div>
                                 </div>
@@ -1343,66 +1341,64 @@ class PomodoroTimer {
                 <div class="custom-timer-modal-content">
                     <div class="custom-timer-modal-left">
                         <div class="custom-timer-form-preview">
-                            <div class="form-preview-header">
-                                <div class="form-preview-name-group">
-                                    <div class="form-preview-name-header">
-                                        <label>Name your technique</label>
-                                        <div class="form-preview-word-count">8/15 characters</div>
+                            <div class="custom-form-content">
+                                <div class="custom-input-group">
+                                    <div class="name-header">
+                                        <label for="customName">Name your technique</label>
+                                        <div class="word-count">0/15 characters</div>
                                     </div>
-                                    <div class="form-preview-input">Deep Work</div>
+                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15" readonly style="cursor: default; opacity: 0.8;">
                                 </div>
                                 
-                                <div class="form-preview-emoji-group">
-                                    <label>Choose an emoji</label>
-                                    <div class="form-preview-emoji-picker">
-                                        <button class="form-preview-emoji-option active">🎯</button>
-                                        <button class="form-preview-emoji-option">🍅</button>
-                                        <button class="form-preview-emoji-option">⚡</button>
-                                        <button class="form-preview-emoji-option">🌊</button>
-                                        <button class="form-preview-emoji-option">🧠</button>
+                                <div class="custom-input-group">
+                                    <label for="customEmoji">Choose an emoji</label>
+                                    <div class="emoji-picker">
+                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
+                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
+                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
+                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
+                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
+                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
+                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
+                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
+                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
+                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
+                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
                                     </div>
                                 </div>
                                 
-                                <div class="form-preview-duration-group">
+                                <!-- Duration Options (Compact Controls) -->
+                                <div class="custom-duration-options">
                                     <h5>Set your duration</h5>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Work</label>
-                                            <span class="form-preview-duration-value">52 min</span>
+                                    <div class="duration-controls">
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Work</label>
+                                                <span class="duration-value">25 min</span>
+                                            </div>
+                                            <input type="range" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 57%;"></div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Short Break</label>
+                                                <span class="duration-value">5 min</span>
+                                            </div>
+                                            <input type="range" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
-                                    </div>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Short Break</label>
-                                            <span class="form-preview-duration-value">10 min</span>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Long Break</label>
+                                                <span class="duration-value">15 min</span>
+                                            </div>
+                                            <input type="range" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Long Break</label>
-                                            <span class="form-preview-duration-value">20 min</span>
-                                        </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-preview-duration-item">
-                                        <div class="form-preview-duration-header">
-                                            <label>Sessions</label>
-                                            <span class="form-preview-duration-value">3 sesh</span>
-                                        </div>
-                                        <div class="form-preview-slider">
-                                            <div class="form-preview-slider-track"></div>
-                                            <div class="form-preview-slider-thumb" style="left: 25%;"></div>
+                                        <div class="duration-item">
+                                            <div class="duration-header">
+                                                <label>Sessions</label>
+                                                <span class="duration-value">4 sesh</span>
+                                            </div>
+                                            <input type="range" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions" disabled style="opacity: 0.6; cursor: default;">
                                         </div>
                                     </div>
                                 </div>
