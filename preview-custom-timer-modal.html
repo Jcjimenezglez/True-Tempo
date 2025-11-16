@@ -60,12 +60,6 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
         }
 
-        .custom-timer-modal {
-            overflow: visible !important;
-            max-height: none !important;
-            padding: 2rem !important;
-        }
-
         .close-logout-modal-x {
             position: absolute;
             top: 1rem;
@@ -85,248 +79,6 @@
         .close-logout-modal-x:hover {
             background: rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.9);
-        }
-
-        /* Custom Timer Modal - Two Column Layout */
-        .custom-timer-modal-content {
-            display: flex;
-            gap: 2rem;
-            align-items: stretch;
-            padding: 0;
-        }
-
-        .custom-timer-modal-left {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding-right: 1rem;
-        }
-
-        .custom-timer-modal-right {
-            flex: 1;
-            min-width: 0;
-            padding-left: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .custom-timer-modal-right .upgrade-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            min-height: 500px;
-            justify-content: space-between;
-            text-align: center;
-            padding: 1rem 0 0 0;
-        }
-
-        .custom-timer-modal-right .logout-modal-buttons {
-            margin-top: auto;
-        }
-
-        .custom-timer-form-preview {
-            width: 100%;
-            max-width: 400px;
-            height: 500px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .custom-timer-form-preview::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .custom-timer-form-preview::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        .custom-timer-form-preview::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        .custom-timer-form-preview::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .custom-form-content {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .custom-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .custom-input-group label {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .custom-input-group input[type="text"] {
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            width: 100%;
-            box-sizing: border-box;
-            font-family: inherit;
-            margin-top: 8px;
-        }
-
-        .name-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .name-header label {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-style: normal;
-            font-weight: 500;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 0;
-        }
-
-        .word-count {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 500;
-        }
-
-        .emoji-picker {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-            width: 100%;
-        }
-
-        .emoji-option {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 8px;
-            font-size: 18px;
-            cursor: default;
-            transition: all 0.2s ease;
-            min-width: 40px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-        }
-
-        .emoji-option.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #ffffff;
-            transform: scale(1.1);
-        }
-
-        .custom-duration-options {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .custom-duration-options h5 {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .duration-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            margin-top: 8px;
-        }
-
-        .duration-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        .duration-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .duration-header label {
-            color: #ffffff;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .duration-value {
-            color: #a3a3a3;
-            font-size: 0.9rem;
-            font-weight: 600;
-            background: rgba(163, 163, 163, 0.1);
-            padding: 4px 10px;
-            border-radius: 6px;
-            border: 1px solid rgba(163, 163, 163, 0.2);
-        }
-
-        .duration-slider {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .duration-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #ffffff;
-            cursor: default;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-        }
-
-        .duration-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #ffffff;
-            cursor: default;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
         }
 
         .upgrade-content {
@@ -397,18 +149,6 @@
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.3);
         }
-
-        /* Responsive: Stack columns on smaller screens */
-        @media (max-width: 768px) {
-            .custom-timer-modal-content {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-            
-            .logout-modal {
-                max-width: 90%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -416,94 +156,24 @@
         <h1 class="preview-title">Preview - Custom Timer Modal</h1>
         
         <div class="logout-modal-overlay">
-            <div class="logout-modal custom-timer-modal">
+            <div class="logout-modal">
                 <button class="close-logout-modal-x" onclick="alert('Close button clicked')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <div class="custom-timer-modal-content">
-                    <div class="custom-timer-modal-left">
-                        <div class="custom-timer-form-preview">
-                            <div class="custom-form-content">
-                                <div class="custom-input-group">
-                                    <div class="name-header">
-                                        <label for="customName">Name your technique</label>
-                                        <div class="word-count">0/15 characters</div>
-                                    </div>
-                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15" readonly style="cursor: default; opacity: 0.8;">
-                                </div>
-                                
-                                <div class="custom-input-group">
-                                    <label for="customEmoji">Choose an emoji</label>
-                                    <div class="emoji-picker">
-                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
-                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
-                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
-                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
-                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
-                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
-                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
-                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
-                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
-                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
-                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
-                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Duration Options (Compact Controls) -->
-                                <div class="custom-duration-options">
-                                    <h5>Set your duration</h5>
-                                    <div class="duration-controls">
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Work</label>
-                                                <span class="duration-value">25 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Short Break</label>
-                                                <span class="duration-value">5 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Long Break</label>
-                                                <span class="duration-value">15 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Sessions</label>
-                                                <span class="duration-value">4 sesh</span>
-                                            </div>
-                                            <input type="range" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
                     </div>
-                    <div class="custom-timer-modal-right">
-                        <div class="upgrade-content">
-                            <div class="upgrade-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <polyline points="12,6 12,12 16,14"/>
-                                </svg>
-                            </div>
-                            <h3>Build your perfect timer</h3>
-                            <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
-                            <div class="logout-modal-buttons">
-                                <button class="logout-modal-btn logout-modal-btn-primary" onclick="alert('Unlock Custom Timers clicked')">Unlock Custom Timers</button>
-                                <button class="logout-modal-btn logout-modal-btn-secondary" onclick="alert('Cancel clicked')">Cancel</button>
-                            </div>
-                        </div>
+                    <h3>Build your perfect timer</h3>
+                    <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" onclick="alert('Unlock Custom Timers clicked')">Unlock Custom Timers</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" onclick="alert('Cancel clicked')">Cancel</button>
                     </div>
                 </div>
             </div>
