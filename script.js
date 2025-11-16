@@ -17478,12 +17478,15 @@ class PomodoroTimer {
         const changedFromPrivateToPublic = !wasPublic && isNowPublic;
         
         // Get views, viewedBy, websiteClicks, and clickedBy from server if available (server is source of truth)
+        // This preserves historical data when changing from private to public or editing a public cassette
         let serverViews = 0;
         let serverViewedBy = [];
         let serverWebsiteClicks = 0;
         let serverClickedBy = [];
-        if (cassetteId && previousCassette?.isPublic) {
-            // Try to get data from server cache
+        
+        // Check if cassette was previously public or is being changed to public
+        if (cassetteId && (previousCassette?.isPublic || isNowPublic)) {
+            // Try to get data from server cache first
             const cacheKey = 'publicCassettesCache';
             const cachedData = localStorage.getItem(cacheKey);
             if (cachedData) {
@@ -17491,13 +17494,13 @@ class PomodoroTimer {
                     const cachedCassettes = JSON.parse(cachedData);
                     const serverCassette = cachedCassettes.find(c => c.id === cassetteId);
                     if (serverCassette) {
-                        if (serverCassette.views !== undefined) {
+                        if (serverCassette.views !== undefined && serverCassette.views !== null) {
                             serverViews = serverCassette.views;
                         }
                         if (serverCassette.viewedBy !== undefined) {
                             serverViewedBy = serverCassette.viewedBy || [];
                         }
-                        if (serverCassette.websiteClicks !== undefined) {
+                        if (serverCassette.websiteClicks !== undefined && serverCassette.websiteClicks !== null) {
                             serverWebsiteClicks = serverCassette.websiteClicks;
                         }
                         if (serverCassette.clickedBy !== undefined) {
@@ -17506,6 +17509,23 @@ class PomodoroTimer {
                     }
                 } catch (e) {
                     console.error('Error parsing cache:', e);
+                }
+            }
+            
+            // Also check if previous cassette had historical data
+            if (previousCassette) {
+                // Preserve views if they exist in previous cassette (might be from Clerk)
+                if (previousCassette.views !== undefined && previousCassette.views !== null && previousCassette.views > serverViews) {
+                    serverViews = previousCassette.views;
+                }
+                if (previousCassette.viewedBy && previousCassette.viewedBy.length > serverViewedBy.length) {
+                    serverViewedBy = previousCassette.viewedBy;
+                }
+                if (previousCassette.websiteClicks !== undefined && previousCassette.websiteClicks !== null && previousCassette.websiteClicks > serverWebsiteClicks) {
+                    serverWebsiteClicks = previousCassette.websiteClicks;
+                }
+                if (previousCassette.clickedBy && previousCassette.clickedBy.length > serverClickedBy.length) {
+                    serverClickedBy = previousCassette.clickedBy;
                 }
             }
         }
@@ -17519,14 +17539,22 @@ class PomodoroTimer {
             websiteUrl: websiteUrl || '',
             isPublic: isPublic,
             // Preserve views from server if available (server is source of truth for views)
-            // Always prefer server views over localStorage for public cassettes
-            views: cassetteId && previousCassette?.isPublic && serverViews !== undefined && serverViews !== null ? serverViews : (previousCassette?.views !== undefined && previousCassette.views !== null ? previousCassette.views : 0),
+            // When changing from private to public, preserve historical data from Clerk
+            views: (serverViews > 0 || (previousCassette?.views !== undefined && previousCassette.views !== null)) 
+                ? Math.max(serverViews, previousCassette?.views || 0) 
+                : 0,
             // Preserve viewedBy from server if available (server is source of truth for viewedBy)
-            viewedBy: cassetteId && previousCassette?.isPublic && serverViewedBy.length > 0 ? serverViewedBy : (previousCassette?.viewedBy || []),
+            viewedBy: (serverViewedBy.length > 0 || (previousCassette?.viewedBy && previousCassette.viewedBy.length > 0))
+                ? (serverViewedBy.length >= (previousCassette?.viewedBy?.length || 0) ? serverViewedBy : previousCassette.viewedBy)
+                : [],
             // Preserve websiteClicks from server if available (server is source of truth for websiteClicks)
-            websiteClicks: cassetteId && previousCassette?.isPublic && serverWebsiteClicks !== undefined && serverWebsiteClicks !== null ? serverWebsiteClicks : (previousCassette?.websiteClicks !== undefined && previousCassette.websiteClicks !== null ? previousCassette.websiteClicks : 0),
+            websiteClicks: (serverWebsiteClicks > 0 || (previousCassette?.websiteClicks !== undefined && previousCassette.websiteClicks !== null))
+                ? Math.max(serverWebsiteClicks, previousCassette?.websiteClicks || 0)
+                : 0,
             // Preserve clickedBy from server if available (server is source of truth for clickedBy)
-            clickedBy: cassetteId && previousCassette?.isPublic && serverClickedBy.length > 0 ? serverClickedBy : (previousCassette?.clickedBy || []),
+            clickedBy: (serverClickedBy.length > 0 || (previousCassette?.clickedBy && previousCassette.clickedBy.length > 0))
+                ? (serverClickedBy.length >= (previousCassette?.clickedBy?.length || 0) ? serverClickedBy : previousCassette.clickedBy)
+                : [],
             createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
