@@ -1227,7 +1227,7 @@ class PomodoroTimer {
         modalOverlay.style.display = 'flex';
         
         const modal = document.createElement('div');
-        modal.className = 'logout-modal';
+        modal.className = 'logout-modal custom-timer-modal';
         
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
@@ -1243,18 +1243,90 @@ class PomodoroTimer {
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <div class="upgrade-content">
-                    <div class="upgrade-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12,6 12,12 16,14"/>
-                        </svg>
+                <div class="custom-timer-modal-content">
+                    <div class="custom-timer-modal-left">
+                        <div class="custom-timer-form-preview">
+                            <div class="form-preview-header">
+                                <div class="form-preview-name-group">
+                                    <div class="form-preview-name-header">
+                                        <label>Name your technique</label>
+                                        <div class="form-preview-word-count">8/15 characters</div>
+                                    </div>
+                                    <div class="form-preview-input">Deep Work</div>
+                                </div>
+                                
+                                <div class="form-preview-emoji-group">
+                                    <label>Choose an emoji</label>
+                                    <div class="form-preview-emoji-picker">
+                                        <button class="form-preview-emoji-option active">🎯</button>
+                                        <button class="form-preview-emoji-option">🍅</button>
+                                        <button class="form-preview-emoji-option">⚡</button>
+                                        <button class="form-preview-emoji-option">🌊</button>
+                                        <button class="form-preview-emoji-option">🧠</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-preview-duration-group">
+                                    <h5>Set your duration</h5>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Work</label>
+                                            <span class="form-preview-duration-value">52 min</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 57%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Short Break</label>
+                                            <span class="form-preview-duration-value">10 min</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Long Break</label>
+                                            <span class="form-preview-duration-value">20 min</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Sessions</label>
+                                            <span class="form-preview-duration-value">3 sesh</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 25%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h3>Build your perfect timer</h3>
-                    <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
-                    <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
+                    <div class="custom-timer-modal-right">
+                        <div class="upgrade-content">
+                            <div class="upgrade-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                            </div>
+                            <h3>Build your perfect timer</h3>
+                            <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
+                            <div class="logout-modal-buttons">
+                                <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
+                                <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1268,18 +1340,90 @@ class PomodoroTimer {
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <div class="upgrade-content">
-                    <div class="upgrade-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12,6 12,12 16,14"/>
-                        </svg>
+                <div class="custom-timer-modal-content">
+                    <div class="custom-timer-modal-left">
+                        <div class="custom-timer-form-preview">
+                            <div class="form-preview-header">
+                                <div class="form-preview-name-group">
+                                    <div class="form-preview-name-header">
+                                        <label>Name your technique</label>
+                                        <div class="form-preview-word-count">8/15 characters</div>
+                                    </div>
+                                    <div class="form-preview-input">Deep Work</div>
+                                </div>
+                                
+                                <div class="form-preview-emoji-group">
+                                    <label>Choose an emoji</label>
+                                    <div class="form-preview-emoji-picker">
+                                        <button class="form-preview-emoji-option active">🎯</button>
+                                        <button class="form-preview-emoji-option">🍅</button>
+                                        <button class="form-preview-emoji-option">⚡</button>
+                                        <button class="form-preview-emoji-option">🌊</button>
+                                        <button class="form-preview-emoji-option">🧠</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-preview-duration-group">
+                                    <h5>Set your duration</h5>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Work</label>
+                                            <span class="form-preview-duration-value">52 min</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 57%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Short Break</label>
+                                            <span class="form-preview-duration-value">10 min</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Long Break</label>
+                                            <span class="form-preview-duration-value">20 min</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 33%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-preview-duration-item">
+                                        <div class="form-preview-duration-header">
+                                            <label>Sessions</label>
+                                            <span class="form-preview-duration-value">3 sesh</span>
+                                        </div>
+                                        <div class="form-preview-slider">
+                                            <div class="form-preview-slider-track"></div>
+                                            <div class="form-preview-slider-thumb" style="left: 25%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h3>Build your perfect timer</h3>
-                    <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
-                    <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
+                    <div class="custom-timer-modal-right">
+                        <div class="upgrade-content">
+                            <div class="upgrade-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                            </div>
+                            <h3>Build your perfect timer</h3>
+                            <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
+                            <div class="logout-modal-buttons">
+                                <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
+                                <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;

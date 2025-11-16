@@ -1892,6 +1892,194 @@ body.is-scrolling .streak-fire {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
+/* Custom Timer Modal - Two Column Layout */
+.custom-timer-modal-content {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.custom-timer-modal-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.custom-timer-modal-right {
+    flex: 1;
+    min-width: 0;
+}
+
+.custom-timer-form-preview {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    font-size: 0.85rem;
+}
+
+.form-preview-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-preview-name-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-preview-name-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-preview-name-header label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.form-preview-word-count {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+}
+
+.form-preview-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+}
+
+.form-preview-emoji-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-preview-emoji-group label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.form-preview-emoji-picker {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.form-preview-emoji-option {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: default;
+    padding: 0;
+}
+
+.form-preview-emoji-option.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-preview-duration-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-preview-duration-group h5 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.form-preview-duration-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-preview-duration-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-preview-duration-header label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.7rem;
+    margin: 0;
+}
+
+.form-preview-duration-value {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.form-preview-slider {
+    position: relative;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.form-preview-slider-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.form-preview-slider-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive: Stack columns on smaller screens */
+@media (max-width: 768px) {
+    .custom-timer-modal-content {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .logout-modal {
+        max-width: 90%;
+    }
+}
+
+/* Update modal width for two-column layout */
+.custom-timer-modal {
+    max-width: 900px !important;
+    width: 95% !important;
+}
+
 .close-logout-modal-x {
     position: absolute;
     top: 1rem;
