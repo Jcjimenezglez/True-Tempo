@@ -1893,28 +1893,32 @@ body.is-scrolling .streak-fire {
 }
 
 .custom-timer-modal {
-    overflow: visible;
-    max-height: none;
+    overflow: visible !important;
+    max-height: none !important;
+    padding: 2rem !important;
 }
 
 /* Custom Timer Modal - Two Column Layout */
 .custom-timer-modal-content {
     display: flex;
     gap: 2rem;
-    align-items: center;
+    align-items: flex-start;
+    padding: 0;
 }
 
 .custom-timer-modal-left {
     flex: 1;
     min-width: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    padding-right: 1rem;
 }
 
 .custom-timer-modal-right {
     flex: 1;
     min-width: 0;
+    padding-left: 1rem;
 }
 
 .custom-timer-form-preview {
