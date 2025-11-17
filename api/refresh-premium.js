@@ -53,58 +53,94 @@ module.exports = async (req, res) => {
     if (!user) return res.status(400).json({ error: 'User not found in Clerk' });
 
     // Prefer stored customer id in Clerk metadata
-    let stripeCustomerId = user.publicMetadata?.stripeCustomerId;
+    const metadataCustomerId = user.publicMetadata?.stripeCustomerId;
+    const premiumStatuses = new Set(['active', 'trialing', 'past_due']);
+    const checkedCustomers = new Set();
 
-    if (!stripeCustomerId && email) {
+    // Build candidate list (metadata first, then Stripe matches for the email)
+    const candidateCustomerIds = [];
+    if (metadataCustomerId) candidateCustomerIds.push(metadataCustomerId);
+
+    if (email) {
       try {
-        const listed = await stripe.customers.list({ email, limit: 1 });
-        if (listed.data.length) stripeCustomerId = listed.data[0].id;
+        const listed = await stripe.customers.list({ email, limit: 10 });
+        for (const customer of listed.data) {
+          if (customer?.id) {
+            candidateCustomerIds.push(customer.id);
+          }
+        }
       } catch (e) {
         console.error('Stripe customers.list by email error:', e);
       }
     }
 
-    let isPremium = false;
-    if (stripeCustomerId) {
+    let matchedCustomerId = null;
+    let matchedSubscription = null;
+
+    for (const candidateId of candidateCustomerIds) {
+      if (!candidateId || checkedCustomers.has(candidateId)) continue;
+      checkedCustomers.add(candidateId);
+
       try {
-        const subs = await stripe.subscriptions.list({ customer: stripeCustomerId, status: 'all', limit: 10 });
-        const active = subs.data.find(s => ['active', 'trialing', 'past_due'].includes(s.status));
-        isPremium = !!active;
-      } catch (e) {
-        console.error('Stripe subscriptions.list by customer error:', e);
-      }
-    } else if (email) {
-      // Fallback: search any customer by email with active sub
-      try {
-        const listed = await stripe.customers.list({ email, limit: 3 });
-        for (const c of listed.data) {
-          try {
-            const subs = await stripe.subscriptions.list({ customer: c.id, status: 'all', limit: 5 });
-            const active = subs.data.find(s => ['active', 'trialing', 'past_due'].includes(s.status));
-            if (active) {
-              stripeCustomerId = c.id;
-              isPremium = true;
-              break;
-            }
-          } catch (e) {
-            console.error('Stripe subscriptions.list loop error:', e);
-          }
+        const subs = await stripe.subscriptions.list({
+          customer: candidateId,
+          status: 'all',
+          limit: 10
+        });
+
+        const activeSub = subs.data.find((sub) => premiumStatuses.has(sub.status));
+        if (activeSub) {
+          matchedCustomerId = candidateId;
+          matchedSubscription = activeSub;
+          break;
         }
       } catch (e) {
-        console.error('Stripe customers.list fallback error:', e);
+        console.error(`Stripe subscriptions.list error for ${candidateId}:`, e);
       }
     }
 
+    const stripeCustomerId = matchedCustomerId || metadataCustomerId || null;
+    const isPremium = !!matchedCustomerId;
+
     try {
       const currentMeta = user.publicMetadata || {};
-      const newMeta = { ...currentMeta, isPremium, ...(stripeCustomerId ? { stripeCustomerId } : {}) };
+      const newMeta = {
+        ...currentMeta,
+        isPremium,
+        ...(stripeCustomerId ? { stripeCustomerId } : {}),
+      };
+
+      if (isPremium) {
+        const subscriptionPrice = matchedSubscription?.items?.data?.[0]?.price;
+        const derivedPaymentType =
+          currentMeta.paymentType ||
+          subscriptionPrice?.metadata?.plan_type ||
+          (subscriptionPrice?.recurring?.interval ? `${subscriptionPrice.recurring.interval}` : 'premium');
+
+        newMeta.paymentType = derivedPaymentType || 'premium';
+        newMeta.isTrial = matchedSubscription?.status === 'trialing';
+        if (!currentMeta.premiumSince) {
+          const createdAt = matchedSubscription?.created
+            ? new Date(matchedSubscription.created * 1000).toISOString()
+            : new Date().toISOString();
+          newMeta.premiumSince = createdAt;
+        }
+        newMeta.lastUpdated = new Date().toISOString();
+      }
+
       await clerk.users.updateUser(user.id, { publicMetadata: newMeta });
     } catch (e) {
       console.error('Clerk updateUser error:', e);
       return res.status(500).json({ error: 'Failed to write metadata', details: e?.message || 'unknown' });
     }
 
-    return res.status(200).json({ ok: true, isPremium, stripeCustomerId: stripeCustomerId || null });
+    return res.status(200).json({
+      ok: true,
+      isPremium,
+      stripeCustomerId,
+      subscriptionId: matchedSubscription?.id || null,
+      subscriptionStatus: matchedSubscription?.status || null,
+    });
   } catch (e) {
     console.error('refresh-premium error:', e);
     return res.status(500).json({ error: 'Failed to refresh premium', details: e?.message || 'unknown' });
