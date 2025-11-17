@@ -1227,7 +1227,7 @@ class PomodoroTimer {
         modalOverlay.style.display = 'flex';
         
         const modal = document.createElement('div');
-        modal.className = 'logout-modal custom-timer-modal';
+        modal.className = 'logout-modal';
         
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
@@ -1243,88 +1243,18 @@ class PomodoroTimer {
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <div class="custom-timer-modal-content">
-                    <div class="custom-timer-modal-left">
-                        <div class="custom-timer-form-preview">
-                            <div class="custom-form-content">
-                                <div class="custom-input-group">
-                                    <div class="name-header">
-                                        <label for="customName">Name your technique</label>
-                                        <div class="word-count">0/15 characters</div>
-                                    </div>
-                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15" readonly style="cursor: default; opacity: 0.8;">
-                                </div>
-                                
-                                <div class="custom-input-group">
-                                    <label for="customEmoji">Choose an emoji</label>
-                                    <div class="emoji-picker">
-                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
-                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
-                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
-                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
-                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
-                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
-                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
-                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
-                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
-                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
-                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
-                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Duration Options (Compact Controls) -->
-                                <div class="custom-duration-options">
-                                    <h5>Set your duration</h5>
-                                    <div class="duration-controls">
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Work</label>
-                                                <span class="duration-value">25 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Short Break</label>
-                                                <span class="duration-value">5 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Long Break</label>
-                                                <span class="duration-value">15 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Sessions</label>
-                                                <span class="duration-value">4 sesh</span>
-                                            </div>
-                                            <input type="range" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
                     </div>
-                    <div class="custom-timer-modal-right">
-                        <div class="upgrade-content">
-                            <div class="upgrade-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <polyline points="12,6 12,12 16,14"/>
-                                </svg>
-                            </div>
-                            <h3>Build your perfect timer</h3>
-                            <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
-                            <div class="logout-modal-buttons">
-                                <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
-                                <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
-                            </div>
-                        </div>
+                    <h3>Build your perfect timer</h3>
+                    <p>${message}</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
             `;
@@ -1338,88 +1268,18 @@ class PomodoroTimer {
                         <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                     </svg>
                 </button>
-                <div class="custom-timer-modal-content">
-                    <div class="custom-timer-modal-left">
-                        <div class="custom-timer-form-preview">
-                            <div class="custom-form-content">
-                                <div class="custom-input-group">
-                                    <div class="name-header">
-                                        <label for="customName">Name your technique</label>
-                                        <div class="word-count">0/15 characters</div>
-                                    </div>
-                                    <input type="text" id="customName" placeholder="e.g., My Focus Session" maxlength="15" readonly style="cursor: default; opacity: 0.8;">
-                                </div>
-                                
-                                <div class="custom-input-group">
-                                    <label for="customEmoji">Choose an emoji</label>
-                                    <div class="emoji-picker">
-                                        <button type="button" class="emoji-option active" data-emoji="🎯">🎯</button>
-                                        <button type="button" class="emoji-option" data-emoji="🍅">🍅</button>
-                                        <button type="button" class="emoji-option" data-emoji="⚡">⚡</button>
-                                        <button type="button" class="emoji-option" data-emoji="🌊">🌊</button>
-                                        <button type="button" class="emoji-option" data-emoji="🧠">🧠</button>
-                                        <button type="button" class="emoji-option" data-emoji="🏃">🏃</button>
-                                        <button type="button" class="emoji-option" data-emoji="🔥">🔥</button>
-                                        <button type="button" class="emoji-option" data-emoji="💪">💪</button>
-                                        <button type="button" class="emoji-option" data-emoji="🚀">🚀</button>
-                                        <button type="button" class="emoji-option" data-emoji="⭐">⭐</button>
-                                        <button type="button" class="emoji-option" data-emoji="🎨">🎨</button>
-                                        <button type="button" class="emoji-option" data-emoji="⚙️">⚙️</button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Duration Options (Compact Controls) -->
-                                <div class="custom-duration-options">
-                                    <h5>Set your duration</h5>
-                                    <div class="duration-controls">
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Work</label>
-                                                <span class="duration-value">25 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="90" value="25" class="duration-slider" aria-label="Work duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Short Break</label>
-                                                <span class="duration-value">5 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Long Break</label>
-                                                <span class="duration-value">15 min</span>
-                                            </div>
-                                            <input type="range" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                        <div class="duration-item">
-                                            <div class="duration-header">
-                                                <label>Sessions</label>
-                                                <span class="duration-value">4 sesh</span>
-                                            </div>
-                                            <input type="range" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions" disabled style="opacity: 0.6; cursor: default;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
                     </div>
-                    <div class="custom-timer-modal-right">
-                        <div class="upgrade-content">
-                            <div class="upgrade-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <polyline points="12,6 12,12 16,14"/>
-                                </svg>
-                            </div>
-                            <h3>Build your perfect timer</h3>
-                            <p>25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.</p>
-                            <div class="logout-modal-buttons">
-                                <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
-                                <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
-                            </div>
-                        </div>
+                    <h3>Build your perfect timer</h3>
+                    <p>${guestMessage}</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
             `;
