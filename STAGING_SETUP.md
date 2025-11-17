@@ -38,7 +38,7 @@ CLERK_PUBLISHABLE_KEY=pk_test_ABC123...
 CLERK_SECRET_KEY=sk_test_ABC123...
 
 # URLs de Staging (reemplaza YOUR_STAGING_URL)
-STRIPE_SUCCESS_URL=https://YOUR_STAGING_URL.vercel.app?premium=1&payment=success
+STRIPE_SUCCESS_URL=https://YOUR_STAGING_URL.vercel.app?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}
 STRIPE_CANCEL_URL=https://YOUR_STAGING_URL.vercel.app
 STRIPE_RETURN_URL=https://YOUR_STAGING_URL.vercel.app
 ```

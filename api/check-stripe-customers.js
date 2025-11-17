@@ -10,6 +10,43 @@ module.exports = async (req, res) => {
 
     const stripe = Stripe(stripeSecret, { apiVersion: '2022-11-15' });
     const targetEmail = (req.query.email || req.query.user || 'omrvieito@gmail.com').toLowerCase();
+    const targetCustomerId = (req.query.customerId || req.query.customer || req.query.id || '').trim();
+
+    if (targetCustomerId) {
+      try {
+        const customer = await stripe.customers.retrieve(targetCustomerId, {
+          expand: ['subscriptions'],
+        });
+
+        if (customer?.id) {
+          const subscriptions = await stripe.subscriptions.list({
+            customer: customer.id,
+            limit: 10,
+            status: 'all',
+          });
+
+          return res.json({
+            message: 'Customer found by ID',
+            customer: {
+              id: customer.id,
+              email: customer.email,
+              created: customer.created,
+              metadata: customer.metadata,
+              subscriptions: subscriptions.data.map((sub) => ({
+                id: sub.id,
+                status: sub.status,
+                current_period_start: sub.current_period_start,
+                current_period_end: sub.current_period_end,
+                price_id: sub.items.data[0]?.price?.id,
+                trial_end: sub.trial_end,
+              })),
+            },
+          });
+        }
+      } catch (error) {
+        console.warn(`Unable to retrieve customer ${targetCustomerId}:`, error.message);
+      }
+    }
 
     let matches = [];
     try {

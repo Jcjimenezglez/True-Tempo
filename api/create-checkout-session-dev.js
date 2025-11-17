@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
   
   // Use localhost URLs for development
-  const finalSuccessUrl = 'http://localhost:3000?premium=1&payment=success';
+  const finalSuccessUrl = 'http://localhost:3000?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}';
   const finalCancelUrl = 'http://localhost:3000';
 
   // Basic validation with clear error responses

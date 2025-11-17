@@ -46,7 +46,7 @@ CLERK_PUBLISHABLE_KEY=pk_test_ABC123...
 CLERK_SECRET_KEY=sk_test_ABC123...
 
 # Development URLs
-STRIPE_SUCCESS_URL=http://localhost:3000?premium=1&payment=success
+STRIPE_SUCCESS_URL=http://localhost:3000?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}
 STRIPE_CANCEL_URL=http://localhost:3000
 STRIPE_RETURN_URL=http://localhost:3000
 ```

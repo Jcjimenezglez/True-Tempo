@@ -262,6 +262,7 @@ class PomodoroTimer {
         this.isPro = false;
         // Signals when Clerk auth has fully hydrated for this session
         this.authReady = false;
+        this.confirmedCheckoutSessionId = null;
         
         // Loading screen management
         this.loadingScreen = document.getElementById('loadingScreen');
@@ -649,6 +650,27 @@ class PomodoroTimer {
                 window.history.replaceState({}, '', `${url.pathname}${params.toString() ? `?${params.toString()}` : ''}${url.hash}`);
             }
         } catch (_) { /* ignore */ }
+    }
+
+    removeUrlParams(keys = []) {
+        try {
+            if (!Array.isArray(keys) || keys.length === 0) return;
+            const url = new URL(window.location.href);
+            let changed = false;
+            keys.forEach((key) => {
+                if (url.searchParams.has(key)) {
+                    url.searchParams.delete(key);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                const newSearch = url.searchParams.toString();
+                const newUrl = `${url.pathname}${newSearch ? `?${newSearch}` : ''}${url.hash}`;
+                window.history.replaceState({}, '', newUrl);
+            }
+        } catch (error) {
+            console.warn('Failed to remove URL params:', error);
+        }
     }
     
     checkAuthState() {
@@ -2013,6 +2035,7 @@ class PomodoroTimer {
             this.updateTechniquePresetsVisibility();
             // Reconciliar premium desde backend
             this.refreshPremiumFromServer().catch(() => {});
+            this.handleStripeCheckoutReturn();
             
             // Ensure cassette auth gating and saved Tron theme are applied post-hydration
             try { this.updateThemeAuthState(); } catch (_) {}
@@ -5458,6 +5481,55 @@ class PomodoroTimer {
             return data;
         } catch (_) {
             // silencioso
+        }
+    }
+
+    async handleStripeCheckoutReturn(retryCount = 0) {
+        try {
+            const url = new URL(window.location.href);
+            const sessionId = url.searchParams.get('session_id');
+            if (!sessionId) return;
+
+            if (!this.isAuthenticated || !this.user) {
+                if (retryCount < 10) {
+                    setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 800);
+                }
+                return;
+            }
+
+            if (this.confirmedCheckoutSessionId === sessionId) {
+                return;
+            }
+
+            this.confirmedCheckoutSessionId = sessionId;
+            const userEmail = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress || '';
+
+            console.log('🔄 Confirming Stripe checkout session:', sessionId);
+            const response = await fetch('/api/confirm-premium', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id,
+                    'x-clerk-user-email': userEmail,
+                },
+                body: JSON.stringify({ sessionId }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('❌ Failed to confirm checkout session:', errorData);
+                this.confirmedCheckoutSessionId = null;
+                return;
+            }
+
+            console.log('✅ Checkout session confirmed with backend');
+            await this.refreshPremiumFromServer();
+            this.removeUrlParams(['session_id']);
+        } catch (error) {
+            console.error('Error handling checkout confirmation:', error);
+            if (retryCount < 10) {
+                setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 1000);
+            }
         }
     }
 

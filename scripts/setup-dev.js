@@ -31,7 +31,7 @@ CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key_here
 CLERK_SECRET_KEY=sk_test_your_clerk_secret_key_here
 
 # Development URLs
-STRIPE_SUCCESS_URL=http://localhost:3000?premium=1&payment=success
+STRIPE_SUCCESS_URL=http://localhost:3000?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}
 STRIPE_CANCEL_URL=http://localhost:3000
 STRIPE_RETURN_URL=http://localhost:3000
 STRIPE_PORTAL_CONFIGURATION_ID=pmc_your_test_portal_config_id_here
