@@ -1357,13 +1357,28 @@
                                 </div>
                                 
                                 <div class="custom-input-group">
-                                    <label for="previewCassetteDescription">Description</label>
-                                    <input type="text" id="previewCassetteDescription" value="Perfect for deep work sessions" readonly style="pointer-events: none;">
+                                    <label for="previewCassetteImageUrl">Image URL/Address</label>
+                                    <input type="url" id="previewCassetteImageUrl" value="https://example.com/my-image.jpg" readonly style="pointer-events: none;">
                                 </div>
                                 
                                 <div class="custom-input-group">
-                                    <label for="previewCassetteImageUrl">Image URL/Address</label>
-                                    <input type="url" id="previewCassetteImageUrl" value="https://example.com/my-image.jpg" readonly style="pointer-events: none;">
+                                    <label for="previewCassetteSpotifyUrl">Spotify track, playlist, or album URL</label>
+                                    <input type="url" id="previewCassetteSpotifyUrl" placeholder="https://open.spotify.com/track/..." readonly style="pointer-events: none;">
+                                </div>
+                                
+                                <div class="custom-input-group">
+                                    <label for="previewCassetteWebsiteUrl">Website URL</label>
+                                    <input type="url" id="previewCassetteWebsiteUrl" placeholder="https://example.com" readonly style="pointer-events: none;">
+                                </div>
+                                
+                                <div class="custom-input-group" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0;">
+                                    <label for="previewCassetteIsPublic" style="margin: 0;">Public cassette</label>
+                                    <div class="toggle-container">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="previewCassetteIsPublic" style="pointer-events: none;">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
                                 </div>
                                 
                                 <div class="custom-form-actions">
