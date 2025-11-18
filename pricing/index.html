@@ -1527,6 +1527,16 @@
                     console.log('✅ Mixpanel tracking sent: Stripe Checkout Session Created');
                 }
                 
+                // Track Checkout Session Created in Google Ads
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', 'conversion', {
+                        'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                        'value': 1.0,
+                        'currency': 'USD'
+                    });
+                    console.log('✅ Google Ads tracking sent: Checkout Session Created');
+                }
+                
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: {
