@@ -1517,6 +1517,16 @@
 
         async function createCheckoutSession(planType = 'premium') {
             try {
+                // Track that checkout session is being created
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Stripe Checkout Session Created', {
+                        source: 'pricing_page',
+                        plan_type: planType,
+                        timestamp: new Date().toISOString()
+                    });
+                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Session Created');
+                }
+                
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: {
@@ -1541,6 +1551,26 @@
                 }
             } catch (error) {
                 console.error('Error creating checkout session:', error);
+                
+                // Track checkout error
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Stripe Checkout Error', {
+                        source: 'pricing_page',
+                        error: error.message,
+                        plan_type: planType,
+                        timestamp: new Date().toISOString()
+                    });
+                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Error');
+                }
+                
+                // Track error in Google Ads
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', 'exception', {
+                        description: 'Checkout session creation failed: ' + error.message,
+                        fatal: false
+                    });
+                }
+                
                 alert('Error creating checkout session. Please try again.');
             }
         }
@@ -1564,7 +1594,46 @@
         // Check upgrade intent after page is updated
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(checkUpgradeIntent, 1000);
+            
+            // Check if user returned from canceled checkout
+            checkCheckoutAbandonment();
         });
+        
+        // Track checkout abandonment when user returns from canceled checkout
+        function checkCheckoutAbandonment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const canceled = urlParams.get('canceled');
+            
+            if (canceled === '1') {
+                console.log('🔄 User returned from canceled checkout');
+                
+                // Track checkout abandonment
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Stripe Checkout Abandoned', {
+                        source: 'pricing_page',
+                        plan_type: 'premium',
+                        timestamp: new Date().toISOString(),
+                        return_url: window.location.href
+                    });
+                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Abandoned');
+                }
+                
+                // Track abandonment in Google Ads
+                if (typeof window.gtag === 'function') {
+                    window.gtag('event', 'checkout_abandoned', {
+                        event_category: 'ecommerce',
+                        event_label: 'pricing_page',
+                        value: 0,
+                        currency: 'USD'
+                    });
+                    console.log('✅ Google Ads tracking sent: Checkout Abandoned');
+                }
+                
+                // Remove the canceled parameter from URL to avoid tracking again on refresh
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        }
         
         // FAQ Accordion functionality
         document.addEventListener('DOMContentLoaded', function() {

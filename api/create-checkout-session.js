@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
 
   // Use hardcoded URLs to avoid environment variable issues
   const finalSuccessUrl = 'https://www.superfocus.live?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}';
-  const finalCancelUrl = 'https://www.superfocus.live';
+  const finalCancelUrl = 'https://www.superfocus.live/pricing?canceled=1';
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
@@ -95,17 +95,6 @@ module.exports = async (req, res) => {
       billing_address_collection: 'auto',
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
-      custom_fields: [
-        {
-          key: 'company_name',
-          label: {
-            type: 'custom',
-            custom: 'Company (Optional)',
-          },
-          type: 'text',
-          optional: true,
-        },
-      ],
       // Use the Superfocus payment configuration (includes all payment methods)
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     };
