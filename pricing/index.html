@@ -1076,6 +1076,350 @@
             }
         }
         
+        /* Premium Features Detailed Section */
+        .premium-features-detailed-section {
+            margin-top: 12rem;
+            margin-bottom: 12rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 2rem;
+        }
+        
+        .premium-feature-block {
+            margin-bottom: 8rem;
+        }
+        
+        .premium-feature-block:last-child {
+            margin-bottom: 0;
+        }
+        
+        .premium-feature-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .premium-feature-content.reverse {
+            direction: rtl;
+        }
+        
+        .premium-feature-content.reverse > * {
+            direction: ltr;
+        }
+        
+        .premium-feature-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .premium-feature-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .premium-feature-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+        
+        .premium-feature-benefits {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .premium-feature-benefits li {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .premium-feature-benefits li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: 700;
+        }
+        
+        .premium-feature-visual {
+            position: relative;
+        }
+        
+        .feature-mockup {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mockup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .mockup-form-header h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+        }
+        
+        .mockup-form-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .mockup-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+        
+        .mockup-input-group label {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+        
+        .mockup-input-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #ffffff;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .mockup-word-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .mockup-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .mockup-emoji-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .mockup-emoji {
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .mockup-emoji.selected {
+            background: rgba(6, 78, 59, 0.3);
+            border-color: rgba(6, 78, 59, 0.8);
+        }
+        
+        .mockup-pomodoros-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .mockup-btn-small {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #ffffff;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .mockup-pomodoros-control input {
+            width: 60px;
+            text-align: center;
+        }
+        
+        .mockup-form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+        
+        .mockup-button {
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .mockup-button-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .mockup-image-preview {
+            margin-top: 0.5rem;
+        }
+        
+        .preview-placeholder {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .theme-preview {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-name {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .control-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+        
+        .control-toggle {
+            width: 48px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .control-toggle.active {
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
+        }
+        
+        .control-toggle.active::after {
+            content: "";
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+        
+        .control-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: #ffffff;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .control-input {
+            width: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            color: #ffffff;
+            text-align: center;
+        }
+        
+        @media (max-width: 968px) {
+            .premium-features-detailed-section {
+                padding: 0 1rem;
+            }
+            
+            .premium-feature-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .premium-feature-content.reverse {
+                direction: ltr;
+            }
+            
+            .premium-feature-title {
+                font-size: 2rem;
+            }
+            
+            .premium-feature-block {
+                margin-bottom: 6rem;
+            }
+        }
+        
     </style>
 </head>
 <body>
@@ -1164,46 +1508,228 @@
                     </div>
                 </div>
         
-        <!-- Premium Features Section -->
-        <div class="use-cases-section">
+        <!-- Premium Features Section - Con ejemplos visuales -->
+        <div class="premium-features-detailed-section">
             <div class="use-cases-intro">
                 <h2 class="use-cases-title">With focus that never stops</h2>
-                    </div>
+            </div>
             
-            <div class="use-cases-grid">
-                <div class="use-case-item">
-                    <div class="use-case-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
+            <!-- Feature 1: Create Custom Timer -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content">
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Create unlimited custom timers</h3>
+                        <p class="premium-feature-description">
+                            25 minutes doesn't work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work—not how someone else thinks you should.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Set any duration you want</li>
+                            <li>Create unlimited custom techniques</li>
+                            <li>Name and personalize each timer</li>
+                            <li>Choose custom emojis for each technique</li>
+                        </ul>
                     </div>
-                    <h3 class="use-case-title">Unlimited timers</h3>
-                    <p class="use-case-description">All the timers you need, without limits. Create as many custom timers as you want for any focus moment.</p>
+                    <div class="premium-feature-visual">
+                        <div class="feature-mockup">
+                            <div class="mockup-form">
+                                <div class="mockup-form-header">
+                                    <h4>Create timer</h4>
+                                </div>
+                                <div class="mockup-form-content">
+                                    <div class="mockup-input-group">
+                                        <label>Name your technique</label>
+                                        <input type="text" value="Deep Work Session" readonly>
+                                        <span class="mockup-word-count">18/15 characters</span>
+                                    </div>
+                                    <div class="mockup-input-group">
+                                        <label>Choose an emoji</label>
+                                        <div class="mockup-emoji-picker">
+                                            <span class="mockup-emoji">🔥</span>
+                                            <span class="mockup-emoji">⚡</span>
+                                            <span class="mockup-emoji selected">🎯</span>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-form-row">
+                                        <div class="mockup-input-group">
+                                            <label>Focus time</label>
+                                            <input type="number" value="52" readonly>
+                                        </div>
+                                        <div class="mockup-input-group">
+                                            <label>Break time</label>
+                                            <input type="number" value="10" readonly>
+                                        </div>
+                                    </div>
+                                    <button class="mockup-button">Save timer</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                
-                <div class="use-case-item">
-                    <div class="use-case-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12"/>
-                        </svg>
-                    </div>
-                    <h3 class="use-case-title">Premium themes</h3>
-                    <p class="use-case-description">Lose yourself in focus with beautiful, immersive themes. Customize your environment to match your mood.</p>
-                    </div>
-                
-                <div class="use-case-item">
-                    <div class="use-case-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                        </svg>
-                    </div>
-                    <h3 class="use-case-title">Full control</h3>
-                    <p class="use-case-description">Repeat timers, customize durations, and skip as many times as you want. Your focus, your way.</p>
                 </div>
+            </div>
+            
+            <!-- Feature 2: Create Tasks -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content reverse">
+                    <div class="premium-feature-visual">
+                        <div class="feature-mockup">
+                            <div class="mockup-form">
+                                <div class="mockup-form-header">
+                                    <h4>What are you working on?</h4>
+                                </div>
+                                <div class="mockup-form-content">
+                                    <div class="mockup-input-group">
+                                        <input type="text" value="Complete project proposal" readonly>
+                                    </div>
+                                    <div class="mockup-input-group">
+                                        <label>Sessions</label>
+                                        <div class="mockup-pomodoros-control">
+                                            <button class="mockup-btn-small">-</button>
+                                            <input type="number" value="3" readonly>
+                                            <button class="mockup-btn-small">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-form-actions">
+                                        <button class="mockup-button-secondary">Cancel</button>
+                                        <button class="mockup-button">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Create and manage unlimited tasks</h3>
+                        <p class="premium-feature-description">
+                            Organize your work with unlimited tasks. Set how many focus sessions each task needs, track your progress, and stay organized without limits.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Create unlimited tasks</li>
+                            <li>Assign multiple sessions per task</li>
+                            <li>Track progress visually</li>
+                            <li>Organize your entire workflow</li>
+                        </ul>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Feature 3: Premium Themes -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content">
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Premium themes</h3>
+                        <p class="premium-feature-description">
+                            Lose yourself in focus with beautiful, immersive themes. Customize your environment to match your mood and create the perfect atmosphere for deep work.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Access to exclusive premium themes</li>
+                            <li>Immersive visual environments</li>
+                            <li>Match your mood and energy</li>
+                            <li>Create custom cassettes with your own images</li>
+                        </ul>
+                    </div>
+                    <div class="premium-feature-visual">
+                        <div class="feature-mockup theme-showcase">
+                            <div class="themes-grid">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <span class="theme-name">Tron</span>
+                                </div>
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <span class="theme-name">Sunset</span>
+                                </div>
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <span class="theme-name">Ocean</span>
+                                </div>
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                    <span class="theme-name">Forest</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature 4: Create Cassettes -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content reverse">
+                    <div class="premium-feature-visual">
+                        <div class="feature-mockup">
+                            <div class="mockup-form">
+                                <div class="mockup-form-header">
+                                    <h4>Create cassette</h4>
+                                </div>
+                                <div class="mockup-form-content">
+                                    <div class="mockup-input-group">
+                                        <label>Title *</label>
+                                        <input type="text" value="My Focus Environment" readonly>
+                                    </div>
+                                    <div class="mockup-input-group">
+                                        <label>Description</label>
+                                        <input type="text" value="Perfect for deep work sessions" readonly>
+                                    </div>
+                                    <div class="mockup-input-group">
+                                        <label>Image URL/Address</label>
+                                        <input type="url" value="https://example.com/my-image.jpg" readonly>
+                                    </div>
+                                    <div class="mockup-image-preview">
+                                        <div class="preview-placeholder">
+                                            <span>Image preview</span>
+                                        </div>
+                                    </div>
+                                    <button class="mockup-button">Create cassette</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Create custom cassettes</h3>
+                        <p class="premium-feature-description">
+                            Design your own focus environments with custom cassettes. Upload your own images, set the perfect atmosphere, and create unlimited personalized focus spaces.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Upload custom images</li>
+                            <li>Create unlimited cassettes</li>
+                            <li>Personalize your focus environment</li>
+                            <li>Share with your team</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature 5: Full Control -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content">
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Full control over your timers</h3>
+                        <p class="premium-feature-description">
+                            Repeat timers, customize durations, skip sessions, and control every aspect of your focus workflow. Your focus, your way.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Repeat timers automatically</li>
+                            <li>Skip sessions anytime</li>
+                            <li>Customize all durations</li>
+                            <li>No limits on adjustments</li>
+                        </ul>
+                    </div>
+                    <div class="premium-feature-visual">
+                        <div class="feature-mockup control-showcase">
+                            <div class="control-panel">
+                                <div class="control-item">
+                                    <span class="control-label">Auto-repeat</span>
+                                    <div class="control-toggle active"></div>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-label">Skip break</span>
+                                    <button class="control-button">Skip</button>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-label">Custom duration</span>
+                                    <input type="number" value="45" class="control-input" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <!-- Fresh Ways to Discover Focus Section -->
         <div class="use-cases-section">
