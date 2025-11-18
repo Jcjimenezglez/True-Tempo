@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
 
     // Return only public information
     // Use specific testimonial image for this user instead of Clerk image
-    const testimonialImageUrl = '/images/nina-testimonial.png';
+    const testimonialImageUrl = '/images/lifestyle-blog.webp';
     
     res.status(200).json({
       success: true,
