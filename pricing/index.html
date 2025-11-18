@@ -593,30 +593,13 @@
         
         .comparison-plan {
             width: 30%;
-            text-align: center;
+            text-align: left;
             color: rgba(255, 255, 255, 0.7);
         }
         
         .comparison-plan-premium {
-            background: linear-gradient(135deg, rgba(6, 78, 59, 0.2), rgba(6, 95, 70, 0.2));
             color: #ffffff;
             font-weight: 700;
-            position: relative;
-        }
-        
-        .comparison-plan-premium::after {
-            content: "Most Popular";
-            position: absolute;
-            top: -12px;
-            right: 1rem;
-            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
         .comparison-table tbody tr {
@@ -638,12 +621,12 @@
         }
         
         .comparison-value {
-            text-align: center;
+            text-align: left;
             color: rgba(255, 255, 255, 0.6);
         }
         
         .comparison-value-premium {
-            color: #10b981;
+            color: #ffffff;
             font-weight: 600;
         }
         
@@ -672,11 +655,6 @@
                 width: 25%;
             }
             
-            .comparison-plan-premium::after {
-                font-size: 0.6rem;
-                padding: 3px 8px;
-                right: 0.5rem;
-            }
         }
         
         /* FAQ Section Styles */
@@ -1417,7 +1395,7 @@
         <div class="premium-features-detailed-section">
             <div class="use-cases-intro">
                 <h2 class="use-cases-title">With focus that never stops</h2>
-            </div>
+                    </div>
             
             <!-- Feature 1: Create Custom Timer -->
             <div class="premium-feature-block">
@@ -1443,8 +1421,8 @@
                                         <div class="word-count">12/15 characters</div>
                                     </div>
                                     <input type="text" id="previewCustomName" value="Deep Work" readonly style="pointer-events: none;">
-                                </div>
-                                
+                    </div>
+                
                                 <div class="custom-input-group">
                                     <label for="previewCustomEmoji">Choose an emoji</label>
                                     <div class="emoji-picker">
@@ -1454,9 +1432,9 @@
                                         <button type="button" class="emoji-option" data-emoji="🌊" style="pointer-events: none;">🌊</button>
                                         <button type="button" class="emoji-option" data-emoji="🧠" style="pointer-events: none;">🧠</button>
                                         <button type="button" class="emoji-option" data-emoji="🏃" style="pointer-events: none;">🏃</button>
-                                    </div>
-                                </div>
-                                
+                    </div>
+                    </div>
+                
                                 <div class="custom-duration-options">
                                     <h5>Set your duration</h5>
                                     <div class="duration-controls">
@@ -1464,29 +1442,29 @@
                                             <div class="duration-header">
                                                 <label>Work</label>
                                                 <span class="duration-value">52 min</span>
-                                            </div>
+                    </div>
                                             <input type="range" min="1" max="90" value="52" class="duration-slider" readonly style="pointer-events: none;">
-                                        </div>
+                </div>
                                         <div class="duration-item">
                                             <div class="duration-header">
                                                 <label>Short Break</label>
                                                 <span class="duration-value">10 min</span>
-                                            </div>
+                    </div>
                                             <input type="range" min="1" max="30" value="10" class="duration-slider" readonly style="pointer-events: none;">
-                                        </div>
+                </div>
                                     </div>
-                                </div>
-                                
+                    </div>
+            
                                 <div class="custom-form-actions">
                                     <button class="btn-cancel-custom" style="pointer-events: none;">Cancel</button>
                                     <button class="btn-primary" style="pointer-events: none;">Save</button>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                    </div>
+                    </div>
                     </div>
                 </div>
-            </div>
-            
+                    </div>
+                
             <!-- Feature 2: Create Tasks -->
             <div class="premium-feature-block">
                 <div class="premium-feature-content reverse">
@@ -1495,7 +1473,7 @@
                             <div class="form-group">
                                 <label>What are you working on?</label>
                                 <input type="text" value="Complete project proposal" readonly style="pointer-events: none;">
-                            </div>
+                    </div>
                             <div class="form-group">
                                 <label>Sessions</label>
                                 <div class="pomodoros-control">
@@ -1521,10 +1499,10 @@
                             <li>Track progress visually</li>
                             <li>Organize your entire workflow</li>
                         </ul>
+                </div>
                     </div>
                 </div>
-            </div>
-            
+        
             <!-- Feature 4: Create Cassettes -->
             <div class="premium-feature-block">
                 <div class="premium-feature-content reverse">
@@ -1534,22 +1512,22 @@
                                 <div class="custom-input-group">
                                     <label for="previewCassetteTitle">Title *</label>
                                     <input type="text" id="previewCassetteTitle" value="My Focus Environment" readonly style="pointer-events: none;">
-                                </div>
-                                
+                    </div>
+            
                                 <div class="custom-input-group">
                                     <label for="previewCassetteImageUrl">Image URL/Address</label>
                                     <input type="url" id="previewCassetteImageUrl" value="https://example.com/my-image.jpg" readonly style="pointer-events: none;">
-                                </div>
+                    </div>
                                 
                                 <div class="custom-input-group">
                                     <label for="previewCassetteSpotifyUrl">Spotify track, playlist, or album URL</label>
                                     <input type="url" id="previewCassetteSpotifyUrl" placeholder="https://open.spotify.com/track/..." readonly style="pointer-events: none;">
-                                </div>
-                                
+                    </div>
+                
                                 <div class="custom-input-group">
                                     <label for="previewCassetteWebsiteUrl">Website URL</label>
                                     <input type="url" id="previewCassetteWebsiteUrl" placeholder="https://example.com" readonly style="pointer-events: none;">
-                                </div>
+                    </div>
                                 
                                 <div class="custom-input-group" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0;">
                                     <label for="previewCassetteIsPublic" style="margin: 0;">Public cassette</label>
@@ -1559,12 +1537,12 @@
                                             <span class="toggle-slider"></span>
                                         </label>
                                     </div>
-                                </div>
-                                
+                    </div>
+                
                                 <div class="custom-form-actions">
                                     <button class="btn-cancel-custom" style="pointer-events: none;">Cancel</button>
                                     <button class="btn-primary" style="pointer-events: none;">Save</button>
-                                </div>
+                    </div>
                             </div>
                         </div>
                     </div>
@@ -1579,10 +1557,10 @@
                             <li>Personalize your focus environment</li>
                             <li>Share with your team</li>
                         </ul>
+                </div>
                     </div>
                 </div>
-            </div>
-            
+        
             <!-- Feature 5: Notion & Todoist -->
             <div class="premium-feature-block">
                 <div class="premium-feature-content">
@@ -1621,13 +1599,13 @@
                                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
                                     <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">7h 44m</div>
                                     <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
-                                </div>
+                    </div>
                                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
                                     <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">0</div>
                                     <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
                                 </div>
-                            </div>
-
+                </div>
+                
                             <!-- Trends Chart with Toggle -->
                             <div style="background: #2a2a2a; border-radius: 12px; padding: 20px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1635,8 +1613,8 @@
                                     <div style="display: flex; gap: 8px; background: #1a1a1a; padding: 4px; border-radius: 8px;">
                                         <button style="padding: 6px 12px; border: none; border-radius: 6px; background: var(--onyx-dark, #064e3b); color: white; font-size: 12px; font-weight: 600; cursor: pointer; pointer-events: none;">Weeks</button>
                                         <button style="padding: 6px 12px; border: none; border-radius: 6px; background: transparent; color: #a3a3a3; font-size: 12px; font-weight: 600; cursor: pointer; pointer-events: none;">Days</button>
-                                    </div>
-                                </div>
+                    </div>
+                </div>
                                 <div style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
                                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
                                         <div style="width: 100%; height: 60%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px;"></div>
