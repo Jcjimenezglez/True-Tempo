@@ -119,5 +119,11 @@ For setup instructions, see [INTEGRATIONS_SETUP.md](./INTEGRATIONS_SETUP.md)
 
 ## Support
 
-For issues or questions, please check the code comments or create an issue in the repository.# Force redeploy Tue Oct 21 08:48:30 EDT 2025
+For issues or questions, please check the code comments or create an issue in the repository.
+
+### Troubleshooting
+
+- **Error de Cloudflare**: Si los usuarios ven el error "Please unblock challenges.cloudflare.com", esto se puede prevenir configurando Cloudflare correctamente. Consulta [CLOUDFLARE_CONFIG.md](./CLOUDFLARE_CONFIG.md) para la configuración recomendada del dashboard de Cloudflare para `accounts.superfocus.live`.
+
+# Force redeploy Tue Oct 21 08:48:30 EDT 2025
 # Force deploy Tue Oct 21 09:13:27 EDT 2025
