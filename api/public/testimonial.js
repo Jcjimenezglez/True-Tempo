@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     
     res.status(200).json({
       success: true,
-      name: targetUser.firstName || targetUser.username || 'Nina',
+      name: 'Nina', // Always use Nina for testimonial
       imageUrl: testimonialImageUrl, // Use specific image instead of Clerk image
       email: testimonialEmail
     });
