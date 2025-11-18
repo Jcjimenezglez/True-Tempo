@@ -551,6 +551,134 @@
             margin: 0 auto;
         }
         
+        /* Comparison Table Section */
+        .comparison-table-section {
+            margin-top: 12rem;
+            margin-bottom: 12rem;
+            padding: 0 2rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .comparison-table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            overflow-x: auto;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table thead {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table th {
+            padding: 1.5rem 1rem;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .comparison-feature {
+            width: 40%;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .comparison-plan {
+            width: 30%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .comparison-plan-premium {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.2), rgba(6, 95, 70, 0.2));
+            color: #ffffff;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .comparison-plan-premium::after {
+            content: "Most Popular";
+            position: absolute;
+            top: -12px;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .comparison-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+        
+        .comparison-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .comparison-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .comparison-table td {
+            padding: 1.25rem 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .comparison-value {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .comparison-value-premium {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-table-section {
+                margin-top: 6rem;
+                margin-bottom: 6rem;
+                padding: 0 1rem;
+            }
+            
+            .comparison-table-container {
+                padding: 1rem;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 1rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            .comparison-feature {
+                width: 50%;
+            }
+            
+            .comparison-plan {
+                width: 25%;
+            }
+            
+            .comparison-plan-premium::after {
+                font-size: 0.6rem;
+                padding: 3px 8px;
+                right: 0.5rem;
+            }
+        }
+        
         /* FAQ Section Styles */
         .faq-section {
             margin-top: 12rem;
@@ -1232,6 +1360,58 @@
                 It's the place to discover the perfect timer for the moment. The place that brings focus to your whole life.
             </p>
                     </div>
+        
+        <!-- Comparison Table Section -->
+        <div class="comparison-table-section">
+            <div class="comparison-table-container">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="comparison-feature">Feature</th>
+                            <th class="comparison-plan">Free</th>
+                            <th class="comparison-plan comparison-plan-premium">Premium</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="comparison-feature">Custom Timers</td>
+                            <td class="comparison-value">1 timer</td>
+                            <td class="comparison-value comparison-value-premium">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-feature">Daily Focus Limit</td>
+                            <td class="comparison-value">2 hours/day</td>
+                            <td class="comparison-value comparison-value-premium">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-feature">Tasks</td>
+                            <td class="comparison-value">Limited</td>
+                            <td class="comparison-value comparison-value-premium">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-feature">Custom Cassettes</td>
+                            <td class="comparison-value">❌</td>
+                            <td class="comparison-value comparison-value-premium">✅ Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-feature">Notion & Todoist</td>
+                            <td class="comparison-value">❌</td>
+                            <td class="comparison-value comparison-value-premium">✅</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-feature">Advanced Analytics</td>
+                            <td class="comparison-value">❌</td>
+                            <td class="comparison-value comparison-value-premium">✅</td>
+                        </tr>
+                        <tr>
+                            <td class="comparison-feature">Premium Themes</td>
+                            <td class="comparison-value">Limited</td>
+                            <td class="comparison-value comparison-value-premium">✅ All themes</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
         <!-- Premium Features Section - Con ejemplos visuales -->
         <div class="premium-features-detailed-section">
