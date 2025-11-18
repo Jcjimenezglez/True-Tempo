@@ -48,10 +48,13 @@ module.exports = async (req, res) => {
     }
 
     // Return only public information
+    // Use specific testimonial image for this user instead of Clerk image
+    const testimonialImageUrl = '/images/nina-testimonial.png';
+    
     res.status(200).json({
       success: true,
       name: targetUser.firstName || targetUser.username || 'Nina',
-      imageUrl: targetUser.imageUrl || null,
+      imageUrl: testimonialImageUrl, // Use specific image instead of Clerk image
       email: testimonialEmail
     });
 

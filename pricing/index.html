@@ -2164,6 +2164,14 @@
                                 imageElement.src = testimonialData.imageUrl;
                                 imageElement.style.display = 'block';
                                 initialsElement.style.display = 'none';
+                                
+                                // Handle image load error - fallback to initials
+                                imageElement.onerror = function() {
+                                    const initial = testimonialData.name ? testimonialData.name.charAt(0).toUpperCase() : 'N';
+                                    initialsElement.textContent = initial;
+                                    imageElement.style.display = 'none';
+                                    initialsElement.style.display = 'flex';
+                                };
                             } else {
                                 // Use first letter of name or 'N' as fallback
                                 const initial = testimonialData.name ? testimonialData.name.charAt(0).toUpperCase() : 'N';
