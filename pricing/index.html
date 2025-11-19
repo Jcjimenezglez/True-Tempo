@@ -2229,6 +2229,24 @@
                     console.log('✅ Google Ads tracking sent: Checkout Abandoned');
                 }
                 
+                // Trigger checkout abandoned email sequence
+                if (window.Clerk && window.Clerk.user) {
+                    const userId = window.Clerk.user.id;
+                    fetch('/api/triggers/on-checkout-abandoned', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId })
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log('✅ Checkout abandoned email sequence triggered');
+                        } else {
+                            console.error('❌ Failed to trigger checkout abandoned email sequence');
+                        }
+                    }).catch(err => {
+                        console.error('❌ Error triggering abandoned checkout email:', err);
+                    });
+                }
+                
                 // Remove the canceled parameter from URL to avoid tracking again on refresh
                 const newUrl = window.location.pathname;
                 window.history.replaceState({}, document.title, newUrl);

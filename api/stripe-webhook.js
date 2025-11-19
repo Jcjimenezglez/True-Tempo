@@ -381,6 +381,33 @@ async function handleCheckoutCompleted(session, clerk) {
       console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status (trial: ${paymentType === 'premium'})`);
       console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
       
+      // Send welcome email for new subscriptions
+      if (isSubscription && userEmail) {
+        try {
+          const { sendEmail } = require('../email/send-email');
+          const templates = require('../email/templates');
+          const firstName = currentUser.firstName || currentUser.username || 'there';
+          
+          const welcomeTemplate = templates.getSubscriptionWelcomeEmail({ firstName });
+          const emailResult = await sendEmail({
+            to: userEmail,
+            subject: welcomeTemplate.subject,
+            html: welcomeTemplate.html,
+            text: welcomeTemplate.text,
+            tags: ['subscription_welcome'],
+          });
+          
+          if (emailResult.success) {
+            console.log('✅ Subscription welcome email sent to:', userEmail);
+          } else {
+            console.warn('⚠️ Failed to send subscription welcome email:', emailResult.error);
+          }
+        } catch (emailError) {
+          console.error('❌ Error sending subscription welcome email:', emailError);
+          // Don't fail the webhook if email fails
+        }
+      }
+      
       // Track Google Ads conversion for Premium plan (real conversion, not just intent)
       if (paymentType === 'premium') {
         // Track Premium subscription conversion to Google Ads

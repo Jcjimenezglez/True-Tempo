@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Templates Preview - Superfocus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+        
+        select, input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: #ffffff;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #064e3b, #065f46);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-end;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #065f46, #047857);
+            transform: translateY(-1px);
+        }
+        
+        .preview-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            min-height: 600px;
+            border: none;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .template-info {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .template-info h3 {
+            margin-bottom: 10px;
+            color: #10b981;
+        }
+        
+        .template-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            color: #fca5a5;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Templates Preview</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="templateSelect">Select Template:</label>
+                <select id="templateSelect">
+                    <option value="welcome">Welcome Email (Signup)</option>
+                    <option value="signup_followup_1">Signup Follow-up 1 (24h)</option>
+                    <option value="signup_followup_2">Signup Follow-up 2 (3 days)</option>
+                    <option value="checkout_abandoned_1">Checkout Abandoned 1 (1h)</option>
+                    <option value="checkout_abandoned_2">Checkout Abandoned 2 (24h)</option>
+                    <option value="checkout_abandoned_3">Checkout Abandoned 3 (3 days)</option>
+                    <option value="subscription_welcome">Subscription Welcome</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="firstNameInput">First Name:</label>
+                <input type="text" id="firstNameInput" value="Julio" placeholder="Enter first name">
+            </div>
+            
+            <button onclick="loadPreview()">Preview Email</button>
+        </div>
+        
+        <div id="templateInfo" class="template-info" style="display: none;">
+            <h3 id="templateTitle"></h3>
+            <p id="templateDescription"></p>
+        </div>
+        
+        <div id="errorContainer"></div>
+        
+        <div class="preview-container">
+            <iframe id="previewFrame" class="preview-frame" src="about:blank"></iframe>
+        </div>
+    </div>
+    
+    <script>
+        const templateInfo = {
+            welcome: {
+                title: 'Welcome Email',
+                description: 'Sent immediately when a user signs up. Introduces Superfocus and encourages Premium upgrade.'
+            },
+            signup_followup_1: {
+                title: 'Signup Follow-up 1',
+                description: 'Sent 24 hours after signup. Encourages first focus session and highlights Premium features.'
+            },
+            signup_followup_2: {
+                title: 'Signup Follow-up 2',
+                description: 'Sent 3 days after signup. Focuses on unlocking unlimited productivity with Premium.'
+            },
+            checkout_abandoned_1: {
+                title: 'Checkout Abandoned - Email 1',
+                description: 'Sent 1 hour after checkout abandonment. Friendly reminder with "Did you forget something?" message.'
+            },
+            checkout_abandoned_2: {
+                title: 'Checkout Abandoned - Email 2',
+                description: 'Sent 24 hours after checkout abandonment. Urgency message with "Last chance" theme.'
+            },
+            checkout_abandoned_3: {
+                title: 'Checkout Abandoned - Email 3',
+                description: 'Sent 3 days after checkout abandonment. Social proof with testimonial from Nina.'
+            },
+            subscription_welcome: {
+                title: 'Subscription Welcome',
+                description: 'Sent immediately when a user completes subscription. Welcome to Premium with all features explained.'
+            }
+        };
+        
+        function loadPreview() {
+            const template = document.getElementById('templateSelect').value;
+            const firstName = document.getElementById('firstNameInput').value || 'there';
+            const previewFrame = document.getElementById('previewFrame');
+            const errorContainer = document.getElementById('errorContainer');
+            const infoDiv = document.getElementById('templateInfo');
+            const templateTitle = document.getElementById('templateTitle');
+            const templateDescription = document.getElementById('templateDescription');
+            
+            // Clear previous errors
+            errorContainer.innerHTML = '';
+            
+            // Show loading
+            previewFrame.srcdoc = '<div class="loading">Loading preview...</div>';
+            
+            // Show template info
+            if (templateInfo[template]) {
+                infoDiv.style.display = 'block';
+                templateTitle.textContent = templateInfo[template].title;
+                templateDescription.textContent = templateInfo[template].description;
+            } else {
+                infoDiv.style.display = 'none';
+            }
+            
+            // Load preview
+            const url = `/api/email/preview-template?template=${encodeURIComponent(template)}&firstName=${encodeURIComponent(firstName)}`;
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error || 'Failed to load preview');
+                        });
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    previewFrame.srcdoc = html;
+                })
+                .catch(error => {
+                    console.error('Error loading preview:', error);
+                    errorContainer.innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> ${error.message}
+                        </div>
+                    `;
+                    previewFrame.srcdoc = '<div class="loading">Error loading preview</div>';
+                });
+        }
+        
+        // Load default preview on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPreview();
+        });
+        
+        // Reload when template changes
+        document.getElementById('templateSelect').addEventListener('change', loadPreview);
+        document.getElementById('firstNameInput').addEventListener('input', (e) => {
+            // Debounce: reload after user stops typing for 500ms
+            clearTimeout(window.previewTimeout);
+            window.previewTimeout = setTimeout(loadPreview, 500);
+        });
+    </script>
+</body>
+</html>
+

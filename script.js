@@ -12719,6 +12719,24 @@ class PomodoroTimer {
                 console.log('📊 User signup event tracked to Mixpanel');
             }
             
+            // Trigger signup email sequence
+            if (window.Clerk && window.Clerk.user) {
+                const userId = window.Clerk.user.id;
+                fetch('/api/triggers/on-signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('✅ Signup email sequence triggered');
+                    } else {
+                        console.error('❌ Failed to trigger signup email sequence');
+                    }
+                }).catch(err => {
+                    console.error('❌ Error triggering signup email:', err);
+                });
+            }
+            
             // Show success message for signup - DISABLED
             // setTimeout(() => {
             //     this.showSignupSuccessMessage();
