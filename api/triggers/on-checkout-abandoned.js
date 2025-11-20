@@ -36,56 +36,35 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Could not determine user email' });
     }
 
-    // Schedule abandoned checkout emails
-    // Note: In production, you might want to use a proper queue system
-    
-    // Email 1: After 1 hour
-    setTimeout(async () => {
+    // Schedule abandoned checkout emails using Clerk metadata
+    // This is more reliable than setTimeout in serverless functions
+    if (userId) {
       try {
-        const email1 = templates.getCheckoutAbandonedEmail1({ firstName });
-        await sendEmail({
-          to: userEmail,
-          subject: email1.subject,
-          html: email1.html,
-          text: email1.text,
-          tags: ['checkout_abandoned_1'],
+        const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+        const user = await clerk.users.getUser(userId);
+        const metadata = user.publicMetadata || {};
+        
+        const now = Date.now();
+        const scheduledEmails = {
+          ...(metadata.scheduledEmails || {}),
+          checkoutAbandoned1: now + (1 * 60 * 60 * 1000), // 1 hour
+          checkoutAbandoned2: now + (24 * 60 * 60 * 1000), // 24 hours
+          checkoutAbandoned3: now + (3 * 24 * 60 * 60 * 1000), // 3 days
+        };
+        
+        await clerk.users.updateUser(userId, {
+          publicMetadata: {
+            ...metadata,
+            scheduledEmails,
+          },
         });
+        
+        console.log('✅ Scheduled checkout abandoned emails in Clerk metadata');
       } catch (error) {
-        console.error('Error sending checkout abandoned email 1:', error);
+        console.error('Error scheduling checkout abandoned emails:', error);
+        // Don't fail the request if scheduling fails
       }
-    }, 1 * 60 * 60 * 1000);
-
-    // Email 2: After 24 hours
-    setTimeout(async () => {
-      try {
-        const email2 = templates.getCheckoutAbandonedEmail2({ firstName });
-        await sendEmail({
-          to: userEmail,
-          subject: email2.subject,
-          html: email2.html,
-          text: email2.text,
-          tags: ['checkout_abandoned_2'],
-        });
-      } catch (error) {
-        console.error('Error sending checkout abandoned email 2:', error);
-      }
-    }, 24 * 60 * 60 * 1000);
-
-    // Email 3: After 3 days
-    setTimeout(async () => {
-      try {
-        const email3 = templates.getCheckoutAbandonedEmail3({ firstName });
-        await sendEmail({
-          to: userEmail,
-          subject: email3.subject,
-          html: email3.html,
-          text: email3.text,
-          tags: ['checkout_abandoned_3'],
-        });
-      } catch (error) {
-        console.error('Error sending checkout abandoned email 3:', error);
-      }
-    }, 3 * 24 * 60 * 60 * 1000);
+    }
 
     return res.status(200).json({ 
       success: true, 

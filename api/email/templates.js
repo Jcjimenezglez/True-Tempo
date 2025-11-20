@@ -31,14 +31,15 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
             <p><strong>Here's what you can do right now:</strong></p>
             <ul>
               <li>✅ Start your first focus session with our Pomodoro timer</li>
-              <li>✅ Create up to 3 tasks (Free plan)</li>
-              <li>✅ Use 2 hours of focus time per day</li>
+              <li>✅ Create 1 custom timer (Free plan)</li>
+              <li>✅ Use 1 hour of focus time per day</li>
               <li>✅ Explore our curated focus music</li>
             </ul>
             <p><strong>Want unlimited features?</strong></p>
             <p>Upgrade to Premium and get:</p>
             <ul>
               <li>🚀 Unlimited custom timers</li>
+              <li>🚀 Premium timer presets (Flow State, Marathon, Deep Work)</li>
               <li>🚀 Unlimited tasks</li>
               <li>🚀 Unlimited focus time</li>
               <li>🚀 Custom cassettes</li>
@@ -105,6 +106,7 @@ function getCheckoutAbandonedEmail1({ firstName = 'there' }) {
             <ul>
               <li>✅ 3 months completely FREE</li>
               <li>✅ Unlimited custom timers</li>
+              <li>✅ Premium timer presets (Flow State, Marathon, Deep Work)</li>
               <li>✅ Unlimited tasks & focus time</li>
               <li>✅ Notion & Todoist integration</li>
               <li>✅ Advanced analytics</li>
@@ -170,6 +172,7 @@ function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
             <p><strong>What you'll get:</strong></p>
             <ul>
               <li>🎯 Unlimited custom timers (create your perfect focus rhythm)</li>
+              <li>🌊 Premium timer presets (Flow State, Marathon, Deep Work)</li>
               <li>📋 Unlimited tasks (organize your entire workflow)</li>
               <li>⏱️ Unlimited focus time (no daily limits)</li>
               <li>🎨 Custom cassettes (design your focus environment)</li>
@@ -241,7 +244,8 @@ function getCheckoutAbandonedEmail3({ firstName = 'there' }) {
             </div>
             <p>Like Nina, you can unlock unlimited productivity with Premium:</p>
             <ul>
-              <li>✅ Create custom timers that match your workflow</li>
+              <li>✅ Create unlimited custom timers that match your workflow</li>
+              <li>✅ Access Premium timer presets (Flow State, Marathon, Deep Work)</li>
               <li>✅ Organize unlimited tasks</li>
               <li>✅ Focus without limits</li>
               <li>✅ Connect with Notion & Todoist</li>
@@ -307,6 +311,10 @@ function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
             <div class="feature">
               <strong>🎯 Unlimited Custom Timers</strong><br>
               Create timers that match how you actually work—not how someone else thinks you should.
+            </div>
+            <div class="feature">
+              <strong>🌊 Premium Timer Presets</strong><br>
+              Access Flow State (45min), Marathon (60min), and Deep Work (90min) presets designed for extended productivity.
             </div>
             <div class="feature">
               <strong>📋 Unlimited Tasks</strong><br>
@@ -406,6 +414,7 @@ function getSignupFollowUp1({ firstName = 'there' }) {
             <p><strong>Want more?</strong> Upgrade to Premium and get:</p>
             <ul>
               <li>✅ Unlimited custom timers</li>
+              <li>✅ Premium timer presets (Flow State, Marathon, Deep Work)</li>
               <li>✅ Unlimited tasks</li>
               <li>✅ Unlimited focus time</li>
               <li>✅ Notion & Todoist integration</li>
@@ -471,6 +480,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
             <p>If you're hitting the limits of the Free plan, Premium unlocks everything:</p>
             <ul>
               <li>🎯 <strong>Unlimited custom timers</strong> - Create timers that match your workflow (52 min deep work? 17 min sprints? You decide!)</li>
+              <li>🌊 <strong>Premium timer presets</strong> - Access Flow State, Marathon, and Deep Work presets</li>
               <li>📋 <strong>Unlimited tasks</strong> - Organize your entire workflow</li>
               <li>⏱️ <strong>Unlimited focus time</strong> - No more daily limits</li>
               <li>🎨 <strong>Custom cassettes</strong> - Design your perfect focus environment</li>

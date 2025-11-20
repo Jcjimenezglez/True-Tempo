@@ -47,41 +47,34 @@ module.exports = async (req, res) => {
       tags: ['signup_welcome'],
     });
 
-    // Schedule follow-up emails
-    // Note: In production, you might want to use a proper queue system
-    // For now, we'll use setTimeout (works for Vercel serverless functions)
-    
-    // Email 1: After 24 hours
-    setTimeout(async () => {
+    // Schedule follow-up emails using Clerk metadata
+    // This is more reliable than setTimeout in serverless functions
+    if (userId) {
       try {
-        const followUp1 = templates.getSignupFollowUp1({ firstName });
-        await sendEmail({
-          to: userEmail,
-          subject: followUp1.subject,
-          html: followUp1.html,
-          text: followUp1.text,
-          tags: ['signup_followup_1'],
+        const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+        const user = await clerk.users.getUser(userId);
+        const metadata = user.publicMetadata || {};
+        
+        const now = Date.now();
+        const scheduledEmails = {
+          ...(metadata.scheduledEmails || {}),
+          signupFollowUp1: now + (24 * 60 * 60 * 1000), // 24 hours
+          signupFollowUp2: now + (3 * 24 * 60 * 60 * 1000), // 3 days
+        };
+        
+        await clerk.users.updateUser(userId, {
+          publicMetadata: {
+            ...metadata,
+            scheduledEmails,
+          },
         });
+        
+        console.log('✅ Scheduled follow-up emails in Clerk metadata');
       } catch (error) {
-        console.error('Error sending signup follow-up 1:', error);
+        console.error('Error scheduling follow-up emails:', error);
+        // Don't fail the request if scheduling fails
       }
-    }, 24 * 60 * 60 * 1000);
-
-    // Email 2: After 3 days
-    setTimeout(async () => {
-      try {
-        const followUp2 = templates.getSignupFollowUp2({ firstName });
-        await sendEmail({
-          to: userEmail,
-          subject: followUp2.subject,
-          html: followUp2.html,
-          text: followUp2.text,
-          tags: ['signup_followup_2'],
-        });
-      } catch (error) {
-        console.error('Error sending signup follow-up 2:', error);
-      }
-    }, 3 * 24 * 60 * 60 * 1000);
+    }
 
     return res.status(200).json({ 
       success: true, 
