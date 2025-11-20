@@ -608,19 +608,24 @@ class PomodoroTimer {
             
             // Wait a bit more for Clerk to fully hydrate before updating UI
             setTimeout(() => {
-            this.updateAuthState();
-            // Auth may have hydrated; attempt to apply saved technique now
-            this.applySavedTechniqueOnce();
+                this.checkAuthState(); // Check first
+                this.updateAuthState(); // Then update UI
+                // Auth may have hydrated; attempt to apply saved technique now
+                this.applySavedTechniqueOnce();
             }, 500);
             
             // Force check auth state after a short delay to catch post-redirect state
+            // This is especially important after signup/login redirects
             setTimeout(() => {
                 this.checkAuthState();
+                this.updateAuthState();
             }, 1000);
             
             // Additional check after longer delay to ensure UI updates
+            // This catches cases where Clerk takes longer to hydrate
             setTimeout(() => {
                 this.checkAuthState();
+                this.updateAuthState();
             }, 3000);
 
             // Mark auth system as ready and re-run UI gates that depend on it
@@ -679,18 +684,31 @@ class PomodoroTimer {
                 const currentUser = window.Clerk.user;
                 const currentSession = window.Clerk.session;
                 
+                // Check if user exists in Clerk
                 if (currentUser || currentSession) {
+                    const wasAuthenticated = this.isAuthenticated;
                     this.isAuthenticated = true;
-                    this.user = currentUser;
-                    this.updateAuthState();
-                    console.log('Auth state verified:', { user: currentUser, session: currentSession });
+                    this.user = currentUser || (currentSession ? window.Clerk.user : null);
+                    
+                    // Always update UI if state changed or if we just signed up
+                    if (!wasAuthenticated || !this.user) {
+                        console.log('Auth state verified - user authenticated:', { user: currentUser, session: currentSession });
+                        this.updateAuthState();
+                    }
                 } else {
                     // Only update to unauthenticated if we're sure there's no user
                     // This prevents showing login modal when user is actually authenticated
-                    if (this.isAuthenticated === false) {
-                        this.user = null;
-                        this.updateAuthState();
-                        console.log('No authenticated user found');
+                    if (this.isAuthenticated) {
+                        // Double-check: wait a bit and check again before marking as unauthenticated
+                        // This handles cases where Clerk hasn't hydrated yet after redirect
+                        setTimeout(() => {
+                            if (window.Clerk && !window.Clerk.user && !window.Clerk.session) {
+                                this.isAuthenticated = false;
+                                this.user = null;
+                                this.updateAuthState();
+                                console.log('No authenticated user found after double-check');
+                            }
+                        }, 500);
                     }
                 }
             }
@@ -3091,11 +3109,19 @@ class PomodoroTimer {
     
     async handleLogin() {
         try {
-            if (this.isAuthenticated) {
-                console.log('Showing logout confirmation...');
+            // Force check auth state before deciding what to do
+            await this.waitForClerk();
+            this.checkAuthState();
+            
+            // Double-check with Clerk directly
+            const clerkUser = window.Clerk?.user;
+            const clerkSession = window.Clerk?.session;
+            
+            if (this.isAuthenticated && (clerkUser || clerkSession)) {
+                console.log('User is authenticated, showing logout confirmation...');
                 this.showLogoutModal();
             } else {
-                console.log('Redirecting to Clerk hosted Sign In...');
+                console.log('User not authenticated, redirecting to Clerk hosted Sign In...');
                 
                 // 🎯 Track Login Attempt event to Mixpanel
                 if (window.mixpanelTracker) {
@@ -3115,6 +3141,17 @@ class PomodoroTimer {
 
     async handleSignup() {
         try {
+            // Check if user is already authenticated before redirecting to signup
+            await this.waitForClerk();
+            this.checkAuthState();
+            
+            if (this.isAuthenticated && this.user) {
+                console.log('User is already authenticated, not redirecting to signup');
+                // Update UI to reflect authenticated state
+                this.updateAuthState();
+                return;
+            }
+            
             console.log('Redirecting to Clerk hosted Sign Up...');
             
             // 🎯 Track Signup Attempt event to Mixpanel
@@ -12769,6 +12806,31 @@ class PomodoroTimer {
         const premiumStatus = urlParams.get('premium');
         
         if (signupSuccess === 'success') {
+            // Remove the parameter from URL without page reload
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // CRITICAL: Force check auth state after signup redirect
+            // Wait for Clerk to hydrate, then update auth state
+            const checkAuthAfterSignup = async () => {
+                // Wait for Clerk to be ready
+                await this.waitForClerk();
+                
+                // Give Clerk a moment to hydrate the user after redirect
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Force check auth state
+                this.checkAuthState();
+                
+                // Wait a bit more and check again to ensure state is updated
+                setTimeout(() => {
+                    this.checkAuthState();
+                    this.updateAuthState();
+                }, 1000);
+            };
+            
+            checkAuthAfterSignup();
+            
             // Track successful signup conversion
             this.trackEvent('Signup Success', {
                 conversion_type: 'guest_to_signup',
@@ -12776,11 +12838,6 @@ class PomodoroTimer {
                 source: 'clerk_signup',
                 timestamp: new Date().toISOString()
             });
-            
-            // Remove the parameter from URL without page reload
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-            
             
             // Track signup conversion
             this.trackConversion('signup');
@@ -12791,23 +12848,25 @@ class PomodoroTimer {
                 console.log('📊 User signup event tracked to Mixpanel');
             }
             
-            // Trigger signup email sequence
-            if (window.Clerk && window.Clerk.user) {
-                const userId = window.Clerk.user.id;
-                fetch('/api/triggers/on-signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId })
-                }).then(response => {
-                    if (response.ok) {
-                        console.log('✅ Signup email sequence triggered');
-                    } else {
-                        console.error('❌ Failed to trigger signup email sequence');
-                    }
-                }).catch(err => {
-                    console.error('❌ Error triggering signup email:', err);
-                });
-            }
+            // Trigger signup email sequence (wait for user to be available)
+            setTimeout(() => {
+                if (window.Clerk && window.Clerk.user) {
+                    const userId = window.Clerk.user.id;
+                    fetch('/api/triggers/on-signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId })
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log('✅ Signup email sequence triggered');
+                        } else {
+                            console.error('❌ Failed to trigger signup email sequence');
+                        }
+                    }).catch(err => {
+                        console.error('❌ Error triggering signup email:', err);
+                    });
+                }
+            }, 2000);
             
             // Show success message for signup - DISABLED
             // setTimeout(() => {
