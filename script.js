@@ -47,8 +47,8 @@ class PomodoroTimer {
         }
 
         // Daily focus cap for non‑Pro users (in seconds) and cooldown
-        this.DAILY_FOCUS_LIMIT_SECONDS = 120 * 60; // 2 hours
-        this.FOCUS_LIMIT_COOLDOWN_MS = 22 * 60 * 60 * 1000; // 22 hours
+        this.DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
+        this.FOCUS_LIMIT_COOLDOWN_MS = 23 * 60 * 60 * 1000; // 23 hours
         
         // Load cooldown timestamp (if any) and prune if expired
         try {
@@ -1197,6 +1197,17 @@ class PomodoroTimer {
         }
     }
     
+    // Helper function to count custom timers
+    getCustomTimersCount() {
+        try {
+            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            return techniques.length;
+        } catch (error) {
+            console.error('Error counting custom timers:', error);
+            return 0;
+        }
+    }
+
     // Show custom form
     showCustomForm() {
         // Check if user is Pro
@@ -1219,15 +1230,41 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else if (this.isAuthenticated && this.user) {
-            // Free users - show Subscribe modal
-            this.trackEvent('Pro Feature Modal Shown', {
-                feature: 'custom_techniques',
-                source: 'create_custom_button',
-                user_type: 'free',
-                modal_type: 'upgrade_prompt'
-            });
+            // Free users - check if they've already created 1 timer
+            const customTimersCount = this.getCustomTimersCount();
             
-            this.showCustomTechniqueProModal('25 minutes doesn\'t work for everyone. Maybe you need 52 minutes for deep work, or 17 minutes for quick sprints. Create timers that match how you actually work.');
+            if (customTimersCount >= 1) {
+                // Free user has already created their 1 free timer
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_techniques',
+                    source: 'create_custom_button',
+                    user_type: 'free',
+                    modal_type: 'upgrade_prompt',
+                    custom_timers_count: customTimersCount,
+                    limit_reached: true,
+                    reason: 'second_timer_attempt'
+                });
+                
+                this.showCustomTechniqueProModal('You\'ve created your free custom timer! Upgrade to Premium to create unlimited custom timers and access Flow State, Marathon, and Deep Work presets.', customTimersCount);
+            } else {
+                // Free user can create their first timer
+                const form = document.getElementById('customForm');
+                const createBtn = document.getElementById('createCustomBtn');
+                
+                if (form && createBtn) {
+                    form.style.display = 'block';
+                    createBtn.style.display = 'none';
+                    
+                    // Focus on name input
+                    const nameInput = document.getElementById('customName');
+                    if (nameInput) {
+                        setTimeout(() => nameInput.focus(), 100);
+                    }
+                    
+                    // Reset form and validate to ensure proper state
+                    this.resetCustomForm();
+                }
+            }
         } else {
             // Guest users - show Pro Feature modal
             this.trackEvent('Pro Feature Modal Shown', {
@@ -1237,13 +1274,13 @@ class PomodoroTimer {
                 modal_type: 'upgrade_prompt'
             });
             
-            // Show Pro Feature modal for Guest and Free users
+            // Show Pro Feature modal for Guest users
             this.showCustomTechniqueProModal();
         }
     }
     
     // Show Pro Feature modal for Custom Techniques
-    showCustomTechniqueProModal(customMessage = null) {
+    showCustomTechniqueProModal(customMessage = null, customTimersCount = 0) {
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'logout-modal-overlay';
         modalOverlay.style.display = 'flex';
@@ -1332,6 +1369,15 @@ class PomodoroTimer {
         const cancelBtn = modal.querySelector('#customLearnMoreBtn');
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
+                // Track modal dismissal
+                this.trackEvent('Pro Feature Modal Dismissed', {
+                    feature: 'custom_techniques',
+                    source: 'create_timer_modal',
+                    user_type: isAuthenticated ? 'free' : 'guest',
+                    modal_type: 'create_timer',
+                    custom_timers_count: customTimersCount,
+                    button_type: 'cancel'
+                });
                 closeModal();
             });
         }
@@ -1347,7 +1393,10 @@ class PomodoroTimer {
                         source: 'create_timer_modal',
                         location: 'custom_timer_modal',
                         user_type: 'free',
-                        modal_type: 'create_timer'
+                        modal_type: 'create_timer',
+                        custom_timers_count: customTimersCount,
+                        limit_reached: customTimersCount >= 1,
+                        reason: customTimersCount >= 1 ? 'second_timer_attempt' : 'first_timer_attempt'
                     };
                     this.trackEvent('Subscribe Clicked', eventProperties);
                     
@@ -2017,6 +2066,9 @@ class PomodoroTimer {
                 window.mixpanelTracker.trackUserLogin('clerk');
                 console.log('📊 User login event tracked to Mixpanel');
             }
+            
+            // Check for time-based escalation modal (after 7 days)
+            this.checkTimeBasedEscalation();
             
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
@@ -4529,14 +4581,14 @@ class PomodoroTimer {
                             <div class="technique-icon">🌊</div>
                             <div class="technique-name">Flow State</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
+                            <div class="subscribe-required-text hidden">(Premium required)</div>
                             <div class="technique-desc">45min work, 15min break</div>
                         </button>
                         <button class="technique-preset" data-technique="deepwork">
                             <div class="technique-icon">🧠</div>
                             <div class="technique-name">Deep Work</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
+                            <div class="subscribe-required-text hidden">(Premium required)</div>
                             <div class="technique-desc">90min work, 20min break</div>
                         </button>
                         <button class="technique-preset" data-technique="sprint">
@@ -4549,7 +4601,7 @@ class PomodoroTimer {
                             <div class="technique-icon">🏃</div>
                             <div class="technique-name">Marathon</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="subscribe-required-text hidden">(Unlimited required)</div>
+                            <div class="subscribe-required-text hidden">(Premium required)</div>
                             <div class="technique-desc">60min work, 10min break</div>
                         </button>
                     </div>
@@ -4657,13 +4709,25 @@ class PomodoroTimer {
                 
                 // Check if preset is disabled (opacity 0.5 means disabled)
                 if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
+                    // Check if it's a Premium technique and show Premium modal
+                    const proTechniques = ['flow', 'marathon', 'deepwork'];
+                    if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                        this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                        return;
+                    }
+                    // Check if it requires authentication
+                    if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                        // Show signup modal or do nothing (already disabled)
+                        return;
+                    }
                     return; // Don't do anything if preset is disabled
                 }
                 
                 // Check if technique requires Pro
-                const proTechniques = [];
+                const proTechniques = ['flow', 'marathon', 'deepwork'];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                    return; // Don't show modal, preset is already disabled
+                    this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                    return;
                 }
                 
                 // Check if technique requires authentication (Sprint, Focus for guests)
@@ -7169,7 +7233,7 @@ class PomodoroTimer {
     // Disable presets that require signup/subscribe and show appropriate text
     updateTechniquePresetsVisibility() {
         const techniquePresets = document.querySelectorAll('.technique-preset');
-        const proTechniques = [];
+        const proTechniques = ['flow', 'marathon', 'deepwork'];
         const freeTechniques = ['sprint', 'focus'];
         
         techniquePresets.forEach(preset => {
@@ -7181,7 +7245,7 @@ class PomodoroTimer {
             
             // Hide both texts initially
             if (signupText) signupText.classList.add('hidden');
-            if (subscribeText) subscribeText.classList.add('hidden');
+            if (subscribeText) subscribeText.classList.remove('hidden');
             
             // Reset preset state
             preset.style.opacity = '1';
@@ -7195,16 +7259,24 @@ class PomodoroTimer {
                     preset.style.pointerEvents = 'none';
                     preset.style.cursor = 'not-allowed';
                     if (signupText) signupText.classList.remove('hidden');
+                    if (subscribeText) subscribeText.classList.add('hidden');
                 }
             }
-            // Free users: disable Pro techniques
+            // Free users: show Premium required text but keep presets clickable
             else if (this.isAuthenticated && !this.isPremiumUser()) {
                 if (proTechniques.includes(technique)) {
-                    preset.style.opacity = '0.5';
-                    preset.style.pointerEvents = 'none';
-                    preset.style.cursor = 'not-allowed';
+                    // Keep preset enabled so users can click to see Premium modal
+                    preset.style.opacity = '1';
+                    preset.style.pointerEvents = 'auto';
+                    preset.style.cursor = 'pointer';
                     if (subscribeText) subscribeText.classList.remove('hidden');
+                } else {
+                    if (subscribeText) subscribeText.classList.add('hidden');
                 }
+            } else if (this.isPremiumUser()) {
+                // Premium users: hide all requirement texts
+                if (signupText) signupText.classList.add('hidden');
+                if (subscribeText) subscribeText.classList.add('hidden');
             }
         });
     }
@@ -15301,13 +15373,25 @@ class PomodoroTimer {
                 
                 // Check if preset is disabled (opacity 0.5 means disabled)
                 if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
+                    // Check if it's a Premium technique and show Premium modal
+                    const proTechniques = ['flow', 'marathon', 'deepwork'];
+                    if (proTechniques.includes(technique) && !this.isPremiumUser()) {
+                        this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                        return;
+                    }
+                    // Check if it requires authentication
+                    if (technique !== 'pomodoro' && !this.isAuthenticated) {
+                        // Show signup modal or do nothing (already disabled)
+                        return;
+                    }
                     return; // Don't do anything if preset is disabled
                 }
                 
                 // Check if technique requires Pro
-                const proTechniques = [];
+                const proTechniques = ['flow', 'marathon', 'deepwork'];
                 if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                    return; // Don't show modal, preset is already disabled
+                    this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                    return;
                 }
                 
                 // Check if technique requires authentication (Sprint, Focus for guests)
