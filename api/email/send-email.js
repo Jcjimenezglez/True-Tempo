@@ -2,7 +2,7 @@
 const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Superfocus <noreply@superfocus.live>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Superfocus <noreply@updates.superfocus.live>';
 
 async function sendEmail({ to, subject, html, text, tags = [] }) {
   try {
