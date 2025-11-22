@@ -4979,10 +4979,11 @@ class PomodoroTimer {
                 
                 // Check if preset is disabled (opacity 0.5 means disabled)
                 if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
-                    // Check if it's a Premium technique and show Premium modal
+                    // Check if it requires authentication (Flow, Marathon, Deep Work require login)
                     const proTechniques = ['flow', 'marathon', 'deepwork'];
-                    if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                        this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                    if (proTechniques.includes(technique) && !this.isAuthenticated) {
+                        // Guest users must login first
+                        this.showLoginRequiredModal(technique);
                         return;
                     }
                     // Check if it requires authentication
@@ -4993,10 +4994,11 @@ class PomodoroTimer {
                     return; // Don't do anything if preset is disabled
                 }
                 
-                // Check if technique requires Pro
+                // Check if technique requires authentication (Flow, Marathon, Deep Work require login for free users)
                 const proTechniques = ['flow', 'marathon', 'deepwork'];
-                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                    this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                if (proTechniques.includes(technique) && !this.isAuthenticated) {
+                    // Guest users must login first
+                    this.showLoginRequiredModal(technique);
                     return;
                 }
                 
@@ -7532,14 +7534,15 @@ class PomodoroTimer {
                     if (subscribeText) subscribeText.classList.add('hidden');
                 }
             }
-            // Free users: show Premium required text but keep presets clickable
+            // Free users: can use Flow, Marathon, Deep Work (no Premium required)
             else if (this.isAuthenticated && !this.isPremiumUser()) {
+                // Flow, Marathon, Deep Work are now available for free users
                 if (proTechniques.includes(technique)) {
-                    // Keep preset enabled so users can click to see Premium modal
+                    // Enable preset for free users
                     preset.style.opacity = '1';
                     preset.style.pointerEvents = 'auto';
                     preset.style.cursor = 'pointer';
-                    if (subscribeText) subscribeText.classList.remove('hidden');
+                    if (subscribeText) subscribeText.classList.add('hidden');
                 } else {
                     if (subscribeText) subscribeText.classList.add('hidden');
                 }
@@ -15711,10 +15714,11 @@ class PomodoroTimer {
                 
                 // Check if preset is disabled (opacity 0.5 means disabled)
                 if (getComputedStyle(newPreset).opacity === '0.5' || newPreset.style.opacity === '0.5') {
-                    // Check if it's a Premium technique and show Premium modal
+                    // Check if it requires authentication (Flow, Marathon, Deep Work require login)
                     const proTechniques = ['flow', 'marathon', 'deepwork'];
-                    if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                        this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                    if (proTechniques.includes(technique) && !this.isAuthenticated) {
+                        // Guest users must login first
+                        this.showLoginRequiredModal(technique);
                         return;
                     }
                     // Check if it requires authentication
@@ -15725,10 +15729,11 @@ class PomodoroTimer {
                     return; // Don't do anything if preset is disabled
                 }
                 
-                // Check if technique requires Pro
+                // Check if technique requires authentication (Flow, Marathon, Deep Work require login for free users)
                 const proTechniques = ['flow', 'marathon', 'deepwork'];
-                if (proTechniques.includes(technique) && !this.isPremiumUser()) {
-                    this.showCustomTechniqueProModal('Unlock Flow State, Marathon, and Deep Work presets to access advanced focus techniques designed for extended productivity sessions.');
+                if (proTechniques.includes(technique) && !this.isAuthenticated) {
+                    // Guest users must login first
+                    this.showLoginRequiredModal(technique);
                     return;
                 }
                 
