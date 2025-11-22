@@ -1452,6 +1452,107 @@ class PomodoroTimer {
     }
 
     // Show Pro Feature modal for Cassettes
+    showCassetteLoginModal() {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.style.display = 'flex';
+        
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        
+        modal.innerHTML = `
+            <button class="close-logout-modal-x" id="closeCassetteLoginModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cassette-tape-icon lucide-cassette-tape">
+                        <rect width="20" height="16" x="2" y="4" rx="2"/>
+                        <circle cx="8" cy="10" r="2"/>
+                        <path d="M8 12h8"/>
+                        <circle cx="16" cy="10" r="2"/>
+                        <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
+                    </svg>
+                </div>
+                <h3>Create your focus cassette</h3>
+                <p>Create a free account to start building your own custom focus environments. Upload your own images, set the perfect atmosphere, and personalize your workspace.</p>
+                <div class="upgrade-features">
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Create 1 custom cassette (free plan)</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Upload custom images</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <span class="upgrade-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="upgrade-feature-text">Personalize your focus environment</span>
+                    </div>
+                </div>
+                <div class="upgrade-required-buttons">
+                    <button class="upgrade-btn" id="cassetteLoginSignupBtn">Sign up for free</button>
+                    <button class="cancel-btn" id="cassetteLoginCancelBtn">Maybe later</button>
+                </div>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Prevent background scroll while modal open
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        
+        // Close modal function
+        const closeModal = () => {
+            document.body.style.overflow = previousOverflow;
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+        
+        // Close button
+        const closeBtn = modal.querySelector('#closeCassetteLoginModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+        
+        // Sign up button
+        const signupBtn = modal.querySelector('#cassetteLoginSignupBtn');
+        if (signupBtn) {
+            signupBtn.addEventListener('click', () => {
+                closeModal();
+                this.handleSignup();
+            });
+        }
+        
+        // Cancel button
+        const cancelBtn = modal.querySelector('#cassetteLoginCancelBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeModal);
+        }
+    }
+
     showCassetteProModal(customMessage = null) {
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'logout-modal-overlay';
@@ -17505,6 +17606,19 @@ class PomodoroTimer {
     }
 
     showCassetteForm(cassetteId = null) {
+        // Guest users must login first
+        if (!this.isAuthenticated) {
+            this.trackEvent('Login Required Modal Shown', {
+                feature: 'custom_cassettes',
+                source: 'create_cassette_button',
+                user_type: 'guest',
+                modal_type: 'login_required'
+            });
+            
+            this.showCassetteLoginModal();
+            return;
+        }
+        
         // Free users can create 1 cassette, Premium users unlimited
         if (!this.isPremiumUser()) {
             // Check if free user already has 1 cassette (and not editing existing)
@@ -17513,27 +17627,15 @@ class PomodoroTimer {
             
             if (hasReachedLimit) {
                 // Free user has reached limit - show upgrade modal
-                if (this.isAuthenticated && this.user) {
-                    this.trackEvent('Pro Feature Modal Shown', {
-                        feature: 'custom_cassettes',
-                        source: 'create_cassette_button',
-                        user_type: 'free',
-                        modal_type: 'upgrade_prompt',
-                        reason: 'cassette_limit_reached'
-                    });
-                    
-                    this.showCassetteProModal('You\'ve reached your free limit of 1 custom cassette. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
-                } else {
-                    // Guest users - show Pro Feature modal
-                    this.trackEvent('Pro Feature Modal Shown', {
-                        feature: 'custom_cassettes',
-                        source: 'create_cassette_button',
-                        user_type: 'guest',
-                        modal_type: 'upgrade_prompt'
-                    });
-                    
-                    this.showCassetteProModal();
-                }
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_cassettes',
+                    source: 'create_cassette_button',
+                    user_type: 'free',
+                    modal_type: 'upgrade_prompt',
+                    reason: 'cassette_limit_reached'
+                });
+                
+                this.showCassetteProModal('You\'ve reached your free limit of 1 custom cassette. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
                 return;
             }
             // Free user can create their first cassette - continue to form
