@@ -13091,7 +13091,8 @@ class PomodoroTimer {
             
             // Track subscription conversion immediately
             // Use 3.99 value for Google Ads conversion tracking (actual subscription value)
-            this.trackConversion('subscription', 3.99);
+            // DISABLED: Duplicate tracking. Conversion is tracked server-side via Stripe webhook
+            // this.trackConversion('subscription', 3.99);
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
