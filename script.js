@@ -1478,32 +1478,6 @@ class PomodoroTimer {
                 </div>
                 <h3>Create your focus cassette</h3>
                 <p>Create a free account to start building your own custom focus environments. Upload your own images, set the perfect atmosphere, and personalize your workspace.</p>
-                <div class="upgrade-features">
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Create 1 custom cassette (free plan)</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Upload custom images</span>
-                    </div>
-                    <div class="upgrade-feature">
-                        <span class="upgrade-feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </span>
-                        <span class="upgrade-feature-text">Personalize your focus environment</span>
-                    </div>
-                </div>
                 <div class="upgrade-required-buttons">
                     <button class="upgrade-btn" id="cassetteLoginSignupBtn">Sign up for free</button>
                     <button class="cancel-btn" id="cassetteLoginCancelBtn">Maybe later</button>
