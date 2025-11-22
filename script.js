@@ -12895,65 +12895,109 @@ class PomodoroTimer {
 
     // Centralized conversion tracking function
     trackConversion(type, value = 1.0, additionalData = {}) {
-        console.log(`🎯 Tracking ${type} conversion...`);
+        console.log(`🎯 Tracking ${type} conversion...`, { type, value, additionalData });
         
-        try {
-            if (typeof gtag === 'undefined') {
-                console.warn('⚠️ gtag not available for tracking');
+        // Helper function to wait for gtag to be available
+        const waitForGtag = (maxAttempts = 10, delay = 200) => {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const checkGtag = () => {
+                    attempts++;
+                    // Check if gtag is available as a function (either global or window)
+                    const gtagFn = typeof window !== 'undefined' ? window.gtag : (typeof gtag !== 'undefined' ? gtag : null);
+                    if (typeof gtagFn === 'function') {
+                        console.log('✅ gtag is available');
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        console.warn('⚠️ gtag not available after waiting', { attempts, gtag: typeof gtag, windowGtag: typeof window?.gtag });
+                        reject(new Error('gtag not available'));
+                    } else {
+                        setTimeout(checkGtag, delay);
+                    }
+                };
+                checkGtag();
+            });
+        };
+
+        // Track conversion with retry logic
+        const attemptTracking = async () => {
+            try {
+                // Wait for gtag to be available
+                await waitForGtag();
+                
+                // Use window.gtag if available, otherwise fallback to gtag
+                const gtagFn = window.gtag || gtag;
+                
+                if (typeof gtagFn !== 'function') {
+                    console.error('❌ gtag is not a function');
+                    return false;
+                }
+
+                let conversionId;
+                let eventName;
+                let eventData = {
+                    'value': value,
+                    'currency': 'USD',
+                    ...additionalData
+                };
+
+                switch (type) {
+                    case 'signup':
+                        conversionId = 'AW-17614436696/HLp9CM6Plq0bENjym89B';
+                        eventName = 'sign_up';
+                        eventData.method = 'clerk';
+                        eventData.event_category = 'engagement';
+                        eventData.event_label = 'user_signup';
+                        break;
+                    case 'subscription':
+                        conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
+                        eventName = 'purchase';
+                        eventData.transaction_id = 'superfocus_pro_' + Date.now();
+                        eventData.event_category = 'ecommerce';
+                        eventData.event_label = 'pro_subscription';
+                        break;
+                    default:
+                        console.error('❌ Unknown conversion type:', type);
+                        return false;
+                }
+
+                // Track Google Ads conversion
+                const conversionEvent = {
+                    'send_to': conversionId,
+                    'value': value,
+                    'currency': 'USD'
+                };
+                
+                console.log(`📤 Sending Google Ads conversion event:`, conversionEvent);
+                
+                gtagFn('event', 'conversion', conversionEvent);
+                
+                console.log(`✅ Google Ads conversion tracked: ${type}`, {
+                    conversion_id: conversionId,
+                    value: value,
+                    currency: 'USD',
+                    send_to: conversionId,
+                    event_sent: true
+                });
+
+                // Track Google Analytics event
+                gtagFn('event', eventName, eventData);
+
+                console.log(`✅ ${type} conversion tracked successfully to Google Ads and GA4`);
+                return true;
+
+            } catch (error) {
+                console.error(`❌ Error tracking ${type} conversion:`, error);
                 return false;
             }
+        };
 
-            let conversionId;
-            let eventName;
-            let eventData = {
-                'value': value,
-                'currency': 'USD',
-                ...additionalData
-            };
+        // Execute tracking (async but don't block)
+        attemptTracking().catch(err => {
+            console.error(`❌ Failed to track ${type} conversion after retries:`, err);
+        });
 
-            switch (type) {
-                case 'signup':
-                    conversionId = 'AW-17614436696/HLp9CM6Plq0bENjym89B';
-                    eventName = 'sign_up';
-                    eventData.method = 'clerk';
-                    eventData.event_category = 'engagement';
-                    eventData.event_label = 'user_signup';
-                    break;
-                case 'subscription':
-                    conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
-                    eventName = 'purchase';
-                    eventData.transaction_id = 'superfocus_pro_' + Date.now();
-                    eventData.event_category = 'ecommerce';
-                    eventData.event_label = 'pro_subscription';
-                    break;
-                default:
-                    console.error('❌ Unknown conversion type:', type);
-                    return false;
-            }
-
-            // Track Google Ads conversion
-            gtag('event', 'conversion', {
-                'send_to': conversionId,
-                'value': value,
-                'currency': 'USD'
-            });
-            
-            console.log(`✅ Google Ads conversion tracked: ${type}`, {
-                conversion_id: conversionId,
-                value: value,
-                currency: 'USD'
-            });
-
-            // Track Google Analytics event
-            gtag('event', eventName, eventData);
-
-            console.log(`✅ ${type} conversion tracked successfully`);
-            return true;
-
-        } catch (error) {
-            console.error(`❌ Error tracking ${type} conversion:`, error);
-            return false;
-        }
+        return true; // Return immediately, tracking happens asynchronously
     }
 
     checkSignupSuccessRedirect() {
@@ -13046,11 +13090,12 @@ class PomodoroTimer {
             });
             
             // Track subscription conversion immediately
-            this.trackConversion('subscription', 0); // 0 for trial
+            // Use 3.99 value for Google Ads conversion tracking (actual subscription value)
+            this.trackConversion('subscription', 3.99);
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSubscriptionUpgrade('premium');
+                window.mixpanelTracker.trackSubscriptionUpgrade('premium', 3.99);
                 console.log('📊 Subscription upgrade event tracked to Mixpanel');
             }
             
@@ -18774,13 +18819,24 @@ class MixpanelTracker {
         });
     }
 
-    trackSubscriptionUpgrade(plan) {
-        if (!this.isInitialized) return;
+    trackSubscriptionUpgrade(plan, value = null) {
+        if (!this.isInitialized) {
+            console.warn('⚠️ Mixpanel not initialized, cannot track subscription upgrade');
+            return;
+        }
         
-        window.mixpanel.track('Subscription Upgrade', {
+        const eventData = {
             plan: plan,
             timestamp: new Date().toISOString()
-        });
+        };
+        
+        if (value !== null) {
+            eventData.value = value;
+            eventData.currency = 'USD';
+        }
+        
+        window.mixpanel.track('Subscription Upgrade', eventData);
+        console.log('✅ Subscription Upgrade tracked to Mixpanel:', eventData);
     }
 }
 
