@@ -16847,6 +16847,18 @@ class PomodoroTimer {
             const cassettes = this.getCustomCassettes();
             const existingIndex = cassettes.findIndex(c => c.id === cassette.id);
             
+            // Check if this is a new cassette (not editing existing)
+            const isNewCassette = existingIndex < 0;
+            
+            // Free users can only have 1 cassette (unlimited for Premium)
+            if (isNewCassette && !this.isPremiumUser()) {
+                const currentCassetteCount = cassettes.length;
+                if (currentCassetteCount >= 1) {
+                    alert('Free users can create up to 1 custom cassette. Upgrade to Premium to create unlimited cassettes.');
+                    throw new Error('Cassette limit reached for free users');
+                }
+            }
+            
             if (existingIndex >= 0) {
                 cassettes[existingIndex] = cassette;
             } else {
@@ -17493,31 +17505,38 @@ class PomodoroTimer {
     }
 
     showCassetteForm(cassetteId = null) {
-        // Check if user is Pro (similar to showCustomForm)
+        // Free users can create 1 cassette, Premium users unlimited
         if (!this.isPremiumUser()) {
-            // Free users - show Subscribe modal
-            if (this.isAuthenticated && this.user) {
-                this.trackEvent('Pro Feature Modal Shown', {
-                    feature: 'custom_cassettes',
-                    source: 'create_cassette_button',
-                    user_type: 'free',
-                    modal_type: 'upgrade_prompt'
-                });
-                
-                this.showCassetteProModal('Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.');
-            } else {
-                // Guest users - show Pro Feature modal
-                this.trackEvent('Pro Feature Modal Shown', {
-                    feature: 'custom_cassettes',
-                    source: 'create_cassette_button',
-                    user_type: 'guest',
-                    modal_type: 'upgrade_prompt'
-                });
-                
-                // Show Pro Feature modal for Guest users
-                this.showCassetteProModal();
+            // Check if free user already has 1 cassette (and not editing existing)
+            const existingCassettes = this.getCustomCassettes();
+            const hasReachedLimit = existingCassettes.length >= 1 && !cassetteId;
+            
+            if (hasReachedLimit) {
+                // Free user has reached limit - show upgrade modal
+                if (this.isAuthenticated && this.user) {
+                    this.trackEvent('Pro Feature Modal Shown', {
+                        feature: 'custom_cassettes',
+                        source: 'create_cassette_button',
+                        user_type: 'free',
+                        modal_type: 'upgrade_prompt',
+                        reason: 'cassette_limit_reached'
+                    });
+                    
+                    this.showCassetteProModal('You\'ve reached your free limit of 1 custom cassette. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
+                } else {
+                    // Guest users - show Pro Feature modal
+                    this.trackEvent('Pro Feature Modal Shown', {
+                        feature: 'custom_cassettes',
+                        source: 'create_cassette_button',
+                        user_type: 'guest',
+                        modal_type: 'upgrade_prompt'
+                    });
+                    
+                    this.showCassetteProModal();
+                }
+                return;
             }
-            return;
+            // Free user can create their first cassette - continue to form
         }
         
         // Pro users can create cassettes
