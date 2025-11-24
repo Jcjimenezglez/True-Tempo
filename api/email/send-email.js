@@ -1,7 +1,9 @@
 // api/email/send-email.js
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Trim API key to remove potential whitespace/newlines from copy-paste
+const resendApiKey = process.env.RESEND_API_KEY ? process.env.RESEND_API_KEY.trim() : null;
+const resend = new Resend(resendApiKey);
 
 // Ensure FROM_EMAIL is always in a valid format and without stray whitespace/newlines
 const FROM_EMAIL = (process.env.RESEND_FROM_EMAIL || 'Superfocus <noreply@updates.superfocus.live>').trim();
