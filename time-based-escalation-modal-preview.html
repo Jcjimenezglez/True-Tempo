@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Based Escalation Modal Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .logout-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(3px);
+        }
+        .logout-modal {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+        .close-logout-modal-x {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .close-logout-modal-x:hover {
+            opacity: 1;
+        }
+        .upgrade-content {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        .upgrade-icon {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .upgrade-icon svg {
+            color: #a3a3a3;
+            opacity: 1;
+        }
+        .upgrade-content h3 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+        }
+        .upgrade-content p {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0 0 2rem 0;
+        }
+        .upgrade-content p strong {
+            color: #ffffff;
+        }
+        .logout-modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .logout-modal-btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .logout-modal-btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+        .logout-modal-btn-primary:hover {
+            background: #f0f0f0;
+        }
+        .logout-modal-btn-secondary {
+            background: transparent;
+            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .logout-modal-btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-modal-overlay">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up-icon lucide-trending-up">
+                        <path d="M16 7h6v6"/>
+                        <path d="m22 7-8.5 8.5-5-5L2 17"/>
+                    </svg>
+                </div>
+                <h3>Your focus habit is growing</h3>
+                <p>You're building a powerful focus habit! You've focused for <strong>12.5 hours</strong> total. Every session is getting you closer to your goals. Keep the momentum going with unlimited focus time.</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary">Upgrade to Premium - 3 months free</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

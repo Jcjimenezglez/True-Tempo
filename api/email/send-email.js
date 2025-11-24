@@ -2,7 +2,31 @@
 const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Superfocus <noreply@updates.superfocus.live>';
+
+// Ensure FROM_EMAIL is always in a valid format and without stray whitespace/newlines
+const FROM_EMAIL = (process.env.RESEND_FROM_EMAIL || 'Superfocus <noreply@updates.superfocus.live>').trim();
+
+// Normalize tags to the format expected by Resend:
+//   tags: [{ name: 'event', value: 'signup_welcome' }]
+function normalizeTags(tags) {
+  if (!tags || !Array.isArray(tags) || tags.length === 0) {
+    return undefined;
+  }
+
+  const first = tags[0];
+
+  // If we receive an array of strings like ['signup_welcome'],
+  // convert them to objects with a default value.
+  if (typeof first === 'string') {
+    return tags.map((name) => ({
+      name,
+      value: '1',
+    }));
+  }
+
+  // Assume the caller passed the correct shape already
+  return tags;
+}
 
 async function sendEmail({ to, subject, html, text, tags = [] }) {
   try {
@@ -17,7 +41,7 @@ async function sendEmail({ to, subject, html, text, tags = [] }) {
       subject,
       html,
       text,
-      tags: tags.length > 0 ? tags : undefined,
+      tags: normalizeTags(tags),
     });
 
     if (error) {
