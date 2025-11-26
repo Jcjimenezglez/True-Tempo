@@ -82,17 +82,17 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 3. Check subscriptions
+    // 3. Check subscriptions and determine payment type
     const subscriptions = await stripe.subscriptions.list({
       customer: stripeCustomer.id,
       limit: 10
     });
 
-    const hasActiveSubscription = subscriptions.data.some(sub =>
+    const activeSubscription = subscriptions.data.find(sub =>
       ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
     );
 
-    if (!hasActiveSubscription) {
+    if (!activeSubscription) {
       return res.status(400).json({ 
         error: 'No active subscription found',
         stripeEmail: stripeEmail,
@@ -103,14 +103,39 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 4. Update Clerk user metadata
+    // Determine payment type from subscription
+    const priceId = activeSubscription.items.data[0]?.price?.id;
+    const premiumPriceId = process.env.STRIPE_PRICE_ID_PREMIUM;
+    const monthlyPriceId = process.env.STRIPE_PRICE_ID_MONTHLY;
+    const yearlyPriceId = process.env.STRIPE_PRICE_ID_YEARLY;
+    
+    let paymentType = 'premium'; // default
+    if (priceId === premiumPriceId) {
+      paymentType = 'premium';
+    } else if (priceId === monthlyPriceId) {
+      paymentType = 'monthly';
+    } else if (priceId === yearlyPriceId) {
+      paymentType = 'yearly';
+    }
+
+    // Determine if trial based on subscription status
+    const isTrialing = activeSubscription.status === 'trialing';
+    const isTrial = paymentType === 'premium' || isTrialing;
+
+    // 4. Update Clerk user metadata (preserve existing fields)
+    const existingMetadata = clerkUser.publicMetadata || {};
+    const updatedMetadata = {
+      ...existingMetadata, // Preserve all existing fields (scheduledEmails, totalFocusHours, statsLastUpdated, etc.)
+      stripeCustomerId: stripeCustomer.id,
+      isPremium: true,
+      premiumSince: existingMetadata.premiumSince || new Date().toISOString(), // Use existing or create new
+      paymentType: paymentType,
+      isTrial: isTrial,
+      lastUpdated: new Date().toISOString(),
+    };
+
     await clerk.users.updateUser(clerkUser.id, {
-      publicMetadata: {
-        ...clerkUser.publicMetadata,
-        isPremium: true,
-        stripeCustomerId: stripeCustomer.id,
-        premiumSince: new Date().toISOString()
-      }
+      publicMetadata: updatedMetadata
     });
 
     // 5. Update Stripe customer metadata to link back to Clerk
@@ -128,7 +153,10 @@ module.exports = async (req, res) => {
       stripeEmail: stripeEmail,
       clerkUserId: clerkUser.id,
       stripeCustomerId: stripeCustomer.id,
-      subscriptionStatus: subscriptions.data[0]?.status
+      subscriptionStatus: activeSubscription.status,
+      paymentType: paymentType,
+      isTrial: isTrial,
+      updatedMetadata: updatedMetadata
     });
 
   } catch (error) {
