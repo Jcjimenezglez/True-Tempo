@@ -325,6 +325,12 @@
                         <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
                     </svg>
                 </div>
+                <div class="nav-item" data-section="resources" data-tooltip="Productivity Resources">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open-icon lucide-book-open">
+                        <path d="M12 7v14"/>
+                        <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+                    </svg>
+                </div>
             </div>
         </nav>
         
@@ -942,6 +948,170 @@
 
     <!-- Leaderboard Panel Overlay -->
     <div class="task-panel-overlay" id="leaderboardPanelOverlay"></div>
+
+    <!-- Resources Panel Overlay -->
+    <div class="task-panel-overlay" id="resourcesPanelOverlay"></div>
+
+    <!-- Resources Side Panel -->
+    <div class="task-side-panel" id="resourcesSidePanel">
+        <button class="close-side-panel-btn" id="closeResourcesPanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content">
+            <div class="tasks-header">
+                <h3>Productivity Resources</h3>
+                <p class="tasks-subtitle">Books, journals & tools to boost your focus</p>
+            </div>
+            
+            <div class="resources-list">
+                <!-- Books Category -->
+                <div class="resource-category">
+                    <div class="resource-category-title">Books</div>
+                </div>
+                
+                <a href="https://amzn.to/4pwkuj6?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Atomic Habits</div>
+                        <div class="resource-subtitle">by James Clear</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/3XPKFW5?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Deep Work</div>
+                        <div class="resource-subtitle">by Cal Newport</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/4p56lcW?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">The Let Them Theory</div>
+                        <div class="resource-subtitle">by Mel Robbins</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/48qGRjc?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">The Subtle Art of Not Giving a F*ck</div>
+                        <div class="resource-subtitle">by Mark Manson</div>
+                    </div>
+                </a>
+                
+                <!-- Planners Category -->
+                <div class="resource-category">
+                    <div class="resource-category-title">Planners</div>
+                </div>
+                
+                <a href="https://amzn.to/49BhU6I?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="2" width="18" height="20" rx="2" ry="2"/>
+                            <line x1="7" y1="6" x2="17" y2="6"/>
+                            <line x1="7" y1="10" x2="17" y2="10"/>
+                            <line x1="7" y1="14" x2="17" y2="14"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Blue Sky 2026</div>
+                        <div class="resource-subtitle">Weekly and Monthly Planner Calendar</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/3LYzIPr?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="2" width="18" height="20" rx="2" ry="2"/>
+                            <line x1="7" y1="6" x2="17" y2="6"/>
+                            <line x1="7" y1="10" x2="17" y2="10"/>
+                            <line x1="7" y1="14" x2="17" y2="14"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Taja 2026</div>
+                        <div class="resource-subtitle">Weekly and Monthly Calendar for Women</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/4p1S4gU?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="2" width="18" height="20" rx="2" ry="2"/>
+                            <line x1="7" y1="6" x2="17" y2="6"/>
+                            <line x1="7" y1="10" x2="17" y2="10"/>
+                            <line x1="7" y1="14" x2="17" y2="14"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Forvencer 2026</div>
+                        <div class="resource-subtitle">Weekly and Monthly Planner Calendar</div>
+                    </div>
+                </a>
+                
+                <!-- Headphones Category -->
+                <div class="resource-category">
+                    <div class="resource-category-title">Headphones</div>
+                </div>
+                
+                <a href="https://amzn.to/4obb5MF?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-headphones-icon lucide-headphones">
+                            <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Beats Studio Pro</div>
+                        <div class="resource-subtitle">Up to 40 hours battery life</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/4pv5UZ9?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-headphones-icon lucide-headphones">
+                            <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Bose QuietComfort</div>
+                        <div class="resource-subtitle">Active noise cancelling headphones</div>
+                    </div>
+                </a>
+                
+                <a href="https://amzn.to/4rmk00G?tag=superfocus-20" target="_blank" rel="noopener noreferrer" class="resource-item">
+                    <div class="resource-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-headphones-icon lucide-headphones">
+                            <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
+                        </svg>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-title">Sony WH-CH520</div>
+                        <div class="resource-subtitle">High-quality sound, 50 hours battery</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Report Side Panel -->
     <div class="task-side-panel" id="reportSidePanel">
