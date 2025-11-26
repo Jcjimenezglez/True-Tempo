@@ -17,24 +17,63 @@ module.exports = async (req, res) => {
     const clerkEmail = 'karolineaparecidalimasousa@gmail.com';
     const stripeEmail = 'karolineaparecida.2001@hotmail.com';
     
-    // 1. Find user in Clerk
-    const users = await clerk.users.getUserList({ limit: 100 });
-    const clerkUser = users.data.find(user => 
-      user.emailAddresses?.some(email => email.emailAddress === clerkEmail)
-    );
+    // 1. Find user in Clerk (with pagination)
+    let clerkUser = null;
+    let offset = 0;
+    const pageSize = 100;
+    
+    while (!clerkUser) {
+      const users = await clerk.users.getUserList({ limit: pageSize, offset });
+      const found = users.data.find(user => 
+        user.emailAddresses?.some(email => email.emailAddress === clerkEmail)
+      );
+      
+      if (found) {
+        clerkUser = found;
+        break;
+      }
+      
+      if (users.data.length < pageSize) {
+        break; // No more users to check
+      }
+      
+      offset += pageSize;
+    }
 
     if (!clerkUser) {
       return res.status(404).json({ 
         error: 'User not found in Clerk',
-        email: clerkEmail
+        email: clerkEmail,
+        searched: offset + pageSize
       });
     }
 
-    // 2. Find customer in Stripe
-    const customers = await stripe.customers.list({ limit: 100 });
-    const stripeCustomer = customers.data.find(customer => 
-      customer.email === stripeEmail
-    );
+    // 2. Find customer in Stripe (with pagination)
+    let stripeCustomer = null;
+    let startingAfter = null;
+    
+    while (!stripeCustomer) {
+      const params = { limit: 100 };
+      if (startingAfter) {
+        params.starting_after = startingAfter;
+      }
+      
+      const customers = await stripe.customers.list(params);
+      const found = customers.data.find(customer => 
+        customer.email === stripeEmail
+      );
+      
+      if (found) {
+        stripeCustomer = found;
+        break;
+      }
+      
+      if (!customers.has_more || customers.data.length === 0) {
+        break; // No more customers to check
+      }
+      
+      startingAfter = customers.data[customers.data.length - 1].id;
+    }
 
     if (!stripeCustomer) {
       return res.status(404).json({ 
