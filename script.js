@@ -19073,6 +19073,8 @@ class SidebarManager {
         this.leaderboardPanelOverlay = document.getElementById('leaderboardPanelOverlay');
         this.reportSidePanel = document.getElementById('reportSidePanel');
         this.reportPanelOverlay = document.getElementById('reportPanelOverlay');
+        this.resourcesSidePanel = document.getElementById('resourcesSidePanel');
+        this.resourcesPanelOverlay = document.getElementById('resourcesPanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -19082,6 +19084,7 @@ class SidebarManager {
         this.isImmersiveThemePanelOpen = false;
         this.isLeaderboardPanelOpen = false;
         this.isReportPanelOpen = false;
+        this.isResourcesPanelOpen = false;
         
         this.init();
     }
@@ -19210,6 +19213,7 @@ class SidebarManager {
                     else if (section === 'cassettes') panelName = 'Cassettes Panel';
                     else if (section === 'leaderboard') panelName = 'Leaderboard Panel';
                     else if (section === 'report') panelName = 'Report Panel';
+                    else if (section === 'resources') panelName = 'Resources Panel';
                     
                     window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
                         panel_name: panelName,
@@ -19233,6 +19237,14 @@ class SidebarManager {
             });
         });
         
+        // Close Resources Panel button
+        const closeResourcesPanel = document.getElementById('closeResourcesPanel');
+        if (closeResourcesPanel) {
+            closeResourcesPanel.addEventListener('click', () => {
+                this.closeResourcesPanel();
+            });
+        }
+        
             // Overlay click to close sidebar AND all panels
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
@@ -19242,6 +19254,7 @@ class SidebarManager {
                 this.closeImmersiveThemePanel();
                 this.closeLeaderboardPanel();
                 this.closeReportPanel();
+                this.closeResourcesPanel();
             });
         }
         
@@ -19324,6 +19337,13 @@ class SidebarManager {
         if (closeReportPanelBtn) {
             closeReportPanelBtn.addEventListener('click', () => {
                 this.closeReportPanel();
+            });
+        }
+        
+        // Resources panel overlay click to close resources panel
+        if (this.resourcesPanelOverlay) {
+            this.resourcesPanelOverlay.addEventListener('click', () => {
+                this.closeResourcesPanel();
             });
         }
         
@@ -19450,6 +19470,10 @@ class SidebarManager {
                 // Toggle report side panel
                 this.toggleReportPanel();
                 break;
+            case 'resources':
+                // Toggle resources side panel
+                this.toggleResourcesPanel();
+                break;
             case 'timer':
                 // Scroll to timer section
                 const timerSection = document.querySelector('.timer-section');
@@ -19493,6 +19517,9 @@ class SidebarManager {
             }
             if (this.isReportPanelOpen) {
                 this.closeReportPanel();
+            }
+            if (this.isResourcesPanelOpen) {
+                this.closeResourcesPanel();
             }
             
             this.taskSidePanel.classList.add('open');
@@ -19568,6 +19595,9 @@ class SidebarManager {
             }
             if (this.isReportPanelOpen) {
                 this.closeReportPanel();
+            }
+            if (this.isResourcesPanelOpen) {
+                this.closeResourcesPanel();
             }
             
             this.settingsSidePanel.classList.add('open');
@@ -19649,6 +19679,9 @@ class SidebarManager {
             if (this.isReportPanelOpen) {
                 this.closeReportPanel();
             }
+            if (this.isResourcesPanelOpen) {
+                this.closeResourcesPanel();
+            }
             
             this.immersiveThemeSidePanel.classList.add('open');
             this.isImmersiveThemePanelOpen = true;
@@ -19706,6 +19739,7 @@ class SidebarManager {
         if (this.isSettingsPanelOpen) this.closeSettingsPanel();
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isReportPanelOpen) this.closeReportPanel();
+        if (this.isResourcesPanelOpen) this.closeResourcesPanel();
 
         // 🎯 Track Leaderboard Panel Opened event to Mixpanel
         if (window.mixpanelTracker) {
@@ -19777,6 +19811,7 @@ class SidebarManager {
         if (this.isSettingsPanelOpen) this.closeSettingsPanel();
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
+        if (this.isResourcesPanelOpen) this.closeResourcesPanel();
 
         // 🎯 Track Report Panel Opened event to Mixpanel
         if (window.mixpanelTracker) {
@@ -19856,9 +19891,121 @@ class SidebarManager {
             }
         }
     }
+
+    toggleResourcesPanel() {
+        if (this.isResourcesPanelOpen) {
+            this.closeResourcesPanel();
+        } else {
+            this.openResourcesPanel();
+        }
+    }
+
+    openResourcesPanel() {
+        // Close other panels first
+        if (this.isTaskPanelOpen) this.closeTaskPanel();
+        if (this.isSettingsPanelOpen) this.closeSettingsPanel();
+        if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+        if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
+        if (this.isReportPanelOpen) this.closeReportPanel();
+
+        // Track Resources Panel Opened event
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackSidebarPanelOpened('resources');
+            console.log('📊 Resources panel opened event tracked to Mixpanel');
+        }
+
+        if (this.resourcesSidePanel) {
+            this.resourcesSidePanel.classList.add('open');
+            this.isResourcesPanelOpen = true;
+
+            // Show overlay
+            if (this.resourcesPanelOverlay) {
+                this.resourcesPanelOverlay.classList.add('active');
+            }
+
+            // Set active state on nav item
+            const resourcesNavItem = document.querySelector('.nav-item[data-section="resources"]');
+            if (resourcesNavItem) {
+                resourcesNavItem.classList.add('active');
+            }
+
+            // Adjust main content position
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+        }
+    }
+
+    closeResourcesPanel() {
+        if (this.resourcesSidePanel) {
+            this.resourcesSidePanel.classList.remove('open');
+            this.isResourcesPanelOpen = false;
+
+            // Hide overlay
+            if (this.resourcesPanelOverlay) {
+                this.resourcesPanelOverlay.classList.remove('active');
+            }
+
+            // Remove active state from Resources nav item
+            const resourcesNavItem = document.querySelector('.nav-item[data-section="resources"]');
+            if (resourcesNavItem) {
+                resourcesNavItem.classList.remove('active');
+            }
+
+            // Reset main content position
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
 }
 
 // Initialize sidebar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.sidebarManager = new SidebarManager();
+    
+    // Track resource link clicks for Mixpanel analytics
+    const resourceLinks = document.querySelectorAll('.resource-item');
+    resourceLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const productTitle = this.querySelector('.resource-title')?.textContent || 'Unknown';
+            const productSubtitle = this.querySelector('.resource-subtitle')?.textContent || '';
+            const productUrl = this.getAttribute('href') || '';
+            
+            // Find the category by looking backwards through previous siblings
+            let actualCategory = 'Unknown';
+            let currentElement = this.previousElementSibling;
+            while (currentElement) {
+                if (currentElement.classList && currentElement.classList.contains('resource-category')) {
+                    const categoryTitle = currentElement.querySelector('.resource-category-title');
+                    if (categoryTitle) {
+                        actualCategory = categoryTitle.textContent.trim();
+                    }
+                    break;
+                }
+                currentElement = currentElement.previousElementSibling;
+            }
+            
+            // Track the click event
+            if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                window.pomodoroTimer.trackEvent('Resource Link Clicked', {
+                    product_name: productTitle,
+                    product_subtitle: productSubtitle,
+                    product_url: productUrl,
+                    category: actualCategory,
+                    source: 'resources_sidepanel'
+                });
+            } else if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
+                // Fallback to direct Mixpanel tracking
+                window.mixpanel.track('Resource Link Clicked', {
+                    product_name: productTitle,
+                    product_subtitle: productSubtitle,
+                    product_url: productUrl,
+                    category: actualCategory,
+                    source: 'resources_sidepanel',
+                    timestamp: new Date().toISOString()
+                });
+            }
+        });
+    });
 });// Force redeploy for admin key
