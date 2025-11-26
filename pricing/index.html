@@ -2067,14 +2067,19 @@
                     console.log('✅ Google Ads tracking sent: Checkout Session Created');
                 }
                 
+                const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress || '';
+                const userId = window.Clerk?.user?.id || '';
+
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-clerk-userid': window.Clerk?.user?.id || ''
+                        'x-clerk-userid': userId
                     },
                     body: JSON.stringify({
-                        planType: planType
+                        planType: planType,
+                        userEmail: userEmail,
+                        userId: userId
                     })
                 });
 

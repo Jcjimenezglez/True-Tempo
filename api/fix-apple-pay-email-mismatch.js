@@ -14,8 +14,8 @@ module.exports = async (req, res) => {
     const clerk = createClerkClient({ secretKey: clerkSecret });
     const stripe = Stripe(stripeSecret);
     
-    const clerkEmail = 'omrvieito@gmail.com';
-    const stripeEmail = 'olgavieito@icloud.com';
+    const clerkEmail = 'karolineaparecidalimasousa@gmail.com';
+    const stripeEmail = 'karolineaparecida.2001@hotmail.com';
     
     // 1. Find user in Clerk
     const users = await clerk.users.getUserList({ limit: 100 });

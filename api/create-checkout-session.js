@@ -15,9 +15,14 @@ module.exports = async (req, res) => {
   
   // Get planType from request body (premium, monthly, yearly, lifetime)
   let planType = 'premium'; // Default to premium
+  let userEmail = '';
+  let userId = '';
+  
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     planType = (body.planType || 'premium').toLowerCase();
+    userEmail = body.userEmail || '';
+    userId = body.userId || '';
   } catch (e) {
     // If body parsing fails, default to premium
     planType = 'premium';
@@ -84,13 +89,15 @@ module.exports = async (req, res) => {
       ],
       // Pass Clerk user id and payment type in metadata
       metadata: {
-        clerk_user_id: (req.headers['x-clerk-userid'] || '').toString(),
+        clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
         app_name: 'Superfocus',
         app_version: '1.0',
         business_name: 'Superfocus',
         business_type: 'Pomodoro Timer & Focus App',
         payment_type: planType, // premium, monthly, yearly, or lifetime
       },
+      // Pre-fill user email to prevent email mismatch
+      customer_email: userEmail || undefined,
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
       success_url: finalSuccessUrl,
