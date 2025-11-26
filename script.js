@@ -19254,7 +19254,6 @@ class SidebarManager {
                 this.closeImmersiveThemePanel();
                 this.closeLeaderboardPanel();
                 this.closeReportPanel();
-                this.closeResourcesPanel();
             });
         }
         

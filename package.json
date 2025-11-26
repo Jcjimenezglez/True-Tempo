@@ -9,7 +9,8 @@
     "dev": "vercel dev",
     "setup-dev": "node scripts/setup-dev.js",
     "deploy-staging": "node scripts/deploy-staging.js",
-    "logs": "vercel logs --follow"
+    "logs": "vercel logs --follow",
+    "update-logo": "node scripts/update-logo-from-png.js"
   },
   "dependencies": {
     "@clerk/clerk-js": "^5.108.0",
