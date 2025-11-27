@@ -1,7 +1,7 @@
 // API endpoint to get leaderboard of Total Focus Hours
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
-const ACTIVE_DAYS_DEFAULT = parseInt(process.env.LEADERBOARD_ACTIVE_DAYS || '28', 10);
+const ACTIVE_DAYS_DEFAULT = parseInt(process.env.LEADERBOARD_ACTIVE_DAYS || '7', 10);
 const MAX_USERS_TO_FETCH = parseInt(process.env.LEADERBOARD_MAX_USERS || '5000', 10);
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
