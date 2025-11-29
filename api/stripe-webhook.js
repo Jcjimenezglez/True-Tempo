@@ -200,6 +200,54 @@ async function findClerkUserByEmail(clerk, email) {
   return null;
 }
 
+// Function to send push notification via ntfy.sh
+async function sendNtfyNotification(title, message, topic) {
+  try {
+    const ntfyTopic = topic || process.env.NTFY_TOPIC;
+    
+    if (!ntfyTopic) {
+      console.warn('⚠️ NTFY_TOPIC not configured, skipping notification');
+      return { success: false, error: 'NTFY_TOPIC not configured' };
+    }
+
+    // Optional: Add password protection if configured
+    const ntfyPassword = process.env.NTFY_PASSWORD;
+    // Remove emojis from title for headers (emojis cause encoding issues)
+    const cleanTitle = title.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim() || 'Nueva Suscripcion';
+    
+    const headers = {
+      'Content-Type': 'text/plain',
+      'Title': cleanTitle,
+      'Priority': 'high',
+      'Tags': 'trial,subscription'
+    };
+
+    // Add authentication if password is set
+    if (ntfyPassword) {
+      const auth = Buffer.from(`:${ntfyPassword}`).toString('base64');
+      headers['Authorization'] = `Basic ${auth}`;
+    }
+
+    const response = await fetch(`https://ntfy.sh/${ntfyTopic}`, {
+      method: 'POST',
+      headers: headers,
+      body: message
+    });
+
+    if (response.ok) {
+      console.log(`✅ Ntfy notification sent successfully to topic: ${ntfyTopic}`);
+      return { success: true };
+    } else {
+      const errorText = await response.text();
+      console.error(`❌ Ntfy notification failed: ${response.status}`, errorText);
+      return { success: false, error: `HTTP ${response.status}: ${errorText}` };
+    }
+  } catch (error) {
+    console.error('❌ Error sending ntfy notification:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -380,6 +428,28 @@ async function handleCheckoutCompleted(session, clerk) {
 
       console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status (trial: ${paymentType === 'premium'})`);
       console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
+      
+      // 🆕 Send push notification via ntfy.sh when user subscribes to trial
+      if (isSubscription && paymentType === 'premium') {
+        try {
+          const userName = currentUser.firstName || currentUser.username || 'Usuario';
+          const userEmailDisplay = userEmail || 'N/A';
+          const trialDays = 90; // 3 months trial
+          const notificationTitle = '🎉 Nuevo Trial Suscrito!';
+          const notificationMessage = `👤 Usuario: ${userName}\n📧 Email: ${userEmailDisplay}\n📦 Plan: Premium (${trialDays} días trial)\n📅 Fecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n💰 Trial gratuito activado`;
+          
+          const ntfyResult = await sendNtfyNotification(notificationTitle, notificationMessage);
+          
+          if (ntfyResult.success) {
+            console.log(`✅ Push notification sent for new trial subscription: ${targetUserId}`);
+          } else {
+            console.warn(`⚠️ Failed to send push notification: ${ntfyResult.error}`);
+          }
+        } catch (ntfyError) {
+          console.error('❌ Error sending push notification:', ntfyError);
+          // Don't fail the webhook if notification fails
+        }
+      }
       
       // Send welcome email for new subscriptions
       if (isSubscription && userEmail) {
