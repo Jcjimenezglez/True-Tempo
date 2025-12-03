@@ -13011,11 +13011,15 @@ class PomodoroTimer {
                     return false;
                 }
 
+                // Generate consistent transaction ID if not provided
+                const transactionId = additionalData.transaction_id || `trans_${Date.now()}`;
+
                 let conversionId;
                 let eventName;
                 let eventData = {
                     'value': value,
                     'currency': 'USD',
+                    'transaction_id': transactionId,
                     ...additionalData
                 };
 
@@ -13030,7 +13034,7 @@ class PomodoroTimer {
                     case 'subscription':
                         conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
                         eventName = 'purchase';
-                        eventData.transaction_id = 'superfocus_pro_' + Date.now();
+                        eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
                         eventData.event_label = 'pro_subscription';
                         break;
@@ -13043,7 +13047,8 @@ class PomodoroTimer {
                 const conversionEvent = {
                     'send_to': conversionId,
                     'value': value,
-                    'currency': 'USD'
+                    'currency': 'USD',
+                    'transaction_id': transactionId
                 };
                 
                 console.log(`📤 Sending Google Ads conversion event:`, conversionEvent);
