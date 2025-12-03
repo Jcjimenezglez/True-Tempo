@@ -17845,6 +17845,13 @@ class PomodoroTimer {
             return false;
         }
         
+        // Validate image URL is required
+        if (!imageUrl || imageUrl.length === 0 || imageUrl.trim().length === 0) {
+            alert('Image URL/Address is required');
+            if (imageUrlEl) imageUrlEl.focus();
+            return false;
+        }
+        
         // Extract actual image URL if it's a Google Images redirect
         if (imageUrl) {
             const originalUrl = imageUrl;
