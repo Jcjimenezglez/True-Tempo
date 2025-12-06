@@ -15930,6 +15930,107 @@ class PomodoroTimer {
         console.log('🎨 Theme panel initialized - no music reset');
     }
 
+    initializeCassetteMetadataExtraction() {
+        const websiteInput = document.getElementById('cassetteWebsiteUrl');
+        const spotifyInput = document.getElementById('cassetteSpotifyUrl');
+        const imageUrlInput = document.getElementById('cassetteImageUrl');
+        const titleInput = document.getElementById('cassetteTitle');
+        const descriptionInput = document.getElementById('cassetteDescription');
+
+        if (!imageUrlInput) return;
+
+        const handleUrlChange = async (e) => {
+            const inputElement = e.target;
+            const url = (inputElement.value || '').trim();
+            if (!url) return;
+            
+            // Determine if we should fetch metadata
+            // 1. If input is website/spotify, fetch if image is empty
+            // 2. If input IS image input, fetch if it doesn't look like a direct image file
+            const isImageInput = inputElement === imageUrlInput;
+            const shouldFetch = isImageInput 
+                ? !url.match(/\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i) && !url.includes('images.unsplash.com') && !url.includes('i.imgur.com')
+                : (!imageUrlInput.value || imageUrlInput.value.trim() === '');
+
+            if (!shouldFetch) return;
+
+            try {
+                // Show loading indicator
+                if (isImageInput) {
+                    // For image input, we are "validating/fixing" the URL
+                    const originalValue = imageUrlInput.value;
+                    imageUrlInput.value = 'Searching for image...';
+                    imageUrlInput.disabled = true;
+                    
+                    const response = await fetch(`/api/extract-metadata?url=${encodeURIComponent(url)}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.image) {
+                            imageUrlInput.value = data.image;
+                            console.log('🎨 Auto-corrected image URL from webpage');
+                        } else {
+                            // If no image found, revert to original (user might be right)
+                            imageUrlInput.value = originalValue;
+                        }
+                    } else {
+                        imageUrlInput.value = originalValue;
+                    }
+                    imageUrlInput.disabled = false;
+                } else {
+                    // For other inputs, we are filling empty fields
+                    const originalPlaceholder = imageUrlInput.placeholder;
+                    imageUrlInput.placeholder = 'Fetching image...';
+                    imageUrlInput.classList.add('loading-input');
+                    
+                    const response = await fetch(`/api/extract-metadata?url=${encodeURIComponent(url)}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            if (data.image && (!imageUrlInput.value || imageUrlInput.value.trim() === '')) {
+                                imageUrlInput.value = data.image;
+                                console.log('🎨 Auto-filled cassette image from URL');
+                            }
+                            
+                            if (data.title && (!titleInput.value || titleInput.value.trim() === '')) {
+                                titleInput.value = data.title.substring(0, 50);
+                            }
+                            
+                            if (data.description && (!descriptionInput.value || descriptionInput.value.trim() === '')) {
+                                descriptionInput.value = data.description.substring(0, 35);
+                            }
+                        }
+                    }
+                    imageUrlInput.placeholder = originalPlaceholder;
+                    imageUrlInput.classList.remove('loading-input');
+                }
+            } catch (error) {
+                console.error('Error fetching metadata:', error);
+                if (isImageInput) {
+                    imageUrlInput.value = url; // Revert on error
+                    imageUrlInput.disabled = false;
+                } else {
+                    imageUrlInput.placeholder = 'https://example.com/image.jpg';
+                    imageUrlInput.classList.remove('loading-input');
+                }
+            }
+        };
+
+        // Add listeners
+        const inputs = [websiteInput, spotifyInput, imageUrlInput];
+        
+        inputs.forEach(input => {
+            if (input && !input.dataset.metadataInitialized) {
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                newInput.addEventListener('blur', handleUrlChange);
+                newInput.dataset.metadataInitialized = 'true';
+                
+                // Update local reference
+                if (input === websiteInput) websiteInput = newInput; // Note: const reassignment won't work here but we get by ID anyway
+            }
+        });
+    }
+
     initializeMyCassettes() {
         const createCassetteSection = document.getElementById('createCassetteSection');
         const createCassetteBtn = document.getElementById('createCassetteBtn');
@@ -15943,6 +16044,9 @@ class PomodoroTimer {
         
         // Initialize search functionality for all users
         this.initializeCassetteSearch();
+        
+        // Initialize metadata extraction listeners
+        this.initializeCassetteMetadataExtraction();
         
         // Load and render custom cassettes (only Pro users have custom cassettes to load)
         if (this.isPremiumUser()) {
@@ -16071,7 +16175,7 @@ class PomodoroTimer {
         
         customCassettesList.innerHTML = privateCassettes.map(cassette => {
             const previewStyle = cassette.imageUrl 
-                ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
+                ? `background-image: url('${cassette.imageUrl.replace(/'/g, "\\'") }'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
             
             return `
@@ -16536,7 +16640,7 @@ class PomodoroTimer {
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             const previewStyle = cassette.imageUrl 
-                ? `background-image: url('${cassette.imageUrl}'); background-size: cover; background-position: center;`
+                ? `background-image: url('${cassette.imageUrl.replace(/'/g, "\\'") }'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
             
             // Add restriction for guest users
@@ -17156,7 +17260,7 @@ class PomodoroTimer {
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             
             // Apply immediately (will be overridden if image fails)
-            timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+            timerSection.style.setProperty('background-image', `url('${cassette.imageUrl.replace(/'/g, "\\'")}')`, 'important');
             timerSection.style.setProperty('background-size', 'cover', 'important');
             timerSection.style.setProperty('background-position', 'center', 'important');
             timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
@@ -17172,7 +17276,7 @@ class PomodoroTimer {
                 if (errorTimeout) clearTimeout(errorTimeout);
                 console.log('✅ Image loaded successfully');
                 // Image is already applied above, just verify
-                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl}')`, 'important');
+                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl.replace(/'/g, "\\'")}')`, 'important');
                 timerSection.style.setProperty('background-size', 'cover', 'important');
                 timerSection.style.setProperty('background-position', 'center', 'important');
                 timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
