@@ -16031,6 +16031,82 @@ class PomodoroTimer {
                 if (input === imageUrlInput) imageUrlInput = newInput;
             }
         });
+        
+        // Add real-time validation for image URL
+        this.initializeImageUrlValidation();
+    }
+    
+    initializeImageUrlValidation() {
+        const imageUrlInput = document.getElementById('cassetteImageUrl');
+        const warningElement = document.getElementById('imageUrlWarning');
+        
+        if (!imageUrlInput || !warningElement) return;
+        
+        const validateImageUrl = (url) => {
+            if (!url || url.trim() === '') {
+                warningElement.style.display = 'none';
+                return;
+            }
+            
+            const trimmedUrl = url.trim().toLowerCase();
+            
+            // List of valid image extensions
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const hasImageExtension = imageExtensions.some(ext => trimmedUrl.endsWith(ext));
+            
+            // Trusted image hosting services (these don't need extensions)
+            const trustedHosts = [
+                'i.imgur.com',
+                'images.unsplash.com',
+                'cdn.unsplash.com',
+                'images.pexels.com',
+                'cdn.pexels.com',
+                'imgur.com/a/',
+                'imgur.com/gallery/',
+                'unsplash.com/photos/',
+                'pexels.com/photo/'
+            ];
+            const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
+            
+            // Check if it's a Google Images redirect (these are invalid)
+            const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
+            
+            // Show warning if:
+            // 1. No image extension AND not a trusted host AND not empty
+            // 2. It's a Google redirect
+            if (isGoogleRedirect || (!hasImageExtension && !isTrustedHost && trimmedUrl.length > 0)) {
+                warningElement.style.display = 'block';
+            } else {
+                warningElement.style.display = 'none';
+            }
+        };
+        
+        // Validate on input, paste, and change events
+        const handleValidation = (e) => {
+            validateImageUrl(e.target.value);
+        };
+        
+        // Remove old listeners if any
+        if (imageUrlInput.dataset.validationInitialized !== 'true') {
+            const newInput = imageUrlInput.cloneNode(true);
+            imageUrlInput.parentNode.replaceChild(newInput, imageUrlInput);
+            newInput.dataset.validationInitialized = 'true';
+            
+            // Add event listeners
+            newInput.addEventListener('input', handleValidation);
+            newInput.addEventListener('paste', (e) => {
+                // Wait for paste to complete
+                setTimeout(() => {
+                    validateImageUrl(newInput.value);
+                }, 10);
+            });
+            newInput.addEventListener('change', handleValidation);
+            
+            // Initial validation if there's already a value
+            if (newInput.value) {
+                validateImageUrl(newInput.value);
+            }
+        }
     }
 
     initializeMyCassettes() {
@@ -17816,6 +17892,40 @@ class PomodoroTimer {
         form.style.display = 'block';
         createBtn.style.display = 'none';
         
+        // Validate image URL if there's a value (for editing)
+        const imageUrlInput = document.getElementById('cassetteImageUrl');
+        if (imageUrlInput && imageUrlInput.value) {
+            // Trigger validation after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                const warningElement = document.getElementById('imageUrlWarning');
+                if (warningElement) {
+                    const url = imageUrlInput.value.trim();
+                    const trimmedUrl = url.toLowerCase();
+                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+                    const hasImageExtension = imageExtensions.some(ext => trimmedUrl.endsWith(ext));
+                    const trustedHosts = [
+                        'i.imgur.com',
+                        'images.unsplash.com',
+                        'cdn.unsplash.com',
+                        'images.pexels.com',
+                        'cdn.pexels.com',
+                        'imgur.com/a/',
+                        'imgur.com/gallery/',
+                        'unsplash.com/photos/',
+                        'pexels.com/photo/'
+                    ];
+                    const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
+                    const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
+                    
+                    if (isGoogleRedirect || (!hasImageExtension && !isTrustedHost && trimmedUrl.length > 0)) {
+                        warningElement.style.display = 'block';
+                    } else {
+                        warningElement.style.display = 'none';
+                    }
+                }
+            }, 100);
+        }
+        
         // Focus on title input
         const titleInput = document.getElementById('cassetteTitle');
         if (titleInput) {
@@ -17829,6 +17939,12 @@ class PomodoroTimer {
         const saveBtn = document.getElementById('saveCassetteBtn');
         
         if (!form || !createBtn) return;
+        
+        // Hide warning message when hiding form
+        const warningElement = document.getElementById('imageUrlWarning');
+        if (warningElement) {
+            warningElement.style.display = 'none';
+        }
         
         // Hide form and show button
         form.style.display = 'none';
