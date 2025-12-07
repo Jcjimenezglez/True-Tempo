@@ -16037,10 +16037,10 @@ class PomodoroTimer {
     }
     
     initializeImageUrlValidation() {
-        const imageUrlInput = document.getElementById('cassetteImageUrl');
+        let imageUrlInput = document.getElementById('cassetteImageUrl');
         const warningElement = document.getElementById('imageUrlWarning');
         const saveBtn = document.getElementById('saveCassetteBtn');
-        const titleInput = document.getElementById('cassetteTitle');
+        let titleInput = document.getElementById('cassetteTitle');
         
         if (!imageUrlInput || !warningElement) return;
         
@@ -16078,11 +16078,16 @@ class PomodoroTimer {
         };
         
         // Function to update button state based on all validations
+        // Use getElementById to always get fresh references
         const updateSaveButtonState = () => {
             if (!saveBtn) return;
             
-            const imageUrl = imageUrlInput ? imageUrlInput.value.trim() : '';
-            const title = titleInput ? titleInput.value.trim() : '';
+            // Get fresh references to ensure we have current values
+            const currentImageUrlInput = document.getElementById('cassetteImageUrl');
+            const currentTitleInput = document.getElementById('cassetteTitle');
+            
+            const imageUrl = currentImageUrlInput ? currentImageUrlInput.value.trim() : '';
+            const title = currentTitleInput ? currentTitleInput.value.trim() : '';
             const isImageValid = isImageUrlValid(imageUrl);
             const isTitleValid = title.length > 0;
             
@@ -16100,6 +16105,8 @@ class PomodoroTimer {
         };
         
         const validateImageUrl = (url) => {
+            if (!url) url = '';
+            
             const trimmedUrl = url.trim().toLowerCase();
             
             // List of valid image extensions
@@ -16150,7 +16157,7 @@ class PomodoroTimer {
             newInput.dataset.validationInitialized = 'true';
             
             // Update reference
-            const imageUrlInputRef = newInput;
+            imageUrlInput = newInput;
             
             // Add event listeners
             newInput.addEventListener('input', handleValidation);
@@ -16167,6 +16174,8 @@ class PomodoroTimer {
                 const newTitleInput = titleInput.cloneNode(true);
                 titleInput.parentNode.replaceChild(newTitleInput, titleInput);
                 newTitleInput.dataset.titleValidationInitialized = 'true';
+                titleInput = newTitleInput;
+                
                 newTitleInput.addEventListener('input', updateSaveButtonState);
                 newTitleInput.addEventListener('change', updateSaveButtonState);
             }
