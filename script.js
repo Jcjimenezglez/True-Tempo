@@ -16054,9 +16054,8 @@ class PomodoroTimer {
         }
         
         // Load and render public cassettes (for all users, with restriction for Guest)
-        // Don't force refresh here - let openImmersiveThemePanel() handle the refresh
-        // This prevents duplicate calls and ensures refresh happens when panel opens
-        this.loadPublicCassettes(false);
+        // Moved to openImmersiveThemePanel to ensure refresh on open
+        // this.loadPublicCassettes(false);
         
         // Add create button event (remove existing listeners first to avoid duplicates)
         if (createCassetteBtn) {
@@ -19825,29 +19824,28 @@ class SidebarManager {
             // Initialize immersive theme panel controls
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
-                // Always refresh public cassettes when opening the panel to ensure latest data is shown
-                // This ensures users see updated cassettes even if the panel was already open
-                // Wait for any ongoing load to complete, then force refresh
-                const refreshPublicCassettes = async () => {
-                    if (!window.pomodoroTimer || !this.isImmersiveThemePanelOpen) return;
-                    
-                    // Wait for any ongoing load to complete (max 2 seconds)
-                    let attempts = 0;
-                    while (window.pomodoroTimer.isLoadingPublicCassettes && attempts < 20) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        attempts++;
-                    }
-                    
-                    // Now force refresh to get latest public cassettes from server
-                    if (this.isImmersiveThemePanelOpen) {
-                        window.pomodoroTimer.loadPublicCassettes(true).catch(err => {
-                            console.error('Error refreshing public cassettes when opening panel:', err);
-                        });
-                    }
-                };
                 
-                // Start refresh after a short delay to ensure initialization completes
-                setTimeout(refreshPublicCassettes, 200);
+                // Always refresh public cassettes when opening the panel
+                // This will:
+                // 1. Render immediately from cache (if available)
+                // 2. Fetch fresh data from API
+                // 3. Update UI
+                if (window.pomodoroTimer.isLoadingPublicCassettes) {
+                    // If already loading, we can force a reset if it's been loading for too long (stuck)
+                    // or just let it finish. But to be safe and ensure the user sees updates:
+                    console.log('🔄 Public cassettes already loading, letting it finish but ensuring visibility...');
+                    // Make sure section is visible if we have data
+                    const publicCassettesSection = document.getElementById('publicCassettesSection');
+                    const hasItems = document.querySelectorAll('.public-cassette').length > 0;
+                    if (publicCassettesSection && hasItems) {
+                        publicCassettesSection.style.display = 'block';
+                    }
+                } else {
+                    // Trigger load immediately
+                    window.pomodoroTimer.loadPublicCassettes(true).catch(err => {
+                        console.error('Error refreshing public cassettes when opening panel:', err);
+                    });
+                }
             }
         }
     }
