@@ -15931,9 +15931,9 @@ class PomodoroTimer {
     }
 
     initializeCassetteMetadataExtraction() {
-        const websiteInput = document.getElementById('cassetteWebsiteUrl');
-        const spotifyInput = document.getElementById('cassetteSpotifyUrl');
-        const imageUrlInput = document.getElementById('cassetteImageUrl');
+        let websiteInput = document.getElementById('cassetteWebsiteUrl');
+        let spotifyInput = document.getElementById('cassetteSpotifyUrl');
+        let imageUrlInput = document.getElementById('cassetteImageUrl');
         const titleInput = document.getElementById('cassetteTitle');
         const descriptionInput = document.getElementById('cassetteDescription');
 
@@ -16025,8 +16025,10 @@ class PomodoroTimer {
                 newInput.addEventListener('blur', handleUrlChange);
                 newInput.dataset.metadataInitialized = 'true';
                 
-                // Update local reference
-                if (input === websiteInput) websiteInput = newInput; // Note: const reassignment won't work here but we get by ID anyway
+                // Update local references so closure uses the active DOM elements
+                if (input === websiteInput) websiteInput = newInput;
+                if (input === spotifyInput) spotifyInput = newInput;
+                if (input === imageUrlInput) imageUrlInput = newInput;
             }
         });
     }
