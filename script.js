@@ -16054,8 +16054,9 @@ class PomodoroTimer {
         }
         
         // Load and render public cassettes (for all users, with restriction for Guest)
-        // Force refresh on initial load to ensure users see latest cassettes
-        this.loadPublicCassettes(true);
+        // Don't force refresh here - let openImmersiveThemePanel() handle the refresh
+        // This prevents duplicate calls and ensures refresh happens when panel opens
+        this.loadPublicCassettes(false);
         
         // Add create button event (remove existing listeners first to avoid duplicates)
         if (createCassetteBtn) {
@@ -16174,8 +16175,10 @@ class PomodoroTimer {
         }
         
         customCassettesList.innerHTML = privateCassettes.map(cassette => {
+            // Escape URL for CSS: escape single quotes and wrap in quotes
+            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
             const previewStyle = cassette.imageUrl 
-                ? `background-image: url('${cassette.imageUrl.replace(/'/g, "\\'") }'); background-size: cover; background-position: center;`
+                ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
             
             return `
@@ -16639,8 +16642,10 @@ class PomodoroTimer {
         publicCassettesList.innerHTML = filteredPublicCassettes.map(cassette => {
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
+            // Escape URL for CSS: escape single quotes and wrap in quotes
+            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
             const previewStyle = cassette.imageUrl 
-                ? `background-image: url('${cassette.imageUrl.replace(/'/g, "\\'") }'); background-size: cover; background-position: center;`
+                ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
             
             // Add restriction for guest users
@@ -17259,8 +17264,11 @@ class PomodoroTimer {
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             
+            // Escape URL for CSS: escape single quotes
+            const escapedImageUrl = cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            
             // Apply immediately (will be overridden if image fails)
-            timerSection.style.setProperty('background-image', `url('${cassette.imageUrl.replace(/'/g, "\\'")}')`, 'important');
+            timerSection.style.setProperty('background-image', `url('${escapedImageUrl}')`, 'important');
             timerSection.style.setProperty('background-size', 'cover', 'important');
             timerSection.style.setProperty('background-position', 'center', 'important');
             timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
@@ -17276,7 +17284,7 @@ class PomodoroTimer {
                 if (errorTimeout) clearTimeout(errorTimeout);
                 console.log('✅ Image loaded successfully');
                 // Image is already applied above, just verify
-                timerSection.style.setProperty('background-image', `url('${cassette.imageUrl.replace(/'/g, "\\'")}')`, 'important');
+                timerSection.style.setProperty('background-image', `url('${escapedImageUrl}')`, 'important');
                 timerSection.style.setProperty('background-size', 'cover', 'important');
                 timerSection.style.setProperty('background-position', 'center', 'important');
                 timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
@@ -19817,8 +19825,29 @@ class SidebarManager {
             // Initialize immersive theme panel controls
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
-                // Note: loadPublicCassettes is already called in initializeMyCassettes()
-                // which is called by initializeImmersiveThemePanel(), so no need to call it again here
+                // Always refresh public cassettes when opening the panel to ensure latest data is shown
+                // This ensures users see updated cassettes even if the panel was already open
+                // Wait for any ongoing load to complete, then force refresh
+                const refreshPublicCassettes = async () => {
+                    if (!window.pomodoroTimer || !this.isImmersiveThemePanelOpen) return;
+                    
+                    // Wait for any ongoing load to complete (max 2 seconds)
+                    let attempts = 0;
+                    while (window.pomodoroTimer.isLoadingPublicCassettes && attempts < 20) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+                    
+                    // Now force refresh to get latest public cassettes from server
+                    if (this.isImmersiveThemePanelOpen) {
+                        window.pomodoroTimer.loadPublicCassettes(true).catch(err => {
+                            console.error('Error refreshing public cassettes when opening panel:', err);
+                        });
+                    }
+                };
+                
+                // Start refresh after a short delay to ensure initialization completes
+                setTimeout(refreshPublicCassettes, 200);
             }
         }
     }
