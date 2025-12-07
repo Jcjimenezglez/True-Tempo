@@ -16039,15 +16039,67 @@ class PomodoroTimer {
     initializeImageUrlValidation() {
         const imageUrlInput = document.getElementById('cassetteImageUrl');
         const warningElement = document.getElementById('imageUrlWarning');
+        const saveBtn = document.getElementById('saveCassetteBtn');
+        const titleInput = document.getElementById('cassetteTitle');
         
         if (!imageUrlInput || !warningElement) return;
         
-        const validateImageUrl = (url) => {
+        // Function to check if image URL is valid
+        const isImageUrlValid = (url) => {
             if (!url || url.trim() === '') {
-                warningElement.style.display = 'none';
-                return;
+                return false;
             }
             
+            const trimmedUrl = url.trim().toLowerCase();
+            
+            // List of valid image extensions
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const hasImageExtension = imageExtensions.some(ext => trimmedUrl.endsWith(ext));
+            
+            // Trusted image hosting services (these don't need extensions)
+            const trustedHosts = [
+                'i.imgur.com',
+                'images.unsplash.com',
+                'cdn.unsplash.com',
+                'images.pexels.com',
+                'cdn.pexels.com',
+                'imgur.com/a/',
+                'imgur.com/gallery/',
+                'unsplash.com/photos/',
+                'pexels.com/photo/'
+            ];
+            const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
+            
+            // Check if it's a Google Images redirect (these are invalid)
+            const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
+            
+            // Valid if: has extension OR is trusted host AND not a Google redirect
+            return !isGoogleRedirect && (hasImageExtension || isTrustedHost);
+        };
+        
+        // Function to update button state based on all validations
+        const updateSaveButtonState = () => {
+            if (!saveBtn) return;
+            
+            const imageUrl = imageUrlInput ? imageUrlInput.value.trim() : '';
+            const title = titleInput ? titleInput.value.trim() : '';
+            const isImageValid = isImageUrlValid(imageUrl);
+            const isTitleValid = title.length > 0;
+            
+            // Enable button only if both title and image URL are valid
+            saveBtn.disabled = !(isTitleValid && isImageValid);
+            
+            // Update button style to show disabled state
+            if (saveBtn.disabled) {
+                saveBtn.style.opacity = '0.5';
+                saveBtn.style.cursor = 'not-allowed';
+            } else {
+                saveBtn.style.opacity = '1';
+                saveBtn.style.cursor = 'pointer';
+            }
+        };
+        
+        const validateImageUrl = (url) => {
             const trimmedUrl = url.trim().toLowerCase();
             
             // List of valid image extensions
@@ -16074,11 +16126,16 @@ class PomodoroTimer {
             // Show warning if:
             // 1. No image extension AND not a trusted host AND not empty
             // 2. It's a Google redirect
-            if (isGoogleRedirect || (!hasImageExtension && !isTrustedHost && trimmedUrl.length > 0)) {
+            if (!url || url.trim() === '') {
+                warningElement.style.display = 'none';
+            } else if (isGoogleRedirect || (!hasImageExtension && !isTrustedHost && trimmedUrl.length > 0)) {
                 warningElement.style.display = 'block';
             } else {
                 warningElement.style.display = 'none';
             }
+            
+            // Update save button state
+            updateSaveButtonState();
         };
         
         // Validate on input, paste, and change events
@@ -16092,6 +16149,9 @@ class PomodoroTimer {
             imageUrlInput.parentNode.replaceChild(newInput, imageUrlInput);
             newInput.dataset.validationInitialized = 'true';
             
+            // Update reference
+            const imageUrlInputRef = newInput;
+            
             // Add event listeners
             newInput.addEventListener('input', handleValidation);
             newInput.addEventListener('paste', (e) => {
@@ -16102,10 +16162,20 @@ class PomodoroTimer {
             });
             newInput.addEventListener('change', handleValidation);
             
-            // Initial validation if there's already a value
-            if (newInput.value) {
-                validateImageUrl(newInput.value);
+            // Also validate when title changes
+            if (titleInput && titleInput.dataset.titleValidationInitialized !== 'true') {
+                const newTitleInput = titleInput.cloneNode(true);
+                titleInput.parentNode.replaceChild(newTitleInput, titleInput);
+                newTitleInput.dataset.titleValidationInitialized = 'true';
+                newTitleInput.addEventListener('input', updateSaveButtonState);
+                newTitleInput.addEventListener('change', updateSaveButtonState);
             }
+            
+            // Initial validation
+            validateImageUrl(newInput.value);
+        } else {
+            // If already initialized, just update the button state
+            updateSaveButtonState();
         }
     }
 
@@ -17892,39 +17962,11 @@ class PomodoroTimer {
         form.style.display = 'block';
         createBtn.style.display = 'none';
         
-        // Validate image URL if there's a value (for editing)
-        const imageUrlInput = document.getElementById('cassetteImageUrl');
-        if (imageUrlInput && imageUrlInput.value) {
-            // Trigger validation after a short delay to ensure DOM is ready
-            setTimeout(() => {
-                const warningElement = document.getElementById('imageUrlWarning');
-                if (warningElement) {
-                    const url = imageUrlInput.value.trim();
-                    const trimmedUrl = url.toLowerCase();
-                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
-                    const hasImageExtension = imageExtensions.some(ext => trimmedUrl.endsWith(ext));
-                    const trustedHosts = [
-                        'i.imgur.com',
-                        'images.unsplash.com',
-                        'cdn.unsplash.com',
-                        'images.pexels.com',
-                        'cdn.pexels.com',
-                        'imgur.com/a/',
-                        'imgur.com/gallery/',
-                        'unsplash.com/photos/',
-                        'pexels.com/photo/'
-                    ];
-                    const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
-                    const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
-                    
-                    if (isGoogleRedirect || (!hasImageExtension && !isTrustedHost && trimmedUrl.length > 0)) {
-                        warningElement.style.display = 'block';
-                    } else {
-                        warningElement.style.display = 'none';
-                    }
-                }
-            }, 100);
-        }
+        // Re-initialize validation to set up listeners and validate current values
+        // This ensures the save button state is correct when form is shown
+        setTimeout(() => {
+            this.initializeImageUrlValidation();
+        }, 100);
         
         // Focus on title input
         const titleInput = document.getElementById('cassetteTitle');
@@ -17944,6 +17986,13 @@ class PomodoroTimer {
         const warningElement = document.getElementById('imageUrlWarning');
         if (warningElement) {
             warningElement.style.display = 'none';
+        }
+        
+        // Reset save button state when hiding form
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+            saveBtn.style.cursor = 'not-allowed';
         }
         
         // Hide form and show button
