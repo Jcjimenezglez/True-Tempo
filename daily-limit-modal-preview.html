@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Limit Modal Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .preview-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .preview-title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-subtitle {
+            color: #a3a3a3;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .show-modal-btn {
+            background: #ffffff;
+            color: #000000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .show-modal-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .logout-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(3px);
+        }
+
+        .logout-modal {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .close-logout-modal-x {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-logout-modal-x:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .upgrade-content {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .upgrade-icon {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upgrade-icon svg {
+            color: #a3a3a3;
+            opacity: 1;
+        }
+
+        .logout-modal-title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .logout-modal-message {
+            color: #a3a3a3;
+            font-size: 0.9rem;
+            margin: 0 0 2rem 0;
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .logout-modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .logout-modal-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+        }
+
+        .logout-modal-btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .logout-modal-btn-primary:hover {
+            background: #f0f0f0;
+        }
+
+        .logout-modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logout-modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Countdown animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.9;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        #dailyLimitCountdown {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <h1 class="preview-title">Daily Limit Modal Preview</h1>
+        <p class="preview-subtitle">Click the button below to see the modal</p>
+        <button class="show-modal-btn" onclick="showModal()">Show Daily Limit Modal</button>
+    </div>
+
+    <!-- Daily Focus Limit Modal (Free/Guest) -->
+    <div class="logout-modal-overlay hidden" id="dailyLimitModalOverlay">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeDailyLimitModalX" onclick="hideModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-8">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title" id="dailyLimitTitle">Time's up</h3>
+                <p class="logout-modal-message" id="dailyLimitMessage">You were in the zone. That momentum you had? It's gone now. While you wait, your focus fades and your progress stalls. Keep going without limits. (1h / 1h used today)</p>
+                <p class="logout-modal-message" id="dailyLimitCountdown" style="margin-top: 6px; opacity: 0.9;">Your timer will be available again in 22:45:30.</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn" onclick="handleSubscribe()">Unlock Unlimited Time</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn" onclick="hideModal()">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            const modal = document.getElementById('dailyLimitModalOverlay');
+            modal.classList.remove('hidden');
+            
+            // Simulate countdown
+            let seconds = 22 * 3600 + 45 * 60 + 30; // 22:45:30
+            const countdownEl = document.getElementById('dailyLimitCountdown');
+            
+            const countdownInterval = setInterval(() => {
+                if (modal.classList.contains('hidden')) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(countdownInterval);
+                    countdownEl.textContent = 'You can start now.';
+                    return;
+                }
+                
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                
+                countdownEl.textContent = `Your timer will be available again in ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}.`;
+            }, 1000);
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('dailyLimitModalOverlay');
+            modal.classList.add('hidden');
+        }
+
+        function handleSubscribe() {
+            alert('This would normally redirect to /pricing/');
+            // In production: window.open('/pricing/', '_blank');
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('dailyLimitModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
