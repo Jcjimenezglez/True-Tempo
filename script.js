@@ -2947,7 +2947,7 @@ class PomodoroTimer {
         const progressText = `${focusHoursUsed}h ${focusMinutesUsed > 0 ? focusMinutesUsed + 'm' : ''} / ${limitHours}h used today`;
         const dailyLimitMessage = document.getElementById('dailyLimitMessage');
         if (dailyLimitMessage) {
-            dailyLimitMessage.textContent = `You were in the zone. That momentum you had? It's gone now. While you wait, your focus fades and your progress stalls. Keep going without limits. (${progressText})`;
+            dailyLimitMessage.textContent = `You've reached your daily focus limit. Upgrade to Premium for unlimited time. (${progressText})`;
         }
         
         // 🎯 Track Daily Limit Modal Opened event to Mixpanel
