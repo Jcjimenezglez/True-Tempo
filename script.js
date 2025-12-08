@@ -2160,8 +2160,8 @@ class PomodoroTimer {
                 console.log('📊 User login event tracked to Mixpanel');
             }
             
-            // Check for time-based escalation modal (after 7 days)
-            this.checkTimeBasedEscalation();
+            // Check for time-based escalation modal (after 7 days) - DISABLED
+            // this.checkTimeBasedEscalation();
             
             if (this.authContainer) this.authContainer.style.display = 'none';
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none'; // Always hidden, use settings menu instead
