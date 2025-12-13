@@ -18,6 +18,47 @@ module.exports = async (req, res) => {
   try {
     const clerk = createClerkClient({ secretKey: clerkSecret });
     
+    // Function to check if image URL is valid
+    const isImageUrlValid = (imageUrl) => {
+      if (!imageUrl || imageUrl.trim() === '') {
+        return false;
+      }
+
+      const trimmedUrl = imageUrl.trim().toLowerCase();
+
+      // Check for Google Images redirect (these are invalid)
+      const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
+      if (isGoogleRedirect) return false;
+
+      // Trusted image hosting services (these don't need extensions)
+      const trustedHosts = [
+        'i.imgur.com',
+        'images.unsplash.com',
+        'cdn.unsplash.com',
+        'images.pexels.com',
+        'cdn.pexels.com',
+        'imgur.com/a/',
+        'imgur.com/gallery/',
+        'unsplash.com/photos/',
+        'pexels.com/photo/',
+        'drive.google.com/uc', // Google Drive direct links
+        'pbs.twimg.com/media/' // Twitter images
+      ];
+      const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
+      
+      if (isTrustedHost) return true;
+
+      // Remove query parameters for extension check
+      // e.g. image.jpg?v=123 -> image.jpg
+      const urlWithoutQuery = trimmedUrl.split('?')[0].split('#')[0];
+
+      // List of valid image extensions
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico', '.avif'];
+      const hasImageExtension = imageExtensions.some(ext => urlWithoutQuery.endsWith(ext));
+
+      return hasImageExtension;
+    };
+    
     // Get all users with pagination
     let allUsers = [];
     let hasMore = true;
@@ -49,7 +90,8 @@ module.exports = async (req, res) => {
         
         publicCassettes.forEach(cassette => {
           // Only include if it's marked as public and we haven't seen this ID before
-          if (cassette.isPublic === true && cassette.id && !seenIds.has(cassette.id)) {
+          // AND it has a valid image URL
+          if (cassette.isPublic === true && cassette.id && !seenIds.has(cassette.id) && isImageUrlValid(cassette.imageUrl)) {
             seenIds.add(cassette.id);
             // Add creator information to cassette
             allPublicCassettes.push({

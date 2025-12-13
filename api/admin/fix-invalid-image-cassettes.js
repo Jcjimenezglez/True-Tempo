@@ -47,9 +47,9 @@ module.exports = async (req, res) => {
 
       const trimmedUrl = imageUrl.trim().toLowerCase();
 
-      // List of valid image extensions
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
-      const hasImageExtension = imageExtensions.some(ext => trimmedUrl.endsWith(ext));
+      // Check for Google Images redirect (these are invalid)
+      const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
+      if (isGoogleRedirect) return false;
 
       // Trusted image hosting services (these don't need extensions)
       const trustedHosts = [
@@ -61,15 +61,23 @@ module.exports = async (req, res) => {
         'imgur.com/a/',
         'imgur.com/gallery/',
         'unsplash.com/photos/',
-        'pexels.com/photo/'
+        'pexels.com/photo/',
+        'drive.google.com/uc', // Google Drive direct links
+        'pbs.twimg.com/media/' // Twitter images
       ];
       const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
+      
+      if (isTrustedHost) return true;
 
-      // Check if it's a Google Images redirect (these are invalid)
-      const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
+      // Remove query parameters for extension check
+      // e.g. image.jpg?v=123 -> image.jpg
+      const urlWithoutQuery = trimmedUrl.split('?')[0].split('#')[0];
 
-      // Valid if: has extension OR is trusted host AND not a Google redirect
-      return !isGoogleRedirect && (hasImageExtension || isTrustedHost);
+      // List of valid image extensions
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico', '.avif'];
+      const hasImageExtension = imageExtensions.some(ext => urlWithoutQuery.endsWith(ext));
+
+      return hasImageExtension;
     };
 
     const results = {
