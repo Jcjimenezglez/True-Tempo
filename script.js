@@ -16044,101 +16044,126 @@ class PomodoroTimer {
         
         if (!imageUrlInput || !warningElement) return;
         
-        // Function to check if image URL is valid
-        const isImageUrlValid = (url) => {
-            if (!url || url.trim() === '') {
-                return false;
-            }
+        // Track the current validation promise to handle race conditions
+        this.currentValidationPromise = null;
+        // Track if image URL is valid and loadable
+        this.imageUrlIsValid = false;
+        
+        // Function to check if image URL is valid (synchronous checks)
+        const isImageUrlStructureValid = (url) => {
+            if (!url || url.trim() === '') return false;
             
             const trimmedUrl = url.trim().toLowerCase();
             
-            // Check for Google Images redirect (these are invalid)
+            // Must start with http:// or https://
+            if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) return false;
+
+            // Check for Google Images redirect
             const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
             if (isGoogleRedirect) return false;
             
-            // Trusted image hosting services (these don't need extensions)
+            // Trusted host or valid extension
             const trustedHosts = [
-                'i.imgur.com',
-                'images.unsplash.com',
-                'cdn.unsplash.com',
-                'images.pexels.com',
-                'cdn.pexels.com',
-                'imgur.com/a/',
-                'imgur.com/gallery/',
-                'unsplash.com/photos/',
-                'pexels.com/photo/',
-                'drive.google.com/uc', // Google Drive direct links
-                'pbs.twimg.com/media/' // Twitter images
+                'i.imgur.com', 'images.unsplash.com', 'cdn.unsplash.com',
+                'images.pexels.com', 'cdn.pexels.com', 'imgur.com/a/',
+                'imgur.com/gallery/', 'unsplash.com/photos/', 'pexels.com/photo/',
+                'drive.google.com/uc', 'pbs.twimg.com/media/'
             ];
-            const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
             
-            if (isTrustedHost) return true;
+            if (trustedHosts.some(host => trimmedUrl.includes(host))) return true;
             
-            // Remove query parameters for extension check
-            // e.g. image.jpg?v=123 -> image.jpg
             const urlWithoutQuery = trimmedUrl.split('?')[0].split('#')[0];
-            
-            // List of valid image extensions
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico', '.avif'];
-            const hasImageExtension = imageExtensions.some(ext => urlWithoutQuery.endsWith(ext));
-            
-            return hasImageExtension;
+            return imageExtensions.some(ext => urlWithoutQuery.endsWith(ext));
         };
         
-        // Function to update button state based on all validations
-        // Use getElementById to always get fresh references
-        const updateSaveButtonState = () => {
+        // Asynchronous image loading check
+        const checkImageLoadability = (url) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        };
+        
+        const updateSaveButtonState = (isValid) => {
             if (!saveBtn) return;
-            
-            // Get fresh references to ensure we have current values
-            const currentImageUrlInput = document.getElementById('cassetteImageUrl');
             const currentTitleInput = document.getElementById('cassetteTitle');
-            
-            const imageUrl = currentImageUrlInput ? currentImageUrlInput.value.trim() : '';
             const title = currentTitleInput ? currentTitleInput.value.trim() : '';
-            const isImageValid = isImageUrlValid(imageUrl);
             const isTitleValid = title.length > 0;
             
-            // Enable button only if both title and image URL are valid
-            saveBtn.disabled = !(isTitleValid && isImageValid);
-            
-            // Update button style to show disabled state
-            if (saveBtn.disabled) {
-                saveBtn.style.opacity = '0.5';
-                saveBtn.style.cursor = 'not-allowed';
-            } else {
-                saveBtn.style.opacity = '1';
-                saveBtn.style.cursor = 'pointer';
-            }
+            saveBtn.disabled = !(isTitleValid && isValid);
+            saveBtn.style.opacity = saveBtn.disabled ? '0.5' : '1';
+            saveBtn.style.cursor = saveBtn.disabled ? 'not-allowed' : 'pointer';
         };
         
-        const validateImageUrl = (url) => {
+        const validateImageUrl = async (url) => {
             if (!url) url = '';
             
-            const trimmedUrl = url.trim().toLowerCase();
-            const isValid = isImageUrlValid(url);
-            
-            // Show warning if:
-            // 1. Invalid URL AND not empty
+            // 1. Basic empty check
             if (!url || url.trim() === '') {
                 warningElement.style.display = 'none';
-            } else if (!isValid) {
+                this.imageUrlIsValid = false;
+                updateSaveButtonState(false);
+                return;
+            }
+            
+            // 2. Structural/Regex check
+            if (!isImageUrlStructureValid(url)) {
                 warningElement.style.display = 'block';
-                // Update warning text based on specific error
+                const trimmedUrl = url.trim().toLowerCase();
                 if (trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres')) {
                     warningElement.textContent = '⚠️ Google Search results are not direct images. Please right-click the image and select "Copy Image Address".';
+                } else if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+                     warningElement.textContent = '⚠️ Invalid URL. Must start with http:// or https://';
                 } else {
                     warningElement.textContent = '⚠️ This URL doesn\'t look like a direct image link. Make sure it ends with .jpg, .png, .gif, etc. or comes from a trusted host.';
                 }
-            } else {
-                warningElement.style.display = 'none';
+                this.imageUrlIsValid = false;
+                updateSaveButtonState(false);
+                return;
             }
             
-            // Update save button state
-            updateSaveButtonState();
+            // 3. Loadability check (Async)
+            warningElement.style.display = 'block';
+            warningElement.textContent = '⏳ Verifying image...';
+            warningElement.style.color = 'rgba(255, 255, 255, 0.7)';
+            warningElement.style.background = 'rgba(255, 255, 255, 0.1)';
+            warningElement.style.borderLeft = '3px solid rgba(255, 255, 255, 0.5)';
+            
+            // Disable button while checking
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+            saveBtn.style.cursor = 'wait';
+            
+            const validationPromise = checkImageLoadability(url);
+            this.currentValidationPromise = validationPromise;
+            
+            const isLoadable = await validationPromise;
+            
+            // If another validation started while we were waiting, ignore this result
+            if (this.currentValidationPromise !== validationPromise) return;
+            
+            if (isLoadable) {
+                warningElement.style.display = 'none';
+                // Reset style
+                warningElement.style.color = '';
+                warningElement.style.background = '';
+                warningElement.style.borderLeft = '';
+                this.imageUrlIsValid = true;
+                updateSaveButtonState(true);
+            } else {
+                warningElement.style.display = 'block';
+                warningElement.textContent = '❌ Image not found or not accessible. Please check the URL.';
+                warningElement.style.color = 'rgba(255, 87, 87, 0.9)';
+                warningElement.style.background = 'rgba(255, 87, 87, 0.1)';
+                warningElement.style.borderLeft = '3px solid rgba(255, 87, 87, 0.8)';
+                this.imageUrlIsValid = false;
+                updateSaveButtonState(false);
+            }
         };
         
-        // Validate on input, paste, and change events
         const handleValidation = (e) => {
             validateImageUrl(e.target.value);
         };
@@ -16148,36 +16173,41 @@ class PomodoroTimer {
             const newInput = imageUrlInput.cloneNode(true);
             imageUrlInput.parentNode.replaceChild(newInput, imageUrlInput);
             newInput.dataset.validationInitialized = 'true';
-            
-            // Update reference
             imageUrlInput = newInput;
             
-            // Add event listeners
-            newInput.addEventListener('input', handleValidation);
+            // Debounce the validation for typing
+            let timeout;
+            newInput.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => validateImageUrl(e.target.value), 500);
+            });
+            
             newInput.addEventListener('paste', (e) => {
-                // Wait for paste to complete
-                setTimeout(() => {
-                    validateImageUrl(newInput.value);
-                }, 10);
+                setTimeout(() => validateImageUrl(newInput.value), 10);
             });
             newInput.addEventListener('change', handleValidation);
             
-            // Also validate when title changes
             if (titleInput && titleInput.dataset.titleValidationInitialized !== 'true') {
                 const newTitleInput = titleInput.cloneNode(true);
                 titleInput.parentNode.replaceChild(newTitleInput, titleInput);
                 newTitleInput.dataset.titleValidationInitialized = 'true';
                 titleInput = newTitleInput;
                 
-                newTitleInput.addEventListener('input', updateSaveButtonState);
-                newTitleInput.addEventListener('change', updateSaveButtonState);
+                // Re-run validation logic (using current validity state of image is tricky here without global state)
+                // Simplified: just trigger image validation again to refresh button state
+                const triggerUpdate = () => {
+                     // We can't easily re-run async check, but we can check the button's dependencies
+                     // Actually, easiest is to just re-validate image URL which updates button
+                     const currentUrl = document.getElementById('cassetteImageUrl').value;
+                     validateImageUrl(currentUrl);
+                };
+                newTitleInput.addEventListener('input', triggerUpdate);
             }
             
-            // Initial validation
             validateImageUrl(newInput.value);
         } else {
-            // If already initialized, just update the button state
-            updateSaveButtonState();
+            // Re-validate immediately if already initialized (e.g. re-opening modal)
+            validateImageUrl(imageUrlInput.value);
         }
     }
 
@@ -16230,8 +16260,30 @@ class PomodoroTimer {
         
         // Save button (only for Pro users who can see the form)
         if (saveCassetteBtn) {
-            saveCassetteBtn.addEventListener('click', async () => {
-                const cassetteId = saveCassetteBtn.dataset.editingId || null;
+            // Remove existing listeners by cloning
+            const newSaveBtn = saveCassetteBtn.cloneNode(true);
+            saveCassetteBtn.parentNode.replaceChild(newSaveBtn, saveCassetteBtn);
+            
+            newSaveBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Prevent saving if button is disabled
+                if (newSaveBtn.disabled) {
+                    return;
+                }
+                
+                // Double-check: Verify image is valid before saving
+                const imageUrlInput = document.getElementById('cassetteImageUrl');
+                if (imageUrlInput && imageUrlInput.value) {
+                    // If validation state says invalid, don't proceed
+                    if (this.imageUrlIsValid === false) {
+                        alert('❌ Please wait for image validation to complete or fix the image URL before saving.');
+                        return;
+                    }
+                }
+                
+                const cassetteId = newSaveBtn.dataset.editingId || null;
                 // Don't close form here - saveCassetteFromForm will handle it after UI is updated
                 await this.saveCassetteFromForm(cassetteId);
             });
@@ -17966,6 +18018,8 @@ class PomodoroTimer {
         
         // Re-initialize validation to set up listeners and validate current values
         // This ensures the save button state is correct when form is shown
+        // Reset validation state when form is shown
+        this.imageUrlIsValid = false;
         setTimeout(() => {
             this.initializeImageUrlValidation();
         }, 100);
@@ -18128,6 +18182,52 @@ class PomodoroTimer {
         // Validate image URL is required
         if (!imageUrl || imageUrl.length === 0 || imageUrl.trim().length === 0) {
             alert('Image URL/Address is required');
+            if (imageUrlEl) imageUrlEl.focus();
+            return false;
+        }
+        
+        // Final validation: Check if image can actually be loaded
+        // This prevents saving cassettes with invalid/non-existent image URLs
+        try {
+            const canLoadImage = await new Promise((resolve) => {
+                const img = new Image();
+                let resolved = false;
+                
+                // Set timeout to avoid hanging forever
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve(false);
+                    }
+                }, 5000); // 5 second timeout
+                
+                img.onload = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        clearTimeout(timeout);
+                        resolve(true);
+                    }
+                };
+                
+                img.onerror = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        clearTimeout(timeout);
+                        resolve(false);
+                    }
+                };
+                
+                img.src = imageUrl;
+            });
+            
+            if (!canLoadImage) {
+                alert('❌ Error: The image URL you provided cannot be loaded or does not exist.\n\nPlease verify that:\n1. The URL is correct and the image exists\n2. The image is publicly accessible\n3. The URL points directly to an image file\n\nTry opening the URL in a new browser tab to confirm it works.');
+                if (imageUrlEl) imageUrlEl.focus();
+                return false;
+            }
+        } catch (error) {
+            console.error('Error validating image:', error);
+            alert('❌ Error: Could not verify the image URL. Please check the URL and try again.');
             if (imageUrlEl) imageUrlEl.focus();
             return false;
         }

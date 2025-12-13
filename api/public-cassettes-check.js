@@ -26,6 +26,9 @@ module.exports = async (req, res) => {
       }
 
       const trimmedUrl = imageUrl.trim().toLowerCase();
+      
+      // Basic protocol check
+      if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) return false;
 
       // Check for Google Images redirect (these are invalid)
       const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
