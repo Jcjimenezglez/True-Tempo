@@ -27,6 +27,12 @@ module.exports = async (req, res) => {
     // If body parsing fails, default to premium
     planType = 'premium';
   }
+
+  // #region agent log
+  if (process.env.NODE_ENV !== 'production') {
+    fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'C',location:'api/create-checkout-session.js:postParse',message:'Request parsed',data:{method:req.method,planType,hasSecretKey:!!secretKey,hasClerkHeader:!!req.headers['x-clerk-userid'],hasUserIdInBody:!!userId,hasEmailInBody:!!userEmail},timestamp:Date.now()})}).catch(()=>{});
+  }
+  // #endregion
   
   // Validate planType
   if (!['premium', 'monthly', 'yearly', 'lifetime'].includes(planType)) {
@@ -52,10 +58,20 @@ module.exports = async (req, res) => {
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {
+    // #region agent log
+    if (process.env.NODE_ENV !== 'production') {
+      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'C',location:'api/create-checkout-session.js:invalidSecretKey',message:'Invalid STRIPE_SECRET_KEY',data:{planType,secretKeyLooksValid:false},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
     res.status(500).json({ error: 'Invalid STRIPE_SECRET_KEY' });
     return;
   }
   if (!priceId || !/^price_/.test(priceId)) {
+    // #region agent log
+    if (process.env.NODE_ENV !== 'production') {
+      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'C',location:'api/create-checkout-session.js:invalidPriceId',message:'Invalid STRIPE_PRICE_ID for plan',data:{planType,priceIdLooksValid:false},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
     res.status(500).json({ error: `Invalid STRIPE_PRICE_ID for ${planType}. Please check environment variables.` });
     return;
   }
@@ -144,7 +160,19 @@ module.exports = async (req, res) => {
       console.log(`✅ Premium trial configured: ${trialPeriodDays} days free trial`);
     }
 
+    // #region agent log
+    if (process.env.NODE_ENV !== 'production') {
+      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'D',location:'api/create-checkout-session.js:beforeStripeCreate',message:'Creating Stripe checkout session',data:{planType,mode,hasCustomerEmail:!!sessionConfig.customer_email,hasClerkUserId:!!sessionConfig.metadata?.clerk_user_id},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
+
     const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    // #region agent log
+    if (process.env.NODE_ENV !== 'production') {
+      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'D',location:'api/create-checkout-session.js:afterStripeCreate',message:'Stripe checkout session created',data:{planType,mode,sessionId:session.id,hasUrl:!!session.url},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
     
     // Log session details for debugging
     console.log('📋 Checkout session created:', {
@@ -160,6 +188,13 @@ module.exports = async (req, res) => {
   } catch (err) {
     console.error('Stripe checkout error:', err);
     const message = (err && err.message) || 'Failed to create checkout session';
+
+    // #region agent log
+    if (process.env.NODE_ENV !== 'production') {
+      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'C',location:'api/create-checkout-session.js:stripeCatch',message:'Stripe checkout error',data:{planType,name:err&&err.name?String(err.name):'unknown',type:err&&err.type?String(err.type):undefined,code:err&&err.code?String(err.code):undefined,message:message?String(message).slice(0,200):'unknown'},timestamp:Date.now()})}).catch(()=>{});
+    }
+    // #endregion
+
     res.status(500).json({ error: message });
   }
 };

@@ -2042,6 +2042,15 @@
 
         async function createCheckoutSession(planType = 'premium') {
             try {
+                // Attach a per-attempt run id so frontend+backend logs correlate
+                window.__debugRunId = window.__debugRunId || (`run_${Date.now()}_${Math.random().toString(16).slice(2,8)}`);
+
+                // #region agent log
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'A',location:'pricing/index.html:createCheckoutSession:start',message:'createCheckoutSession called',data:{planType,userIdPresent:!!(window.Clerk?.user?.id),emailPresent:!!(window.Clerk?.user?.primaryEmailAddress?.emailAddress)},timestamp:Date.now()})}).catch(()=>{});
+                }
+                // #endregion
+
                 // Track that checkout session is being created
                 if (window.mixpanel && window.mixpanel.track) {
                     window.mixpanel.track('Stripe Checkout Session Created', {
@@ -2069,7 +2078,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-clerk-userid': userId
+                        'x-clerk-userid': userId,
+                        'x-debug-runid': (window.__debugRunId || '')
                     },
                     body: JSON.stringify({
                         planType: planType,
@@ -2078,13 +2088,31 @@
                     })
                 });
 
+                // #region agent log
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'B',location:'pricing/index.html:createCheckoutSession:response',message:'create-checkout-session response received',data:{ok:response.ok,status:response.status,planType},timestamp:Date.now()})}).catch(()=>{});
+                }
+                // #endregion
+
                 if (!response.ok) {
                     const errorData = await response.json();
+
+                    // #region agent log
+                    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                        fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'B',location:'pricing/index.html:createCheckoutSession:errorBody',message:'create-checkout-session non-OK',data:{status:response.status,error:(errorData && (errorData.error||errorData.message))?String(errorData.error||errorData.message).slice(0,200):'unknown'},timestamp:Date.now()})}).catch(()=>{});
+                    }
+                    // #endregion
+
                     throw new Error(errorData.error || 'Failed to create checkout session');
                 }
 
                 const data = await response.json();
                 if (data.url) {
+                    // #region agent log
+                    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                        fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'D',location:'pricing/index.html:createCheckoutSession:redirect',message:'redirecting to Stripe checkout URL',data:{hasUrl:true,planType},timestamp:Date.now()})}).catch(()=>{});
+                    }
+                    // #endregion
                     window.location.href = data.url;
                 } else {
                     throw new Error('No checkout URL received');

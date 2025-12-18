@@ -41,9 +41,15 @@ module.exports = async (req, res) => {
     }
 
     if (!targetUser) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Testimonial user not found' 
+      // Don't 404 here: the pricing page treats non-2xx as a hard failure and logs a console error.
+      // Return a stable fallback testimonial so UI remains clean even if the Clerk user isn't present.
+      const testimonialImageUrl = '/images/lifestyle-blog.jpg';
+      return res.status(200).json({
+        success: true,
+        fallback: true,
+        name: 'Nina',
+        imageUrl: testimonialImageUrl,
+        email: testimonialEmail
       });
     }
 
