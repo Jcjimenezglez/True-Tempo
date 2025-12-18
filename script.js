@@ -13188,8 +13188,11 @@ class PomodoroTimer {
                 this.updatePremiumUI(); // Refresh premium status
                 
                 // Force refresh Clerk user data
-                if (window.Clerk && window.Clerk.user) {
-                    window.Clerk.user.reload();
+                if (window.Clerk && window.Clerk.user && typeof window.Clerk.user.reload === 'function') {
+                    // Never allow Clerk reload to create an unhandled promise rejection during hydration.
+                    Promise.resolve()
+                        .then(() => window.Clerk.user.reload())
+                        .catch((err) => console.warn('⚠️ Clerk.user.reload() failed (ignored):', err));
                 }
                 
                 // If user is still not premium after 5 seconds, try to sync manually
@@ -13308,7 +13311,7 @@ class PomodoroTimer {
                 console.log('Premium sync successful, updating UI...');
                 
                 // Force Clerk to reload user data
-                if (window.Clerk && window.Clerk.user) {
+                if (window.Clerk && window.Clerk.user && typeof window.Clerk.user.reload === 'function') {
                     try {
                         await window.Clerk.user.reload();
                         console.log('Clerk user data reloaded');
