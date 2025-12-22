@@ -13,7 +13,7 @@
     "update-logo": "node scripts/update-logo-from-png.js"
   },
   "dependencies": {
-    "@clerk/clerk-js": "^5.108.0",
+    "@clerk/clerk-js": "^5.113.0",
     "@clerk/clerk-sdk-node": "^5.0.24",
     "resend": "^4.8.0",
     "stripe": "^12.18.0"
