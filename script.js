@@ -276,10 +276,6 @@ class PomodoroTimer {
         this._lastAppliedActiveCassette = null;
         this.minLoadingTime = 0; // No enforced minimum - never delay normal users
         
-        // Track if user has manually selected a theme/cassette to prevent loadLastSelectedTheme from overwriting
-        this._themeManuallySelected = false;
-        this._loadThemeTimeoutId = null;
-        
         // Task form state
         this.editingTaskId = null;
         
@@ -15878,14 +15874,6 @@ class PomodoroTimer {
                 // Add active to clicked option
                 option.classList.add('active');
                 
-                // Mark that user has manually selected a theme
-                this._themeManuallySelected = true;
-                // Cancel any pending theme restore
-                if (this._loadThemeTimeoutId) {
-                    clearTimeout(this._loadThemeTimeoutId);
-                    this._loadThemeTimeoutId = null;
-                }
-                
                 // Apply the selected theme
                 this.applyTheme(themeName);
                 
@@ -16972,14 +16960,6 @@ class PomodoroTimer {
                     // Add active to selected cassette
                     cassetteOption.classList.add('active');
                     
-                    // Mark that user has manually selected a cassette
-                    this._themeManuallySelected = true;
-                    // Cancel any pending theme restore
-                    if (this._loadThemeTimeoutId) {
-                        clearTimeout(this._loadThemeTimeoutId);
-                        this._loadThemeTimeoutId = null;
-                    }
-                    
                     // Apply the public cassette directly
                     this.applyCustomCassette(cassette);
                     
@@ -17351,14 +17331,6 @@ class PomodoroTimer {
         const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
         if (cassetteOption) {
             cassetteOption.classList.add('active');
-        }
-        
-        // Mark that user has manually selected a cassette
-        this._themeManuallySelected = true;
-        // Cancel any pending theme restore
-        if (this._loadThemeTimeoutId) {
-            clearTimeout(this._loadThemeTimeoutId);
-            this._loadThemeTimeoutId = null;
         }
         
         // Apply the custom cassette
@@ -19101,12 +19073,7 @@ class PomodoroTimer {
             // Only restore if it's not the default lofi theme
             console.log('🎨 Restoring last selected theme:', lastSelectedTheme);
             // Apply the theme after a short delay to ensure DOM is ready
-            this._loadThemeTimeoutId = setTimeout(() => {
-                // Don't restore if user has manually selected a theme/cassette
-                if (this._themeManuallySelected) {
-                    console.log('🎨 User has manually selected a theme, skipping restore');
-                    return;
-                }
+            setTimeout(() => {
                 this.applyTheme(lastSelectedTheme);
             }, 100);
         } else {
