@@ -2250,6 +2250,11 @@ body.is-scrolling .streak-fire {
     font-weight: 400;
 }
 
+.daily-limit-countdown {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
 .logout-modal-buttons {
     display: flex;
     flex-direction: column;

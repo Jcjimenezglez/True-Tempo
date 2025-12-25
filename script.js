@@ -2947,7 +2947,13 @@ class PomodoroTimer {
         const progressText = `${focusHoursUsed}h ${focusMinutesUsed > 0 ? focusMinutesUsed + 'm' : ''} / ${limitHours}h used today`;
         const dailyLimitMessage = document.getElementById('dailyLimitMessage');
         if (dailyLimitMessage) {
-            dailyLimitMessage.textContent = `You've reached your daily focus limit. Upgrade to Premium for unlimited time. (${progressText})`;
+            dailyLimitMessage.innerHTML = `You've focused for <strong>${focusHoursUsed} hour${focusHoursUsed !== 1 ? 's' : ''}</strong> today. Incredible work! Don't let the momentum stop. Unlock unlimited focus time and keep crushing your goals for 2026.`;
+        }
+        
+        // Update title to positive message
+        const dailyLimitTitle = document.getElementById('dailyLimitTitle');
+        if (dailyLimitTitle) {
+            dailyLimitTitle.textContent = "You're on a roll!";
         }
         
         // 🎯 Track Daily Limit Modal Opened event to Mixpanel

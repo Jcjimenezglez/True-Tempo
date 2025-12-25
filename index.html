@@ -383,7 +383,7 @@
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
-                                <span>Upgrade to Premium</span>
+                                <span>Get Premium</span>
                             </div>
                             <div class="settings-dropdown-item" id="settingsManageSubscriptionBtn" style="display: none;">
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1181,8 +1181,8 @@
     <!-- Timer Header with Report (Logged In Only) -->
     <div class="timer-header" id="timerHeaderFocusReport" style="display: none;">
         <div class="timer-auth-buttons">
-            <button class="subscribe-btn" id="subscribeBtn" title="Upgrade to Pro">
-                Upgrade to Premium
+            <button class="subscribe-btn" id="subscribeBtn" title="Get Premium">
+                Get Premium
             </button>
             <button class="streak-info" id="streakInfo" title="Report">
                 <svg class="streak-fire" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
@@ -1409,16 +1409,15 @@
             </button>
             <div class="upgrade-content">
                 <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-8">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
+                        <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
                     </svg>
                 </div>
-                <h3 class="logout-modal-title" id="dailyLimitTitle">Time's up</h3>
-                <p class="logout-modal-message" id="dailyLimitMessage">You've reached your daily focus limit. Upgrade to Premium for unlimited time.</p>
-                <p class="logout-modal-message" id="dailyLimitCountdown" style="margin-top: 6px; opacity: 0.9;">Your timer will be available again soon…</p>
+                <h3 class="logout-modal-title" id="dailyLimitTitle">You're on a roll!</h3>
+                <p class="logout-modal-message" id="dailyLimitMessage">You've focused for <strong>1 hour</strong> today. Incredible work! Don't let the momentum stop. Unlock unlimited focus time and keep crushing your goals for 2026.</p>
+                <p class="logout-modal-message daily-limit-countdown" id="dailyLimitCountdown" style="margin-top: 6px;">Your timer will be available again in --:--:--.</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Unlock Unlimited Time</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Unlock Unlimited Access</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn">Maybe later</button>
                 </div>
             </div>
@@ -1508,7 +1507,7 @@
                                     <span class="settings-label">Plan</span>
                                     <span class="settings-description" id="settingsUserPlan">Free</span>
                                 </div>
-                                <button id="upgradeToProModalBtn" class="settings-action-btn">Upgrade to Unlimited</button>
+                                <button id="upgradeToProModalBtn" class="settings-action-btn">Get Premium</button>
                                 <button id="manageSubscriptionModalBtn" class="settings-action-btn" style="display: none;">Manage Subscription</button>
                             </div>
                         </div>
