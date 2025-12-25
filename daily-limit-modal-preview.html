@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Limit Modal Preview</title>
+    <title>Daily Limit Modal Preview - Updated Design</title>
     <style>
         * {
             margin: 0;
@@ -137,6 +137,16 @@
             font-weight: 400;
         }
 
+        .logout-modal-message strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .daily-limit-countdown {
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+
         .logout-modal-buttons {
             display: flex;
             flex-direction: column;
@@ -178,30 +188,16 @@
         .hidden {
             display: none !important;
         }
-
-        /* Countdown animation */
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 0.9;
-            }
-            50% {
-                opacity: 0.6;
-            }
-        }
-
-        #dailyLimitCountdown {
-            animation: pulse 2s ease-in-out infinite;
-        }
     </style>
 </head>
 <body>
     <div class="preview-container">
-        <h1 class="preview-title">Daily Limit Modal Preview</h1>
-        <p class="preview-subtitle">Click the button below to see the modal</p>
+        <h1 class="preview-title">Daily Limit Modal Preview - Updated Design</h1>
+        <p class="preview-subtitle">Click the button below to see the updated modal</p>
         <button class="show-modal-btn" onclick="showModal()">Show Daily Limit Modal</button>
     </div>
 
-    <!-- Daily Focus Limit Modal (Free/Guest) -->
+    <!-- Daily Focus Limit Modal (Free/Guest) - UPDATED DESIGN -->
     <div class="logout-modal-overlay hidden" id="dailyLimitModalOverlay">
         <div class="logout-modal">
             <button class="close-logout-modal-x" id="closeDailyLimitModalX" onclick="hideModal()">
@@ -212,14 +208,13 @@
             </button>
             <div class="upgrade-content">
                 <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-8">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
+                        <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
                     </svg>
                 </div>
-                <h3 class="logout-modal-title" id="dailyLimitTitle">Time's up</h3>
-                <p class="logout-modal-message" id="dailyLimitMessage">You've reached your daily focus limit. Upgrade to Premium for unlimited time.</p>
-                <p class="logout-modal-message" id="dailyLimitCountdown" style="margin-top: 6px; opacity: 0.9;">Your timer will be available again in 22:45:30.</p>
+                <h3 class="logout-modal-title" id="dailyLimitTitle">You're on a roll!</h3>
+                <p class="logout-modal-message" id="dailyLimitMessage">You've focused for <strong>1 hour</strong> today. Incredible work! Don't let the momentum stop. Unlock unlimited focus time and keep crushing your goals for 2026.</p>
+                <p class="logout-modal-message daily-limit-countdown" id="dailyLimitCountdown" style="margin-top: 6px;">Your timer will be available again in 22:45:15.</p>
                 <div class="logout-modal-buttons">
                     <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn" onclick="handleSubscribe()">Unlock Unlimited Time</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn" onclick="hideModal()">Maybe later</button>
@@ -234,7 +229,7 @@
             modal.classList.remove('hidden');
             
             // Simulate countdown
-            let seconds = 22 * 3600 + 45 * 60 + 30; // 22:45:30
+            let seconds = 22 * 3600 + 45 * 60 + 15; // 22:45:15
             const countdownEl = document.getElementById('dailyLimitCountdown');
             
             const countdownInterval = setInterval(() => {
@@ -277,52 +272,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
