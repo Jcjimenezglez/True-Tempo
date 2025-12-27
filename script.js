@@ -2292,6 +2292,11 @@ class PomodoroTimer {
             
             // Reset Pro status for unauthenticated users
             this.isPro = false;
+            // Clean up premium flags from storage on logout to prevent "Guest Premium" issues
+            try {
+                localStorage.removeItem('isPremium');
+                localStorage.removeItem('hasPaidSubscription');
+            } catch (_) {}
             
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
@@ -4610,6 +4615,21 @@ class PomodoroTimer {
         try {
             if (window.Clerk && window.Clerk.user) {
                 const meta = window.Clerk.user.publicMetadata || {};
+                
+                // Sync localStorage with verified Clerk status for robustness
+                if (meta.isPremium === true) {
+                    try {
+                        localStorage.setItem('isPremium', 'true');
+                        localStorage.setItem('hasPaidSubscription', 'true');
+                    } catch (_) {}
+                } else {
+                    // Only clear if explicitly false (confirmed free user)
+                    try {
+                        localStorage.removeItem('isPremium');
+                        localStorage.removeItem('hasPaidSubscription');
+                    } catch (_) {}
+                }
+
                 console.log('Checking Pro status from Clerk:', {
                     isPremium: meta.isPremium,
                     metadata: meta,
