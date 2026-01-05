@@ -125,7 +125,7 @@ module.exports = async (req, res) => {
     // For Premium plan with trial, add subscription description and trial period
     if (planType === 'premium' && mode === 'subscription') {
       // Verify the price has trial configured
-      let trialPeriodDays = 90; // Default to 90 days
+      let trialPeriodDays = 30; // Default to 30 days (1 month)
       try {
         const price = await stripe.prices.retrieve(priceId);
         console.log('📋 Price details:', {
@@ -140,20 +140,20 @@ module.exports = async (req, res) => {
           console.log(`✅ Using trial period from price: ${trialPeriodDays} days`);
         } else {
           console.error('❌ WARNING: Price does not have trial_period_days configured!');
-          console.error('   Using default trial period of 90 days.');
+          console.error('   Using default trial period of 30 days.');
         }
       } catch (priceError) {
         console.error('❌ Error retrieving price:', priceError);
-        console.log('   Using default trial period of 90 days.');
+        console.log('   Using default trial period of 30 days.');
       }
       
       // IMPORTANT: Stripe requires trial_period_days to be explicitly set in subscription_data
       // even if the price has trial_period_days configured, due to deprecation of trial_from_plan
       sessionConfig.subscription_data = {
         trial_period_days: trialPeriodDays, // Explicitly set trial period (required by Stripe)
-        description: '3 months free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
+        description: '1 month free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
         metadata: {
-          trial_info: '3 months free, then $3.99/month',
+          trial_info: '1 month free, then $3.99/month',
         },
       };
       

@@ -65,7 +65,7 @@ async function updatePremiumProduct() {
 
     // Update the product description
     const updatedProduct = await stripe.products.update(productId, {
-      description: '3 months free trial. Pay $0 today, then $3.99/month after trial ends. Cancel anytime.',
+      description: '1 month free trial. Pay $0 today, then $3.99/month after trial ends. Cancel anytime.',
     });
 
     console.log('✅ Product updated successfully!');

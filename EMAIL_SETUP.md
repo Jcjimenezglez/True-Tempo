@@ -27,7 +27,7 @@ RESEND_FROM_EMAIL=noreply@superfocus.live
 
 ### 2. **Checkout Abandoned Sequence** (Usuarios que abandonan checkout)
 - **Email 1 (1 hora después)**: "Did you forget something?"
-- **Email 2 (24 horas después)**: "Last chance: 3 months free ends soon"
+- **Email 2 (24 horas después)**: "Last chance: 1 month free ends soon"
 - **Email 3 (3 días después)**: "A testimonial from Nina"
 
 **Trigger**: Se activa cuando el usuario cancela el checkout de Stripe y regresa a `/pricing?canceled=1`.

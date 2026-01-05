@@ -47,7 +47,7 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
               <li>🚀 Advanced analytics</li>
             </ul>
             <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Try Premium Free for 3 Months</a>
+              <a href="${PRICING_URL}" class="button">Try Premium Free for 1 Month</a>
             </div>
             <p>Start your first session: <a href="${APP_URL}">${APP_URL}</a></p>
             <p>Happy focusing!<br>The Superfocus Team</p>
@@ -69,7 +69,7 @@ Thanks for joining Superfocus! You're now part of a community of focused individ
 
 Start your first focus session: ${APP_URL}
 
-Want unlimited features? Try Premium free for 3 months: ${PRICING_URL}
+Want unlimited features? Try Premium free for 1 month: ${PRICING_URL}
 
 Happy focusing!
 The Superfocus Team
@@ -104,7 +104,7 @@ function getCheckoutAbandonedEmail1({ firstName = 'there' }) {
             <p>We noticed you started to upgrade to Premium but didn't complete your subscription.</p>
             <p><strong>Don't miss out on:</strong></p>
             <ul>
-              <li>✅ 3 months completely FREE</li>
+              <li>✅ 1 month completely FREE</li>
               <li>✅ Unlimited custom timers</li>
               <li>✅ Premium timer presets (Flow State, Marathon, Deep Work)</li>
               <li>✅ Unlimited tasks & focus time</li>
@@ -132,7 +132,7 @@ Hi ${firstName},
 
 We noticed you started to upgrade to Premium but didn't complete your subscription.
 
-Don't miss out on 3 months FREE, then just $3.99/month.
+Don't miss out on 1 month FREE, then just $3.99/month.
 
 Complete your upgrade: ${PRICING_URL}
 
@@ -146,7 +146,7 @@ The Superfocus Team
 
 function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
   return {
-    subject: 'Last chance: 3 months free ends soon ⏰',
+    subject: 'Last chance: 1 month free ends soon ⏰',
     html: `
       <!DOCTYPE html>
       <html>
@@ -164,11 +164,11 @@ function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Last chance: 3 months free ⏰</h1>
+            <h1>Last chance: 1 month free ⏰</h1>
           </div>
           <div class="content">
             <p>Hi ${firstName},</p>
-            <p>This is your last chance to claim 3 months of Premium completely free.</p>
+            <p>This is your last chance to claim 1 month of Premium completely free.</p>
             <p><strong>What you'll get:</strong></p>
             <ul>
               <li>🎯 Unlimited custom timers (create your perfect focus rhythm)</li>
@@ -179,9 +179,9 @@ function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
               <li>🔗 Notion & Todoist integration (bring everything together)</li>
               <li>📊 Advanced analytics (track your productivity)</li>
             </ul>
-            <p><strong>After 3 months free, it's just $3.99/month.</strong> Cancel anytime, no questions asked.</p>
+            <p><strong>After 1 month free, it's just $3.99/month.</strong> Cancel anytime, no questions asked.</p>
             <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Claim Your 3 Months Free</a>
+              <a href="${PRICING_URL}" class="button">Claim Your 1 Month Free</a>
             </div>
             <p>This offer won't last forever. Don't miss out!</p>
             <p>Best,<br>The Superfocus Team</p>
@@ -194,15 +194,15 @@ function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
       </html>
     `,
     text: `
-Last chance: 3 months free ⏰
+Last chance: 1 month free ⏰
 
 Hi ${firstName},
 
-This is your last chance to claim 3 months of Premium completely free.
+This is your last chance to claim 1 month of Premium completely free.
 
-After 3 months free, it's just $3.99/month. Cancel anytime.
+After 1 month free, it's just $3.99/month. Cancel anytime.
 
-Claim your 3 months free: ${PRICING_URL}
+Claim your 1 month free: ${PRICING_URL}
 
 This offer won't last forever. Don't miss out!
 
@@ -307,7 +307,7 @@ function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
           <div class="content">
             <p>Hi ${firstName},</p>
             <p><strong>Congratulations! You're now a Premium member.</strong></p>
-            <p>You have 3 months completely free to explore all Premium features:</p>
+            <p>You have 1 month completely free to explore all Premium features:</p>
             <div class="feature">
               <strong>🎯 Unlimited Custom Timers</strong><br>
               Create timers that match how you actually work—not how someone else thinks you should.
@@ -358,7 +358,7 @@ Hi ${firstName},
 
 Congratulations! You're now a Premium member.
 
-You have 3 months completely free to explore all Premium features:
+You have 1 month completely free to explore all Premium features:
 - Unlimited Custom Timers
 - Unlimited Tasks
 - Unlimited Focus Time
@@ -419,7 +419,7 @@ function getSignupFollowUp1({ firstName = 'there' }) {
               <li>✅ Unlimited focus time</li>
               <li>✅ Notion & Todoist integration</li>
             </ul>
-            <p>Try Premium free for 3 months: <a href="${PRICING_URL}">${PRICING_URL}</a></p>
+            <p>Try Premium free for 1 month: <a href="${PRICING_URL}">${PRICING_URL}</a></p>
             <p>Happy focusing!<br>The Superfocus Team</p>
           </div>
           <div class="footer">
@@ -444,7 +444,7 @@ Quick start:
 
 Start your first session: ${APP_URL}
 
-Want more? Try Premium free for 3 months: ${PRICING_URL}
+Want more? Try Premium free for 1 month: ${PRICING_URL}
 
 Happy focusing!
 The Superfocus Team
@@ -487,7 +487,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
               <li>🔗 <strong>Notion & Todoist integration</strong> - Bring all your tasks together</li>
               <li>📊 <strong>Advanced analytics</strong> - Track your productivity patterns</li>
             </ul>
-            <p><strong>Try Premium free for 3 months, then just $3.99/month.</strong> Cancel anytime.</p>
+            <p><strong>Try Premium free for 1 month, then just $3.99/month.</strong> Cancel anytime.</p>
             <div style="text-align: center;">
               <a href="${PRICING_URL}" class="button">Start Your 3-Month Free Trial</a>
             </div>
@@ -515,7 +515,7 @@ You've been using Superfocus for a few days. If you're hitting the limits, Premi
 - Notion & Todoist integration
 - Advanced analytics
 
-Try Premium free for 3 months, then just $3.99/month. Cancel anytime.
+Try Premium free for 1 month, then just $3.99/month. Cancel anytime.
 
 Start your free trial: ${PRICING_URL}
 
