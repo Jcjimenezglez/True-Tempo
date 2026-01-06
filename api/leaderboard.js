@@ -89,6 +89,7 @@ module.exports = async (req, res) => {
         username,
         email,
         totalFocusHours: totalHours,
+        isPremium: user.publicMetadata?.isPremium === true,
         isCurrentUser: clerkUserId ? user.id === clerkUserId : false,
         lastActiveAt: lastActiveAt ? lastActiveAt.toISOString() : null,
         isActive,

@@ -9442,3 +9442,49 @@ input:checked + .toggle-slider:before {
     display: none !important;
 }
 
+/* Premium Crown Badge in Leaderboard */
+.premium-crown-badge {
+    display: inline-flex;
+    align-items: center;
+    animation: subtle-glow 3s ease-in-out infinite;
+}
+
+.premium-crown-badge:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.premium-crown-badge::after {
+    content: 'Premium';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.premium-crown-badge:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+@keyframes subtle-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+    }
+}
+

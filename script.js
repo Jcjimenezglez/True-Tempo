@@ -12484,17 +12484,38 @@ class PomodoroTimer {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
             html += topUsers.map((user, index) => {
                 const isCurrentUser = user.isCurrentUser;
+                const isPremium = user.isPremium === true;
                 const userHours = Math.floor(user.totalFocusHours);
                 const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
                 const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
                 const globalRank = startRank + index;
                 
-                // Medal emojis for top 3 (only on page 1)
+                // Show rank number
                 let rankDisplay = `${globalRank}.`;
-                if (currentPage === 1 && index === 0) rankDisplay = '🥇 1.';
-                else if (currentPage === 1 && index === 1) rankDisplay = '🥈 2.';
-                else if (currentPage === 1 && index === 2) rankDisplay = '🥉 3.';
+                
+                // Premium badge with tooltip - shown for Premium users
+                const premiumBadge = isPremium ? `
+                    <span 
+                        style="
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-left: 6px;
+                            cursor: help;
+                            position: relative;
+                        "
+                        title="Premium Member"
+                        class="premium-crown-badge"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));">
+                            <path d="M2 12l5-5 5 5 5-5 5 5v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8z"/>
+                            <circle cx="7" cy="10" r="1" fill="#10b981"/>
+                            <circle cx="12" cy="10" r="1" fill="#10b981"/>
+                            <circle cx="17" cy="10" r="1" fill="#10b981"/>
+                        </svg>
+                    </span>
+                ` : '';
 
                 return `
                     <div style="
@@ -12505,11 +12526,21 @@ class PomodoroTimer {
                         background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
                         border-radius: 8px;
                         border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
+                        position: relative;
                     ">
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                             <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
-                            <span style="color: ${isCurrentUser ? '#22c55e' : '#fff'}; font-size: 14px; font-weight: ${isCurrentUser ? '600' : '500'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                ${this.escapeHtml(user.username)}
+                            <span style="
+                                color: ${isCurrentUser ? '#22c55e' : '#fff'}; 
+                                font-size: 14px; 
+                                font-weight: ${isCurrentUser ? '600' : '500'}; 
+                                overflow: hidden; 
+                                text-overflow: ellipsis; 
+                                white-space: nowrap;
+                                display: flex;
+                                align-items: center;
+                            ">
+                                ${this.escapeHtml(user.username)}${premiumBadge}
                             </span>
                         </div>
                         <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
