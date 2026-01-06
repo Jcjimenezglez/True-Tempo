@@ -12491,28 +12491,23 @@ class PomodoroTimer {
                 
                 const globalRank = startRank + index;
                 
-                // Show rank number
-                let rankDisplay = `${globalRank}.`;
-                
-                // Premium badge with tooltip - shown for Premium users
-                const premiumBadge = isPremium ? `
+                // Premium crown badge - shown after rank number for Premium users
+                const premiumCrown = isPremium ? `
                     <span 
                         style="
                             display: inline-flex;
                             align-items: center;
                             justify-content: center;
-                            margin-left: 6px;
+                            margin-left: 8px;
                             cursor: help;
                             position: relative;
                         "
                         title="Premium Member"
                         class="premium-crown-badge"
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));">
-                            <path d="M2 12l5-5 5 5 5-5 5 5v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8z"/>
-                            <circle cx="7" cy="10" r="1" fill="#10b981"/>
-                            <circle cx="12" cy="10" r="1" fill="#10b981"/>
-                            <circle cx="17" cy="10" r="1" fill="#10b981"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
+                            <path d="M5 21h14"/>
                         </svg>
                     </span>
                 ` : '';
@@ -12529,7 +12524,10 @@ class PomodoroTimer {
                         position: relative;
                     ">
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
-                            <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
+                            <div style="display: flex; align-items: center; min-width: 60px;">
+                                <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
+                                ${premiumCrown}
+                            </div>
                             <span style="
                                 color: ${isCurrentUser ? '#22c55e' : '#fff'}; 
                                 font-size: 14px; 
@@ -12537,10 +12535,8 @@ class PomodoroTimer {
                                 overflow: hidden; 
                                 text-overflow: ellipsis; 
                                 white-space: nowrap;
-                                display: flex;
-                                align-items: center;
                             ">
-                                ${this.escapeHtml(user.username)}${premiumBadge}
+                                ${this.escapeHtml(user.username)}
                             </span>
                         </div>
                         <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
