@@ -6,12 +6,19 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 // Tracks real conversions when checkout is completed (not just intent)
 // This is critical for Performance Max campaigns to optimize for actual Premium subscriptions
 // Uses direct Google Ads Conversion Tracking API (not GA4)
-async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null) {
+async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null, customConversionLabel = null) {
   try {
     // Google Ads Conversion ID and Label for Subscribe conversion
     // These will be configured via environment variables
     const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
-    const conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'PHPkCOP1070bENjym89B';
+    
+    // Use custom label if provided, otherwise use default Subscribe label
+    let conversionLabel;
+    if (customConversionLabel) {
+      conversionLabel = customConversionLabel;
+    } else {
+      conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'PHPkCOP1070bENjym89B';
+    }
     
     // Build client ID from email or use transaction ID
     // Google Ads uses client_id to match conversions with clicks
@@ -671,7 +678,8 @@ async function handleInvoicePaymentSucceeded(invoice, clerk) {
         16.0,  // LTV-based value (4 months retention estimate)
         invoice.id,
         null,
-        userEmail
+        userEmail,
+        'wek8COjyr90bENjym89B'  // First Payment conversion label from Google Ads
       );
       
       console.log(`✅ Google Ads conversion tracked for FIRST PAYMENT: ${user.id} - $16.0 (actual payment: $${amountPaid})`);
