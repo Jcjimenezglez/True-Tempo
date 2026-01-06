@@ -33,18 +33,8 @@ class PomodoroTimer {
         this.streakData = this.loadStreakData();
         this.hasCompletedFocusToday = false; // tracks if user completed focus session today
         // Track focused seconds today for 1-minute streak rule
-        try {
-            const savedFocusDate = localStorage.getItem('focusSecondsTodayDate');
-            const savedFocusSecs = parseInt(localStorage.getItem('focusSecondsToday') || '0', 10);
-            const todayStr = new Date().toDateString();
-            this.focusSecondsToday = savedFocusDate === todayStr ? Math.max(0, savedFocusSecs) : 0;
-            if (savedFocusDate !== todayStr) {
-                localStorage.setItem('focusSecondsTodayDate', todayStr);
-                localStorage.setItem('focusSecondsToday', '0');
-            }
-        } catch (_) {
-            this.focusSecondsToday = 0;
-        }
+        // Note: Will be properly loaded after auth with user-specific key
+        this.focusSecondsToday = 0;
 
         // Daily focus cap for non‑Pro users (in seconds) and cooldown
         this.DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
@@ -2252,6 +2242,10 @@ class PomodoroTimer {
                 this.syncStatsToClerk(stats.totalHours);
             }
             
+            // Load user-specific focus seconds today
+            this.focusSecondsToday = this.loadFocusSecondsToday();
+            console.log('📊 Loaded focus seconds today for user:', this.focusSecondsToday);
+            
             // Hide content section and footer when authenticated (only show timer)
             const contentSection = document.querySelector('.content-section');
             const mainFooter = document.querySelector('.main-footer');
@@ -3165,6 +3159,53 @@ class PomodoroTimer {
                 localStorage.setItem('isPremium', 'false');
                 localStorage.setItem('hasPaidSubscription', 'false');
             } catch (_) {}
+            
+            // 🔥 CRITICAL: Clear ALL user-specific data to prevent data leakage between accounts
+            try {
+                console.log('🧹 Cleaning user data on logout...');
+                
+                // Get user-specific keys before clearing user reference
+                const userId = this.user?.id;
+                
+                // Clear focus statistics (both user-specific and generic)
+                if (userId) {
+                    localStorage.removeItem(`focusStats_${userId}`);
+                    localStorage.removeItem(`focusSecondsToday_${userId}`);
+                    localStorage.removeItem(`focusSecondsTodayDate_${userId}`);
+                }
+                localStorage.removeItem('focusStats');
+                localStorage.removeItem('focusSecondsToday');
+                localStorage.removeItem('focusSecondsTodayDate');
+                localStorage.removeItem('focusLimitCooldownUntil');
+                
+                // Clear streak data
+                localStorage.removeItem('streakData');
+                
+                // Clear saved timer configurations (user-specific)
+                localStorage.removeItem('pomodoroTime');
+                localStorage.removeItem('shortBreakTime');
+                localStorage.removeItem('longBreakTime');
+                
+                // Clear task data
+                localStorage.removeItem('tasks');
+                
+                // Clear integration tokens (security)
+                localStorage.removeItem('todoistToken');
+                localStorage.removeItem('notionToken');
+                
+                // Clear custom techniques (user-specific)
+                localStorage.removeItem('customTechniques');
+                
+                // Clear custom cassettes (user-specific)
+                localStorage.removeItem('customCassettes');
+                
+                // Clear saved technique selection
+                localStorage.removeItem('savedTechnique');
+                
+                console.log('✅ User data cleaned successfully');
+            } catch (err) {
+                console.error('⚠️ Error cleaning user data:', err);
+            }
             
             // Sign out from Clerk (all sessions) without adding extra query params FIRST
             try {
@@ -4474,6 +4515,12 @@ class PomodoroTimer {
 
     resetFocusStats() {
         try {
+            // Remove user-specific stats if authenticated
+            const key = this.isAuthenticated && this.user?.id 
+                ? `focusStats_${this.user.id}` 
+                : 'focusStats';
+            localStorage.removeItem(key);
+            // Also remove generic key for cleanup
             localStorage.removeItem('focusStats');
         } catch (_) {}
         // Update UI immediately
@@ -4485,10 +4532,7 @@ class PomodoroTimer {
         this.cheatedDuringFocusInCycle = false;
         this.actualFocusTimeCompleted = 0;
         this.focusSecondsToday = 0;
-        try {
-            localStorage.setItem('focusSecondsToday', '0');
-            localStorage.setItem('focusSecondsTodayDate', new Date().toDateString());
-        } catch (_) {}
+        this.saveFocusSecondsToday(0);
     }
 
     showUpgradeModal() {
@@ -5917,10 +5961,7 @@ class PomodoroTimer {
             if (this.isWorkSession && !this.isLongBreak) {
                 // If user skipped sections, we mark cheatedDuringFocusInCycle elsewhere; here we only count naturally ticking time
                 this.focusSecondsToday = (this.focusSecondsToday || 0) + 1;
-                try {
-                    localStorage.setItem('focusSecondsToday', String(this.focusSecondsToday));
-                    localStorage.setItem('focusSecondsTodayDate', new Date().toDateString());
-                } catch (_) {}
+                this.saveFocusSecondsToday(this.focusSecondsToday);
                 // Once we pass 60s and haven't counted a streak yet today, award it
                 if ((this.focusSecondsToday >= 60) && !this.hasCompletedFocusToday) {
                     this.updateStreak();
@@ -11412,7 +11453,11 @@ class PomodoroTimer {
         // Focus time is already tracked in real-time during sessions
         const stats = this.getFocusStats();
         stats.completedCycles = (stats.completedCycles || 0) + 1;
-        localStorage.setItem('focusStats', JSON.stringify(stats));
+        // Save with user-specific key
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.setItem(key, JSON.stringify(stats));
 
         // Update achievement counter display
         this.updateFocusHoursDisplay();
@@ -11461,8 +11506,11 @@ class PomodoroTimer {
             stats.lastActiveDate = today;
         }
 
-        // Save to localStorage
-        localStorage.setItem('focusStats', JSON.stringify(stats));
+        // Save to localStorage with user-specific key
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.setItem(key, JSON.stringify(stats));
 
         // Sync stats to Clerk (async, don't wait)
         this.syncStatsToClerk(stats.totalHours);
@@ -11485,7 +11533,11 @@ class PomodoroTimer {
         if (!stats.techniqueTime) stats.techniqueTime = {};
         stats.techniqueTime[technique] = (stats.techniqueTime[technique] || 0) + hours;
 
-        localStorage.setItem('focusStats', JSON.stringify(stats));
+        // Save to localStorage with user-specific key
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.setItem(key, JSON.stringify(stats));
     }
 
     addFocusHours(hours) {
@@ -11515,8 +11567,11 @@ class PomodoroTimer {
         // Update consecutive days
         this.updateConsecutiveDays(stats);
         
-        // Save back to localStorage
-        localStorage.setItem('focusStats', JSON.stringify(stats));
+        // Save back to localStorage with user-specific key
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.setItem(key, JSON.stringify(stats));
 
         // Sync stats to Clerk (async, don't wait)
         this.syncStatsToClerk(stats.totalHours);
@@ -11524,9 +11579,71 @@ class PomodoroTimer {
 
     getFocusStats() {
         try {
-            return JSON.parse(localStorage.getItem('focusStats') || '{}');
+            // Use user-specific key if authenticated
+            const key = this.isAuthenticated && this.user?.id 
+                ? `focusStats_${this.user.id}` 
+                : 'focusStats';
+            
+            const stats = JSON.parse(localStorage.getItem(key) || '{}');
+            
+            // Migrate old data if user is authenticated and has old stats
+            if (this.isAuthenticated && this.user?.id && key !== 'focusStats') {
+                const oldStats = localStorage.getItem('focusStats');
+                if (oldStats && !localStorage.getItem(key)) {
+                    console.log('📦 Migrating focus stats to user-specific storage');
+                    localStorage.setItem(key, oldStats);
+                    localStorage.removeItem('focusStats');
+                }
+            }
+            
+            return stats;
         } catch {
             return {};
+        }
+    }
+    
+    // Helper function to get user-specific key for focus seconds today
+    getFocusSecondsTodayKey() {
+        return this.isAuthenticated && this.user?.id 
+            ? `focusSecondsToday_${this.user.id}` 
+            : 'focusSecondsToday';
+    }
+    
+    // Helper function to get user-specific key for focus seconds today date
+    getFocusSecondsTodayDateKey() {
+        return this.isAuthenticated && this.user?.id 
+            ? `focusSecondsTodayDate_${this.user.id}` 
+            : 'focusSecondsTodayDate';
+    }
+    
+    // Helper function to save focus seconds today with user-specific key
+    saveFocusSecondsToday(seconds) {
+        try {
+            const secondsKey = this.getFocusSecondsTodayKey();
+            const dateKey = this.getFocusSecondsTodayDateKey();
+            localStorage.setItem(secondsKey, String(seconds));
+            localStorage.setItem(dateKey, new Date().toDateString());
+        } catch (_) {}
+    }
+    
+    // Helper function to load focus seconds today with user-specific key
+    loadFocusSecondsToday() {
+        try {
+            const secondsKey = this.getFocusSecondsTodayKey();
+            const dateKey = this.getFocusSecondsTodayDateKey();
+            const savedFocusDate = localStorage.getItem(dateKey);
+            const savedFocusSecs = parseInt(localStorage.getItem(secondsKey) || '0', 10);
+            const todayStr = new Date().toDateString();
+            
+            if (savedFocusDate === todayStr) {
+                return Math.max(0, savedFocusSecs);
+            } else {
+                // New day, reset
+                this.saveFocusSecondsToday(0);
+                return 0;
+            }
+        } catch (_) {
+            return 0;
         }
     }
 
@@ -12761,7 +12878,11 @@ class PomodoroTimer {
     }
     
     resetAllData() {
-        // Reset focus stats
+        // Reset focus stats (user-specific and generic)
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.removeItem(key);
         localStorage.removeItem('focusStats');
         
         // Reset streak data
