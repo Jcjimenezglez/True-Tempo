@@ -2102,7 +2102,7 @@ class PomodoroTimer {
         }
     }
     
-    updateAuthState() {
+    async updateAuthState() {
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
         
         // Debug multiple account issues
@@ -2236,10 +2236,14 @@ class PomodoroTimer {
                 }
             }
 
-            // Sync stats to Clerk on authentication
+            // Restore stats from Clerk if needed (server → localStorage)
+            // This ensures users don't lose data when switching between accounts
+            await this.restoreStatsFromClerk();
+            
+            // Sync stats to Clerk on authentication (localStorage → server)
             const stats = this.getFocusStats();
             if (stats.totalHours) {
-                this.syncStatsToClerk(stats.totalHours);
+                await this.syncStatsToClerk(stats.totalHours);
             }
             
             // Load user-specific focus seconds today
@@ -12211,6 +12215,72 @@ class PomodoroTimer {
             }
         } catch (error) {
             console.error('Error syncing stats to Clerk:', error);
+        }
+    }
+    
+    async restoreStatsFromClerk() {
+        // Only restore if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            console.log('❌ Cannot restore stats: Not authenticated');
+            return;
+        }
+        
+        try {
+            console.log('🔄 Checking if stats need to be restored from server...');
+            
+            // Check if user has data in localStorage with user-specific key
+            const localStats = this.getFocusStats();
+            const hasLocalData = localStats && localStats.totalHours && localStats.totalHours > 0;
+            
+            // Get stats from Clerk publicMetadata
+            const serverTotalHours = this.user.publicMetadata?.totalFocusHours || 0;
+            
+            console.log('📊 Stats comparison:', {
+                userId: this.user.id,
+                localTotalHours: localStats.totalHours || 0,
+                serverTotalHours: serverTotalHours,
+                hasLocalData: hasLocalData
+            });
+            
+            // Restore from server if:
+            // 1. User has no local data OR local data is less than server data
+            // 2. Server has data to restore
+            if (serverTotalHours > 0 && (!hasLocalData || (localStats.totalHours || 0) < serverTotalHours)) {
+                console.log('✅ Restoring stats from server to localStorage');
+                
+                // Create or update local stats with server data
+                const restoredStats = {
+                    ...localStats,
+                    totalHours: serverTotalHours,
+                    lastRestored: new Date().toISOString(),
+                    restoredFrom: 'clerk_publicMetadata'
+                };
+                
+                // Save to user-specific localStorage key
+                const key = `focusStats_${this.user.id}`;
+                localStorage.setItem(key, JSON.stringify(restoredStats));
+                
+                console.log('✅ Stats restored successfully:', {
+                    totalHours: serverTotalHours,
+                    key: key
+                });
+                
+                // Update UI
+                this.updateFocusHoursDisplay();
+                
+                return true;
+            } else if (hasLocalData && (localStats.totalHours || 0) > serverTotalHours) {
+                // Local data is more recent, sync to server
+                console.log('📤 Local data is more recent, syncing to server');
+                await this.syncStatsToClerk(localStats.totalHours);
+            } else {
+                console.log('✅ Stats are in sync (no restoration needed)');
+            }
+            
+            return false;
+        } catch (error) {
+            console.error('❌ Error restoring stats from Clerk:', error);
+            return false;
         }
     }
 
