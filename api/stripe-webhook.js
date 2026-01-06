@@ -309,6 +309,11 @@ module.exports = async (req, res) => {
         await handleTrialWillEnd(event.data.object, clerk);
         break;
       
+      case 'invoice.payment_succeeded':
+        console.log('💰 Processing invoice.payment_succeeded...');
+        await handleInvoicePaymentSucceeded(event.data.object, clerk);
+        break;
+      
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
@@ -616,5 +621,77 @@ async function handleSubscriptionDeleted(subscription, clerk) {
     }
   } catch (error) {
     console.error('Error removing premium status:', error);
+  }
+}
+
+async function handleInvoicePaymentSucceeded(invoice, clerk) {
+  const customerId = invoice.customer;
+  const subscriptionId = invoice.subscription;
+  const amountPaid = invoice.amount_paid / 100; // Convert from cents to dollars
+  const billingReason = invoice.billing_reason;
+  
+  console.log('💰 Invoice payment succeeded:', {
+    customerId,
+    subscriptionId,
+    amountPaid,
+    billingReason,
+    invoiceId: invoice.id,
+    periodStart: new Date(invoice.period_start * 1000).toISOString(),
+    periodEnd: new Date(invoice.period_end * 1000).toISOString(),
+  });
+  
+  try {
+    // Find Clerk user by Stripe customer ID
+    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
+    
+    if (!user) {
+      console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
+      return;
+    }
+    
+    const userEmail = user.emailAddresses?.[0]?.emailAddress || null;
+    
+    // Check if this is the first payment after trial
+    // billing_reason = 'subscription_cycle' indicates recurring payment (including first payment after trial)
+    // We check if firstPaymentCompleted is not set to track only the FIRST real payment
+    const isFirstPaymentAfterTrial = 
+      billingReason === 'subscription_cycle' && 
+      !user.publicMetadata?.firstPaymentCompleted &&
+      amountPaid > 0;
+    
+    if (isFirstPaymentAfterTrial) {
+      console.log(`🎯 First payment after trial detected for user ${user.id}`);
+      
+      // Track Google Ads conversion for FIRST REAL PAYMENT after trial
+      // Value: $16.0 (represents ~4 months of subscription value)
+      // This is higher than trial value ($3.99) to signal to Google Ads
+      // that users who complete their first payment are more valuable
+      await trackConversionServerSide(
+        'first_payment',
+        16.0,  // LTV-based value (4 months retention estimate)
+        invoice.id,
+        null,
+        userEmail
+      );
+      
+      console.log(`✅ Google Ads conversion tracked for FIRST PAYMENT: ${user.id} - $16.0 (actual payment: $${amountPaid})`);
+      
+      // Update user metadata to mark first payment completed
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          firstPaymentCompleted: true,
+          firstPaymentDate: new Date().toISOString(),
+          firstPaymentAmount: amountPaid,
+          firstPaymentInvoiceId: invoice.id,
+        },
+      });
+      
+      console.log(`✅ User ${user.id} marked as first payment completed`);
+    } else {
+      console.log(`ℹ️ Not tracking - billing_reason: ${billingReason}, firstPaymentCompleted: ${user.publicMetadata?.firstPaymentCompleted || false}`);
+    }
+  } catch (error) {
+    console.error('❌ Error handling invoice payment succeeded:', error);
   }
 }
