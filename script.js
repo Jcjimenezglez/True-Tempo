@@ -546,24 +546,36 @@ class PomodoroTimer {
         try {
             console.log('Initializing Clerk...');
             await this.waitForClerk();
-            console.log('Clerk loaded, waiting for user...');
+            console.log('Clerk SDK available, checking session...');
             
-            const clerkKey = this.getClerkPublishableKey();
-            
-            // Load Clerk with configuration to hide development banner
-            await window.Clerk.load({
-                appearance: {
-                    elements: {
-                        '::before': { content: 'none' }
-                    }
-                },
-                publishableKey: clerkKey
-            });
-            
-            // Hydrate initial auth state
-            this.isAuthenticated = !!window.Clerk.user;
-            this.user = window.Clerk.user;
-            console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            // Check if Clerk is already loaded (e.g., from another script)
+            if (window.Clerk.loaded) {
+                console.log('✅ Clerk already loaded with session, skipping re-initialization');
+                // Just use the existing session
+                this.isAuthenticated = !!window.Clerk.user;
+                this.user = window.Clerk.user;
+                console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            } else {
+                // Only load if not already loaded
+                const clerkKey = this.getClerkPublishableKey();
+                
+                console.log('Loading Clerk for the first time...');
+                // Load Clerk with configuration to hide development banner
+                await window.Clerk.load({
+                    appearance: {
+                        elements: {
+                            '::before': { content: 'none' }
+                        }
+                    },
+                    publishableKey: clerkKey,
+                    isSatellite: false // Ensure sessions persist across page navigations
+                });
+                
+                // Hydrate initial auth state
+                this.isAuthenticated = !!window.Clerk.user;
+                this.user = window.Clerk.user;
+                console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            }
             
             // Clear Todoist tasks if user is not authenticated on initial load
             if (!this.isAuthenticated) {
