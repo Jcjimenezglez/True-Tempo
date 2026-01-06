@@ -4210,12 +4210,10 @@ class PomodoroTimer {
         // Reset focus stats (from settings modal)
         const settingsResetButton = document.getElementById('settingsResetButton');
         if (settingsResetButton) {
-            settingsResetButton.addEventListener('click', (e) => {
+            settingsResetButton.addEventListener('click', async (e) => {
                 e.preventDefault();
-                if (confirm('Are you sure you want to reset all your focus data? This action cannot be undone.')) {
-                    this.resetAllData();
+                await this.resetAllData();
                 this.hideSettingsModal();
-                }
             });
         }
         
@@ -12227,6 +12225,11 @@ class PomodoroTimer {
         
         try {
             console.log('🔄 Checking if stats need to be restored from server...');
+            console.log('👤 User details:', {
+                userId: this.user.id,
+                email: this.user.emailAddresses?.[0]?.emailAddress,
+                createdAt: this.user.createdAt
+            });
             
             // Check if user has data in localStorage with user-specific key
             const localStats = this.getFocusStats();
@@ -12234,26 +12237,61 @@ class PomodoroTimer {
             
             // Get stats from Clerk publicMetadata
             const serverTotalHours = this.user.publicMetadata?.totalFocusHours || 0;
+            const serverStatsLastUpdated = this.user.publicMetadata?.statsLastUpdated;
+            
+            // Check if there's any old generic data that shouldn't be migrated
+            const oldGenericStats = localStorage.getItem('focusStats');
+            if (oldGenericStats) {
+                console.warn('⚠️ Found old generic focusStats in localStorage:', oldGenericStats.substring(0, 100));
+                // Don't auto-migrate, let user explicitly restore if needed
+            }
             
             console.log('📊 Stats comparison:', {
                 userId: this.user.id,
+                userEmail: this.user.emailAddresses?.[0]?.emailAddress,
                 localTotalHours: localStats.totalHours || 0,
+                localHasData: hasLocalData,
                 serverTotalHours: serverTotalHours,
-                hasLocalData: hasLocalData
+                serverLastUpdated: serverStatsLastUpdated,
+                hasOldGenericData: !!oldGenericStats
             });
+            
+            // Check if user account is new (created recently, within last hour)
+            const accountAge = this.user.createdAt ? Date.now() - this.user.createdAt : Infinity;
+            const isNewAccount = accountAge < (60 * 60 * 1000); // Less than 1 hour old
+            
+            // Don't auto-restore for brand new accounts - they should start fresh
+            if (isNewAccount && serverTotalHours > 0) {
+                console.warn('⚠️ NEW ACCOUNT detected but has server data:', {
+                    accountAge: Math.round(accountAge / 1000 / 60) + ' minutes',
+                    serverHours: serverTotalHours,
+                    email: this.user.emailAddresses?.[0]?.emailAddress
+                });
+                console.warn('🚫 Skipping auto-restore for new account. User may need manual reset if this is wrong data.');
+                // Start fresh for new accounts
+                return false;
+            }
             
             // Restore from server if:
             // 1. User has no local data OR local data is less than server data
             // 2. Server has data to restore
+            // 3. Account is NOT brand new (to avoid migrating wrong data)
             if (serverTotalHours > 0 && (!hasLocalData || (localStats.totalHours || 0) < serverTotalHours)) {
                 console.log('✅ Restoring stats from server to localStorage');
+                console.log('📋 Restoration details:', {
+                    accountAge: Math.round(accountAge / 1000 / 60 / 60) + ' hours',
+                    isNewAccount: isNewAccount,
+                    serverHours: serverTotalHours,
+                    localHours: localStats.totalHours || 0
+                });
                 
                 // Create or update local stats with server data
                 const restoredStats = {
                     ...localStats,
                     totalHours: serverTotalHours,
                     lastRestored: new Date().toISOString(),
-                    restoredFrom: 'clerk_publicMetadata'
+                    restoredFrom: 'clerk_publicMetadata',
+                    restoredForUser: this.user.id
                 };
                 
                 // Save to user-specific localStorage key
@@ -12262,7 +12300,8 @@ class PomodoroTimer {
                 
                 console.log('✅ Stats restored successfully:', {
                     totalHours: serverTotalHours,
-                    key: key
+                    key: key,
+                    userId: this.user.id
                 });
                 
                 // Update UI
@@ -12947,13 +12986,30 @@ class PomodoroTimer {
         return div.innerHTML;
     }
     
-    resetAllData() {
+    async resetAllData() {
+        if (!confirm('⚠️ Are you sure you want to PERMANENTLY reset ALL your focus data?\n\nThis will:\n- Clear all local focus hours\n- Reset your server stats to 0\n- Clear your streak data\n\nThis action CANNOT be undone!')) {
+            return;
+        }
+        
+        console.log('🗑️ Resetting all user data...');
+        
         // Reset focus stats (user-specific and generic)
         const key = this.isAuthenticated && this.user?.id 
             ? `focusStats_${this.user.id}` 
             : 'focusStats';
         localStorage.removeItem(key);
         localStorage.removeItem('focusStats');
+        
+        // Reset focus seconds today
+        if (this.isAuthenticated && this.user?.id) {
+            localStorage.removeItem(`focusSecondsToday_${this.user.id}`);
+            localStorage.removeItem(`focusSecondsTodayDate_${this.user.id}`);
+        }
+        localStorage.removeItem('focusSecondsToday');
+        localStorage.removeItem('focusSecondsTodayDate');
+        
+        // Reset in-memory values
+        this.focusSecondsToday = 0;
         
         // Reset streak data
         this.streakData = {
@@ -12963,12 +13019,25 @@ class PomodoroTimer {
         };
         localStorage.removeItem('streakData');
         
+        // CRITICAL: Sync 0 hours to server to prevent restoration
+        if (this.isAuthenticated && this.user?.id) {
+            console.log('📤 Syncing reset (0 hours) to server...');
+            try {
+                await this.syncStatsToClerk(0);
+                console.log('✅ Server stats reset to 0');
+            } catch (error) {
+                console.error('❌ Failed to reset server stats:', error);
+                alert('Warning: Local data was reset but server sync failed. Data may be restored on next login.');
+            }
+        }
+        
         // Update displays
         this.updateFocusHoursDisplay();
         this.updateStreakDisplay();
         
         // Show confirmation
-        alert('All focus data has been reset.');
+        console.log('✅ All focus data has been reset');
+        alert('✅ All focus data has been reset successfully!');
     }
 
     updateConsecutiveDays(stats) {
