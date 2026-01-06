@@ -90,10 +90,43 @@
         async
         crossorigin="anonymous"
         data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA" 
-        onload="window.Clerk.load()"
+        onload="window.Clerk.load().then(() => { console.log('✅ Clerk loaded successfully'); }).catch(err => console.error('❌ Clerk load error:', err));"
         src="https://accounts.superfocus.live/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
         type="text/javascript"
     ></script>
+    
+    <!-- Clerk Session Management -->
+    <script>
+        // Ensure Clerk session persists across redirects
+        (function() {
+            // Listen for when Clerk is ready
+            function initClerkSessionManagement() {
+                if (window.Clerk && window.Clerk.loaded) {
+                    console.log('🔐 Clerk session management initialized');
+                    
+                    // Add listener for session changes
+                    try {
+                        window.Clerk.addListener((resources) => {
+                            if (resources.session) {
+                                console.log('✅ Clerk session active:', !!resources.user);
+                            }
+                        });
+                    } catch (err) {
+                        console.warn('Could not add Clerk listener:', err);
+                    }
+                } else {
+                    setTimeout(initClerkSessionManagement, 100);
+                }
+            }
+            
+            // Start checking after DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initClerkSessionManagement);
+            } else {
+                initClerkSessionManagement();
+            }
+        })();
+    </script>
     
     <style>
         body {
@@ -1986,9 +2019,43 @@
             };
         }
         
+        // Wait for Clerk to be fully loaded with session
+        async function waitForClerkReady() {
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const maxAttempts = 50; // 5 seconds max
+                
+                const checkClerk = () => {
+                    attempts++;
+                    
+                    // Check if Clerk is loaded and session is available
+                    if (window.Clerk && window.Clerk.loaded) {
+                        console.log('✅ Clerk is ready with session');
+                        resolve(true);
+                        return;
+                    }
+                    
+                    if (attempts >= maxAttempts) {
+                        console.warn('⚠️ Clerk took too long to load');
+                        resolve(false);
+                        return;
+                    }
+                    
+                    setTimeout(checkClerk, 100);
+                };
+                
+                checkClerk();
+            });
+        }
+        
         // Initialize buttons on DOM load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing pricing buttons...');
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM loaded, waiting for Clerk to be ready...');
+            
+            // Wait for Clerk to be fully loaded with session
+            await waitForClerkReady();
+            
+            console.log('Clerk ready, initializing pricing buttons...');
             
             const premiumButton = document.getElementById('pricingPageUpgrade');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
@@ -2008,17 +2075,27 @@
             }
             
             // Update button states after Clerk loads
-            setTimeout(updateButtonStates, 500);
+            updateButtonStates();
         });
         
-        function updateButtonStates() {
+        async function updateButtonStates() {
+            // Ensure Clerk is ready before checking user state
+            if (!window.Clerk || !window.Clerk.loaded) {
+                await waitForClerkReady();
+            }
+            
             const premiumButton = document.getElementById('pricingPageUpgrade');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
             
-            console.log('Updating button states:', { isAuthenticated, isPremium });
+            console.log('Updating button states:', { 
+                isAuthenticated, 
+                isPremium,
+                clerkLoaded: window.Clerk?.loaded,
+                hasUser: !!window.Clerk?.user
+            });
             
             // Update Premium button
             if (premiumButton && isPremium) {
@@ -2032,11 +2109,6 @@
                 ctaBeforeFaqButton.textContent = 'You have Premium';
                 ctaBeforeFaqButton.disabled = true;
                 ctaBeforeFaqButton.classList.add('disabled');
-            }
-            
-            // Check for Clerk again if not loaded yet
-            if (!window.Clerk || window.Clerk.user === undefined) {
-                setTimeout(updateButtonStates, 500);
             }
         }
 
@@ -2221,11 +2293,15 @@
         }
         
         // Check upgrade intent after page is updated
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(checkUpgradeIntent, 1000);
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Wait for Clerk to be ready first
+            await waitForClerkReady();
             
-            // Check if user returned from canceled checkout
+            // Check if user returned from canceled checkout (after Clerk is ready)
             checkCheckoutAbandonment();
+            
+            // Check upgrade intent
+            setTimeout(checkUpgradeIntent, 1000);
             
             // Load social proof and testimonial
             loadSocialProof();

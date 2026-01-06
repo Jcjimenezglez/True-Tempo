@@ -5673,11 +5673,45 @@ class PomodoroTimer {
             const sessionId = url.searchParams.get('session_id');
             if (!sessionId) return;
 
+            // Force check Clerk session if not authenticated
             if (!this.isAuthenticated || !this.user) {
-                if (retryCount < 10) {
+                console.log('⚠️ User not authenticated, checking Clerk session...');
+                
+                // Try to get Clerk session directly
+                if (window.Clerk) {
+                    try {
+                        // Force reload Clerk session
+                        await window.Clerk.load();
+                        
+                        // Check if we have a user now
+                        if (window.Clerk.user) {
+                            console.log('✅ Clerk session restored');
+                            this.isAuthenticated = true;
+                            this.user = window.Clerk.user;
+                            this.updateAuthState();
+                        } else if (retryCount < 10) {
+                            console.log(`Retrying... (${retryCount + 1}/10)`);
+                            setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 800);
+                            return;
+                        } else {
+                            console.error('❌ Could not restore Clerk session after 10 attempts');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error reloading Clerk session:', error);
+                        if (retryCount < 10) {
+                            setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 800);
+                        }
+                        return;
+                    }
+                } else if (retryCount < 10) {
+                    console.log('Clerk not loaded yet, retrying...');
                     setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 800);
+                    return;
+                } else {
+                    console.error('❌ Clerk not available after 10 attempts');
+                    return;
                 }
-                return;
             }
 
             if (this.confirmedCheckoutSessionId === sessionId) {

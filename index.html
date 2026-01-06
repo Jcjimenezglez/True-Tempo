@@ -256,10 +256,43 @@
         async
         crossorigin="anonymous"
             data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA" 
-        onload="window.Clerk.load()"
+        onload="window.Clerk.load().then(() => { console.log('✅ Clerk loaded successfully'); }).catch(err => console.error('❌ Clerk load error:', err));"
         src="https://accounts.superfocus.live/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
         type="text/javascript"
     ></script>
+    
+    <!-- Clerk Session Management -->
+    <script>
+        // Ensure Clerk session persists across redirects
+        (function() {
+            // Listen for when Clerk is ready
+            function initClerkSessionManagement() {
+                if (window.Clerk && window.Clerk.loaded) {
+                    console.log('🔐 Clerk session management initialized');
+                    
+                    // Add listener for session changes
+                    try {
+                        window.Clerk.addListener((resources) => {
+                            if (resources.session) {
+                                console.log('✅ Clerk session active:', !!resources.user);
+                            }
+                        });
+                    } catch (err) {
+                        console.warn('Could not add Clerk listener:', err);
+                    }
+                } else {
+                    setTimeout(initClerkSessionManagement, 100);
+                }
+            }
+            
+            // Start checking after DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initClerkSessionManagement);
+            } else {
+                initClerkSessionManagement();
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->
