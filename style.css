@@ -9509,7 +9509,7 @@ input:checked + .toggle-slider:before {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     width: 100%;
-    max-width: 600px;
+    max-width: 480px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
