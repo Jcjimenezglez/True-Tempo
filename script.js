@@ -34,7 +34,7 @@ class PomodoroTimer {
         this.hasCompletedFocusToday = false; // tracks if user completed focus session today
         // Track focused seconds today for 1-minute streak rule
         // Note: Will be properly loaded after auth with user-specific key
-        this.focusSecondsToday = 0;
+            this.focusSecondsToday = 0;
 
         // Daily focus cap for non‑Pro users (in seconds) and cooldown
         this.DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
@@ -547,25 +547,25 @@ class PomodoroTimer {
                 console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
             } else {
                 // Only load if not already loaded
-                const clerkKey = this.getClerkPublishableKey();
-                
+            const clerkKey = this.getClerkPublishableKey();
+            
                 console.log('Loading Clerk for the first time...');
-                // Load Clerk with configuration to hide development banner
-                await window.Clerk.load({
-                    appearance: {
-                        elements: {
-                            '::before': { content: 'none' }
-                        }
-                    },
+            // Load Clerk with configuration to hide development banner
+            await window.Clerk.load({
+                appearance: {
+                    elements: {
+                        '::before': { content: 'none' }
+                    }
+                },
                     publishableKey: clerkKey,
                     isSatellite: false, // Ensure sessions persist across page navigations
                     sessionTokenRefresh: true // Keep sessions active for longer periods
-                });
-                
-                // Hydrate initial auth state
-                this.isAuthenticated = !!window.Clerk.user;
-                this.user = window.Clerk.user;
-                console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            });
+            
+            // Hydrate initial auth state
+            this.isAuthenticated = !!window.Clerk.user;
+            this.user = window.Clerk.user;
+            console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
             }
             
             // Clear Todoist tasks if user is not authenticated on initial load
@@ -19679,18 +19679,65 @@ function initFirstTimeWelcome(timer) {
     const isSignupSuccess = urlParams.get('signup') === 'success';
     const hasSeenWelcome = localStorage.getItem('hasSeenFirstTimeWelcome');
     
-    // Only show if:
-    // 1. User just signed up (signup=success in URL)
-    // 2. User is authenticated
-    // 3. Haven't seen this welcome before
-    if (isSignupSuccess && timer.isAuthenticated && hasSeenWelcome !== 'true') {
-        // Wait a bit for auth to fully load
-        setTimeout(() => {
-            if (timer.isAuthenticated) {
-                showFirstTimeWelcome();
-            }
-        }, 1000);
+    // Function to check if user is newly created (less than 2 minutes old)
+    async function isNewUser() {
+        if (!timer.isAuthenticated || !window.Clerk?.user) return false;
+        
+        try {
+            const user = window.Clerk.user;
+            const createdAt = user.createdAt;
+            
+            if (!createdAt) return false;
+            
+            const now = new Date().getTime();
+            const userCreatedTime = new Date(createdAt).getTime();
+            const twoMinutes = 2 * 60 * 1000; // 2 minutes in milliseconds
+            
+            const isNew = (now - userCreatedTime) < twoMinutes;
+            console.log('🔍 User creation check:', {
+                createdAt: new Date(createdAt).toISOString(),
+                ageInSeconds: Math.floor((now - userCreatedTime) / 1000),
+                isNew: isNew
+            });
+            
+            return isNew;
+        } catch (error) {
+            console.error('Error checking if user is new:', error);
+            return false;
+        }
     }
+    
+    // Wait for auth to load, then check conditions
+    setTimeout(async () => {
+        if (!timer.isAuthenticated) {
+            console.log('⏭️ User not authenticated, skipping welcome modal');
+            return;
+        }
+        
+        if (hasSeenWelcome === 'true') {
+            console.log('⏭️ User has already seen welcome modal');
+            return;
+        }
+        
+        // Check if:
+        // 1. URL has signup=success parameter, OR
+        // 2. User was created less than 2 minutes ago (new signup)
+        const urlHasSignupSuccess = isSignupSuccess;
+        const userIsNew = await isNewUser();
+        
+        console.log('🔍 Welcome modal conditions:', {
+            urlHasSignupSuccess,
+            userIsNew,
+            isAuthenticated: timer.isAuthenticated,
+            hasSeenWelcome
+        });
+        
+        if ((urlHasSignupSuccess || userIsNew) && timer.isAuthenticated && hasSeenWelcome !== 'true') {
+            showFirstTimeWelcome();
+        } else {
+            console.log('⏭️ Conditions not met for showing welcome modal');
+        }
+    }, 1500); // Wait 1.5 seconds for Clerk to fully load
     
     function showFirstTimeWelcome() {
         welcomeModal.style.display = 'flex';
