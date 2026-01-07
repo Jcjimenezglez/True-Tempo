@@ -558,7 +558,8 @@ class PomodoroTimer {
                         }
                     },
                     publishableKey: clerkKey,
-                    isSatellite: false // Ensure sessions persist across page navigations
+                    isSatellite: false, // Ensure sessions persist across page navigations
+                    sessionTokenRefresh: true // Keep sessions active for longer periods
                 });
                 
                 // Hydrate initial auth state
@@ -635,6 +636,31 @@ class PomodoroTimer {
             // Ensure techniques reflect correct state (guest vs free vs pro)
             try { this.updateDropdownItemsState(); } catch (_) {}
             // Removed extra welcome modal trigger to avoid duplicate rendering
+            
+            // Session keepalive: Refresh session when user returns to the page
+            document.addEventListener('visibilitychange', async () => {
+                if (!document.hidden && window.Clerk.session) {
+                    try {
+                        console.log('🔄 Page visible again, refreshing session...');
+                        await window.Clerk.session.touch();
+                        console.log('✅ Session refreshed successfully');
+                    } catch (error) {
+                        console.error('❌ Error refreshing session:', error);
+                    }
+                }
+            });
+            
+            // Periodic session refresh (every 5 minutes) to prevent timeout
+            setInterval(async () => {
+                if (window.Clerk.session) {
+                    try {
+                        await window.Clerk.session.touch();
+                        console.log('🔄 Session keepalive ping sent');
+                    } catch (error) {
+                        console.error('❌ Error in session keepalive:', error);
+                    }
+                }
+            }, 5 * 60 * 1000); // 5 minutes
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }

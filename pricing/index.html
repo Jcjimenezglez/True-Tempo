@@ -127,6 +127,8 @@
                     await window.Clerk.load({
                         // Ensure we persist sessions across page navigations
                         isSatellite: false,
+                        // Keep sessions active for longer periods
+                        sessionTokenRefresh: true,
                         // Don't show any development warnings
                         appearance: {
                             elements: {
@@ -153,6 +155,31 @@
                             console.log('ℹ️ Clerk session ended');
                         }
                     });
+                    
+                    // Refresh session when user returns to the page
+                    document.addEventListener('visibilitychange', async () => {
+                        if (!document.hidden && window.Clerk.session) {
+                            try {
+                                console.log('🔄 Page visible again, refreshing session...');
+                                await window.Clerk.session.touch();
+                                console.log('✅ Session refreshed successfully');
+                            } catch (error) {
+                                console.error('❌ Error refreshing session:', error);
+                            }
+                        }
+                    });
+                    
+                    // Periodic session refresh (every 5 minutes)
+                    setInterval(async () => {
+                        if (window.Clerk.session) {
+                            try {
+                                await window.Clerk.session.touch();
+                                console.log('🔄 Session keepalive ping sent');
+                            } catch (error) {
+                                console.error('❌ Error in session keepalive:', error);
+                            }
+                        }
+                    }, 5 * 60 * 1000); // 5 minutes
                     
                 } catch (err) {
                     console.error('❌ Error initializing Clerk:', err);
