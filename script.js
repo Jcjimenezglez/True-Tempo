@@ -19332,6 +19332,26 @@ class MixpanelTracker {
         }
     }
 
+    // Generic track method for any event
+    track(eventName, properties = {}) {
+        if (!this.isInitialized) {
+            console.warn('⚠️ Mixpanel not initialized, cannot track:', eventName);
+            return;
+        }
+        
+        try {
+            const eventData = {
+                ...properties,
+                timestamp: new Date().toISOString()
+            };
+            
+            window.mixpanel.track(eventName, eventData);
+            console.log('✅ Mixpanel event tracked:', eventName, eventData);
+        } catch (error) {
+            console.error('❌ Error tracking Mixpanel event:', eventName, error);
+        }
+    }
+
     trackTimerComplete(sessionType, completed) {
         if (!this.isInitialized) {
             console.warn('⚠️ MixpanelTracker not initialized');
