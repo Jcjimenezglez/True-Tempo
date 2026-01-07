@@ -19780,13 +19780,18 @@ function initFirstTimeWelcome(timer) {
         closeBtn.addEventListener('click', closeWelcome);
     }
     
-    // Try with Free button
+    // Try with Free button (now "Let me try it first")
     if (tryWithFreeBtn) {
         tryWithFreeBtn.addEventListener('click', () => {
-            // Track Free selection
+            // Track Starter selection
             if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-                window.mixpanelTracker.track('Welcome Modal - Try with Free Clicked', {
+                const userProfile = localStorage.getItem('userProfile') || 'unknown';
+                const cameFromOnboarding = localStorage.getItem('userProfile') !== null;
+                
+                window.mixpanelTracker.track('Welcome Modal - Let Me Try First Clicked', {
                     user_id: timer.user?.id || 'unknown',
+                    user_profile: userProfile,
+                    came_from_onboarding: cameFromOnboarding,
                     timestamp: new Date().toISOString()
                 });
             }
@@ -19798,10 +19803,15 @@ function initFirstTimeWelcome(timer) {
     // Start Free Trial button (Premium)
     if (startFreeTrialBtn) {
         startFreeTrialBtn.addEventListener('click', () => {
-            // Track Premium trial click
+            // Track Premium trial click with user context
             if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+                const userProfile = localStorage.getItem('userProfile') || 'unknown';
+                const cameFromOnboarding = localStorage.getItem('userProfile') !== null;
+                
                 window.mixpanelTracker.track('Welcome Modal - Start Free Trial Clicked', {
                     user_id: timer.user?.id || 'unknown',
+                    user_profile: userProfile,
+                    came_from_onboarding: cameFromOnboarding,
                     timestamp: new Date().toISOString()
                 });
             }
