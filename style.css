@@ -9830,9 +9830,9 @@ input:checked + .toggle-slider:before {
 }
 
 .onboarding-content h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
     margin: 0 0 24px 0;
     text-align: center;
 }
