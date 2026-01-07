@@ -4817,7 +4817,7 @@ class PomodoroTimer {
                                 <label>Pomodoro</label>
                                 <span class="duration-value" id="pomodoroValue">${pomodoroMin} min</span>
                             </div>
-                            <input type="range" id="pomodoroSlider" min="1" max="90" value="${pomodoroMin}" class="duration-slider">
+                            <input type="range" id="pomodoroSlider" min="1" max="500" value="${pomodoroMin}" class="duration-slider">
                         </div>
                         <div class="duration-item">
                             <div class="duration-header">
