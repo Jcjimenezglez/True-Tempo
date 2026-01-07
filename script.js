@@ -19664,6 +19664,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize First Time User Welcome Modal
     initFirstTimeWelcome(timer);
+    
+    // Initialize Premium Welcome Modal
+    initPremiumWelcome(timer);
 });
 
 // First Time User Welcome Modal
@@ -19804,6 +19807,153 @@ function initFirstTimeWelcome(timer) {
                 });
             }
             closeWelcome();
+        }
+    });
+}
+
+// Premium Welcome Modal
+function initPremiumWelcome(timer) {
+    const welcomeModal = document.getElementById('premiumWelcomeModal');
+    const closeBtn = document.getElementById('closePremiumWelcomeBtn');
+    const ctaBtn = document.getElementById('startPremiumBtn');
+    
+    if (!welcomeModal) return;
+    
+    // Check if this is a premium upgrade
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPremiumSuccess = urlParams.get('premium') === 'success' || urlParams.get('trial') === 'success';
+    const hasSeenPremiumWelcome = localStorage.getItem('hasSeenPremiumWelcome');
+    
+    // Function to check if user just became premium (subscription less than 2 minutes old)
+    async function isNewPremium() {
+        if (!timer.isAuthenticated || !window.Clerk?.user) return false;
+        
+        try {
+            const user = window.Clerk.user;
+            const publicMetadata = user.publicMetadata || {};
+            
+            // Check if user has premium status
+            if (!publicMetadata.subscriptionStatus || publicMetadata.subscriptionStatus !== 'active') {
+                return false;
+            }
+            
+            // Check if subscription was created recently (less than 2 minutes ago)
+            const subscriptionCreatedAt = publicMetadata.subscriptionCreatedAt;
+            if (!subscriptionCreatedAt) return false;
+            
+            const now = new Date().getTime();
+            const subscriptionTime = new Date(subscriptionCreatedAt).getTime();
+            const twoMinutes = 2 * 60 * 1000;
+            
+            const isNew = (now - subscriptionTime) < twoMinutes;
+            console.log('🔍 Premium subscription check:', {
+                subscriptionCreatedAt: new Date(subscriptionCreatedAt).toISOString(),
+                ageInSeconds: Math.floor((now - subscriptionTime) / 1000),
+                isNew: isNew
+            });
+            
+            return isNew;
+        } catch (error) {
+            console.error('Error checking if premium is new:', error);
+            return false;
+        }
+    }
+    
+    // Wait for auth to load, then check conditions
+    setTimeout(async () => {
+        if (!timer.isAuthenticated) {
+            console.log('⏭️ User not authenticated, skipping premium welcome modal');
+            return;
+        }
+        
+        if (hasSeenPremiumWelcome === 'true') {
+            console.log('⏭️ User has already seen premium welcome modal');
+            return;
+        }
+        
+        // Check if:
+        // 1. URL has premium=success or trial=success parameter, OR
+        // 2. User subscription was created less than 2 minutes ago (new premium)
+        const urlHasPremiumSuccess = isPremiumSuccess;
+        const userIsNewPremium = await isNewPremium();
+        
+        console.log('🔍 Premium welcome modal conditions:', {
+            urlHasPremiumSuccess,
+            userIsNewPremium,
+            isAuthenticated: timer.isAuthenticated,
+            hasSeenPremiumWelcome
+        });
+        
+        if ((urlHasPremiumSuccess || userIsNewPremium) && timer.isAuthenticated && hasSeenPremiumWelcome !== 'true') {
+            showPremiumWelcome();
+        } else {
+            console.log('⏭️ Conditions not met for showing premium welcome modal');
+        }
+    }, 1500); // Wait 1.5 seconds for Clerk to fully load
+    
+    function showPremiumWelcome() {
+        welcomeModal.style.display = 'flex';
+        
+        // Track in Mixpanel
+        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+            window.mixpanelTracker.track('Premium Welcome Shown', {
+                user_id: timer.user?.id || 'unknown',
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        // Clean up URL (remove premium/trial parameter)
+        if (window.history && window.history.replaceState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('premium');
+            url.searchParams.delete('trial');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }
+    
+    function closePremiumWelcome() {
+        localStorage.setItem('hasSeenPremiumWelcome', 'true');
+        welcomeModal.style.display = 'none';
+        
+        // Track dismissal
+        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+            window.mixpanelTracker.track('Premium Welcome Closed', {
+                user_id: timer.user?.id || 'unknown',
+                method: 'manual'
+            });
+        }
+    }
+    
+    // Close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closePremiumWelcome);
+    }
+    
+    // CTA button - Start Using Premium
+    if (ctaBtn) {
+        ctaBtn.addEventListener('click', () => {
+            // Track CTA click
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+                window.mixpanelTracker.track('Premium Welcome CTA Clicked', {
+                    user_id: timer.user?.id || 'unknown',
+                    button: 'start_using_premium'
+                });
+            }
+            
+            closePremiumWelcome();
+        });
+    }
+    
+    // Close on overlay click
+    welcomeModal.addEventListener('click', (e) => {
+        if (e.target === welcomeModal) {
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+                window.mixpanelTracker.track('Premium Welcome Closed', {
+                    user_id: timer.user?.id || 'unknown',
+                    method: 'overlay_click'
+                });
+            }
+            closePremiumWelcome();
         }
     });
 }
