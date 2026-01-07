@@ -19628,7 +19628,6 @@ function initWelcomeOnboarding(timer) {
     const profileOptions = document.querySelectorAll('.profile-option');
     const signupBtn = document.getElementById('onboardingSignupBtn');
     const skipBtn = document.getElementById('onboardingSkipBtn');
-    const personalizedMessage = document.getElementById('personalizedMessage');
     
     if (!onboardingModal) return;
     
@@ -19702,20 +19701,6 @@ function initWelcomeOnboarding(timer) {
             window.mixpanelTracker.track('Onboarding Profile Selected', {
                 profile: profile
             });
-        }
-        
-        // Update personalized message
-        const messages = {
-            student: 'Perfect for studying, assignments, and acing your exams',
-            professional: 'Great for managing work tasks and hitting your deadlines',
-            freelancer: 'Ideal for tracking client projects and staying organized',
-            entrepreneur: 'Built for founders who need to stay focused on what matters',
-            creator: 'Perfect for creative work that requires deep focus',
-            other: 'Great for anyone looking to boost their productivity'
-        };
-        
-        if (personalizedMessage) {
-            personalizedMessage.textContent = messages[profile] || messages.other;
         }
         
         // Move to step 2

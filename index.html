@@ -1745,7 +1745,6 @@
             <div class="onboarding-step" id="onboardingStep1" style="display: block;">
                 <div class="onboarding-header">
                     <h2>Welcome to Superfocus! 👋</h2>
-                    <p>Let's personalize your focus experience</p>
                 </div>
                 
                 <div class="onboarding-content">
@@ -1848,52 +1847,75 @@
             <!-- Step 2: Benefits & CTA -->
             <div class="onboarding-step" id="onboardingStep2" style="display: none;">
                 <div class="onboarding-header">
-                    <h2>Great! Here's what you can do</h2>
-                    <p id="personalizedMessage">Perfect for your productivity journey</p>
+                    <h2>Choose how you want to start</h2>
                 </div>
                 
                 <div class="onboarding-content">
-                    <div class="benefits-list">
-                        <div class="benefit-item">
-                            <div class="benefit-icon">⏱️</div>
-                            <div class="benefit-text">
-                                <h4>Try Focus Timer</h4>
-                                <p>Start focusing right now - no account needed</p>
+                    <div class="onboarding-options">
+                        <!-- Free Account Option -->
+                        <div class="onboarding-option free-option">
+                            <div class="option-badge">Recommended</div>
+                            <h3>Free Account</h3>
+                            <div class="option-features">
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Unlimited focus sessions</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Save your progress & stats</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Track your focus hours</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Build streaks & see leaderboard</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Manage tasks (up to 5)</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Custom timer techniques</span>
+                                </div>
                             </div>
+                            <button class="onboarding-btn onboarding-btn-primary" id="onboardingSignupBtn">
+                                Create Free Account
+                            </button>
                         </div>
                         
-                        <div class="benefit-item signup-benefit">
-                            <div class="benefit-icon">✨</div>
-                            <div class="benefit-text">
-                                <h4>Create Free Account</h4>
-                                <p>Save your progress, track stats & unlock custom timers</p>
+                        <!-- Guest Option -->
+                        <div class="onboarding-option guest-option">
+                            <h3>Try as Guest</h3>
+                            <div class="option-features">
+                                <div class="feature-item">
+                                    <span class="feature-icon">✓</span>
+                                    <span>Basic focus timer</span>
+                                </div>
+                                <div class="feature-item limited">
+                                    <span class="feature-icon">✗</span>
+                                    <span>No progress tracking</span>
+                                </div>
+                                <div class="feature-item limited">
+                                    <span class="feature-icon">✗</span>
+                                    <span>No stats or leaderboard</span>
+                                </div>
+                                <div class="feature-item limited">
+                                    <span class="feature-icon">✗</span>
+                                    <span>No tasks or custom timers</span>
+                                </div>
+                                <div class="feature-item limited">
+                                    <span class="feature-icon">✗</span>
+                                    <span>Limited to 2 hours/day</span>
+                                </div>
                             </div>
+                            <button class="onboarding-btn onboarding-btn-secondary" id="onboardingSkipBtn">
+                                Continue as Guest
+                            </button>
                         </div>
-                        
-                        <div class="benefit-item signup-benefit">
-                            <div class="benefit-icon">📊</div>
-                            <div class="benefit-text">
-                                <h4>Track Your Progress</h4>
-                                <p>See your focus hours & build streaks</p>
-                            </div>
-                        </div>
-                        
-                        <div class="benefit-item signup-benefit">
-                            <div class="benefit-icon">🎯</div>
-                            <div class="benefit-text">
-                                <h4>Manage Tasks</h4>
-                                <p>Organize your work & stay on track</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="onboarding-actions">
-                        <button class="onboarding-btn onboarding-btn-primary" id="onboardingSignupBtn">
-                            Create Free Account
-                        </button>
-                        <button class="onboarding-btn onboarding-btn-secondary" id="onboardingSkipBtn">
-                            Try Without Account
-                        </button>
                     </div>
                 </div>
             </div>
