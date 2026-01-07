@@ -19706,10 +19706,12 @@ function initWelcomeOnboarding(timer) {
         
         // Update personalized message
         const messages = {
-            student: 'Perfect for studying and managing assignments',
-            professional: 'Great for managing work tasks and staying focused',
-            freelancer: 'Ideal for tracking projects and client work',
-            other: 'Perfect for your productivity journey'
+            student: 'Perfect for studying, assignments, and acing your exams',
+            professional: 'Great for managing work tasks and hitting your deadlines',
+            freelancer: 'Ideal for tracking client projects and staying organized',
+            entrepreneur: 'Built for founders who need to stay focused on what matters',
+            creator: 'Perfect for creative work that requires deep focus',
+            other: 'Great for anyone looking to boost their productivity'
         };
         
         if (personalizedMessage) {
