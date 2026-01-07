@@ -313,18 +313,9 @@
                         console.log('ℹ️ No active Clerk session found (user not logged in)');
                     }
                     
-                    // Listen for session changes
-                    window.Clerk.addListener((resources) => {
-                        if (resources.user) {
-                            console.log('✅ Clerk session active:', resources.user.id);
-                        } else if (resources.session === null) {
-                            console.log('ℹ️ Clerk session ended');
-                        }
-                    });
-                    
                     // Refresh session when user returns to the page
                     document.addEventListener('visibilitychange', async () => {
-                        if (!document.hidden && window.Clerk.session) {
+                        if (!document.hidden && window.Clerk?.session) {
                             try {
                                 console.log('🔄 Page visible again, refreshing session...');
                                 await window.Clerk.session.touch();
@@ -337,7 +328,7 @@
                     
                     // Periodic session refresh (every 5 minutes)
                     setInterval(async () => {
-                        if (window.Clerk.session) {
+                        if (window.Clerk?.session) {
                             try {
                                 await window.Clerk.session.touch();
                                 console.log('🔄 Session keepalive ping sent');
