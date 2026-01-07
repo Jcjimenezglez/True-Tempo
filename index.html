@@ -1773,157 +1773,92 @@
                 <h2>You're all set!</h2>
                 <p class="welcome-subtitle">Choose how you want to start:</p>
                 
-                <div class="welcome-comparison-grid">
-                    <!-- FREE Column -->
-                    <div class="welcome-plan-column">
-                        <div class="plan-header">
-                            <h3>Free</h3>
-                        </div>
-                        
-                        <div class="welcome-features">
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- CTA Buttons at top -->
+                <div class="welcome-cta-buttons">
+                    <button class="welcome-cta-btn primary" id="startFreeTrialBtn">
+                        Start Free Trial
+                    </button>
+                    <button class="welcome-cta-btn secondary" id="tryWithFreeBtn">
+                        Try with Free
+                    </button>
+                </div>
+                
+                <!-- Comparison Table -->
+                <div class="welcome-comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="feature-col">Features</th>
+                                <th class="plan-col premium-col">Premium</th>
+                                <th class="plan-col free-col">Free</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="feature-name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 6v6l4 2"/>
                                         <circle cx="12" cy="12" r="10"/>
                                     </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Focus Timer</h4>
-                                    <p>1h/day limit</p>
-                                </div>
-                            </div>
-                            
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    Focus Timer
+                                </td>
+                                <td class="plan-value premium-value"><strong>Unlimited</strong></td>
+                                <td class="plan-value free-value">1h/day</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M5 21v-6"/>
                                         <path d="M12 21V9"/>
                                         <path d="M19 21V3"/>
                                     </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Track Progress</h4>
-                                    <p>Basic stats & streaks</p>
-                                </div>
-                            </div>
-                            
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    Analytics
+                                </td>
+                                <td class="plan-value premium-value"><strong>Advanced</strong></td>
+                                <td class="plan-value free-value">Basic</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M13 5h8"/>
                                         <path d="M13 12h8"/>
                                         <path d="M13 19h8"/>
                                         <path d="m3 17 2 2 4-4"/>
                                         <path d="m3 7 2 2 4-4"/>
                                     </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Manage Tasks</h4>
-                                    <p>Up to 3 tasks</p>
-                                </div>
-                            </div>
-                            
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    Tasks
+                                </td>
+                                <td class="plan-value premium-value"><strong>Unlimited</strong></td>
+                                <td class="plan-value free-value">Up to 3</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <rect width="20" height="16" x="2" y="4" rx="2"/>
                                         <circle cx="8" cy="10" r="2"/>
                                         <path d="M8 12h8"/>
                                         <circle cx="16" cy="10" r="2"/>
                                         <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                                     </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Custom Timer & Cassette</h4>
-                                    <p>1 of each</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button class="welcome-cta-btn secondary" id="tryWithFreeBtn">
-                            Try with Free
-                        </button>
-                    </div>
-                    
-                    <!-- Divider with OR -->
-                    <div class="welcome-divider">
-                        <div class="divider-line"></div>
-                        <span class="divider-text">or</span>
-                        <div class="divider-line"></div>
-                    </div>
-                    
-                    <!-- PREMIUM Column -->
-                    <div class="welcome-plan-column premium">
-                        <div class="plan-header">
-                            <h3>Premium</h3>
-                        </div>
-                        
-                        <div class="welcome-features">
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 6v6l4 2"/>
-                                        <circle cx="12" cy="12" r="10"/>
+                                    Custom Timers & Cassettes
+                                </td>
+                                <td class="plan-value premium-value"><strong>Unlimited</strong></td>
+                                <td class="plan-value free-value">1 each</td>
+                            </tr>
+                            <tr>
+                                <td class="feature-name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 7h16"/>
+                                        <path d="M4 12h16"/>
+                                        <path d="M4 17h16"/>
                                     </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Focus Timer</h4>
-                                    <p><strong>Unlimited time/day</strong></p>
-                                </div>
-                            </div>
-                            
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M5 21v-6"/>
-                                        <path d="M12 21V9"/>
-                                        <path d="M19 21V3"/>
-                                    </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Advanced Analytics</h4>
-                                    <p><strong>Detailed insights</strong></p>
-                                </div>
-                            </div>
-                            
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M13 5h8"/>
-                                        <path d="M13 12h8"/>
-                                        <path d="M13 19h8"/>
-                                        <path d="m3 17 2 2 4-4"/>
-                                        <path d="m3 7 2 2 4-4"/>
-                                    </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Unlimited Tasks</h4>
-                                    <p><strong>No limits</strong></p>
-                                </div>
-                            </div>
-                            
-                            <div class="welcome-feature-item">
-                                <div class="feature-icon-circle">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect width="20" height="16" x="2" y="4" rx="2"/>
-                                        <circle cx="8" cy="10" r="2"/>
-                                        <path d="M8 12h8"/>
-                                        <circle cx="16" cy="10" r="2"/>
-                                        <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
-                                    </svg>
-                                </div>
-                                <div class="feature-info">
-                                    <h4>Unlimited Customization</h4>
-                                    <p><strong>+ Integrations</strong></p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button class="welcome-cta-btn primary" id="startFreeTrialBtn">
-                            Start Free Trial
-                        </button>
-                    </div>
+                                    Integrations
+                                </td>
+                                <td class="plan-value premium-value"><strong>✓</strong></td>
+                                <td class="plan-value free-value">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
