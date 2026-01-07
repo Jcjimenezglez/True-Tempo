@@ -9581,13 +9581,6 @@ input:checked + .toggle-slider:before {
     gap: 16px;
 }
 
-.welcome-plan-column.premium {
-    background: rgba(74, 222, 128, 0.05);
-    border: 1px solid rgba(74, 222, 128, 0.2);
-    border-radius: 12px;
-    padding: 20px;
-}
-
 .plan-header {
     text-align: center;
     margin-bottom: 8px;
@@ -9613,11 +9606,6 @@ input:checked + .toggle-slider:before {
 .plan-badge.current {
     background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.7);
-}
-
-.plan-badge.premium-badge {
-    background: #4ade80;
-    color: #000;
 }
 
 /* Welcome Divider */
@@ -9674,16 +9662,6 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.12);
 }
 
-.welcome-feature-item.highlight {
-    background: rgba(74, 222, 128, 0.08);
-    border-color: rgba(74, 222, 128, 0.2);
-}
-
-.welcome-feature-item.highlight:hover {
-    background: rgba(74, 222, 128, 0.12);
-    border-color: rgba(74, 222, 128, 0.3);
-}
-
 .feature-icon-circle {
     width: 36px;
     height: 36px;
@@ -9695,12 +9673,6 @@ input:checked + .toggle-slider:before {
     justify-content: center;
     flex-shrink: 0;
     color: rgba(255, 255, 255, 0.7);
-}
-
-.feature-icon-circle.premium {
-    background: rgba(74, 222, 128, 0.15);
-    border-color: rgba(74, 222, 128, 0.3);
-    color: #4ade80;
 }
 
 .feature-info h4 {
@@ -9715,37 +9687,6 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.6);
     margin: 0;
     line-height: 1.3;
-}
-
-/* Premium Price Box */
-.premium-price-box {
-    text-align: center;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    margin-bottom: 8px;
-}
-
-.premium-price-box .price-main {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 6px;
-}
-
-.premium-price-box .price-period {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 500;
-}
-
-.premium-price-box .price-note {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
-    margin-top: 4px;
 }
 
 .welcome-cta-btn {
@@ -9789,9 +9730,10 @@ input:checked + .toggle-slider:before {
 
 .welcome-note {
     text-align: center;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
     margin: 16px 0 0 0;
+    line-height: 1.4;
 }
 
 @keyframes fadeIn {
