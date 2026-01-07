@@ -19673,7 +19673,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function initFirstTimeWelcome(timer) {
     const welcomeModal = document.getElementById('firstTimeWelcomeModal');
     const closeBtn = document.getElementById('closeFirstTimeWelcomeBtn');
-    const ctaBtn = document.getElementById('startFocusingBtn');
+    const tryWithFreeBtn = document.getElementById('tryWithFreeBtn');
+    const startFreeTrialBtn = document.getElementById('startFreeTrialBtn');
     
     if (!welcomeModal) return;
     
@@ -19779,21 +19780,36 @@ function initFirstTimeWelcome(timer) {
         closeBtn.addEventListener('click', closeWelcome);
     }
     
-    // CTA button - Start Focusing
-    if (ctaBtn) {
-        ctaBtn.addEventListener('click', () => {
-            // Track CTA click
+    // Try with Free button
+    if (tryWithFreeBtn) {
+        tryWithFreeBtn.addEventListener('click', () => {
+            // Track Free selection
             if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-                window.mixpanelTracker.track('First Time Welcome CTA Clicked', {
+                window.mixpanelTracker.track('Welcome Modal - Try with Free Clicked', {
                     user_id: timer.user?.id || 'unknown',
-                    button: 'start_focusing'
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            closeWelcome();
+        });
+    }
+    
+    // Start Free Trial button (Premium)
+    if (startFreeTrialBtn) {
+        startFreeTrialBtn.addEventListener('click', () => {
+            // Track Premium trial click
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+                window.mixpanelTracker.track('Welcome Modal - Start Free Trial Clicked', {
+                    user_id: timer.user?.id || 'unknown',
+                    timestamp: new Date().toISOString()
                 });
             }
             
             closeWelcome();
             
-            // Optionally scroll to timer or start a session
-            // timer.startTimer(); // Uncomment if you want to auto-start
+            // Redirect to pricing/checkout
+            window.location.href = '/pricing/?source=welcome_modal';
         });
     }
     
