@@ -19673,8 +19673,8 @@ function initWelcomeOnboarding(timer) {
             
             closeOnboarding();
             
-            // Use timer's handleSignup to go through normal flow
-            timer.handleSignup();
+            // Redirect to signup URL
+            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
         });
     }
     
