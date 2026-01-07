@@ -19642,7 +19642,7 @@ function initWelcomeOnboarding(timer) {
         onboardingModal.style.display = 'flex';
         
         // Track onboarding shown
-        if (window.mixpanelTracker) {
+        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
             window.mixpanelTracker.track('Onboarding Shown', {
                 timestamp: new Date().toISOString()
             });
@@ -19666,7 +19666,7 @@ function initWelcomeOnboarding(timer) {
     if (signupBtn) {
         signupBtn.addEventListener('click', () => {
             // Track signup intent
-            if (window.mixpanelTracker) {
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
                 window.mixpanelTracker.track('Onboarding Signup Clicked', {
                     profile: localStorage.getItem('userProfile') || 'unknown'
                 });
@@ -19683,7 +19683,7 @@ function initWelcomeOnboarding(timer) {
     if (skipBtn) {
         skipBtn.addEventListener('click', () => {
             // Track skip
-            if (window.mixpanelTracker) {
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
                 window.mixpanelTracker.track('Onboarding Skipped', {
                     profile: localStorage.getItem('userProfile') || 'unknown'
                 });
@@ -19698,7 +19698,7 @@ function initWelcomeOnboarding(timer) {
         localStorage.setItem('userProfile', profile);
         
         // Track profile selection
-        if (window.mixpanelTracker) {
+        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
             window.mixpanelTracker.track('Onboarding Profile Selected', {
                 profile: profile
             });
@@ -19732,7 +19732,7 @@ function initWelcomeOnboarding(timer) {
     onboardingModal.addEventListener('click', (e) => {
         if (e.target === onboardingModal) {
             // Track dismiss
-            if (window.mixpanelTracker) {
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
                 window.mixpanelTracker.track('Onboarding Dismissed', {
                     method: 'overlay_click'
                 });
