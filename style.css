@@ -9626,68 +9626,12 @@ input:checked + .toggle-slider:before {
     margin-top: 24px;
 }
 
-/* Premium Offer Box */
-.premium-offer-box {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 32px;
-    margin: 30px 0;
-    text-align: center;
-}
-
-.offer-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 16px;
-}
-
-.premium-offer-box h3 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 12px 0;
-    line-height: 1.3;
-}
-
-.offer-description {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 15px;
-    margin: 0 0 28px 0;
-}
-
-.premium-benefits {
-    display: grid;
-    gap: 16px;
-    text-align: left;
-    max-width: 400px;
-    margin: 0 auto 24px auto;
-}
-
-.benefit-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 15px;
-}
-
-.benefit-item svg {
-    flex-shrink: 0;
-    color: #4ade80;
-}
-
-.offer-terms {
+/* Welcome Offer Terms */
+.welcome-offer-terms {
     color: rgba(255, 255, 255, 0.5);
     font-size: 13px;
-    margin: 0;
+    text-align: center;
+    margin: 20px 0 0 0;
 }
 
 .welcome-cta-btn {
@@ -9791,30 +9735,9 @@ input:checked + .toggle-slider:before {
         margin-bottom: 20px;
     }
     
-    .premium-offer-box {
-        padding: 24px;
-    }
-    
-    .premium-offer-box h3 {
-        font-size: 20px;
-    }
-    
-    .offer-description {
-        font-size: 14px;
-    }
-    
-    .premium-benefits {
-        gap: 14px;
-    }
-    
-    .benefit-item {
-        font-size: 14px;
-        gap: 10px;
-    }
-    
-    .benefit-item svg {
-        width: 18px;
-        height: 18px;
+    .welcome-offer-terms {
+        font-size: 12px;
+        margin: 16px 0 0 0;
     }
     
     .welcome-cta-btn {
