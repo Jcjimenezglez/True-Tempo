@@ -1731,6 +1731,125 @@
     </footer>
     </main> <!-- End main-content wrapper -->
     
+    <!-- Welcome Onboarding Modal -->
+    <div class="welcome-onboarding-overlay" id="welcomeOnboardingModal" style="display: none;">
+        <div class="welcome-onboarding-modal">
+            <button class="close-onboarding-x" id="closeOnboardingBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <!-- Step 1: Profile Selection -->
+            <div class="onboarding-step" id="onboardingStep1" style="display: block;">
+                <div class="onboarding-header">
+                    <h2>Welcome to Superfocus! 👋</h2>
+                    <p>Let's personalize your focus experience</p>
+                </div>
+                
+                <div class="onboarding-content">
+                    <h3>What best describes you?</h3>
+                    <div class="profile-options">
+                        <button class="profile-option" data-profile="student">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                            </svg>
+                            <span>Student</span>
+                            <p>University or High School</p>
+                        </button>
+                        
+                        <button class="profile-option" data-profile="professional">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                                <path d="M7 7h10"/>
+                                <path d="M7 12h10"/>
+                                <path d="M7 17h10"/>
+                            </svg>
+                            <span>Professional</span>
+                            <p>Working full-time</p>
+                        </button>
+                        
+                        <button class="profile-option" data-profile="freelancer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v20"/>
+                                <path d="M2 12h20"/>
+                                <path d="M12 2a9 9 0 0 1 9 9"/>
+                                <path d="M12 2a9 9 0 0 0-9 9"/>
+                            </svg>
+                            <span>Freelancer</span>
+                            <p>Self-employed or side projects</p>
+                        </button>
+                        
+                        <button class="profile-option" data-profile="other">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
+                            </svg>
+                            <span>Just Exploring</span>
+                            <p>Trying it out</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Benefits & CTA -->
+            <div class="onboarding-step" id="onboardingStep2" style="display: none;">
+                <div class="onboarding-header">
+                    <h2>Great! Here's what you can do</h2>
+                    <p id="personalizedMessage">Perfect for your productivity journey</p>
+                </div>
+                
+                <div class="onboarding-content">
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">⏱️</div>
+                            <div class="benefit-text">
+                                <h4>Try Focus Timer</h4>
+                                <p>Start focusing right now - no account needed</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item signup-benefit">
+                            <div class="benefit-icon">✨</div>
+                            <div class="benefit-text">
+                                <h4>Create Free Account</h4>
+                                <p>Save your progress, track stats & unlock custom timers</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item signup-benefit">
+                            <div class="benefit-icon">📊</div>
+                            <div class="benefit-text">
+                                <h4>Track Your Progress</h4>
+                                <p>See your focus hours & build streaks</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item signup-benefit">
+                            <div class="benefit-icon">🎯</div>
+                            <div class="benefit-text">
+                                <h4>Manage Tasks</h4>
+                                <p>Organize your work & stay on track</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="onboarding-actions">
+                        <button class="onboarding-btn onboarding-btn-primary" id="onboardingSignupBtn">
+                            Create Free Account
+                        </button>
+                        <button class="onboarding-btn onboarding-btn-secondary" id="onboardingSkipBtn">
+                            Try Without Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Pricing Modal -->
     <div class="pricing-modal-overlay" id="pricingModal" style="display: none;">
         <div class="pricing-modal">

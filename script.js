@@ -19612,7 +19612,133 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(tryHide, 200);
         setTimeout(() => timer.hideLoadingScreen(), 4000);
     }
+    
+    // Initialize Welcome Onboarding
+    initWelcomeOnboarding(timer);
 });
+
+// Welcome Onboarding System
+function initWelcomeOnboarding(timer) {
+    // Check if user has seen the onboarding or is already authenticated
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    const onboardingModal = document.getElementById('welcomeOnboardingModal');
+    const closeBtn = document.getElementById('closeOnboardingBtn');
+    const step1 = document.getElementById('onboardingStep1');
+    const step2 = document.getElementById('onboardingStep2');
+    const profileOptions = document.querySelectorAll('.profile-option');
+    const signupBtn = document.getElementById('onboardingSignupBtn');
+    const skipBtn = document.getElementById('onboardingSkipBtn');
+    const personalizedMessage = document.getElementById('personalizedMessage');
+    
+    if (!onboardingModal) return;
+    
+    // Don't show if user is authenticated or has seen it before
+    if (timer.isAuthenticated || hasSeenOnboarding === 'true') {
+        return;
+    }
+    
+    // Show onboarding after a short delay for better UX
+    setTimeout(() => {
+        onboardingModal.style.display = 'flex';
+        
+        // Track onboarding shown
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.track('Onboarding Shown', {
+                timestamp: new Date().toISOString()
+            });
+        }
+    }, 800);
+    
+    // Close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeOnboarding);
+    }
+    
+    // Profile selection
+    profileOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const profile = this.getAttribute('data-profile');
+            selectProfile(profile);
+        });
+    });
+    
+    // Sign up button
+    if (signupBtn) {
+        signupBtn.addEventListener('click', () => {
+            // Track signup intent
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.track('Onboarding Signup Clicked', {
+                    profile: localStorage.getItem('userProfile') || 'unknown'
+                });
+            }
+            
+            closeOnboarding();
+            
+            // Use timer's handleSignup to go through normal flow
+            timer.handleSignup();
+        });
+    }
+    
+    // Skip button
+    if (skipBtn) {
+        skipBtn.addEventListener('click', () => {
+            // Track skip
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.track('Onboarding Skipped', {
+                    profile: localStorage.getItem('userProfile') || 'unknown'
+                });
+            }
+            
+            closeOnboarding();
+        });
+    }
+    
+    function selectProfile(profile) {
+        // Save profile preference
+        localStorage.setItem('userProfile', profile);
+        
+        // Track profile selection
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.track('Onboarding Profile Selected', {
+                profile: profile
+            });
+        }
+        
+        // Update personalized message
+        const messages = {
+            student: 'Perfect for studying and managing assignments',
+            professional: 'Great for managing work tasks and staying focused',
+            freelancer: 'Ideal for tracking projects and client work',
+            other: 'Perfect for your productivity journey'
+        };
+        
+        if (personalizedMessage) {
+            personalizedMessage.textContent = messages[profile] || messages.other;
+        }
+        
+        // Move to step 2
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+    }
+    
+    function closeOnboarding() {
+        localStorage.setItem('hasSeenOnboarding', 'true');
+        onboardingModal.style.display = 'none';
+    }
+    
+    // Close on overlay click
+    onboardingModal.addEventListener('click', (e) => {
+        if (e.target === onboardingModal) {
+            // Track dismiss
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.track('Onboarding Dismissed', {
+                    method: 'overlay_click'
+                });
+            }
+            closeOnboarding();
+        }
+    });
+}
 
 // Sidebar functionality
 class SidebarManager {
