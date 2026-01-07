@@ -19706,11 +19706,27 @@ function initWelcomeOnboarding(timer) {
         // Move to step 2
         step1.style.display = 'none';
         step2.style.display = 'block';
+        
+        // Make modal narrower for step 2
+        const modal = document.querySelector('.welcome-onboarding-modal');
+        if (modal) {
+            modal.classList.add('step-2-active');
+        }
     }
     
     function closeOnboarding() {
         localStorage.setItem('hasSeenOnboarding', 'true');
         onboardingModal.style.display = 'none';
+        
+        // Reset modal to step 1 for next time (if localStorage is cleared)
+        const modal = document.querySelector('.welcome-onboarding-modal');
+        if (modal) {
+            modal.classList.remove('step-2-active');
+        }
+        if (step1 && step2) {
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+        }
     }
     
     // Close on overlay click

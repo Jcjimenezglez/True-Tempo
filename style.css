@@ -9509,11 +9509,17 @@ input:checked + .toggle-slider:before {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     width: 100%;
-    max-width: 480px;
+    max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
     animation: slideUp 0.3s ease-out;
+    transition: max-width 0.3s ease;
+}
+
+/* Narrower modal when showing step 2 */
+.welcome-onboarding-modal.step-2-active {
+    max-width: 480px;
 }
 
 .close-onboarding-x {
