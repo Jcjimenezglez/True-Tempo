@@ -1758,6 +1758,62 @@
     </footer>
     </main> <!-- End main-content wrapper -->
     
+    <!-- First Time User Welcome Modal -->
+    <div class="welcome-modal-overlay" id="firstTimeWelcomeModal" style="display: none;">
+        <div class="welcome-modal">
+            <button class="close-welcome-x" id="closeFirstTimeWelcomeBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <div class="welcome-modal-content">
+                <div class="welcome-icon">🎉</div>
+                <h2>Welcome to Superfocus!</h2>
+                <p class="welcome-subtitle">You're all set! Here's what you can do now:</p>
+                
+                <div class="welcome-features">
+                    <div class="welcome-feature-item">
+                        <div class="feature-icon-circle">⏱️</div>
+                        <div class="feature-info">
+                            <h4>Focus Timer</h4>
+                            <p>Start focusing with unlimited sessions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="welcome-feature-item">
+                        <div class="feature-icon-circle">📊</div>
+                        <div class="feature-info">
+                            <h4>Track Progress</h4>
+                            <p>See your stats & build focus streaks</p>
+                        </div>
+                    </div>
+                    
+                    <div class="welcome-feature-item">
+                        <div class="feature-icon-circle">✅</div>
+                        <div class="feature-info">
+                            <h4>Manage Tasks</h4>
+                            <p>Organize up to 3 tasks</p>
+                        </div>
+                    </div>
+                    
+                    <div class="welcome-feature-item">
+                        <div class="feature-icon-circle">🎵</div>
+                        <div class="feature-info">
+                            <h4>Custom Timer & Cassette</h4>
+                            <p>Personalize your focus experience</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="welcome-cta-btn" id="startFocusingBtn">
+                    Start Focusing
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Welcome Onboarding Modal -->
     <div class="welcome-onboarding-overlay" id="welcomeOnboardingModal" style="display: none;">
         <div class="welcome-onboarding-modal">

@@ -19661,7 +19661,105 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize Welcome Onboarding
     initWelcomeOnboarding(timer);
+    
+    // Initialize First Time User Welcome Modal
+    initFirstTimeWelcome(timer);
 });
+
+// First Time User Welcome Modal
+function initFirstTimeWelcome(timer) {
+    const welcomeModal = document.getElementById('firstTimeWelcomeModal');
+    const closeBtn = document.getElementById('closeFirstTimeWelcomeBtn');
+    const ctaBtn = document.getElementById('startFocusingBtn');
+    
+    if (!welcomeModal) return;
+    
+    // Check if this is a first-time signup
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSignupSuccess = urlParams.get('signup') === 'success';
+    const hasSeenWelcome = localStorage.getItem('hasSeenFirstTimeWelcome');
+    
+    // Only show if:
+    // 1. User just signed up (signup=success in URL)
+    // 2. User is authenticated
+    // 3. Haven't seen this welcome before
+    if (isSignupSuccess && timer.isAuthenticated && hasSeenWelcome !== 'true') {
+        // Wait a bit for auth to fully load
+        setTimeout(() => {
+            if (timer.isAuthenticated) {
+                showFirstTimeWelcome();
+            }
+        }, 1000);
+    }
+    
+    function showFirstTimeWelcome() {
+        welcomeModal.style.display = 'flex';
+        
+        // Track in Mixpanel
+        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+            window.mixpanelTracker.track('First Time Welcome Shown', {
+                user_id: timer.user?.id || 'unknown',
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        // Clean up URL (remove signup=success parameter)
+        if (window.history && window.history.replaceState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('signup');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }
+    
+    function closeWelcome() {
+        localStorage.setItem('hasSeenFirstTimeWelcome', 'true');
+        welcomeModal.style.display = 'none';
+        
+        // Track dismissal
+        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+            window.mixpanelTracker.track('First Time Welcome Closed', {
+                user_id: timer.user?.id || 'unknown',
+                method: 'manual'
+            });
+        }
+    }
+    
+    // Close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeWelcome);
+    }
+    
+    // CTA button - Start Focusing
+    if (ctaBtn) {
+        ctaBtn.addEventListener('click', () => {
+            // Track CTA click
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+                window.mixpanelTracker.track('First Time Welcome CTA Clicked', {
+                    user_id: timer.user?.id || 'unknown',
+                    button: 'start_focusing'
+                });
+            }
+            
+            closeWelcome();
+            
+            // Optionally scroll to timer or start a session
+            // timer.startTimer(); // Uncomment if you want to auto-start
+        });
+    }
+    
+    // Close on overlay click
+    welcomeModal.addEventListener('click', (e) => {
+        if (e.target === welcomeModal) {
+            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
+                window.mixpanelTracker.track('First Time Welcome Closed', {
+                    user_id: timer.user?.id || 'unknown',
+                    method: 'overlay_click'
+                });
+            }
+            closeWelcome();
+        }
+    });
+}
 
 // Welcome Onboarding System
 function initWelcomeOnboarding(timer) {
