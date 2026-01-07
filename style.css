@@ -9571,7 +9571,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 28px;
+    margin-top: 24px;
 }
 
 /* Welcome Comparison Table */
