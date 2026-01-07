@@ -9716,15 +9716,14 @@ input:checked + .toggle-slider:before {
 }
 
 .onboarding-btn-primary {
-    background: linear-gradient(135deg, #064e3b, #065f46);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    background: #ffffff;
+    color: #1a1a1a;
+    font-weight: 700;
 }
 
 .onboarding-btn-primary:hover {
-    background: linear-gradient(135deg, #065f46, #047857);
+    background: rgba(255, 255, 255, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .onboarding-btn-secondary {
