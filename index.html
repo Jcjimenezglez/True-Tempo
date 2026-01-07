@@ -313,30 +313,8 @@
                         console.log('ℹ️ No active Clerk session found (user not logged in)');
                     }
                     
-                    // Refresh session when user returns to the page
-                    document.addEventListener('visibilitychange', async () => {
-                        if (!document.hidden && window.Clerk?.session) {
-                            try {
-                                console.log('🔄 Page visible again, refreshing session...');
-                                await window.Clerk.session.touch();
-                                console.log('✅ Session refreshed successfully');
-                            } catch (error) {
-                                console.error('❌ Error refreshing session:', error);
-                            }
-                        }
-                    });
-                    
-                    // Periodic session refresh (every 5 minutes)
-                    setInterval(async () => {
-                        if (window.Clerk?.session) {
-                            try {
-                                await window.Clerk.session.touch();
-                                console.log('🔄 Session keepalive ping sent');
-                            } catch (error) {
-                                console.error('❌ Error in session keepalive:', error);
-                            }
-                        }
-                    }, 5 * 60 * 1000); // 5 minutes
+                    // Clerk handles session refresh automatically
+                    // No need for manual touch() calls
                     
                 } catch (err) {
                     console.error('❌ Error initializing Clerk:', err);
