@@ -252,7 +252,7 @@ class PomodoroTimer {
         this.isLoading = false;
         this.loadingStartTime = null;
         
-        // Track if public cassettes are currently loading to prevent duplicate calls
+        // Track if public vibes are currently loading to prevent duplicate calls
         this.isLoadingPublicCassettes = false;
         
         // Track last applied active cassette to prevent redundant state applications
@@ -1579,7 +1579,7 @@ class PomodoroTimer {
                     <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Custom Cassette</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Custom Vibe</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -3163,7 +3163,7 @@ class PomodoroTimer {
                 // Clear custom techniques (user-specific)
                 localStorage.removeItem('customTechniques');
                 
-                // Clear custom cassettes (user-specific)
+                // Clear custom vibes (user-specific)
                 localStorage.removeItem('customCassettes');
                 
                 // Clear saved technique selection
@@ -15823,14 +15823,14 @@ class PomodoroTimer {
             option.addEventListener('click', (e) => {
                 e.preventDefault();
                 
-                // Don't trigger if clicking edit/delete buttons on custom cassettes
+                // Don't trigger if clicking edit/delete buttons on custom vibes
                 if (e.target.closest('.edit-cassette-btn') || e.target.closest('.delete-cassette-btn')) {
                     return;
                 }
                 
-                this.trackEvent('Cassette Selected', {
+                this.trackEvent('Vibe Selected', {
                     button_type: 'cassette',
-                    cassette_name: themeName,
+                    vibe_name: themeName,
                     source: 'cassettes_panel'
                 });
                 
@@ -15847,12 +15847,12 @@ class PomodoroTimer {
                     opt.classList.remove('active');
                 });
                 
-                // Remove active from all custom cassettes
+                // Remove active from all custom vibes
                 document.querySelectorAll('.custom-cassette').forEach(opt => {
                     opt.classList.remove('active');
                 });
                 
-                // Remove active from all public cassettes
+                // Remove active from all public vibes
                 document.querySelectorAll('.public-cassette').forEach(opt => {
                     opt.classList.remove('active');
                 });
@@ -15875,7 +15875,7 @@ class PomodoroTimer {
         // Update theme authentication state
         this.updateThemeAuthState();
         
-        // Initialize My Cassettes section for Pro users
+        // Initialize My Vibes section for Pro users
         this.initializeMyCassettes();
         
         console.log('🎨 Theme panel initialized - no music reset');
@@ -16006,9 +16006,15 @@ class PomodoroTimer {
         // Add listeners to title input
         const titleInput = document.getElementById('cassetteTitle');
         if (titleInput) {
+            // Save the current value before cloning (cloneNode doesn't copy .value)
+            const currentValue = titleInput.value;
+            
             // Remove old listeners by replacing element
             const newTitleInput = titleInput.cloneNode(true);
             titleInput.parentNode.replaceChild(newTitleInput, titleInput);
+            
+            // Restore the value after cloning
+            newTitleInput.value = currentValue;
             
             newTitleInput.addEventListener('input', updateSaveButton);
             newTitleInput.addEventListener('change', updateSaveButton);
@@ -16036,12 +16042,12 @@ class PomodoroTimer {
         // Initialize metadata extraction listeners
         this.initializeCassetteMetadataExtraction();
         
-        // Load and render custom cassettes (only Pro users have custom cassettes to load)
+        // Load and render custom vibes (only Pro users have custom vibes to load)
         if (this.isPremiumUser()) {
             this.loadCustomCassettes();
         }
         
-        // Load and render public cassettes (for all users, with restriction for Guest)
+        // Load and render public vibes (for all users, with restriction for Guest)
         // Moved to openImmersiveThemePanel to ensure refresh on open
         // this.loadPublicCassettes(false);
         
@@ -16112,17 +16118,17 @@ class PomodoroTimer {
             option.style.display = matches ? 'flex' : 'none';
         });
         
-        // Filter custom cassettes (only public ones are searchable)
+        // Filter custom vibes (only public ones are searchable)
         const customCassettes = document.querySelectorAll('.custom-cassette');
         customCassettes.forEach(cassette => {
-            // For now, we'll search all visible cassettes (public cassettes will be loaded async)
+            // For now, we'll search all visible cassettes (public vibes will be loaded async)
             const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
             const description = cassette.querySelector('p')?.textContent?.toLowerCase() || '';
             const matches = !searchQuery || title.includes(searchQuery) || description.includes(searchQuery);
             cassette.style.display = matches ? 'flex' : 'none';
         });
         
-        // Filter public cassettes
+        // Filter public vibes
         const publicCassettes = document.querySelectorAll('.public-cassette');
         publicCassettes.forEach(cassette => {
             const title = cassette.querySelector('h4')?.textContent?.toLowerCase() || '';
@@ -16164,7 +16170,7 @@ class PomodoroTimer {
         
         const customCassettes = this.getCustomCassettes();
         
-        // Filter out public cassettes - only show private cassettes in "My Cassettes"
+        // Filter out public vibes - only show private cassettes in "My Vibes"
         const privateCassettes = customCassettes.filter(c => !c.isPublic || c.isPublic === false);
         
         if (privateCassettes.length === 0) {
@@ -16187,7 +16193,7 @@ class PomodoroTimer {
                         <p>${cassette.description || 'Custom focus environment'}</p>
                     </div>
                     <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
-                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Vibe options" onclick="event.stopPropagation();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1"/>
                                 <circle cx="19" cy="12" r="1"/>
@@ -16219,7 +16225,7 @@ class PomodoroTimer {
             `;
         }).join('');
         
-        // Add event listeners for custom cassettes
+        // Add event listeners for custom vibes
         privateCassettes.forEach(cassette => {
             const cassetteOption = document.querySelector(`[data-cassette-id="${cassette.id}"]`);
             if (cassetteOption) {
@@ -16312,11 +16318,11 @@ class PomodoroTimer {
                         const cachedData = localStorage.getItem(cacheKey);
 
                         if (cachedChecksum === checkData.checksum && cachedData) {
-                            console.log('📦 Using cached public cassettes (no changes detected)');
+                            console.log('📦 Using cached public vibes (no changes detected)');
                             return JSON.parse(cachedData);
                         }
 
-                        console.log('🔄 Changes detected, fetching updated public cassettes...');
+                        console.log('🔄 Changes detected, fetching updated public vibes...');
                         const fullResponse = await fetch('/api/public-cassettes', {
                             method: 'GET',
                             headers: this.user?.id ? {
@@ -16329,14 +16335,14 @@ class PomodoroTimer {
                             if (fullData.success && Array.isArray(fullData.publicCassettes)) {
                                 localStorage.setItem(cacheKey, JSON.stringify(fullData.publicCassettes));
                                 localStorage.setItem(cacheChecksumKey, checkData.checksum);
-                                console.log(`✅ Loaded ${fullData.publicCassettes.length} public cassettes from API (updated)`);
+                                console.log(`✅ Loaded ${fullData.publicCassettes.length} public vibes from API (updated)`);
                                 return fullData.publicCassettes;
                             }
                         }
                     }
                 }
             } catch (e) {
-                console.error('Error checking public cassettes:', e);
+                console.error('Error checking public vibes:', e);
                 const cachedData = localStorage.getItem(cacheKey);
                 if (cachedData) {
                     console.log('⚠️ Check failed, using cached data as fallback');
@@ -16362,28 +16368,28 @@ class PomodoroTimer {
                     } else if (forceRefresh) {
                         localStorage.removeItem(cacheChecksumKey);
                     }
-                    console.log(`✅ Loaded ${data.publicCassettes.length} public cassettes from API (${forceRefresh ? 'forced' : 'fallback'})`);
+                    console.log(`✅ Loaded ${data.publicCassettes.length} public vibes from API (${forceRefresh ? 'forced' : 'fallback'})`);
                     return data.publicCassettes;
                 }
             }
         } catch (e) {
-            console.error('Error loading public cassettes from API:', e);
+            console.error('Error loading public vibes from API:', e);
         }
 
         return [];
     }
     
-    // Method to invalidate public cassettes cache
+    // Method to invalidate public vibes cache
     invalidatePublicCassettesCache() {
         localStorage.removeItem('publicCassettesCache');
         localStorage.removeItem('publicCassettesChecksum');
-        console.log('🗑️ Public cassettes cache invalidated');
+        console.log('🗑️ Public vibes cache invalidated');
     }
 
     async getCustomCassettesWithPublic() {
         const localCassettes = this.getCustomCassettes();
         
-        // Load public cassettes from API in background
+        // Load public vibes from API in background
         const publicCassettes = await this.loadPublicCassettesFromAPI();
         
         // Merge with local cassettes, avoiding duplicates
@@ -16402,7 +16408,7 @@ class PomodoroTimer {
     async loadPublicCassettes(forceRefresh = false) {
         // Prevent duplicate concurrent calls
         if (this.isLoadingPublicCassettes) {
-            console.log('⏳ Public cassettes already loading, skipping duplicate call');
+            console.log('⏳ Public vibes already loading, skipping duplicate call');
             return;
         }
         
@@ -16419,17 +16425,17 @@ class PomodoroTimer {
         
         const isGuest = !this.isAuthenticated;
         
-        // Get user's own public cassettes from localStorage immediately
+        // Get user's own public vibes from localStorage immediately
         const userPublicCassettes = this.getCustomCassettes().filter(c => c.isPublic === true);
         
-        // Add creator info to user's public cassettes
+        // Add creator info to user's public vibes
         const userPublicCassettesWithCreator = userPublicCassettes.map(c => ({
             ...c,
             creatorName: this.user?.username || this.user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'You',
             creatorId: this.user?.id
         }));
         
-        // Step 1: Render immediately from cache + user's public cassettes (optimistic rendering)
+        // Step 1: Render immediately from cache + user's public vibes (optimistic rendering)
         const cacheKey = 'publicCassettesCache';
         const cachedData = localStorage.getItem(cacheKey);
         let cachedCassettes = [];
@@ -16442,7 +16448,7 @@ class PomodoroTimer {
             }
         }
         
-        // Merge user's public cassettes with cached cassettes (user's cassettes take priority)
+        // Merge user's public vibes with cached cassettes (user's cassettes take priority)
         // Only update/add user's cassettes that belong to the current user
         const existingIds = new Set(cachedCassettes.map(c => c.id));
         const mergedForDisplay = [...cachedCassettes];
@@ -16480,7 +16486,7 @@ class PomodoroTimer {
         if (uniqueMergedForDisplay.length > 0) {
             // Render immediately from merged cache + user's cassettes
             this.renderPublicCassettes(uniqueMergedForDisplay, isGuest);
-            console.log('📦 Rendered public cassettes from cache + user cassettes immediately');
+            console.log('📦 Rendered public vibes from cache + user cassettes immediately');
             // Ensure section is visible
             if (publicCassettesSection) {
                 publicCassettesSection.style.display = 'block';
@@ -16497,7 +16503,7 @@ class PomodoroTimer {
         try {
             const publicCassettes = await this.loadPublicCassettesFromAPI(forceRefresh);
             
-            // Merge user's public cassettes with server cassettes (user's cassettes take priority)
+            // Merge user's public vibes with server cassettes (user's cassettes take priority)
             // Only add user's cassettes that are NOT already in the server response
             // This prevents duplicates when the server already has the cassette
             const serverExistingIds = new Set(publicCassettes.map(c => c.id));
@@ -16576,7 +16582,7 @@ class PomodoroTimer {
             if (hasChanges || !cachedDataForCompare || forceRefresh) {
                 // Always re-render when forceRefresh to ensure fresh data from server is displayed
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
-                console.log('🔄 Updated public cassettes UI with fresh data + user cassettes', forceRefresh ? '(forced refresh)' : '');
+                console.log('🔄 Updated public vibes UI with fresh data + user cassettes', forceRefresh ? '(forced refresh)' : '');
                 // Reset active state tracking when re-rendering to allow fresh application
                 this._lastAppliedActiveCassette = null;
                 // Apply active state after re-rendering
@@ -16590,7 +16596,7 @@ class PomodoroTimer {
                 }, 200);
             }
         } catch (e) {
-            console.error('Error loading public cassettes:', e);
+            console.error('Error loading public vibes:', e);
             // If error and no cache was rendered, hide section
             if (!cachedData && userPublicCassettesWithCreator.length === 0) {
                 publicCassettesSection.style.display = 'none';
@@ -16643,7 +16649,7 @@ class PomodoroTimer {
             return dateB - dateA; // Descending order (newest first)
         });
         
-        // Render public cassettes
+        // Render public vibes
         publicCassettesList.innerHTML = sortedCassettes.map(cassette => {
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
@@ -16683,7 +16689,7 @@ class PomodoroTimer {
                     </div>
                     ${isOwnCassette ? `
                     <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
-                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Cassette options" onclick="event.stopPropagation();">
+                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Vibe options" onclick="event.stopPropagation();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1"/>
                                 <circle cx="19" cy="12" r="1"/>
@@ -16718,7 +16724,7 @@ class PomodoroTimer {
         
         // Apply active state will be called separately after rendering
         
-        // Add event listeners for public cassettes (same approach as private cassettes)
+        // Add event listeners for public vibes (same approach as private cassettes)
         filteredPublicCassettes.forEach(cassette => {
             const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
             if (!cassetteOption) return;
@@ -16786,12 +16792,12 @@ class PomodoroTimer {
                         opt.classList.remove('active');
                     });
                     
-                    // Remove active from all custom cassettes
+                    // Remove active from all custom vibes
                     document.querySelectorAll('.custom-cassette').forEach(opt => {
                         opt.classList.remove('active');
                     });
                     
-                    // Remove active from all public cassettes
+                    // Remove active from all public vibes
                     document.querySelectorAll('.public-cassette').forEach(opt => {
                         opt.classList.remove('active');
                     });
@@ -16811,9 +16817,9 @@ class PomodoroTimer {
                     this.incrementCassetteViews(cassette.id, cassetteOption);
                     
                     // Track event
-                    this.trackEvent('Cassette Selected', {
+                    this.trackEvent('Vibe Selected', {
                         button_type: 'cassette',
-                        cassette_name: cassette.title,
+                        vibe_name: cassette.title,
                         cassette_type: 'public',
                         source: 'cassettes_panel'
                     });
@@ -16975,7 +16981,7 @@ class PomodoroTimer {
             if (isNewCassette && !this.isPremiumUser()) {
                 const currentCassetteCount = cassettes.length;
                 if (currentCassetteCount >= 1) {
-                    alert('Free users can create up to 1 custom cassette. Upgrade to Premium to create unlimited cassettes.');
+                    alert('Free users can create up to 1 custom vibe. Upgrade to Premium to create unlimited vibes.');
                     throw new Error('Cassette limit reached for free users');
                 }
             }
@@ -16988,7 +16994,7 @@ class PomodoroTimer {
             
             localStorage.setItem('customCassettes', JSON.stringify(cassettes));
             
-            // Sync public cassettes to Clerk when authenticated
+            // Sync public vibes to Clerk when authenticated
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
                 try {
@@ -17012,7 +17018,7 @@ class PomodoroTimer {
             
             return cassette;
         } catch (error) {
-            console.error('Error saving custom cassette:', error);
+            console.error('Error saving custom vibe:', error);
             throw error;
         }
     }
@@ -17023,7 +17029,7 @@ class PomodoroTimer {
             const filtered = cassettes.filter(c => c.id !== cassetteId);
             localStorage.setItem('customCassettes', JSON.stringify(filtered));
             
-            // Sync public cassettes to Clerk after deletion
+            // Sync public vibes to Clerk after deletion
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
                 
@@ -17054,11 +17060,11 @@ class PomodoroTimer {
                 this.applyTheme('lofi');
             }
             
-            // Reload both custom cassettes and public cassettes to reflect changes
+            // Reload both custom vibes and public vibes to reflect changes
             this.loadCustomCassettes();
             this.loadPublicCassettes();
         } catch (error) {
-            console.error('Error deleting custom cassette:', error);
+            console.error('Error deleting custom vibe:', error);
         }
     }
 
@@ -17078,12 +17084,12 @@ class PomodoroTimer {
             opt.classList.remove('active');
         });
         
-        // Remove active from all custom cassettes
+        // Remove active from all custom vibes
         document.querySelectorAll('.custom-cassette').forEach(opt => {
             opt.classList.remove('active');
         });
         
-        // Remove active from all public cassettes
+        // Remove active from all public vibes
         document.querySelectorAll('.public-cassette').forEach(opt => {
             opt.classList.remove('active');
         });
@@ -17094,7 +17100,7 @@ class PomodoroTimer {
             cassetteOption.classList.add('active');
         }
         
-        // Apply the custom cassette
+        // Apply the custom vibe
         this.applyCustomCassette(cassette);
         
         // Save to localStorage
@@ -17103,9 +17109,9 @@ class PomodoroTimer {
         this.currentTheme = themeName;
         
         // Track event
-        this.trackEvent('Cassette Selected', {
+        this.trackEvent('Vibe Selected', {
             button_type: 'cassette',
-            cassette_name: cassette.title,
+            vibe_name: cassette.title,
             cassette_type: 'custom',
             source: 'cassettes_panel'
         });
@@ -17158,7 +17164,7 @@ class PomodoroTimer {
         // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
         
-        // Remove custom Spotify widget from previous custom cassette only if URL is different
+        // Remove custom Spotify widget from previous custom vibe only if URL is different
         const existingWidget = document.getElementById('customSpotifyWidget');
         if (existingWidget) {
             // Check if we need to recreate the widget (only if URL changed)
@@ -17172,7 +17178,7 @@ class PomodoroTimer {
             }
         }
         
-        // Remove custom website link from previous custom cassette
+        // Remove custom website link from previous custom vibe
         const existingLink = document.getElementById('customWebsiteLink');
         if (existingLink) {
             existingLink.remove();
@@ -17180,7 +17186,7 @@ class PomodoroTimer {
         
         // Set background image if provided
         if (cassette.imageUrl) {
-            console.log('🎨 Setting custom cassette background image:', cassette.imageUrl);
+            console.log('🎨 Setting custom vibe background image:', cassette.imageUrl);
             
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
@@ -17195,7 +17201,7 @@ class PomodoroTimer {
             timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
             timerSection.style.setProperty('background-color', 'transparent', 'important');
             
-            // Test if image loads (silently, no alerts for public cassettes from other users)
+            // Test if image loads (silently, no alerts for public vibes from other users)
             const testImg = new Image();
             let imageLoaded = false;
             let errorTimeout;
@@ -17237,7 +17243,7 @@ class PomodoroTimer {
                                 timerSection.style.removeProperty('background-image');
                                 timerSection.style.setProperty('background', '#0a0a0a', 'important');
                             } else {
-                                // For public cassettes from other users, fail silently
+                                // For public vibes from other users, fail silently
                                 timerSection.style.removeProperty('background-image');
                                 timerSection.style.setProperty('background', '#0a0a0a', 'important');
                             }
@@ -17290,7 +17296,7 @@ class PomodoroTimer {
         // Update visual active state
         this.updateThemeActiveState(themeName);
         
-        console.log('🎨 Custom cassette applied:', cassette.title);
+        console.log('🎨 Custom vibe applied:', cassette.title);
     }
 
 
@@ -17550,10 +17556,10 @@ class PomodoroTimer {
                     source: 'create_cassette_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    reason: 'cassette_limit_reached'
+                    reason: 'vibe_limit_reached'
                 });
                 
-                this.showCassetteProModal('You\'ve reached your free limit of 1 custom cassette. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('You\'ve reached your free limit of 1 custom vibe. Upgrade to Premium to create unlimited vibes and personalize your focus environment.');
                 return;
             }
             // Free user can create their first cassette - continue to form
@@ -17574,7 +17580,7 @@ class PomodoroTimer {
             const cassettes = this.getCustomCassettes();
             cassette = cassettes.find(c => c.id === cassetteId);
             
-            // If not found in localStorage, try to find in public cassettes cache
+            // If not found in localStorage, try to find in public vibes cache
             if (!cassette) {
                 const cacheKey = 'publicCassettesCache';
                 const cachedData = localStorage.getItem(cacheKey);
@@ -17589,7 +17595,7 @@ class PomodoroTimer {
                             cassette = null; // Not user's own cassette
                         }
                     } catch (e) {
-                        console.error('Error parsing cached public cassettes:', e);
+                        console.error('Error parsing cached public vibes:', e);
                     }
                 }
             }
@@ -17927,7 +17933,7 @@ class PomodoroTimer {
                 
                 // If cassette changed from public to private, remove it from public list immediately
                 if (changedFromPublicToPrivate) {
-                    // Remove the cassette from the public cassettes list in the UI immediately
+                    // Remove the cassette from the public vibes list in the UI immediately
                     const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
                     if (publicCassetteElement) {
                         publicCassetteElement.remove();
@@ -17936,8 +17942,8 @@ class PomodoroTimer {
                     
                     // Invalidate cache to remove the cassette from public list
                     this.invalidatePublicCassettesCache();
-                    // Reload public cassettes in background (don't wait for it)
-                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
+                    // Reload public vibes in background (don't wait for it)
+                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public vibes:', err));
                 } else if (isNowPublic || changedFromPrivateToPublic || (cassetteId && cassette.isPublic)) {
                     // If it's a public cassette or changed to public, or editing an existing public cassette
                     // First, update the card in the UI immediately with new data from localStorage
@@ -17970,11 +17976,11 @@ class PomodoroTimer {
                         }
                     }
                     
-                    // Then update public cassettes section in background
+                    // Then update public vibes section in background
                     // Force refresh from server to ensure consistency across users
                     // Don't invalidate cache before loading - keep other users' cassettes visible
                     // The cache will be updated with fresh data from server, and user's cassettes will be merged in
-                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public cassettes:', err));
+                    this.loadPublicCassettes(true).catch(err => console.error('Error reloading public vibes:', err));
                 }
                 
                 // If editing an existing cassette, check if it's currently selected
@@ -17995,9 +18001,9 @@ class PomodoroTimer {
                     setTimeout(() => {
                         console.log('🔄 Selecting new cassette:', cassette.id);
                         if (cassette.isPublic) {
-                            // For public cassettes, try to select and apply active state
+                            // For public vibes, try to select and apply active state
                             this.selectCustomCassette(cassette.id);
-                            // Also ensure the active state is applied to public cassettes
+                            // Also ensure the active state is applied to public vibes
                             setTimeout(() => {
                                 this.applyActiveStateToPublicCassettes();
                             }, 100);
@@ -18009,7 +18015,7 @@ class PomodoroTimer {
                 }
                 
                 // Track event
-                this.trackEvent('Custom Cassette Created', {
+                this.trackEvent('Custom Vibe Created', {
                     feature: 'custom_cassettes',
                     cassette_title: cassette.title,
                     has_image: !!cassette.imageUrl,
@@ -18018,7 +18024,7 @@ class PomodoroTimer {
                     is_edit: !!cassetteId
                 });
                 
-                console.log('✅ Custom cassette saved:', cassette);
+                console.log('✅ Custom vibe saved:', cassette);
             };
             
             // Execute in background (don't wait)
@@ -18061,7 +18067,7 @@ class PomodoroTimer {
     applyTheme(themeName) {
         console.log(`🎨 Applying theme: ${themeName}`);
         
-        // Check if this is a custom cassette
+        // Check if this is a custom vibe
         if (themeName && themeName.startsWith('custom_')) {
             const cassetteId = themeName.replace('custom_', '');
             const cassettes = this.getCustomCassettes();
@@ -18072,7 +18078,7 @@ class PomodoroTimer {
                 this.applyCustomCassette(cassette);
                 return;
             } else {
-                // Not found in local cassettes, try to find in public cassettes (async)
+                // Not found in local cassettes, try to find in public vibes (async)
                 this.loadPublicCassettesFromAPI().then(publicCassettes => {
                     const publicCassette = publicCassettes.find(c => c.id === cassetteId);
                     if (publicCassette) {
@@ -18092,12 +18098,12 @@ class PomodoroTimer {
                         }
                         this.applyCustomCassette(publicCassette);
                     } else {
-                        // Not found in public cassettes either, fallback to lofi
-                        console.warn('Custom cassette not found in local or public cassettes, falling back to lofi');
+                        // Not found in public vibes either, fallback to lofi
+                        console.warn('Custom vibe not found in local or public vibes, falling back to lofi');
                         this.applyTheme('lofi');
                     }
                 }).catch(err => {
-                    console.error('Error loading public cassettes:', err);
+                    console.error('Error loading public vibes:', err);
                     // On error, fallback to lofi
                     this.applyTheme('lofi');
                 });
@@ -18121,20 +18127,20 @@ class PomodoroTimer {
         // Remove all background classes
         timerSection.classList.remove('theme-minimalist', 'theme-woman', 'theme-man');
         
-        // Remove custom Spotify widget if switching from custom cassette
+        // Remove custom Spotify widget if switching from custom vibe
         const existingWidget = document.getElementById('customSpotifyWidget');
         if (existingWidget) {
             existingWidget.remove();
             this.currentSpotifyUrl = null; // Clear Spotify URL tracking
         }
         
-        // Remove custom website link if switching from custom cassette
+        // Remove custom website link if switching from custom vibe
         const existingLink = document.getElementById('customWebsiteLink');
         if (existingLink) {
             existingLink.remove();
         }
         
-        // Remove custom cassette background image styles
+        // Remove custom vibe background image styles
         timerSection.style.removeProperty('background-image');
         timerSection.style.removeProperty('background-size');
         timerSection.style.removeProperty('background-position');
@@ -18229,7 +18235,7 @@ class PomodoroTimer {
     }
     
     updateThemeActiveState(themeName) {
-        // Handle custom cassettes
+        // Handle custom vibes
         if (themeName && themeName.startsWith('custom_')) {
             const cassetteId = themeName.replace('custom_', '');
             const cassetteOption = document.querySelector(`[data-cassette-id="${cassetteId}"]`);
@@ -18244,7 +18250,7 @@ class PomodoroTimer {
                 const radio = opt.querySelector('input[type="radio"]');
                 if (radio) radio.checked = false;
             });
-            // Remove active from other custom cassettes
+            // Remove active from other custom vibes
             document.querySelectorAll('.custom-cassette').forEach(opt => {
                 if (opt !== cassetteOption) {
                     opt.classList.remove('active');
@@ -18274,7 +18280,7 @@ class PomodoroTimer {
             }
         });
         
-        // Remove active from custom cassettes
+        // Remove active from custom vibes
         document.querySelectorAll('.custom-cassette').forEach(opt => {
             opt.classList.remove('active');
             const radio = opt.querySelector('input[type="radio"]');
@@ -19870,7 +19876,7 @@ class SidebarManager {
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
                 
-                // Always refresh public cassettes when opening the panel
+                // Always refresh public vibes when opening the panel
                 // This will:
                 // 1. Render immediately from cache (if available)
                 // 2. Fetch fresh data from API
@@ -19878,7 +19884,7 @@ class SidebarManager {
                 if (window.pomodoroTimer.isLoadingPublicCassettes) {
                     // If already loading, we can force a reset if it's been loading for too long (stuck)
                     // or just let it finish. But to be safe and ensure the user sees updates:
-                    console.log('🔄 Public cassettes already loading, letting it finish but ensuring visibility...');
+                    console.log('🔄 Public vibes already loading, letting it finish but ensuring visibility...');
                     // Make sure section is visible if we have data
                     const publicCassettesSection = document.getElementById('publicCassettesSection');
                     const hasItems = document.querySelectorAll('.public-cassette').length > 0;
@@ -19888,7 +19894,7 @@ class SidebarManager {
                 } else {
                     // Trigger load immediately
                     window.pomodoroTimer.loadPublicCassettes(true).catch(err => {
-                        console.error('Error refreshing public cassettes when opening panel:', err);
+                        console.error('Error refreshing public vibes when opening panel:', err);
                     });
                 }
             }

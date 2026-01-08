@@ -1,4 +1,4 @@
-// API endpoint to sync cassettes to Clerk
+// API endpoint to sync vibes to Clerk
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 module.exports = async (req, res) => {
@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
     const currentMeta = user.publicMetadata || {};
     const existingPublicCassettes = currentMeta.publicCassettes || [];
 
-    // Filter only public cassettes
+    // Filter only public vibes
     const publicCassettes = cassettes.filter(c => c.isPublic === true);
 
     // Preserve historical data (views, viewedBy) from existing cassettes
@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
       };
     });
 
-    // Update metadata with public cassettes (preserving historical data)
+    // Update metadata with public vibes (preserving historical data)
     const newMeta = {
       ...currentMeta,
       publicCassettes: publicCassettesWithHistory
@@ -76,7 +76,7 @@ module.exports = async (req, res) => {
     });
   } catch (error) {
     console.error('Error syncing cassettes:', error);
-    res.status(500).json({ error: 'Failed to sync cassettes', details: error.message });
+    res.status(500).json({ error: 'Failed to sync vibes', details: error.message });
   }
 };
 
