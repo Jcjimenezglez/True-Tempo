@@ -1685,7 +1685,7 @@ class PomodoroTimer {
                         source: 'create_cassette_modal'
                     });
                     closeModal();
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
                 });
             }
         }
@@ -19662,180 +19662,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Welcome Onboarding
     initWelcomeOnboarding(timer);
     
-    // Initialize First Time User Welcome Modal
-    initFirstTimeWelcome(timer);
-    
     // Initialize Premium Welcome Modal
     initPremiumWelcome(timer);
 });
 
-// First Time User Welcome Modal
-function initFirstTimeWelcome(timer) {
-    const welcomeModal = document.getElementById('firstTimeWelcomeModal');
-    const closeBtn = document.getElementById('closeFirstTimeWelcomeBtn');
-    const tryWithFreeBtn = document.getElementById('tryWithFreeBtn');
-    const startFreeTrialBtn = document.getElementById('startFreeTrialBtn');
-    
-    if (!welcomeModal) return;
-    
-    // Check if this is a first-time signup
-    const urlParams = new URLSearchParams(window.location.search);
-    const isSignupSuccess = urlParams.get('signup') === 'success';
-    const hasSeenWelcome = localStorage.getItem('hasSeenFirstTimeWelcome');
-    
-    // Function to check if user is newly created (less than 2 minutes old)
-    async function isNewUser() {
-        if (!timer.isAuthenticated || !window.Clerk?.user) return false;
-        
-        try {
-            const user = window.Clerk.user;
-            const createdAt = user.createdAt;
-            
-            if (!createdAt) return false;
-            
-            const now = new Date().getTime();
-            const userCreatedTime = new Date(createdAt).getTime();
-            const twoMinutes = 2 * 60 * 1000; // 2 minutes in milliseconds
-            
-            const isNew = (now - userCreatedTime) < twoMinutes;
-            console.log('🔍 User creation check:', {
-                createdAt: new Date(createdAt).toISOString(),
-                ageInSeconds: Math.floor((now - userCreatedTime) / 1000),
-                isNew: isNew
-            });
-            
-            return isNew;
-        } catch (error) {
-            console.error('Error checking if user is new:', error);
-            return false;
-        }
-    }
-    
-    // Wait for auth to load, then check conditions
-    setTimeout(async () => {
-        if (!timer.isAuthenticated) {
-            console.log('⏭️ User not authenticated, skipping welcome modal');
-            return;
-        }
-        
-        if (hasSeenWelcome === 'true') {
-            console.log('⏭️ User has already seen welcome modal');
-            return;
-        }
-        
-        // Check if:
-        // 1. URL has signup=success parameter, OR
-        // 2. User was created less than 2 minutes ago (new signup)
-        const urlHasSignupSuccess = isSignupSuccess;
-        const userIsNew = await isNewUser();
-        
-        console.log('🔍 Welcome modal conditions:', {
-            urlHasSignupSuccess,
-            userIsNew,
-            isAuthenticated: timer.isAuthenticated,
-            hasSeenWelcome
-        });
-        
-        if ((urlHasSignupSuccess || userIsNew) && timer.isAuthenticated && hasSeenWelcome !== 'true') {
-            showFirstTimeWelcome();
-        } else {
-            console.log('⏭️ Conditions not met for showing welcome modal');
-        }
-    }, 1500); // Wait 1.5 seconds for Clerk to fully load
-    
-    function showFirstTimeWelcome() {
-        welcomeModal.style.display = 'flex';
-        
-        // Track in Mixpanel
-        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-            window.mixpanelTracker.track('First Time Welcome Shown', {
-                user_id: timer.user?.id || 'unknown',
-                timestamp: new Date().toISOString()
-            });
-        }
-        
-        // Clean up URL (remove signup=success parameter)
-        if (window.history && window.history.replaceState) {
-            const url = new URL(window.location);
-            url.searchParams.delete('signup');
-            window.history.replaceState({}, '', url.toString());
-        }
-    }
-    
-    function closeWelcome() {
-        localStorage.setItem('hasSeenFirstTimeWelcome', 'true');
-        welcomeModal.style.display = 'none';
-        
-        // Track dismissal
-        if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-            window.mixpanelTracker.track('First Time Welcome Closed', {
-                user_id: timer.user?.id || 'unknown',
-                method: 'manual'
-            });
-        }
-    }
-    
-    // Close button
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeWelcome);
-    }
-    
-    // Try with Free button (now "Let me try it first")
-    if (tryWithFreeBtn) {
-        tryWithFreeBtn.addEventListener('click', () => {
-            // Track Starter selection
-            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-                const userProfile = localStorage.getItem('userProfile') || 'unknown';
-                const cameFromOnboarding = localStorage.getItem('userProfile') !== null;
-                
-                window.mixpanelTracker.track('Welcome Modal - Let Me Try First Clicked', {
-                    user_id: timer.user?.id || 'unknown',
-                    user_profile: userProfile,
-                    came_from_onboarding: cameFromOnboarding,
-                    timestamp: new Date().toISOString()
-                });
-            }
-            
-            closeWelcome();
-        });
-    }
-    
-    // Start Free Trial button (Premium)
-    if (startFreeTrialBtn) {
-        startFreeTrialBtn.addEventListener('click', () => {
-            // Track Premium trial click with user context
-            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-                const userProfile = localStorage.getItem('userProfile') || 'unknown';
-                const cameFromOnboarding = localStorage.getItem('userProfile') !== null;
-                
-                window.mixpanelTracker.track('Welcome Modal - Start Free Trial Clicked', {
-                    user_id: timer.user?.id || 'unknown',
-                    user_profile: userProfile,
-                    came_from_onboarding: cameFromOnboarding,
-                    timestamp: new Date().toISOString()
-                });
-            }
-            
-            closeWelcome();
-            
-            // Redirect to pricing/checkout
-            window.location.href = '/pricing/?source=welcome_modal';
-        });
-    }
-    
-    // Close on overlay click
-    welcomeModal.addEventListener('click', (e) => {
-        if (e.target === welcomeModal) {
-            if (window.mixpanelTracker && typeof window.mixpanelTracker.track === 'function') {
-                window.mixpanelTracker.track('First Time Welcome Closed', {
-                    user_id: timer.user?.id || 'unknown',
-                    method: 'overlay_click'
-                });
-            }
-            closeWelcome();
-        }
-    });
-}
 
 // Premium Welcome Modal
 function initPremiumWelcome(timer) {
