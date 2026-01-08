@@ -16018,7 +16018,9 @@ class PomodoroTimer {
                 'i.imgur.com', 'images.unsplash.com', 'cdn.unsplash.com',
                 'images.pexels.com', 'cdn.pexels.com', 'imgur.com/a/',
                 'imgur.com/gallery/', 'unsplash.com/photos/', 'pexels.com/photo/',
-                'drive.google.com/uc', 'pbs.twimg.com/media/'
+                'drive.google.com/uc', 'pbs.twimg.com/media/', 'cdn.esquireindia.co.in',
+                'cloudinary.com', 'imgix.net', 'imagekit.io', 'cloudfront.net',
+                'amazonaws.com', 'wp.com', 'medium.com', 'substack.com'
             ];
             
             if (trustedHosts.some(host => trimmedUrl.includes(host))) return true;
