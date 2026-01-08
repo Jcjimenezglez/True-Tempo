@@ -15966,7 +15966,7 @@ class PomodoroTimer {
         };
 
         // Add listeners
-        const inputs = [websiteInput, spotifyInput, imageUrlInput];
+        const inputs = [spotifyInput, imageUrlInput];
         
         inputs.forEach(input => {
             if (input && !input.dataset.metadataInitialized) {
@@ -15976,7 +15976,6 @@ class PomodoroTimer {
                 newInput.dataset.metadataInitialized = 'true';
                 
                 // Update local references so closure uses the active DOM elements
-                if (input === websiteInput) websiteInput = newInput;
                 if (input === spotifyInput) spotifyInput = newInput;
                 if (input === imageUrlInput) imageUrlInput = newInput;
             }
@@ -17132,12 +17131,6 @@ class PomodoroTimer {
                         if (serverCassette.viewedBy !== undefined) {
                             cassette.viewedBy = serverCassette.viewedBy || [];
                         }
-                        if (serverCassette.websiteClicks !== undefined) {
-                            cassette.websiteClicks = serverCassette.websiteClicks;
-                        }
-                        if (serverCassette.clickedBy !== undefined) {
-                            cassette.clickedBy = serverCassette.clickedBy || [];
-                        }
                     }
                 } catch (e) {
                     console.error('Error parsing cache when applying cassette:', e);
@@ -18021,7 +18014,6 @@ class PomodoroTimer {
                     cassette_title: cassette.title,
                     has_image: !!cassette.imageUrl,
                     has_spotify: !!cassette.spotifyUrl,
-                    has_website: !!cassette.websiteUrl,
                     user_type: 'pro',
                     is_edit: !!cassetteId
                 });
