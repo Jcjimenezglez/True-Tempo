@@ -58,15 +58,8 @@ class PomodoroTimer {
         this.currentTaskIndex = 0;
         this.currentTask = null;
         
-        // Todoist integration (Pro feature)
-        this.todoistToken = localStorage.getItem('todoistToken') || '';
-        this.todoistTasks = [];
-        this.todoistProjectsById = {};
-        this.currentTask = null; // { id, content, project_id }
-        
-        
-        // Notion integration (Pro feature)
-        this.notionPages = [];
+        // Current task for local tasks only
+        this.currentTask = null; // { id, content }
         
 		// Lofi music system with shuffle
 		this.lofiPlaying = false;
@@ -568,10 +561,7 @@ class PomodoroTimer {
             console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
             }
             
-            // Clear Todoist tasks if user is not authenticated on initial load
-            if (!this.isAuthenticated) {
-                this.clearTodoistTasks();
-            }
+            // Local tasks only - no integration cleanup needed
 
             // If coming from a Clerk redirect, remove Clerk params from URL
             this.stripClerkParamsFromUrl();
@@ -884,8 +874,7 @@ class PomodoroTimer {
                 }
             }
             
-            // Clear Todoist tasks
-            this.clearTodoistTasks();
+            // Local tasks only - no integration cleanup needed
             
             // Update UI
             this.updateAuthState();
@@ -2332,8 +2321,7 @@ class PomodoroTimer {
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
 
-            // Clear Todoist tasks when user is not authenticated
-            this.clearTodoistTasks();
+            // Local tasks only - no integration cleanup needed
             
             if (this.authContainer) this.authContainer.style.display = 'none'; // Always hidden, use settings menu instead
             if (this.userProfileContainer) this.userProfileContainer.style.display = 'none';
@@ -2796,52 +2784,6 @@ class PomodoroTimer {
         }
     }
     
-    showIntegrationModal(integrationType) {
-        if (this.integrationModalOverlay) {
-            const integrationData = {
-                todoist: {
-                    title: 'Connect Todoist',
-                    message: 'Your tasks live in Todoist. Why keep switching between apps? Bring them here, focus on them, and sync everything back. One workflow, no context switching.',
-                    icon: `
-                        <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
-                            <img src="/images/todoist.svg" alt="Todoist" style="width: 48px; height: 48px;">
-                        </div>
-                    `,
-                    primaryText: this.isAuthenticated ? 'Connect Todoist' : 'Learn More',
-                    secondaryText: 'Cancel'
-                },
-                notion: {
-                    title: 'Connect Notion',
-                    message: 'Your tasks are in Notion databases. Your focus is here. Connect them and work from one place. Import tasks, track time, sync back—no more jumping between apps.',
-                    icon: `
-                        <div style="width: 64px; height: 64px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
-                            <img src="/images/notion.svg" alt="Notion" style="width: 48px; height: 48px;">
-                        </div>
-                    `,
-                    primaryText: this.isAuthenticated ? 'Connect Notion' : 'Learn More',
-                    secondaryText: 'Cancel'
-                }
-            };
-            
-            const data = integrationData[integrationType] || integrationData.todoist;
-            
-            // Update modal content
-            const iconElement = document.getElementById('integrationModalIcon');
-            const titleElement = document.getElementById('integrationModalTitle');
-            const messageElement = document.getElementById('integrationModalMessage');
-            const primaryBtn = document.getElementById('integrationModalPrimaryBtn');
-            const secondaryBtn = document.getElementById('integrationModalSecondaryBtn');
-            
-            if (iconElement) iconElement.innerHTML = data.icon;
-            if (titleElement) titleElement.textContent = data.title;
-            if (messageElement) messageElement.textContent = data.message;
-            if (primaryBtn) primaryBtn.textContent = data.primaryText;
-            if (secondaryBtn) secondaryBtn.textContent = data.secondaryText;
-            
-            this.integrationModalOverlay.style.display = 'flex';
-        }
-    }
-    
     showTechniqueModal(technique) {
         
         // Get technique name
@@ -2913,12 +2855,7 @@ class PomodoroTimer {
             closeModal();
         });
     }
-    
-    hideIntegrationModal() {
-        if (this.integrationModalOverlay) {
-            this.integrationModalOverlay.style.display = 'none';
-        }
-    }
+
     
     showTaskLimitModal() {
         if (this.guestTaskLimitModalOverlay) {
@@ -3245,8 +3182,7 @@ class PomodoroTimer {
             // Now optimistic UI update to guest mode
             this.isAuthenticated = false;
             this.user = null;
-            // Clear Todoist tasks when user logs out
-            this.clearTodoistTasks();
+            // Local tasks only - no integration cleanup needed
             
             // Don't reset theme and music - keep them visible but disabled for logged out users
             // Only clear saved timer state (guests don't get session restore)
@@ -4342,7 +4278,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Connect Your Tools' || text === 'Connect Todoist' || text === 'Connect Notion' || text === 'Unlock Analytics' || text === 'Start Free Trial') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -5842,29 +5778,9 @@ class PomodoroTimer {
             console.log('📊 Tasks panel opened event tracked to Mixpanel');
         }
         
-        // Check user type and subscription level
-        if (!this.isAuthenticated || !this.user) {
-            // Guest users: show local tasks only
-            this.clearTodoistTasks();
+        // Show local tasks for all users (integrations removed)
         this.showTaskListModal();
-        } else if (this.user && !this.isPro) {
-            // Free users: show local tasks only
-            this.clearTodoistTasks();
-            this.showTaskListModal();
-        } else if (this.user && this.isPro) {
-            // Pro users: show Todoist integration modal
-            this.showTodoistModal();
-        }
         // Don't toggle active state - keep button in normal state
-    }
-
-    // Clear Todoist tasks and related data
-    clearTodoistTasks() {
-        this.todoistTasks = [];
-        this.todoistProjectsById = {};
-        // Keep local task configurations (sessions, selection) intact
-        // Clear current task banner if it exists
-        this.updateCurrentTaskBanner();
     }
 
     handleCustomTechniqueClick(item) {
@@ -6320,8 +6236,7 @@ class PomodoroTimer {
         if (finishedWasFocus) {
             const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
             this.actualFocusTimeCompleted += timeCompleted;
-            // Mark todoist task and advance queue BEFORE loading next section so the label updates immediately
-            this.completeCurrentTodoistTaskIfAny();
+            // Advance queue BEFORE loading next section so the label updates immediately
             this.advanceTaskQueueAfterFocus();
             
             // Refresh task panel if it's open to show real-time updates
@@ -6580,26 +6495,6 @@ class PomodoroTimer {
         }
     }
 
-    // Mark current task instance as completed in Todoist if applicable
-    async completeCurrentTodoistTaskIfAny() {
-        const current = this.taskQueue && this.taskQueue[this.currentTaskIndex] ? this.taskQueue[this.currentTaskIndex] : null;
-        if (!current) return;
-        if (current.source !== 'todoist') return;
-        if (!this.isAuthenticated || !this.user) return;
-        try {
-            // Extract original Todoist ID if we used a local prefix
-            const originalId = String(current.id).startsWith('todoist_') ? String(current.id).replace('todoist_', '') : current.id;
-            
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-            
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}${devModeParam}`, {
-                method: 'POST'
-            });
-        } catch (_) {}
-    }
-
     openTasksCompletedModal() {}
 
     markLocalTaskAsCompleted(taskId) {
@@ -6609,37 +6504,11 @@ class PomodoroTimer {
         if (idx !== -1) {
             tasks[idx].completed = true;
             this.setLocalTasks(tasks);
-            
-            // If it's a Todoist task, mark it as completed in Todoist
-            if (tasks[idx].source === 'todoist') {
-                this.completeTodoistTaskInTodoist(taskId);
-            }
         }
         // Deselect the completed task so it doesn't show the blue accent
         this.setTaskConfig(taskId, { selected: false });
         this.updateCurrentTaskBanner();
         this.rebuildTaskQueue();
-    }
-
-    async completeTodoistTaskInTodoist(taskId) {
-        if (!taskId) return;
-        if (!this.isAuthenticated || !this.user) return;
-        
-        try {
-            // Extract original Todoist ID if we used a local prefix
-            const originalId = String(taskId).startsWith('todoist_') ? String(taskId).replace('todoist_', '') : taskId;
-            
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-            
-            // Call the API to mark task as completed in Todoist (using query parameter)
-            await fetch(`/api/todoist-complete?id=${encodeURIComponent(originalId)}${devModeParam}`, {
-                method: 'POST'
-            });
-        } catch (error) {
-            console.error('Error completing Todoist task:', error);
-        }
     }
 
     showTaskCompletedModal() {}
@@ -15505,96 +15374,7 @@ class PomodoroTimer {
         const todoistBtn = panel.querySelector('#importTodoistMainBtn');
         console.log('🔵 Todoist button found:', todoistBtn);
         console.log('🔵 Panel element:', panel);
-        console.log('🔵 All buttons in panel:', panel.querySelectorAll('button'));
-        
-        if (todoistBtn) {
-            // Remove any existing listeners by cloning the button
-            const newTodoistBtn = todoistBtn.cloneNode(true);
-            todoistBtn.parentNode.replaceChild(newTodoistBtn, todoistBtn);
-            
-            console.log('🔵 New Todoist button created:', newTodoistBtn);
-            console.log('🔵 Adding click listener to Todoist button');
-            
-            newTodoistBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔵 Todoist button clicked - checking user type and connection status');
-                
-                // Track Todoist button click
-                this.trackEvent('Todoist Integration Clicked', {
-                    button_type: 'todoist_integration',
-                    source: 'tasks_panel',
-                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
-                    conversion_funnel: 'integration_interest'
-                });
-                
-                // Check if user is Pro (double check with isPremiumUser)
-                const isProUser = this.isAuthenticated && this.user && (this.isPro || this.isPremiumUser());
-                
-                if (isProUser) {
-                    // Pro users can access integrations
-                    try {
-                        // Check if Todoist is connected first
-                        const isConnected = await this.checkTodoistConnection();
-                        console.log('🔍 Todoist connection status:', isConnected);
-                        
-                        if (!isConnected) {
-                            // Pro user not connected → redirect to auth
-                            console.log('🔗 Pro user not connected - redirecting to Todoist auth...');
-                            const userId = window.Clerk?.user?.id || '';
-                            const viewMode = localStorage.getItem('viewMode');
-                            
-                            console.log('🔗 Connecting Todoist:', { 
-                                userId, 
-                                viewMode,
-                                clerkUser: window.Clerk?.user 
-                            });
-                            
-                            const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
-                            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-                        } else {
-                            // Pro user connected → show tasks modal for import
-                            console.log('📋 Pro user connected - showing Todoist projects modal...');
-                            await this.showTodoistProjectsModal();
-                        }
-                    } catch (error) {
-                        console.error('Error checking Todoist connection:', error);
-                        // Fallback to auth redirect
-                        const userId = window.Clerk?.user?.id || '';
-                        const viewMode = localStorage.getItem('viewMode');
-                        const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
-                        window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-                    }
-                } else {
-                    // Guest and Free users show integration modal
-                    console.log('💰 Showing integration modal for non-Pro user');
-                    this.showIntegrationModal('todoist');
-                }
-            });
-            
-            console.log('🔵 Event listener added successfully');
-        } else {
-            console.warn('⚠️ Todoist button not found in panel');
-        }
-        
-        const notionBtn = panel.querySelector('#importNotionMainBtn');
-        if (notionBtn) {
-            notionBtn.replaceWith(notionBtn.cloneNode(true));
-            const newNotionBtn = panel.querySelector('#importNotionMainBtn');
-            newNotionBtn.addEventListener('click', () => {
-                console.log('Notion button clicked');
-                
-                // Track Notion button click
-                this.trackEvent('Notion Integration Clicked', {
-                    button_type: 'notion_integration',
-                    source: 'tasks_panel',
-                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
-                    conversion_funnel: 'integration_interest'
-                });
-                
-                this.showNotionIntegration();
-            });
-        }
+        // Integration buttons removed - using local tasks only
         
         
         // Initial render

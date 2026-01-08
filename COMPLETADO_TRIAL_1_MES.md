@@ -262,3 +262,4 @@ Has actualizado exitosamente tu aplicación de trial de 3 meses a 1 mes, lo cual
 *Creado: Enero 5, 2026*  
 *Última actualización: Enero 5, 2026*
 
+
