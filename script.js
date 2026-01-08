@@ -15882,7 +15882,6 @@ class PomodoroTimer {
     }
 
     initializeCassetteMetadataExtraction() {
-        let websiteInput = document.getElementById('cassetteWebsiteUrl');
         let spotifyInput = document.getElementById('cassetteSpotifyUrl');
         let imageUrlInput = document.getElementById('cassetteImageUrl');
         const titleInput = document.getElementById('cassetteTitle');
@@ -16912,84 +16911,6 @@ class PomodoroTimer {
         }
     }
 
-    // Increment website clicks count for a public cassette (unique clicks per user)
-    async incrementCassetteWebsiteClicks(cassetteId, linkElement) {
-        // Only increment for authenticated users
-        if (!this.isAuthenticated || !this.user?.id) {
-            return; // Guest users don't count clicks
-        }
-        
-        try {
-            const response = await fetch('/api/increment-cassette-website-clicks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-clerk-userid': this.user.id
-                },
-                body: JSON.stringify({ cassetteId })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.websiteClicks !== undefined) {
-                    // Update the clicks count in the UI immediately
-                    if (linkElement) {
-                        let clicksContainer = linkElement.querySelector('.website-clicks-counter');
-                        if (clicksContainer) {
-                            // Update existing counter
-                            const span = clicksContainer.querySelector('span');
-                            if (span) {
-                                span.textContent = this.formatViewsCount(data.websiteClicks);
-                            }
-                        } else {
-                            // Create counter if it doesn't exist
-                            const formattedClicks = this.formatViewsCount(data.websiteClicks);
-                            clicksContainer = document.createElement('div');
-                            clicksContainer.className = 'website-clicks-counter';
-                            clicksContainer.style.cssText = 'display: flex; align-items: center; gap: 4px; margin-left: 4px;';
-                            clicksContainer.innerHTML = `
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                                <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedClicks}</span>
-                            `;
-                            linkElement.querySelector('div').appendChild(clicksContainer);
-                        }
-                    }
-                    
-                    // Update the cassette in cache and localStorage for future loads
-                    const cacheKey = 'publicCassettesCache';
-                    const cachedData = localStorage.getItem(cacheKey);
-                    if (cachedData) {
-                        try {
-                            const cachedCassettes = JSON.parse(cachedData);
-                            const cassetteIndex = cachedCassettes.findIndex(c => c.id === cassetteId);
-                            if (cassetteIndex >= 0) {
-                                cachedCassettes[cassetteIndex].websiteClicks = data.websiteClicks;
-                                cachedCassettes[cassetteIndex].clickedBy = data.clickedBy || cachedCassettes[cassetteIndex].clickedBy || [];
-                                localStorage.setItem(cacheKey, JSON.stringify(cachedCassettes));
-                            }
-                        } catch (e) {
-                            console.error('Error updating cache:', e);
-                        }
-                    }
-                    
-                    // Also update websiteClicks in localStorage cassette for consistency
-                    const localCassettes = this.getCustomCassettes();
-                    const localCassetteIndex = localCassettes.findIndex(c => c.id === cassetteId);
-                    if (localCassetteIndex >= 0) {
-                        localCassettes[localCassetteIndex].websiteClicks = data.websiteClicks;
-                        localCassettes[localCassetteIndex].clickedBy = data.clickedBy || localCassettes[localCassetteIndex].clickedBy || [];
-                        localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error incrementing cassette website clicks:', error);
-            // Don't show error to user, just log it
-        }
-    }
     
     applyActiveStateToPublicCassettes() {
         // Check if current theme is a public cassette and mark it as active
@@ -17367,10 +17288,6 @@ class PomodoroTimer {
             this.currentSpotifyUrl = null;
         }
         
-        // Create Website URL link if provided
-        if (cassette.websiteUrl) {
-            this.createWebsiteLink(cassette.websiteUrl, cassette.id, cassette.websiteClicks);
-        }
         
         // Save as current theme
         const themeName = `custom_${cassette.id}`;
@@ -17383,101 +17300,6 @@ class PomodoroTimer {
         console.log('🎨 Custom cassette applied:', cassette.title);
     }
 
-    createWebsiteLink(websiteUrl, cassetteId, websiteClicks) {
-        // Remove existing website link
-        const existingLink = document.getElementById('customWebsiteLink');
-        if (existingLink) {
-            existingLink.remove();
-        }
-        
-        // Get timer section to append button (like Tron does)
-        const timerSection = document.querySelector('.timer-section');
-        if (!timerSection) {
-            console.error('Timer section not found for website link');
-            return;
-        }
-        
-        // Format clicks count
-        const clicks = websiteClicks || 0;
-        const formattedClicks = this.formatViewsCount(clicks);
-        
-        // Create website link button matching Tron style
-        const link = document.createElement('div');
-        link.id = 'customWebsiteLink';
-        if (cassetteId) {
-            link.setAttribute('data-cassette-id', cassetteId);
-        }
-        link.style.cssText = `
-            position: absolute !important;
-            bottom: 20px !important;
-            left: 16px !important;
-            border-radius: 100px !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: none !important;
-            backdrop-filter: blur(4px) !important;
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 600 !important;
-            transition: all 0.3s ease !important;
-            padding: 12px 20px !important;
-            min-width: 140px !important;
-            white-space: nowrap !important;
-            z-index: 100 !important;
-            cursor: pointer !important;
-            text-decoration: none !important;
-        `;
-        
-        link.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
-                <div style="font-size: 16px; flex-shrink: 0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                        <polyline points="15 3 21 3 21 9"/>
-                        <line x1="10" y1="14" x2="21" y2="3"/>
-                    </svg>
-                </div>
-                <div style="font-weight: 500; font-size: 14px; flex-shrink: 0;">Visit Website</div>
-                ${clicks > 0 ? `
-                <div class="website-clicks-counter" style="display: flex; align-items: center; gap: 4px; margin-left: 4px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(255, 255, 255, 0.8);">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                    <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 500;">${formattedClicks}</span>
-                </div>
-                ` : ''}
-            </div>
-        `;
-        
-        // Add hover effect matching Tron style
-        link.addEventListener('mouseenter', () => {
-            link.style.background = 'rgba(255, 255, 255, 0.15)';
-            link.style.transform = 'translateY(-1px)';
-            link.style.color = '#ffffff';
-        });
-        
-        link.addEventListener('mouseleave', () => {
-            link.style.background = 'rgba(255, 255, 255, 0.1)';
-            link.style.transform = 'translateY(0)';
-            link.style.color = 'rgba(255, 255, 255, 0.9)';
-        });
-        
-        // Add click handler
-        link.addEventListener('click', () => {
-            // Open website in new tab immediately (no delay)
-            window.open(websiteUrl, '_blank', 'noopener,noreferrer');
-            
-            // Increment website clicks in background (don't wait for it)
-            if (cassetteId) {
-                this.incrementCassetteWebsiteClicks(cassetteId, link).catch(err => {
-                    console.error('Error counting website click:', err);
-                });
-            }
-        });
-        
-        // Append to timer section (like Tron does)
-        timerSection.appendChild(link);
-        console.log('🔗 Website link created:', websiteUrl);
-    }
 
     createCustomSpotifyWidget(spotifyUrl) {
         // Check if widget already exists with same URL
@@ -17784,7 +17606,6 @@ class PomodoroTimer {
                 document.getElementById('cassetteDescription').value = cassette.description || '';
                 document.getElementById('cassetteImageUrl').value = cassette.imageUrl || '';
                 document.getElementById('cassetteSpotifyUrl').value = cassette.spotifyUrl || '';
-                document.getElementById('cassetteWebsiteUrl').value = cassette.websiteUrl || '';
                 const isPublicCheckbox = document.getElementById('cassetteIsPublic');
                 if (isPublicCheckbox) {
                     isPublicCheckbox.checked = cassette.isPublic === true;
@@ -17806,7 +17627,6 @@ class PomodoroTimer {
             document.getElementById('cassetteDescription').value = '';
             document.getElementById('cassetteImageUrl').value = '';
             document.getElementById('cassetteSpotifyUrl').value = '';
-            document.getElementById('cassetteWebsiteUrl').value = '';
             const isPublicCheckbox = document.getElementById('cassetteIsPublic');
             if (isPublicCheckbox) {
                 isPublicCheckbox.checked = false;
@@ -17869,7 +17689,6 @@ class PomodoroTimer {
         document.getElementById('cassetteDescription').value = '';
         document.getElementById('cassetteImageUrl').value = '';
         document.getElementById('cassetteSpotifyUrl').value = '';
-        document.getElementById('cassetteWebsiteUrl').value = '';
         const isPublicCheckbox = document.getElementById('cassetteIsPublic');
         if (isPublicCheckbox) {
             isPublicCheckbox.checked = false;
@@ -17950,16 +17769,14 @@ class PomodoroTimer {
         const descriptionEl = document.getElementById('cassetteDescription');
         const imageUrlEl = document.getElementById('cassetteImageUrl');
         const spotifyUrlEl = document.getElementById('cassetteSpotifyUrl');
-        const websiteUrlEl = document.getElementById('cassetteWebsiteUrl');
         const isPublicCheckbox = document.getElementById('cassetteIsPublic');
         
-        if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl || !websiteUrlEl) {
+        if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl) {
             console.error('Form elements not found', {
                 titleEl: !!titleEl,
                 descriptionEl: !!descriptionEl,
                 imageUrlEl: !!imageUrlEl,
-                spotifyUrlEl: !!spotifyUrlEl,
-                websiteUrlEl: !!websiteUrlEl
+                spotifyUrlEl: !!spotifyUrlEl
             });
             alert('Error: Form elements not found. Please try again.');
             return false;
@@ -17970,7 +17787,6 @@ class PomodoroTimer {
         const description = descriptionEl ? (descriptionEl.value || descriptionEl.textContent || '').trim() : '';
         let imageUrl = imageUrlEl ? (imageUrlEl.value || imageUrlEl.textContent || '').trim() : '';
         const spotifyUrl = spotifyUrlEl ? (spotifyUrlEl.value || spotifyUrlEl.textContent || '').trim() : '';
-        const websiteUrl = websiteUrlEl ? (websiteUrlEl.value || websiteUrlEl.textContent || '').trim() : '';
         const isPublic = isPublicCheckbox ? isPublicCheckbox.checked : false;
         
         console.log('💾 Saving cassette - Title value:', title, 'Title length:', title.length, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl?.value);
@@ -18038,12 +17854,10 @@ class PomodoroTimer {
         const changedFromPublicToPrivate = wasPublic && !isNowPublic;
         const changedFromPrivateToPublic = !wasPublic && isNowPublic;
         
-        // Get views, viewedBy, websiteClicks, and clickedBy from server if available (server is source of truth)
+        // Get views and viewedBy from server if available (server is source of truth)
         // This preserves historical data when changing from private to public or editing a public cassette
         let serverViews = 0;
         let serverViewedBy = [];
-        let serverWebsiteClicks = 0;
-        let serverClickedBy = [];
         
         // Check if cassette was previously public or is being changed to public
         if (cassetteId && (previousCassette?.isPublic || isNowPublic)) {
@@ -18061,12 +17875,6 @@ class PomodoroTimer {
                         if (serverCassette.viewedBy !== undefined) {
                             serverViewedBy = serverCassette.viewedBy || [];
                         }
-                        if (serverCassette.websiteClicks !== undefined && serverCassette.websiteClicks !== null) {
-                            serverWebsiteClicks = serverCassette.websiteClicks;
-                        }
-                        if (serverCassette.clickedBy !== undefined) {
-                            serverClickedBy = serverCassette.clickedBy || [];
-                        }
                     }
                 } catch (e) {
                     console.error('Error parsing cache:', e);
@@ -18082,12 +17890,6 @@ class PomodoroTimer {
                 if (previousCassette.viewedBy && previousCassette.viewedBy.length > serverViewedBy.length) {
                     serverViewedBy = previousCassette.viewedBy;
                 }
-                if (previousCassette.websiteClicks !== undefined && previousCassette.websiteClicks !== null && previousCassette.websiteClicks > serverWebsiteClicks) {
-                    serverWebsiteClicks = previousCassette.websiteClicks;
-                }
-                if (previousCassette.clickedBy && previousCassette.clickedBy.length > serverClickedBy.length) {
-                    serverClickedBy = previousCassette.clickedBy;
-                }
             }
         }
         
@@ -18097,7 +17899,6 @@ class PomodoroTimer {
             description: description || '',
             imageUrl: imageUrl || '',
             spotifyUrl: spotifyUrl || '',
-            websiteUrl: websiteUrl || '',
             isPublic: isPublic,
             // Preserve views from server if available (server is source of truth for views)
             // When changing from private to public, preserve historical data from Clerk
@@ -18107,14 +17908,6 @@ class PomodoroTimer {
             // Preserve viewedBy from server if available (server is source of truth for viewedBy)
             viewedBy: (serverViewedBy.length > 0 || (previousCassette?.viewedBy && previousCassette.viewedBy.length > 0))
                 ? (serverViewedBy.length >= (previousCassette?.viewedBy?.length || 0) ? serverViewedBy : previousCassette.viewedBy)
-                : [],
-            // Preserve websiteClicks from server if available (server is source of truth for websiteClicks)
-            websiteClicks: (serverWebsiteClicks > 0 || (previousCassette?.websiteClicks !== undefined && previousCassette.websiteClicks !== null))
-                ? Math.max(serverWebsiteClicks, previousCassette?.websiteClicks || 0)
-                : 0,
-            // Preserve clickedBy from server if available (server is source of truth for clickedBy)
-            clickedBy: (serverClickedBy.length > 0 || (previousCassette?.clickedBy && previousCassette.clickedBy.length > 0))
-                ? (serverClickedBy.length >= (previousCassette?.clickedBy?.length || 0) ? serverClickedBy : previousCassette.clickedBy)
                 : [],
             createdAt: cassetteId ? previousCassette?.createdAt || new Date().toISOString() : new Date().toISOString(),
             updatedAt: new Date().toISOString()

@@ -36,23 +36,19 @@ module.exports = async (req, res) => {
     // Filter only public cassettes
     const publicCassettes = cassettes.filter(c => c.isPublic === true);
 
-    // Preserve historical data (views, websiteClicks, viewedBy, clickedBy) from existing cassettes
+    // Preserve historical data (views, viewedBy) from existing cassettes
     const publicCassettesWithHistory = publicCassettes.map(cassette => {
       // Find existing cassette in Clerk by ID
       const existingCassette = existingPublicCassettes.find(ec => ec.id === cassette.id);
       
       if (existingCassette) {
-        // Preserve historical data from Clerk (source of truth for views/clicks)
+        // Preserve historical data from Clerk (source of truth for views)
         return {
           ...cassette,
           views: existingCassette.views !== undefined && existingCassette.views !== null 
             ? existingCassette.views 
             : (cassette.views || 0),
-          websiteClicks: existingCassette.websiteClicks !== undefined && existingCassette.websiteClicks !== null 
-            ? existingCassette.websiteClicks 
-            : (cassette.websiteClicks || 0),
-          viewedBy: existingCassette.viewedBy || cassette.viewedBy || [],
-          clickedBy: existingCassette.clickedBy || cassette.clickedBy || []
+          viewedBy: existingCassette.viewedBy || cassette.viewedBy || []
         };
       }
       
@@ -60,9 +56,7 @@ module.exports = async (req, res) => {
       return {
         ...cassette,
         views: cassette.views || 0,
-        websiteClicks: cassette.websiteClicks || 0,
-        viewedBy: cassette.viewedBy || [],
-        clickedBy: cassette.clickedBy || []
+        viewedBy: cassette.viewedBy || []
       };
     });
 
