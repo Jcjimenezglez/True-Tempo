@@ -17977,8 +17977,10 @@ class PomodoroTimer {
         
         // Re-initialize validation to set up listeners and validate current values
         // This ensures the save button state is correct when form is shown
-        // Reset validation state when form is shown
-        this.imageUrlIsValid = false;
+        // Set initial state based on whether image field is empty (empty = valid, since optional)
+        const imageInput = document.getElementById('cassetteImageUrl');
+        this.imageUrlIsValid = !imageInput || !imageInput.value || imageInput.value.trim() === '';
+        
         setTimeout(() => {
             this.initializeImageUrlValidation();
         }, 100);
