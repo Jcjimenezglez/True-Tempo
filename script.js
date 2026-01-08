@@ -16044,7 +16044,13 @@ class PomodoroTimer {
             const title = currentTitleInput ? currentTitleInput.value.trim() : '';
             const isTitleValid = title.length > 0;
             
-            saveBtn.disabled = !(isTitleValid && isValid);
+            // Image is optional - only require title to be valid
+            // If image URL is provided, it must be valid
+            const currentImageUrl = document.getElementById('cassetteImageUrl');
+            const hasImageUrl = currentImageUrl && currentImageUrl.value.trim() !== '';
+            
+            // Button enabled if: title is valid AND (no image OR image is valid)
+            saveBtn.disabled = !(isTitleValid && (!hasImageUrl || isValid));
             saveBtn.style.opacity = saveBtn.disabled ? '0.5' : '1';
             saveBtn.style.cursor = saveBtn.disabled ? 'not-allowed' : 'pointer';
         };
@@ -16052,11 +16058,11 @@ class PomodoroTimer {
         const validateImageUrl = async (url) => {
             if (!url) url = '';
             
-            // 1. Basic empty check
+            // 1. Basic empty check - empty is valid (image is optional)
             if (!url || url.trim() === '') {
                 warningElement.style.display = 'none';
-                this.imageUrlIsValid = false;
-                updateSaveButtonState(false);
+                this.imageUrlIsValid = true; // Changed: empty is valid
+                updateSaveButtonState(true); // Changed: allow saving with no image
                 return;
             }
             
