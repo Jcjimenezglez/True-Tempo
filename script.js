@@ -16638,8 +16638,15 @@ class PomodoroTimer {
         // Show section
         publicCassettesSection.style.display = 'block';
         
+        // Sort by creation date: newest first (most recent at the top)
+        const sortedCassettes = [...filteredPublicCassettes].sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.updatedAt || 0);
+            const dateB = new Date(b.createdAt || b.updatedAt || 0);
+            return dateB - dateA; // Descending order (newest first)
+        });
+        
         // Render public cassettes
-        publicCassettesList.innerHTML = filteredPublicCassettes.map(cassette => {
+        publicCassettesList.innerHTML = sortedCassettes.map(cassette => {
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             // Escape URL for CSS: escape single quotes and wrap in quotes
