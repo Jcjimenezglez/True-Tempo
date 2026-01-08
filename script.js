@@ -19836,6 +19836,7 @@ class SidebarManager {
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
+        this.isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
         this.isTaskPanelOpen = false;
         this.isSettingsPanelOpen = false;
         this.isImmersiveThemePanelOpen = false;
@@ -20114,13 +20115,19 @@ class SidebarManager {
     
     setupResponsive() {
         if (this.isMobile) {
+            // Mobile: sidebar hidden by default, hamburger menu
             this.sidebar.classList.add('hidden');
             this.sidebar.classList.remove('collapsed', 'expanded');
             this.mainContent.style.marginLeft = '0';
+        } else if (this.isTablet) {
+            // Tablet: sidebar collapsed but visible
+            this.sidebar.classList.remove('hidden', 'open');
+            this.sidebar.classList.add('collapsed');
+            this.sidebar.classList.remove('expanded');
+            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
         } else {
-            this.sidebar.classList.remove('hidden');
-            this.sidebar.classList.remove('open');
-            // Always keep sidebar collapsed on desktop
+            // Desktop: sidebar collapsed
+            this.sidebar.classList.remove('hidden', 'open');
             this.sidebar.classList.add('collapsed');
             this.sidebar.classList.remove('expanded');
             this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
@@ -20129,9 +20136,11 @@ class SidebarManager {
     
     handleResize() {
         const wasMobile = this.isMobile;
+        const wasTablet = this.isTablet;
         this.isMobile = window.innerWidth <= 768;
+        this.isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
         
-        if (wasMobile !== this.isMobile) {
+        if (wasMobile !== this.isMobile || wasTablet !== this.isTablet) {
             this.setupResponsive();
             
             // Reset mobile state
@@ -20141,6 +20150,14 @@ class SidebarManager {
                     this.sidebarOverlay.classList.remove('active');
                 }
                 document.body.style.overflow = '';
+            }
+            
+            // Close side panels on resize to avoid layout issues
+            if (this.isTaskPanelOpen) {
+                this.closeTaskPanel();
+            }
+            if (this.isSettingsPanelOpen) {
+                this.closeSettingsPanel();
             }
         }
     }
@@ -20278,6 +20295,11 @@ class SidebarManager {
                 this.closeResourcesPanel();
             }
             
+            // Close mobile sidebar if open
+            if (this.isMobile && this.sidebar.classList.contains('open')) {
+                this.hideMobile();
+            }
+            
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
             
@@ -20289,9 +20311,14 @@ class SidebarManager {
             // Set Tasks nav item as active
             this.setActiveNavItem('tasks');
             
-            // Push main content to the right
-            if (this.mainContent) {
+            // Push main content to the right (only on desktop/tablet)
+            if (this.mainContent && !this.isMobile) {
                 this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Prevent body scroll on mobile when panel is open
+            if (this.isMobile) {
+                document.body.style.overflow = 'hidden';
             }
             
             // Trigger rendering of tasks
@@ -20306,6 +20333,11 @@ class SidebarManager {
     }
     
     closeTaskPanel() {
+        // Re-enable body scroll on mobile
+        if (this.isMobile) {
+            document.body.style.overflow = '';
+        }
+        
         if (this.taskSidePanel) {
             this.taskSidePanel.classList.remove('open');
             this.isTaskPanelOpen = false;
@@ -20356,6 +20388,11 @@ class SidebarManager {
                 this.closeResourcesPanel();
             }
             
+            // Close mobile sidebar if open
+            if (this.isMobile && this.sidebar.classList.contains('open')) {
+                this.hideMobile();
+            }
+            
             this.settingsSidePanel.classList.add('open');
             this.isSettingsPanelOpen = true;
             
@@ -20367,9 +20404,14 @@ class SidebarManager {
             // Set Settings nav item as active
             this.setActiveNavItem('settings');
             
-            // Push main content to the right
-            if (this.mainContent) {
+            // Push main content to the right (only on desktop/tablet)
+            if (this.mainContent && !this.isMobile) {
                 this.mainContent.classList.add('task-panel-open');
+            }
+            
+            // Prevent body scroll on mobile when panel is open
+            if (this.isMobile) {
+                document.body.style.overflow = 'hidden';
             }
             
             // Initialize settings panel controls
@@ -20380,6 +20422,11 @@ class SidebarManager {
     }
     
     closeSettingsPanel() {
+        // Re-enable body scroll on mobile
+        if (this.isMobile) {
+            document.body.style.overflow = '';
+        }
+        
         if (this.settingsSidePanel) {
             this.settingsSidePanel.classList.remove('open');
             this.isSettingsPanelOpen = false;

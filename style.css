@@ -8796,16 +8796,8 @@ input:checked + .toggle-slider:before {
     transform: translateY(0);
 }
 
-/* Hide main content on mobile/tablet */
-@media (max-width: 1024px) {
-    .main-content {
-        display: none !important;
-    }
-    
-    .desktop-required-screen {
-        display: flex !important;
-    }
-}
+/* Remove desktop-only restriction - app now works on all devices */
+/* Desktop required screen is now hidden by default in HTML */
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
@@ -9748,5 +9740,519 @@ input:checked + .toggle-slider:before {
     .welcome-cta-btn {
         font-size: 0.9rem;
         padding: 12px 20px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - TABLET & MOBILE
+   ======================================== */
+
+/* Tablet Landscape (1024px - 768px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    /* Sidebar adjustments for tablet */
+    .sidebar {
+        width: var(--sidebar-collapsed-width);
+    }
+    
+    .sidebar-logo img {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .sidebar-header {
+        padding: 16px 12px;
+    }
+    
+    .sidebar-nav {
+        padding: 12px 8px;
+    }
+    
+    .nav-item {
+        padding: 12px;
+    }
+    
+    /* Main content with collapsed sidebar */
+    .main-content {
+        margin-left: var(--sidebar-collapsed-width) !important;
+    }
+    
+    /* Timer optimizations */
+    .time {
+        font-size: 5.5rem;
+    }
+    
+    .session-info {
+        font-size: 1rem;
+    }
+    
+    /* Task side panel */
+    .task-side-panel {
+        width: 360px;
+    }
+    
+    /* Settings panel */
+    .timer-side-panel {
+        width: 360px;
+    }
+}
+
+/* Tablet Portrait & Mobile Landscape (768px - 481px) */
+@media (max-width: 768px) and (min-width: 481px) {
+    /* Hide sidebar by default on tablet portrait */
+    .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        z-index: 10001;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Show mobile menu toggle */
+    .mobile-menu-toggle {
+        display: flex;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+    }
+    
+    /* Main content full width */
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    /* Timer display */
+    .time {
+        font-size: 5rem;
+    }
+    
+    .session-info {
+        font-size: 0.95rem;
+        margin-top: 12px;
+    }
+    
+    .current-task {
+        font-size: 1rem;
+        max-width: 90%;
+    }
+    
+    /* Timer footer - make button larger for touch */
+    .timer-footer {
+        padding: 24px 20px;
+    }
+    
+    .start-btn {
+        min-width: 140px;
+        height: 64px;
+        font-size: 1.1rem;
+    }
+    
+    .start-btn svg {
+        width: 28px;
+        height: 28px;
+    }
+    
+    /* Task side panel - full width overlay */
+    .task-side-panel {
+        width: 100%;
+        max-width: 500px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .task-side-panel.open {
+        transform: translateX(-50%);
+    }
+    
+    /* Settings panel - full width overlay */
+    .timer-side-panel {
+        width: 100%;
+        max-width: 500px;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%) translateX(100%);
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .timer-side-panel.open {
+        transform: translateX(-50%);
+    }
+    
+    /* Progress bar adjustments */
+    .progress-container {
+        width: 280px;
+    }
+    
+    /* Technique dropdown */
+    .technique-title {
+        font-size: 1rem;
+        padding: 10px 16px;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    /* Sidebar full width on mobile */
+    .sidebar {
+        transform: translateX(-100%);
+        width: 85%;
+        max-width: 300px;
+        z-index: 10001;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    /* Mobile menu toggle */
+    .mobile-menu-toggle {
+        display: flex;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1000;
+        width: 44px;
+        height: 44px;
+    }
+    
+    /* Main content */
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    /* Timer section - optimize for small screens */
+    .timer-section {
+        padding: 20px 16px;
+    }
+    
+    /* Timer display - make it prominent */
+    .time {
+        font-size: 4rem;
+        line-height: 1;
+    }
+    
+    .session-info {
+        font-size: 0.875rem;
+        margin-top: 8px;
+    }
+    
+    .session-label {
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+    
+    .current-task {
+        font-size: 0.9rem;
+        max-width: 95%;
+        padding: 0 8px;
+        margin-top: 8px;
+    }
+    
+    /* Timer footer - larger touch targets */
+    .timer-footer {
+        padding: 20px 16px;
+        gap: 12px;
+    }
+    
+    .start-btn {
+        min-width: 140px;
+        height: 64px;
+        font-size: 1rem;
+        padding: 0 24px;
+    }
+    
+    .start-btn svg {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .start-btn .btn-text {
+        font-size: 1rem;
+    }
+    
+    /* Task side panel - full screen on mobile */
+    .task-side-panel {
+        width: 100%;
+        height: 100%;
+        left: 0;
+        transform: translateX(100%);
+        border-radius: 0;
+    }
+    
+    .task-side-panel.open {
+        transform: translateX(0);
+    }
+    
+    /* Settings panel - full screen on mobile */
+    .timer-side-panel {
+        width: 100%;
+        height: 100%;
+        right: auto;
+        left: 0;
+        transform: translateX(100%);
+        border-radius: 0;
+    }
+    
+    .timer-side-panel.open {
+        transform: translateX(0);
+    }
+    
+    /* Panel headers */
+    .tasks-header h3,
+    .settings-section-title {
+        font-size: 1.25rem;
+    }
+    
+    .tasks-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    /* Task items - larger touch targets */
+    .task-item {
+        padding: 16px 12px;
+        min-height: 60px;
+    }
+    
+    .task-checkbox-label {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .task-description {
+        font-size: 0.95rem;
+    }
+    
+    /* Add task button */
+    .add-task-btn {
+        padding: 14px;
+        font-size: 0.95rem;
+        min-height: 48px;
+    }
+    
+    /* Progress container */
+    .progress-container {
+        width: 240px;
+        margin: 16px auto;
+    }
+    
+    .progress-segment {
+        width: 10px;
+        height: 10px;
+    }
+    
+    /* Technique dropdown */
+    .technique-title {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+        min-width: 200px;
+    }
+    
+    .dropdown-menu {
+        min-width: 200px;
+    }
+    
+    .dropdown-item {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Auth buttons in timer header */
+    .timer-header {
+        top: 16px;
+        right: 16px;
+        left: auto;
+    }
+    
+    .timer-login-btn,
+    .timer-signup-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+    
+    /* Focus report header - compact */
+    .focus-report {
+        padding: 8px 12px;
+        gap: 12px;
+    }
+    
+    .stat-box {
+        min-width: 60px;
+        padding: 6px 10px;
+    }
+    
+    .stat-value {
+        font-size: 1.1rem;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+    }
+    
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+    }
+    
+    /* Modals - full screen on mobile */
+    .focus-stats-modal,
+    .custom-timer-modal,
+    .settings-modal,
+    .pricing-modal,
+    .feedback-modal,
+    .integrations-modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .modal-header {
+        padding: 16px;
+    }
+    
+    .modal-title {
+        font-size: 1.25rem;
+    }
+    
+    .modal-content,
+    .modal-body {
+        padding: 16px;
+    }
+    
+    /* Close buttons - larger touch target */
+    .close-btn,
+    .close-focus-stats-x,
+    .close-side-panel-btn {
+        width: 44px;
+        height: 44px;
+        padding: 10px;
+    }
+    
+    /* Form inputs */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    textarea,
+    select {
+        font-size: 16px !important; /* Prevent iOS zoom on focus */
+        padding: 12px;
+        min-height: 44px;
+    }
+    
+    /* Buttons - larger touch targets */
+    button,
+    .btn-primary,
+    .btn-secondary {
+        min-height: 44px;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Extra small mobile (375px and below) */
+@media (max-width: 375px) {
+    .time {
+        font-size: 3.5rem;
+    }
+    
+    .session-info {
+        font-size: 0.8rem;
+    }
+    
+    .start-btn {
+        min-width: 120px;
+        height: 56px;
+    }
+    
+    .progress-container {
+        width: 200px;
+    }
+    
+    .technique-title {
+        font-size: 0.85rem;
+        min-width: 180px;
+    }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .timer-section {
+        justify-content: flex-start;
+        padding-top: 60px;
+    }
+    
+    .time {
+        font-size: 3.5rem;
+    }
+    
+    .session-info {
+        margin-top: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .progress-container {
+        margin: 12px auto;
+    }
+    
+    .timer-footer {
+        padding: 16px;
+    }
+    
+    .start-btn {
+        height: 48px;
+    }
+}
+
+/* Touch-specific improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets for all interactive elements */
+    button,
+    a,
+    .nav-item,
+    .task-item,
+    .dropdown-item {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Remove hover states on touch devices */
+    .nav-item:hover,
+    .task-item:hover,
+    .btn-primary:hover,
+    .btn-secondary:hover {
+        transform: none;
+    }
+    
+    /* Add active/pressed states instead */
+    .nav-item:active,
+    .task-item:active,
+    button:active {
+        opacity: 0.7;
+        transition: opacity 0.1s;
+    }
+}
+
+/* High DPI displays (Retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Sharper text rendering */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Dark mode support (system preference) */
+@media (prefers-color-scheme: dark) {
+    /* Already dark by default, but ensure consistency */
+    body {
+        background: #000000;
+        color: #ffffff;
     }
 }
