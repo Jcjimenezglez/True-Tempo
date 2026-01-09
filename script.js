@@ -36,6 +36,10 @@ class PomodoroTimer {
         // Note: Will be properly loaded after auth with user-specific key
             this.focusSecondsToday = 0;
 
+        // Leaderboard cache to avoid unnecessary API calls
+        this.leaderboardCache = null;
+        this.leaderboardCachedAtHours = 0;
+
         // Daily focus cap for non‑Pro users (in seconds) and cooldown
         this.DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
         this.FOCUS_LIMIT_COOLDOWN_MS = 23 * 60 * 60 * 1000; // 23 hours
@@ -12262,6 +12266,32 @@ class PomodoroTimer {
         const leaderboardContent = document.getElementById('leaderboardContent');
         if (!leaderboardContent) return;
 
+        // Get current user's total hours
+        const stats = this.getFocusStats();
+        const currentTotalHours = stats.totalHours || 0;
+
+        // Check if we have cached leaderboard data
+        const cachedData = this.leaderboardCache;
+        const cachedTotalHours = this.leaderboardCachedAtHours || 0;
+
+        // Calculate if user has earned at least 1 minute (0.0167 hours) since last cache
+        const hoursEarnedSinceCache = currentTotalHours - cachedTotalHours;
+        const needsRefresh = hoursEarnedSinceCache >= (1 / 60); // 1 minute = 1/60 hours
+
+        // If we have cache and user hasn't earned 1+ minute, show cached data
+        if (cachedData && !needsRefresh && page === 1) {
+            console.log('📦 Using cached leaderboard (no new focus time earned)');
+            console.log(`   Current: ${currentTotalHours.toFixed(2)}h, Cached at: ${cachedTotalHours.toFixed(2)}h, Diff: ${(hoursEarnedSinceCache * 60).toFixed(1)} min`);
+            
+            this.displayLeaderboardInPanel(
+                leaderboardContent, 
+                cachedData.leaderboard, 
+                cachedData.currentUserPosition, 
+                cachedData.pagination
+            );
+            return;
+        }
+
         // Show loading state
         leaderboardContent.innerHTML = `
             <div style="padding: 24px; text-align: center; color: #a3a3a3;">
@@ -12269,10 +12299,14 @@ class PomodoroTimer {
             </div>
         `;
 
+        console.log('🔄 Fetching fresh leaderboard from server...');
+        if (needsRefresh) {
+            console.log(`   Reason: Earned ${(hoursEarnedSinceCache * 60).toFixed(1)} minutes since last load`);
+        }
+
         // Sync local stats to Clerk if they exist (one-time sync for existing users)
         // Only sync on page 1 to avoid unnecessary calls
         if (page === 1) {
-            const stats = this.getFocusStats();
             if (stats.totalHours && stats.totalHours > 0) {
                 // Sync stats to ensure they're in Clerk (async, don't wait)
                 this.syncStatsToClerk(stats.totalHours);
@@ -12297,6 +12331,24 @@ class PomodoroTimer {
                 if (data.debug) {
                     console.log('Leaderboard Debug:', data.debug);
                 }
+
+                // Cache the leaderboard data for page 1
+                if (page === 1) {
+                    this.leaderboardCache = {
+                        leaderboard: data.leaderboard,
+                        currentUserPosition: data.currentUserPosition,
+                        pagination: {
+                            page: data.page,
+                            totalPages: data.totalPages,
+                            totalUsers: data.totalUsers,
+                            hasMore: data.hasMore,
+                            activityWindowDays: data.activityWindowDays
+                        }
+                    };
+                    this.leaderboardCachedAtHours = currentTotalHours;
+                    console.log(`✅ Leaderboard cached at ${currentTotalHours.toFixed(2)}h`);
+                }
+
                 this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition, {
                     page: data.page,
                     totalPages: data.totalPages,
