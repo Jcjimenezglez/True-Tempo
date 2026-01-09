@@ -2301,7 +2301,6 @@ body.is-scrolling .streak-fire {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.9rem;
 }
 
 .stat-label {
@@ -2309,15 +2308,18 @@ body.is-scrolling .streak-fire {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.9rem;
 }
 
 .stat-value {
     color: #ffffff;
     font-weight: 600;
+    font-size: 1.25rem;
 }
 
 .stat-value.countdown {
     color: #ff6b6b;
+    font-size: 1.25rem;
 }
 
 .logout-modal-buttons {
