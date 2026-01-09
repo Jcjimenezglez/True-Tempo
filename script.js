@@ -37,8 +37,20 @@ class PomodoroTimer {
             this.focusSecondsToday = 0;
 
         // Leaderboard cache to avoid unnecessary API calls (multi-page support)
-        this.leaderboardCache = {}; // Object to store cache by page: { 1: {...}, 2: {...}, etc }
-        this.leaderboardCachedAtHours = 0;
+        // Load from localStorage if exists
+        try {
+            const savedCache = localStorage.getItem('leaderboardCache');
+            const savedHours = localStorage.getItem('leaderboardCachedAtHours');
+            this.leaderboardCache = savedCache ? JSON.parse(savedCache) : {};
+            this.leaderboardCachedAtHours = savedHours ? parseFloat(savedHours) : 0;
+            if (Object.keys(this.leaderboardCache).length > 0) {
+                console.log(`📦 Loaded leaderboard cache from localStorage (${Object.keys(this.leaderboardCache).length} pages cached at ${this.leaderboardCachedAtHours.toFixed(2)}h)`);
+            }
+        } catch (err) {
+            console.error('Failed to load leaderboard cache:', err);
+            this.leaderboardCache = {};
+            this.leaderboardCachedAtHours = 0;
+        }
 
         // Daily focus cap for non‑Pro users (in seconds) and cooldown
         this.DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
@@ -12282,6 +12294,8 @@ class PomodoroTimer {
         if (needsRefresh) {
             console.log(`🗑️ Clearing all leaderboard page caches (earned ${(hoursEarnedSinceCache * 60).toFixed(1)} min)`);
             this.leaderboardCache = {};
+            localStorage.removeItem('leaderboardCache');
+            localStorage.removeItem('leaderboardCachedAtHours');
         }
 
         // If we have cache for this page and user hasn't earned 1+ minute, show cached data
@@ -12355,6 +12369,15 @@ class PomodoroTimer {
                 
                 // Update cached hours timestamp (shared across all pages)
                 this.leaderboardCachedAtHours = currentTotalHours;
+                
+                // Persist cache to localStorage (survives page reloads and browser close)
+                try {
+                    localStorage.setItem('leaderboardCache', JSON.stringify(this.leaderboardCache));
+                    localStorage.setItem('leaderboardCachedAtHours', currentTotalHours.toString());
+                } catch (err) {
+                    console.error('Failed to save leaderboard cache to localStorage:', err);
+                }
+                
                 console.log(`✅ Leaderboard page ${page} cached at ${currentTotalHours.toFixed(2)}h`);
 
                 this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition, {
