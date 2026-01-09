@@ -211,7 +211,7 @@ module.exports = async (req, res) => {
       .filter(
         user =>
           user.totalFocusHours > 0 &&
-          (user.isActive || user.isCurrentUser)
+          (user.isActive || user.isCurrentUser || user.isPremium)
       )
       .sort((a, b) => b.totalFocusHours - a.totalFocusHours);
 
