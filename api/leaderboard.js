@@ -2,7 +2,7 @@
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 const ACTIVE_DAYS_DEFAULT = parseInt(process.env.LEADERBOARD_ACTIVE_DAYS || '7', 10);
-const MAX_USERS_TO_FETCH = parseInt(process.env.LEADERBOARD_MAX_USERS || '5000', 10);
+const MAX_USERS_TO_FETCH = parseInt(process.env.LEADERBOARD_MAX_USERS || '1000', 10);
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const parseDate = (value) => {
