@@ -645,7 +645,7 @@ class PomodoroTimer {
             
             // Session keepalive: Refresh session when user returns to the page
             document.addEventListener('visibilitychange', async () => {
-                if (!document.hidden && window.Clerk.session) {
+                if (!document.hidden && window.Clerk?.session && typeof window.Clerk.session.touch === 'function') {
                     try {
                         console.log('🔄 Page visible again, refreshing session...');
                         await window.Clerk.session.touch();
@@ -658,7 +658,7 @@ class PomodoroTimer {
             
             // Periodic session refresh (every 5 minutes) to prevent timeout
             setInterval(async () => {
-                if (window.Clerk.session) {
+                if (window.Clerk?.session && typeof window.Clerk.session.touch === 'function') {
                     try {
                         await window.Clerk.session.touch();
                         console.log('🔄 Session keepalive ping sent');
