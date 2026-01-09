@@ -15565,32 +15565,46 @@ class PomodoroTimer {
 
             const item = document.createElement('div');
             item.className = 'task-history-item';
-            item.innerHTML = `
-                <div class="task-history-item-content">
-                    <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
-                    <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-                </div>
-                <div class="task-history-item-duration">${focusTimeMinutes > 0 ? focusTimeMinutes + 'min' : 'No data'}</div>
-                <button class="task-history-delete-btn" data-task-id="${task.id}" title="Delete from history">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                        <path d="M10 11v6"/>
-                        <path d="M14 11v6"/>
-                    </svg>
-                </button>
+            
+            // Create content div
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'task-history-item-content';
+            contentDiv.innerHTML = `
+                <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
+                <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
             `;
             
-            // Add delete button event listener
-            const deleteBtn = item.querySelector('.task-history-delete-btn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', (e) => {
+            // Create duration div
+            const durationDiv = document.createElement('div');
+            durationDiv.className = 'task-history-item-duration';
+            durationDiv.textContent = focusTimeMinutes > 0 ? focusTimeMinutes + 'min' : 'No data';
+            
+            // Create delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'task-history-delete-btn';
+            deleteBtn.setAttribute('data-task-id', task.id);
+            deleteBtn.setAttribute('title', 'Delete from history');
+            deleteBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                </svg>
+            `;
+            
+            // Add delete button event listener with proper binding
+            deleteBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                    this.deleteTaskFromHistory(task.id, page);
-                });
-            }
+                console.log('🗑️ Delete button clicked for task:', task.id);
+                this.deleteTaskFromHistory(task.id, page);
+            });
             
+            // Append all elements
+            item.appendChild(contentDiv);
+            item.appendChild(durationDiv);
+            item.appendChild(deleteBtn);
             historyList.appendChild(item);
         });
 
