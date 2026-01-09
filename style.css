@@ -10325,11 +10325,11 @@ input:checked + .toggle-slider:before {
 }
 
 .task-history-item-duration {
-    color: rgba(76, 175, 80, 0.8);
+    color: rgba(255, 255, 255, 0.7);
     font-weight: 500;
     font-size: 12px;
     padding: 4px 10px;
-    background: rgba(76, 175, 80, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 4px;
     white-space: nowrap;
 }

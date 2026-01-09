@@ -594,16 +594,6 @@
             
             <!-- Tasks List -->
             <div id="todoistTasksList" class="tasks-list">
-                <!-- Task History (will be populated dynamically) -->
-                <div id="taskHistoryContainer" style="display: none;">
-                    <div class="task-history-separator"></div>
-                    <div class="task-history-header">
-                        <h4>Task History</h4>
-                    </div>
-                    <div id="taskHistoryList" class="task-history-list"></div>
-                    <div id="taskHistoryPagination" class="task-history-pagination"></div>
-                </div>
-
                 <!-- Add Task Form (initially hidden) -->
                 <div id="addTaskForm" class="add-task-form" style="display: none;">
                     <div class="form-group">
@@ -632,6 +622,16 @@
                         <button class="btn-primary" id="saveTask">Save</button>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Task History (will be populated dynamically) -->
+            <div id="taskHistoryContainer" style="display: none;">
+                <div class="task-history-separator"></div>
+                <div class="task-history-header">
+                    <h4>Task History</h4>
+                </div>
+                <div id="taskHistoryList" class="task-history-list"></div>
+                <div id="taskHistoryPagination" class="task-history-pagination"></div>
             </div>
             
             <!-- Add Task Button -->

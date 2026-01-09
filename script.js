@@ -6519,6 +6519,19 @@ class PomodoroTimer {
         const idx = tasks.findIndex(t => t.id === taskId);
         if (idx !== -1) {
             tasks[idx].completed = true;
+            tasks[idx].completedAt = new Date().toISOString();
+            
+            // Track actual focus time completed for this task
+            // Get current session's actual focus time from actualFocusTimeCompleted
+            const taskConfig = this.getTaskConfig(taskId);
+            const completedFocusTime = taskConfig.completedFocusTime || 0;
+            const newFocusTime = completedFocusTime + this.actualFocusTimeCompleted;
+            
+            this.setTaskConfig(taskId, { 
+                completedFocusTime: newFocusTime,
+                selected: false 
+            });
+            
             this.setLocalTasks(tasks);
         }
         // Deselect the completed task so it doesn't show the blue accent
@@ -15511,8 +15524,9 @@ class PomodoroTimer {
         // Render task history items
         pagedTasks.forEach(task => {
             const taskConfig = this.getTaskConfig(task.id);
-            const totalSessions = taskConfig.sessions || 1;
-            const totalMinutes = totalSessions * 25; // 25 min per session
+            // Use actual focus time completed for this task, fallback to 25min per session
+            const focusTimeSeconds = taskConfig.completedFocusTime || (taskConfig.sessions || 1) * 25 * 60;
+            const focusTimeMinutes = Math.round(focusTimeSeconds / 60);
 
             const item = document.createElement('div');
             item.className = 'task-history-item';
@@ -15521,7 +15535,7 @@ class PomodoroTimer {
                     <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
                     <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
-                <div class="task-history-item-duration">${totalMinutes}min</div>
+                <div class="task-history-item-duration">${focusTimeMinutes}min</div>
             `;
             historyList.appendChild(item);
         });
