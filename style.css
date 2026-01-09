@@ -2297,13 +2297,16 @@ body.is-scrolling .streak-fire {
     gap: 0.75rem;
 }
 
-.stat-item {
+.limit-stats .stat-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
 }
 
-.stat-label {
+.limit-stats .stat-label {
     color: #a3a3a3;
     display: flex;
     align-items: center;
@@ -2311,13 +2314,13 @@ body.is-scrolling .streak-fire {
     font-size: 0.9rem;
 }
 
-.stat-value {
+.limit-stats .stat-value {
     color: #ffffff;
     font-weight: 600;
     font-size: 1.25rem;
 }
 
-.stat-value.countdown {
+.limit-stats .stat-value.countdown {
     color: #ff6b6b;
     font-size: 1.25rem;
 }
