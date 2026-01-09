@@ -16675,9 +16675,6 @@ class PomodoroTimer {
                 return;
             }
             
-            // Show section
-            publicCassettesSection.style.display = 'block';
-            
             // Always re-render with fresh data from API + user's cassettes to ensure consistency
             // This ensures that when one user creates a cassette, other users see it immediately
             // And user's own cassettes appear immediately even before server sync
@@ -16705,26 +16702,33 @@ class PomodoroTimer {
             
             const hasChanges = JSON.stringify(currentData) !== JSON.stringify(cachedData);
             
-            // Only re-render if there are actual changes in the data
-            // If we already rendered from cache and no changes, skip re-render to avoid UI flicker
-            if (hasChanges || !cachedDataForCompare) {
+            // Determine if we need to render
+            // - Always render if we didn't render from cache (new users)
+            // - Render if there are changes in the data
+            const shouldRender = !renderedFromCache || hasChanges;
+            
+            if (shouldRender && filteredPublicCassettes.length > 0) {
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
-                console.log('🔄 Updated public vibes UI with fresh data');
+                // Show section after rendering
+                publicCassettesSection.style.display = 'block';
+                console.log('🔄 Updated public vibes UI with fresh data', !renderedFromCache ? '(first load)' : '(changes detected)');
                 
-                // Only re-apply active state if we didn't already render from cache
-                // This prevents overwriting user's selection while loading
+                // Apply active state if we didn't already render from cache
                 if (!renderedFromCache) {
                     this._lastAppliedActiveCassette = null;
                     setTimeout(() => {
                         this.applyActiveStateToPublicCassettes();
                     }, 100);
                 }
+            } else if (renderedFromCache) {
+                // If we rendered from cache and no changes, make sure section is visible
+                publicCassettesSection.style.display = 'block';
             }
-            // If no changes and already rendered from cache, do nothing - keep current selection
+            // If rendered from cache and no changes, keep current selection
         } catch (e) {
             console.error('Error loading public vibes:', e);
             // If error and no cache was rendered, hide section
-            if (!cachedData && userPublicCassettesWithCreator.length === 0) {
+            if (!renderedFromCache && userPublicCassettesWithCreator.length === 0) {
                 publicCassettesSection.style.display = 'none';
             }
         } finally {
