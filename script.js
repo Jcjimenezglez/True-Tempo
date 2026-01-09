@@ -15483,6 +15483,18 @@ class PomodoroTimer {
         console.log('✅ renderTasksInSidePanel completed successfully');
     }
 
+    deleteCompletedTask(taskId) {
+        if (!taskId) return;
+        const tasks = this.getLocalTasks();
+        const idx = tasks.findIndex(t => t.id === taskId);
+        if (idx !== -1) {
+            // Remove from tasks array completely
+            tasks.splice(idx, 1);
+            this.setLocalTasks(tasks);
+            console.log(`✅ Task ${taskId} deleted from history`);
+        }
+    }
+
     renderTaskHistory(page = 1) {
         const allTasks = this.getAllTasks();
         const completedTasks = allTasks.filter(task => task.completed);
@@ -15535,8 +15547,27 @@ class PomodoroTimer {
                     <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
                     <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
-                <div class="task-history-item-duration">${focusTimeMinutes}min</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="task-history-item-duration">${focusTimeMinutes}min</div>
+                    <button class="task-history-delete-btn" data-task-id="${task.id}" title="Delete from history">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                    </button>
+                </div>
             `;
+            
+            // Add delete listener
+            const deleteBtn = item.querySelector('.task-history-delete-btn');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.deleteCompletedTask(task.id);
+                this.renderTaskHistory(page);
+            });
+            
             historyList.appendChild(item);
         });
 

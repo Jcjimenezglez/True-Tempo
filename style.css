@@ -10334,6 +10334,29 @@ input:checked + .toggle-slider:before {
     white-space: nowrap;
 }
 
+.task-history-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 4px;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.task-history-item:hover .task-history-delete-btn {
+    opacity: 1;
+    color: rgba(255, 100, 100, 0.8);
+}
+
+.task-history-delete-btn:hover {
+    color: rgba(255, 100, 100, 1);
+    transform: scale(1.2);
+}
+
 .task-history-pagination {
     display: flex;
     justify-content: center;
