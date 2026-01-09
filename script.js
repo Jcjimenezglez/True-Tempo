@@ -15008,7 +15008,7 @@ class PomodoroTimer {
     }
     
     // Render tasks in side panel - use exact same logic as showTaskListModal
-    renderTasksInSidePanel() {
+    renderTasksInSidePanel(historyPage = 1) {
         console.log('🔵 renderTasksInSidePanel called');
         const panel = document.getElementById('taskSidePanel');
         if (!panel) {
@@ -15463,7 +15463,96 @@ class PomodoroTimer {
         // Initial render
         console.log('🔵 Calling initial renderTasks');
         renderTasks();
+        
+        // Render task history
+        this.renderTaskHistory(historyPage);
+        
         console.log('✅ renderTasksInSidePanel completed successfully');
+    }
+
+    renderTaskHistory(page = 1) {
+        const allTasks = this.getAllTasks();
+        const completedTasks = allTasks.filter(task => task.completed);
+        
+        if (completedTasks.length === 0) {
+            const historyContainer = document.getElementById('taskHistoryContainer');
+            if (historyContainer) {
+                historyContainer.style.display = 'none';
+            }
+            return;
+        }
+
+        // Sort by completion date (newest first)
+        completedTasks.sort((a, b) => {
+            const dateA = new Date(a.completedAt || 0).getTime();
+            const dateB = new Date(b.completedAt || 0).getTime();
+            return dateB - dateA;
+        });
+
+        const itemsPerPage = 10;
+        const totalPages = Math.ceil(completedTasks.length / itemsPerPage);
+        const safePage = Math.max(1, Math.min(page, totalPages));
+        const startIndex = (safePage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pagedTasks = completedTasks.slice(startIndex, endIndex);
+
+        const historyContainer = document.getElementById('taskHistoryContainer');
+        const historyList = document.getElementById('taskHistoryList');
+        const historyPagination = document.getElementById('taskHistoryPagination');
+
+        if (!historyContainer || !historyList || !historyPagination) {
+            return;
+        }
+
+        // Clear previous content
+        historyList.innerHTML = '';
+        historyPagination.innerHTML = '';
+
+        // Render task history items
+        pagedTasks.forEach(task => {
+            const taskConfig = this.getTaskConfig(task.id);
+            const totalSessions = taskConfig.sessions || 1;
+            const totalMinutes = totalSessions * 25; // 25 min per session
+
+            const item = document.createElement('div');
+            item.className = 'task-history-item';
+            item.innerHTML = `
+                <div class="task-history-item-content">
+                    <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
+                    <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+                <div class="task-history-item-duration">${totalMinutes}min</div>
+            `;
+            historyList.appendChild(item);
+        });
+
+        // Render pagination
+        if (totalPages > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '← Previous';
+            prevBtn.disabled = safePage === 1;
+            prevBtn.addEventListener('click', () => {
+                this.renderTaskHistory(safePage - 1);
+            });
+
+            const pageInfo = document.createElement('div');
+            pageInfo.className = 'task-history-pagination-info';
+            pageInfo.textContent = `Page ${safePage} of ${totalPages}`;
+
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = 'Next →';
+            nextBtn.disabled = safePage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                this.renderTaskHistory(safePage + 1);
+            });
+
+            historyPagination.appendChild(prevBtn);
+            historyPagination.appendChild(pageInfo);
+            historyPagination.appendChild(nextBtn);
+        }
+
+        // Show history container
+        historyContainer.style.display = 'block';
     }
 
 
