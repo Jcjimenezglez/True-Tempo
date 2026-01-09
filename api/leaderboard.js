@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
     let premiumHasMore = true;
     const clerkLimit = 100;
 
-    while (premiumHasMore && premiumOffset < 2000) { // Safety limit for premium
+    while (premiumHasMore) { // No limit - fetch ALL Premium users
       try {
         const response = await clerk.users.getUserList({
           limit: clerkLimit,
@@ -127,16 +127,8 @@ module.exports = async (req, res) => {
       
       const threeDaysAgo = new Date(Date.now() - 3 * MS_PER_DAY);
       
-      // Separate Premium and Free for filtering
-      const activePremium = premiumUsers.filter(user => {
-        const statsLastUpdated = parseDate(user.publicMetadata?.statsLastUpdated);
-        const lastActiveFallback =
-          parseDate(user.lastActiveAt) ||
-          parseDate(user.lastSignInAt) ||
-          parseDate(user.createdAt);
-        const lastActiveAt = statsLastUpdated || lastActiveFallback;
-        return lastActiveAt && lastActiveAt >= threeDaysAgo;
-      });
+      // Premium users: NO FILTER - they always appear regardless of activity
+      const activePremium = premiumUsers;
 
       const activeFree = freeUsers.filter(user => {
         const statsLastUpdated = parseDate(user.publicMetadata?.statsLastUpdated);
