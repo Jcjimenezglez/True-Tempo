@@ -36,8 +36,8 @@ class PomodoroTimer {
         // Note: Will be properly loaded after auth with user-specific key
             this.focusSecondsToday = 0;
 
-        // Leaderboard cache to avoid unnecessary API calls
-        this.leaderboardCache = null;
+        // Leaderboard cache to avoid unnecessary API calls (multi-page support)
+        this.leaderboardCache = {}; // Object to store cache by page: { 1: {...}, 2: {...}, etc }
         this.leaderboardCachedAtHours = 0;
 
         // Daily focus cap for non‑Pro users (in seconds) and cooldown
@@ -2859,7 +2859,7 @@ class PomodoroTimer {
             closeModal();
         });
     }
-
+    
     
     showTaskLimitModal() {
         if (this.guestTaskLimitModalOverlay) {
@@ -12270,17 +12270,23 @@ class PomodoroTimer {
         const stats = this.getFocusStats();
         const currentTotalHours = stats.totalHours || 0;
 
-        // Check if we have cached leaderboard data
-        const cachedData = this.leaderboardCache;
+        // Check if we have cached leaderboard data for this specific page
+        const cachedData = this.leaderboardCache[page];
         const cachedTotalHours = this.leaderboardCachedAtHours || 0;
 
         // Calculate if user has earned at least 1 minute (0.0167 hours) since last cache
         const hoursEarnedSinceCache = currentTotalHours - cachedTotalHours;
         const needsRefresh = hoursEarnedSinceCache >= (1 / 60); // 1 minute = 1/60 hours
 
-        // If we have cache and user hasn't earned 1+ minute, show cached data
-        if (cachedData && !needsRefresh && page === 1) {
-            console.log('📦 Using cached leaderboard (no new focus time earned)');
+        // If user earned 1+ minute, clear ALL page caches (position may have changed)
+        if (needsRefresh) {
+            console.log(`🗑️ Clearing all leaderboard page caches (earned ${(hoursEarnedSinceCache * 60).toFixed(1)} min)`);
+            this.leaderboardCache = {};
+        }
+
+        // If we have cache for this page and user hasn't earned 1+ minute, show cached data
+        if (cachedData && !needsRefresh) {
+            console.log(`📦 Using cached leaderboard page ${page} (no new focus time earned)`);
             console.log(`   Current: ${currentTotalHours.toFixed(2)}h, Cached at: ${cachedTotalHours.toFixed(2)}h, Diff: ${(hoursEarnedSinceCache * 60).toFixed(1)} min`);
             
             this.displayLeaderboardInPanel(
@@ -12299,9 +12305,11 @@ class PomodoroTimer {
             </div>
         `;
 
-        console.log('🔄 Fetching fresh leaderboard from server...');
+        console.log(`🔄 Fetching fresh leaderboard page ${page} from server...`);
         if (needsRefresh) {
             console.log(`   Reason: Earned ${(hoursEarnedSinceCache * 60).toFixed(1)} minutes since last load`);
+        } else if (!cachedData) {
+            console.log(`   Reason: First time loading page ${page}`);
         }
 
         // Sync local stats to Clerk if they exist (one-time sync for existing users)
@@ -12332,22 +12340,22 @@ class PomodoroTimer {
                     console.log('Leaderboard Debug:', data.debug);
                 }
 
-                // Cache the leaderboard data for page 1
-                if (page === 1) {
-                    this.leaderboardCache = {
-                        leaderboard: data.leaderboard,
-                        currentUserPosition: data.currentUserPosition,
-                        pagination: {
-                            page: data.page,
-                            totalPages: data.totalPages,
-                            totalUsers: data.totalUsers,
-                            hasMore: data.hasMore,
-                            activityWindowDays: data.activityWindowDays
-                        }
-                    };
-                    this.leaderboardCachedAtHours = currentTotalHours;
-                    console.log(`✅ Leaderboard cached at ${currentTotalHours.toFixed(2)}h`);
-                }
+                // Cache the leaderboard data for this page
+                this.leaderboardCache[page] = {
+                    leaderboard: data.leaderboard,
+                    currentUserPosition: data.currentUserPosition,
+                    pagination: {
+                        page: data.page,
+                        totalPages: data.totalPages,
+                        totalUsers: data.totalUsers,
+                        hasMore: data.hasMore,
+                        activityWindowDays: data.activityWindowDays
+                    }
+                };
+                
+                // Update cached hours timestamp (shared across all pages)
+                this.leaderboardCachedAtHours = currentTotalHours;
+                console.log(`✅ Leaderboard page ${page} cached at ${currentTotalHours.toFixed(2)}h`);
 
                 this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition, {
                     page: data.page,
@@ -16042,7 +16050,7 @@ class PomodoroTimer {
         // Always get fresh DOM references to avoid stale closures
         
         const updateSaveButton = () => {
-            const saveBtn = document.getElementById('saveCassetteBtn');
+        const saveBtn = document.getElementById('saveCassetteBtn');
             const titleInput = document.getElementById('cassetteTitle');
             
             if (!saveBtn || !titleInput) return;
@@ -16062,8 +16070,8 @@ class PomodoroTimer {
             const currentValue = titleInput.value;
             
             // Remove old listeners by replacing element
-            const newTitleInput = titleInput.cloneNode(true);
-            titleInput.parentNode.replaceChild(newTitleInput, titleInput);
+                const newTitleInput = titleInput.cloneNode(true);
+                titleInput.parentNode.replaceChild(newTitleInput, titleInput);
             
             // Restore the value after cloning
             newTitleInput.value = currentValue;
