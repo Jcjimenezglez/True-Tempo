@@ -251,7 +251,7 @@ function getCheckoutAbandonedEmail3({ firstName = 'there' }) {
               <li>✅ Connect with Notion & Todoist</li>
             </ul>
             <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Start Your 3-Month Free Trial</a>
+              <a href="${PRICING_URL}" class="button">Start Your 1-Month Free Trial</a>
             </div>
             <p>Questions? Just reply to this email.</p>
             <p>Best,<br>The Superfocus Team</p>
@@ -273,7 +273,7 @@ See how Nina uses Superfocus:
 "I run a blog and dog daycare, so I need to focus during precise hours. Superfocus helps me stay on track and make real progress on my life project."
 — Nina, Life with Chevy
 
-Unlock unlimited productivity with Premium. Start your 3-month free trial: ${PRICING_URL}
+Unlock unlimited productivity with Premium. Start your 1-month free trial: ${PRICING_URL}
 
 Best,
 The Superfocus Team
@@ -489,7 +489,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
             </ul>
             <p><strong>Try Premium free for 1 month, then just $3.99/month.</strong> Cancel anytime.</p>
             <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Start Your 3-Month Free Trial</a>
+              <a href="${PRICING_URL}" class="button">Start Your 1-Month Free Trial</a>
             </div>
             <p>Questions? Just reply to this email.</p>
             <p>Best,<br>The Superfocus Team</p>

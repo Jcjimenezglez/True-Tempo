@@ -53,7 +53,7 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
 
 async function createPremiumTrialProduct() {
   try {
-    console.log('🚀 Creating Superfocus Premium product with 3-month trial...\n');
+    console.log('🚀 Creating Superfocus Premium product with 1-month trial...\n');
 
     // Create product
     const product = await stripe.products.create({
@@ -65,7 +65,7 @@ async function createPremiumTrialProduct() {
     console.log('   Product Name:', product.name);
     console.log('');
 
-    // Create Monthly Price with 3-month trial
+    // Create Monthly Price with 1-month trial
     // After trial, charge $3.99/month
     const monthlyPrice = await stripe.prices.create({
       product: product.id,
