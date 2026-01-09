@@ -20201,4 +20201,75 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Handle share buttons for resources
+    const shareButtons = document.querySelectorAll('.resource-share-btn');
+    shareButtons.forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const shareUrl = this.getAttribute('data-share-url');
+            const shareTitle = this.getAttribute('data-share-title');
+            
+            // Create share text
+            const shareText = `Check out this resource: ${shareTitle}`;
+            
+            // Try native share API first
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Timer - Productivity Resources',
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    
+                    // Track share event
+                    if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                        window.pomodoroTimer.trackEvent('Resource Shared', {
+                            resource_title: shareTitle,
+                            resource_url: shareUrl,
+                            share_method: 'native',
+                            source: 'resources_sidepanel'
+                        });
+                    }
+                } catch (err) {
+                    // User cancelled share
+                    console.log('Share cancelled');
+                }
+            } else {
+                // Fallback: Copy to clipboard
+                const textToCopy = `${shareText}\n${shareUrl}`;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // Show visual feedback
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    this.style.background = 'rgba(76, 175, 80, 0.2)';
+                    this.style.borderColor = 'rgba(76, 175, 80, 0.4)';
+                    this.style.color = 'rgba(76, 175, 80, 0.9)';
+                    
+                    // Reset after 2 seconds
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.background = '';
+                        this.style.borderColor = '';
+                        this.style.color = '';
+                    }, 2000);
+                    
+                    // Track share event
+                    if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                        window.pomodoroTimer.trackEvent('Resource Shared', {
+                            resource_title: shareTitle,
+                            resource_url: shareUrl,
+                            share_method: 'clipboard',
+                            source: 'resources_sidepanel'
+                        });
+                    }
+                }).catch(err => {
+                    console.error('Failed to copy to clipboard:', err);
+                });
+            }
+        });
+    });
 });// Force redeploy for admin key
