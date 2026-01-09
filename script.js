@@ -6533,6 +6533,11 @@ class PomodoroTimer {
             });
             
             this.setLocalTasks(tasks);
+            
+            // Re-render task panel to show in history immediately
+            if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
+                this.renderTasksInSidePanel();
+            }
         }
         // Deselect the completed task so it doesn't show the blue accent
         this.setTaskConfig(taskId, { selected: false });
@@ -9986,7 +9991,17 @@ class PomodoroTimer {
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
                     localTasks[taskIndex].completed = isCompleted;
+                    if (isCompleted) {
+                        localTasks[taskIndex].completedAt = new Date().toISOString();
+                    } else {
+                        delete localTasks[taskIndex].completedAt;
+                    }
                     this.setLocalTasks(localTasks);
+                    
+                    // Re-render task panel to show in history immediately
+                    if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
+                        this.renderTasksInSidePanel();
+                    }
                 }
             } else if (task.source === 'todoist') {
                 // For Todoist tasks imported to local storage, update them there
@@ -9994,7 +10009,17 @@ class PomodoroTimer {
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
                     localTasks[taskIndex].completed = isCompleted;
+                    if (isCompleted) {
+                        localTasks[taskIndex].completedAt = new Date().toISOString();
+                    } else {
+                        delete localTasks[taskIndex].completedAt;
+                    }
                     this.setLocalTasks(localTasks);
+                    
+                    // Re-render task panel to show in history immediately
+                    if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
+                        this.renderTasksInSidePanel();
+                    }
                 }
                 
                 // Also track completion state for live Todoist tasks
@@ -10010,7 +10035,17 @@ class PomodoroTimer {
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
                 if (taskIndex !== -1) {
                     localTasks[taskIndex].completed = isCompleted;
+                    if (isCompleted) {
+                        localTasks[taskIndex].completedAt = new Date().toISOString();
+                    } else {
+                        delete localTasks[taskIndex].completedAt;
+                    }
                     this.setLocalTasks(localTasks);
+                    
+                    // Re-render task panel to show in history immediately
+                    if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
+                        this.renderTasksInSidePanel();
+                    }
                 }
                 
                 // Update task in Notion
