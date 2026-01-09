@@ -15483,18 +15483,6 @@ class PomodoroTimer {
         console.log('✅ renderTasksInSidePanel completed successfully');
     }
 
-    deleteCompletedTask(taskId) {
-        if (!taskId) return;
-        const tasks = this.getLocalTasks();
-        const idx = tasks.findIndex(t => t.id === taskId);
-        if (idx !== -1) {
-            // Remove from tasks array completely
-            tasks.splice(idx, 1);
-            this.setLocalTasks(tasks);
-            console.log(`✅ Task ${taskId} deleted from history`);
-        }
-    }
-
     renderTaskHistory(page = 1) {
         const allTasks = this.getAllTasks();
         const completedTasks = allTasks.filter(task => task.completed);
@@ -15547,25 +15535,22 @@ class PomodoroTimer {
                     <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
                     <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div class="task-history-item-duration">${focusTimeMinutes}min</div>
-                    <button class="task-history-delete-btn" data-task-id="${task.id}" title="Delete from history">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <line x1="10" y1="11" x2="10" y2="17"/>
-                            <line x1="14" y1="11" x2="14" y2="17"/>
-                        </svg>
-                    </button>
-                </div>
+                <div class="task-history-item-duration">${focusTimeMinutes}min</div>
+                <button class="task-history-delete-btn" data-task-id="${task.id}" title="Delete from history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <path d="M10 11v6"/>
+                        <path d="M14 11v6"/>
+                    </svg>
+                </button>
             `;
             
-            // Add delete listener
+            // Add delete button event listener
             const deleteBtn = item.querySelector('.task-history-delete-btn');
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.deleteCompletedTask(task.id);
-                this.renderTaskHistory(page);
+                this.deleteTaskFromHistory(task.id, page);
             });
             
             historyList.appendChild(item);
@@ -15598,6 +15583,35 @@ class PomodoroTimer {
 
         // Show history container
         historyContainer.style.display = 'block';
+    }
+
+    deleteTaskFromHistory(taskId, currentPage = 1) {
+        if (!taskId) return;
+        
+        // Get all tasks
+        const tasks = this.getAllTasks();
+        const taskIndex = tasks.findIndex(t => t.id === taskId);
+        
+        if (taskIndex === -1) return;
+        
+        // Remove the task completely
+        if (tasks[taskIndex].source === 'local' || !tasks[taskIndex].source) {
+            // For local tasks, remove from local storage
+            const localTasks = this.getLocalTasks();
+            const localIndex = localTasks.findIndex(t => t.id === taskId);
+            if (localIndex !== -1) {
+                localTasks.splice(localIndex, 1);
+                this.setLocalTasks(localTasks);
+            }
+        }
+        
+        // Remove task config
+        const taskConfigs = this.getTaskConfigs();
+        delete taskConfigs[taskId];
+        this.setTaskConfigs(taskConfigs);
+        
+        // Re-render the entire task panel to reflect changes
+        this.renderTasksInSidePanel(currentPage);
     }
 
 
@@ -16209,11 +16223,11 @@ class PomodoroTimer {
         const updateSaveButton = () => {
         const saveBtn = document.getElementById('saveCassetteBtn');
             const titleInput = document.getElementById('cassetteTitle');
-            
+        
             if (!saveBtn || !titleInput) return;
             
             const hasTitle = titleInput.value.trim().length > 0;
-            
+        
             // Only title is required - enable button if title exists
             saveBtn.disabled = !hasTitle;
             saveBtn.style.opacity = hasTitle ? '1' : '0.5';
