@@ -20215,7 +20215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Copy to clipboard
             navigator.clipboard.writeText(shareUrl).then(() => {
                 // Show toast notification
-                showResourceShareToast('Link copied! Ready to share 🎉');
+                showResourceShareToast('Link copied to clipboard');
                 
                 // Track share event
                 if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
@@ -20228,7 +20228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).catch(err => {
                 console.error('Failed to copy to clipboard:', err);
-                showResourceShareToast('Failed to copy link ❌', true);
+                showResourceShareToast('Failed to copy link', true);
             });
         });
     });

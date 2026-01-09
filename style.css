@@ -10224,9 +10224,10 @@ input:checked + .toggle-slider:before {
 /* Resource Share Toast Notification */
 .resource-share-toast {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(76, 175, 80, 0.9);
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
@@ -10245,14 +10246,15 @@ input:checked + .toggle-slider:before {
 }
 
 .resource-share-toast.error {
-    background: rgba(244, 67, 54, 0.9);
+    background: rgba(0, 0, 0, 0.9);
 }
 
 @media (max-width: 768px) {
     .resource-share-toast {
-        bottom: 15px;
-        right: 15px;
+        top: 15px;
         left: 15px;
+        right: 15px;
         max-width: none;
+        transform: none;
     }
 }
