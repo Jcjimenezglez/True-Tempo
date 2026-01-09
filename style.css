@@ -9837,6 +9837,15 @@ input:checked + .toggle-slider:before {
 
 /* Mobile (480px and below) */
 @media (max-width: 480px) {
+    /* Show desktop required screen on mobile only */
+    .desktop-required-screen {
+        display: flex !important;
+    }
+    
+    .main-content {
+        display: none !important;
+    }
+    
     /* Sidebar full width on mobile */
     .sidebar {
         transform: translateX(-100%);
@@ -9858,11 +9867,6 @@ input:checked + .toggle-slider:before {
         z-index: 1000;
         width: 44px;
         height: 44px;
-    }
-    
-    /* Main content */
-    .main-content {
-        margin-left: 0 !important;
     }
     
     /* Timer section - optimize for small screens */
