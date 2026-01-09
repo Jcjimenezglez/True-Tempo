@@ -8712,12 +8712,15 @@ input:checked + .toggle-slider:before {
 /* Mobile optimizations */
 @media (max-width: 768px) {
     .desktop-required-screen {
-        padding: 20px 15px;
+        padding: 30px 20px 50px 20px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .desktop-required-content {
         margin: 0;
         padding: 10px 0;
+        max-width: 100%;
     }
     
     .desktop-required-content h1 {
