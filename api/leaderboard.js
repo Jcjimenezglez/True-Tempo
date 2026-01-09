@@ -118,10 +118,52 @@ module.exports = async (req, res) => {
     console.log(`✅ Found ${freeUsers.length} Free users`);
 
     // Step 3: Combine Premium (priority) + Free users
-    allUsers = [...premiumUsers, ...freeUsers];
+    let combinedUsers = [...premiumUsers, ...freeUsers];
+    console.log(`📊 Initial pool: ${combinedUsers.length} users (${premiumUsers.length} Premium + ${freeUsers.length} Free)`);
+
+    // Step 4: If we exceed 1000 users, filter out inactive users (no activity in last 3 days)
+    if (combinedUsers.length > MAX_USERS_TO_FETCH) {
+      console.log(`⚠️ Exceeded ${MAX_USERS_TO_FETCH} users, filtering out inactive users (3+ days)...`);
+      
+      const threeDaysAgo = new Date(Date.now() - 3 * MS_PER_DAY);
+      
+      // Separate Premium and Free for filtering
+      const activePremium = premiumUsers.filter(user => {
+        const statsLastUpdated = parseDate(user.publicMetadata?.statsLastUpdated);
+        const lastActiveFallback =
+          parseDate(user.lastActiveAt) ||
+          parseDate(user.lastSignInAt) ||
+          parseDate(user.createdAt);
+        const lastActiveAt = statsLastUpdated || lastActiveFallback;
+        return lastActiveAt && lastActiveAt >= threeDaysAgo;
+      });
+
+      const activeFree = freeUsers.filter(user => {
+        const statsLastUpdated = parseDate(user.publicMetadata?.statsLastUpdated);
+        const lastActiveFallback =
+          parseDate(user.lastActiveAt) ||
+          parseDate(user.lastSignInAt) ||
+          parseDate(user.createdAt);
+        const lastActiveAt = statsLastUpdated || lastActiveFallback;
+        return lastActiveAt && lastActiveAt >= threeDaysAgo;
+      });
+
+      console.log(`✅ After 3-day filter: ${activePremium.length} Premium + ${activeFree.length} Free = ${activePremium.length + activeFree.length} active users`);
+
+      // If still over limit, prioritize Premium and trim Free
+      if (activePremium.length + activeFree.length > MAX_USERS_TO_FETCH) {
+        const freeSlots = MAX_USERS_TO_FETCH - activePremium.length;
+        combinedUsers = [...activePremium, ...activeFree.slice(0, Math.max(0, freeSlots))];
+        console.log(`🔪 Trimmed to ${MAX_USERS_TO_FETCH}: ${activePremium.length} Premium + ${combinedUsers.length - activePremium.length} Free`);
+      } else {
+        combinedUsers = [...activePremium, ...activeFree];
+      }
+    }
+
+    allUsers = combinedUsers;
     const fetchLimitReached = freeHasMore && freeUsers.length >= remainingSlots;
 
-    console.log(`📊 Total users in leaderboard pool: ${allUsers.length} (${premiumUsers.length} Premium + ${freeUsers.length} Free)`);
+    console.log(`📊 Final leaderboard pool: ${allUsers.length} users`);
 
     // If current user is not in the fetched batch, fetch them separately
     // This ensures the current user always appears in their leaderboard
