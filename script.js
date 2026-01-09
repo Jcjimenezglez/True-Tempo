@@ -16455,6 +16455,7 @@ class PomodoroTimer {
                             const fullData = await fullResponse.json();
                             if (fullData.success && Array.isArray(fullData.publicCassettes)) {
                                 localStorage.setItem(cacheKey, JSON.stringify(fullData.publicCassettes));
+                                localStorage.setItem('publicCassettesCacheTimestamp', Date.now().toString());
                                 localStorage.setItem(cacheChecksumKey, checkData.checksum);
                                 console.log(`✅ Loaded ${fullData.publicCassettes.length} public vibes from API (updated)`);
                                 return fullData.publicCassettes;
@@ -16484,6 +16485,7 @@ class PomodoroTimer {
                 const data = await response.json();
                 if (data.success && Array.isArray(data.publicCassettes)) {
                     localStorage.setItem(cacheKey, JSON.stringify(data.publicCassettes));
+                    localStorage.setItem('publicCassettesCacheTimestamp', Date.now().toString());
                     if (!forceRefresh && data.checksum) {
                         localStorage.setItem(cacheChecksumKey, data.checksum);
                     } else if (forceRefresh) {
@@ -16604,10 +16606,14 @@ class PomodoroTimer {
             return true;
         });
         
+        // Track if we rendered from cache (to avoid double state application)
+        let renderedFromCache = false;
+        
         if (uniqueMergedForDisplay.length > 0) {
             // Render immediately from merged cache + user's cassettes
             this.renderPublicCassettes(uniqueMergedForDisplay, isGuest);
             console.log('📦 Rendered public vibes from cache + user cassettes immediately');
+            renderedFromCache = true;
             // Ensure section is visible
             if (publicCassettesSection) {
                 publicCassettesSection.style.display = 'block';
@@ -16617,7 +16623,7 @@ class PomodoroTimer {
             // Apply active state after rendering from cache
             setTimeout(() => {
                 this.applyActiveStateToPublicCassettes();
-            }, 200);
+            }, 100);
         }
         
         // Step 2: Check for updates in background
@@ -16699,23 +16705,22 @@ class PomodoroTimer {
             
             const hasChanges = JSON.stringify(currentData) !== JSON.stringify(cachedData);
             
-            // Always re-render when forceRefresh is true or changes detected to ensure UI is updated
-            if (hasChanges || !cachedDataForCompare || forceRefresh) {
-                // Always re-render when forceRefresh to ensure fresh data from server is displayed
+            // Only re-render if there are actual changes in the data
+            // If we already rendered from cache and no changes, skip re-render to avoid UI flicker
+            if (hasChanges || !cachedDataForCompare) {
                 this.renderPublicCassettes(filteredPublicCassettes, isGuest);
-                console.log('🔄 Updated public vibes UI with fresh data + user cassettes', forceRefresh ? '(forced refresh)' : '');
-                // Reset active state tracking when re-rendering to allow fresh application
-                this._lastAppliedActiveCassette = null;
-                // Apply active state after re-rendering
-                setTimeout(() => {
-                    this.applyActiveStateToPublicCassettes();
-                }, 200);
-            } else {
-                // Even if data is the same, ensure active state is applied (only if not already applied)
-                setTimeout(() => {
-                    this.applyActiveStateToPublicCassettes();
-                }, 200);
+                console.log('🔄 Updated public vibes UI with fresh data');
+                
+                // Only re-apply active state if we didn't already render from cache
+                // This prevents overwriting user's selection while loading
+                if (!renderedFromCache) {
+                    this._lastAppliedActiveCassette = null;
+                    setTimeout(() => {
+                        this.applyActiveStateToPublicCassettes();
+                    }, 100);
+                }
             }
+            // If no changes and already rendered from cache, do nothing - keep current selection
         } catch (e) {
             console.error('Error loading public vibes:', e);
             // If error and no cache was rendered, hide section
@@ -19997,25 +20002,28 @@ class SidebarManager {
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.initializeImmersiveThemePanel();
                 
-                // Always refresh public vibes when opening the panel
-                // This will:
-                // 1. Render immediately from cache (if available)
-                // 2. Fetch fresh data from API
-                // 3. Update UI
+                // Load public vibes - use smart caching to avoid unnecessary API calls
+                // Only force refresh if cache is older than 2 minutes
                 if (window.pomodoroTimer.isLoadingPublicCassettes) {
-                    // If already loading, we can force a reset if it's been loading for too long (stuck)
-                    // or just let it finish. But to be safe and ensure the user sees updates:
-                    console.log('🔄 Public vibes already loading, letting it finish but ensuring visibility...');
-                    // Make sure section is visible if we have data
+                    console.log('🔄 Public vibes already loading, skipping...');
                     const publicCassettesSection = document.getElementById('publicCassettesSection');
                     const hasItems = document.querySelectorAll('.public-cassette').length > 0;
                     if (publicCassettesSection && hasItems) {
                         publicCassettesSection.style.display = 'block';
                     }
                 } else {
-                    // Trigger load immediately
-                    window.pomodoroTimer.loadPublicCassettes(true).catch(err => {
-                        console.error('Error refreshing public vibes when opening panel:', err);
+                    // Check cache age to decide if we need to force refresh
+                    const cacheTimestampKey = 'publicCassettesCacheTimestamp';
+                    const lastCacheTime = parseInt(localStorage.getItem(cacheTimestampKey) || '0');
+                    const cacheAgeMs = Date.now() - lastCacheTime;
+                    const CACHE_MAX_AGE_MS = 2 * 60 * 1000; // 2 minutes
+                    
+                    const shouldForceRefresh = cacheAgeMs > CACHE_MAX_AGE_MS;
+                    
+                    console.log(`📦 Cache age: ${Math.round(cacheAgeMs / 1000)}s, force refresh: ${shouldForceRefresh}`);
+                    
+                    window.pomodoroTimer.loadPublicCassettes(shouldForceRefresh).catch(err => {
+                        console.error('Error loading public vibes:', err);
                     });
                 }
             }
