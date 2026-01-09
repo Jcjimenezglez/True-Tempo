@@ -66,6 +66,21 @@ module.exports = async (req, res) => {
 
     const fetchLimitReached = hasMore;
 
+    // If current user is not in the fetched batch, fetch them separately
+    // This ensures the current user always appears in their leaderboard
+    if (clerkUserId) {
+      const userInBatch = allUsers.find(u => u.id === clerkUserId);
+      if (!userInBatch) {
+        try {
+          const currentUser = await clerk.users.getUser(clerkUserId);
+          allUsers.push(currentUser);
+          console.log('✅ Added current user separately to leaderboard');
+        } catch (err) {
+          console.error('❌ Failed to fetch current user:', err);
+        }
+      }
+    }
+
     // Filter users with totalFocusHours and create leaderboard
     const leaderboardCandidates = allUsers.map(user => {
       const totalHoursRaw = user.publicMetadata?.totalFocusHours;
