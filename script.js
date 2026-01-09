@@ -9750,6 +9750,9 @@ class PomodoroTimer {
                     this.setupTaskEventListeners(taskSidePanel);
                     this.setupDragAndDrop(taskSidePanel);
                 }
+                
+                // Also refresh task history
+                this.renderTaskHistory();
             }
             return;
         }
@@ -9997,11 +10000,6 @@ class PomodoroTimer {
                         delete localTasks[taskIndex].completedAt;
                     }
                     this.setLocalTasks(localTasks);
-                    
-                    // Re-render task panel to show in history immediately
-                    if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
-                        this.renderTasksInSidePanel();
-                    }
                 }
             } else if (task.source === 'todoist') {
                 // For Todoist tasks imported to local storage, update them there
@@ -10015,11 +10013,6 @@ class PomodoroTimer {
                         delete localTasks[taskIndex].completedAt;
                     }
                     this.setLocalTasks(localTasks);
-                    
-                    // Re-render task panel to show in history immediately
-                    if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
-                        this.renderTasksInSidePanel();
-                    }
                 }
                 
                 // Also track completion state for live Todoist tasks
@@ -10041,11 +10034,6 @@ class PomodoroTimer {
                         delete localTasks[taskIndex].completedAt;
                     }
                     this.setLocalTasks(localTasks);
-                    
-                    // Re-render task panel to show in history immediately
-                    if (document.getElementById('taskSidePanel')?.classList.contains('open')) {
-                        this.renderTasksInSidePanel();
-                    }
                 }
                 
                 // Update task in Notion
