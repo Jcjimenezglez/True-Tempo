@@ -2924,23 +2924,22 @@ class PomodoroTimer {
         this.pauseTimerSilent();
         this.dailyLimitModalOverlay.style.display = 'flex';
         
-        // Update message with progress
+        // Update focused time display
         const focusHoursUsed = Math.floor((this.focusSecondsToday || 0) / 3600);
         const focusMinutesUsed = Math.floor(((this.focusSecondsToday || 0) % 3600) / 60);
-        const limitHours = Math.floor(this.DAILY_FOCUS_LIMIT_SECONDS / 3600);
-        const limitMinutes = Math.floor((this.DAILY_FOCUS_LIMIT_SECONDS % 3600) / 60);
         
-        const progressText = `${focusHoursUsed}h ${focusMinutesUsed > 0 ? focusMinutesUsed + 'm' : ''} / ${limitHours}h used today`;
-        const dailyLimitMessage = document.getElementById('dailyLimitMessage');
-        if (dailyLimitMessage) {
-            dailyLimitMessage.innerHTML = `You've focused for <strong>${focusHoursUsed} hour${focusHoursUsed !== 1 ? 's' : ''}</strong> today. Incredible work! Don't let the momentum stop. Unlock unlimited focus time and keep crushing your goals for 2026.`;
+        // Update the focused time stat
+        const dailyLimitFocusedTime = document.getElementById('dailyLimitFocusedTime');
+        if (dailyLimitFocusedTime) {
+            if (focusHoursUsed > 0) {
+                dailyLimitFocusedTime.textContent = `${focusHoursUsed} hour${focusHoursUsed !== 1 ? 's' : ''}`;
+            } else {
+                dailyLimitFocusedTime.textContent = `${focusMinutesUsed} min`;
+            }
         }
         
-        // Update title to positive message
-        const dailyLimitTitle = document.getElementById('dailyLimitTitle');
-        if (dailyLimitTitle) {
-            dailyLimitTitle.textContent = "You're on a roll!";
-        }
+        // Title is now static in HTML: "You've maxed out today's focus!"
+        // Message is now static in HTML: "Don't let the momentum stop..."
         
         // 🎯 Track Daily Limit Modal Opened event to Mixpanel
         if (window.mixpanelTracker) {
@@ -2972,12 +2971,12 @@ class PomodoroTimer {
             if (!this.focusLimitCooldownUntil || Date.now() >= this.focusLimitCooldownUntil) {
                 this.focusLimitCooldownUntil = 0;
                 try { localStorage.removeItem('focusLimitCooldownUntil'); } catch (_) {}
-                this.dailyLimitCountdownEl.textContent = 'You can start now.';
+                this.dailyLimitCountdownEl.textContent = '00:00:00';
                 this.hideDailyLimitModal();
                 return;
             }
             const remainingMs = this.focusLimitCooldownUntil - Date.now();
-            this.dailyLimitCountdownEl.textContent = `Your timer will be available again in ${this.formatMsHHMMSS(remainingMs)}.`;
+            this.dailyLimitCountdownEl.textContent = this.formatMsHHMMSS(remainingMs);
         };
         update();
         this.dailyLimitCountdownTimer = setInterval(update, 1000);

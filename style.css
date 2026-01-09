@@ -2281,8 +2281,43 @@ body.is-scrolling .streak-fire {
 }
 
 .daily-limit-countdown {
-    color: #ffffff !important;
+    color: #ff6b6b !important;
     opacity: 1 !important;
+}
+
+/* Daily Limit Modal - Stats Section */
+.limit-stats {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.stat-label {
+    color: #a3a3a3;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.stat-value.countdown {
+    color: #ff6b6b;
 }
 
 .logout-modal-buttons {
@@ -3468,6 +3503,11 @@ audio {
 .upgrade-icon svg {
     color: #a3a3a3;
     opacity: 1;
+}
+
+/* Daily Limit Modal - Red flame icon */
+#dailyLimitModalOverlay .upgrade-icon svg {
+    color: #ff6b6b;
 }
 
 .upgrade-content h3 {
