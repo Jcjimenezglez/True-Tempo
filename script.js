@@ -9750,9 +9750,6 @@ class PomodoroTimer {
                     this.setupTaskEventListeners(taskSidePanel);
                     this.setupDragAndDrop(taskSidePanel);
                 }
-                
-                // Also refresh task history
-                this.renderTaskHistory();
             }
             return;
         }
@@ -15044,7 +15041,7 @@ class PomodoroTimer {
     }
     
     // Render tasks in side panel - use exact same logic as showTaskListModal
-    renderTasksInSidePanel(historyPage = 1) {
+    renderTasksInSidePanel() {
         console.log('🔵 renderTasksInSidePanel called');
         const panel = document.getElementById('taskSidePanel');
         if (!panel) {
@@ -15198,6 +15195,10 @@ class PomodoroTimer {
                     const isGuest = !this.isAuthenticated || !this.user;
                     const shouldDisableForGuest = isGuest && globalIndex > 1; // Disable tasks 2+ for guests
                     
+                    // Format completed date if task is completed
+                    const completedDateHtml = isCompleted && task.completedAt ? 
+                        `<div class="task-completed-date">${new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>` : '';
+                    
                     const itemContent = `
                         <div class="task-checkbox">
                             <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${shouldDisableForGuest ? 'disabled' : ''}>
@@ -15208,6 +15209,7 @@ class PomodoroTimer {
                                 ${task.content || '(untitled)'}
                                 ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
                             </div>
+                            ${completedDateHtml}
                         </div>
                         <div class="task-progress">
                             <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
@@ -15500,158 +15502,7 @@ class PomodoroTimer {
         console.log('🔵 Calling initial renderTasks');
         renderTasks();
         
-        // Render task history
-        this.renderTaskHistory(historyPage);
-        
         console.log('✅ renderTasksInSidePanel completed successfully');
-    }
-
-    renderTaskHistory(page = 1) {
-        const allTasks = this.getAllTasks();
-        const completedTasks = allTasks.filter(task => task.completed);
-        
-        if (completedTasks.length === 0) {
-            const historyContainer = document.getElementById('taskHistoryContainer');
-            if (historyContainer) {
-                historyContainer.style.display = 'none';
-            }
-            return;
-        }
-
-        // Sort by completion date (newest first)
-        completedTasks.sort((a, b) => {
-            const dateA = new Date(a.completedAt || 0).getTime();
-            const dateB = new Date(b.completedAt || 0).getTime();
-            return dateB - dateA;
-        });
-
-        const itemsPerPage = 10;
-        const totalPages = Math.ceil(completedTasks.length / itemsPerPage);
-        const safePage = Math.max(1, Math.min(page, totalPages));
-        const startIndex = (safePage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const pagedTasks = completedTasks.slice(startIndex, endIndex);
-
-        const historyContainer = document.getElementById('taskHistoryContainer');
-        const historyList = document.getElementById('taskHistoryList');
-        const historyPagination = document.getElementById('taskHistoryPagination');
-
-        if (!historyContainer || !historyList || !historyPagination) {
-            return;
-        }
-
-        // Clear previous content
-        historyList.innerHTML = '';
-        historyPagination.innerHTML = '';
-
-        // Render task history items
-        pagedTasks.forEach(task => {
-            const taskConfig = this.getTaskConfig(task.id);
-            // Use ONLY actual focus time completed for this task (no fallback)
-            const focusTimeSeconds = taskConfig.completedFocusTime || 0;
-            const focusTimeMinutes = Math.round(focusTimeSeconds / 60);
-
-            const item = document.createElement('div');
-            item.className = 'task-history-item';
-            
-            // Create content div
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'task-history-item-content';
-            contentDiv.innerHTML = `
-                <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
-                <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-            `;
-            
-            // Create duration div
-            const durationDiv = document.createElement('div');
-            durationDiv.className = 'task-history-item-duration';
-            durationDiv.textContent = focusTimeMinutes > 0 ? focusTimeMinutes + 'min' : 'No data';
-            
-            // Create delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'task-history-delete-btn';
-            deleteBtn.setAttribute('data-task-id', task.id);
-            deleteBtn.setAttribute('title', 'Delete from history');
-            deleteBtn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6"/>
-                    <path d="M14 11v6"/>
-                </svg>
-            `;
-            
-            // Add delete button event listener with proper binding
-            deleteBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🗑️ Delete button clicked for task:', task.id);
-                this.deleteTaskFromHistory(task.id, page);
-            });
-            
-            // Append all elements
-            item.appendChild(contentDiv);
-            item.appendChild(durationDiv);
-            item.appendChild(deleteBtn);
-            historyList.appendChild(item);
-        });
-
-        // Render pagination
-        if (totalPages > 1) {
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = '← Previous';
-            prevBtn.disabled = safePage === 1;
-            prevBtn.addEventListener('click', () => {
-                this.renderTaskHistory(safePage - 1);
-            });
-
-            const pageInfo = document.createElement('div');
-            pageInfo.className = 'task-history-pagination-info';
-            pageInfo.textContent = `Page ${safePage} of ${totalPages}`;
-
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = 'Next →';
-            nextBtn.disabled = safePage === totalPages;
-            nextBtn.addEventListener('click', () => {
-                this.renderTaskHistory(safePage + 1);
-            });
-
-            historyPagination.appendChild(prevBtn);
-            historyPagination.appendChild(pageInfo);
-            historyPagination.appendChild(nextBtn);
-        }
-
-        // Show history container
-        historyContainer.style.display = 'block';
-    }
-
-    deleteTaskFromHistory(taskId, currentPage = 1) {
-        if (!taskId) return;
-        
-        console.log('🗑️ Deleting task from history:', taskId);
-        
-        // Get local tasks
-        const localTasks = this.getLocalTasks();
-        const taskIndex = localTasks.findIndex(t => t.id === taskId);
-        
-        if (taskIndex !== -1) {
-            console.log('✅ Found task, removing...');
-            // Remove the task from local storage
-            localTasks.splice(taskIndex, 1);
-            this.setLocalTasks(localTasks);
-            
-            // Remove task config
-            const taskConfigs = this.getTaskConfigs();
-            delete taskConfigs[taskId];
-            this.setTaskConfigs(taskConfigs);
-            
-            console.log('✅ Task deleted successfully');
-            
-            // Re-render the entire task panel to reflect changes
-            this.renderTasksInSidePanel(currentPage);
-        } else {
-            console.error('❌ Task not found:', taskId);
-        }
     }
 
 
