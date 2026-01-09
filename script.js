@@ -15524,8 +15524,8 @@ class PomodoroTimer {
         // Render task history items
         pagedTasks.forEach(task => {
             const taskConfig = this.getTaskConfig(task.id);
-            // Use actual focus time completed for this task, fallback to 25min per session
-            const focusTimeSeconds = taskConfig.completedFocusTime || (taskConfig.sessions || 1) * 25 * 60;
+            // Use ONLY actual focus time completed for this task (no fallback)
+            const focusTimeSeconds = taskConfig.completedFocusTime || 0;
             const focusTimeMinutes = Math.round(focusTimeSeconds / 60);
 
             const item = document.createElement('div');
@@ -15535,7 +15535,7 @@ class PomodoroTimer {
                     <div class="task-history-item-title">${this.escapeHtml(task.content || '(untitled)')}</div>
                     <div class="task-history-item-time">${new Date(task.completedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
-                <div class="task-history-item-duration">${focusTimeMinutes}min</div>
+                <div class="task-history-item-duration">${focusTimeMinutes > 0 ? focusTimeMinutes + 'min' : 'No data'}</div>
                 <button class="task-history-delete-btn" data-task-id="${task.id}" title="Delete from history">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"/>
@@ -15548,10 +15548,13 @@ class PomodoroTimer {
             
             // Add delete button event listener
             const deleteBtn = item.querySelector('.task-history-delete-btn');
-            deleteBtn.addEventListener('click', (e) => {
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                this.deleteTaskFromHistory(task.id, page);
-            });
+                    this.deleteTaskFromHistory(task.id, page);
+                });
+            }
             
             historyList.appendChild(item);
         });
@@ -15588,30 +15591,30 @@ class PomodoroTimer {
     deleteTaskFromHistory(taskId, currentPage = 1) {
         if (!taskId) return;
         
-        // Get all tasks
-        const tasks = this.getAllTasks();
-        const taskIndex = tasks.findIndex(t => t.id === taskId);
+        console.log('🗑️ Deleting task from history:', taskId);
         
-        if (taskIndex === -1) return;
+        // Get local tasks
+        const localTasks = this.getLocalTasks();
+        const taskIndex = localTasks.findIndex(t => t.id === taskId);
         
-        // Remove the task completely
-        if (tasks[taskIndex].source === 'local' || !tasks[taskIndex].source) {
-            // For local tasks, remove from local storage
-            const localTasks = this.getLocalTasks();
-            const localIndex = localTasks.findIndex(t => t.id === taskId);
-            if (localIndex !== -1) {
-                localTasks.splice(localIndex, 1);
-                this.setLocalTasks(localTasks);
-            }
+        if (taskIndex !== -1) {
+            console.log('✅ Found task, removing...');
+            // Remove the task from local storage
+            localTasks.splice(taskIndex, 1);
+            this.setLocalTasks(localTasks);
+            
+            // Remove task config
+            const taskConfigs = this.getTaskConfigs();
+            delete taskConfigs[taskId];
+            this.setTaskConfigs(taskConfigs);
+            
+            console.log('✅ Task deleted successfully');
+            
+            // Re-render the entire task panel to reflect changes
+            this.renderTasksInSidePanel(currentPage);
+        } else {
+            console.error('❌ Task not found:', taskId);
         }
-        
-        // Remove task config
-        const taskConfigs = this.getTaskConfigs();
-        delete taskConfigs[taskId];
-        this.setTaskConfigs(taskConfigs);
-        
-        // Re-render the entire task panel to reflect changes
-        this.renderTasksInSidePanel(currentPage);
     }
 
 
