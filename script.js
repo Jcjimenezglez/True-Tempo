@@ -16624,6 +16624,16 @@ class PomodoroTimer {
             setTimeout(() => {
                 this.applyActiveStateToPublicCassettes();
             }, 100);
+        } else {
+            // No cache available - show loading indicator
+            if (publicCassettesList) {
+                publicCassettesList.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 2rem; color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+                        <span>Loading vibes...</span>
+                    </div>
+                `;
+                publicCassettesSection.style.display = 'block';
+            }
         }
         
         // Step 2: Check for updates in background
@@ -19062,6 +19072,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme is applied inside constructor via applyTheme(this.currentTheme).
     // Avoid re-applying a stale background here to prevent flashes or mismatches.
     timer.applyOverlay(timer.overlayOpacity);
+    
+    // Pre-load public vibes in background so they're ready when user opens the panel
+    // Start immediately - these are needed for a good first experience
+    if (timer.loadPublicCassettesFromAPI) {
+        timer.loadPublicCassettesFromAPI(false).then(() => {
+            console.log('📦 Public vibes pre-loaded in background');
+        }).catch(() => {
+            // Silently ignore errors - user will see fresh data when opening panel
+        });
+    }
     
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
