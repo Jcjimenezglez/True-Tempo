@@ -334,29 +334,25 @@ a.resource-item:hover,
     display: none;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     padding: 0;
     margin-left: auto;
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .resource-item:hover .resource-share-btn {
     display: flex;
-    opacity: 1;
 }
 
 .resource-share-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
     color: rgba(255, 255, 255, 0.9);
-    transform: scale(1.15);
-}
-
-.resource-share-btn:active {
-    transform: scale(0.95);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .resource-icon {
