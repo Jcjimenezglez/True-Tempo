@@ -20214,6 +20214,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Copy to clipboard
             navigator.clipboard.writeText(shareUrl).then(() => {
+                // Show toast notification
+                showResourceShareToast('Link copied! Ready to share 🎉');
+                
                 // Track share event
                 if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
                     window.pomodoroTimer.trackEvent('Resource Shared', {
@@ -20225,7 +20228,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).catch(err => {
                 console.error('Failed to copy to clipboard:', err);
+                showResourceShareToast('Failed to copy link ❌', true);
             });
         });
     });
+    
+    // Function to show toast notification for resource sharing
+    function showResourceShareToast(message, isError = false) {
+        // Remove existing toast if any
+        const existingToast = document.querySelector('.resource-share-toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'resource-share-toast';
+        if (isError) {
+            toast.classList.add('error');
+        }
+        toast.textContent = message;
+        
+        // Add to DOM
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Remove after 2 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 2000);
+    }
 });// Force redeploy for admin key

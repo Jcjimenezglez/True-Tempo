@@ -10220,3 +10220,39 @@ input:checked + .toggle-slider:before {
         color: #ffffff;
     }
 }
+
+/* Resource Share Toast Notification */
+.resource-share-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+.resource-share-toast.show {
+    opacity: 1;
+}
+
+.resource-share-toast.error {
+    background: rgba(244, 67, 54, 0.9);
+}
+
+@media (max-width: 768px) {
+    .resource-share-toast {
+        bottom: 15px;
+        right: 15px;
+        left: 15px;
+        max-width: none;
+    }
+}
