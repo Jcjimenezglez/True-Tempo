@@ -47,24 +47,81 @@ module.exports = async (req, res) => {
     const clerk = createClerkClient({ secretKey: clerkSecret });
     
     let allUsers = [];
-    let hasMore = true;
-    let offset = 0;
-    const clerkLimit = 100;
+    let premiumUsers = [];
+    let freeUsers = [];
     let batchesFetched = 0;
 
-    while (hasMore && offset < MAX_USERS_TO_FETCH) {
-      const response = await clerk.users.getUserList({
-        limit: clerkLimit,
-        offset
-      });
+    // Step 1: Fetch ALL Premium users first (they always appear in leaderboard)
+    console.log('🔍 Fetching Premium users...');
+    let premiumOffset = 0;
+    let premiumHasMore = true;
+    const clerkLimit = 100;
 
-      allUsers = allUsers.concat(response.data);
-      hasMore = response.data.length === clerkLimit;
-      offset += clerkLimit;
-      batchesFetched += 1;
+    while (premiumHasMore && premiumOffset < 2000) { // Safety limit for premium
+      try {
+        const response = await clerk.users.getUserList({
+          limit: clerkLimit,
+          offset: premiumOffset
+        });
+
+        // Filter premium users from this batch
+        const premiumBatch = response.data.filter(u => u.publicMetadata?.isPremium === true);
+        premiumUsers = premiumUsers.concat(premiumBatch);
+        
+        premiumHasMore = response.data.length === clerkLimit;
+        premiumOffset += clerkLimit;
+        batchesFetched += 1;
+
+        // Stop if we've fetched enough batches or no more users
+        if (!premiumHasMore) break;
+      } catch (err) {
+        console.error('Error fetching premium users batch:', err);
+        break;
+      }
     }
 
-    const fetchLimitReached = hasMore;
+    console.log(`✅ Found ${premiumUsers.length} Premium users`);
+
+    // Step 2: Fetch Free users to fill remaining slots up to MAX_USERS_TO_FETCH
+    const remainingSlots = Math.max(0, MAX_USERS_TO_FETCH - premiumUsers.length);
+    console.log(`🔍 Fetching up to ${remainingSlots} Free users...`);
+    
+    let freeOffset = 0;
+    let freeHasMore = true;
+
+    while (freeHasMore && freeUsers.length < remainingSlots) {
+      try {
+        const response = await clerk.users.getUserList({
+          limit: clerkLimit,
+          offset: freeOffset
+        });
+
+        // Filter free users (non-premium) from this batch
+        const freeBatch = response.data.filter(u => u.publicMetadata?.isPremium !== true);
+        freeUsers = freeUsers.concat(freeBatch);
+        
+        freeHasMore = response.data.length === clerkLimit;
+        freeOffset += clerkLimit;
+        batchesFetched += 1;
+
+        // Stop if we have enough free users
+        if (freeUsers.length >= remainingSlots) {
+          freeUsers = freeUsers.slice(0, remainingSlots);
+          break;
+        }
+      } catch (err) {
+        console.error('Error fetching free users batch:', err);
+        break;
+      }
+    }
+
+    console.log(`✅ Found ${freeUsers.length} Free users`);
+
+    // Step 3: Combine Premium (priority) + Free users
+    allUsers = [...premiumUsers, ...freeUsers];
+    const fetchLimitReached = freeHasMore && freeUsers.length >= remainingSlots;
+
+    console.log(`📊 Total users in leaderboard pool: ${allUsers.length} (${premiumUsers.length} Premium + ${freeUsers.length} Free)`);
 
     // If current user is not in the fetched batch, fetch them separately
     // This ensures the current user always appears in their leaderboard
