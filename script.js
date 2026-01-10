@@ -13363,13 +13363,13 @@ class PomodoroTimer {
             });
             
             // Track subscription conversion immediately
-            // Use 3.99 value for Google Ads conversion tracking (actual subscription value)
+            // Use 2.99 value for Google Ads conversion tracking (actual subscription value)
             // ENABLED: Client-side tracking for better attribution
-            this.trackConversion('subscription', 3.99);
+            this.trackConversion('subscription', 2.99);
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSubscriptionUpgrade('premium', 3.99);
+                window.mixpanelTracker.trackSubscriptionUpgrade('premium', 2.99);
                 console.log('📊 Subscription upgrade event tracked to Mixpanel');
             }
             

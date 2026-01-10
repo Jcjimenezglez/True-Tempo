@@ -493,9 +493,9 @@ async function handleCheckoutCompleted(session, clerk) {
       // Track Google Ads conversion for Premium plan (real conversion, not just intent)
       if (paymentType === 'premium') {
         // Track Premium subscription conversion to Google Ads
-        // Value is 3.99 (monthly subscription value) for Google Ads value-based bidding
+        // Value is 2.99 (monthly subscription value) for Google Ads value-based bidding
         // Even though user is on trial, we send the actual subscription value for optimization
-        await trackConversionServerSide('subscription', 3.99, session.id, null, userEmail);
+        await trackConversionServerSide('subscription', 2.99, session.id, null, userEmail);
         console.log(`✅ Google Ads conversion tracked for Premium subscription: ${targetUserId}`);
       } else {
         // Track other subscription types
@@ -670,8 +670,8 @@ async function handleInvoicePaymentSucceeded(invoice, clerk) {
       console.log(`🎯 First payment after trial detected for user ${user.id}`);
       
       // Track Google Ads conversion for FIRST REAL PAYMENT after trial
-      // Value: $16.0 (represents ~4 months of subscription value)
-      // This is higher than trial value ($3.99) to signal to Google Ads
+      // Value: $12.0 (represents ~4 months of subscription value at $2.99)
+      // This is higher than trial value ($2.99) to signal to Google Ads
       // that users who complete their first payment are more valuable
       await trackConversionServerSide(
         'first_payment',

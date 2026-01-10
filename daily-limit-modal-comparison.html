@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Limit Modal - A/B Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .comparison-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .comparison-title {
+            color: #ffffff;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .comparison-subtitle {
+            color: #a3a3a3;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .version-card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .version-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .version-badge.current {
+            background: rgba(163, 163, 163, 0.2);
+            color: #a3a3a3;
+        }
+
+        .version-badge.new {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .version-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-right: 100px;
+        }
+
+        .version-description {
+            color: #a3a3a3;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .show-modal-btn {
+            background: #ffffff;
+            color: #000000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .show-modal-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .improvements-section {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .improvements-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #10b981;
+        }
+
+        .improvements-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .improvement-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 3px solid #10b981;
+            border-radius: 8px;
+        }
+
+        .improvement-icon {
+            flex-shrink: 0;
+            font-size: 1.5rem;
+        }
+
+        .improvement-content h4 {
+            color: #ffffff;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .improvement-content p {
+            color: #a3a3a3;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Modal Styles */
+        .logout-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .logout-modal {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 440px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-logout-modal-x {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-logout-modal-x:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .upgrade-content {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .upgrade-icon {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upgrade-icon svg {
+            color: #ff6b6b;
+            opacity: 1;
+        }
+
+        .logout-modal-title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .logout-modal-message {
+            color: #a3a3a3;
+            font-size: 0.95rem;
+            margin: 0 0 1.5rem 0;
+            text-align: center;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .logout-modal-message strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* NEW: Stats Section */
+        .limit-stats {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .stat-label {
+            color: #a3a3a3;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .stat-value.countdown {
+            color: #ff6b6b;
+        }
+
+        /* NEW: Social Proof Section */
+        .social-proof {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .social-proof p {
+            color: #10b981;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .social-proof strong {
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        /* NEW: Benefits List */
+        .what-youll-get {
+            text-align: left;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+        }
+
+        .what-youll-get p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .benefit-check {
+            color: #10b981;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .daily-limit-countdown {
+            color: #ffffff !important;
+            opacity: 1 !important;
+            font-size: 0.85rem !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .logout-modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .logout-modal-btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+        }
+
+        .logout-modal-btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .logout-modal-btn-primary:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        .logout-modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .logout-modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Metrics comparison */
+        .metrics-section {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .metrics-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .metric-label {
+            color: #a3a3a3;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            color: #ffffff;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: #10b981;
+        }
+
+        .metric-change.neutral {
+            color: #a3a3a3;
+        }
+    </style>
+</head>
+<body>
+    <div class="comparison-container">
+        <div class="comparison-header">
+            <h1 class="comparison-title">Daily Limit Modal - A/B Comparison</h1>
+            <p class="comparison-subtitle">Compare the current version with the optimized version designed to increase conversions</p>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Version A: Current -->
+            <div class="version-card">
+                <span class="version-badge current">Current</span>
+                <h2 class="version-title">Version A: Current Design</h2>
+                <p class="version-description">
+                    The current modal uses positive messaging but lacks urgency and social proof. 
+                    It's friendly but may not create enough motivation to upgrade immediately.
+                </p>
+                <button class="show-modal-btn" onclick="showModalA()">Preview Current Version</button>
+            </div>
+
+            <!-- Version B: New -->
+            <div class="version-card">
+                <span class="version-badge new">New ✨</span>
+                <h2 class="version-title">Version B: Optimized Design</h2>
+                <p class="version-description">
+                    Enhanced with urgency indicators, social proof, clear value proposition, and 
+                    improved visual hierarchy to drive conversions without being pushy.
+                </p>
+                <button class="show-modal-btn" onclick="showModalB()">Preview New Version</button>
+            </div>
+        </div>
+
+        <!-- Key Improvements -->
+        <div class="improvements-section">
+            <h2 class="improvements-title">🚀 Key Improvements in Version B</h2>
+            <div class="improvements-list">
+                <div class="improvement-item">
+                    <div class="improvement-icon">⏰</div>
+                    <div class="improvement-content">
+                        <h4>Visual Stats Display</h4>
+                        <p>Shows focus time and countdown in a structured format, making the limitation more tangible and the urgency clearer.</p>
+                    </div>
+                </div>
+                <div class="improvement-item">
+                    <div class="improvement-icon">👥</div>
+                    <div class="improvement-content">
+                        <h4>Social Proof</h4>
+                        <p>Displays real data about other students upgrading, leveraging FOMO and social validation to encourage action.</p>
+                    </div>
+                </div>
+                <div class="improvement-item">
+                    <div class="improvement-icon">✨</div>
+                    <div class="improvement-content">
+                        <h4>Personalized Benefits</h4>
+                        <p>Shows what the user specifically will keep (streak, custom timers), making the value personal and concrete.</p>
+                    </div>
+                </div>
+                <div class="improvement-item">
+                    <div class="improvement-icon">🎯</div>
+                    <div class="improvement-content">
+                        <h4>Stronger CTA</h4>
+                        <p>Changed from "Unlock Unlimited Time" to "Continue Focusing - Start Trial" which is action-oriented and benefit-focused.</p>
+                    </div>
+                </div>
+                <div class="improvement-item">
+                    <div class="improvement-icon">⚡</div>
+                    <div class="improvement-content">
+                        <h4>Pain-Focused Secondary Button</h4>
+                        <p>Changed "Maybe later" to "Wait 22 hours to continue" making the alternative sound less appealing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expected Metrics -->
+        <div class="metrics-section">
+            <h2 class="metrics-title">📊 Expected Impact on Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Modal → Pricing Click Rate</div>
+                    <div class="metric-value">~60%</div>
+                    <div class="metric-change positive">+15% expected</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Pricing → Checkout Rate</div>
+                    <div class="metric-value">~50%</div>
+                    <div class="metric-change positive">+5% expected</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Overall Conversion Lift</div>
+                    <div class="metric-value">+20%</div>
+                    <div class="metric-change positive">From 5.7% to ~6.8%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal A: Current Version -->
+    <div class="logout-modal-overlay hidden" id="modalA">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" onclick="hideModal('modalA')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title">You're on a roll!</h3>
+                <p class="logout-modal-message">You've focused for <strong>1 hour</strong> today. Incredible work! Don't let the momentum stop. Unlock unlimited focus time and keep crushing your goals for 2026.</p>
+                <p class="logout-modal-message daily-limit-countdown" id="countdownA">Your timer will be available again in 22:45:15.</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" onclick="alert('Would redirect to /pricing/')">Unlock Unlimited Time</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" onclick="hideModal('modalA')">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal B: New Version -->
+    <div class="logout-modal-overlay hidden" id="modalB">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" onclick="hideModal('modalB')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title">🔥 You've maxed out today's focus!</h3>
+                
+                <!-- Stats Section -->
+                <div class="limit-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">
+                            📚 Focused today
+                        </span>
+                        <span class="stat-value">1 hour</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">
+                            ⏰ Timer resets in
+                        </span>
+                        <span class="stat-value countdown" id="countdownB">22:45:15</span>
+                    </div>
+                </div>
+
+                <!-- Social Proof -->
+                <div class="social-proof">
+                    <p>✨ <strong>47 students</strong> upgraded this week to keep their focus streak alive</p>
+                </div>
+
+                <!-- Benefits -->
+                <div class="what-youll-get">
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>Unlimited daily focus time</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>Keep your <strong>3-day streak</strong> alive</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>Save your <strong>2 custom timers</strong></span>
+                    </div>
+                </div>
+
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" onclick="alert('Would redirect to /pricing/')">Continue Focusing - Start Trial</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" onclick="hideModal('modalB')">Wait 22 hours to continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let countdownIntervalA = null;
+        let countdownIntervalB = null;
+
+        function showModalA() {
+            const modal = document.getElementById('modalA');
+            modal.classList.remove('hidden');
+            startCountdown('countdownA', 'A');
+        }
+
+        function showModalB() {
+            const modal = document.getElementById('modalB');
+            modal.classList.remove('hidden');
+            startCountdown('countdownB', 'B');
+        }
+
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            
+            // Clear countdown
+            if (modalId === 'modalA' && countdownIntervalA) {
+                clearInterval(countdownIntervalA);
+            } else if (modalId === 'modalB' && countdownIntervalB) {
+                clearInterval(countdownIntervalB);
+            }
+        }
+
+        function startCountdown(elementId, version) {
+            let seconds = 22 * 3600 + 45 * 60 + 15; // 22:45:15
+            const countdownEl = document.getElementById(elementId);
+            
+            const interval = setInterval(() => {
+                const modal = document.getElementById('modal' + version);
+                if (modal.classList.contains('hidden')) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(interval);
+                    countdownEl.textContent = version === 'A' ? 'You can start now.' : '00:00:00';
+                    return;
+                }
+                
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                
+                const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                
+                if (version === 'A') {
+                    countdownEl.textContent = `Your timer will be available again in ${timeString}.`;
+                } else {
+                    countdownEl.textContent = timeString;
+                }
+            }, 1000);
+            
+            if (version === 'A') {
+                countdownIntervalA = interval;
+            } else {
+                countdownIntervalB = interval;
+            }
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('modalA').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal('modalA');
+            }
+        });
+
+        document.getElementById('modalB').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal('modalB');
+            }
+        });
+    </script>
+</body>
+</html>

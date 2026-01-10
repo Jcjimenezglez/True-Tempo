@@ -151,9 +151,9 @@ module.exports = async (req, res) => {
       // even if the price has trial_period_days configured, due to deprecation of trial_from_plan
       sessionConfig.subscription_data = {
         trial_period_days: trialPeriodDays, // Explicitly set trial period (required by Stripe)
-        description: '1 month free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
+        description: '1 month free trial. You will be charged $2.99/month after the trial ends. Cancel anytime.',
         metadata: {
-          trial_info: '1 month free, then $3.99/month',
+          trial_info: '1 month free, then $2.99/month',
         },
       };
       
