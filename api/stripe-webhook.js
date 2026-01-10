@@ -670,12 +670,12 @@ async function handleInvoicePaymentSucceeded(invoice, clerk) {
       console.log(`🎯 First payment after trial detected for user ${user.id}`);
       
       // Track Google Ads conversion for FIRST REAL PAYMENT after trial
-      // Value: $12.0 (represents ~4 months of subscription value at $2.99)
+      // Value: $16.0 (LTV-based value representing ~5 months retention at $2.99)
       // This is higher than trial value ($2.99) to signal to Google Ads
       // that users who complete their first payment are more valuable
       await trackConversionServerSide(
         'first_payment',
-        16.0,  // LTV-based value (4 months retention estimate)
+        16.0,  // LTV-based value (~5 months retention estimate at $2.99/month)
         invoice.id,
         null,
         userEmail,
