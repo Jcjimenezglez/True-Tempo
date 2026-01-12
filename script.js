@@ -16508,6 +16508,23 @@ class PomodoroTimer {
         localStorage.removeItem('publicCassettesChecksum');
         console.log('🗑️ Public vibes cache invalidated');
     }
+    
+    // Method to remove a specific cassette from the public vibes cache
+    removeCassetteFromPublicCache(cassetteId) {
+        const cacheKey = 'publicCassettesCache';
+        const cachedData = localStorage.getItem(cacheKey);
+        
+        if (cachedData) {
+            try {
+                const cassettes = JSON.parse(cachedData);
+                const filtered = cassettes.filter(c => c.id !== cassetteId);
+                localStorage.setItem(cacheKey, JSON.stringify(filtered));
+                console.log(`🗑️ Removed cassette ${cassetteId} from public vibes cache`);
+            } catch (e) {
+                console.error('Error removing cassette from cache:', e);
+            }
+        }
+    }
 
     async getCustomCassettesWithPublic() {
         const localCassettes = this.getCustomCassettes();
@@ -16559,12 +16576,11 @@ class PomodoroTimer {
         }));
         
         // Step 1: Render immediately from cache + user's public vibes (optimistic rendering)
-        // Skip cache rendering if forceRefresh is true (e.g., after deletion)
         const cacheKey = 'publicCassettesCache';
         const cachedData = localStorage.getItem(cacheKey);
         let cachedCassettes = [];
         
-        if (cachedData && !forceRefresh) {
+        if (cachedData) {
             try {
                 cachedCassettes = JSON.parse(cachedData);
             } catch (e) {
@@ -16610,8 +16626,8 @@ class PomodoroTimer {
         // Track if we rendered from cache (to avoid double state application)
         let renderedFromCache = false;
         
-        if (uniqueMergedForDisplay.length > 0 && !forceRefresh) {
-            // Render immediately from merged cache + user's cassettes (only if not forcing refresh)
+        if (uniqueMergedForDisplay.length > 0) {
+            // Render immediately from merged cache + user's cassettes
             this.renderPublicCassettes(uniqueMergedForDisplay, isGuest);
             console.log('📦 Rendered public vibes from cache + user cassettes immediately');
             renderedFromCache = true;
@@ -16626,7 +16642,7 @@ class PomodoroTimer {
                 this.applyActiveStateToPublicCassettes();
             }, 100);
         } else {
-            // No cache available OR forceRefresh - show loading indicator
+            // No cache available - show loading indicator
             if (publicCassettesList) {
                 publicCassettesList.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: center; padding: 2rem; color: rgba(255,255,255,0.5); font-size: 0.9rem;">
@@ -17170,6 +17186,19 @@ class PomodoroTimer {
             const filtered = cassettes.filter(c => c.id !== cassetteId);
             localStorage.setItem('customCassettes', JSON.stringify(filtered));
             
+            // Immediately remove the cassette from the DOM for instant UI feedback
+            const customCassetteElement = document.querySelector(`.custom-cassette[data-cassette-id="${cassetteId}"]`);
+            if (customCassetteElement) {
+                customCassetteElement.remove();
+            }
+            const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+            if (publicCassetteElement) {
+                publicCassetteElement.remove();
+            }
+            
+            // Remove the cassette from the public vibes cache immediately
+            this.removeCassetteFromPublicCache(cassetteId);
+            
             // Sync public vibes to Clerk after deletion
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
@@ -17193,20 +17222,19 @@ class PomodoroTimer {
                 });
             }
             
-            // Invalidate cache when deleting (changes may have been made)
-            this.invalidatePublicCassettesCache();
-            
             // If this was the active theme, switch to lofi
             if (this.currentTheme === `custom_${cassetteId}`) {
                 this.applyTheme('lofi');
             }
             
-            // Reload custom vibes first (synchronous)
+            // Reload custom vibes (synchronous)
             this.loadCustomCassettes();
             
-            // Wait for public vibes to reload (asynchronous) to prevent them from disappearing
-            // Force refresh to ensure deleted vibe is removed from UI immediately
-            await this.loadPublicCassettes(true);
+            // Reload public vibes in background - the cassette is already removed from DOM and cache
+            // so even if API still returns it, the cache update will handle it correctly
+            this.loadPublicCassettes(true).catch(err => {
+                console.error('Error reloading public vibes after deletion:', err);
+            });
         } catch (error) {
             console.error('Error deleting custom vibe:', error);
         }
