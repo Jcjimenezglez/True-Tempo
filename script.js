@@ -18119,6 +18119,15 @@ class PomodoroTimer {
                 } else if (isNowPublic || changedFromPrivateToPublic || (cassetteId && cassette.isPublic)) {
                     // If it's a public cassette or changed to public, or editing an existing public cassette
                     
+                    // If changed from private to public, remove from custom vibes list immediately
+                    if (changedFromPrivateToPublic) {
+                        const customCassetteElement = document.querySelector(`.custom-cassette[data-cassette-id="${cassette.id}"]`);
+                        if (customCassetteElement) {
+                            customCassetteElement.remove();
+                            console.log('🔄 Moved cassette from custom to public list:', cassette.id);
+                        }
+                    }
+                    
                     // Check if cassette element already exists in public vibes
                     const existingPublicElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
                     
@@ -18146,8 +18155,8 @@ class PomodoroTimer {
                             descriptionP.textContent = cassette.description || 'Public focus environment';
                         }
                         console.log('✅ Updated public cassette card immediately:', cassette.id);
-                    } else if (!cassetteId && isNowPublic) {
-                        // NEW public cassette - add it to the UI immediately
+                    } else if ((!cassetteId && isNowPublic) || changedFromPrivateToPublic) {
+                        // NEW public cassette OR changed from private to public - add it to the UI immediately
                         const publicCassettesList = document.getElementById('publicCassettesList');
                         const publicCassettesSection = document.getElementById('publicCassettesSection');
                         
