@@ -17360,78 +17360,17 @@ class PomodoroTimer {
         if (cassette.imageUrl) {
             console.log('🎨 Setting custom vibe background image:', cassette.imageUrl);
             
-            // Check if this cassette belongs to the current user
-            const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
-            
             // Escape URL for CSS: escape single quotes
             const escapedImageUrl = cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
             
-            // Apply immediately (will be overridden if image fails)
+            // Apply background image directly - CSS handles loading gracefully
+            // No need for CORS image test which causes errors with many image hosts (Pinterest, etc.)
             timerSection.style.setProperty('background-image', `url('${escapedImageUrl}')`, 'important');
             timerSection.style.setProperty('background-size', 'cover', 'important');
             timerSection.style.setProperty('background-position', 'center', 'important');
             timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
             timerSection.style.setProperty('background-color', 'transparent', 'important');
             
-            // Test if image loads (silently, no alerts for public vibes from other users)
-            const testImg = new Image();
-            let imageLoaded = false;
-            let errorTimeout;
-            
-            testImg.onload = () => {
-                imageLoaded = true;
-                if (errorTimeout) clearTimeout(errorTimeout);
-                console.log('✅ Image loaded successfully');
-                // Image is already applied above, just verify
-                timerSection.style.setProperty('background-image', `url('${escapedImageUrl}')`, 'important');
-                timerSection.style.setProperty('background-size', 'cover', 'important');
-                timerSection.style.setProperty('background-position', 'center', 'important');
-                timerSection.style.setProperty('background-repeat', 'no-repeat', 'important');
-                timerSection.style.setProperty('background-color', 'transparent', 'important');
-            };
-            
-            testImg.onerror = () => {
-                // Don't show error immediately - check if image is actually displaying
-                // Sometimes CORS errors occur but the image still displays correctly
-                console.warn('⚠️ Image load test failed (may be CORS issue):', cassette.imageUrl);
-                
-                // Wait a bit to check if the image actually loaded despite the error
-                errorTimeout = setTimeout(() => {
-                    if (!imageLoaded) {
-                        // Check if background is actually working by checking computed style
-                        const computedBg = window.getComputedStyle(timerSection).backgroundImage;
-                        const bgImage = timerSection.style.backgroundImage;
-                        
-                        // If the background image is set and not 'none', it's working
-                        const isImageWorking = (computedBg && computedBg !== 'none' && computedBg !== '') || 
-                                               (bgImage && bgImage !== 'none' && bgImage !== '');
-                        
-                        if (!isImageWorking) {
-                            // Image truly failed - only show error for own cassettes
-                            if (isOwnCassette) {
-                                console.error('❌ Image failed to load:', cassette.imageUrl);
-                                alert('Error: The image URL could not be loaded. Please check the URL and try again.\n\n📝 How to get the correct URL:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)');
-                                // Remove background only if truly failed
-                                timerSection.style.removeProperty('background-image');
-                                timerSection.style.setProperty('background', '#0a0a0a', 'important');
-                            } else {
-                                // For public vibes from other users, fail silently
-                                timerSection.style.removeProperty('background-image');
-                                timerSection.style.setProperty('background', '#0a0a0a', 'important');
-                            }
-                        } else {
-                            // Image is working despite the error - just log it
-                            console.log('✅ Image is working despite load test error (CORS warning)');
-                        }
-                    }
-                }, 2000); // Give 2 seconds to check if image actually loaded
-            };
-            
-            // Set crossOrigin to allow CORS if needed
-            testImg.crossOrigin = 'anonymous';
-            testImg.src = cassette.imageUrl;
-            
-            // Verify it was set
             console.log('🎨 Applied background styles:', {
                 backgroundImage: timerSection.style.backgroundImage,
                 backgroundSize: timerSection.style.backgroundSize,
@@ -18369,49 +18308,64 @@ class PomodoroTimer {
                 // Found in local cassettes, apply it
                 this.applyCustomCassette(cassette);
                 return;
-            } else {
-                // Store the theme name we're about to load
-                const themeBeingLoaded = themeName;
-                
-                // Not found in local cassettes, try to find in public vibes (async)
-                this.loadPublicCassettesFromAPI().then(publicCassettes => {
-                    // IMPORTANT: Check if user has changed theme while we were loading
-                    // If currentTheme is different from what we started loading, don't override
-                    if (this.currentTheme !== themeBeingLoaded) {
-                        console.log(`⚠️ User changed theme during load (${themeBeingLoaded} → ${this.currentTheme}), skipping`);
-                        return; // User already selected a different theme, don't override
-                    }
-                    
-                    const publicCassette = publicCassettes.find(c => c.id === cassetteId);
-                    if (publicCassette) {
-                        // Update active state visually
-                        document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        document.querySelectorAll('.custom-cassette').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        document.querySelectorAll('.public-cassette').forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-                        const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
-                        if (cassetteOption) {
-                            cassetteOption.classList.add('active');
-                        }
-                        this.applyCustomCassette(publicCassette);
-                    } else {
-                        // Not found in public vibes either, fallback to lofi
-                        console.warn('Custom vibe not found in local or public vibes, falling back to lofi');
-                        this.applyTheme('lofi');
-                    }
-                }).catch(err => {
-                    console.error('Error loading public vibes:', err);
-                    // On error, fallback to lofi
-                    this.applyTheme('lofi');
-                });
-                // Return early since we're handling async
-                return;
             }
+            
+            // Not found in local cassettes, try cache first (instant) before API
+            const cachedData = localStorage.getItem('publicCassettesCache');
+            if (cachedData) {
+                try {
+                    const cachedCassettes = JSON.parse(cachedData);
+                    const cachedCassette = cachedCassettes.find(c => c.id === cassetteId);
+                    if (cachedCassette) {
+                        console.log('📦 Found cassette in cache, applying instantly');
+                        this.applyCustomCassette(cachedCassette);
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error parsing cached cassettes:', e);
+                }
+            }
+            
+            // Not in cache either, load from API (async)
+            const themeBeingLoaded = themeName;
+            
+            this.loadPublicCassettesFromAPI().then(publicCassettes => {
+                // IMPORTANT: Check if user has changed theme while we were loading
+                // If currentTheme is different from what we started loading, don't override
+                if (this.currentTheme !== themeBeingLoaded) {
+                    console.log(`⚠️ User changed theme during load (${themeBeingLoaded} → ${this.currentTheme}), skipping`);
+                    return; // User already selected a different theme, don't override
+                }
+                
+                const publicCassette = publicCassettes.find(c => c.id === cassetteId);
+                if (publicCassette) {
+                    // Update active state visually
+                    document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    document.querySelectorAll('.custom-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    document.querySelectorAll('.public-cassette').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassetteId}"]`);
+                    if (cassetteOption) {
+                        cassetteOption.classList.add('active');
+                    }
+                    this.applyCustomCassette(publicCassette);
+                } else {
+                    // Not found in public vibes either, fallback to lofi
+                    console.warn('Custom vibe not found in local or public vibes, falling back to lofi');
+                    this.applyTheme('lofi');
+                }
+            }).catch(err => {
+                console.error('Error loading public vibes:', err);
+                // On error, fallback to lofi
+                this.applyTheme('lofi');
+            });
+            // Return early since we're handling async
+            return;
         }
         
         // Pause timer when changing cassettes for better UX
