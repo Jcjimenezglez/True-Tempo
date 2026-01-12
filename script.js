@@ -13363,13 +13363,13 @@ class PomodoroTimer {
             });
             
             // Track subscription conversion immediately
-            // Use 2.99 value for Google Ads conversion tracking (actual subscription value)
+            // Use 3.99 value for Google Ads conversion tracking (actual subscription value)
             // ENABLED: Client-side tracking for better attribution
-            this.trackConversion('subscription', 2.99);
+            this.trackConversion('subscription', 3.99);
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSubscriptionUpgrade('premium', 2.99);
+                window.mixpanelTracker.trackSubscriptionUpgrade('premium', 3.99);
                 console.log('📊 Subscription upgrade event tracked to Mixpanel');
             }
             
@@ -17163,7 +17163,7 @@ class PomodoroTimer {
         }
     }
 
-    deleteCustomCassette(cassetteId) {
+    async deleteCustomCassette(cassetteId) {
         try {
             const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
@@ -17200,9 +17200,11 @@ class PomodoroTimer {
                 this.applyTheme('lofi');
             }
             
-            // Reload both custom vibes and public vibes to reflect changes
+            // Reload custom vibes first (synchronous)
             this.loadCustomCassettes();
-            this.loadPublicCassettes();
+            
+            // Wait for public vibes to reload (asynchronous) to prevent them from disappearing
+            await this.loadPublicCassettes();
         } catch (error) {
             console.error('Error deleting custom vibe:', error);
         }
@@ -18218,8 +18220,18 @@ class PomodoroTimer {
                 this.applyCustomCassette(cassette);
                 return;
             } else {
+                // Store the theme name we're about to load
+                const themeBeingLoaded = themeName;
+                
                 // Not found in local cassettes, try to find in public vibes (async)
                 this.loadPublicCassettesFromAPI().then(publicCassettes => {
+                    // IMPORTANT: Check if user has changed theme while we were loading
+                    // If currentTheme is different from what we started loading, don't override
+                    if (this.currentTheme !== themeBeingLoaded) {
+                        console.log(`⚠️ User changed theme during load (${themeBeingLoaded} → ${this.currentTheme}), skipping`);
+                        return; // User already selected a different theme, don't override
+                    }
+                    
                     const publicCassette = publicCassettes.find(c => c.id === cassetteId);
                     if (publicCassette) {
                         // Update active state visually
