@@ -16559,11 +16559,12 @@ class PomodoroTimer {
         }));
         
         // Step 1: Render immediately from cache + user's public vibes (optimistic rendering)
+        // Skip cache rendering if forceRefresh is true (e.g., after deletion)
         const cacheKey = 'publicCassettesCache';
         const cachedData = localStorage.getItem(cacheKey);
         let cachedCassettes = [];
         
-        if (cachedData) {
+        if (cachedData && !forceRefresh) {
             try {
                 cachedCassettes = JSON.parse(cachedData);
             } catch (e) {
@@ -16609,8 +16610,8 @@ class PomodoroTimer {
         // Track if we rendered from cache (to avoid double state application)
         let renderedFromCache = false;
         
-        if (uniqueMergedForDisplay.length > 0) {
-            // Render immediately from merged cache + user's cassettes
+        if (uniqueMergedForDisplay.length > 0 && !forceRefresh) {
+            // Render immediately from merged cache + user's cassettes (only if not forcing refresh)
             this.renderPublicCassettes(uniqueMergedForDisplay, isGuest);
             console.log('📦 Rendered public vibes from cache + user cassettes immediately');
             renderedFromCache = true;
@@ -16625,7 +16626,7 @@ class PomodoroTimer {
                 this.applyActiveStateToPublicCassettes();
             }, 100);
         } else {
-            // No cache available - show loading indicator
+            // No cache available OR forceRefresh - show loading indicator
             if (publicCassettesList) {
                 publicCassettesList.innerHTML = `
                     <div style="display: flex; align-items: center; justify-content: center; padding: 2rem; color: rgba(255,255,255,0.5); font-size: 0.9rem;">
@@ -17204,7 +17205,8 @@ class PomodoroTimer {
             this.loadCustomCassettes();
             
             // Wait for public vibes to reload (asynchronous) to prevent them from disappearing
-            await this.loadPublicCassettes();
+            // Force refresh to ensure deleted vibe is removed from UI immediately
+            await this.loadPublicCassettes(true);
         } catch (error) {
             console.error('Error deleting custom vibe:', error);
         }
