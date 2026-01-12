@@ -18118,33 +18118,144 @@ class PomodoroTimer {
                     this.loadPublicCassettes(true).catch(err => console.error('Error reloading public vibes:', err));
                 } else if (isNowPublic || changedFromPrivateToPublic || (cassetteId && cassette.isPublic)) {
                     // If it's a public cassette or changed to public, or editing an existing public cassette
-                    // First, update the card in the UI immediately with new data from localStorage
-                    if (cassetteId && cassette.isPublic) {
-                        const publicCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
-                        if (publicCassetteElement) {
-                            // Update the card immediately with new data
-                            const previewDiv = publicCassetteElement.querySelector('.theme-preview');
-                            const titleH4 = publicCassetteElement.querySelector('.theme-info h4');
-                            const descriptionP = publicCassetteElement.querySelector('.theme-info p:first-of-type');
+                    
+                    // Check if cassette element already exists in public vibes
+                    const existingPublicElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                    
+                    if (existingPublicElement) {
+                        // Update existing card immediately with new data
+                        const previewDiv = existingPublicElement.querySelector('.theme-preview');
+                        const titleH4 = existingPublicElement.querySelector('.theme-info h4');
+                        const descriptionP = existingPublicElement.querySelector('.theme-info p:first-of-type');
+                        
+                        if (previewDiv) {
+                            previewDiv.style.backgroundImage = cassette.imageUrl 
+                                ? `url('${cassette.imageUrl}')` 
+                                : 'none';
+                            previewDiv.style.backgroundSize = 'cover';
+                            previewDiv.style.backgroundPosition = 'center';
+                            if (!cassette.imageUrl) {
+                                previewDiv.style.background = '#0a0a0a';
+                            }
+                        }
+                        if (titleH4) {
+                            const signupText = titleH4.querySelector('.signup-required-text')?.outerHTML || '';
+                            titleH4.innerHTML = `${cassette.title} ${signupText}`;
+                        }
+                        if (descriptionP) {
+                            descriptionP.textContent = cassette.description || 'Public focus environment';
+                        }
+                        console.log('✅ Updated public cassette card immediately:', cassette.id);
+                    } else if (!cassetteId && isNowPublic) {
+                        // NEW public cassette - add it to the UI immediately
+                        const publicCassettesList = document.getElementById('publicCassettesList');
+                        const publicCassettesSection = document.getElementById('publicCassettesSection');
+                        
+                        if (publicCassettesList && publicCassettesSection) {
+                            // Show the section if it was hidden
+                            publicCassettesSection.style.display = 'block';
                             
-                            if (previewDiv) {
-                                previewDiv.style.backgroundImage = cassette.imageUrl 
-                                    ? `url('${cassette.imageUrl}')` 
-                                    : 'none';
-                                previewDiv.style.backgroundSize = 'cover';
-                                previewDiv.style.backgroundPosition = 'center';
-                                if (!cassette.imageUrl) {
-                                    previewDiv.style.background = '#0a0a0a';
+                            // Create the cassette card HTML
+                            const creatorName = this.user?.username || this.user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'You';
+                            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
+                            const previewStyle = cassette.imageUrl 
+                                ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
+                                : 'background: #0a0a0a;';
+                            
+                            const newCassetteHTML = `
+                                <div class="theme-option public-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
+                                    <div class="theme-preview" style="${previewStyle}"></div>
+                                    <div class="theme-info">
+                                        <h4>${cassette.title}</h4>
+                                        <p>${cassette.description || 'Public focus environment'}</p>
+                                        <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">
+                                            created by ${creatorName}
+                                            <span style="margin-left: 12px;">👁 ${cassette.views || 0}</span>
+                                        </p>
+                                    </div>
+                                    <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                                        <button class="cassette-options-btn" data-cassette-id="${cassette.id}" title="Vibe options" onclick="event.stopPropagation();">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="1"/>
+                                                <circle cx="19" cy="12" r="1"/>
+                                                <circle cx="5" cy="12" r="1"/>
+                                            </svg>
+                                        </button>
+                                        <div class="cassette-options-dropdown" id="publicCassetteOptionsDropdown${cassette.id}" style="display: none;">
+                                            <div class="cassette-options-menu">
+                                                <button class="cassette-option-item edit-public-cassette-option" data-cassette-id="${cassette.id}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                    </svg>
+                                                    Edit
+                                                </button>
+                                                <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"/>
+                                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Insert at the beginning of the list (newest first)
+                            publicCassettesList.insertAdjacentHTML('afterbegin', newCassetteHTML);
+                            
+                            // Add event listeners for the new cassette
+                            const newCassetteElement = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
+                            if (newCassetteElement) {
+                                // Click to select
+                                newCassetteElement.addEventListener('click', (e) => {
+                                    if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                                        return;
+                                    }
+                                    this.selectCustomCassette(cassette.id);
+                                });
+                                
+                                // Options button
+                                const optionsBtn = newCassetteElement.querySelector(`.cassette-options-btn[data-cassette-id="${cassette.id}"]`);
+                                const optionsDropdown = document.getElementById(`publicCassetteOptionsDropdown${cassette.id}`);
+                                
+                                if (optionsBtn && optionsDropdown) {
+                                    optionsBtn.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        const isVisible = optionsDropdown.style.display === 'block';
+                                        document.querySelectorAll('.cassette-options-dropdown').forEach(dropdown => {
+                                            dropdown.style.display = 'none';
+                                        });
+                                        optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                                    });
+                                }
+                                
+                                // Edit option
+                                const editOption = newCassetteElement.querySelector(`.edit-public-cassette-option[data-cassette-id="${cassette.id}"]`);
+                                if (editOption) {
+                                    editOption.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        if (optionsDropdown) optionsDropdown.style.display = 'none';
+                                        this.showCassetteForm(cassette.id);
+                                    });
+                                }
+                                
+                                // Delete option
+                                const deleteOption = newCassetteElement.querySelector(`.delete-public-cassette-option[data-cassette-id="${cassette.id}"]`);
+                                if (deleteOption) {
+                                    deleteOption.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        if (optionsDropdown) optionsDropdown.style.display = 'none';
+                                        this.deleteCustomCassette(cassette.id);
+                                    });
                                 }
                             }
-                            if (titleH4) {
-                                const signupText = titleH4.querySelector('.signup-required-text')?.outerHTML || '';
-                                titleH4.innerHTML = `${cassette.title} ${signupText}`;
-                            }
-                            if (descriptionP) {
-                                descriptionP.textContent = cassette.description || 'Public focus environment';
-                            }
-                            console.log('✅ Updated public cassette card immediately:', cassette.id);
+                            
+                            console.log('✅ Added new public cassette to UI immediately:', cassette.id);
                         }
                     }
                     
