@@ -1663,7 +1663,7 @@
 
     <!-- Free User Task Limit Modal -->
     <div class="logout-modal-overlay" id="guestTaskLimitModalOverlay" style="display: none;">
-        <div class="logout-modal">
+        <div class="logout-modal task-limit-modal">
             <button class="close-logout-modal-x" id="closeGuestTaskLimitModalX">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/>
@@ -1671,21 +1671,46 @@
                 </svg>
             </button>
             <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list-icon lucide-clipboard-list">
+                <div class="upgrade-icon task-limit-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                        <path d="M12 11h4"/>
-                        <path d="M12 16h4"/>
-                        <path d="M8 11h.01"/>
-                        <path d="M8 16h.01"/>
+                        <path d="M9 14l2 2 4-4"/>
                     </svg>
                 </div>
-                <h3 class="logout-modal-title">Your tasks are blocked</h3>
-                <p class="logout-modal-message">You can't add more tasks right now. That project you wanted to start? That idea you just had? They're waiting. Remove the limit and never stop your workflow again.</p>
+                <h3 class="logout-modal-title">You've reached your task limit</h3>
+                <p class="logout-modal-message">You're currently at <strong>2/2 tasks</strong>. Upgrade to Pro to add unlimited tasks and unlock your full productivity potential.</p>
+                
+                <!-- Benefits List -->
+                <div class="task-limit-benefits">
+                    <div class="benefit-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Unlimited tasks</span>
+                    </div>
+                    <div class="benefit-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Unlimited focus time</span>
+                    </div>
+                    <div class="benefit-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>Custom timers & vibes</span>
+                    </div>
+                </div>
+                
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">Remove All Limits</button>
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="guestTaskLimitCancelBtn">Cancel</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">
+                        <span>Upgrade to Pro</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"/>
+                        </svg>
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="guestTaskLimitCancelBtn">Maybe later</button>
                 </div>
             </div>
         </div>
