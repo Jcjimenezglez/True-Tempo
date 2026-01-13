@@ -14674,27 +14674,40 @@ class PomodoroTimer {
         this.longBreakTime = config.longBreakTime;
         
         // Build cycle sections
+        // config.cycles represents the number of work sessions (focus sessions)
         this.cycleSections = [];
         for (let i = 0; i < config.cycles; i++) {
+            // Add work session
             this.cycleSections.push({
                 type: 'work',
                 duration: this.workTime,
                 name: 'Focus'
             });
-            this.cycleSections.push({
-                type: 'break',
-                duration: this.shortBreakTime,
-                name: 'Break'
-            });
-        }
-        
-        // Add long break if configured
-        if (this.longBreakTime > 0) {
-            this.cycleSections.push({
-                type: 'long-break',
-                duration: this.longBreakTime,
-                name: 'Long Break'
-            });
+            
+            // Add break after work session (but not after the last one if there's a long break)
+            if (i < config.cycles - 1) {
+                // Not the last session, add short break
+                this.cycleSections.push({
+                    type: 'break',
+                    duration: this.shortBreakTime,
+                    name: 'Break'
+                });
+            } else {
+                // Last session - add long break if configured, otherwise short break
+                if (this.longBreakTime > 0) {
+                    this.cycleSections.push({
+                        type: 'long-break',
+                        duration: this.longBreakTime,
+                        name: 'Long Break'
+                    });
+                } else {
+                    this.cycleSections.push({
+                        type: 'break',
+                        duration: this.shortBreakTime,
+                        name: 'Break'
+                    });
+                }
+            }
         }
 
         // Calculate required focus time for complete cycle
