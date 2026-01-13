@@ -10158,7 +10158,8 @@ class PomodoroTimer {
         orderedTasks.forEach((task, index) => {
             const item = document.createElement('div');
             item.className = 'task-item';
-            item.draggable = true;
+            // Disable drag & drop in Done tab (read-only)
+            item.draggable = currentTab !== 'done';
             item.dataset.taskId = task.id;
             item.dataset.index = index;
             
@@ -10171,7 +10172,7 @@ class PomodoroTimer {
             const checkboxDisabled = currentTab === 'done' ? 'disabled' : '';
             
             const itemContent = `
-                <div class="task-checkbox">
+                <div class="task-checkbox ${currentTab === 'done' ? 'disabled' : ''}">
                     <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
                     <label for="task-${task.id}"></label>
                 </div>
@@ -10202,6 +10203,11 @@ class PomodoroTimer {
             // Add completed class if task is completed
             if (isCompleted) {
                 item.classList.add('completed');
+            }
+            
+            // Add read-only class in Done tab
+            if (currentTab === 'done') {
+                item.classList.add('read-only');
             }
             
             listEl.appendChild(item);
@@ -15196,7 +15202,8 @@ class PomodoroTimer {
                 tasks.forEach((task) => {
                     const item = document.createElement('div');
                     item.className = 'task-item';
-                    item.draggable = true;
+                    // Disable drag & drop in Done tab (read-only)
+                    item.draggable = currentTab !== 'done';
                     item.dataset.taskId = task.id;
                     item.dataset.index = globalIndex++;
                     item.dataset.source = source;
@@ -15219,7 +15226,7 @@ class PomodoroTimer {
                     const checkboxDisabled = (currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : '';
                     
                     const itemContent = `
-                        <div class="task-checkbox">
+                        <div class="task-checkbox ${(currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : ''}">
                             <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
                             <label for="task-${task.id}"></label>
                         </div>
@@ -15254,6 +15261,11 @@ class PomodoroTimer {
                     // Add completed class if task is completed
                     if (isCompleted) {
                         item.classList.add('completed');
+                    }
+                    
+                    // Add read-only class in Done tab
+                    if (currentTab === 'done') {
+                        item.classList.add('read-only');
                     }
                     
                     // Only apply 'selected' class if task is NOT completed

@@ -5459,6 +5459,23 @@ input:checked + .toggle-slider:before {
     font-weight: bold;
 }
 
+/* Disable hover and cursor for disabled checkboxes (Done tab) */
+.task-checkbox.disabled input[type="checkbox"],
+.task-checkbox input[type="checkbox"]:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+.task-checkbox.disabled label,
+.task-checkbox input[type="checkbox"]:disabled + label {
+    cursor: default;
+}
+
+/* Disable drag cursor for read-only tasks */
+.task-item.read-only {
+    cursor: default;
+}
+
 .task-content {
     flex: 1;
     display: flex;
