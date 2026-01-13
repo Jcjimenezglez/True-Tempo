@@ -2033,17 +2033,8 @@ class PomodoroTimer {
             this.longBreakTime = technique.longBreakMinutes * 60;
             this.sessionsPerCycle = technique.sessions;
             
-            // Update cycle sections (like Save Changes did)
-            this.cycleSections = [
-                { type: 'work', duration: this.workTime, name: 'Work 1' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                { type: 'work', duration: this.workTime, name: 'Work 2' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                { type: 'work', duration: this.workTime, name: 'Work 3' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                { type: 'work', duration: this.workTime, name: 'Work 4' },
-                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-            ];
+            // Update cycle sections dynamically based on sessionsPerCycle
+            this.buildCycleSections();
             
             // Reset timer to first section using the complete reset function (like Save Changes)
             this.resetTimer();
@@ -2622,19 +2613,11 @@ class PomodoroTimer {
                 if (savedLongBreakTime) this.longBreakTime = parseInt(savedLongBreakTime);
                 if (savedSessionsPerCycle) this.sessionsPerCycle = parseInt(savedSessionsPerCycle);
                 
-                // Update cycle sections with custom durations
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                // Update cycle sections with custom durations (dynamic based on sessionsPerCycle)
+                this.buildCycleSections();
                 
                 // Update UI to reflect custom durations
+                this.updateProgressRing();
                 this.updateDisplay();
                 this.updateProgress();
                 this.updateSections();
@@ -2684,19 +2667,11 @@ class PomodoroTimer {
                 if (savedLongBreakTime) this.longBreakTime = parseInt(savedLongBreakTime);
                 if (savedSessionsPerCycle) this.sessionsPerCycle = parseInt(savedSessionsPerCycle);
                 
-                // Update cycle sections with custom durations
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                // Update cycle sections with custom durations (dynamic based on sessionsPerCycle)
+                this.buildCycleSections();
                 
                 // Update UI to reflect custom durations
+                this.updateProgressRing();
                 this.updateDisplay();
                 this.updateProgress();
                 this.updateSections();
@@ -3360,6 +3335,44 @@ class PomodoroTimer {
         this.syncSettingsPanelTechnique(technique);
     }
     
+    // Helper function to build cycle sections dynamically based on sessionsPerCycle
+    buildCycleSections() {
+        this.cycleSections = [];
+        for (let i = 0; i < this.sessionsPerCycle; i++) {
+            // Add work session
+            this.cycleSections.push({
+                type: 'work',
+                duration: this.workTime,
+                name: `Work ${i + 1}`
+            });
+            
+            // Add break after work session
+            if (i < this.sessionsPerCycle - 1) {
+                // Not the last session, add short break
+                this.cycleSections.push({
+                    type: 'break',
+                    duration: this.shortBreakTime,
+                    name: `Break ${i + 1}`
+                });
+            } else {
+                // Last session - add long break if configured, otherwise short break
+                if (this.longBreakTime > 0) {
+                    this.cycleSections.push({
+                        type: 'long-break',
+                        duration: this.longBreakTime,
+                        name: 'Long Break'
+                    });
+                } else {
+                    this.cycleSections.push({
+                        type: 'break',
+                        duration: this.shortBreakTime,
+                        name: `Break ${i + 1}`
+                    });
+                }
+            }
+        }
+    }
+
     loadTechnique(technique) {
         // Avoid redundant loads
         if (this.currentTechniqueKey === technique) {
@@ -3373,120 +3386,56 @@ class PomodoroTimer {
                 this.shortBreakTime = 3 * 60;
                 this.longBreakTime = 10 * 60;
                 this.sessionsPerCycle = 4;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'pomodoro':
                 this.workTime = 25 * 60;
                 this.shortBreakTime = 5 * 60;
                 this.longBreakTime = 15 * 60;
                 this.sessionsPerCycle = 4;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'focus':
                 this.workTime = 30 * 60;
                 this.shortBreakTime = 6 * 60;
                 this.longBreakTime = 20 * 60;
                 this.sessionsPerCycle = 4;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'flow':
                 this.workTime = 45 * 60;
                 this.shortBreakTime = 8 * 60;
                 this.longBreakTime = 25 * 60;
                 this.sessionsPerCycle = 4;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'marathon':
                 this.workTime = 60 * 60;
                 this.shortBreakTime = 10 * 60;
                 this.longBreakTime = 30 * 60;
                 this.sessionsPerCycle = 4;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'deepwork':
                 this.workTime = 90 * 60;
                 this.shortBreakTime = 20 * 60;
                 this.longBreakTime = 30 * 60;
                 this.sessionsPerCycle = 2;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'pomodoro-plus':
                 this.workTime = 50 * 60;
                 this.shortBreakTime = 10 * 60;
                 this.longBreakTime = 0; // No long break for this technique
                 this.sessionsPerCycle = 4;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                    { type: 'work', duration: this.workTime, name: 'Work 3' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                    { type: 'work', duration: this.workTime, name: 'Work 4' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 4' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'ultradian-rhythm':
                 this.workTime = 90 * 60;
                 this.shortBreakTime = 20 * 60;
-                this.longBreakTime = 20 * 60; // Same as short break for simplicity
+                this.longBreakTime = 0; // No long break - uses short breaks only
                 this.sessionsPerCycle = 2;
-                this.cycleSections = [
-                    { type: 'work', duration: this.workTime, name: 'Work 1' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                    { type: 'work', duration: this.workTime, name: 'Work 2' },
-                    { type: 'break', duration: this.shortBreakTime, name: 'Break 2' }
-                ];
+                this.buildCycleSections();
                 break;
             case 'custom':
                 // Load and apply saved custom configuration
@@ -3564,7 +3513,7 @@ class PomodoroTimer {
             progressSegments.style.opacity = existingOpacity;
         }
         
-        // Update overlays: create 8 overlays for each section
+        // Update overlays: create overlays for each section (dynamic based on cycleSections)
         const progressOverlays = document.querySelector('.progress-overlays');
         if (progressOverlays) {
             // Preserve existing opacity before clearing
@@ -3572,8 +3521,9 @@ class PomodoroTimer {
             
             progressOverlays.innerHTML = '';
             
-            // Create 8 overlays for each section
-            for (let i = 1; i <= 8; i++) {
+            // Create overlays for each section (dynamic count based on cycleSections)
+            const totalSections = this.cycleSections.length;
+            for (let i = 1; i <= totalSections; i++) {
                 const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 overlay.setAttribute('class', 'progress-overlay');
                 overlay.setAttribute('data-ol', i.toString());
@@ -4977,17 +4927,8 @@ class PomodoroTimer {
             localStorage.setItem('longBreakTime', String(this.longBreakTime));
             localStorage.setItem('sessionsPerCycle', String(this.sessionsPerCycle));
             
-            // Update cycle sections
-            this.cycleSections = [
-                { type: 'work', duration: this.workTime, name: 'Work 1' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-                { type: 'work', duration: this.workTime, name: 'Work 2' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-                { type: 'work', duration: this.workTime, name: 'Work 3' },
-                { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-                { type: 'work', duration: this.workTime, name: 'Work 4' },
-                { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
-            ];
+            // Update cycle sections dynamically based on sessionsPerCycle
+            this.buildCycleSections();
             
             // Reset timer to first section
             this.pauseTimerSilent();
@@ -14674,42 +14615,8 @@ class PomodoroTimer {
         this.longBreakTime = config.longBreakTime;
         this.sessionsPerCycle = config.cycles; // Set the number of sessions
         
-        // Build cycle sections
-        // config.cycles represents the number of work sessions (focus sessions)
-        this.cycleSections = [];
-        for (let i = 0; i < config.cycles; i++) {
-            // Add work session
-            this.cycleSections.push({
-                type: 'work',
-                duration: this.workTime,
-                name: 'Focus'
-            });
-            
-            // Add break after work session (but not after the last one if there's a long break)
-            if (i < config.cycles - 1) {
-                // Not the last session, add short break
-                this.cycleSections.push({
-                    type: 'break',
-                    duration: this.shortBreakTime,
-                    name: 'Break'
-                });
-            } else {
-                // Last session - add long break if configured, otherwise short break
-                if (this.longBreakTime > 0) {
-                    this.cycleSections.push({
-                        type: 'long-break',
-                        duration: this.longBreakTime,
-                        name: 'Long Break'
-                    });
-                } else {
-                    this.cycleSections.push({
-                        type: 'break',
-                        duration: this.shortBreakTime,
-                        name: 'Break'
-                    });
-                }
-            }
-        }
+        // Build cycle sections using the shared helper function
+        this.buildCycleSections();
 
         // Calculate required focus time for complete cycle
         this.calculateRequiredFocusTime();
