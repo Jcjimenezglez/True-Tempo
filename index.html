@@ -1765,6 +1765,66 @@
         </div>
     </div>
     
+    <!-- Cycle Completion Stats Modal -->
+    <div class="cycle-stats-overlay" id="cycleStatsModal" style="display: none;">
+        <div class="cycle-stats-modal">
+            <button class="close-cycle-stats-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <div class="cycle-completion-header">
+                <div class="cycle-completion-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3>Cycle Completed! 🎉</h3>
+                <p class="cycle-subtitle">Great work! Here's what you accomplished:</p>
+            </div>
+            
+            <div class="cycle-stats-grid">
+                <div class="cycle-stat-card">
+                    <div class="cycle-stat-icon">⏱️</div>
+                    <div class="cycle-stat-label">Total Time</div>
+                    <div class="cycle-stat-value" id="cycleStatTotalTime">--</div>
+                </div>
+                
+                <div class="cycle-stat-card">
+                    <div class="cycle-stat-icon">🎯</div>
+                    <div class="cycle-stat-label">Focus Sessions</div>
+                    <div class="cycle-stat-value" id="cycleStatWorkSessions">--</div>
+                </div>
+                
+                <div class="cycle-stat-card">
+                    <div class="cycle-stat-icon">☕</div>
+                    <div class="cycle-stat-label">Short Breaks</div>
+                    <div class="cycle-stat-value" id="cycleStatShortBreaks">--</div>
+                </div>
+                
+                <div class="cycle-stat-card">
+                    <div class="cycle-stat-icon">🌟</div>
+                    <div class="cycle-stat-label">Long Breaks</div>
+                    <div class="cycle-stat-value" id="cycleStatLongBreaks">--</div>
+                </div>
+            </div>
+            
+            <div class="cycle-technique-info">
+                <span class="cycle-technique-label">Technique:</span>
+                <span class="cycle-technique-name" id="cycleStatTechnique">--</span>
+            </div>
+            
+            <div class="cycle-stats-actions">
+                <button class="cycle-stats-btn cycle-stats-btn-primary" id="cycleStatsContinueBtn">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Settings Modal -->
     <div class="settings-modal-overlay" id="settingsModal" style="display: none;">
         <div class="settings-modal">

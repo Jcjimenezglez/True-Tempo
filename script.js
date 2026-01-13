@@ -4534,6 +4534,48 @@ class PomodoroTimer {
         }
     }
 
+    showCycleStatsModal(cycleData) {
+        const modal = document.getElementById('cycleStatsModal');
+        if (!modal) return;
+
+        // Populate modal with cycle statistics
+        const totalMinutes = Math.round(cycleData.cycleDuration / 60);
+        document.getElementById('cycleStatTotalTime').textContent = `${totalMinutes} min`;
+        document.getElementById('cycleStatWorkSessions').textContent = cycleData.workSessions;
+        document.getElementById('cycleStatShortBreaks').textContent = cycleData.shortBreaks;
+        document.getElementById('cycleStatLongBreaks').textContent = cycleData.longBreaks;
+        document.getElementById('cycleStatTechnique').textContent = cycleData.technique;
+
+        // Show modal
+        modal.style.display = 'flex';
+
+        // Setup event listeners for modal
+        const closeBtn = modal.querySelector('.close-cycle-stats-x');
+        const continueBtn = document.getElementById('cycleStatsContinueBtn');
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+
+        // Remove existing listeners to prevent duplicates
+        if (closeBtn) {
+            closeBtn.replaceWith(closeBtn.cloneNode(true));
+            modal.querySelector('.close-cycle-stats-x').addEventListener('click', closeModal);
+        }
+
+        if (continueBtn) {
+            continueBtn.replaceWith(continueBtn.cloneNode(true));
+            document.getElementById('cycleStatsContinueBtn').addEventListener('click', closeModal);
+        }
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
     async handleUpgrade() {
         try {
             // 🎯 TRACKING: Upgrade flow initiated (tracking before redirect to pricing)
@@ -6241,6 +6283,15 @@ class PomodoroTimer {
                     
                     window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
                     console.log('📊 Cycle completed event tracked to Mixpanel');
+                    
+                    // Show cycle completion stats modal
+                    this.showCycleStatsModal({
+                        technique: currentTechnique,
+                        cycleDuration: cycleDuration,
+                        workSessions: workSessions,
+                        shortBreaks: shortBreaks,
+                        longBreaks: longBreaks
+                    });
                 }
             }
             // Reset focus time tracker for next cycle

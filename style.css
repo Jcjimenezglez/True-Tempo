@@ -4199,6 +4199,280 @@ audio {
     height: 20px;
 }
 
+/* Cycle Completion Stats Modal */
+.cycle-stats-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100000;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.cycle-stats-modal {
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 550px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    animation: modalZoomIn 0.3s ease forwards;
+}
+
+@keyframes modalZoomIn {
+    to {
+        transform: scale(1);
+    }
+}
+
+.close-cycle-stats-x {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a3a3a3;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-cycle-stats-x:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.cycle-completion-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.cycle-completion-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: iconPulse 1.5s ease infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(74, 222, 128, 0);
+    }
+}
+
+.cycle-completion-icon svg {
+    color: #ffffff;
+}
+
+.cycle-completion-header h3 {
+    color: #ffffff;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.cycle-subtitle {
+    color: #a3a3a3;
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+.cycle-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.cycle-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    animation: cardSlideUp 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes cardSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cycle-stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+    transform: translateY(20px);
+}
+
+.cycle-stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+    transform: translateY(20px);
+}
+
+.cycle-stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+    transform: translateY(20px);
+}
+
+.cycle-stat-card:nth-child(4) {
+    animation-delay: 0.4s;
+    transform: translateY(20px);
+}
+
+.cycle-stat-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.cycle-stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.cycle-stat-label {
+    color: #a3a3a3;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cycle-stat-value {
+    color: #ffffff;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.cycle-technique-info {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.cycle-technique-label {
+    color: #a3a3a3;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.cycle-technique-name {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.cycle-stats-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.cycle-stats-btn {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.cycle-stats-btn-primary {
+    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.cycle-stats-btn-primary:hover {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+}
+
+.cycle-stats-btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design for Cycle Stats Modal */
+@media (max-width: 768px) {
+    .cycle-stats-modal {
+        padding: 2rem 1.5rem;
+        max-width: 95%;
+    }
+    
+    .cycle-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .cycle-stat-card {
+        padding: 1rem;
+    }
+    
+    .cycle-completion-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .cycle-completion-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .cycle-completion-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+}
+
 /* Login Required Modal Styles */
 .login-required-content {
     text-align: center;
