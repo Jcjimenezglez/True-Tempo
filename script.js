@@ -2883,14 +2883,14 @@ class PomodoroTimer {
             
             if (!this.isAuthenticated) {
                 // Guest user
-                title.textContent = 'Your tasks are blocked';
-                message.textContent = 'You can\'t add more tasks right now. That project you wanted to start? That idea you just had? They\'re waiting. Sign up to remove the limit and never stop your workflow again.';
+                title.textContent = 'Task limit reached';
+                message.textContent = 'You\'ve hit your 1-task limit. Sign up to get 2 tasks, or upgrade to Premium for unlimited tasks and keep your momentum going.';
                 button.textContent = 'Sign up';
             } else {
-                // Free user (authenticated but not Pro)
-                title.textContent = 'Your tasks are blocked';
-                message.textContent = 'You can\'t add more tasks right now. That project you wanted to start? That idea you just had? They\'re waiting. Remove the limit and never stop your workflow again.';
-                button.textContent = 'Remove All Limits';
+                // Free user (authenticated but not Premium)
+                title.textContent = 'Task limit reached';
+                message.textContent = 'You\'ve hit your 2-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
+                button.textContent = 'Upgrade to Premium';
             }
             
             this.guestTaskLimitModalOverlay.style.display = 'flex';
