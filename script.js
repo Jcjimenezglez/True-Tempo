@@ -14672,6 +14672,7 @@ class PomodoroTimer {
         this.workTime = config.focusTime;
         this.shortBreakTime = config.breakTime;
         this.longBreakTime = config.longBreakTime;
+        this.sessionsPerCycle = config.cycles; // Set the number of sessions
         
         // Build cycle sections
         // config.cycles represents the number of work sessions (focus sessions)
