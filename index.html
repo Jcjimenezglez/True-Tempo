@@ -1792,39 +1792,25 @@
                 </svg>
             </button>
             
-            <div class="cycle-completion-header">
-                <div class="cycle-completion-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                </div>
-                <h3>Cycle Completed! 🎉</h3>
-                <p class="cycle-subtitle">Great work! Here's what you accomplished:</p>
+            <div class="cycle-completion-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
             </div>
             
-            <div class="cycle-stats-grid">
-                <div class="cycle-stat-card">
-                    <div class="cycle-stat-icon">⏱️</div>
-                    <div class="cycle-stat-label">Total Time</div>
-                    <div class="cycle-stat-value" id="cycleStatTotalTime">--</div>
-                </div>
-                
-                <div class="cycle-stat-card">
-                    <div class="cycle-stat-icon">🎯</div>
-                    <div class="cycle-stat-label">Focus Sessions</div>
-                    <div class="cycle-stat-value" id="cycleStatWorkSessions">--</div>
-                </div>
-            </div>
+            <h3 class="cycle-completion-title">Cycle completed</h3>
             
-            <div class="cycle-task-info">
-                <div class="cycle-task-label">Task Completed:</div>
-                <div class="cycle-task-name" id="cycleStatTaskName">--</div>
-            </div>
+            <p class="cycle-completion-description">
+                You've completed <span id="cycleStatWorkSessions">--</span> focus sessions (<span id="cycleStatTotalTime">--</span>) on "<span id="cycleStatTaskName">--</span>". Great work!
+            </p>
             
             <div class="cycle-stats-actions">
-                <button class="cycle-stats-btn cycle-stats-btn-primary" id="cycleStatsContinueBtn">
+                <button class="cycle-stats-btn-primary" id="cycleStatsContinueBtn">
                     Continue
+                </button>
+                <button class="cycle-stats-btn-secondary" id="cycleStatsCloseBtn">
+                    Close
                 </button>
             </div>
         </div>

@@ -4546,7 +4546,7 @@ class PomodoroTimer {
         if (cycleData.taskName && cycleData.taskName.trim()) {
             taskNameElement.textContent = cycleData.taskName;
         } else {
-            taskNameElement.textContent = 'No specific task';
+            taskNameElement.textContent = 'your tasks';
         }
 
         // Show modal
@@ -4555,6 +4555,7 @@ class PomodoroTimer {
         // Setup event listeners for modal
         const closeBtn = modal.querySelector('.close-cycle-stats-x');
         const continueBtn = document.getElementById('cycleStatsContinueBtn');
+        const closeSecondaryBtn = document.getElementById('cycleStatsCloseBtn');
 
         const closeModal = () => {
             modal.style.display = 'none';
@@ -4569,6 +4570,11 @@ class PomodoroTimer {
         if (continueBtn) {
             continueBtn.replaceWith(continueBtn.cloneNode(true));
             document.getElementById('cycleStatsContinueBtn').addEventListener('click', closeModal);
+        }
+
+        if (closeSecondaryBtn) {
+            closeSecondaryBtn.replaceWith(closeSecondaryBtn.cloneNode(true));
+            document.getElementById('cycleStatsCloseBtn').addEventListener('click', closeModal);
         }
 
         // Close on overlay click
