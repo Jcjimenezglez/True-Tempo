@@ -10272,10 +10272,12 @@ class PomodoroTimer {
             
             const itemContent = `
                 <div class="task-item-main">
-                    <div class="task-checkbox ${currentTab === 'done' ? 'disabled' : ''}">
-                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
+                    ${currentTab !== 'done' ? `
+                    <div class="task-checkbox">
+                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
                         <label for="task-${task.id}"></label>
                     </div>
+                    ` : ''}
                     <div class="task-content">
                         <div class="task-title">
                             ${task.content || '(untitled)'}
@@ -10284,6 +10286,7 @@ class PomodoroTimer {
                     <div class="task-progress">
                         <span class="progress-text">${completedSessions}/${totalSessions}</span>
                     </div>
+                    ${currentTab !== 'done' ? `
                     <div class="task-menu" data-task-id="${task.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="1"/>
@@ -10291,6 +10294,7 @@ class PomodoroTimer {
                             <circle cx="5" cy="12" r="1"/>
                         </svg>
                     </div>
+                    ` : ''}
                 </div>
                 ${expandedDetailsHTML}
             `;
@@ -15416,11 +15420,8 @@ class PomodoroTimer {
                                 ` : ''}
                                 
                                 <div class="task-detail-section">
-                                    <div class="task-detail-label">Progress</div>
-                                    <div class="task-detail-progress-bar">
-                                        <div class="task-detail-progress-fill" style="width: 100%"></div>
-                                    </div>
-                                    <div class="task-detail-progress-text">Planned: ${totalSessions} sessions • Completed: ${completedSessions} sessions</div>
+                                    <div class="task-detail-label">Sessions</div>
+                                    <div class="task-detail-value">Planned: ${totalSessions} • Completed: ${completedSessions}</div>
                                 </div>
                             </div>
                         `;
@@ -15428,10 +15429,17 @@ class PomodoroTimer {
                     
                     const itemContent = `
                         <div class="task-item-main">
-                            <div class="task-checkbox ${(currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : ''}">
-                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
+                            ${currentTab !== 'done' && !shouldDisableForGuest ? `
+                            <div class="task-checkbox">
+                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
                                 <label for="task-${task.id}"></label>
                             </div>
+                            ` : currentTab !== 'done' && shouldDisableForGuest ? `
+                            <div class="task-checkbox disabled">
+                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
+                                <label for="task-${task.id}"></label>
+                            </div>
+                            ` : ''}
                             <div class="task-content">
                                 <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
                                     ${task.content || '(untitled)'}
