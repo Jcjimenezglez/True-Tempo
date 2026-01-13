@@ -8005,8 +8005,8 @@ class PomodoroTimer {
                     // Guest users: 1 task
                     taskLimit = 1;
                 } else if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 3 tasks
-                    taskLimit = 3;
+                    // Free users: 2 tasks
+                    taskLimit = 2;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
@@ -15368,8 +15368,8 @@ class PomodoroTimer {
                     // Guest users: 1 task
                     taskLimit = 1;
                 } else if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 3 tasks
-                    taskLimit = 3;
+                    // Free users: 2 tasks
+                    taskLimit = 2;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
