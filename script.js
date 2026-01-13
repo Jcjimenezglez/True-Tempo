@@ -4540,36 +4540,6 @@ class PomodoroTimer {
         const totalMinutes = Math.round(cycleData.cycleDuration / 60);
         document.getElementById('cycleStatTotalTime').textContent = `${totalMinutes} min`;
         document.getElementById('cycleStatWorkSessions').textContent = cycleData.workSessions;
-        
-        // Populate tasks list
-        const tasksList = document.getElementById('cycleTasksList');
-        if (tasksList) {
-            tasksList.innerHTML = ''; // Clear existing tasks
-            
-            // cycleData.tasks can be a string or an array
-            let tasks = [];
-            if (Array.isArray(cycleData.tasks)) {
-                tasks = cycleData.tasks;
-            } else if (cycleData.tasks && cycleData.tasks.trim()) {
-                tasks = [cycleData.tasks];
-            } else if (cycleData.taskName && cycleData.taskName.trim()) {
-                // Fallback to taskName for backwards compatibility
-                tasks = [cycleData.taskName];
-            }
-            
-            // If no tasks, show default message
-            if (tasks.length === 0) {
-                tasks = ['No specific task'];
-            }
-            
-            // Create list items for each task
-            tasks.forEach(task => {
-                const li = document.createElement('li');
-                li.className = 'cycle-task-item';
-                li.textContent = task;
-                tasksList.appendChild(li);
-            });
-        }
 
         // Show modal
         modal.style.display = 'flex';
@@ -6324,7 +6294,6 @@ class PomodoroTimer {
                     
                     // Show cycle completion stats modal
                     this.showCycleStatsModal({
-                        tasks: this.currentTaskName ? [this.currentTaskName] : [],
                         cycleDuration: cycleDuration,
                         workSessions: workSessions
                     });
