@@ -2890,7 +2890,7 @@ class PomodoroTimer {
                 // Free user (authenticated but not Premium)
                 title.textContent = 'Task limit reached';
                 message.textContent = 'You\'ve hit your 2-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
-                button.textContent = 'Upgrade to Premium';
+                button.textContent = 'Start FREE Trial';
             }
             
             this.guestTaskLimitModalOverlay.style.display = 'flex';
