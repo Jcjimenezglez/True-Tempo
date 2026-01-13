@@ -4314,8 +4314,8 @@ audio {
 .cycle-stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
 }
 
 .cycle-stat-card {
@@ -4383,27 +4383,30 @@ audio {
     line-height: 1;
 }
 
-.cycle-technique-info {
+.cycle-task-info {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.25rem;
     text-align: center;
     margin-bottom: 1.5rem;
 }
 
-.cycle-technique-label {
+.cycle-task-label {
     color: #a3a3a3;
     font-size: 0.85rem;
     font-weight: 500;
-    margin-right: 0.5rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.cycle-technique-name {
+.cycle-task-name {
     color: #ffffff;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    text-transform: capitalize;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
 .cycle-stats-actions {

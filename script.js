@@ -4542,9 +4542,14 @@ class PomodoroTimer {
         const totalMinutes = Math.round(cycleData.cycleDuration / 60);
         document.getElementById('cycleStatTotalTime').textContent = `${totalMinutes} min`;
         document.getElementById('cycleStatWorkSessions').textContent = cycleData.workSessions;
-        document.getElementById('cycleStatShortBreaks').textContent = cycleData.shortBreaks;
-        document.getElementById('cycleStatLongBreaks').textContent = cycleData.longBreaks;
-        document.getElementById('cycleStatTechnique').textContent = cycleData.technique;
+        
+        // Show task name or default message
+        const taskNameElement = document.getElementById('cycleStatTaskName');
+        if (cycleData.taskName && cycleData.taskName.trim()) {
+            taskNameElement.textContent = cycleData.taskName;
+        } else {
+            taskNameElement.textContent = 'No specific task';
+        }
 
         // Show modal
         modal.style.display = 'flex';
@@ -6286,11 +6291,9 @@ class PomodoroTimer {
                     
                     // Show cycle completion stats modal
                     this.showCycleStatsModal({
-                        technique: currentTechnique,
+                        taskName: this.currentTaskName || '',
                         cycleDuration: cycleDuration,
-                        workSessions: workSessions,
-                        shortBreaks: shortBreaks,
-                        longBreaks: longBreaks
+                        workSessions: workSessions
                     });
                 }
             }
