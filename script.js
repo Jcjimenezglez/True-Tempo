@@ -547,34 +547,54 @@ class PomodoroTimer {
             await this.waitForClerk();
             console.log('Clerk SDK available, checking session...');
             
-            // Check if Clerk is already loaded (e.g., from another script)
-            if (window.Clerk.loaded) {
+            // Wait for global Clerk initialization to complete
+            let attempts = 0;
+            while (window.__clerkInitializing && attempts < 50) {
+                console.log('⏳ Waiting for global Clerk initialization...');
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            // Check if Clerk is already initialized globally
+            if (window.__clerkInitialized) {
+                console.log('✅ Clerk already initialized globally, using existing session');
+                // Just use the existing session
+                this.isAuthenticated = !!window.Clerk.user;
+                this.user = window.Clerk.user;
+                console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            } else if (window.Clerk.loaded) {
                 console.log('✅ Clerk already loaded with session, skipping re-initialization');
                 // Just use the existing session
                 this.isAuthenticated = !!window.Clerk.user;
                 this.user = window.Clerk.user;
                 console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+                window.__clerkInitialized = true;
             } else {
                 // Only load if not already loaded
-            const clerkKey = this.getClerkPublishableKey();
-            
+                const clerkKey = this.getClerkPublishableKey();
+                
                 console.log('Loading Clerk for the first time...');
-            // Load Clerk with configuration to hide development banner
-            await window.Clerk.load({
-                appearance: {
-                    elements: {
-                        '::before': { content: 'none' }
-                    }
-                },
+                window.__clerkInitializing = true;
+                
+                // Load Clerk with configuration to hide development banner
+                await window.Clerk.load({
+                    appearance: {
+                        elements: {
+                            '::before': { content: 'none' }
+                        }
+                    },
                     publishableKey: clerkKey,
                     isSatellite: false, // Ensure sessions persist across page navigations
                     sessionTokenRefresh: true // Keep sessions active for longer periods
-            });
-            
-            // Hydrate initial auth state
-            this.isAuthenticated = !!window.Clerk.user;
-            this.user = window.Clerk.user;
-            console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+                });
+                
+                window.__clerkInitialized = true;
+                window.__clerkInitializing = false;
+                
+                // Hydrate initial auth state
+                this.isAuthenticated = !!window.Clerk.user;
+                this.user = window.Clerk.user;
+                console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
             }
             
             // Local tasks only - no integration cleanup needed
@@ -5762,8 +5782,15 @@ class PomodoroTimer {
                 // Try to get Clerk session directly
                 if (window.Clerk) {
                     try {
-                        // Force reload Clerk session
-                        await window.Clerk.load();
+                        // Don't reload if already initialized, just check user
+                        if (!window.__clerkInitialized) {
+                            console.log('⏳ Clerk not yet initialized, waiting...');
+                            let attempts = 0;
+                            while (!window.__clerkInitialized && attempts < 30) {
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                                attempts++;
+                            }
+                        }
                         
                         // Check if we have a user now
                         if (window.Clerk.user) {

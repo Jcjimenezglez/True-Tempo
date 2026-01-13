@@ -266,14 +266,28 @@
         (function() {
             console.log('🔐 Starting Clerk session persistence script...');
             
-            // Ensure we only load Clerk once
-            let clerkInitialized = false;
+            // Global flag to prevent multiple initializations
+            window.__clerkInitialized = false;
+            window.__clerkInitializing = false;
             
             async function initClerkWithSession() {
-                if (clerkInitialized) {
+                if (window.__clerkInitialized) {
                     console.log('✅ Clerk already initialized, skipping...');
                     return;
                 }
+                
+                if (window.__clerkInitializing) {
+                    console.log('⏳ Clerk initialization in progress, waiting...');
+                    // Wait for initialization to complete
+                    let attempts = 0;
+                    while (window.__clerkInitializing && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+                    return;
+                }
+                
+                window.__clerkInitializing = true;
                 
                 // Wait for Clerk SDK to be available
                 let attempts = 0;
@@ -284,6 +298,7 @@
                 
                 if (!window.Clerk) {
                     console.error('❌ Clerk SDK failed to load');
+                    window.__clerkInitializing = false;
                     return;
                 }
                 
@@ -304,7 +319,8 @@
                         }
                     });
                     
-                    clerkInitialized = true;
+                    window.__clerkInitialized = true;
+                    window.__clerkInitializing = false;
                     
                     // Check if user is logged in
                     const user = window.Clerk.user;
@@ -319,6 +335,7 @@
                     
                 } catch (err) {
                     console.error('❌ Error initializing Clerk:', err);
+                    window.__clerkInitializing = false;
                 }
             }
             
