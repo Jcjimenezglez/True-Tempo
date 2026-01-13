@@ -15062,9 +15062,249 @@ class PomodoroTimer {
         }, 100);
     }
     
+    // Render Activity Panel (new unified view)
+    renderActivityPanel() {
+        console.log('🎯 renderActivityPanel called');
+        const panel = document.getElementById('taskSidePanel');
+        if (!panel) {
+            console.error('❌ Activity panel not found!');
+            return;
+        }
+        
+        // Render stats overview
+        this.renderActivityStats();
+        
+        // Render recent activity (completed tasks)
+        this.renderRecentActivity();
+        
+        // Render active tasks (todo)
+        this.renderActiveTasks();
+        
+        // Setup event listeners for stats tabs
+        this.setupActivityStatsListeners();
+    }
+    
+    renderActivityStats(period = 'week') {
+        const stats = this.getFocusStats();
+        const allTasks = this.getAllTasks();
+        
+        // Calculate stats based on period
+        let filteredStats = { totalHours: 0, totalMinutes: 0, sessionsCompleted: 0, tasksCompleted: 0 };
+        const now = new Date();
+        
+        // Get date range based on period
+        let startDate;
+        switch(period) {
+            case 'week':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                break;
+            case 'year':
+                startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                break;
+            case 'all':
+            default:
+                startDate = new Date(0); // Beginning of time
+                break;
+        }
+        
+        // For now, show total stats (we can filter by date later)
+        filteredStats.totalHours = stats.totalHours || 0;
+        filteredStats.totalMinutes = stats.totalMinutes || 0;
+        filteredStats.sessionsCompleted = stats.sessionsCompleted || 0;
+        filteredStats.tasksCompleted = allTasks.filter(t => t.completed).length;
+        
+        // Update UI
+        const totalFocusTimeEl = document.getElementById('totalFocusTime');
+        const sessionsCompletedEl = document.getElementById('sessionsCompleted');
+        const tasksCompletedEl = document.getElementById('tasksCompleted');
+        
+        if (totalFocusTimeEl) {
+            totalFocusTimeEl.textContent = `${filteredStats.totalHours}h ${filteredStats.totalMinutes}min`;
+        }
+        if (sessionsCompletedEl) {
+            sessionsCompletedEl.textContent = filteredStats.sessionsCompleted;
+        }
+        if (tasksCompletedEl) {
+            tasksCompletedEl.textContent = filteredStats.tasksCompleted;
+        }
+    }
+    
+    renderRecentActivity() {
+        const recentActivityList = document.getElementById('recentActivityList');
+        if (!recentActivityList) return;
+        
+        const allTasks = this.getAllTasks();
+        const completedTasks = allTasks
+            .filter(task => task.completed)
+            .sort((a, b) => {
+                const dateA = a.completedAt ? new Date(a.completedAt) : new Date(0);
+                const dateB = b.completedAt ? new Date(b.completedAt) : new Date(0);
+                return dateB - dateA; // Most recent first
+            })
+            .slice(0, 10); // Show last 10
+        
+        recentActivityList.innerHTML = '';
+        
+        if (completedTasks.length === 0) {
+            recentActivityList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12l2 2 4-4"/>
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                        </svg>
+                    </div>
+                    <div class="empty-text">No completed tasks yet</div>
+                    <div class="empty-subtext">Complete some tasks to see them here</div>
+                </div>
+            `;
+            return;
+        }
+        
+        completedTasks.forEach(task => {
+            const taskConfig = this.getTaskConfig(task.id);
+            const completedSessions = taskConfig.completedSessions || 0;
+            const totalSessions = taskConfig.sessions || 1;
+            const focusTime = completedSessions * 25; // Assuming 25min per session
+            
+            const completedDate = task.completedAt ? 
+                new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 
+                'Recently';
+            
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            activityItem.innerHTML = `
+                <div class="activity-item-header">
+                    <div class="activity-item-check">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="activity-item-title">${task.content || '(untitled)'}</div>
+                    <div class="activity-item-date">${completedDate}</div>
+                </div>
+                <div class="activity-item-stats">
+                    <div class="activity-item-stat">
+                        <span>${completedSessions} session${completedSessions !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="activity-item-stat">
+                        <span>•</span>
+                    </div>
+                    <div class="activity-item-stat">
+                        <span>${focusTime}min</span>
+                    </div>
+                </div>
+            `;
+            
+            recentActivityList.appendChild(activityItem);
+        });
+    }
+    
+    renderActiveTasks() {
+        const listEl = document.querySelector('#todoistTasksList');
+        if (!listEl) return;
+        
+        // Clear only task items, preserve the form
+        const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
+        taskItems.forEach(item => item.remove());
+        
+        const allTasks = this.getAllTasks();
+        const activeTasks = allTasks.filter(task => !task.completed);
+        
+        if (activeTasks.length === 0) {
+            return; // Show nothing, just the Add Task button
+        }
+        
+        // Apply saved task order
+        const savedOrder = this.getTaskOrder();
+        let orderedTasks = activeTasks;
+        
+        if (savedOrder.length > 0) {
+            orderedTasks = activeTasks.sort((a, b) => {
+                const aIndex = savedOrder.indexOf(a.id);
+                const bIndex = savedOrder.indexOf(b.id);
+                if (aIndex === -1 && bIndex === -1) return 0;
+                if (aIndex === -1) return 1;
+                if (bIndex === -1) return -1;
+                return aIndex - bIndex;
+            });
+        }
+        
+        // Get the form element to insert before it
+        const addTaskFormEl = listEl.querySelector('#addTaskForm');
+        
+        orderedTasks.forEach((task, index) => {
+            const item = document.createElement('div');
+            item.className = 'task-item';
+            item.draggable = true;
+            item.dataset.taskId = task.id;
+            item.dataset.index = index;
+            
+            const taskConfig = this.getTaskConfig(task.id);
+            const completedSessions = taskConfig.completedSessions || 0;
+            const totalSessions = taskConfig.sessions || 1;
+            
+            const itemContent = `
+                <div class="task-checkbox">
+                    <input type="checkbox" id="task-${task.id}">
+                    <label for="task-${task.id}"></label>
+                </div>
+                <div class="task-content">
+                    <div class="task-title">${task.content || '(untitled)'}</div>
+                </div>
+                <div class="task-progress">
+                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                </div>
+                <div class="task-menu" data-task-id="${task.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                </div>
+            `;
+            
+            item.innerHTML = itemContent;
+            
+            if (addTaskFormEl) {
+                listEl.insertBefore(item, addTaskFormEl);
+            } else {
+                listEl.appendChild(item);
+            }
+        });
+        
+        // Setup event listeners for tasks
+        this.setupTaskEventListeners(document.getElementById('taskSidePanel'));
+        this.setupDragAndDrop(listEl);
+    }
+    
+    setupActivityStatsListeners() {
+        const statsTabs = document.querySelectorAll('.stats-tab');
+        statsTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active from all tabs
+                statsTabs.forEach(t => t.classList.remove('active'));
+                // Add active to clicked tab
+                tab.classList.add('active');
+                // Render stats for selected period
+                const period = tab.dataset.period;
+                this.renderActivityStats(period);
+            });
+        });
+    }
+    
     // Render tasks in side panel - use exact same logic as showTaskListModal
     renderTasksInSidePanel() {
         console.log('🔵 renderTasksInSidePanel called');
+        
+        // Call the new Activity Panel renderer
+        this.renderActivityPanel();
+        return;
+        
+        // OLD CODE BELOW (keeping for reference, can be removed later)
         const panel = document.getElementById('taskSidePanel');
         if (!panel) {
             console.error('❌ Panel not found!');

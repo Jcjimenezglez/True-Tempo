@@ -540,7 +540,7 @@
     <!-- Settings Panel Overlay -->
     <div class="task-panel-overlay" id="settingsPanelOverlay"></div>
     
-    <!-- Tasks Side Panel -->
+    <!-- Activity Side Panel (New unified Tasks + Report) -->
     <div class="task-side-panel" id="taskSidePanel">
         <button class="close-side-panel-btn" id="closeTaskPanel">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -549,17 +549,63 @@
         </button>
         <div class="task-side-panel-content">
             <div class="tasks-header">
-                <h3>Tasks</h3>
-                <p class="tasks-subtitle">Manage your focus tasks</p>
+                <h3>Activity</h3>
+                <p class="tasks-subtitle">Track your focus journey</p>
             </div>
             
-            <!-- Task Tabs -->
-            <div class="task-tabs">
-                <div class="task-tabs-left">
-                    <button class="task-tab active" data-tab="todo">To-do</button>
-                    <button class="task-tab" data-tab="done">Done</button>
+            <!-- Stats Overview Section -->
+            <div class="activity-stats-section">
+                <div class="stats-period-tabs">
+                    <button class="stats-tab active" data-period="week">Week</button>
+                    <button class="stats-tab" data-period="month">Month</button>
+                    <button class="stats-tab" data-period="year">Year</button>
+                    <button class="stats-tab" data-period="all">All</button>
                 </div>
-                <div class="task-tabs-right">
+                
+                <div class="stats-display" id="activityStatsDisplay">
+                    <div class="stat-card main-stat">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalFocusTime">0h 0min</div>
+                            <div class="stat-label">Total focused</div>
+                        </div>
+                    </div>
+                    <div class="stat-cards-row">
+                        <div class="stat-card-small">
+                            <div class="stat-value-small" id="sessionsCompleted">0</div>
+                            <div class="stat-label-small">Sessions</div>
+                        </div>
+                        <div class="stat-card-small">
+                            <div class="stat-value-small" id="tasksCompleted">0</div>
+                            <div class="stat-label-small">Tasks done</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity Section -->
+            <div class="activity-section">
+                <div class="activity-section-header">
+                    <h4>Recent Activity</h4>
+                </div>
+                <div class="recent-activity-list" id="recentActivityList">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Tasks Section -->
+            <div class="activity-section">
+                <div class="activity-section-header">
+                    <h4>Active Tasks</h4>
                     <button class="task-options-btn" id="taskOptionsBtn" title="Task options">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="1"/>
@@ -590,49 +636,49 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Tasks List -->
-            <div id="todoistTasksList" class="tasks-list">
-                <!-- Add Task Form (initially hidden) -->
-                <div id="addTaskForm" class="add-task-form" style="display: none;">
-                    <div class="form-group">
-                        <label>What are you working on?</label>
-                        <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
-                    </div>
-                    <div class="form-group">
-                        <label>Sessions</label>
-                        <div class="pomodoros-control">
-                            <button class="pomodoros-btn" id="decreasePomodoros">-</button>
-                            <input type="number" id="pomodorosCount" value="1" min="1" max="10">
-                            <button class="pomodoros-btn" id="increasePomodoros">+</button>
+                
+                <!-- Active Tasks List -->
+                <div id="todoistTasksList" class="tasks-list">
+                    <!-- Add Task Form (initially hidden) -->
+                    <div id="addTaskForm" class="add-task-form" style="display: none;">
+                        <div class="form-group">
+                            <label>What are you working on?</label>
+                            <input type="text" id="taskDescription" placeholder="Enter task description" maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Sessions</label>
+                            <div class="pomodoros-control">
+                                <button class="pomodoros-btn" id="decreasePomodoros">-</button>
+                                <input type="number" id="pomodorosCount" value="1" min="1" max="10">
+                                <button class="pomodoros-btn" id="increasePomodoros">+</button>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="deleteTask" title="Delete task" style="display:none; margin-right: auto; background: none; border: none; padding: 8px; color: rgba(255,255,255,0.6);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <path d="M10 11v6"/>
+                                    <path d="M14 11v6"/>
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                </svg>
+                            </button>
+                            <button class="btn-secondary" id="cancelAddTask">Cancel</button>
+                            <button class="btn-primary" id="saveTask">Save</button>
                         </div>
                     </div>
-                    <div class="form-actions">
-                        <button id="deleteTask" title="Delete task" style="display:none; margin-right: auto; background: none; border: none; padding: 8px; color: rgba(255,255,255,0.6);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                <path d="M10 11v6"/>
-                                <path d="M14 11v6"/>
-                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                            </svg>
-                        </button>
-                        <button class="btn-secondary" id="cancelAddTask">Cancel</button>
-                        <button class="btn-primary" id="saveTask">Save</button>
-                    </div>
                 </div>
-            </div>
-            
-            <!-- Add Task Button -->
-            <div class="add-task-section">
-                <button class="add-task-btn" id="showAddTaskForm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 5v14"/>
-                        <path d="M5 12h14"/>
-                    </svg>
-                    Add Task
-                </button>
+                
+                <!-- Add Task Button -->
+                <div class="add-task-section">
+                    <button class="add-task-btn" id="showAddTaskForm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14"/>
+                            <path d="M5 12h14"/>
+                        </svg>
+                        Add Task
+                    </button>
+                </div>
             </div>
             
         </div>
