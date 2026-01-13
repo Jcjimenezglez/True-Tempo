@@ -10876,6 +10876,14 @@ class PomodoroTimer {
         
         // Update local storage with new order
         this.saveTaskOrder(newOrder);
+        
+        // Rebuild task queue with new order and update current task name
+        // This ensures the browser tab title reflects the new first task
+        this.rebuildTaskQueue();
+        this.updateCurrentTaskFromQueue();
+        this.updateCurrentTaskBanner();
+        
+        console.log('📋 Task order updated, rebuilt queue with new order');
     }
 
     saveTaskOrder(newOrder) {
