@@ -6526,21 +6526,9 @@ class PomodoroTimer {
             const completedFocusTime = taskConfig.completedFocusTime || 0;
             const newFocusTime = completedFocusTime + this.actualFocusTimeCompleted;
             
-            // Get current cassette/vibe and technique info
-            const currentCassette = this.getCurrentCassette();
-            const currentTechnique = localStorage.getItem('currentTechnique') || 'Pomodoro';
-            
             this.setTaskConfig(taskId, { 
                 completedFocusTime: newFocusTime,
-                totalFocusTime: newFocusTime, // Also save as totalFocusTime for easier access
-                selected: false,
-                completedWithCassette: currentCassette ? {
-                    id: currentCassette.id,
-                    name: currentCassette.name,
-                    imageUrl: currentCassette.imageUrl
-                } : null,
-                completedWithTechnique: currentTechnique,
-                completedWithWorkTime: Math.floor(this.workTime / 60) // in minutes
+                selected: false 
             });
             
             this.setLocalTasks(tasks);
@@ -10183,120 +10171,26 @@ class PomodoroTimer {
             // Disable checkbox in Done tab (read-only)
             const checkboxDisabled = currentTab === 'done' ? 'disabled' : '';
             
-            // Build expanded details for Done tab
-            let expandedDetailsHTML = '';
-            if (currentTab === 'done' && task.completed) {
-                // Calculate stats
-                const completedDate = task.completedAt ? new Date(task.completedAt) : null;
-                const createdDate = task.created ? new Date(task.created) : null;
-                const totalFocusTime = taskConfig.totalFocusTime || 0; // in seconds
-                const avgSessionTime = completedSessions > 0 ? Math.floor(totalFocusTime / completedSessions) : 0;
-                
-                // Format dates
-                const completedDateStr = completedDate ? completedDate.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                }) : 'Unknown';
-                
-                // Format times
-                const formatTime = (seconds) => {
-                    const hours = Math.floor(seconds / 3600);
-                    const minutes = Math.floor((seconds % 3600) / 60);
-                    if (hours > 0) {
-                        return `${hours}h ${minutes}m`;
-                    }
-                    return `${minutes}m`;
-                };
-                
-                const totalTimeStr = formatTime(totalFocusTime);
-                const avgTimeStr = formatTime(avgSessionTime);
-                
-                // Get cassette/vibe info from task config (saved when completed)
-                const savedCassette = taskConfig.completedWithCassette;
-                const cassetteName = savedCassette ? savedCassette.name : 'Default';
-                const cassetteImage = savedCassette && savedCassette.imageUrl ? savedCassette.imageUrl : '';
-                
-                // Get timer technique from task config (saved when completed)
-                const savedTechnique = taskConfig.completedWithTechnique || 'Pomodoro';
-                const workTime = taskConfig.completedWithWorkTime || 25;
-                
-                expandedDetailsHTML = `
-                    <div class="task-expanded-details" style="display: none;">
-                        <div class="task-detail-header">
-                            <div class="task-detail-date">${completedDateStr}</div>
-                        </div>
-                        
-                        <div class="task-detail-stats">
-                            <div class="task-stat-card">
-                                <div class="task-stat-value">${completedSessions}</div>
-                                <div class="task-stat-label">Sessions</div>
-                            </div>
-                            <div class="task-stat-card">
-                                <div class="task-stat-value">${totalTimeStr}</div>
-                                <div class="task-stat-label">Total Time</div>
-                            </div>
-                            <div class="task-stat-card">
-                                <div class="task-stat-value">${avgTimeStr}</div>
-                                <div class="task-stat-label">Avg/Session</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-detail-section">
-                            <div class="task-detail-label">Technique Used</div>
-                            <div class="task-detail-value">${savedTechnique} - ${workTime} min</div>
-                        </div>
-                        
-                        ${cassetteImage ? `
-                        <div class="task-detail-section">
-                            <div class="task-detail-label">Vibe</div>
-                            <div class="task-detail-vibe">
-                                <div class="task-detail-vibe-image" style="background-image: url('${cassetteImage}')"></div>
-                                <div class="task-detail-vibe-name">${cassetteName}</div>
-                            </div>
-                        </div>
-                        ` : ''}
-                        
-                        <div class="task-detail-section">
-                            <div class="task-detail-label">Progress</div>
-                            <div class="task-detail-progress-bar">
-                                <div class="task-detail-progress-fill" style="width: 100%"></div>
-                            </div>
-                            <div class="task-detail-progress-text">Planned: ${totalSessions} sessions • Completed: ${completedSessions} sessions</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
             const itemContent = `
-                <div class="task-item-main">
-                    ${currentTab !== 'done' ? `
-                    <div class="task-checkbox">
-                        <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
-                        <label for="task-${task.id}"></label>
-                    </div>
-                    ` : ''}
-                    <div class="task-content">
-                        <div class="task-title">
-                            ${task.content || '(untitled)'}
-                        </div>
-                    </div>
-                    <div class="task-progress">
-                        <span class="progress-text">${completedSessions}/${totalSessions}</span>
-                    </div>
-                    ${currentTab !== 'done' ? `
-                    <div class="task-menu" data-task-id="${task.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"/>
-                            <circle cx="19" cy="12" r="1"/>
-                            <circle cx="5" cy="12" r="1"/>
-                        </svg>
-                    </div>
-                    ` : ''}
+                <div class="task-checkbox ${currentTab === 'done' ? 'disabled' : ''}">
+                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
+                    <label for="task-${task.id}"></label>
                 </div>
-                ${expandedDetailsHTML}
+                <div class="task-content">
+                    <div class="task-title">
+                        ${task.content || '(untitled)'}
+                    </div>
+                </div>
+                <div class="task-progress">
+                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                </div>
+                <div class="task-menu" data-task-id="${task.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+                        <circle cx="5" cy="12" r="1"/>
+                    </svg>
+                </div>
             `;
             
             item.innerHTML = itemContent;
@@ -10314,19 +10208,6 @@ class PomodoroTimer {
             // Add read-only class in Done tab
             if (currentTab === 'done') {
                 item.classList.add('read-only');
-                // Add click listener to expand/collapse details
-                item.style.cursor = 'pointer';
-                item.addEventListener('click', (e) => {
-                    // Don't expand if clicking on menu
-                    if (e.target.closest('.task-menu')) return;
-                    
-                    const details = item.querySelector('.task-expanded-details');
-                    if (details) {
-                        const isExpanded = details.style.display !== 'none';
-                        details.style.display = isExpanded ? 'none' : 'block';
-                        item.classList.toggle('expanded', !isExpanded);
-                    }
-                });
             }
             
             listEl.appendChild(item);
@@ -15344,123 +15225,30 @@ class PomodoroTimer {
                     // Disable checkbox in Done tab (read-only)
                     const checkboxDisabled = (currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : '';
                     
-                    // Build expanded details for Done tab
-                    let expandedDetailsHTML = '';
-                    if (currentTab === 'done' && task.completed) {
-                        // Calculate stats
-                        const completedDate = task.completedAt ? new Date(task.completedAt) : null;
-                        const totalFocusTime = taskConfig.totalFocusTime || 0; // in seconds
-                        const avgSessionTime = completedSessions > 0 ? Math.floor(totalFocusTime / completedSessions) : 0;
-                        
-                        // Format dates
-                        const completedDateStr = completedDate ? completedDate.toLocaleDateString('en-US', { 
-                            weekday: 'long', 
-                            month: 'short', 
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit'
-                        }) : 'Unknown';
-                        
-                        // Format times
-                        const formatTime = (seconds) => {
-                            const hours = Math.floor(seconds / 3600);
-                            const minutes = Math.floor((seconds % 3600) / 60);
-                            if (hours > 0) {
-                                return `${hours}h ${minutes}m`;
-                            }
-                            return `${minutes}m`;
-                        };
-                        
-                        const totalTimeStr = formatTime(totalFocusTime);
-                        const avgTimeStr = formatTime(avgSessionTime);
-                        
-                        // Get cassette/vibe info from task config (saved when completed)
-                        const savedCassette = taskConfig.completedWithCassette;
-                        const cassetteName = savedCassette ? savedCassette.name : 'Default';
-                        const cassetteImage = savedCassette && savedCassette.imageUrl ? savedCassette.imageUrl : '';
-                        
-                        // Get timer technique from task config (saved when completed)
-                        const savedTechnique = taskConfig.completedWithTechnique || 'Pomodoro';
-                        const workTime = taskConfig.completedWithWorkTime || 25;
-                        
-                        expandedDetailsHTML = `
-                            <div class="task-expanded-details" style="display: none;">
-                                <div class="task-detail-header">
-                                    <div class="task-detail-date">${completedDateStr}</div>
-                                </div>
-                                
-                                <div class="task-detail-stats">
-                                    <div class="task-stat-card">
-                                        <div class="task-stat-value">${completedSessions}</div>
-                                        <div class="task-stat-label">Sessions</div>
-                                    </div>
-                                    <div class="task-stat-card">
-                                        <div class="task-stat-value">${totalTimeStr}</div>
-                                        <div class="task-stat-label">Total Time</div>
-                                    </div>
-                                    <div class="task-stat-card">
-                                        <div class="task-stat-value">${avgTimeStr}</div>
-                                        <div class="task-stat-label">Avg/Session</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="task-detail-section">
-                                    <div class="task-detail-label">Technique Used</div>
-                                    <div class="task-detail-value">${savedTechnique} - ${workTime} min</div>
-                                </div>
-                                
-                                ${cassetteImage ? `
-                                <div class="task-detail-section">
-                                    <div class="task-detail-label">Vibe</div>
-                                    <div class="task-detail-vibe">
-                                        <div class="task-detail-vibe-image" style="background-image: url('${cassetteImage}')"></div>
-                                        <div class="task-detail-vibe-name">${cassetteName}</div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <div class="task-detail-section">
-                                    <div class="task-detail-label">Sessions</div>
-                                    <div class="task-detail-value">Planned: ${totalSessions} • Completed: ${completedSessions}</div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
                     const itemContent = `
-                        <div class="task-item-main">
-                            ${currentTab !== 'done' && !shouldDisableForGuest ? `
-                            <div class="task-checkbox">
-                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
-                                <label for="task-${task.id}"></label>
-                            </div>
-                            ` : currentTab !== 'done' && shouldDisableForGuest ? `
-                            <div class="task-checkbox disabled">
-                                <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} disabled>
-                                <label for="task-${task.id}"></label>
-                            </div>
-                            ` : ''}
-                            <div class="task-content">
-                                <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
-                                    ${task.content || '(untitled)'}
-                                    ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
-                                </div>
-                                ${completedDateHtml}
-                            </div>
-                            <div class="task-progress">
-                                <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
-                            </div>
-                            ${!isCompleted && !shouldDisableForGuest ? `
-                            <div class="task-menu" data-task-id="${task.id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="1"/>
-                                    <circle cx="19" cy="12" r="1"/>
-                                    <circle cx="5" cy="12" r="1"/>
-                                </svg>
-                            </div>
-                            ` : ''}
+                        <div class="task-checkbox ${(currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : ''}">
+                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
+                            <label for="task-${task.id}"></label>
                         </div>
-                        ${expandedDetailsHTML}
+                        <div class="task-content">
+                            <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
+                                ${task.content || '(untitled)'}
+                                ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
+                            </div>
+                            ${completedDateHtml}
+                        </div>
+                        <div class="task-progress">
+                            <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
+                        </div>
+                        ${!isCompleted && !shouldDisableForGuest ? `
+                        <div class="task-menu" data-task-id="${task.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </div>
+                        ` : ''}
                     `;
                     
                     item.innerHTML = itemContent;
@@ -15478,19 +15266,6 @@ class PomodoroTimer {
                     // Add read-only class in Done tab
                     if (currentTab === 'done') {
                         item.classList.add('read-only');
-                        // Add click listener to expand/collapse details
-                        item.style.cursor = 'pointer';
-                        item.addEventListener('click', (e) => {
-                            // Don't expand if clicking on menu
-                            if (e.target.closest('.task-menu')) return;
-                            
-                            const details = item.querySelector('.task-expanded-details');
-                            if (details) {
-                                const isExpanded = details.style.display !== 'none';
-                                details.style.display = isExpanded ? 'none' : 'block';
-                                item.classList.toggle('expanded', !isExpanded);
-                            }
-                        });
                     }
                     
                     // Only apply 'selected' class if task is NOT completed
@@ -16674,32 +16449,6 @@ class PomodoroTimer {
         } catch {
             return [];
         }
-    }
-
-    getCurrentCassette() {
-        // Get the currently selected cassette/vibe
-        const currentTheme = this.currentTheme;
-        
-        // Check if it's a custom cassette
-        const customCassettes = this.getCustomCassettes();
-        const customCassette = customCassettes.find(c => c.id === currentTheme);
-        if (customCassette) {
-            return customCassette;
-        }
-        
-        // Check if it's a public cassette from cache
-        try {
-            const cachedPublicCassettes = JSON.parse(localStorage.getItem('publicCassettesCache') || '[]');
-            const publicCassette = cachedPublicCassettes.find(c => c.id === currentTheme);
-            if (publicCassette) {
-                return publicCassette;
-            }
-        } catch (e) {
-            console.error('Error getting current cassette:', e);
-        }
-        
-        // Return null if no cassette found (using default theme)
-        return null;
     }
 
     async loadPublicCassettesFromAPI(forceRefresh = false) {
