@@ -10808,7 +10808,10 @@ class PomodoroTimer {
             if (!item.locked) {
                 menuItem.addEventListener('click', () => {
                     item.action();
-                    document.body.removeChild(menu);
+                    // Remove menu from its parent (modal, not document.body)
+                    if (menu.parentNode) {
+                        menu.parentNode.removeChild(menu);
+                    }
                 });
             }
 
@@ -10826,7 +10829,10 @@ class PomodoroTimer {
         // Close menu when clicking outside
         const closeMenu = (e) => {
             if (!menu.contains(e.target)) {
-                document.body.removeChild(menu);
+                // Remove menu from its parent (modal, not document.body)
+                if (menu.parentNode) {
+                    menu.parentNode.removeChild(menu);
+                }
                 document.removeEventListener('click', closeMenu);
             }
         };
@@ -10838,49 +10844,64 @@ class PomodoroTimer {
 
     setupDragAndDrop(modal) {
         const listEl = modal.querySelector('#todoistTasksList');
+        if (!listEl) return;
+        
         let draggedElement = null;
 
-        // Drag start
-        listEl.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('task-item')) {
-                draggedElement = e.target;
-                e.target.style.opacity = '0.5';
-                e.target.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', e.target.outerHTML);
-            }
-        });
+        // Remove previous drag and drop handlers to prevent duplicates
+        if (listEl._dragHandlers) {
+            listEl.removeEventListener('dragstart', listEl._dragHandlers.dragstart);
+            listEl.removeEventListener('dragend', listEl._dragHandlers.dragend);
+            listEl.removeEventListener('dragover', listEl._dragHandlers.dragover);
+            listEl.removeEventListener('drop', listEl._dragHandlers.drop);
+        }
 
-        // Drag end
-        listEl.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('task-item')) {
-                e.target.style.opacity = '';
-                e.target.classList.remove('dragging');
-                draggedElement = null;
+        // Define handlers
+        const handlers = {
+            dragstart: (e) => {
+                if (e.target.classList.contains('task-item')) {
+                    draggedElement = e.target;
+                    e.target.style.opacity = '0.5';
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', e.target.outerHTML);
+                }
+            },
+            dragend: (e) => {
+                if (e.target.classList.contains('task-item')) {
+                    e.target.style.opacity = '';
+                    e.target.classList.remove('dragging');
+                    draggedElement = null;
+                }
+            },
+            dragover: (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                const afterElement = this.getDragAfterElement(listEl, e.clientY);
+                
+                if (afterElement == null) {
+                    listEl.appendChild(draggedElement);
+                } else {
+                    listEl.insertBefore(draggedElement, afterElement);
+                }
+            },
+            drop: (e) => {
+                e.preventDefault();
+                if (draggedElement) {
+                    this.updateTaskOrder(listEl);
+                }
             }
-        });
+        };
 
-        // Drag over
-        listEl.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            
-            const afterElement = this.getDragAfterElement(listEl, e.clientY);
-            
-            if (afterElement == null) {
-                listEl.appendChild(draggedElement);
-            } else {
-                listEl.insertBefore(draggedElement, afterElement);
-            }
-        });
+        // Store handlers for later removal
+        listEl._dragHandlers = handlers;
 
-        // Drop
-        listEl.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedElement) {
-                this.updateTaskOrder(listEl);
-            }
-        });
+        // Add event listeners
+        listEl.addEventListener('dragstart', handlers.dragstart);
+        listEl.addEventListener('dragend', handlers.dragend);
+        listEl.addEventListener('dragover', handlers.dragover);
+        listEl.addEventListener('drop', handlers.drop);
     }
 
     getDragAfterElement(container, y) {
