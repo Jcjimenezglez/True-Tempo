@@ -4202,7 +4202,7 @@ audio {
 /* Cycle Completion Modal uses shared .logout-modal styles */
 
 .logout-modal-subtitle {
-    color: #a3a3a3;
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.9rem;
     margin: -0.75rem 0 1.5rem 0;
     text-align: center;
