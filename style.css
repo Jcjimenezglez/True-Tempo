@@ -4201,6 +4201,25 @@ audio {
 
 /* Cycle Completion Modal uses shared .logout-modal styles */
 
+.logout-modal-subtitle {
+    color: #a3a3a3;
+    font-size: 0.9rem;
+    margin: -0.75rem 0 1.25rem 0;
+    text-align: center;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+.cycle-stats-text {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+.cycle-stats-text strong {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
 /* Login Required Modal Styles */
 .login-required-content {
     text-align: center;
