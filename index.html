@@ -1783,35 +1783,37 @@
     </div>
     
     <!-- Cycle Completion Stats Modal -->
-    <div class="cycle-stats-overlay" id="cycleStatsModal" style="display: none;">
-        <div class="cycle-stats-modal">
-            <button class="close-cycle-stats-x">
+    <div class="logout-modal-overlay" id="cycleStatsModal" style="display: none;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeCycleStatsX">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"/>
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
             
-            <div class="cycle-completion-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-            </div>
-            
-            <h3 class="cycle-completion-title">Cycle completed</h3>
-            
-            <p class="cycle-completion-description">
-                You've completed <span id="cycleStatWorkSessions">--</span> focus sessions (<span id="cycleStatTotalTime">--</span>) on "<span id="cycleStatTaskName">--</span>". Great work!
-            </p>
-            
-            <div class="cycle-stats-actions">
-                <button class="cycle-stats-btn-primary" id="cycleStatsContinueBtn">
-                    Continue
-                </button>
-                <button class="cycle-stats-btn-secondary" id="cycleStatsCloseBtn">
-                    Close
-                </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                
+                <h3 class="logout-modal-title">Cycle completed</h3>
+                
+                <p class="logout-modal-message">
+                    You've completed <strong><span id="cycleStatWorkSessions">--</span> focus sessions</strong> (<span id="cycleStatTotalTime">--</span>) on "<strong><span id="cycleStatTaskName">--</span></strong>". Great work!
+                </p>
+                
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="cycleStatsContinueBtn">
+                        Continue
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="cycleStatsCloseBtn">
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>

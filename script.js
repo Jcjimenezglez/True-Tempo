@@ -4553,7 +4553,7 @@ class PomodoroTimer {
         modal.style.display = 'flex';
 
         // Setup event listeners for modal
-        const closeBtn = modal.querySelector('.close-cycle-stats-x');
+        const closeBtn = document.getElementById('closeCycleStatsX');
         const continueBtn = document.getElementById('cycleStatsContinueBtn');
         const closeSecondaryBtn = document.getElementById('cycleStatsCloseBtn');
 
@@ -4564,7 +4564,7 @@ class PomodoroTimer {
         // Remove existing listeners to prevent duplicates
         if (closeBtn) {
             closeBtn.replaceWith(closeBtn.cloneNode(true));
-            modal.querySelector('.close-cycle-stats-x').addEventListener('click', closeModal);
+            document.getElementById('closeCycleStatsX').addEventListener('click', closeModal);
         }
 
         if (continueBtn) {
