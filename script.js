@@ -663,30 +663,8 @@ class PomodoroTimer {
             try { this.updateDropdownItemsState(); } catch (_) {}
             // Removed extra welcome modal trigger to avoid duplicate rendering
             
-            // Session keepalive: Refresh session when user returns to the page
-            document.addEventListener('visibilitychange', async () => {
-                if (!document.hidden && window.Clerk?.session && typeof window.Clerk.session.touch === 'function') {
-                    try {
-                        console.log('🔄 Page visible again, refreshing session...');
-                        await window.Clerk.session.touch();
-                        console.log('✅ Session refreshed successfully');
-                    } catch (error) {
-                        console.error('❌ Error refreshing session:', error);
-                    }
-                }
-            });
-            
-            // Periodic session refresh (every 5 minutes) to prevent timeout
-            setInterval(async () => {
-                if (window.Clerk?.session && typeof window.Clerk.session.touch === 'function') {
-                    try {
-                        await window.Clerk.session.touch();
-                        console.log('🔄 Session keepalive ping sent');
-                    } catch (error) {
-                        console.error('❌ Error in session keepalive:', error);
-                    }
-                }
-            }, 5 * 60 * 1000); // 5 minutes
+            // Session keepalive: Clerk handles this automatically, no manual touch needed
+            // Removed manual session.touch() calls as they can cause TypeErrors with certain Clerk versions
         } catch (error) {
             console.error('Clerk initialization failed:', error);
         }
