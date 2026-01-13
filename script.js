@@ -1717,13 +1717,28 @@ class PomodoroTimer {
         const sessionsValue = document.getElementById('customSessionsValue');
         const emojiOptions = document.querySelectorAll('.emoji-option');
         
+        // Get sliders to reset them visually
+        const workSlider = document.getElementById('customWorkSlider');
+        const shortBreakSlider = document.getElementById('customShortBreakSlider');
+        const longBreakSlider = document.getElementById('customLongBreakSlider');
+        const sessionsSlider = document.getElementById('customSessionsSlider');
+        
         if (nameInput) {
             nameInput.value = '';
         }
+        
+        // Reset text values AND sliders to default positions
         if (workValue) workValue.textContent = '25 min';
+        if (workSlider) workSlider.value = 25;
+        
         if (shortBreakValue) shortBreakValue.textContent = '5 min';
+        if (shortBreakSlider) shortBreakSlider.value = 5;
+        
         if (longBreakValue) longBreakValue.textContent = '15 min';
+        if (longBreakSlider) longBreakSlider.value = 15;
+        
         if (sessionsValue) sessionsValue.textContent = '4 sesh';
+        if (sessionsSlider) sessionsSlider.value = 4;
         
         // Reset emoji to default
         emojiOptions.forEach(option => option.classList.remove('active'));
@@ -1812,6 +1827,8 @@ class PomodoroTimer {
                 // Update card in UI
                 this.updateCustomTechniqueCard(this.editingTechnique);
                 
+                console.log('✅ Custom technique updated:', this.editingTechnique.name);
+                
                 // Clear editing state
                 this.editingTechnique = null;
             } else {
@@ -1847,12 +1864,12 @@ class PomodoroTimer {
                     emoji: customTechnique.emoji,
                     user_type: 'pro'
                 });
+                
+                console.log('✅ Custom technique saved and applied:', customTechnique.name);
             }
             
             // Hide form
             this.hideCustomForm();
-            
-            console.log('✅ Custom technique saved and applied:', customTechnique);
             
         } catch (error) {
             console.error('Error saving custom technique:', error);
@@ -4494,16 +4511,16 @@ class PomodoroTimer {
         // Show modal
         modal.style.display = 'flex';
 
-        // Setup event listeners for modal
-        const closeBtn = document.getElementById('closeCycleStatsX');
-        const continueBtn = document.getElementById('cycleStatsContinueBtn');
-        const closeSecondaryBtn = document.getElementById('cycleStatsCloseBtn');
-
+        // Close modal function
         const closeModal = () => {
             modal.style.display = 'none';
         };
 
-        // Remove existing listeners to prevent duplicates
+        // Setup event listeners for modal buttons (use replaceWith to prevent duplicates)
+        const closeBtn = document.getElementById('closeCycleStatsX');
+        const continueBtn = document.getElementById('cycleStatsContinueBtn');
+        const closeSecondaryBtn = document.getElementById('cycleStatsCloseBtn');
+
         if (closeBtn) {
             closeBtn.replaceWith(closeBtn.cloneNode(true));
             document.getElementById('closeCycleStatsX').addEventListener('click', closeModal);
@@ -4519,12 +4536,16 @@ class PomodoroTimer {
             document.getElementById('cycleStatsCloseBtn').addEventListener('click', closeModal);
         }
 
-        // Close on overlay click
-        modal.addEventListener('click', (e) => {
+        // Close on overlay click - remove previous handler before adding new one
+        if (this._cycleStatsOverlayHandler) {
+            modal.removeEventListener('click', this._cycleStatsOverlayHandler);
+        }
+        this._cycleStatsOverlayHandler = (e) => {
             if (e.target === modal) {
                 closeModal();
             }
-        });
+        };
+        modal.addEventListener('click', this._cycleStatsOverlayHandler);
     }
 
     async handleUpgrade() {
@@ -14392,6 +14413,13 @@ class PomodoroTimer {
     async pauseSpotify() {}
 
     showCustomTimerModal() {
+        // Check if modal exists (legacy code)
+        if (!this.customTimerModal) {
+            console.warn('customTimerModal not found - using showCustomForm instead');
+            this.showCustomForm();
+            return;
+        }
+        
         // Load saved custom timer data if it exists
         const savedCustomTimer = localStorage.getItem('customTimer');
         if (savedCustomTimer) {
@@ -14399,12 +14427,18 @@ class PomodoroTimer {
                 const customConfig = JSON.parse(savedCustomTimer);
                 console.log('Loading custom timer for editing:', customConfig);
                 
-                // Populate form fields with saved values
-                document.getElementById('customName').value = customConfig.name || '';
-                document.getElementById('focusTime').value = Math.round(customConfig.focusTime / 60) || 25;
-                document.getElementById('breakTime').value = Math.round(customConfig.breakTime / 60) || 5;
-                document.getElementById('longBreakTime').value = Math.round(customConfig.longBreakTime / 60) || 0;
-                document.getElementById('cycles').value = customConfig.cycles || 4;
+                // Populate form fields with saved values (check if elements exist)
+                const nameInput = document.getElementById('customName');
+                const focusInput = document.getElementById('focusTime');
+                const breakInput = document.getElementById('breakTime');
+                const longBreakInput = document.getElementById('longBreakTime');
+                const cyclesInput = document.getElementById('cycles');
+                
+                if (nameInput) nameInput.value = customConfig.name || '';
+                if (focusInput) focusInput.value = Math.round(customConfig.focusTime / 60) || 25;
+                if (breakInput) breakInput.value = Math.round(customConfig.breakTime / 60) || 5;
+                if (longBreakInput) longBreakInput.value = Math.round(customConfig.longBreakTime / 60) || 0;
+                if (cyclesInput) cyclesInput.value = customConfig.cycles || 4;
             } catch (error) {
                 console.error('Error loading custom timer for editing:', error);
                 // Reset to default values if there's an error
@@ -14426,6 +14460,10 @@ class PomodoroTimer {
     }
 
     hideCustomTimerModal() {
+        if (!this.customTimerModal) {
+            console.warn('customTimerModal not found');
+            return;
+        }
         this.customTimerModal.style.display = 'none';
         // Keep dropdown open
         if (this.techniqueDropdown) {
@@ -14434,11 +14472,18 @@ class PomodoroTimer {
     }
 
     resetCustomTimerForm() {
-        document.getElementById('customName').value = '';
-        document.getElementById('focusTime').value = 25;
-        document.getElementById('breakTime').value = 5;
-        document.getElementById('longBreakTime').value = 0;
-        document.getElementById('cycles').value = 4;
+        // Add null checks for legacy form elements
+        const nameInput = document.getElementById('customName');
+        const focusInput = document.getElementById('focusTime');
+        const breakInput = document.getElementById('breakTime');
+        const longBreakInput = document.getElementById('longBreakTime');
+        const cyclesInput = document.getElementById('cycles');
+        
+        if (nameInput) nameInput.value = '';
+        if (focusInput) focusInput.value = 25;
+        if (breakInput) breakInput.value = 5;
+        if (longBreakInput) longBreakInput.value = 0;
+        if (cyclesInput) cyclesInput.value = 4;
     }
 
     setupCustomTimerValidation() {
@@ -14449,12 +14494,18 @@ class PomodoroTimer {
         const cyclesInput = document.getElementById('cycles');
         const saveButton = document.getElementById('saveCustomTimer');
 
+        // Skip if legacy form elements don't exist
+        if (!focusTimeInput || !breakTimeInput || !cyclesInput || !saveButton) {
+            console.warn('Legacy timer form elements not found - skipping validation setup');
+            return;
+        }
+
         // Function to check all validations and enable/disable save button
         const validateAll = () => {
-            const name = customNameInput.value.trim();
+            const name = customNameInput ? customNameInput.value.trim() : '';
             const focusTime = parseInt(focusTimeInput.value) || 0;
             const breakTime = parseInt(breakTimeInput.value) || 0;
-            const longBreakTime = parseInt(longBreakTimeInput.value) || 0;
+            const longBreakTime = parseInt(longBreakTimeInput?.value) || 0;
             const cycles = parseInt(cyclesInput.value) || 0;
 
             const hasErrors = 

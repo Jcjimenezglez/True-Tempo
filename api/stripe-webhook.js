@@ -5,14 +5,22 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 // Function to send conversion tracking to Google Ads (server-side)
 // Tracks real conversions when checkout is completed (not just intent)
 // This is critical for Performance Max campaigns to optimize for actual Premium subscriptions
-// Uses direct Google Ads Conversion Tracking API (not GA4)
+// 
+// ⚠️ IMPORTANT: Google Ads does NOT have a direct server-side API like GA4's Measurement Protocol.
+// For server-side tracking, we use GA4 Measurement Protocol and then import conversions to Google Ads.
+// 
+// Strategy:
+// 1. Send purchase event to GA4 via Measurement Protocol
+// 2. Configure Google Ads to import conversions from GA4
+// 3. This ensures conversions are tracked even if client-side fails
 async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null, customConversionLabel = null) {
   try {
-    // Google Ads Conversion ID and Label for Subscribe conversion
-    // These will be configured via environment variables
-    const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
+    // GA4 Measurement ID (for server-side tracking)
+    const ga4MeasurementId = process.env.GA4_MEASUREMENT_ID || 'G-T3T0PES8C0';
+    const ga4ApiSecret = process.env.GA4_API_SECRET; // Required for Measurement Protocol
     
-    // Use custom label if provided, otherwise use default Subscribe label
+    // Google Ads Conversion ID and Label for logging
+    const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
     let conversionLabel;
     if (customConversionLabel) {
       conversionLabel = customConversionLabel;
@@ -20,83 +28,105 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'PHPkCOP1070bENjym89B';
     }
     
-    // Build client ID from email or use transaction ID
-    // Google Ads uses client_id to match conversions with clicks
+    // Generate a consistent client ID from email (for user matching in GA4)
+    // This helps GA4 match server-side events with client-side sessions
     const clientId = email 
-      ? email.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) 
-      : `client_${transactionId || Date.now()}`;
+      ? `server.${email.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40)}.${Date.now()}`
+      : `server.${transactionId || Date.now()}`;
     
-    // Use Google Ads Conversion Tracking API directly (server-side)
-    // This sends the conversion directly to Google Ads without GA4
-    // Format: https://www.google-analytics.com/m/collect with conversion event
+    const eventTransactionId = transactionId || `conv_${Date.now()}`;
     
-    // Build conversion payload for Google Ads
-    // Format: send_to = "AW-XXXXX/YYYYY" (conversion_id/conversion_label)
-    const payload = {
-      client_id: clientId,
-      events: [{
-        name: 'conversion',
-        params: {
-          send_to: `${conversionId}/${conversionLabel}`,
-          value: value,
-          currency: 'USD',
-          transaction_id: transactionId || `conv_${Date.now()}`,
-        }
-      }]
-    };
-
-    // For server-side tracking, we can use the Measurement Protocol
-    // If API secret is available, use it for better tracking
-    // Otherwise, we'll log the conversion attempt
-    const apiSecret = process.env.GOOGLE_ADS_API_SECRET;
-    let conversionUrl;
-    
-    if (apiSecret) {
-      // Use Measurement Protocol with API secret (more reliable)
-      conversionUrl = `https://www.google-analytics.com/m/collect?api_secret=${apiSecret}&measurement_id=${conversionId}`;
-    } else {
-      // Use basic endpoint (may have limitations but should work)
-      conversionUrl = `https://www.google-analytics.com/m/collect?measurement_id=${conversionId}`;
-    }
-
-    // Send conversion to Google Ads
-    try {
-      const response = await fetch(conversionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        console.log(`✅ Google Ads conversion tracked (direct): ${conversionType}`, {
-          value,
-          transactionId,
-          conversionLabel,
-          conversionId,
-          clientId,
-          email: email ? email.substring(0, 5) + '***' : 'N/A',
-          hasApiSecret: !!apiSecret
-        });
-        return true;
-      } else {
-        const errorText = await response.text();
-        console.warn(`⚠️ Google Ads conversion tracking failed: ${response.status}`, errorText);
-      }
-    } catch (fetchError) {
-      console.error(`❌ Error sending Google Ads conversion:`, fetchError);
-    }
-    
-    // Always log conversion attempt for debugging
-    console.log(`🎯 Google Ads conversion attempt: ${conversionType}`, {
+    // Log the conversion attempt with all details
+    console.log(`🎯 Server-side conversion tracking: ${conversionType}`, {
       value,
-      transactionId,
+      transactionId: eventTransactionId,
       conversionLabel,
       conversionId,
-      clientId,
       email: email ? email.substring(0, 5) + '***' : 'N/A',
-      hasApiSecret: !!process.env.GOOGLE_ADS_API_SECRET
+      hasGa4Secret: !!ga4ApiSecret
+    });
+    
+    // Strategy 1: GA4 Measurement Protocol (if API secret is configured)
+    // This sends a purchase event to GA4 which can be imported to Google Ads
+    if (ga4ApiSecret) {
+      const ga4Payload = {
+        client_id: clientId,
+        user_id: email ? email.toLowerCase() : undefined,
+        events: [{
+          name: 'purchase',
+          params: {
+            transaction_id: eventTransactionId,
+            value: value,
+            currency: 'USD',
+            // Custom parameters for matching
+            conversion_type: conversionType,
+            conversion_label: conversionLabel,
+            source: 'server_webhook',
+            items: [{
+              item_id: 'premium_subscription',
+              item_name: 'Premium Subscription',
+              price: value,
+              quantity: 1
+            }]
+          }
+        }]
+      };
+      
+      const ga4Url = `https://www.google-analytics.com/mp/collect?measurement_id=${ga4MeasurementId}&api_secret=${ga4ApiSecret}`;
+      
+      try {
+        const response = await fetch(ga4Url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(ga4Payload)
+        });
+        
+        if (response.ok || response.status === 204) {
+          console.log(`✅ GA4 Measurement Protocol: conversion sent successfully`, {
+            conversionType,
+            value,
+            transactionId: eventTransactionId,
+            measurementId: ga4MeasurementId
+          });
+        } else {
+          const errorText = await response.text();
+          console.warn(`⚠️ GA4 Measurement Protocol failed: ${response.status}`, errorText);
+        }
+      } catch (fetchError) {
+        console.error(`❌ Error sending to GA4 Measurement Protocol:`, fetchError);
+      }
+    } else {
+      console.warn('⚠️ GA4_API_SECRET not configured - server-side GA4 tracking disabled');
+      console.log('📝 To enable: Set GA4_API_SECRET in Vercel environment variables');
+      console.log('📝 Get it from: GA4 Admin > Data Streams > Measurement Protocol API secrets');
+    }
+    
+    // Strategy 2: Use ntfy or similar for backup notification (optional)
+    // This ensures you at least have a log of conversions
+    const ntfyUrl = process.env.NTFY_URL;
+    if (ntfyUrl && conversionType === 'subscription') {
+      try {
+        await fetch(ntfyUrl, {
+          method: 'POST',
+          headers: { 'Title': `💰 New Conversion: ${conversionType}` },
+          body: `Value: $${value}\nTransaction: ${eventTransactionId}\nEmail: ${email || 'N/A'}\nLabel: ${conversionLabel}`
+        });
+        console.log(`📢 Conversion notification sent via ntfy`);
+      } catch (ntfyError) {
+        // Silent fail for backup notification
+      }
+    }
+    
+    // Log detailed info for manual verification if needed
+    console.log(`📊 Conversion details for Google Ads verification:`, {
+      sendTo: `${conversionId}/${conversionLabel}`,
+      value: value,
+      currency: 'USD',
+      transactionId: eventTransactionId,
+      email: email ? email.substring(0, 5) + '***' : 'N/A',
+      timestamp: new Date().toISOString()
     });
     
     return true;
@@ -493,9 +523,9 @@ async function handleCheckoutCompleted(session, clerk) {
       // Track Google Ads conversion for Premium plan (real conversion, not just intent)
       if (paymentType === 'premium') {
         // Track Premium subscription conversion to Google Ads
-        // Value is 2.99 (monthly subscription value) for Google Ads value-based bidding
+        // Value is 3.99 (monthly subscription value) for Google Ads value-based bidding
         // Even though user is on trial, we send the actual subscription value for optimization
-        await trackConversionServerSide('subscription', 2.99, session.id, null, userEmail);
+        await trackConversionServerSide('subscription', 3.99, session.id, null, userEmail);
         console.log(`✅ Google Ads conversion tracked for Premium subscription: ${targetUserId}`);
       } else {
         // Track other subscription types
@@ -670,12 +700,12 @@ async function handleInvoicePaymentSucceeded(invoice, clerk) {
       console.log(`🎯 First payment after trial detected for user ${user.id}`);
       
       // Track Google Ads conversion for FIRST REAL PAYMENT after trial
-      // Value: $16.0 (LTV-based value representing ~5 months retention at $2.99)
-      // This is higher than trial value ($2.99) to signal to Google Ads
+      // Value: $20.0 (LTV-based value representing ~5 months retention at $3.99)
+      // This is higher than trial value ($3.99) to signal to Google Ads
       // that users who complete their first payment are more valuable
       await trackConversionServerSide(
         'first_payment',
-        16.0,  // LTV-based value (~5 months retention estimate at $2.99/month)
+        20.0,  // LTV-based value (~5 months retention estimate at $3.99/month)
         invoice.id,
         null,
         userEmail,

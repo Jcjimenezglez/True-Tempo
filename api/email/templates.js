@@ -111,7 +111,7 @@ function getCheckoutAbandonedEmail1({ firstName = 'there' }) {
               <li>✅ Notion & Todoist integration</li>
               <li>✅ Advanced analytics</li>
             </ul>
-            <p>After your free trial, it's just $2.99/month. Cancel anytime.</p>
+            <p>After your free trial, it's just $3.99/month. Cancel anytime.</p>
             <div style="text-align: center;">
               <a href="${PRICING_URL}" class="button">Complete Your Upgrade</a>
             </div>
@@ -132,7 +132,7 @@ Hi ${firstName},
 
 We noticed you started to upgrade to Premium but didn't complete your subscription.
 
-Don't miss out on 1 month FREE, then just $2.99/month.
+Don't miss out on 1 month FREE, then just $3.99/month.
 
 Complete your upgrade: ${PRICING_URL}
 
@@ -179,7 +179,7 @@ function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
               <li>🔗 Notion & Todoist integration (bring everything together)</li>
               <li>📊 Advanced analytics (track your productivity)</li>
             </ul>
-            <p><strong>After 1 month free, it's just $2.99/month.</strong> Cancel anytime, no questions asked.</p>
+            <p><strong>After 1 month free, it's just $3.99/month.</strong> Cancel anytime, no questions asked.</p>
             <div style="text-align: center;">
               <a href="${PRICING_URL}" class="button">Claim Your 1 Month Free</a>
             </div>
@@ -200,7 +200,7 @@ Hi ${firstName},
 
 This is your last chance to claim 1 month of Premium completely free.
 
-After 1 month free, it's just $2.99/month. Cancel anytime.
+After 1 month free, it's just $3.99/month. Cancel anytime.
 
 Claim your 1 month free: ${PRICING_URL}
 
@@ -487,7 +487,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
               <li>🔗 <strong>Notion & Todoist integration</strong> - Bring all your tasks together</li>
               <li>📊 <strong>Advanced analytics</strong> - Track your productivity patterns</li>
             </ul>
-            <p><strong>Try Premium free for 1 month, then just $2.99/month.</strong> Cancel anytime.</p>
+            <p><strong>Try Premium free for 1 month, then just $3.99/month.</strong> Cancel anytime.</p>
             <div style="text-align: center;">
               <a href="${PRICING_URL}" class="button">Start Your 1-Month Free Trial</a>
             </div>
@@ -515,7 +515,7 @@ You've been using Superfocus for a few days. If you're hitting the limits, Premi
 - Notion & Todoist integration
 - Advanced analytics
 
-Try Premium free for 1 month, then just $2.99/month. Cancel anytime.
+Try Premium free for 1 month, then just $3.99/month. Cancel anytime.
 
 Start your free trial: ${PRICING_URL}
 
