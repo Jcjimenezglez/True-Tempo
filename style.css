@@ -4217,14 +4217,20 @@ audio {
     margin-bottom: 1.5rem;
 }
 
+.cycle-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
 .cycle-stat-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 1rem 1.25rem;
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
     transition: all 0.2s ease;
 }
 
@@ -4233,51 +4239,50 @@ audio {
     border-color: rgba(255, 255, 255, 0.15);
 }
 
-.cycle-stat-icon {
-    font-size: 1.5rem;
-    flex-shrink: 0;
+.cycle-stat-card-full {
+    width: 100%;
 }
 
 .cycle-stat-label {
     color: #a3a3a3;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    flex-shrink: 0;
-    min-width: 90px;
 }
 
 .cycle-stat-value {
     color: #ffffff;
-    font-size: 1rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    flex: 1;
-    text-align: right;
+    line-height: 1.2;
 }
 
 .cycle-task-name {
     word-break: break-word;
-    text-align: right;
+    font-size: 1rem;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
+    .cycle-stats-row {
+        grid-template-columns: 1fr;
+    }
+    
     .cycle-stat-card {
         padding: 0.875rem 1rem;
     }
     
-    .cycle-stat-icon {
-        font-size: 1.25rem;
-    }
-    
     .cycle-stat-label {
-        font-size: 0.75rem;
-        min-width: 80px;
+        font-size: 0.7rem;
     }
     
     .cycle-stat-value {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
+    }
+    
+    .cycle-task-name {
+        font-size: 0.95rem;
     }
 }
 
