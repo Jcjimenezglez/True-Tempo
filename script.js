@@ -9899,6 +9899,12 @@ class PomodoroTimer {
         taskCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 e.stopPropagation();
+                
+                // Prevent action if checkbox is disabled (Done tab - read-only)
+                if (checkbox.disabled) {
+                    return;
+                }
+                
                 const taskId = checkbox.id.replace('task-', '');
                 const isChecked = checkbox.checked;
                 
@@ -10161,9 +10167,12 @@ class PomodoroTimer {
             const totalSessions = taskConfig.sessions || 1;
             const isCompleted = task.completed || (completedSessions >= totalSessions);
             
+            // Disable checkbox in Done tab (read-only)
+            const checkboxDisabled = currentTab === 'done' ? 'disabled' : '';
+            
             const itemContent = `
                 <div class="task-checkbox">
-                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
                     <label for="task-${task.id}"></label>
                 </div>
                 <div class="task-content">
@@ -15206,9 +15215,12 @@ class PomodoroTimer {
                     const completedDateHtml = isCompleted && task.completedAt ? 
                         `<div class="task-completed-date">${new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>` : '';
                     
+                    // Disable checkbox in Done tab (read-only)
+                    const checkboxDisabled = (currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : '';
+                    
                     const itemContent = `
                         <div class="task-checkbox">
-                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${shouldDisableForGuest ? 'disabled' : ''}>
+                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
                             <label for="task-${task.id}"></label>
                         </div>
                         <div class="task-content">
