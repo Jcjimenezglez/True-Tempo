@@ -4204,20 +4204,81 @@ audio {
 .logout-modal-subtitle {
     color: #a3a3a3;
     font-size: 0.9rem;
-    margin: -0.75rem 0 1.25rem 0;
+    margin: -0.75rem 0 1.5rem 0;
     text-align: center;
     line-height: 1.5;
     font-weight: 400;
 }
 
-.cycle-stats-text {
-    color: #ffffff !important;
-    font-weight: 500;
+.cycle-stats-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 }
 
-.cycle-stats-text strong {
-    color: #ffffff !important;
+.cycle-stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+}
+
+.cycle-stat-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.cycle-stat-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.cycle-stat-label {
+    color: #a3a3a3;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    min-width: 90px;
+}
+
+.cycle-stat-value {
+    color: #ffffff;
+    font-size: 1rem;
     font-weight: 600;
+    flex: 1;
+    text-align: right;
+}
+
+.cycle-task-name {
+    word-break: break-word;
+    text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .cycle-stat-card {
+        padding: 0.875rem 1rem;
+    }
+    
+    .cycle-stat-icon {
+        font-size: 1.25rem;
+    }
+    
+    .cycle-stat-label {
+        font-size: 0.75rem;
+        min-width: 80px;
+    }
+    
+    .cycle-stat-value {
+        font-size: 0.9rem;
+    }
 }
 
 /* Login Required Modal Styles */

@@ -1803,9 +1803,25 @@
                 <h3 class="logout-modal-title">Cycle completed</h3>
                 <p class="logout-modal-subtitle">Great work! Here's what you accomplished:</p>
                 
-                <p class="logout-modal-message cycle-stats-text">
-                    <strong><span id="cycleStatWorkSessions">--</span> focus sessions</strong> • <strong><span id="cycleStatTotalTime">--</span></strong> • <strong><span id="cycleStatTaskName">--</span></strong>
-                </p>
+                <div class="cycle-stats-cards">
+                    <div class="cycle-stat-card">
+                        <div class="cycle-stat-icon">⏱️</div>
+                        <div class="cycle-stat-label">Total Time</div>
+                        <div class="cycle-stat-value" id="cycleStatTotalTime">--</div>
+                    </div>
+                    
+                    <div class="cycle-stat-card">
+                        <div class="cycle-stat-icon">🎯</div>
+                        <div class="cycle-stat-label">Focus Sessions</div>
+                        <div class="cycle-stat-value" id="cycleStatWorkSessions">--</div>
+                    </div>
+                    
+                    <div class="cycle-stat-card">
+                        <div class="cycle-stat-icon">📝</div>
+                        <div class="cycle-stat-label">Task</div>
+                        <div class="cycle-stat-value cycle-task-name" id="cycleStatTaskName">--</div>
+                    </div>
+                </div>
                 
                 <div class="logout-modal-buttons">
                     <button class="logout-modal-btn logout-modal-btn-primary" id="cycleStatsContinueBtn">
