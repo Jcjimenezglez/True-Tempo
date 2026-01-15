@@ -56,7 +56,7 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
               </ul>
               
               <p><strong>Want more?</strong></p>
-              <p>Premium gives you unlimited timers, unlimited focus time, task integrations with Notion and Todoist, and advanced analytics.</p>
+              <p>Premium gives you unlimited timers, unlimited focus time, custom vibes, and advanced analytics.</p>
               
               <p>Try it free for 7 days. Cancel anytime.</p>
               
@@ -125,7 +125,7 @@ function getCheckoutAbandonedEmail1({ firstName = 'there' }) {
                 <li>7 days completely free</li>
                 <li>Unlimited custom timers</li>
                 <li>Unlimited focus time (no daily limits)</li>
-                <li>Notion and Todoist integration</li>
+                <li>Custom vibes (backgrounds + music)</li>
                 <li>Advanced analytics</li>
               </ul>
               
@@ -158,7 +158,7 @@ What you'll get:
 - 7 days completely free
 - Unlimited custom timers
 - Unlimited focus time
-- Notion and Todoist integration
+- Custom vibes (backgrounds + music)
 - Advanced analytics
 
 After the trial, it's $3.99/month. Cancel anytime.
@@ -198,7 +198,7 @@ function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
                 <ul style="margin-top: 12px; margin-bottom: 0;">
                   <li>Create unlimited timers for your workflow</li>
                   <li>Focus as long as you want, no daily limits</li>
-                  <li>Pull tasks from Notion and Todoist</li>
+                  <li>Custom vibes with your own backgrounds and music</li>
                   <li>See your productivity patterns with analytics</li>
                 </ul>
               </div>
@@ -231,7 +231,7 @@ Quick reminder: you can try Premium free for 7 days.
 Premium includes:
 - Create unlimited timers for your workflow
 - Focus as long as you want, no daily limits
-- Pull tasks from Notion and Todoist
+- Custom vibes with backgrounds and music
 - See your productivity patterns with analytics
 
 If it's not for you, cancel before 7 days and pay nothing.
@@ -275,7 +275,7 @@ function getCheckoutAbandonedEmail3({ firstName = 'there' }) {
               <ul>
                 <li>Create timers that match your schedule</li>
                 <li>Focus without daily limits</li>
-                <li>Connect your Notion or Todoist tasks</li>
+                <li>Design your own vibes with custom backgrounds</li>
                 <li>Track your progress over time</li>
               </ul>
               
@@ -308,7 +308,7 @@ Wanted to share how one of our users stays productive:
 Like Nina, you can customize how you work with Premium:
 - Create timers that match your schedule
 - Focus without daily limits
-- Connect your Notion or Todoist tasks
+- Custom vibes with your own backgrounds
 - Track your progress over time
 
 Try it free for 7 days: ${PRICING_URL}
@@ -357,8 +357,8 @@ function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
               </div>
               
               <div class="feature-box">
-                <strong>Notion and Todoist</strong>
-                <span>Pull your tasks directly into Superfocus.</span>
+                <strong>Custom Vibes</strong>
+                <span>Design your focus environment with custom backgrounds and music.</span>
               </div>
               
               <div class="feature-box">
@@ -396,7 +396,7 @@ What's unlocked:
 - Unlimited Custom Timers
 - Premium Timer Presets (Flow State, Marathon, Deep Work)
 - Unlimited Focus Time
-- Notion and Todoist integration
+- Custom vibes (backgrounds + music)
 - Advanced Analytics
 
 Start a focus session: ${APP_URL}
@@ -445,7 +445,7 @@ function getSignupFollowUp1({ firstName = 'there' }) {
               </div>
               
               <p><strong>Want unlimited timers and focus time?</strong></p>
-              <p>Try Premium free for 7 days. Create custom timers, connect Notion/Todoist, and track your progress.</p>
+              <p>Try Premium free for 7 days. Create custom timers, design your own vibes, and track your progress.</p>
               
               <p><a href="${PRICING_URL}">Start your free trial</a></p>
               
@@ -508,7 +508,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
               <ul>
                 <li><strong>Unlimited timers</strong> — Create timers for any workflow (52 min deep work, 17 min sprints, whatever works for you)</li>
                 <li><strong>Unlimited focus time</strong> — No more daily caps</li>
-                <li><strong>Notion and Todoist</strong> — Pull your tasks into Superfocus</li>
+                <li><strong>Custom vibes</strong> — Design your focus environment with backgrounds and music</li>
                 <li><strong>Analytics</strong> — See your productivity patterns</li>
               </ul>
               
@@ -543,7 +543,7 @@ If you're running into limits, Premium removes them:
 
 - Unlimited timers — Create timers for any workflow
 - Unlimited focus time — No more daily caps
-- Notion and Todoist — Pull your tasks into Superfocus
+- Custom vibes — Design your focus environment
 - Analytics — See your productivity patterns
 
 Try it free for 7 days. If it's not for you, cancel and pay nothing.
