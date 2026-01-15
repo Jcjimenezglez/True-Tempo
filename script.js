@@ -4454,6 +4454,9 @@ class PomodoroTimer {
         const modal = document.getElementById('cycleStatsModal');
         if (!modal) return;
 
+        // Store cycle data for sharing
+        this._lastCycleData = cycleData;
+
         // Populate modal with cycle statistics
         const totalMinutes = Math.round(cycleData.cycleDuration / 60);
         document.getElementById('cycleStatTotalTime').textContent = `${totalMinutes} min`;
@@ -4467,9 +4470,31 @@ class PomodoroTimer {
             modal.style.display = 'none';
         };
 
+        // Share on X function
+        const shareOnX = () => {
+            const minutes = Math.round(cycleData.cycleDuration / 60);
+            const sessions = cycleData.workSessions;
+            
+            // Create engaging tweet text
+            const tweetText = `🎯 Just completed a focus cycle!\n\n⏱️ ${minutes} minutes of deep work\n🔥 ${sessions} focus sessions\n\nStaying productive with @superfaborapp 💪\n\n#DeepWork #Productivity #FocusMode`;
+            
+            // Create X share URL
+            const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent('https://superfocus.live')}`;
+            
+            // Open X share dialog
+            window.open(shareUrl, '_blank', 'width=550,height=420,noopener,noreferrer');
+            
+            // Track the share event
+            this.trackEvent('Cycle Shared on X', {
+                total_minutes: minutes,
+                focus_sessions: sessions,
+                source: 'cycle_completion_modal'
+            });
+        };
+
         // Setup event listeners for modal buttons (use replaceWith to prevent duplicates)
         const closeBtn = document.getElementById('closeCycleStatsX');
-        const continueBtn = document.getElementById('cycleStatsContinueBtn');
+        const shareXBtn = document.getElementById('cycleStatsShareXBtn');
         const closeSecondaryBtn = document.getElementById('cycleStatsCloseBtn');
 
         if (closeBtn) {
@@ -4477,9 +4502,9 @@ class PomodoroTimer {
             document.getElementById('closeCycleStatsX').addEventListener('click', closeModal);
         }
 
-        if (continueBtn) {
-            continueBtn.replaceWith(continueBtn.cloneNode(true));
-            document.getElementById('cycleStatsContinueBtn').addEventListener('click', closeModal);
+        if (shareXBtn) {
+            shareXBtn.replaceWith(shareXBtn.cloneNode(true));
+            document.getElementById('cycleStatsShareXBtn').addEventListener('click', shareOnX);
         }
 
         if (closeSecondaryBtn) {
@@ -19038,6 +19063,19 @@ window.mixpanelTracker = new MixpanelTracker();
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     window.pomodoroTimer = timer; // Make it globally accessible
+    
+    // 🧪 Testing function for Share on X modal
+    // Usage from console: testShareModal() or testShareModal(45, 3)
+    window.testShareModal = (minutes = 25, sessions = 4) => {
+        console.log('🧪 Testing Cycle Stats Modal with Share on X...');
+        timer.showCycleStatsModal({
+            cycleDuration: minutes * 60, // Convert to seconds
+            workSessions: sessions
+        });
+        console.log(`✅ Modal shown with ${minutes} min and ${sessions} sessions`);
+        console.log('📱 Click "Share on X" to test the sharing functionality');
+    };
+    console.log('💡 TIP: Run testShareModal() in console to preview the Share on X modal');
     
     // Initialize Mixpanel tracking
     if (window.mixpanelTracker) {

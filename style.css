@@ -2363,6 +2363,29 @@ body.is-scrolling .streak-fire {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Share on X Button */
+.logout-modal-btn-x {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #333333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.logout-modal-btn-x:hover {
+    background: #1a1a1a;
+    border-color: #555555;
+    transform: translateY(-1px);
+}
+
+.logout-modal-btn-x svg {
+    flex-shrink: 0;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
