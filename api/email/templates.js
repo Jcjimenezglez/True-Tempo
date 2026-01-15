@@ -3,524 +3,558 @@
 const PRICING_URL = 'https://www.superfocus.live/pricing';
 const APP_URL = 'https://www.superfocus.live';
 
+// Shared email styles - black button, clean design
+const emailStyles = `
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #1a1a1a; margin: 0; padding: 0; background: #f5f5f5; }
+  .container { max-width: 560px; margin: 0 auto; padding: 40px 20px; }
+  .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .header { padding: 32px 32px 24px; border-bottom: 1px solid #eee; }
+  .header h1 { margin: 0; font-size: 24px; font-weight: 600; color: #1a1a1a; }
+  .content { padding: 32px; }
+  .content p { margin: 0 0 16px; color: #333; }
+  .content ul, .content ol { margin: 0 0 16px; padding-left: 20px; color: #333; }
+  .content li { margin-bottom: 8px; }
+  .button { display: inline-block; background: #000000; color: #ffffff !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 8px 0; }
+  .button:hover { background: #333333; }
+  .button-container { text-align: center; margin: 24px 0; }
+  .footer { padding: 24px 32px; background: #fafafa; text-align: center; font-size: 13px; color: #666; }
+  .footer a { color: #666; text-decoration: underline; }
+  .highlight { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 16px 0; }
+  .testimonial { background: #f9f9f9; padding: 20px; border-left: 3px solid #000; margin: 20px 0; }
+  .feature-box { background: #fafafa; padding: 16px 20px; margin: 12px 0; border-radius: 8px; }
+  .feature-box strong { display: block; margin-bottom: 4px; color: #1a1a1a; }
+  .feature-box span { color: #555; font-size: 14px; }
+`;
+
 function getWelcomeEmailTemplate({ firstName = 'there' }) {
   return {
-    subject: 'Welcome to Superfocus! 🎯',
+    subject: 'Welcome to Superfocus',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>Welcome to Superfocus! 🎯</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p>Thanks for joining Superfocus! You're now part of a community of focused individuals who are taking control of their productivity.</p>
-            <p><strong>Here's what you can do right now:</strong></p>
-            <ul>
-              <li>✅ Start your first focus session with our Pomodoro timer</li>
-              <li>✅ Create 1 custom timer (Free plan)</li>
-              <li>✅ Use 1 hour of focus time per day</li>
-              <li>✅ Explore our curated focus music</li>
-            </ul>
-            <p><strong>Want unlimited features?</strong></p>
-            <p>Upgrade to Premium and get:</p>
-            <ul>
-              <li>🚀 Unlimited custom timers</li>
-              <li>🚀 Premium timer presets (Flow State, Marathon, Deep Work)</li>
-              <li>🚀 Unlimited tasks</li>
-              <li>🚀 Unlimited focus time</li>
-              <li>🚀 Custom cassettes</li>
-              <li>🚀 Notion & Todoist integration</li>
-              <li>🚀 Advanced analytics</li>
-            </ul>
-            <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Start 7-Day Free Trial</a>
+          <div class="card">
+            <div class="header">
+              <h1>Welcome to Superfocus</h1>
             </div>
-            <p>Start your first session: <a href="${APP_URL}">${APP_URL}</a></p>
-            <p>Happy focusing!<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p>You're receiving this because you signed up for Superfocus.</p>
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a> | <a href="${APP_URL}/terms">Terms</a></p>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>Thanks for signing up. Superfocus helps you stay focused and get more done with simple time management.</p>
+              
+              <p><strong>What you can do now:</strong></p>
+              <ul>
+                <li>Start focus sessions with the Pomodoro timer</li>
+                <li>Create 1 custom timer</li>
+                <li>Use 1 hour of focus time per day</li>
+                <li>Listen to focus music</li>
+              </ul>
+              
+              <p><strong>Want more?</strong></p>
+              <p>Premium gives you unlimited timers, unlimited focus time, task integrations with Notion and Todoist, and advanced analytics.</p>
+              
+              <p>Try it free for 7 days. Cancel anytime.</p>
+              
+              <div class="button-container">
+                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+              </div>
+              
+              <p>Ready to focus? <a href="${APP_URL}">Open Superfocus</a></p>
+              
+              <p>— The Superfocus Team</p>
+            </div>
+            <div class="footer">
+              <p>You signed up for Superfocus.</p>
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a> · <a href="${APP_URL}/terms">Terms</a></p>
+            </div>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-Welcome to Superfocus! 🎯
+Welcome to Superfocus
 
 Hi ${firstName},
 
-Thanks for joining Superfocus! You're now part of a community of focused individuals.
+Thanks for signing up. Superfocus helps you stay focused and get more done.
 
-Start your first focus session: ${APP_URL}
+What you can do now:
+- Start focus sessions with the Pomodoro timer
+- Create 1 custom timer
+- Use 1 hour of focus time per day
+- Listen to focus music
 
-Want unlimited features? Start your 7-day free trial: ${PRICING_URL}
+Want more? Try Premium free for 7 days: ${PRICING_URL}
 
-Happy focusing!
-The Superfocus Team
+Ready to focus? ${APP_URL}
+
+— The Superfocus Team
     `,
   };
 }
 
 function getCheckoutAbandonedEmail1({ firstName = 'there' }) {
   return {
-    subject: 'Did you forget something? 🎯',
+    subject: 'You left something behind',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>Did you forget something? 🎯</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p>We noticed you started to upgrade to Premium but didn't complete your subscription.</p>
-            <p><strong>Don't miss out on:</strong></p>
-            <ul>
-              <li>✅ 7 days completely FREE</li>
-              <li>✅ Unlimited custom timers</li>
-              <li>✅ Premium timer presets (Flow State, Marathon, Deep Work)</li>
-              <li>✅ Unlimited tasks & focus time</li>
-              <li>✅ Notion & Todoist integration</li>
-              <li>✅ Advanced analytics</li>
-            </ul>
-            <p>After your free trial, it's just $3.99/month. Cancel anytime.</p>
-            <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Complete Your Upgrade</a>
+          <div class="card">
+            <div class="header">
+              <h1>You left something behind</h1>
             </div>
-            <p>Questions? Just reply to this email - we're here to help!</p>
-            <p>Best,<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a></p>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>You started upgrading to Premium but didn't finish. No worries — your trial is still available.</p>
+              
+              <p><strong>What you'll get:</strong></p>
+              <ul>
+                <li>7 days completely free</li>
+                <li>Unlimited custom timers</li>
+                <li>Unlimited focus time (no daily limits)</li>
+                <li>Notion and Todoist integration</li>
+                <li>Advanced analytics</li>
+              </ul>
+              
+              <p>After the trial, it's $3.99/month. Cancel anytime.</p>
+              
+              <div class="button-container">
+                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+              </div>
+              
+              <p>Questions? Just reply to this email.</p>
+              
+              <p>— The Superfocus Team</p>
+            </div>
+            <div class="footer">
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a></p>
+            </div>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-Did you forget something? 🎯
+You left something behind
 
 Hi ${firstName},
 
-We noticed you started to upgrade to Premium but didn't complete your subscription.
+You started upgrading to Premium but didn't finish. Your trial is still available.
 
-Don't miss out on 7 days FREE, then just $3.99/month.
+What you'll get:
+- 7 days completely free
+- Unlimited custom timers
+- Unlimited focus time
+- Notion and Todoist integration
+- Advanced analytics
 
-Complete your upgrade: ${PRICING_URL}
+After the trial, it's $3.99/month. Cancel anytime.
+
+Start your free trial: ${PRICING_URL}
 
 Questions? Just reply to this email.
 
-Best,
-The Superfocus Team
+— The Superfocus Team
     `,
   };
 }
 
 function getCheckoutAbandonedEmail2({ firstName = 'there' }) {
   return {
-    subject: 'Last chance: 7-day free trial ends soon ⏰',
+    subject: 'Your free trial is waiting',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>Last chance: 7 days free ⏰</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p>This is your last chance to claim 7 days of Premium completely free.</p>
-            <p><strong>What you'll get:</strong></p>
-            <ul>
-              <li>🎯 Unlimited custom timers (create your perfect focus rhythm)</li>
-              <li>🌊 Premium timer presets (Flow State, Marathon, Deep Work)</li>
-              <li>📋 Unlimited tasks (organize your entire workflow)</li>
-              <li>⏱️ Unlimited focus time (no daily limits)</li>
-              <li>🎨 Custom cassettes (design your focus environment)</li>
-              <li>🔗 Notion & Todoist integration (bring everything together)</li>
-              <li>📊 Advanced analytics (track your productivity)</li>
-            </ul>
-            <p><strong>After 7 days free, it's just $3.99/month.</strong> Cancel anytime, no questions asked.</p>
-            <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Start 7-Day Free Trial</a>
+          <div class="card">
+            <div class="header">
+              <h1>Your free trial is waiting</h1>
             </div>
-            <p>This offer won't last forever. Don't miss out!</p>
-            <p>Best,<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a></p>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>Quick reminder: you can try Premium free for 7 days.</p>
+              
+              <div class="highlight">
+                <p style="margin: 0;"><strong>Premium includes:</strong></p>
+                <ul style="margin-top: 12px; margin-bottom: 0;">
+                  <li>Create unlimited timers for your workflow</li>
+                  <li>Focus as long as you want, no daily limits</li>
+                  <li>Pull tasks from Notion and Todoist</li>
+                  <li>See your productivity patterns with analytics</li>
+                </ul>
+              </div>
+              
+              <p>If it's not for you, cancel before 7 days and pay nothing.</p>
+              
+              <p>After that, it's $3.99/month.</p>
+              
+              <div class="button-container">
+                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+              </div>
+              
+              <p>— The Superfocus Team</p>
+            </div>
+            <div class="footer">
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a></p>
+            </div>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-Last chance: 7 days free ⏰
+Your free trial is waiting
 
 Hi ${firstName},
 
-This is your last chance to claim 7 days of Premium completely free.
+Quick reminder: you can try Premium free for 7 days.
 
-After 7 days free, it's just $3.99/month. Cancel anytime.
+Premium includes:
+- Create unlimited timers for your workflow
+- Focus as long as you want, no daily limits
+- Pull tasks from Notion and Todoist
+- See your productivity patterns with analytics
 
-Start your 7-day free trial: ${PRICING_URL}
+If it's not for you, cancel before 7 days and pay nothing.
 
-This offer won't last forever. Don't miss out!
+After that, it's $3.99/month.
 
-Best,
-The Superfocus Team
+Start your free trial: ${PRICING_URL}
+
+— The Superfocus Team
     `,
   };
 }
 
 function getCheckoutAbandonedEmail3({ firstName = 'there' }) {
   return {
-    subject: 'A testimonial from Nina 🎯',
+    subject: 'How Nina uses Superfocus',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .testimonial { background: white; padding: 20px; border-left: 4px solid #064e3b; margin: 20px 0; font-style: italic; }
-          .button { display: inline-block; background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>See how others use Superfocus 🎯</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p>We wanted to share how Nina uses Superfocus to stay productive:</p>
-            <div class="testimonial">
-              <p>"I run a blog and dog daycare, so I need to focus during precise hours. Superfocus helps me stay on track and make real progress on my life project."</p>
-              <p><strong>— Nina, Life with Chevy</strong></p>
+          <div class="card">
+            <div class="header">
+              <h1>How Nina uses Superfocus</h1>
             </div>
-            <p>Like Nina, you can unlock unlimited productivity with Premium:</p>
-            <ul>
-              <li>✅ Create unlimited custom timers that match your workflow</li>
-              <li>✅ Access Premium timer presets (Flow State, Marathon, Deep Work)</li>
-              <li>✅ Organize unlimited tasks</li>
-              <li>✅ Focus without limits</li>
-              <li>✅ Connect with Notion & Todoist</li>
-            </ul>
-            <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Start 7-Day Free Trial</a>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>Wanted to share how one of our users stays productive:</p>
+              
+              <div class="testimonial">
+                <p style="margin: 0 0 12px; font-style: italic;">"I run a blog and dog daycare, so I need to focus during precise hours. Superfocus helps me stay on track and make real progress on my life project."</p>
+                <p style="margin: 0;"><strong>— Nina, Life with Chevy</strong></p>
+              </div>
+              
+              <p>Like Nina, you can customize how you work with Premium:</p>
+              <ul>
+                <li>Create timers that match your schedule</li>
+                <li>Focus without daily limits</li>
+                <li>Connect your Notion or Todoist tasks</li>
+                <li>Track your progress over time</li>
+              </ul>
+              
+              <p>Try it free for 7 days.</p>
+              
+              <div class="button-container">
+                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+              </div>
+              
+              <p>— The Superfocus Team</p>
             </div>
-            <p>Questions? Just reply to this email.</p>
-            <p>Best,<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a></p>
+            <div class="footer">
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a></p>
+            </div>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-See how others use Superfocus 🎯
+How Nina uses Superfocus
 
 Hi ${firstName},
 
-See how Nina uses Superfocus:
+Wanted to share how one of our users stays productive:
 
 "I run a blog and dog daycare, so I need to focus during precise hours. Superfocus helps me stay on track and make real progress on my life project."
 — Nina, Life with Chevy
 
-Unlock unlimited productivity with Premium. Start your 7-day free trial: ${PRICING_URL}
+Like Nina, you can customize how you work with Premium:
+- Create timers that match your schedule
+- Focus without daily limits
+- Connect your Notion or Todoist tasks
+- Track your progress over time
 
-Best,
-The Superfocus Team
+Try it free for 7 days: ${PRICING_URL}
+
+— The Superfocus Team
     `,
   };
 }
 
 function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
   return {
-    subject: 'Welcome to Premium! 🎉',
+    subject: 'Welcome to Premium',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .feature { background: white; padding: 15px; margin: 10px 0; border-radius: 6px; border-left: 4px solid #064e3b; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>Welcome to Premium! 🎉</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p><strong>Congratulations! You're now a Premium member.</strong></p>
-            <p>You have 7 days completely free to explore all Premium features:</p>
-            <div class="feature">
-              <strong>🎯 Unlimited Custom Timers</strong><br>
-              Create timers that match how you actually work—not how someone else thinks you should.
+          <div class="card">
+            <div class="header">
+              <h1>Welcome to Premium</h1>
             </div>
-            <div class="feature">
-              <strong>🌊 Premium Timer Presets</strong><br>
-              Access Flow State (45min), Marathon (60min), and Deep Work (90min) presets designed for extended productivity.
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>You're now a Premium member. Your 7-day free trial has started.</p>
+              
+              <p><strong>What's unlocked:</strong></p>
+              
+              <div class="feature-box">
+                <strong>Unlimited Custom Timers</strong>
+                <span>Create timers that match how you actually work.</span>
+              </div>
+              
+              <div class="feature-box">
+                <strong>Premium Timer Presets</strong>
+                <span>Flow State (45min), Marathon (60min), Deep Work (90min).</span>
+              </div>
+              
+              <div class="feature-box">
+                <strong>Unlimited Focus Time</strong>
+                <span>No daily limits. Focus as long as you need.</span>
+              </div>
+              
+              <div class="feature-box">
+                <strong>Notion and Todoist</strong>
+                <span>Pull your tasks directly into Superfocus.</span>
+              </div>
+              
+              <div class="feature-box">
+                <strong>Advanced Analytics</strong>
+                <span>See your productivity patterns over time.</span>
+              </div>
+              
+              <div class="button-container">
+                <a href="${APP_URL}" class="button">Start a Focus Session</a>
+              </div>
+              
+              <p><strong>Tip:</strong> Many users find that 52-minute focus sessions work better than the standard 25. Try creating a custom timer.</p>
+              
+              <p>Need help? Reply to this email.</p>
+              
+              <p>— The Superfocus Team</p>
             </div>
-            <div class="feature">
-              <strong>📋 Unlimited Tasks</strong><br>
-              Organize your entire workflow without limits.
+            <div class="footer">
+              <p>You subscribed to Superfocus Premium.</p>
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a> · <a href="${APP_URL}/terms">Terms</a></p>
             </div>
-            <div class="feature">
-              <strong>⏱️ Unlimited Focus Time</strong><br>
-              Focus as much as you need, every single day.
-            </div>
-            <div class="feature">
-              <strong>🎨 Custom Cassettes</strong><br>
-              Design your own focus environments with custom images and Spotify playlists.
-            </div>
-            <div class="feature">
-              <strong>🔗 Notion & Todoist Integration</strong><br>
-              Bring your tasks from Notion and Todoist directly into Superfocus.
-            </div>
-            <div class="feature">
-              <strong>📊 Advanced Analytics</strong><br>
-              Track your productivity patterns and see your progress over time.
-            </div>
-            <div style="text-align: center;">
-              <a href="${APP_URL}" class="button">Start Your First Premium Session</a>
-            </div>
-            <p><strong>Pro tip:</strong> Try creating a custom timer for your deep work sessions. Many users find that 52 minutes works better than the standard 25!</p>
-            <p>Need help? Just reply to this email - we're here to support you.</p>
-            <p>Happy focusing!<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p>You're receiving this because you subscribed to Superfocus Premium.</p>
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a> | <a href="${APP_URL}/terms">Terms</a></p>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-Welcome to Premium! 🎉
+Welcome to Premium
 
 Hi ${firstName},
 
-Congratulations! You're now a Premium member.
+You're now a Premium member. Your 7-day free trial has started.
 
-You have 7 days completely free to explore all Premium features:
+What's unlocked:
 - Unlimited Custom Timers
-- Unlimited Tasks
+- Premium Timer Presets (Flow State, Marathon, Deep Work)
 - Unlimited Focus Time
-- Custom Cassettes
-- Notion & Todoist Integration
+- Notion and Todoist integration
 - Advanced Analytics
 
-Start your first Premium session: ${APP_URL}
+Start a focus session: ${APP_URL}
 
-Pro tip: Try creating a custom timer for your deep work sessions. Many users find that 52 minutes works better than the standard 25!
+Tip: Many users find that 52-minute focus sessions work better than the standard 25. Try creating a custom timer.
 
-Happy focusing!
-The Superfocus Team
+Need help? Reply to this email.
+
+— The Superfocus Team
     `,
   };
 }
 
 function getSignupFollowUp1({ firstName = 'there' }) {
   return {
-    subject: 'Your first focus session awaits 🎯',
+    subject: 'Ready for your first session?',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>Your first focus session awaits 🎯</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p>Ready to supercharge your productivity? Let's get you started with your first focus session!</p>
-            <p><strong>Quick start guide:</strong></p>
-            <ol>
-              <li>Click the button below to open Superfocus</li>
-              <li>Choose a task you want to focus on</li>
-              <li>Start your first 25-minute Pomodoro session</li>
-              <li>Take a 5-minute break when done</li>
-            </ol>
-            <div style="text-align: center;">
-              <a href="${APP_URL}" class="button">Start Your First Session</a>
+          <div class="card">
+            <div class="header">
+              <h1>Ready for your first session?</h1>
             </div>
-            <p><strong>Want more?</strong> Upgrade to Premium and get:</p>
-            <ul>
-              <li>✅ Unlimited custom timers</li>
-              <li>✅ Premium timer presets (Flow State, Marathon, Deep Work)</li>
-              <li>✅ Unlimited tasks</li>
-              <li>✅ Unlimited focus time</li>
-              <li>✅ Notion & Todoist integration</li>
-            </ul>
-            <p>Start your 7-day free trial: <a href="${PRICING_URL}">${PRICING_URL}</a></p>
-            <p>Happy focusing!<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a></p>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>Getting started is simple:</p>
+              
+              <ol>
+                <li>Open Superfocus</li>
+                <li>Pick a task to focus on</li>
+                <li>Start a 25-minute session</li>
+                <li>Take a 5-minute break when done</li>
+              </ol>
+              
+              <p>That's it. Repeat 4 times for a full cycle.</p>
+              
+              <div class="button-container">
+                <a href="${APP_URL}" class="button">Start First Session</a>
+              </div>
+              
+              <p><strong>Want unlimited timers and focus time?</strong></p>
+              <p>Try Premium free for 7 days. Create custom timers, connect Notion/Todoist, and track your progress.</p>
+              
+              <p><a href="${PRICING_URL}">Start your free trial</a></p>
+              
+              <p>— The Superfocus Team</p>
+            </div>
+            <div class="footer">
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a></p>
+            </div>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-Your first focus session awaits 🎯
+Ready for your first session?
 
 Hi ${firstName},
 
-Ready to supercharge your productivity? Let's get you started!
+Getting started is simple:
 
-Quick start:
 1. Open Superfocus
-2. Choose a task
-3. Start your first 25-minute Pomodoro session
+2. Pick a task to focus on
+3. Start a 25-minute session
 4. Take a 5-minute break when done
+
+That's it. Repeat 4 times for a full cycle.
 
 Start your first session: ${APP_URL}
 
-Want more? Start your 7-day free trial: ${PRICING_URL}
+Want unlimited timers and focus time? Try Premium free for 7 days: ${PRICING_URL}
 
-Happy focusing!
-The Superfocus Team
+— The Superfocus Team
     `,
   };
 }
 
 function getSignupFollowUp2({ firstName = 'there' }) {
   return {
-    subject: 'Unlock unlimited productivity 🚀',
+    subject: 'Hitting the limits?',
     html: `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: linear-gradient(135deg, #064e3b, #065f46); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>${emailStyles}</style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>Unlock unlimited productivity 🚀</h1>
-          </div>
-          <div class="content">
-            <p>Hi ${firstName},</p>
-            <p>You've been using Superfocus for a few days now. How's it going?</p>
-            <p>If you're hitting the limits of the Free plan, Premium unlocks everything:</p>
-            <ul>
-              <li>🎯 <strong>Unlimited custom timers</strong> - Create timers that match your workflow (52 min deep work? 17 min sprints? You decide!)</li>
-              <li>🌊 <strong>Premium timer presets</strong> - Access Flow State, Marathon, and Deep Work presets</li>
-              <li>📋 <strong>Unlimited tasks</strong> - Organize your entire workflow</li>
-              <li>⏱️ <strong>Unlimited focus time</strong> - No more daily limits</li>
-              <li>🎨 <strong>Custom cassettes</strong> - Design your perfect focus environment</li>
-              <li>🔗 <strong>Notion & Todoist integration</strong> - Bring all your tasks together</li>
-              <li>📊 <strong>Advanced analytics</strong> - Track your productivity patterns</li>
-            </ul>
-            <p><strong>Try Premium free for 7 days, then just $3.99/month.</strong> Cancel anytime.</p>
-            <div style="text-align: center;">
-              <a href="${PRICING_URL}" class="button">Start 7-Day Free Trial</a>
+          <div class="card">
+            <div class="header">
+              <h1>Hitting the limits?</h1>
             </div>
-            <p>Questions? Just reply to this email.</p>
-            <p>Best,<br>The Superfocus Team</p>
-          </div>
-          <div class="footer">
-            <p><a href="${APP_URL}">Superfocus</a> | <a href="${APP_URL}/privacy">Privacy</a></p>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>You've been using Superfocus for a few days. How's it going?</p>
+              
+              <p>If you're running into limits, Premium removes them:</p>
+              
+              <ul>
+                <li><strong>Unlimited timers</strong> — Create timers for any workflow (52 min deep work, 17 min sprints, whatever works for you)</li>
+                <li><strong>Unlimited focus time</strong> — No more daily caps</li>
+                <li><strong>Notion and Todoist</strong> — Pull your tasks into Superfocus</li>
+                <li><strong>Analytics</strong> — See your productivity patterns</li>
+              </ul>
+              
+              <p>Try it free for 7 days. If it's not for you, cancel and pay nothing.</p>
+              
+              <p>After the trial, it's $3.99/month.</p>
+              
+              <div class="button-container">
+                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+              </div>
+              
+              <p>Questions? Reply to this email.</p>
+              
+              <p>— The Superfocus Team</p>
+            </div>
+            <div class="footer">
+              <p><a href="${APP_URL}">Superfocus</a> · <a href="${APP_URL}/privacy">Privacy</a></p>
+            </div>
           </div>
         </div>
       </body>
       </html>
     `,
     text: `
-Unlock unlimited productivity 🚀
+Hitting the limits?
 
 Hi ${firstName},
 
-You've been using Superfocus for a few days. If you're hitting the limits, Premium unlocks everything:
+You've been using Superfocus for a few days. How's it going?
 
-- Unlimited custom timers
-- Unlimited tasks
-- Unlimited focus time
-- Custom cassettes
-- Notion & Todoist integration
-- Advanced analytics
+If you're running into limits, Premium removes them:
 
-Try Premium free for 7 days, then just $3.99/month. Cancel anytime.
+- Unlimited timers — Create timers for any workflow
+- Unlimited focus time — No more daily caps
+- Notion and Todoist — Pull your tasks into Superfocus
+- Analytics — See your productivity patterns
+
+Try it free for 7 days. If it's not for you, cancel and pay nothing.
+
+After the trial, it's $3.99/month.
 
 Start your free trial: ${PRICING_URL}
 
-Best,
-The Superfocus Team
+Questions? Reply to this email.
+
+— The Superfocus Team
     `,
   };
 }
@@ -534,4 +568,3 @@ module.exports = {
   getSignupFollowUp1,
   getSignupFollowUp2,
 };
-
