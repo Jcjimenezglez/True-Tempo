@@ -6,6 +6,9 @@ const { sendEmail } = require('../email/send-email');
 const templates = require('../email/templates');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+// Helper function to delay execution (rate limiting)
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 module.exports = async (req, res) => {
   // Verify this is a cron job request (Vercel adds Authorization header)
   const authHeader = req.headers.authorization;
@@ -17,195 +20,107 @@ module.exports = async (req, res) => {
     const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
     const now = Date.now();
     
-    // Get all users (we'll need to paginate in production)
-    // For now, we'll process users in batches
+    // Rate limiting configuration
+    const MAX_EMAILS_PER_RUN = 15; // Max emails to send per cron run
+    const DELAY_BETWEEN_EMAILS = 700; // 700ms delay = ~1.4 emails/sec (under Resend's 2/sec limit)
+    
     let processed = 0;
     let sent = 0;
     let errors = 0;
+    let skippedDueToLimit = 0;
 
-    // Get users with scheduled emails metadata
-    // We'll use Clerk's user list API and check metadata
-    // Process in batches to handle large user bases
+    // Get users
     let allUsers = [];
     let hasMore = true;
     let offset = 0;
     const limit = 100;
     
-    while (hasMore && offset < 1000) { // Safety limit: process max 1000 users per run
+    while (hasMore && offset < 500) {
       const userListResponse = await clerk.users.getUserList({ limit, offset });
       const userList = userListResponse.data || [];
       allUsers = allUsers.concat(userList);
       hasMore = userList.length === limit;
       offset += limit;
     }
-    
-    const users = allUsers;
-    
-    for (const user of users) {
+
+    for (const user of allUsers) {
+      // Stop if we've sent enough emails this run
+      if (sent >= MAX_EMAILS_PER_RUN) {
+        skippedDueToLimit++;
+        continue;
+      }
+
       try {
         const metadata = user.publicMetadata || {};
         const scheduledEmails = metadata.scheduledEmails || {};
+        const firstName = user.firstName || user.username || 'there';
+        const email = user.emailAddresses?.[0]?.emailAddress;
         
-        // Check for signup follow-up 1 (24 hours after signup)
-        if (scheduledEmails.signupFollowUp1 && !scheduledEmails.signupFollowUp1Sent) {
-          const scheduledTime = scheduledEmails.signupFollowUp1;
-          if (now >= scheduledTime) {
-            const firstName = user.firstName || user.username || 'there';
-            const email = user.emailAddresses?.[0]?.emailAddress;
+        if (!email) continue;
+
+        // Helper to send email with rate limiting
+        const sendScheduledEmail = async (templateFn, tag, sentKey) => {
+          if (sent >= MAX_EMAILS_PER_RUN) return false;
+          
+          const template = templateFn({ firstName });
+          const result = await sendEmail({
+            to: email,
+            subject: template.subject,
+            html: template.html,
+            text: template.text,
+            tags: [tag],
+          });
+          
+          if (result.success) {
+            // Update metadata to mark as sent
+            const freshUser = await clerk.users.getUser(user.id);
+            const freshMetadata = freshUser.publicMetadata || {};
+            const freshScheduled = freshMetadata.scheduledEmails || {};
             
-            if (email) {
-              const followUp1 = templates.getSignupFollowUp1({ firstName });
-              await sendEmail({
-                to: email,
-                subject: followUp1.subject,
-                html: followUp1.html,
-                text: followUp1.text,
-                tags: ['signup_followup_1'],
-              });
-              
-              // Mark as sent
-              await clerk.users.updateUser(user.id, {
-                publicMetadata: {
-                  ...metadata,
-                  scheduledEmails: {
-                    ...scheduledEmails,
-                    signupFollowUp1Sent: true,
-                  },
+            await clerk.users.updateUser(user.id, {
+              publicMetadata: {
+                ...freshMetadata,
+                scheduledEmails: {
+                  ...freshScheduled,
+                  [sentKey]: true,
                 },
-              });
-              
-              sent++;
-            }
-          }
-        }
-        
-        // Check for signup follow-up 2 (3 days after signup)
-        if (scheduledEmails.signupFollowUp2 && !scheduledEmails.signupFollowUp2Sent) {
-          const scheduledTime = scheduledEmails.signupFollowUp2;
-          if (now >= scheduledTime) {
-            const firstName = user.firstName || user.username || 'there';
-            const email = user.emailAddresses?.[0]?.emailAddress;
+              },
+            });
             
-            if (email) {
-              const followUp2 = templates.getSignupFollowUp2({ firstName });
-              await sendEmail({
-                to: email,
-                subject: followUp2.subject,
-                html: followUp2.html,
-                text: followUp2.text,
-                tags: ['signup_followup_2'],
-              });
-              
-              // Mark as sent
-              await clerk.users.updateUser(user.id, {
-                publicMetadata: {
-                  ...metadata,
-                  scheduledEmails: {
-                    ...scheduledEmails,
-                    signupFollowUp2Sent: true,
-                  },
-                },
-              });
-              
-              sent++;
-            }
+            sent++;
+            await delay(DELAY_BETWEEN_EMAILS); // Rate limit
+            return true;
+          } else {
+            errors++;
+            return false;
           }
+        };
+
+        // Check signup follow-up 1 (24 hours after signup)
+        if (scheduledEmails.signupFollowUp1 && !scheduledEmails.signupFollowUp1Sent && now >= scheduledEmails.signupFollowUp1) {
+          await sendScheduledEmail(templates.getSignupFollowUp1, 'signup_followup_1', 'signupFollowUp1Sent');
         }
-        
-        // Check for checkout abandoned emails
-        if (scheduledEmails.checkoutAbandoned1 && !scheduledEmails.checkoutAbandoned1Sent) {
-          const scheduledTime = scheduledEmails.checkoutAbandoned1;
-          if (now >= scheduledTime) {
-            const firstName = user.firstName || user.username || 'there';
-            const email = user.emailAddresses?.[0]?.emailAddress;
-            
-            if (email) {
-              const abandoned1 = templates.getCheckoutAbandonedEmail1({ firstName });
-              await sendEmail({
-                to: email,
-                subject: abandoned1.subject,
-                html: abandoned1.html,
-                text: abandoned1.text,
-                tags: ['checkout_abandoned_1'],
-              });
-              
-              await clerk.users.updateUser(user.id, {
-                publicMetadata: {
-                  ...metadata,
-                  scheduledEmails: {
-                    ...scheduledEmails,
-                    checkoutAbandoned1Sent: true,
-                  },
-                },
-              });
-              
-              sent++;
-            }
-          }
+
+        // Check signup follow-up 2 (3 days after signup)
+        if (scheduledEmails.signupFollowUp2 && !scheduledEmails.signupFollowUp2Sent && now >= scheduledEmails.signupFollowUp2) {
+          await sendScheduledEmail(templates.getSignupFollowUp2, 'signup_followup_2', 'signupFollowUp2Sent');
         }
-        
-        if (scheduledEmails.checkoutAbandoned2 && !scheduledEmails.checkoutAbandoned2Sent) {
-          const scheduledTime = scheduledEmails.checkoutAbandoned2;
-          if (now >= scheduledTime) {
-            const firstName = user.firstName || user.username || 'there';
-            const email = user.emailAddresses?.[0]?.emailAddress;
-            
-            if (email) {
-              const abandoned2 = templates.getCheckoutAbandonedEmail2({ firstName });
-              await sendEmail({
-                to: email,
-                subject: abandoned2.subject,
-                html: abandoned2.html,
-                text: abandoned2.text,
-                tags: ['checkout_abandoned_2'],
-              });
-              
-              await clerk.users.updateUser(user.id, {
-                publicMetadata: {
-                  ...metadata,
-                  scheduledEmails: {
-                    ...scheduledEmails,
-                    checkoutAbandoned2Sent: true,
-                  },
-                },
-              });
-              
-              sent++;
-            }
-          }
+
+        // Check checkout abandoned 1 (1 hour after)
+        if (scheduledEmails.checkoutAbandoned1 && !scheduledEmails.checkoutAbandoned1Sent && now >= scheduledEmails.checkoutAbandoned1) {
+          await sendScheduledEmail(templates.getCheckoutAbandonedEmail1, 'checkout_abandoned_1', 'checkoutAbandoned1Sent');
         }
-        
-        if (scheduledEmails.checkoutAbandoned3 && !scheduledEmails.checkoutAbandoned3Sent) {
-          const scheduledTime = scheduledEmails.checkoutAbandoned3;
-          if (now >= scheduledTime) {
-            const firstName = user.firstName || user.username || 'there';
-            const email = user.emailAddresses?.[0]?.emailAddress;
-            
-            if (email) {
-              const abandoned3 = templates.getCheckoutAbandonedEmail3({ firstName });
-              await sendEmail({
-                to: email,
-                subject: abandoned3.subject,
-                html: abandoned3.html,
-                text: abandoned3.text,
-                tags: ['checkout_abandoned_3'],
-              });
-              
-              await clerk.users.updateUser(user.id, {
-                publicMetadata: {
-                  ...metadata,
-                  scheduledEmails: {
-                    ...scheduledEmails,
-                    checkoutAbandoned3Sent: true,
-                  },
-                },
-              });
-              
-              sent++;
-            }
-          }
+
+        // Check checkout abandoned 2 (24 hours after)
+        if (scheduledEmails.checkoutAbandoned2 && !scheduledEmails.checkoutAbandoned2Sent && now >= scheduledEmails.checkoutAbandoned2) {
+          await sendScheduledEmail(templates.getCheckoutAbandonedEmail2, 'checkout_abandoned_2', 'checkoutAbandoned2Sent');
         }
-        
+
+        // Check checkout abandoned 3 (3 days after)
+        if (scheduledEmails.checkoutAbandoned3 && !scheduledEmails.checkoutAbandoned3Sent && now >= scheduledEmails.checkoutAbandoned3) {
+          await sendScheduledEmail(templates.getCheckoutAbandonedEmail3, 'checkout_abandoned_3', 'checkoutAbandoned3Sent');
+        }
+
         processed++;
       } catch (error) {
         console.error(`Error processing user ${user.id}:`, error);
@@ -218,6 +133,8 @@ module.exports = async (req, res) => {
       processed,
       sent,
       errors,
+      skippedDueToLimit,
+      totalUsers: allUsers.length,
       timestamp: new Date().toISOString(),
     });
 
@@ -226,4 +143,3 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
-
