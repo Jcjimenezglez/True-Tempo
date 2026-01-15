@@ -3995,44 +3995,6 @@ class PomodoroTimer {
             });
         }
 
-        const pricingModal = document.getElementById('pricingModal');
-        if (pricingModal) {
-            pricingModal.addEventListener('click', (e) => {
-                if (e.target === pricingModal) {
-                    this.hidePricingModal();
-                }
-            });
-        }
-
-        // Pricing modal buttons
-        const upgradeToProFromPricing = document.getElementById('upgradeToProFromPricing');
-        if (upgradeToProFromPricing) {
-            upgradeToProFromPricing.addEventListener('click', async () => {
-                // Track Pricing modal Subscribe click
-                const eventProperties = {
-                    button_type: 'subscribe',
-                    source: 'pricing_modal',
-                    location: 'pricing_modal',
-                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
-                    modal_type: 'pricing_modal'
-                };
-                this.trackEvent('Subscribe Clicked', eventProperties);
-                
-                this.hidePricingModal();
-                await this.handleUpgrade();
-            });
-        }
-
-        const signupFromPricing = document.getElementById('signupFromPricing');
-        if (signupFromPricing) {
-            signupFromPricing.addEventListener('click', () => {
-                this.hidePricingModal();
-                if (this.signupButton) {
-                    this.signupButton.click();
-                }
-            });
-        }
-
         // Settings modal tab navigation
         this.setupSettingsTabs();
         
@@ -4480,23 +4442,12 @@ class PomodoroTimer {
     }
 
     showUpgradeModal() {
-        const pricingModal = document.getElementById('pricingModal');
-        if (pricingModal) {
-            pricingModal.style.display = 'flex';
-            
-            // 🎯 Track Modal Opened event to Mixpanel
-            if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackModalOpened('pricing');
-                console.log('📊 Pricing modal opened event tracked to Mixpanel');
-            }
-        }
+        // Redirect to pricing page instead of showing modal
+        window.location.href = '/pricing';
     }
     
     hidePricingModal() {
-        const pricingModal = document.getElementById('pricingModal');
-        if (pricingModal) {
-            pricingModal.style.display = 'none';
-        }
+        // No-op - modal removed
     }
 
     showCycleStatsModal(cycleData) {
@@ -6945,189 +6896,16 @@ class PomodoroTimer {
     }
 
     showLoginRequiredModal(technique) {
-        // Get technique information
-        const techniqueInfo = {
-            'pomodoro-plus': {
-                name: 'Long Pomodoro',
-                description: 'Extended focus sessions for deep work',
-                benefits: [
-                    'Perfect for complex projects requiring sustained attention',
-                    'Reduces context switching between tasks',
-                    'Ideal for deep work and creative projects',
-                    'Maintains focus for longer periods'
-                ]
-            },
-            'ultradian-rhythm': {
-                name: 'Ultradian Rhythm',
-                description: 'Natural biological rhythm-based focus technique',
-                benefits: [
-                    'Aligns with your body\'s natural energy cycles',
-                    'Optimizes energy levels and cognitive performance',
-                    'Reduces mental fatigue during long sessions',
-                    'Based on scientific research on attention spans'
-                ]
-            },
-            'flow': {
-                name: 'Flow State',
-                description: 'Extended focus sessions for immersive work',
-                benefits: [
-                    '45-minute work sessions for deep focus',
-                    'Perfect for tasks requiring sustained attention',
-                    'Reduces interruptions and context switching',
-                    'Ideal for creative and complex projects'
-                ]
-            },
-            'marathon': {
-                name: 'Marathon',
-                description: 'Extended focus sessions for intensive work',
-                benefits: [
-                    '60-minute work sessions for maximum productivity',
-                    'Perfect for completing large projects',
-                    'Longer breaks for better recovery',
-                    'Ideal for deep work and intensive tasks'
-                ]
-            },
-            'deepwork': {
-                name: 'Deep Work',
-                description: 'Extended focus sessions for intensive cognitive work',
-                benefits: [
-                    '90-minute work sessions for maximum concentration',
-                    'Perfect for complex cognitive tasks',
-                    'Longer breaks for optimal recovery',
-                    'Based on Cal Newport\'s Deep Work methodology'
-                ]
-            },
-            'custom': {
-                name: 'Custom Timer',
-                description: 'Create your own personalized focus technique',
-                benefits: [
-                    'Fully customizable to your work style',
-                    'Experiment with different timing patterns',
-                    'Adapt to your unique attention span',
-                    'Create the perfect technique for your needs'
-                ]
-            }
-        };
-        
-        const info = techniqueInfo[technique];
-        if (!info) return;
-        
-        // Check if user is authenticated but not Pro (Free user)
-        const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
-        
-        // Create modal using upgrade modal styling
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'logout-modal-overlay';
-        
-        const modal = document.createElement('div');
-        modal.className = 'logout-modal';
-        
-        if (isFreeUser) {
-            // Free user - show Subscribe modal
-            modal.innerHTML = `
-                <button class="close-logout-modal-x" id="closeLoginRequiredModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <div class="upgrade-content">
-                    <div class="upgrade-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12,6 12,12 16,14"/>
-                        </svg>
-                    </div>
-                    <h3>${info.name}</h3>
-                    <p>${info.description}. Upgrade to Pro to unlock this advanced focus technique and all productivity features!</p>
-                    <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Start FREE Trial</button>
-                        <button class="logout-modal-btn logout-modal-btn-secondary" id="dismissLoginRequiredBtn">Maybe later</button>
-                    </div>
-                </div>
-            `;
+        // Modal removed - redirect to pricing or show signup
+        if (this.isAuthenticated) {
+            // Authenticated user - redirect to pricing
+            window.location.href = '/pricing';
         } else {
-            // Guest user - show signup modal
-            modal.innerHTML = `
-                <button class="close-upgrade-x" id="closeLoginRequiredModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 6 6 18"/>
-                        <path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-                <div class="upgrade-content">
-                    <div class="upgrade-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee-icon lucide-coffee">
-                            <path d="M10 2v2"/>
-                            <path d="M14 2v2"/>
-                            <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
-                            <path d="M6 2v2"/>
-                        </svg>
-                    </div>
-                    <h3>${info.name}</h3>
-                    <p>${info.description}. Create a free account to unlock this advanced focus technique.</p>
-                    <div class="upgrade-features">
-                        ${info.benefits.map(benefit => `
-                            <div class="upgrade-feature">
-                                <span class="upgrade-feature-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20 6 9 17l-5-5"/>
-                                    </svg>
-                                </span>
-                                <span class="upgrade-feature-text">${benefit}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="upgrade-required-buttons">
-                        <button class="upgrade-btn" id="loginRequiredSignupBtn">Sign up for free</button>
-                        <button class="cancel-btn" id="dismissLoginRequiredBtn">Maybe later</button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        modalOverlay.appendChild(modal);
-        document.body.appendChild(modalOverlay);
-
-        // Prevent background scroll while modal open
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        
-        // Add event listeners
-        if (isFreeUser) {
-            // Free user - Subscribe button
-            document.getElementById('loginRequiredSubscribeBtn').addEventListener('click', () => {
-                document.body.style.overflow = previousOverflow;
-                document.body.removeChild(modalOverlay);
-                window.location.href = '/pricing';
-            });
-        } else {
-            // Guest user - Signup button
-            document.getElementById('loginRequiredSignupBtn').addEventListener('click', () => {
-                document.body.style.overflow = previousOverflow;
-                document.body.removeChild(modalOverlay);
-                if (this.signupButton) {
-                    this.signupButton.click();
-                }
-            });
-        }
-        
-        document.getElementById('dismissLoginRequiredBtn').addEventListener('click', () => {
-            document.body.style.overflow = previousOverflow;
-            document.body.removeChild(modalOverlay);
-        });
-
-        document.getElementById('closeLoginRequiredModal').addEventListener('click', () => {
-            document.body.style.overflow = previousOverflow;
-            document.body.removeChild(modalOverlay);
-        });
-
-        // Close on overlay click
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.style.overflow = previousOverflow;
-                document.body.removeChild(modalOverlay);
+            // Guest user - show signup
+            if (this.signupButton) {
+                this.signupButton.click();
             }
-        });
+        }
     }
 
     showLoadingScreen() {
