@@ -2365,9 +2365,9 @@ body.is-scrolling .streak-fire {
 
 /* Share on X Button */
 .logout-modal-btn-x {
-    background: #000000;
-    color: #ffffff;
-    border: 1px solid #333333;
+    background: #ffffff;
+    color: #000000;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2377,13 +2377,13 @@ body.is-scrolling .streak-fire {
 }
 
 .logout-modal-btn-x:hover {
-    background: #1a1a1a;
-    border-color: #555555;
+    background: #e5e5e5;
     transform: translateY(-1px);
 }
 
 .logout-modal-btn-x svg {
     flex-shrink: 0;
+    fill: #000000;
 }
 
 @keyframes fadeIn {

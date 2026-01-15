@@ -4474,9 +4474,17 @@ class PomodoroTimer {
         const shareOnX = () => {
             const minutes = Math.round(cycleData.cycleDuration / 60);
             const sessions = cycleData.workSessions;
+            const taskName = this.currentTaskName || this._lastTaskName || null;
             
-            // Create engaging tweet text
-            const tweetText = `🎯 Just completed a focus cycle!\n\n⏱️ ${minutes} minutes of deep work\n🔥 ${sessions} focus sessions\n\nStaying productive with @superfaborapp 💪\n\n#DeepWork #Productivity #FocusMode`;
+            // Create tweet text - simple and direct
+            let tweetText;
+            if (taskName && taskName !== 'Focus' && taskName !== 'Short Break' && taskName !== 'Long Break') {
+                // Include task name for context
+                tweetText = `Just finished ${minutes} min of deep work on "${taskName}"\n\n${sessions} focus sessions done. Time for a break.`;
+            } else {
+                // Generic version without task
+                tweetText = `${minutes} min of deep work done. ${sessions} focus sessions completed.\n\nBack to it after a break.`;
+            }
             
             // Create X share URL
             const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent('https://superfocus.live')}`;
@@ -4488,6 +4496,7 @@ class PomodoroTimer {
             this.trackEvent('Cycle Shared on X', {
                 total_minutes: minutes,
                 focus_sessions: sessions,
+                task_name: taskName,
                 source: 'cycle_completion_modal'
             });
         };
@@ -6229,6 +6238,9 @@ class PomodoroTimer {
                     
                     window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
                     console.log('📊 Cycle completed event tracked to Mixpanel');
+                    
+                    // Save current task name before it gets reset
+                    this._lastTaskName = this.currentTaskName;
                     
                     // Show cycle completion stats modal
                     this.showCycleStatsModal({
@@ -19065,17 +19077,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.pomodoroTimer = timer; // Make it globally accessible
     
     // 🧪 Testing function for Share on X modal
-    // Usage from console: testShareModal() or testShareModal(45, 3)
-    window.testShareModal = (minutes = 25, sessions = 4) => {
+    // Usage: testShareModal() or testShareModal(45, 3, "Study for exam")
+    window.testShareModal = (minutes = 25, sessions = 4, taskName = "Study for final exam") => {
         console.log('🧪 Testing Cycle Stats Modal with Share on X...');
+        timer._lastTaskName = taskName; // Set task name for sharing
         timer.showCycleStatsModal({
-            cycleDuration: minutes * 60, // Convert to seconds
+            cycleDuration: minutes * 60,
             workSessions: sessions
         });
-        console.log(`✅ Modal shown with ${minutes} min and ${sessions} sessions`);
-        console.log('📱 Click "Share on X" to test the sharing functionality');
+        console.log(`✅ Modal: ${minutes} min, ${sessions} sessions, task: "${taskName}"`);
     };
-    console.log('💡 TIP: Run testShareModal() in console to preview the Share on X modal');
+    console.log('💡 testShareModal(min, sessions, "task") to preview Share on X');
     
     // Initialize Mixpanel tracking
     if (window.mixpanelTracker) {
