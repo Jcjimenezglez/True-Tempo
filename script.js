@@ -1361,7 +1361,7 @@ class PomodoroTimer {
                     <h3>Build your perfect timer</h3>
                     <p>${message}</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Custom Timers</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Start FREE Trial</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -1593,7 +1593,7 @@ class PomodoroTimer {
                     <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Custom Vibe</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Start FREE Trial</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -4258,7 +4258,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -7040,7 +7040,7 @@ class PomodoroTimer {
                     <h3>${info.name}</h3>
                     <p>${info.description}. Upgrade to Pro to unlock this advanced focus technique and all productivity features!</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Upgrade to Unlimited</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="loginRequiredSubscribeBtn">Start FREE Trial</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="dismissLoginRequiredBtn">Maybe later</button>
                     </div>
                 </div>
@@ -12775,7 +12775,7 @@ class PomodoroTimer {
                 <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
                     <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">See what you're missing</h4>
                     <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Heatmaps show when you focus best. Trends reveal your patterns. Comparisons show your growth. This is the data that helps you work smarter, not harder.</p>
-                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Analytics</button>
+                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
                 </div>
             </div>
         `;
