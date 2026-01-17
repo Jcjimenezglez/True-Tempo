@@ -20463,6 +20463,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Check if user is Premium
+    function isPremiumUser() {
+        // Try to access global timer instance
+        if (window.pomodoroTimer && typeof window.pomodoroTimer.isPremiumUser === 'function') {
+            return window.pomodoroTimer.isPremiumUser();
+        }
+        return false;
+    }
+
     // Check if there's a new version
     async function hasNewVersion() {
         const latestVersion = await getLatestVersion();
@@ -20470,10 +20479,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const seenVersion = localStorage.getItem('lastSeenReleaseVersion');
         
-        // If user has never seen any version, show banner
-        if (!seenVersion) return true;
+        // NEW LOGIC: Don't show to new users (no seenVersion means first time)
+        if (!seenVersion) return false;
         
-        // Compare versions (simple string comparison works for format like "2.1", "2.2", etc.)
+        // Compare versions (simple string comparison works for format like "1.1", "1.2", etc.)
         return latestVersion !== seenVersion;
     }
 
@@ -20485,10 +20494,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Show toast on page load if there's a new version
+    // Show toast on page load if there's a new version AND user is Premium
     async function initToast() {
         const toast = document.getElementById('releaseNotesToast');
         if (!toast) return;
+
+        // Check if user is Premium first
+        const userIsPremium = isPremiumUser();
+        
+        // Only show to Premium users
+        if (!userIsPremium) return;
 
         const showToast = await hasNewVersion();
         
@@ -20540,14 +20555,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialize when DOM is ready
+    // Initialize when DOM is ready and after a delay to ensure pomodoroTimer is loaded
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            initToast();
+            // Wait for pomodoroTimer to be available
+            setTimeout(() => {
+                initToast();
+            }, 1000);
             initReleaseNotesNavigation();
         });
     } else {
-        initToast();
+        // Wait for pomodoroTimer to be available
+        setTimeout(() => {
+            initToast();
+        }, 1000);
         initReleaseNotesNavigation();
     }
 })();
