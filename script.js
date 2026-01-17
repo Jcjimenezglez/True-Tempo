@@ -20726,7 +20726,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
                         window.pomodoroTimer.trackEvent('Exit Intent CTA Clicked', {
                             user_type: 'free_user',
-                            cta_text: 'Start FREE Trial - 1 Month'
+                            cta_text: 'Start FREE Trial'
                         });
                     }
                     
