@@ -1,0 +1,24 @@
+{
+  "updates": [
+    {
+      "date": "January 15, 2026",
+      "title": "Improved memory for finding details from past chats (Plus & Pro)",
+      "content": "When reference chat history is enabled, ChatGPT can now more reliably find specific details from your past chats when you ask. Any past chat used to answer your question now appears as a source so you can open and review the original context.\n\nThis memory improvement is now available for Plus and Pro users globally."
+    },
+    {
+      "date": "January 12, 2026",
+      "title": "Dictation Updates",
+      "content": "We're improving our dictation capabilities in ChatGPT for all logged-in users, significantly reducing empty transcriptions and improving accuracy."
+    },
+    {
+      "date": "January 7, 2026",
+      "title": "Health in ChatGPT",
+      "content": "We're starting to roll out Health, a dedicated space in ChatGPT for health and wellness conversations. You can securely connect medical records, Apple Health and supported wellness apps so answers can be grounded in your own data. Health is designed to help you navigate medical care, not replace it. Health conversations, memory, and files are kept separate from the rest of ChatGPT and are not used to train our foundation models.\n\nHealth appears as a new space in the ChatGPT sidebar. If you ask a health-related question in a regular chat, ChatGPT may also suggest continuing in Health. If you're interested in getting access as it becomes available, you can sign up for the waitlist. We're starting by providing access to a small group of early users to learn and continue refining the experience. At launch, Health is available on web and iOS, with Android coming soon to ChatGPT Free, Go, Plus, and Pro users in supported countries (excluding the EEA, Switzerland, and the UK).\n\nLearn more in the blog or help center article."
+    },
+    {
+      "date": "December 22, 2025",
+      "title": "Your Year with ChatGPT",
+      "content": "Today we're rolling out Your Year with ChatGPT, an optional, personalized end-of-year experience that reflects on how you interacted with ChatGPT in 2025. It highlights high-level themes from your conversations and includes summary statistics about your usage over the year.\n\nThis experience is rolling out gradually throughout the day, so it may not be available to everyone immediately. It's available to Free, Plus, and Pro users in United States, United Kingdom, Canada, Australia, and New Zealand as well as Go, Plus, and Pro users in India, and is not available on Business, Enterprise, or Edu plans.\n\nTo see Your Year with ChatGPT, Memory and Reference Chat History must be turned on, and you must meet a minimum activity threshold. If you have very limited activity, you'll only see basic chat statistics.\n\nAt launch, this experience is available in English in the United States, United Kingdom, Canada, Australia, and New Zealand."
+    }
+  ]
+}

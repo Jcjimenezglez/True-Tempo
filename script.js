@@ -215,6 +215,9 @@ class PomodoroTimer {
         this.helpPanel = document.getElementById('helpPanel');
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
+        this.releaseNotesItem = document.getElementById('releaseNotesItem');
+        this.releaseNotesBanner = document.getElementById('releaseNotesBanner');
+        this.releaseNotesBannerClose = document.getElementById('releaseNotesBannerClose');
         
         // Logo and achievement elements
         this.logoIcon = document.getElementById('logoIcon');
@@ -3784,6 +3787,18 @@ class PomodoroTimer {
                 this.showFeedbackModal();
             });
         }
+        
+        // Settings dropdown - Release Notes
+        if (this.releaseNotesItem) {
+            this.releaseNotesItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                window.location.href = '/release-notes';
+            });
+        }
+        
+        // Release Notes Banner
+        this.initReleaseNotesBanner();
         
         // Settings dropdown - Help Toggle
         if (this.helpToggle) {
@@ -20442,5 +20457,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 toast.remove();
             }, 300);
         }, 2000);
+    }
+
+    // Initialize Release Notes Banner
+    initReleaseNotesBanner() {
+        if (!this.releaseNotesBanner || !this.releaseNotesBannerClose) {
+            return;
+        }
+
+        // Check if user has dismissed the banner
+        const bannerDismissed = localStorage.getItem('releaseNotesBannerDismissed');
+        
+        // Show banner if not dismissed
+        if (!bannerDismissed) {
+            this.releaseNotesBanner.style.display = 'flex';
+        }
+
+        // Close button handler
+        this.releaseNotesBannerClose.addEventListener('click', () => {
+            this.releaseNotesBanner.style.display = 'none';
+            localStorage.setItem('releaseNotesBannerDismissed', 'true');
+        });
     }
 });// Force redeploy for admin key

@@ -10546,3 +10546,90 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
     font-weight: 600;
 }
+
+/* Release Notes Banner */
+.release-notes-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #000000;
+    color: #ffffff;
+    z-index: 10000;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.release-notes-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.release-notes-banner-text {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.release-notes-banner-link {
+    color: #ffffff;
+    text-decoration: underline;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.release-notes-banner-link:hover {
+    opacity: 0.8;
+}
+
+.release-notes-banner-close {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.release-notes-banner-close:hover {
+    opacity: 0.7;
+}
+
+.release-notes-banner-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Adjust main content when banner is visible */
+.release-notes-banner[style*="display: flex"] ~ * .main-content,
+body:has(.release-notes-banner[style*="display: flex"]) .main-content {
+    margin-top: 48px;
+}
+
+@media (max-width: 768px) {
+    .release-notes-banner-content {
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+    
+    .release-notes-banner-text,
+    .release-notes-banner-link {
+        font-size: 0.85rem;
+    }
+}
