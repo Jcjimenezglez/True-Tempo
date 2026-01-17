@@ -1,0 +1,47 @@
+{
+  "latestVersion": "2.1",
+  "releases": [
+    {
+      "version": "Version 2.1",
+      "date": "January 17, 2026",
+      "sections": {
+        "new": [
+          "Share on X: Share your completed cycles on X (Twitter) with a single click",
+          "Email Marketing: Automated email sequences for signup and checkout abandoned",
+          "Release Notes: Stay updated with the latest features and improvements"
+        ],
+        "improved": [
+          "Daily Limit Modal: Redesigned with a cleaner, more minimal interface",
+          "Email Templates: New black CTAs, simplified copy, and better mobile responsiveness",
+          "Timer Settings: More intuitive custom timer controls"
+        ],
+        "fixed": [
+          "Email sequence ordering now respects the correct order (1 email per sequence per run)",
+          "Session keepalive now properly maintains user authentication",
+          "Stats sync between devices improved for better data consistency"
+        ]
+      }
+    },
+    {
+      "version": "Version 2.0",
+      "date": "January 10, 2026",
+      "sections": {
+        "new": [
+          "Custom Vibes: Create your own focus environments with custom music and backgrounds",
+          "Premium Trial: 1 month free trial for new users",
+          "Leaderboard: Compete with other users and see your ranking"
+        ],
+        "improved": [
+          "Performance optimizations for faster loading times",
+          "Better mobile experience with improved touch controls",
+          "Enhanced Spotify integration with better playlist recommendations"
+        ],
+        "fixed": [
+          "Timer occasionally not starting on first click",
+          "Stats not syncing properly on slow connections",
+          "Task list scrolling issues on mobile devices"
+        ]
+      }
+    }
+  ]
+}

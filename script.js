@@ -20444,3 +20444,100 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 });// Force redeploy for admin key
+
+// ==========================================
+// Release Notes Banner & Navigation
+// ==========================================
+
+(function() {
+    // Fetch latest version from release-notes.json
+    async function getLatestVersion() {
+        try {
+            const response = await fetch('/release-notes.json');
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data.latestVersion || null;
+        } catch (error) {
+            console.error('Error fetching release notes version:', error);
+            return null;
+        }
+    }
+
+    // Check if there's a new version
+    async function hasNewVersion() {
+        const latestVersion = await getLatestVersion();
+        if (!latestVersion) return false;
+
+        const seenVersion = localStorage.getItem('lastSeenReleaseVersion');
+        
+        // If user has never seen any version, show banner
+        if (!seenVersion) return true;
+        
+        // Compare versions (simple string comparison works for format like "2.1", "2.2", etc.)
+        return latestVersion !== seenVersion;
+    }
+
+    // Mark current version as seen
+    async function markVersionAsSeen() {
+        const latestVersion = await getLatestVersion();
+        if (latestVersion) {
+            localStorage.setItem('lastSeenReleaseVersion', latestVersion);
+        }
+    }
+
+    // Show banner on page load if there's a new version
+    async function initBanner() {
+        const banner = document.getElementById('releaseNotesBanner');
+        if (!banner) return;
+
+        const showBanner = await hasNewVersion();
+        
+        if (showBanner) {
+            banner.style.display = 'block';
+            document.body.classList.add('banner-shown');
+        }
+
+        // Close banner handler
+        const closeBtn = document.getElementById('closeReleaseNotesBanner');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', async function() {
+                banner.style.display = 'none';
+                document.body.classList.remove('banner-shown');
+                // Mark current version as seen when user closes banner
+                await markVersionAsSeen();
+            });
+        }
+
+        // Also mark as seen when user clicks "Learn more"
+        const learnMoreLink = banner.querySelector('.release-notes-banner-link');
+        if (learnMoreLink) {
+            learnMoreLink.addEventListener('click', async function() {
+                await markVersionAsSeen();
+            });
+        }
+    }
+
+    // Release Notes navigation from Help Panel
+    function initReleaseNotesNavigation() {
+        const releaseNotesItem = document.getElementById('releaseNotesItem');
+        if (releaseNotesItem) {
+            releaseNotesItem.addEventListener('click', async function() {
+                // Mark version as seen when accessing from Help Panel
+                await markVersionAsSeen();
+                window.location.href = '/release-notes/';
+            });
+        }
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            initBanner();
+            initReleaseNotesNavigation();
+        });
+    } else {
+        initBanner();
+        initReleaseNotesNavigation();
+    }
+})();
+
