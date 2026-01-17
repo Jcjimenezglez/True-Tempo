@@ -10556,14 +10556,14 @@ input:checked + .toggle-slider:before {
     background: #000000;
     color: #ffffff;
     padding: 16px 24px;
-    border-radius: 12px;
+    border-radius: 24px;
     z-index: 10000;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     opacity: 0;
-    max-width: 640px;
+    max-width: 700px;
     width: auto;
-    min-width: 400px;
+    min-width: 480px;
 }
 
 .release-notes-toast.show {
@@ -10574,32 +10574,35 @@ input:checked + .toggle-slider:before {
 .release-notes-toast-content {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
     justify-content: space-between;
 }
 
 .release-notes-toast-text {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     flex: 0 0 auto;
 }
 
 .release-notes-toast-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-shrink: 0;
+    align-items: center;
 }
 
 .release-notes-toast-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
 }
 
@@ -10616,6 +10619,9 @@ input:checked + .toggle-slider:before {
     background: transparent;
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px;
+    width: 40px;
+    height: 40px;
 }
 
 .release-notes-toast-btn-close:hover {
@@ -10623,34 +10629,50 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.5);
 }
 
+.release-notes-toast-btn-close svg {
+    display: block;
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) {
+    .release-notes-toast {
+        min-width: 420px;
+        max-width: calc(100% - 48px);
+    }
+}
+
 /* Mobile adjustments for toast */
-@media (max-width: 768px) {
+@media (max-width: 640px) {
     .release-notes-toast {
         top: 16px;
         width: calc(100% - 32px);
         min-width: unset;
         max-width: calc(100% - 32px);
-        padding: 14px 20px;
+        padding: 16px 20px;
+        border-radius: 20px;
     }
     
     .release-notes-toast-content {
-        flex-direction: column;
-        gap: 12px;
-        align-items: stretch;
+        gap: 16px;
     }
     
     .release-notes-toast-text {
-        font-size: 13px;
-        text-align: center;
+        font-size: 14px;
     }
     
     .release-notes-toast-actions {
-        justify-content: center;
+        gap: 8px;
     }
     
     .release-notes-toast-btn {
-        padding: 6px 14px;
-        font-size: 12px;
+        padding: 8px 20px;
+        font-size: 13px;
+    }
+    
+    .release-notes-toast-btn-close {
+        width: 36px;
+        height: 36px;
+        padding: 8px;
     }
 }
 
