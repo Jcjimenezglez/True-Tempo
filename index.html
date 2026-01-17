@@ -354,17 +354,14 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <!-- Release Notes Banner -->
-    <div class="release-notes-banner" id="releaseNotesBanner" style="display: none;">
-        <div class="release-notes-banner-content">
-            <span>Check out our latest updates</span>
-            <a href="/release-notes/" class="release-notes-banner-link">Learn more</a>
-            <button class="release-notes-banner-close" id="closeReleaseNotesBanner" aria-label="Close banner">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+    <!-- Release Notes Banner (Toast-style) -->
+    <div class="release-notes-toast" id="releaseNotesToast" style="display: none;">
+        <div class="release-notes-toast-content">
+            <span class="release-notes-toast-text">Check out our latest updates</span>
+            <div class="release-notes-toast-actions">
+                <a href="/release-notes/" class="release-notes-toast-btn release-notes-toast-btn-primary" id="releaseNotesLearnMore">Learn more</a>
+                <button class="release-notes-toast-btn release-notes-toast-btn-close" id="closeReleaseNotesToast" aria-label="Close">Close</button>
+            </div>
         </div>
     </div>
 

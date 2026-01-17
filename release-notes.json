@@ -27,17 +27,14 @@
       "sections": {
         "new": [
           "Custom Vibes: Create your own focus environments with custom music and backgrounds",
-          "Free Trial: Try Premium features free for 1 month",
           "Leaderboard: See your ranking and compete with other focused users"
         ],
         "improved": [
           "Faster app loading times across all pages",
-          "Better mobile experience with improved touch controls",
           "Enhanced Spotify integration with more playlist recommendations"
         ],
         "fixed": [
           "Timer now starts reliably on first click",
-          "Task list scrolling works smoothly on all mobile devices",
           "Stats display correctly even with slow connections"
         ]
       }

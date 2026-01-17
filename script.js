@@ -20485,34 +20485,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Show banner on page load if there's a new version
-    async function initBanner() {
-        const banner = document.getElementById('releaseNotesBanner');
-        if (!banner) return;
+    // Show toast on page load if there's a new version
+    async function initToast() {
+        const toast = document.getElementById('releaseNotesToast');
+        if (!toast) return;
 
-        const showBanner = await hasNewVersion();
+        const showToast = await hasNewVersion();
         
-        if (showBanner) {
-            banner.style.display = 'block';
-            document.body.classList.add('banner-shown');
+        if (showToast) {
+            toast.style.display = 'block';
+            // Trigger animation after a small delay
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
         }
 
-        // Close banner handler
-        const closeBtn = document.getElementById('closeReleaseNotesBanner');
+        // Close toast handler
+        const closeBtn = document.getElementById('closeReleaseNotesToast');
         if (closeBtn) {
             closeBtn.addEventListener('click', async function() {
-                banner.style.display = 'none';
-                document.body.classList.remove('banner-shown');
-                // Mark current version as seen when user closes banner
+                toast.classList.remove('show');
+                // Wait for animation to complete before hiding
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 300);
+                // Mark current version as seen when user closes toast
                 await markVersionAsSeen();
             });
         }
 
         // Also mark as seen when user clicks "Learn more"
-        const learnMoreLink = banner.querySelector('.release-notes-banner-link');
-        if (learnMoreLink) {
-            learnMoreLink.addEventListener('click', async function() {
+        const learnMoreBtn = document.getElementById('releaseNotesLearnMore');
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', async function() {
                 await markVersionAsSeen();
+                // Hide toast when navigating
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 300);
             });
         }
     }
@@ -20532,11 +20543,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            initBanner();
+            initToast();
             initReleaseNotesNavigation();
         });
     } else {
-        initBanner();
+        initToast();
         initReleaseNotesNavigation();
     }
 })();
