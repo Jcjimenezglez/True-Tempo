@@ -6,19 +6,18 @@
       "date": "January 17, 2026",
       "sections": {
         "new": [
-          "Share on X: Share your completed cycles on X (Twitter) with a single click",
-          "Email Marketing: Automated email sequences for signup and checkout abandoned",
-          "Release Notes: Stay updated with the latest features and improvements"
+          "Share on X: Share your completed focus cycles on X (Twitter) with one click",
+          "Release Notes: Stay updated with new features and improvements right from the app"
         ],
         "improved": [
-          "Daily Limit Modal: Redesigned with a cleaner, more minimal interface",
-          "Email Templates: New black CTAs, simplified copy, and better mobile responsiveness",
-          "Timer Settings: More intuitive custom timer controls"
+          "Cleaner and more minimal daily limit notification",
+          "Better timer controls and settings interface",
+          "Smoother animations and transitions throughout the app"
         ],
         "fixed": [
-          "Email sequence ordering now respects the correct order (1 email per sequence per run)",
-          "Session keepalive now properly maintains user authentication",
-          "Stats sync between devices improved for better data consistency"
+          "Improved reliability when switching between devices",
+          "Better performance on slower internet connections",
+          "Fixed occasional issues with timer starting"
         ]
       }
     },
@@ -28,18 +27,18 @@
       "sections": {
         "new": [
           "Custom Vibes: Create your own focus environments with custom music and backgrounds",
-          "Premium Trial: 1 month free trial for new users",
-          "Leaderboard: Compete with other users and see your ranking"
+          "Free Trial: Try Premium features free for 1 month",
+          "Leaderboard: See your ranking and compete with other focused users"
         ],
         "improved": [
-          "Performance optimizations for faster loading times",
+          "Faster app loading times across all pages",
           "Better mobile experience with improved touch controls",
-          "Enhanced Spotify integration with better playlist recommendations"
+          "Enhanced Spotify integration with more playlist recommendations"
         ],
         "fixed": [
-          "Timer occasionally not starting on first click",
-          "Stats not syncing properly on slow connections",
-          "Task list scrolling issues on mobile devices"
+          "Timer now starts reliably on first click",
+          "Task list scrolling works smoothly on all mobile devices",
+          "Stats display correctly even with slow connections"
         ]
       }
     }
