@@ -37,6 +37,9 @@ async function sendEmail({ to, subject, html, text, tags = [] }) {
       return { success: false, error: 'Email service not configured' };
     }
 
+    // Generate unique ID for tracking
+    const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: Array.isArray(to) ? to : [to],
@@ -44,6 +47,9 @@ async function sendEmail({ to, subject, html, text, tags = [] }) {
       html,
       text,
       tags: normalizeTags(tags),
+      headers: {
+        'X-Entity-Ref-ID': uniqueId // Unique ID for better tracking
+      }
     });
 
     if (error) {
@@ -51,8 +57,8 @@ async function sendEmail({ to, subject, html, text, tags = [] }) {
       return { success: false, error };
     }
 
-    console.log('✅ Email sent successfully:', data?.id);
-    return { success: true, emailId: data?.id };
+    console.log('✅ Email sent successfully:', data?.id, '| Tracking ID:', uniqueId);
+    return { success: true, emailId: data?.id, trackingId: uniqueId };
   } catch (error) {
     console.error('❌ Error sending email:', error);
     return { success: false, error: error.message };
