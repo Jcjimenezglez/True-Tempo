@@ -20506,6 +20506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!userIsPremium) return;
 
         const showToast = await hasNewVersion();
+        const latestVersion = await getLatestVersion();
         
         if (showToast) {
             toast.style.display = 'block';
@@ -20513,6 +20514,15 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 toast.classList.add('show');
             }, 100);
+            
+            // Track toast shown event
+            if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                window.pomodoroTimer.trackEvent('Release Notes Toast Shown', {
+                    user_type: 'pro',
+                    version: latestVersion,
+                    source: 'toast'
+                });
+            }
         }
 
         // Close toast handler
@@ -20524,6 +20534,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     toast.style.display = 'none';
                 }, 300);
+                
+                // Track dismiss event
+                if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                    window.pomodoroTimer.trackEvent('Release Notes Toast Dismissed', {
+                        user_type: 'pro',
+                        version: latestVersion,
+                        source: 'toast'
+                    });
+                }
+                
                 // Mark current version as seen when user closes toast
                 await markVersionAsSeen();
             });
@@ -20533,6 +20553,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const learnMoreBtn = document.getElementById('releaseNotesLearnMore');
         if (learnMoreBtn) {
             learnMoreBtn.addEventListener('click', async function() {
+                // Track learn more click
+                if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                    window.pomodoroTimer.trackEvent('Release Notes Learn More Clicked', {
+                        user_type: 'pro',
+                        version: latestVersion,
+                        source: 'toast'
+                    });
+                }
+                
                 await markVersionAsSeen();
                 // Hide toast when navigating
                 toast.classList.remove('show');
@@ -20548,6 +20577,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const releaseNotesItem = document.getElementById('releaseNotesItem');
         if (releaseNotesItem) {
             releaseNotesItem.addEventListener('click', async function() {
+                const latestVersion = await getLatestVersion();
+                
+                // Track access from Help Panel
+                if (window.pomodoroTimer && typeof window.pomodoroTimer.trackEvent === 'function') {
+                    const userType = window.pomodoroTimer.isPremiumUser() ? 'pro' : 
+                                    (window.pomodoroTimer.isAuthenticated ? 'free_user' : 'guest');
+                    
+                    window.pomodoroTimer.trackEvent('Release Notes Accessed from Help Panel', {
+                        user_type: userType,
+                        version: latestVersion,
+                        source: 'help_panel'
+                    });
+                }
+                
                 // Mark version as seen when accessing from Help Panel
                 await markVersionAsSeen();
                 window.location.href = '/release-notes/';
