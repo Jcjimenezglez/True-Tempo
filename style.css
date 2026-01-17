@@ -10550,13 +10550,13 @@ input:checked + .toggle-slider:before {
 /* Release Notes Toast (Floating notification style) */
 .release-notes-toast {
     position: fixed;
-    top: 24px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%) translateY(-120%);
     background: #000000;
     color: #ffffff;
-    padding: 16px 24px;
-    border-radius: 24px;
+    padding: 16px 20px;
+    border-radius: 32px;
     z-index: 10000;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
@@ -10618,7 +10618,7 @@ input:checked + .toggle-slider:before {
 .release-notes-toast-btn-close {
     background: transparent;
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: none;
     padding: 10px;
     width: 40px;
     height: 40px;
@@ -10626,7 +10626,6 @@ input:checked + .toggle-slider:before {
 
 .release-notes-toast-btn-close:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .release-notes-toast-btn-close svg {
@@ -10649,7 +10648,7 @@ input:checked + .toggle-slider:before {
         min-width: unset;
         max-width: calc(100% - 32px);
         padding: 16px 20px;
-        border-radius: 20px;
+        border-radius: 32px;
     }
     
     .release-notes-toast-content {
