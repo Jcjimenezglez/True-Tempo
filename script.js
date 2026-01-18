@@ -1256,6 +1256,33 @@ class PomodoroTimer {
             return 0;
         }
     }
+    
+    // Get total number of timers ever created (lifetime count)
+    getCustomTimersCreatedCount() {
+        try {
+            const count = parseInt(localStorage.getItem('customTimersCreatedCount') || '0');
+            return count;
+        } catch (error) {
+            console.error('Error getting custom timers created count:', error);
+            return 0;
+        }
+    }
+    
+    // Increment the lifetime creation counter
+    incrementCustomTimersCreatedCount() {
+        try {
+            const current = this.getCustomTimersCreatedCount();
+            const newCount = current + 1;
+            localStorage.setItem('customTimersCreatedCount', String(newCount));
+            console.log(`📊 Custom timers created count: ${newCount}`);
+            return newCount;
+        } catch (error) {
+            console.error('Error incrementing custom timers created count:', error);
+            return 0;
+        }
+    }
+        }
+    }
 
     // Show custom form
     showCustomForm() {
@@ -1279,22 +1306,22 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else if (this.isAuthenticated && this.user) {
-            // Free users - check if they've already created 1 timer
-            const customTimersCount = this.getCustomTimersCount();
+            // Free users - check lifetime creation count (not current count)
+            const timersCreatedCount = this.getCustomTimersCreatedCount();
             
-            if (customTimersCount >= 1) {
-                // Free user has already created their 1 free timer
+            if (timersCreatedCount >= 1) {
+                // Free user has already used their 1 lifetime creation
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_techniques',
                     source: 'create_custom_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    custom_timers_count: customTimersCount,
+                    timers_created_lifetime: timersCreatedCount,
                     limit_reached: true,
-                    reason: 'second_timer_attempt'
+                    reason: 'lifetime_creation_limit'
                 });
                 
-                this.showCustomTechniqueProModal('You\'ve created your free custom timer! Upgrade to Premium to create unlimited custom timers and access Flow State, Marathon, and Deep Work presets.', customTimersCount);
+                this.showCustomTechniqueProModal('lifetime_limit');
             } else {
                 // Free user can create their first timer
                 const form = document.getElementById('customForm');
@@ -1329,7 +1356,7 @@ class PomodoroTimer {
     }
     
     // Show Pro Feature modal for Custom Techniques
-    showCustomTechniqueProModal(customMessage = null, customTimersCount = 0) {
+    showCustomTechniqueProModal(messageType = 'default', customTimersCount = 0) {
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'logout-modal-overlay';
         modalOverlay.style.display = 'flex';
@@ -1340,8 +1367,13 @@ class PomodoroTimer {
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
         
-        // Use custom message if provided, otherwise use default
-        const message = customMessage || 'Create custom focus techniques tailored to your workflow!';
+        // Determine message based on type
+        let message;
+        if (messageType === 'lifetime_limit') {
+            message = `You've already created your free custom timer. To create more and unlock unlimited customization, upgrade to Premium!`;
+        } else {
+            message = 'Create custom focus techniques tailored to your workflow!';
+        }
         
         if (isAuthenticated) {
             // Free user modal
@@ -1424,7 +1456,7 @@ class PomodoroTimer {
                     source: 'create_timer_modal',
                     user_type: isAuthenticated ? 'free' : 'guest',
                     modal_type: 'create_timer',
-                    custom_timers_count: customTimersCount,
+                    timers_created_lifetime: this.getCustomTimersCreatedCount(),
                     button_type: 'cancel'
                 });
                 closeModal();
@@ -1443,9 +1475,9 @@ class PomodoroTimer {
                         location: 'custom_timer_modal',
                         user_type: 'free',
                         modal_type: 'create_timer',
-                        custom_timers_count: customTimersCount,
-                        limit_reached: customTimersCount >= 1,
-                        reason: customTimersCount >= 1 ? 'second_timer_attempt' : 'first_timer_attempt'
+                        timers_created_lifetime: this.getCustomTimersCreatedCount(),
+                        limit_reached: messageType === 'lifetime_limit',
+                        reason: 'lifetime_creation_limit'
                     };
                     this.trackEvent('Subscribe Clicked', eventProperties);
                     
@@ -1844,6 +1876,9 @@ class PomodoroTimer {
                     createdAt: new Date().toISOString()
                 };
                 
+                // Increment lifetime creation counter
+                this.incrementCustomTimersCreatedCount();
+                
                 // Save to localStorage
                 this.saveCustomTechniqueToStorage(customTechnique);
                 
@@ -1862,7 +1897,8 @@ class PomodoroTimer {
                     long_break_minutes: customTechnique.longBreakMinutes,
                     sessions: customTechnique.sessions,
                     emoji: customTechnique.emoji,
-                    user_type: 'pro'
+                    user_type: this.isPremiumUser() ? 'pro' : (this.isAuthenticated ? 'free' : 'guest'),
+                    lifetime_count: this.getCustomTimersCreatedCount()
                 });
                 
                 console.log('✅ Custom technique saved and applied:', customTechnique.name);
