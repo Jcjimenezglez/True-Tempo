@@ -2898,14 +2898,14 @@ class PomodoroTimer {
             const button = this.guestTaskLimitModalOverlay.querySelector('#guestTaskLimitSignupBtn');
             
             if (!this.isAuthenticated) {
-                // Guest user
-                title.textContent = 'Task limit reached';
-                message.textContent = 'You\'ve hit your 1-task limit. Sign up to get 2 tasks, or upgrade to Premium for unlimited tasks and keep your momentum going.';
-                button.textContent = 'Sign up';
+                // Guest user - cannot create tasks at all
+                title.textContent = 'Sign up to create tasks';
+                message.textContent = 'Create an account to start tracking your tasks and boost your productivity. It\'s free!';
+                button.textContent = 'Sign up free';
             } else {
                 // Free user (authenticated but not Premium)
                 title.textContent = 'Task limit reached';
-                message.textContent = 'You\'ve hit your 2-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
+                message.textContent = 'You\'ve hit your 1-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
                 button.textContent = 'Start FREE Trial';
             }
             
@@ -7855,17 +7855,20 @@ class PomodoroTimer {
                     task_count: this.getLocalTasks().length
                 });
                 // Check task limit BEFORE showing the form
+                // Guest users cannot create tasks at all - must sign up
+                if (!this.isAuthenticated) {
+                    this.showTaskLimitModal();
+                    return;
+                }
+                
                 // Only count tasks in To-do (not completed), not tasks in Done
                 const currentTasks = this.getLocalTasks().filter(task => !task.completed);
                 
                 // Define limits based on user type
                 let taskLimit;
-                if (!this.isAuthenticated) {
-                    // Guest users: 1 task
+                if (this.isAuthenticated && !this.isPro) {
+                    // Free users: 1 task
                     taskLimit = 1;
-                } else if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 2 tasks
-                    taskLimit = 2;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
@@ -15249,17 +15252,20 @@ class PomodoroTimer {
                 });
                 
                 // Check task limit BEFORE showing the form
+                // Guest users cannot create tasks at all - must sign up
+                if (!this.isAuthenticated) {
+                    this.showTaskLimitModal();
+                    return;
+                }
+                
                 // Only count tasks in To-do (not completed), not tasks in Done
                 const currentTasks = this.getLocalTasks().filter(task => !task.completed);
                 
                 // Define limits based on user type
                 let taskLimit;
-                if (!this.isAuthenticated) {
-                    // Guest users: 1 task
+                if (this.isAuthenticated && !this.isPro) {
+                    // Free users: 1 task
                     taskLimit = 1;
-                } else if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 2 tasks
-                    taskLimit = 2;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
