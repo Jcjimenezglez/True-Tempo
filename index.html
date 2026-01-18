@@ -2224,6 +2224,30 @@
         </div>
     </div>
     
+    <!-- Leaderboard Modal -->
+    <div class="logout-modal-overlay" id="leaderboardModalOverlay" style="display: none;">
+        <div class="logout-modal" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <button class="close-logout-modal-x" id="closeLeaderboardModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div style="padding: 24px;">
+                <div class="tasks-header" style="margin-bottom: 24px;">
+                    <h3>Leaderboard</h3>
+                    <p class="tasks-subtitle" style="text-align: left;">Top Focus Hours</p>
+                </div>
+                
+                <div class="leaderboard-content" id="leaderboardModalContent">
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Loading leaderboard...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Cycle Completion Stats Modal -->
     <div class="logout-modal-overlay" id="cycleStatsModal" style="display: none;">
         <div class="logout-modal">
