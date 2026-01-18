@@ -206,6 +206,8 @@ class PomodoroTimer {
         this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
         this.settingsManageSubscriptionBtn = document.getElementById('settingsManageSubscriptionBtn');
         this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
+        this.productivityResourcesBtn = document.getElementById('productivityResourcesBtn');
+        this.productivityResourcesModalOverlay = document.getElementById('productivityResourcesModalOverlay');
         this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
         this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
         this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
@@ -2838,6 +2840,91 @@ class PomodoroTimer {
         }
     }
     
+    showProductivityResourcesModal() {
+        if (this.productivityResourcesModalOverlay) {
+            this.productivityResourcesModalOverlay.style.display = 'flex';
+            // Initialize share buttons in modal
+            this.initializeResourceShareButtons();
+        }
+    }
+    
+    initializeResourceShareButtons() {
+        // Get all share buttons within the modal
+        const modal = this.productivityResourcesModalOverlay;
+        if (!modal) return;
+        
+        const shareButtons = modal.querySelectorAll('.resource-share-btn');
+        shareButtons.forEach(btn => {
+            // Remove existing listeners to avoid duplicates
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const shareUrl = newBtn.getAttribute('data-share-url');
+                const shareTitle = newBtn.getAttribute('data-share-title');
+                
+                // Copy to clipboard
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    // Show toast notification
+                    this.showResourceShareToast('Link copied to clipboard');
+                    
+                    // Track share event
+                    this.trackEvent('Resource Shared', {
+                        resource_title: shareTitle,
+                        resource_url: shareUrl,
+                        share_method: 'clipboard',
+                        source: 'productivity_resources_modal'
+                    });
+                } catch (err) {
+                    console.error('Failed to copy to clipboard:', err);
+                    this.showResourceShareToast('Failed to copy link', true);
+                }
+            });
+        });
+    }
+    
+    showResourceShareToast(message, isError = false) {
+        // Remove existing toast if any
+        const existingToast = document.querySelector('.resource-share-toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'resource-share-toast';
+        if (isError) {
+            toast.classList.add('error');
+        }
+        toast.textContent = message;
+        
+        // Add to DOM
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Remove after 2 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 2000);
+    }
+    
+    hideProductivityResourcesModal() {
+        if (this.productivityResourcesModalOverlay) {
+            this.productivityResourcesModalOverlay.style.display = 'none';
+        }
+    }
+    
     showTechniqueModal(technique) {
         
         // Get technique name
@@ -3797,6 +3884,36 @@ class PomodoroTimer {
                 });
                 this.settingsDropdown.style.display = 'none';
                 this.showSettingsModal();
+            });
+        }
+        
+        // Settings dropdown - Productivity Resources
+        if (this.productivityResourcesBtn) {
+            this.productivityResourcesBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Productivity Resources Clicked', {
+                    button_type: 'productivity_resources',
+                    source: 'account_menu'
+                });
+                this.settingsDropdown.style.display = 'none';
+                this.showProductivityResourcesModal();
+            });
+        }
+        
+        // Close Productivity Resources Modal
+        const closeProductivityResourcesModal = document.getElementById('closeProductivityResourcesModal');
+        if (closeProductivityResourcesModal) {
+            closeProductivityResourcesModal.addEventListener('click', () => {
+                this.hideProductivityResourcesModal();
+            });
+        }
+        
+        // Close modal when clicking overlay
+        if (this.productivityResourcesModalOverlay) {
+            this.productivityResourcesModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.productivityResourcesModalOverlay) {
+                    this.hideProductivityResourcesModal();
+                }
             });
         }
         
