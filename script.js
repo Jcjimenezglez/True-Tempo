@@ -1277,6 +1277,27 @@ class PomodoroTimer {
             console.error('Error incrementing lifetime timers count:', error);
         }
     }
+    
+    // Get lifetime count of cassettes created (persists even after deletion)
+    getLifetimeCassettesCreated() {
+        try {
+            return parseInt(localStorage.getItem('lifetimeCassettesCreated') || '0', 10);
+        } catch (error) {
+            console.error('Error getting lifetime cassettes count:', error);
+            return 0;
+        }
+    }
+    
+    // Increment lifetime cassette creation count
+    incrementLifetimeCassettesCreated() {
+        try {
+            const current = this.getLifetimeCassettesCreated();
+            localStorage.setItem('lifetimeCassettesCreated', String(current + 1));
+            console.log('📊 Lifetime cassettes created:', current + 1);
+        } catch (error) {
+            console.error('Error incrementing lifetime cassettes count:', error);
+        }
+    }
 
     // Show custom form
     showCustomForm() {
@@ -1594,7 +1615,8 @@ class PomodoroTimer {
         const message = customMessage || 'Create custom focus environments tailored to your workflow!';
         
         if (isAuthenticated) {
-            // Free user modal
+            // Free user modal - lifetime limit reached
+            const title = customMessage ? 'Cassette creation limit reached' : 'Create your focus cassette';
             modal.innerHTML = `
                 <button class="close-logout-modal-x" id="closeCassetteModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1611,8 +1633,8 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>Create your focus cassette</h3>
-                    <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Start FREE Trial</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
@@ -17074,12 +17096,12 @@ class PomodoroTimer {
                 currentCassettes: cassettes.map(c => ({ id: c.id, title: c.title }))
             });
             
-            // Free users can only have 1 cassette (unlimited for Premium)
+            // Free users can only create 1 cassette LIFETIME (unlimited for Premium)
             if (isNewCassette && !this.isPremiumUser()) {
-                const currentCassetteCount = cassettes.length;
-                if (currentCassetteCount >= 1) {
-                    alert('Free users can create up to 1 custom cassette. Upgrade to Premium to create unlimited cassettes.');
-                    throw new Error('Cassette limit reached for free users');
+                const lifetimeCreated = this.getLifetimeCassettesCreated();
+                if (lifetimeCreated >= 1) {
+                    alert('You\'ve used your free cassette creation. Upgrade to Premium to create unlimited cassettes.');
+                    throw new Error('Lifetime cassette limit reached for free users');
                 }
             }
             
@@ -17089,6 +17111,11 @@ class PomodoroTimer {
             } else {
                 console.log('➕ Adding new cassette to array');
                 cassettes.push(cassette);
+                
+                // Increment lifetime creation counter for free users
+                if (!this.isPremiumUser()) {
+                    this.incrementLifetimeCassettesCreated();
+                }
             }
             
             console.log('💾 Saving cassettes to localStorage:', cassettes.map(c => ({ id: c.id, title: c.title })));
@@ -17597,23 +17624,23 @@ class PomodoroTimer {
             return;
         }
         
-        // Free users can create 1 cassette, Premium users unlimited
-        if (!this.isPremiumUser()) {
-            // Check if free user already has 1 cassette (and not editing existing)
-            const existingCassettes = this.getCustomCassettes();
-            const hasReachedLimit = existingCassettes.length >= 1 && !cassetteId;
+        // Free users can create 1 cassette LIFETIME, Premium users unlimited
+        if (!this.isPremiumUser() && !cassetteId) {
+            // Check lifetime creation count (not current count)
+            const lifetimeCreated = this.getLifetimeCassettesCreated();
             
-            if (hasReachedLimit) {
-                // Free user has reached limit - show upgrade modal
+            if (lifetimeCreated >= 1) {
+                // Free user has already used their 1 lifetime cassette creation
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_cassettes',
                     source: 'create_cassette_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    reason: 'vibe_limit_reached'
+                    lifetime_cassettes_created: lifetimeCreated,
+                    reason: 'lifetime_limit_reached'
                 });
                 
-                this.showCassetteProModal('You\'ve reached your free limit of 1 custom cassette. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('You\'ve used your free cassette creation. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
                 return;
             }
             // Free user can create their first cassette - continue to form
@@ -20118,17 +20145,11 @@ class SidebarManager {
                         publicCassettesSection.style.display = 'block';
                     }
                 } else {
-                    // Check cache age to decide if we need to force refresh
-                    const cacheTimestampKey = 'publicCassettesCacheTimestamp';
-                    const lastCacheTime = parseInt(localStorage.getItem(cacheTimestampKey) || '0');
-                    const cacheAgeMs = Date.now() - lastCacheTime;
-                    const CACHE_MAX_AGE_MS = 2 * 60 * 1000; // 2 minutes
+                    // Always force refresh when opening panel to ensure fresh data
+                    // This fixes the issue where new cassettes don't appear for regular users
+                    console.log('📦 Force refreshing public cassettes on panel open');
                     
-                    const shouldForceRefresh = cacheAgeMs > CACHE_MAX_AGE_MS;
-                    
-                    console.log(`📦 Cache age: ${Math.round(cacheAgeMs / 1000)}s, force refresh: ${shouldForceRefresh}`);
-                    
-                    window.pomodoroTimer.loadPublicCassettes(shouldForceRefresh).catch(err => {
+                    window.pomodoroTimer.loadPublicCassettes(true).catch(err => {
                         console.error('Error loading public vibes:', err);
                     });
                 }
