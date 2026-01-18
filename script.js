@@ -2942,81 +2942,115 @@ class PomodoroTimer {
     }
     
     async loadLeaderboardForModal(page = 1) {
-        const leaderboardContent = document.getElementById('leaderboardModalContent');
-        if (!leaderboardContent) return;
-        
-        // Check if user is authenticated
-        if (!this.isAuthenticated) {
-            leaderboardContent.innerHTML = `
-                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    Please log in to view the leaderboard.
-                </div>
-            `;
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            const leaderboardContent = document.getElementById('leaderboardModalContent');
+            if (leaderboardContent) {
+                leaderboardContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Please log in to view the leaderboard.
+                    </div>
+                `;
+            }
             return;
         }
-        
-        // Use the existing loadLeaderboardForPanel function but target the modal content
-        // We'll create a wrapper that uses the same logic but renders in modal
-        const hoursEarnedSinceCache = this.getTotalFocusHours() - (this.leaderboardCachedAtHours || 0);
-        const activityWindowDays = 7;
-        const shouldInvalidateCache = hoursEarnedSinceCache >= (1 / 60); // 1 minute = 1/60 hours
-        
+
+        const leaderboardContent = document.getElementById('leaderboardModalContent');
+        if (!leaderboardContent) return;
+
+        // Get current user's total hours
+        const stats = this.getFocusStats();
+        const currentTotalHours = stats.totalHours || 0;
+
         // Check if we have cached leaderboard data for this specific page
         const cachedData = this.leaderboardCache[page];
         const cachedTotalHours = this.leaderboardCachedAtHours || 0;
-        
-        if (shouldInvalidateCache) {
+
+        // Calculate if user has earned at least 1 minute (0.0167 hours) since last cache
+        const hoursEarnedSinceCache = currentTotalHours - cachedTotalHours;
+        const needsRefresh = hoursEarnedSinceCache >= (1 / 60); // 1 minute = 1/60 hours
+
+        // If user earned 1+ minute, clear ALL page caches (position may have changed)
+        if (needsRefresh) {
             console.log(`🗑️ Clearing all leaderboard page caches (earned ${(hoursEarnedSinceCache * 60).toFixed(1)} min)`);
             this.leaderboardCache = {};
             localStorage.removeItem('leaderboardCache');
             localStorage.removeItem('leaderboardCachedAtHours');
-        } else if (cachedData && cachedData.leaderboard) {
+        }
+
+        // If we have cache for this page and user hasn't earned 1+ minute, show cached data
+        if (cachedData && !needsRefresh) {
             console.log(`📦 Using cached leaderboard page ${page} (no new focus time earned)`);
+            console.log(`   Current: ${currentTotalHours.toFixed(2)}h, Cached at: ${cachedTotalHours.toFixed(2)}h, Diff: ${(hoursEarnedSinceCache * 60).toFixed(1)} min`);
+            
             this.displayLeaderboardInModal(
                 leaderboardContent, 
                 cachedData.leaderboard, 
-                cachedData.currentUserPosition,
+                cachedData.currentUserPosition, 
                 cachedData.pagination
             );
             return;
         }
-        
+
+        // Show loading state
         leaderboardContent.innerHTML = `
             <div style="padding: 24px; text-align: center; color: #a3a3a3;">
                 Loading leaderboard...
             </div>
         `;
-        
+
         console.log(`🔄 Fetching fresh leaderboard page ${page} from server...`);
-        
+        if (needsRefresh) {
+            console.log(`   Reason: Earned ${(hoursEarnedSinceCache * 60).toFixed(1)} minutes since last load`);
+        } else if (!cachedData) {
+            console.log(`   Reason: First time loading page ${page}`);
+        }
+
+        // Sync local stats to Clerk if they exist (one-time sync for existing users)
+        // Only sync on page 1 to avoid unnecessary calls
+        if (page === 1) {
+            if (stats.totalHours && stats.totalHours > 0) {
+                // Sync stats to ensure they're in Clerk (async, don't wait)
+                this.syncStatsToClerk(stats.totalHours);
+            }
+        }
+
         try {
             const response = await fetch(`/api/leaderboard?page=${page}&limit=100`, {
                 method: 'GET',
-                headers: this.user?.id ? {
+                headers: {
                     'x-clerk-userid': this.user.id
-                } : {}
+                }
             });
-            
+
             if (!response.ok) {
                 throw new Error('Failed to fetch leaderboard');
             }
-            
+
             const data = await response.json();
-            
             if (data.success && data.leaderboard) {
+                // Log debug info if available
                 if (data.debug) {
                     console.log('Leaderboard Debug:', data.debug);
                 }
-                
+
                 // Cache the leaderboard data for this page
-                const currentTotalHours = this.getTotalFocusHours();
                 this.leaderboardCache[page] = {
                     leaderboard: data.leaderboard,
                     currentUserPosition: data.currentUserPosition,
-                    pagination: data.pagination
+                    pagination: {
+                        page: data.page,
+                        totalPages: data.totalPages,
+                        totalUsers: data.totalUsers,
+                        hasMore: data.hasMore,
+                        activityWindowDays: data.activityWindowDays
+                    }
                 };
+                
+                // Update cached hours timestamp (shared across all pages)
                 this.leaderboardCachedAtHours = currentTotalHours;
                 
+                // Persist cache to localStorage (survives page reloads and browser close)
                 try {
                     localStorage.setItem('leaderboardCache', JSON.stringify(this.leaderboardCache));
                     localStorage.setItem('leaderboardCachedAtHours', currentTotalHours.toString());
@@ -3025,8 +3059,14 @@ class PomodoroTimer {
                 }
                 
                 console.log(`✅ Leaderboard page ${page} cached at ${currentTotalHours.toFixed(2)}h`);
-                
-                this.displayLeaderboardInModal(leaderboardContent, data.leaderboard, data.currentUserPosition, data.pagination);
+
+                this.displayLeaderboardInModal(leaderboardContent, data.leaderboard, data.currentUserPosition, {
+                    page: data.page,
+                    totalPages: data.totalPages,
+                    totalUsers: data.totalUsers,
+                    hasMore: data.hasMore,
+                    activityWindowDays: data.activityWindowDays
+                });
             } else {
                 leaderboardContent.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: #a3a3a3;">
@@ -3043,186 +3083,192 @@ class PomodoroTimer {
             `;
         }
     }
-    
+
     displayLeaderboardInModal(containerElement, leaderboard, currentUserPosition, pagination = null) {
-        // Use the same display logic as displayLeaderboardInPanel but for modal
-        // We can reuse most of the logic from displayLeaderboardInPanel
-        if (!containerElement) return;
-        
-        const activityWindowDays = 7;
-        const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
-        
-        // Clear container
-        containerElement.innerHTML = '';
-        
-        // Header with total users
-        const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
-        const headerDiv = document.createElement('div');
-        headerDiv.style.marginBottom = '16px';
-        headerDiv.style.paddingBottom = '16px';
-        headerDiv.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
-        headerDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
-                    ${currentUserPosition ? `You're ranked #${currentUserPosition} of ${totalUsersText}` : `Top ${totalUsersText} users`}
-                </span>
-            </div>
-        `;
-        containerElement.appendChild(headerDiv);
-        
-        // Show message if user hasn't logged focus time
-        if (!currentUserPosition) {
-            const messageDiv = document.createElement('div');
-            messageDiv.style.padding = '16px';
-            messageDiv.style.textAlign = 'center';
-            messageDiv.style.color = 'rgba(255, 255, 255, 0.6)';
-            messageDiv.style.fontSize = '14px';
-            messageDiv.textContent = `You haven't logged focus time in the last ${activityWindowDays} ${dayLabel}. Start a session to rejoin the leaderboard.`;
-            containerElement.appendChild(messageDiv);
-            return;
+        // Find current user's stats
+        const stats = this.getFocusStats();
+        const totalHours = stats.totalHours || 0;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+        const userTimeString = `${hours}h ${minutes}m`;
+
+        let html = '';
+
+        // Header with user position
+        if (currentUserPosition) {
+            const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
+            html += `
+                <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                    <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
+                    <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} total users</div>
+                </div>
+            `;
         }
-        
+
+        const activityWindowDays = pagination?.activityWindowDays;
+        if (activityWindowDays) {
+            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
+            html += `
+                <div style="padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border-radius: 12px; margin-bottom: 16px; color: #a3a3a3; font-size: 12px;">
+                    Showing users active in the last ${activityWindowDays} ${dayLabel}.
+                </div>
+            `;
+
+            if (!currentUserPosition && totalHours > 0) {
+                html += `
+                    <div style="padding: 12px 16px; background: rgba(234, 179, 8, 0.1); border-radius: 12px; margin-bottom: 16px; color: #facc15; font-size: 12px; border: 1px solid rgba(234, 179, 8, 0.2);">
+                        You haven't logged focus time in the last ${activityWindowDays} ${dayLabel}. Start a session to rejoin the leaderboard.
+                    </div>
+                `;
+            }
+        }
+
         // Leaderboard list
         const topUsers = leaderboard;
-        const leaderboardList = document.createElement('div');
-        leaderboardList.style.display = 'flex';
-        leaderboardList.style.flexDirection = 'column';
-        leaderboardList.style.gap = '8px';
+        const currentPage = pagination?.page || 1;
+        const totalPages = pagination?.totalPages || 1;
+        const pageSize = pagination?.pageSize || 100;
+        const startRank = (currentPage - 1) * pageSize + 1;
         
         if (topUsers.length === 0) {
-            leaderboardList.innerHTML = `
-                <div style="padding: 24px; text-align: center; color: rgba(255, 255, 255, 0.6);">
-                    No users found.
+            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
+            html += `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    ${activityWindowDays ? `No users have been active in the last ${activityWindowDays} ${dayLabel}.` : 'No users yet. Be the first!'}
                 </div>
             `;
         } else {
-            topUsers.forEach((user, index) => {
-                const rank = (pagination?.currentPage ? (pagination.currentPage - 1) * (pagination.limit || 100) : 0) + index + 1;
-                const isCurrentUser = this.user?.id && user.userId === this.user.id;
+            html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            html += topUsers.map((user, index) => {
+                const isCurrentUser = user.isCurrentUser;
                 const isPremium = user.isPremium === true;
+                const userHours = Math.floor(user.totalFocusHours);
+                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
+                const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
-                const userRow = document.createElement('div');
-                userRow.style.display = 'flex';
-                userRow.style.alignItems = 'center';
-                userRow.style.justifyContent = 'space-between';
-                userRow.style.padding = '12px 16px';
-                userRow.style.borderRadius = '8px';
-                userRow.style.background = isCurrentUser ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
-                userRow.style.border = isCurrentUser ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid transparent';
+                const globalRank = startRank + index;
                 
-                const leftSection = document.createElement('div');
-                leftSection.style.display = 'flex';
-                leftSection.style.alignItems = 'center';
-                leftSection.style.gap = '12px';
-                leftSection.style.flex = '1';
-                
-                // Rank
-                const rankSpan = document.createElement('span');
-                rankSpan.style.minWidth = '32px';
-                rankSpan.style.textAlign = 'center';
-                rankSpan.style.fontWeight = '600';
-                rankSpan.style.color = rank <= 3 ? '#ffd700' : 'rgba(255, 255, 255, 0.7)';
-                rankSpan.textContent = `#${rank}`;
-                leftSection.appendChild(rankSpan);
-                
-                // User info
-                const userInfoDiv = document.createElement('div');
-                userInfoDiv.style.display = 'flex';
-                userInfoDiv.style.alignItems = 'center';
-                userInfoDiv.style.gap = '8px';
-                userInfoDiv.style.flex = '1';
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.style.color = isCurrentUser ? '#fff' : 'rgba(255, 255, 255, 0.9)';
-                nameSpan.style.fontWeight = isCurrentUser ? '600' : '400';
-                nameSpan.textContent = user.username || user.email || 'Anonymous';
-                userInfoDiv.appendChild(nameSpan);
-                
-                // Premium badge
-                if (isPremium) {
-                    const premiumBadge = document.createElement('span');
-                    premiumBadge.innerHTML = '👑';
-                    premiumBadge.title = 'Premium User';
-                    premiumBadge.style.fontSize = '14px';
-                    userInfoDiv.appendChild(premiumBadge);
-                }
-                
-                // Current user indicator
-                if (isCurrentUser) {
-                    const youBadge = document.createElement('span');
-                    youBadge.textContent = '(You)';
-                    youBadge.style.color = 'rgba(255, 255, 255, 0.6)';
-                    youBadge.style.fontSize = '12px';
-                    userInfoDiv.appendChild(youBadge);
-                }
-                
-                leftSection.appendChild(userInfoDiv);
-                userRow.appendChild(leftSection);
-                
-                // Hours
-                const hoursSpan = document.createElement('span');
-                hoursSpan.style.color = 'rgba(255, 255, 255, 0.8)';
-                hoursSpan.style.fontWeight = '600';
-                hoursSpan.textContent = `${user.totalFocusHours.toFixed(1)}h`;
-                userRow.appendChild(hoursSpan);
-                
-                leaderboardList.appendChild(userRow);
-            });
+                // Premium crown badge - shown after rank number for Premium users
+                const premiumCrown = isPremium ? `
+                    <span 
+                        style="
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-left: 8px;
+                            cursor: help;
+                            position: relative;
+                        "
+                        title="Premium Member"
+                        class="premium-crown-badge"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
+                            <path d="M5 21h14"/>
+                        </svg>
+                    </span>
+                ` : '';
+
+                return `
+                    <div style="
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                        border-radius: 8px;
+                        border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
+                        position: relative;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; min-width: 60px;">
+                                <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
+                                ${premiumCrown}
+                            </div>
+                            <span style="
+                                color: ${isCurrentUser ? '#22c55e' : '#fff'}; 
+                                font-size: 14px; 
+                                font-weight: ${isCurrentUser ? '600' : '500'}; 
+                                overflow: hidden; 
+                                text-overflow: ellipsis; 
+                                white-space: nowrap;
+                            ">
+                                ${this.escapeHtml(user.username)}
+                            </span>
+                        </div>
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
+                    </div>
+                `;
+            }).join('');
+            html += '</div>';
         }
-        
-        containerElement.appendChild(leaderboardList);
-        
-        // Pagination
-        if (pagination && (pagination.currentPage > 1 || pagination.hasNextPage)) {
-            const paginationDiv = document.createElement('div');
-            paginationDiv.style.display = 'flex';
-            paginationDiv.style.justifyContent = 'space-between';
-            paginationDiv.style.alignItems = 'center';
-            paginationDiv.style.marginTop = '16px';
-            paginationDiv.style.paddingTop = '16px';
-            paginationDiv.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
+
+        // Pagination controls (only show if there are more than 100 users)
+        if (pagination && totalPages > 1) {
+            html += `
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <button 
+                        id="leaderboardModalPrevPage" 
+                        style="
+                            padding: 8px 16px;
+                            background: ${currentPage > 1 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                            color: ${currentPage > 1 ? '#fff' : '#666'};
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            cursor: ${currentPage > 1 ? 'pointer' : 'not-allowed'};
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s;
+                            ${currentPage > 1 ? '' : 'opacity: 0.5;'}
+                        "
+                        ${currentPage > 1 ? '' : 'disabled'}
+                    >
+                        ← Previous
+                    </button>
+                    <div style="color: #a3a3a3; font-size: 14px;">
+                        Page ${currentPage} of ${totalPages}
+                    </div>
+                    <button 
+                        id="leaderboardModalNextPage" 
+                        style="
+                            padding: 8px 16px;
+                            background: ${currentPage < totalPages ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                            color: ${currentPage < totalPages ? '#fff' : '#666'};
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-radius: 8px;
+                            cursor: ${currentPage < totalPages ? 'pointer' : 'not-allowed'};
+                            font-size: 14px;
+                            font-weight: 500;
+                            transition: all 0.2s;
+                            ${currentPage < totalPages ? '' : 'opacity: 0.5;'}
+                        "
+                        ${currentPage < totalPages ? '' : 'disabled'}
+                    >
+                        Next →
+                    </button>
+                </div>
+            `;
+        }
+
+        containerElement.innerHTML = html;
+
+        // Add event listeners for pagination buttons
+        if (pagination && totalPages > 1) {
+            const prevBtn = document.getElementById('leaderboardModalPrevPage');
+            const nextBtn = document.getElementById('leaderboardModalNextPage');
             
-            const prevBtn = document.createElement('button');
-            prevBtn.textContent = '← Previous';
-            prevBtn.style.padding = '8px 16px';
-            prevBtn.style.borderRadius = '6px';
-            prevBtn.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            prevBtn.style.background = 'transparent';
-            prevBtn.style.color = 'rgba(255, 255, 255, 0.9)';
-            prevBtn.style.cursor = pagination.currentPage > 1 ? 'pointer' : 'not-allowed';
-            prevBtn.style.opacity = pagination.currentPage > 1 ? '1' : '0.5';
-            prevBtn.disabled = pagination.currentPage <= 1;
-            prevBtn.addEventListener('click', () => {
-                if (pagination.currentPage > 1) {
-                    this.loadLeaderboardForModal(pagination.currentPage - 1);
-                }
-            });
+            if (prevBtn && currentPage > 1) {
+                prevBtn.addEventListener('click', () => {
+                    this.loadLeaderboardForModal(currentPage - 1);
+                });
+            }
             
-            const pageInfo = document.createElement('span');
-            pageInfo.style.color = 'rgba(255, 255, 255, 0.7)';
-            pageInfo.style.fontSize = '14px';
-            pageInfo.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages || 1}`;
-            
-            const nextBtn = document.createElement('button');
-            nextBtn.textContent = 'Next →';
-            nextBtn.style.padding = '8px 16px';
-            nextBtn.style.borderRadius = '6px';
-            nextBtn.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            nextBtn.style.background = 'transparent';
-            nextBtn.style.color = 'rgba(255, 255, 255, 0.9)';
-            nextBtn.style.cursor = pagination.hasNextPage ? 'pointer' : 'not-allowed';
-            nextBtn.style.opacity = pagination.hasNextPage ? '1' : '0.5';
-            nextBtn.disabled = !pagination.hasNextPage;
-            nextBtn.addEventListener('click', () => {
-                if (pagination.hasNextPage) {
-                    this.loadLeaderboardForModal(pagination.currentPage + 1);
-                }
-            });
-            
-            paginationDiv.appendChild(prevBtn);
-            paginationDiv.appendChild(pageInfo);
-            paginationDiv.appendChild(nextBtn);
-            containerElement.appendChild(paginationDiv);
+            if (nextBtn && currentPage < totalPages) {
+                nextBtn.addEventListener('click', () => {
+                    this.loadLeaderboardForModal(currentPage + 1);
+                });
+            }
         }
     }
     
