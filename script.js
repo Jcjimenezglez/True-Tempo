@@ -16059,12 +16059,12 @@ class PomodoroTimer {
         // Initialize metadata extraction listeners
         this.initializeCassetteMetadataExtraction();
         
-        // Load and render custom vibes (only Pro users have custom vibes to load)
+        // Load and render custom cassettes (only Pro users have custom cassettes to load)
         if (this.isPremiumUser()) {
             this.loadCustomCassettes();
         }
         
-        // Load and render public vibes (for all users, with restriction for Guest)
+        // Load and render public cassettes (for all users, with restriction for Guest)
         // Moved to openImmersiveThemePanel to ensure refresh on open
         // this.loadPublicCassettes(false);
         
@@ -16093,6 +16093,8 @@ class PomodoroTimer {
         if (saveCassetteBtn) {
             // Remove existing listeners by cloning
             const newSaveBtn = saveCassetteBtn.cloneNode(true);
+            // CRITICAL: Clear any leftover editingId from previous clone
+            delete newSaveBtn.dataset.editingId;
             saveCassetteBtn.parentNode.replaceChild(newSaveBtn, saveCassetteBtn);
             
             newSaveBtn.addEventListener('click', async (e) => {
@@ -16105,6 +16107,7 @@ class PomodoroTimer {
                 }
                 
                 const cassetteId = newSaveBtn.dataset.editingId || null;
+                console.log('💾 Save button clicked, editingId:', cassetteId);
                 await this.saveCassetteFromForm(cassetteId);
             });
         }
@@ -17030,21 +17033,33 @@ class PomodoroTimer {
             // Check if this is a new cassette (not editing existing)
             const isNewCassette = existingIndex < 0;
             
+            console.log('💾 saveCustomCassette called:', {
+                cassetteId: cassette.id,
+                cassetteTitle: cassette.title,
+                isNewCassette: isNewCassette,
+                existingIndex: existingIndex,
+                currentCassettesCount: cassettes.length,
+                currentCassettes: cassettes.map(c => ({ id: c.id, title: c.title }))
+            });
+            
             // Free users can only have 1 cassette (unlimited for Premium)
             if (isNewCassette && !this.isPremiumUser()) {
                 const currentCassetteCount = cassettes.length;
                 if (currentCassetteCount >= 1) {
-                    alert('Free users can create up to 1 custom vibe. Upgrade to Premium to create unlimited vibes.');
+                    alert('Free users can create up to 1 custom cassette. Upgrade to Premium to create unlimited cassettes.');
                     throw new Error('Cassette limit reached for free users');
                 }
             }
             
             if (existingIndex >= 0) {
+                console.log('📝 Updating existing cassette at index:', existingIndex);
                 cassettes[existingIndex] = cassette;
             } else {
+                console.log('➕ Adding new cassette to array');
                 cassettes.push(cassette);
             }
             
+            console.log('💾 Saving cassettes to localStorage:', cassettes.map(c => ({ id: c.id, title: c.title })));
             localStorage.setItem('customCassettes', JSON.stringify(cassettes));
             
             // Sync public vibes to Clerk when authenticated
@@ -17071,7 +17086,7 @@ class PomodoroTimer {
             
             return cassette;
         } catch (error) {
-            console.error('Error saving custom vibe:', error);
+            console.error('Error saving custom cassette:', error);
             throw error;
         }
     }
@@ -17132,7 +17147,7 @@ class PomodoroTimer {
                 console.error('Error reloading public vibes after deletion:', err);
             });
         } catch (error) {
-            console.error('Error deleting custom vibe:', error);
+            console.error('Error deleting custom cassette:', error);
         }
     }
 
@@ -17566,7 +17581,7 @@ class PomodoroTimer {
                     reason: 'vibe_limit_reached'
                 });
                 
-                this.showCassetteProModal('You\'ve reached your free limit of 1 custom vibe. Upgrade to Premium to create unlimited vibes and personalize your focus environment.');
+                this.showCassetteProModal('You\'ve reached your free limit of 1 custom cassette. Upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
                 return;
             }
             // Free user can create their first cassette - continue to form
@@ -17795,7 +17810,12 @@ class PomodoroTimer {
         const spotifyUrl = spotifyUrlEl ? (spotifyUrlEl.value || spotifyUrlEl.textContent || '').trim() : '';
         const isPublic = isPublicCheckbox ? isPublicCheckbox.checked : false;
         
-        console.log('💾 Saving cassette - Title value:', title, 'Title length:', title.length, 'Editing:', !!cassetteId, 'TitleEl:', titleEl, 'Value:', titleEl?.value);
+        console.log('💾 Saving cassette:', { 
+            title: title, 
+            cassetteId: cassetteId, 
+            isEditing: !!cassetteId,
+            formData: { title, description, imageUrl: imageUrl?.substring(0, 50), spotifyUrl: spotifyUrl?.substring(0, 50), isPublic }
+        });
         
         // Validate title (only required field)
         if (!title || title.trim().length === 0) {
@@ -17846,9 +17866,14 @@ class PomodoroTimer {
                 const hasImageExtension = imageExtensions.some(ext => urlWithoutQuery.endsWith(ext));
                 
                 if (!hasImageExtension) {
-                    alert('⚠️ Error: The URL you provided is not a direct image URL.\n\n📝 How to get the correct URL from Google Images:\n1. Right-click directly on the IMAGE (not the link)\n2. Select "Copy image address" or "Copy image URL"\n3. The URL should end with .jpg, .png, .gif, etc.\n4. Paste that URL instead\n\n⚠️ DO NOT use "Copy link address" - that gives you a redirect link.\n\nAlternatively, use image hosting services:\n- Imgur (imgur.com)\n- Unsplash (unsplash.com)\n- Pexels (pexels.com)\n- Upload to Imgur and use the direct image URL');
-                    if (imageUrlEl) imageUrlEl.focus();
-                    return false;
+                    // Show warning but allow user to continue
+                    const proceed = confirm('⚠️ Warning: This might not be a direct image URL.\n\nThe image might not display correctly.\n\n💡 Tip: Right-click the image and select "Copy image address"\n\nDo you want to save anyway?');
+                    if (!proceed) {
+                        if (imageUrlEl) imageUrlEl.focus();
+                        return false;
+                    }
+                    // User chose to proceed - continue with save
+                    console.log('⚠️ User chose to save with potentially invalid image URL:', imageUrl);
                 }
             }
         }
@@ -18142,7 +18167,7 @@ class PomodoroTimer {
                 }
                 
                 // Track event
-                this.trackEvent('Custom Vibe Created', {
+                this.trackEvent('Custom Cassette Created', {
                     feature: 'custom_cassettes',
                     cassette_title: cassette.title,
                     has_image: !!cassette.imageUrl,

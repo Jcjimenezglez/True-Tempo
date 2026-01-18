@@ -403,7 +403,7 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                 </div>
-                <div class="nav-item" data-section="immersive-theme" data-tooltip="Vibes">
+                <div class="nav-item" data-section="immersive-theme" data-tooltip="Cassettes">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-boom-box-icon lucide-boom-box">
                         <path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
                         <path d="M8 8v1"/>
@@ -896,7 +896,7 @@
         </button>
         <div class="task-side-panel-content">
             <div class="tasks-header">
-                <h3>Vibes</h3>
+                <h3>Cassettes</h3>
                 <p class="tasks-subtitle">Choose your focus experience</p>
             </div>
             
@@ -907,21 +907,21 @@
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input type="text" id="cassetteSearchInput" placeholder="Search vibes by title or description...">
+                    <input type="text" id="cassetteSearchInput" placeholder="Search cassettes by title or description...">
                 </div>
             </div>
             
-            <!-- Create Vibe Section (Pro Only) -->
+            <!-- Create Cassette Section (Pro Only) -->
             <div id="createCassetteSection" style="display: none; margin-bottom: 0px;">
                 <button class="add-task-btn" id="createCassetteBtn" style="width: 100%;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 5v14"/>
                         <path d="M5 12h14"/>
                     </svg>
-                    Create vibe
+                    Create cassette
                 </button>
                 
-                <!-- Vibe Form (Hidden by default) -->
+                <!-- Cassette Form (Hidden by default) -->
                 <div class="custom-form" id="cassetteForm" style="display: none;">
                     <div class="custom-form-content">
                         <div class="custom-input-group">
@@ -948,7 +948,7 @@
                         </div>
                         
                         <div class="custom-input-group" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0;">
-                            <label for="cassetteIsPublic" style="margin: 0;">Public vibe</label>
+                            <label for="cassetteIsPublic" style="margin: 0;">Public cassette</label>
                             <div class="toggle-container">
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="cassetteIsPublic">
@@ -956,7 +956,7 @@
                                 </label>
                             </div>
                         </div>
-                        <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: -8px; margin-bottom: 0;">Share your vibe with the community and inspire others with your focus environment.</p>
+                        <p style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); margin-top: -8px; margin-bottom: 0;">Share your cassette with the community and inspire others with your focus environment.</p>
                         
                         <div class="custom-form-actions">
                             <button class="btn-cancel-custom" id="cancelCassetteBtn">Cancel</button>
@@ -965,15 +965,15 @@
                     </div>
                 </div>
                 
-                <!-- Custom Vibes List (Pro Only) - Rendered below Create button -->
+                <!-- Custom Cassettes List (Pro Only) - Rendered below Create button -->
                 <div id="customCassettesList" class="theme-options" style="margin-top: 16px; margin-bottom: 16px;">
-                    <!-- Custom vibes will be rendered here -->
+                    <!-- Custom cassettes will be rendered here -->
                 </div>
             </div>
             
             <!-- Theme Options -->
             <div class="settings-section" id="cassettePresetsSection">
-                <h4 class="section-title">Vibe presets</h4>
+                <h4 class="section-title">Cassette presets</h4>
                 <div class="theme-options">
                     <div class="theme-option" data-theme="simple">
                         <div class="theme-preview" style="background: #0a0a0a;"></div>
@@ -993,11 +993,11 @@
                 </div>
             </div>
             
-            <!-- Public Vibes Section -->
+            <!-- Public Cassettes Section -->
             <div class="settings-section" id="publicCassettesSection" style="display: none;">
-                <h4 class="section-title">Public Vibes</h4>
+                <h4 class="section-title">Public Cassettes</h4>
                 <div id="publicCassettesList" class="theme-options">
-                    <!-- Public vibes will be rendered here -->
+                    <!-- Public cassettes will be rendered here -->
                 </div>
             </div>
         </div>
