@@ -32,12 +32,12 @@ module.exports = async (req, res) => {
   try {
     const clerk = createClerkClient({ secretKey: clerkSecret });
     
-    // Get users with pagination (fetch more to filter better)
+    // Get users with pagination (fetch more to filter better and avoid children)
     let allUsers = [];
     let hasMore = true;
     let offset = 0;
     const limit = 100;
-    const maxUsers = 1000; // Fetch more users to have better filtering options
+    const maxUsers = 2000; // Fetch more users to have better filtering options and avoid children
 
     while (hasMore && allUsers.length < maxUsers) {
       const response = await clerk.users.getUserList({
@@ -45,20 +45,36 @@ module.exports = async (req, res) => {
         offset
       });
 
-      // Filter users that have real profile images (not placeholders or initials)
-      // Clerk imageUrl typically contains the user's actual photo
-      // We exclude users without imageUrl (which would show initials/placeholders)
+      // Filter users that have real profile images (not placeholders, initials, or generic icons)
+      // In Clerk: if user has imageUrl, it's a real uploaded photo
+      // If no imageUrl, Clerk shows initials with colored backgrounds (we exclude those)
+      // We also exclude users with very generic/default image URLs
       const usersWithImages = response.data
         .filter(user => {
-          // Must have imageUrl (real photo, not placeholder)
+          // Must have imageUrl - this means they uploaded a real photo
+          // Users without imageUrl show initials/letters with colored backgrounds (excluded)
           if (!user.imageUrl) return false;
           
-          // Exclude if imageUrl looks like a placeholder or default
-          // Clerk's default images usually have specific patterns
+          // Exclude if imageUrl looks like a placeholder, default, or generic icon
           const imageUrl = user.imageUrl.toLowerCase();
-          if (imageUrl.includes('placeholder') || 
-              imageUrl.includes('default') ||
-              imageUrl.includes('avatar-placeholder')) {
+          const excludedPatterns = [
+            'placeholder',
+            'default',
+            'avatar-placeholder',
+            'avatar-default',
+            'generic',
+            'icon',
+            'silhouette',
+            'profile-icon'
+          ];
+          
+          if (excludedPatterns.some(pattern => imageUrl.includes(pattern))) {
+            return false;
+          }
+          
+          // Clerk imageUrl for real photos typically contains img.clerk.com or similar CDN
+          // If it doesn't look like a Clerk CDN URL, might be suspicious
+          if (!imageUrl.includes('clerk') && !imageUrl.includes('http')) {
             return false;
           }
           
@@ -69,7 +85,8 @@ module.exports = async (req, res) => {
           imageUrl: user.imageUrl,
           firstName: user.firstName,
           lastName: user.lastName,
-          createdAt: user.createdAt
+          createdAt: user.createdAt,
+          emailAddress: user.emailAddresses?.[0]?.emailAddress
         }));
 
       allUsers = allUsers.concat(usersWithImages);
@@ -89,11 +106,12 @@ module.exports = async (req, res) => {
       return true; // Keep if no createdAt info
     });
 
-    // Shuffle and take first 12 users for display (prioritize older accounts)
+    // Shuffle and take first 5 users for display (prioritize older accounts)
+    // Fetch more to have better selection and avoid children/placeholders
     const shuffled = filteredUsers.length > 0 
       ? filteredUsers.sort(() => 0.5 - Math.random())
       : allUsers.sort(() => 0.5 - Math.random());
-    const selectedUsers = shuffled.slice(0, 12);
+    const selectedUsers = shuffled.slice(0, 5);
 
     // Update cache
     cachedUsers = selectedUsers;

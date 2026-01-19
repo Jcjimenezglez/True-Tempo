@@ -2660,20 +2660,39 @@
                 const photosGrid = document.getElementById('userPhotosGrid');
                 if (photosGrid) {
                     photosGrid.innerHTML = '';
-                    // Show up to 8 photos, filter out invalid images
-                    const photosToShow = usersData.users.slice(0, 12); // Get more to filter
+                    // Show up to 5 photos, filter out invalid images
+                    const photosToShow = usersData.users.slice(0, 5);
                     let validPhotosCount = 0;
-                    const maxPhotos = 8;
+                    const maxPhotos = 5;
                     
                     photosToShow.forEach(user => {
                         if (validPhotosCount >= maxPhotos) return;
                         
-                        // Validate image URL - must be a real URL, not placeholder
-                        if (!user.imageUrl || 
-                            user.imageUrl.includes('placeholder') ||
-                            user.imageUrl.includes('default-avatar') ||
-                            user.imageUrl.includes('initials')) {
+                        // Validate image URL - must be a real URL, not placeholder, letters, or generic icons
+                        if (!user.imageUrl) {
+                            return; // Skip users without imageUrl (these show letters/initials)
+                        }
+                        
+                        const imageUrl = user.imageUrl.toLowerCase();
+                        const excludedPatterns = [
+                            'placeholder',
+                            'default-avatar',
+                            'default',
+                            'initials',
+                            'avatar-placeholder',
+                            'generic',
+                            'icon',
+                            'silhouette',
+                            'profile-icon'
+                        ];
+                        
+                        if (excludedPatterns.some(pattern => imageUrl.includes(pattern))) {
                             return; // Skip this user
+                        }
+                        
+                        // Must be a real image URL (Clerk CDN or similar)
+                        if (!imageUrl.includes('http') && !imageUrl.includes('clerk')) {
+                            return; // Skip invalid URLs
                         }
                         
                         const img = document.createElement('img');
