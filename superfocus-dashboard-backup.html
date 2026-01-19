@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superfocus - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            color: #e5e5e5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            border-radius: 3px;
+            padding: 12px;
+        }
+
+        .stat-card.profit-positive {
+            border-color: #2d4a2d;
+        }
+
+        .stat-card.profit-negative {
+            border-color: #4a2d2d;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #fff;
+            font-family: 'SF Mono', 'Monaco', monospace;
+            margin-bottom: 8px;
+        }
+
+        .stat-value.profit-positive {
+            color: #4ade80;
+        }
+
+        .stat-value.profit-negative {
+            color: #f87171;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            color: #999;
+            font-size: 0.8rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            color: #fff;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        .week-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .week-tab {
+            padding: 8px 16px;
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            color: #666;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .week-tab.active {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #333;
+        }
+
+        .checklist {
+            margin-top: 12px;
+        }
+
+        .checklist-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checklist-item:hover {
+            border-color: #333;
+        }
+
+        .checklist-item.completed {
+            opacity: 0.5;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #333;
+            border-radius: 2px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox.checked {
+            background: #fff;
+            border-color: #fff;
+        }
+
+        .checklist-item strong {
+            color: #fff;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .checklist-item .action {
+            color: #e5e5e5;
+            font-weight: 500;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .checklist-item .detail {
+            color: #888;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-top: 4px;
+            padding-left: 0;
+        }
+
+        .checklist-item .highlight {
+            color: #fff;
+            background: #1a1a1a;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-weight: 500;
+        }
+
+        .checklist-item .warn {
+            color: #999;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 12px;
+            background: #1a1a1a;
+            border-left: 3px solid #fff;
+            border-radius: 3px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert.success {
+            border-left-color: #4ade80;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Superfocus Dashboard</h1>
+        <div class="subtitle" id="current-date"></div>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- Update Metrics -->
+        <div class="section">
+            <div class="section-title">Update Metrics</div>
+            
+            <div class="input-group">
+                <div>
+                    <label>Revenue ($)</label>
+                    <input type="number" id="input-revenue" value="0" min="0" oninput="updateRevenue()">
+                </div>
+                <div>
+                    <label>Google Ads ($)</label>
+                    <input type="number" id="input-ads" value="0" min="0" oninput="updateAds()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div>
+                    <label>Vercel ($)</label>
+                    <input type="number" id="input-vercel" value="20" min="0" oninput="updateVercel()">
+                </div>
+                <div>
+                    <label>Resend ($)</label>
+                    <input type="number" id="input-resend" value="20" min="0" oninput="updateResend()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div>
+                    <label>Cursor ($)</label>
+                    <input type="number" id="input-cursor" value="60" min="0" oninput="updateCursor()">
+                </div>
+                <div>
+                    <label>Other Costs ($)</label>
+                    <input type="number" id="input-other" value="0" min="0" oninput="updateOther()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="section">
+            <div class="section-title">Overview</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Revenue</div>
+                    <div class="stat-value" id="revenue">$0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Google Ads</div>
+                    <div class="stat-value" id="ads">$0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Vercel</div>
+                    <div class="stat-value" id="vercel">$20</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Resend</div>
+                    <div class="stat-value" id="resend">$20</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Cursor</div>
+                    <div class="stat-value" id="cursor">$60</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Other Costs</div>
+                    <div class="stat-value" id="other">$0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Total Costs</div>
+                    <div class="stat-value" id="total-costs">$100</div>
+                </div>
+
+                <div class="stat-card" id="profit-card">
+                    <div class="stat-label">Profit</div>
+                    <div class="stat-value" id="profit">-$100</div>
+                    <div class="status" id="profit-status">Break-even not reached</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketing Plan -->
+        <div class="section">
+            <div class="section-title">Marketing Plan</div>
+
+            <div class="week-tabs">
+                <div class="week-tab active" onclick="showWeek('all')">All Tasks (1-50)</div>
+            </div>
+
+            <div id="all" class="checklist">
+                <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem;">Complete these tasks in order. Take as long as you need on each one.</p>
+                
+                <!-- FOUNDATION: Landing + Twitter Setup -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 1: Optimize Twitter Bio</strong>
+                        <div class="action">1 clear line of who you are + what you build</div>
+                        <div class="detail">
+                            • Marc's formula: <span class="highlight">"[Role] building [Product] to [Benefit]"</span><br>
+                            • Example: "Developer building Superfocus to help people focus better"<br>
+                            • ❌ NO: "Entrepreneur | Hustler | Coffee lover ☕"<br>
+                            • Add link: superfocus.app<br>
+                            • Profile pic: Your face (not logo, people connect with people)<br>
+                            • Header: Superfocus screenshot or your stats<br>
+                            • <span class="warn">Start building audience NOW while doing other tasks</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 2: Write 10 Headlines</strong>
+                        <div class="action">"Too good to be true" variations to test</div>
+                        <div class="detail">
+                            • Formula: <span class="highlight">Promise + Emotional result</span><br>
+                            • Examples for Superfocus:<br>
+                            &nbsp;&nbsp;1. "Focus 10x better without distractions"<br>
+                            &nbsp;&nbsp;2. "The Pomodoro timer that actually works"<br>
+                            &nbsp;&nbsp;3. "Stop procrastinating, start achieving"<br>
+                            &nbsp;&nbsp;4. "The most beautiful timer for deep work"<br>
+                            • Write 10 in a Google Doc, save them
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 3: Memory Test</strong>
+                        <div class="action">Send to 5 friends, wait 24h, ask which they remember</div>
+                        <div class="detail">
+                            • Copy the 10 headlines and DM them to 5 friends<br>
+                            • No context, just the 10 lines<br>
+                            • <span class="warn">Wait full 24 hours</span><br>
+                            • <span class="highlight">DELETE the message</span><br>
+                            • Ask: "Which headline from yesterday do you remember?"<br>
+                            • Most mentioned = your official headline
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 4: Update Hero Section</strong>
+                        <div class="action">Implement winning headline + optimize CTA</div>
+                        <div class="detail">
+                            • Winning headline: <span class="highlight">48px, bold, -0.4px letter-spacing</span><br>
+                            • Put it above the fold (80% don't scroll - Marc)<br>
+                            • CTA button: <span class="highlight">Verb + Benefit</span><br>
+                            • ❌ NO: "Get Started" / "Sign Up"<br>
+                            • ✅ YES: "Start focusing now" / "Try Superfocus free"<br>
+                            • Timer screenshot visible WITHOUT scrolling
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 5: Simplify Onboarding</strong>
+                        <div class="action">Get to "aha moment" in 1-2 steps</div>
+                        <div class="detail">
+                            • Superfocus aha moment: <span class="highlight">See timer running + hear sounds</span><br>
+                            • Remove: Tutorials, password reset, invites, advanced config<br>
+                            • Flow: Signup → Email → Timer working<br>
+                            • Marc's rule: <span class="highlight">1 page = 1 step</span><br>
+                            • Test: Signup to timer in &lt;90 seconds
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 6: Twitter Content Strategy</strong>
+                        <div class="action">Define your 3 content pillars</div>
+                        <div class="detail">
+                            • Pillar 1: <span class="highlight">Building in public</span> (your process, bugs, wins)<br>
+                            • Pillar 2: <span class="highlight">Lessons learned</span> (marketing, code, life)<br>
+                            • Pillar 3: <span class="highlight">Product updates</span> (features, users, stats)<br>
+                            • 80/20 rule: 80% value/insights, 20% promotion<br>
+                            • Marc: "Tweet about the process, not just the result"<br>
+                            • <span class="highlight">Start tweeting 2-3x/day from now on</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 7: Record Demo Video</strong>
+                        <div class="action">60-90 seconds with Loom or QuickTime</div>
+                        <div class="detail">
+                            • Video structure:<br>
+                            &nbsp;&nbsp;1. (10s) "Hi, I'm Julio. This is Superfocus"<br>
+                            &nbsp;&nbsp;2. (20s) "I made it because [personal problem]"<br>
+                            &nbsp;&nbsp;3. (40s) Demo: Click → timer → sounds → pause<br>
+                            • <span class="warn">NO fancy production</span> - simple and authentic<br>
+                            • Upload to YouTube as "Unlisted"<br>
+                            • Copy link for Reddit
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 8: Configure ?ref=reddit</strong>
+                        <div class="action">Create no-pricing version for r/InternetIsBeautiful</div>
+                        <div class="detail">
+                            • Create: superfocus.app<span class="highlight">?ref=reddit</span><br>
+                            • This route → Hide pricing, only "Try Free"<br>
+                            • Why: <span class="warn">r/InternetIsBeautiful NO ads allowed</span><br>
+                            • Marc's tip: After launch you can reactivate pricing<br>
+                            • Post will get banned but you already got the traffic
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 9: Twitter - Follow 50 Strategic Accounts</strong>
+                        <div class="action">Follow relevant people in your niche</div>
+                        <div class="detail">
+                            • Who to follow:<br>
+                            &nbsp;&nbsp;1. <span class="highlight">Indie hackers</span> (@levelsio, @marc_louvion, @shipfa_st)<br>
+                            &nbsp;&nbsp;2. <span class="highlight">Your niche</span> (productivity tools, Pomodoro users)<br>
+                            &nbsp;&nbsp;3. <span class="highlight">Potential users</span> (developers, students)<br>
+                            • Strategy: Reply to their tweets with value<br>
+                            • If reply good → they might retweet your content<br>
+                            • <span class="warn">NO mass follow/unfollow</span> - obvious spam
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 10: First Tweet - Build in Public</strong>
+                        <div class="action">Announce you're building Superfocus publicly</div>
+                        <div class="detail">
+                            • Template:<br>
+                            &nbsp;&nbsp;"Lost my job. Building Superfocus in public.<br>
+                            &nbsp;&nbsp;A Pomodoro timer to help people focus.<br>
+                            &nbsp;&nbsp;Day 1: [what you did today]<br>
+                            &nbsp;&nbsp;Follow along 👇"<br>
+                            • <span class="highlight">Pin this tweet</span><br>
+                            • From now on: Tweet daily progress
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FIRST LAUNCHES: Reddit -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 11: Reddit r/SideProject Launch</strong>
+                        <div class="action">First launch - ad-friendly and welcoming</div>
+                        <div class="detail">
+                            • Go to reddit.com/r/SideProject<br>
+                            • Create post: Link to video from Task 7<br>
+                            • Title: Winning headline from Task 3<br>
+                            • <span class="warn">NO superfocus.app link in title</span><br>
+                            • Post it<br>
+                            • IMMEDIATELY: First comment "Hey, I'm Julio. Link: superfocus.app"<br>
+                            • <span class="highlight">Be ONLINE 4 hours</span> on Reddit responding
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 12: Reddit Engagement</strong>
+                        <div class="action">Reply to every comment in &lt;30 minutes</div>
+                        <div class="detail">
+                            • Refresh r/SideProject every 30 min<br>
+                            • If they criticize: "Thanks for the feedback! Noted."<br>
+                            • If they ask: "Good question. [short answer]"<br>
+                            • If they praise: "Thank you! Means a lot."<br>
+                            • <span class="warn">DON'T sell, just genuinely converse</span><br>
+                            • Screenshot good comments for testimonials
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 13: Tweet Reddit Results</strong>
+                        <div class="action">Share your first launch results</div>
+                        <div class="detail">
+                            • Template:<br>
+                            &nbsp;&nbsp;"Launched Superfocus on Reddit today.<br>
+                            &nbsp;&nbsp;Results: X upvotes, Y visitors<br>
+                            &nbsp;&nbsp;Here's what I learned: [2-3 insights]"<br>
+                            • Include screenshot of Reddit post<br>
+                            • <span class="highlight">Build in public = content</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 14: Twitter Daily Engagement (Start Routine)</strong>
+                        <div class="action">1 hour/day replying to others</div>
+                        <div class="detail">
+                            • Marc: <span class="highlight">"Engagement is the algorithm"</span><br>
+                            • Daily routine:<br>
+                            &nbsp;&nbsp;1. (15min) Reply to 10 tweets from founders you follow<br>
+                            &nbsp;&nbsp;2. (15min) Reply to 10 tweets in your niche (productivity/dev)<br>
+                            &nbsp;&nbsp;3. (15min) Reply to tweets with &lt;100 likes (less competition)<br>
+                            &nbsp;&nbsp;4. (15min) Post your content<br>
+                            • <span class="warn">DON'T self-promo in replies</span><br>
+                            • Give genuine value, people will check your profile<br>
+                            • <span class="highlight">Do this EVERY day from now on</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 15: Reddit r/InternetIsBeautiful</strong>
+                        <div class="action">The subreddit that gave Marc 47K visitors</div>
+                        <div class="detail">
+                            • Title: <span class="highlight">"I made a site to stay focused with a Pomodoro timer"</span><br>
+                            • Direct link: superfocus.app<span class="highlight">?ref=reddit</span><br>
+                            • <span class="warn">❌ NO EMOJIS</span><br>
+                            • Post and monitor every 30min for first 4 hours<br>
+                            • If it rises: Wait 24h, then reactivate normal pricing<br>
+                            • Post will probably get banned, but you already got traffic
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 16: Hacker News Launch</strong>
+                        <div class="action">Launch in technical community</div>
+                        <div class="detail">
+                            • Go to news.ycombinator.com/submit<br>
+                            • Title: <span class="highlight">"Show HN: Superfocus - Pomodoro timer I made after losing my job"</span><br>
+                            • URL: superfocus.app<br>
+                            • <span class="warn">❌ NO EMOJIS</span><br>
+                            • Ideal timing: Tuesday or Wednesday 9am PST<br>
+                            • IMMEDIATELY: First comment<br>
+                            • "Hey HN, I'm Julio. Lost job, built this. Stack: [your tech]. Feedback welcome"<br>
+                            • Reply to EVERY comment
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 17: First Twitter Thread</strong>
+                        <div class="action">Write your story as a thread</div>
+                        <div class="detail">
+                            • Hook: "I lost my job. Built a SaaS in 1 week. Here's the story 🧵"<br>
+                            • 8-12 tweets:<br>
+                            &nbsp;&nbsp;1. The problem you faced<br>
+                            &nbsp;&nbsp;2. Why you built Superfocus<br>
+                            &nbsp;&nbsp;3. How you built it (tech stack)<br>
+                            &nbsp;&nbsp;4. Launches (Reddit, HN)<br>
+                            &nbsp;&nbsp;5. Current stats<br>
+                            &nbsp;&nbsp;6. What you learned<br>
+                            • Last tweet: "If you found this helpful, follow me @yourhandle"<br>
+                            • <span class="highlight">Pin this thread</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 18: Reddit r/Entrepreneur</strong>
+                        <div class="action">Vulnerable story, NO direct link</div>
+                        <div class="detail">
+                            • Title: "Lost my job, built a Pomodoro timer, here's what I learned"<br>
+                            • Post: Real story of 1 week building + fears<br>
+                            • <span class="warn">DON'T mention superfocus.app in post</span><br>
+                            • Wait for them to ask "what's the app?"<br>
+                            • THEN reply with link<br>
+                            • Marc: "Vulnerability = engagement"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 19: More Subreddits</strong>
+                        <div class="action">r/Productivity + r/GetStudying</div>
+                        <div class="detail">
+                            • <span class="highlight">Read RULES first</span> in each subreddit<br>
+                            • Use format that worked on r/SideProject<br>
+                            • Post on both same day<br>
+                            • Note in dashboard: visitors per each
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 20: Analyze Launch Results</strong>
+                        <div class="action">Which channel worked best?</div>
+                        <div class="detail">
+                            • Check Google Analytics: Which subreddit gave most traffic?<br>
+                            • What feedback repeats in comments?<br>
+                            • If 3+ people said same thing = change that<br>
+                            • Update landing if there's clear pattern<br>
+                            • Note learnings for product #2<br>
+                            • <span class="highlight">Tweet your findings as a thread</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCT HUNT PREP -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 21: Animated Logo GIF</strong>
+                        <div class="action">Create logo GIF for Product Hunt</div>
+                        <div class="detail">
+                            • Option A: Canva Pro (has animation templates)<br>
+                            • Option B: ezgif.com (free but more manual)<br>
+                            • Simple animation: Logo appears → small effect → loop<br>
+                            • <span class="highlight">1-2 second loop</span><br>
+                            • Export: Max 5MB<br>
+                            • Marc: "Few do this = you stand out"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 22: Product Hunt Tagline</strong>
+                        <div class="action">Write short and clear tagline</div>
+                        <div class="detail">
+                            • Max <span class="highlight">60 characters</span><br>
+                            • Must be understood by NON-technical people<br>
+                            • Examples:<br>
+                            &nbsp;&nbsp;- "Beautiful Pomodoro timer to help you focus"<br>
+                            &nbsp;&nbsp;- "Focus timer with ambient sounds"<br>
+                            • Avoid jargon: "Gamified productivity SaaS" ❌<br>
+                            • Test: Send to 3 friends "Do you understand what it does?"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 23: Screenshots Gallery</strong>
+                        <div class="action">5 images YouTube thumbnail style</div>
+                        <div class="detail">
+                            • Marc: <span class="highlight">"1 feature = 1 image. Zoom until you can't anymore"</span><br>
+                            • Text overlay: BENEFIT, not technical name<br>
+                            • ❌ "Settings panel" → ✅ "Customize your focus sessions"<br>
+                            • 5 screenshots:<br>
+                            &nbsp;&nbsp;1. Timer running (big, clean)<br>
+                            &nbsp;&nbsp;2. Ambient sounds (show options)<br>
+                            &nbsp;&nbsp;3. Stats (session graph)<br>
+                            &nbsp;&nbsp;4. Leaderboard (if you have)<br>
+                            &nbsp;&nbsp;5. Mobile version<br>
+                            • <span class="highlight">Tweet one screenshot as a teaser</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 24: First PH Comment</strong>
+                        <div class="action">Write with markdown + personal story</div>
+                        <div class="detail">
+                            • Exact template:<br><br>
+                            Hey Product Hunt! 👋<br><br>
+                            I'm Julio. Lost my job, built **[Superfocus](superfocus.app)** in 1 week.<br><br>
+                            The problem: [1 line of problem]<br><br>
+                            The solution: [1 line of what Superfocus does]<br><br>
+                            Would love your feedback!<br><br>
+                            • Use <span class="highlight">** ** for bold</span><br>
+                            • Link with [text](url) in markdown<br>
+                            • Save in doc to copy/paste on launch day
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 25: PH Badge on Landing</strong>
+                        <div class="action">Add widget before launch</div>
+                        <div class="detail">
+                            • Product Hunt gives official badge code<br>
+                            • Position: <span class="highlight">Fixed bottom-left corner</span><br>
+                            • On mobile: Smaller or hidden<br>
+                            • Link: To your Product Hunt page (you'll create tomorrow)<br>
+                            • Why: When you relaunch Reddit post-PH, badge gives credibility
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 26: Create PH Listing</strong>
+                        <div class="action">Upload everything to Product Hunt and schedule</div>
+                        <div class="detail">
+                            • Go to producthunt.com/posts/new<br>
+                            • Upload:<br>
+                            &nbsp;&nbsp;- Logo GIF (Task 21)<br>
+                            &nbsp;&nbsp;- Tagline (Task 22)<br>
+                            &nbsp;&nbsp;- 5 screenshots (Task 23)<br>
+                            &nbsp;&nbsp;- Link: superfocus.app<br>
+                            &nbsp;&nbsp;- Prepared first comment (Task 24)<br>
+                            • Schedule: <span class="highlight">Sunday 12:01am PST</span> (less competition)<br>
+                            • Marc: "Sunday for first launch"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 27: Pre-Launch Tweet</strong>
+                        <div class="action">Build anticipation on Twitter</div>
+                        <div class="detail">
+                            • 24h before launch tweet:<br>
+                            &nbsp;&nbsp;"Launching Superfocus on Product Hunt tomorrow 🚀<br>
+                            &nbsp;&nbsp;8-15 tweets<br>
+                            &nbsp;&nbsp;A Pomodoro timer I built in 1 week.<br>
+                            &nbsp;&nbsp;Would love your support!"<br>
+                            • Notify friends/community: "Launching on PH this Sunday"<br>
+                            • Prepare tweet with short video of timer<br>
+                            • <span class="warn">Block 12-16 hours on calendar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCT HUNT LAUNCH -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 28: 🚀 PRODUCT HUNT LAUNCH DAY</strong>
+                        <div class="action">100% present, reply to EVERYTHING</div>
+                        <div class="detail">
+                            • 12:01am PST: <span class="highlight">Launch goes live</span><br>
+                            • Post first comment NOW (copy/paste from Task 24)<br>
+                            • 0-4 hours: Reply to EVERY comment in &lt;30min<br>
+                            • 4 hours: Tweet with video + PH link<br>
+                            • 8 hours: Retweet your tweet<br>
+                            • <span class="warn">Be ONLINE 12-16 hours straight</span><br>
+                            • Constant engagement = PH algorithm favors you<br>
+                            • Marc: "More important than eating"<br>
+                            • <span class="highlight">Tweet updates every 4 hours with stats</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 29: Post-Launch Actions</strong>
+                        <div class="action">Capitalize on testimonials + social proof</div>
+                        <div class="detail">
+                            • Keep replying to PH comments<br>
+                            • Screenshot best PH comments<br>
+                            • Add to landing in "What people say" section<br>
+                            • If you got badge: Update hero with "#1 Product of the Day"<br>
+                            • <span class="highlight">Tweet final results thread:</span><br>
+                            &nbsp;&nbsp;- Total upvotes<br>
+                            &nbsp;&nbsp;- Ranking (#X product)<br>
+                            &nbsp;&nbsp;- Visitors<br>
+                            &nbsp;&nbsp;- Key learnings<br>
+                            • Pin this thread if it performs well
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 30: Re-launch Reddit with PH Badge</strong>
+                        <div class="action">Use PH momentum for credibility</div>
+                        <div class="detail">
+                            • r/SideProject new post:<br>
+                            • Title: "Launched Superfocus on Product Hunt yesterday, got #X"<br>
+                            • "Updated based on YOUR feedback. Here's what changed: [list 2-3 changes]"<br>
+                            • Link: superfocus.app (normal, with PH badge visible)<br>
+                            • People love before/after<br>
+                            • Reply to comments<br>
+                            • <span class="highlight">Tweet about the relaunch too</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GROWTH & OPTIMIZATION -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 31: Calculate $ Per Visitor</strong>
+                        <div class="action">THE metric Marc uses to decide</div>
+                        <div class="detail">
+                            • Calculate: <span class="highlight">Total Revenue ÷ Total Visitors</span><br>
+                            • Example: $150 revenue, 500 visitors = $0.30 per visitor<br>
+                            • Marc's benchmarks:<br>
+                            &nbsp;&nbsp;• $0.06 = Bad<br>
+                            &nbsp;&nbsp;• $0.30 = Decent<br>
+                            &nbsp;&nbsp;• $0.50+ = Good<br>
+                            &nbsp;&nbsp;• $0.93 = Excellent (ShipFast)<br>
+                            • Note in dashboard<br>
+                            • This decides your next step<br>
+                            • <span class="highlight">Tweet your $ per visitor as a learning</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 32: Setup Resend Email Sequence</strong>
+                        <div class="action">Email sequence for conversions</div>
+                        <div class="detail">
+                            • Create 3 automated emails:<br>
+                            &nbsp;&nbsp;1. Welcome (day 0): "Thanks for trying Superfocus"<br>
+                            &nbsp;&nbsp;2. Value (day 2): "Did you know [feature they don't know]?"<br>
+                            &nbsp;&nbsp;3. Upgrade (day 5): "Upgrade to unlock [benefit]"<br>
+                            • Marc (DataFast): Onboarding emails improve conversion<br>
+                            • Simple, personal, short template<br>
+                            • Test it yourself first
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 33: Start Google Ads ($10/day)</strong>
+                        <div class="action">Initial ads test</div>
+                        <div class="detail">
+                            • Google Ads → New campaign<br>
+                            • Keywords: "pomodoro timer" + "focus timer"<br>
+                            • Budget: <span class="highlight">$10/day max</span><br>
+                            • Ad copy: Winning headline from Task 3<br>
+                            • Landing: Optimized one (Task 4)<br>
+                            • Let it run 3 days before touching anything<br>
+                            • Goal: CAC &lt; $30<br>
+                            • <span class="highlight">Tweet about testing Google Ads</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 34: Twitter Screenshots Strategy</strong>
+                        <div class="action">Start posting visual results</div>
+                        <div class="detail">
+                            • Marc: "Screenshots get 3x more engagement"<br>
+                            • What to screenshot:<br>
+                            &nbsp;&nbsp;- Stripe dashboard ($X revenue)<br>
+                            &nbsp;&nbsp;- Google Analytics (visitors)<br>
+                            &nbsp;&nbsp;- Product Hunt badge<br>
+                            &nbsp;&nbsp;- Reddit post with upvotes<br>
+                            &nbsp;&nbsp;- User testimonials<br>
+                            • Tool: <span class="highlight">CleanShot X</span> or native screenshot<br>
+                            • Add text overlay with context<br>
+                            • <span class="warn">Blur sensitive info</span> (emails, IPs)<br>
+                            • <span class="highlight">Post 1-2 screenshots/week from now on</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 35: Analyze Google Ads (After 5 days)</strong>
+                        <div class="action">Is CAC viable?</div>
+                        <div class="detail">
+                            • Calculate: <span class="highlight">Total spent ÷ Conversions</span> = CAC<br>
+                            • If CAC &lt; $30: <span class="highlight">Increase to $15/day</span><br>
+                            • If CAC $30-50: Keep $10/day, optimize ad copy<br>
+                            • If CAC &gt; $50: <span class="warn">Pause ads, not viable</span><br>
+                            • Pause keywords that don't convert<br>
+                            • Double budget on winning keywords<br>
+                            • <span class="highlight">Tweet thread on your Google Ads learnings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 36: Twitter Milestones = Content</strong>
+                        <div class="action">Celebrate every win publicly</div>
+                        <div class="detail">
+                            • Celebrate publicly:<br>
+                            &nbsp;&nbsp;- First dollar: "$1 revenue 🎉"<br>
+                            &nbsp;&nbsp;- 10 users: "10 people using Superfocus!"<br>
+                            &nbsp;&nbsp;- Break-even: "Hit break-even. Here's the breakdown:"<br>
+                            &nbsp;&nbsp;- 100 followers: "100 followers! Thank you"<br>
+                            • Marc: <span class="highlight">"Small wins = relatable content"</span><br>
+                            • People follow the journey, every milestone matters<br>
+                            • Include screenshot whenever you can<br>
+                            • <span class="highlight">Make this a habit for every milestone</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 37: Strategic DMs (10/week)</strong>
+                        <div class="action">Build genuine relationships</div>
+                        <div class="detail">
+                            • Who to DM:<br>
+                            &nbsp;&nbsp;- Founders who reply to your tweets<br>
+                            &nbsp;&nbsp;- People who mention "productivity" in bio<br>
+                            &nbsp;&nbsp;- Indie hackers at your same stage<br>
+                            • Message: <span class="highlight">Max 3 lines</span><br>
+                            • Example:<br>
+                            &nbsp;&nbsp;"Hey [name], saw your tweet about [topic].<br>
+                            &nbsp;&nbsp;I'm building something related. Mind if I share?"<br>
+                            • <span class="warn">NO spam</span> - genuine connection first<br>
+                            • Goal: Build relationships, not sell<br>
+                            • <span class="highlight">Do 10 DMs every week from now on</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 38: Weekly Twitter Thread</strong>
+                        <div class="action">1 long thread every week about learnings</div>
+                        <div class="detail">
+                            • Topics to cover (rotate weekly):<br>
+                            &nbsp;&nbsp;- "How I built Superfocus in 1 week"<br>
+                            &nbsp;&nbsp;- "Google Ads mistakes I made ($X spent)"<br>
+                            &nbsp;&nbsp;- "Reddit launch strategy that got X visitors"<br>
+                            &nbsp;&nbsp;- "Product Hunt launch: What worked vs what didn't"<br>
+                            &nbsp;&nbsp;- "$ per visitor: Why it matters"<br>
+                            • Formula: 8-15 tweets, 1 complete idea per tweet<br>
+                            • Last tweet: "If helpful, follow @yourhandle for more"<br>
+                            • <span class="highlight">Update pinned tweet to best performing thread</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 39: PMF Decision Point</strong>
+                        <div class="action">Is there Product-Market Fit?</div>
+                        <div class="detail">
+                            • Marc: <span class="highlight">"If there's PMF, you'll know immediately"</span><br>
+                            • PMF checklist:<br>
+                            &nbsp;&nbsp;✅ $ per visitor &gt; $0.30<br>
+                            &nbsp;&nbsp;✅ Google Ads CAC &lt; $30<br>
+                            &nbsp;&nbsp;✅ People pay without push<br>
+                            &nbsp;&nbsp;✅ Enthusiastic comments<br>
+                            &nbsp;&nbsp;✅ They ask for features<br>
+                            • <span class="highlight">If 3+ checkmarks = YES PMF</span><br>
+                            • Tweet your decision + reasoning
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 40: Weekly Analytics Review</strong>
+                        <div class="action">Data-driven decisions every week</div>
+                        <div class="detail">
+                            • What to check in Twitter Analytics:<br>
+                            &nbsp;&nbsp;- <span class="highlight">Top tweet of the week</span> → Why did it work?<br>
+                            &nbsp;&nbsp;- Impressions vs Engagement rate<br>
+                            &nbsp;&nbsp;- What time/day had most reach<br>
+                            • Double down on what works:<br>
+                            &nbsp;&nbsp;- If "build in public" gets engagement → more of that<br>
+                            &nbsp;&nbsp;- If screenshots work → more screenshots<br>
+                            • <span class="warn">Remove what doesn't work</span><br>
+                            • Marc: "Data &gt; Feelings"<br>
+                            • <span class="highlight">Make this a Sunday routine</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IF PMF: GROWTH PATH -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 41: [IF PMF] Growth Mode</strong>
+                        <div class="action">Scale what's working</div>
+                        <div class="detail">
+                            • <span class="highlight">Only do this if Task 39 = YES PMF</span><br>
+                            • Actions:<br>
+                            &nbsp;&nbsp;- Increase Google Ads budget by 50%<br>
+                            &nbsp;&nbsp;- A/B test landing page (headlines, CTA)<br>
+                            &nbsp;&nbsp;- Ask best users for testimonials<br>
+                            &nbsp;&nbsp;- Build requested features<br>
+                            &nbsp;&nbsp;- Relaunch every 2 weeks (Marc: "Launch 100 times")<br>
+                            • Goal: <span class="highlight">Revenue &gt; Costs = Break-even</span><br>
+                            • Tweet weekly progress<br>
+                            • Once break-even: Consider product #2
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IF NO PMF: PIVOT PATH -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 42: [IF NO PMF] Rebrand Option</strong>
+                        <div class="action">Same product, different presentation</div>
+                        <div class="detail">
+                            • <span class="highlight">Only do this if Task 39 = NO PMF</span><br>
+                            • Change: Headline, colors, hero section<br>
+                            • Optional: New domain name<br>
+                            • <span class="warn">DON'T change the product code</span><br>
+                            • Marc: "MakeLanding → LandingAI. Same code, $35K sold"<br>
+                            • Go back to Task 2 with new headlines<br>
+                            • Relaunch on Reddit/PH/HN as "new product"<br>
+                            • Tweet the rebrand journey
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 43: [IF NO PMF] Reposition Option</strong>
+                        <div class="action">Same product, different audience</div>
+                        <div class="detail">
+                            • <span class="highlight">Alternative to Task 42 if rebrand doesn't feel right</span><br>
+                            • Change landing copy to talk to different segment<br>
+                            • Marc's DataFast example:<br>
+                            &nbsp;&nbsp;- Before: "Analytics tool" = 0.22% conversion<br>
+                            &nbsp;&nbsp;- After: "Revenue attribution tool" = 1.45% conversion<br>
+                            • For Superfocus:<br>
+                            &nbsp;&nbsp;- Generic: "Pomodoro timer for everyone"<br>
+                            &nbsp;&nbsp;- Niche: "Focus timer for developers" or "Study timer for students"<br>
+                            • <span class="highlight">Niche down = better conversion</span><br>
+                            • Tweet the repositioning strategy
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ONGOING TWITTER GROWTH -->
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 44: Twitter Goal - 1,000 Followers</strong>
+                        <div class="action">Realistic goal in 60-90 days</div>
+                        <div class="detail">
+                            • Marc's strategy for first 1K:<br>
+                            &nbsp;&nbsp;1. <span class="highlight">Post 2-3x/day consistently</span><br>
+                            &nbsp;&nbsp;2. <span class="highlight">Reply 20+ tweets/day</span> (Task 14)<br>
+                            &nbsp;&nbsp;3. <span class="highlight">1 thread/week</span> (Task 38)<br>
+                            &nbsp;&nbsp;4. <span class="highlight">Build in public daily</span><br>
+                            • Realistic timeline:<br>
+                            &nbsp;&nbsp;- Month 1: 0 → 200 followers<br>
+                            &nbsp;&nbsp;- Month 2: 200 → 500<br>
+                            &nbsp;&nbsp;- Month 3: 500 → 1,000<br>
+                            • <span class="warn">DON'T buy followers</span> - engagement dies<br>
+                            • After 1K: Organic growth accelerates<br>
+                            • Celebrate hitting 1K with a thread
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 45: Retweet with Commentary</strong>
+                        <div class="action">Add value to others' content</div>
+                        <div class="detail">
+                            • Find tweets about:<br>
+                            &nbsp;&nbsp;- Productivity tips<br>
+                            &nbsp;&nbsp;- Pomodoro technique<br>
+                            &nbsp;&nbsp;- Focus/deep work<br>
+                            • Quote tweet: <span class="highlight">Your opinion + how Superfocus solves it</span><br>
+                            • Example:<br>
+                            &nbsp;&nbsp;Original tweet: "Pomodoro changed my life"<br>
+                            &nbsp;&nbsp;Your quote: "Same. That's why I built Superfocus - to make it beautiful + easy"<br>
+                            • <span class="warn">NO spam</span> - add real value<br>
+                            • Do 2-3 quote tweets per week
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 46: Twitter Build in Public Daily</strong>
+                        <div class="action">Document your journey every day</div>
+                        <div class="detail">
+                            • Simple formula:<br>
+                            &nbsp;&nbsp;"Building Superfocus - Day X:<br>
+                            &nbsp;&nbsp;- [1 thing you did]<br>
+                            &nbsp;&nbsp;- [1 thing you learned]<br>
+                            &nbsp;&nbsp;- [1 metric]"<br>
+                            • Real example:<br>
+                            &nbsp;&nbsp;"Day 47:<br>
+                            &nbsp;&nbsp;- Fixed onboarding bug<br>
+                            &nbsp;&nbsp;- Learned CAC &lt; $30 is key<br>
+                            &nbsp;&nbsp;- Revenue: $135 (+$15)"<br>
+                            • Marc: <span class="highlight">"Document, don't create"</span><br>
+                            • People follow the journey, not just the result<br>
+                            • <span class="highlight">Do this EVERY single day</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 47: Create Free Tool for Traffic</strong>
+                        <div class="action">Marc's strategy for organic growth</div>
+                        <div class="detail">
+                            • Build a simple free tool related to your niche:<br>
+                            • Ideas for Superfocus:<br>
+                            &nbsp;&nbsp;- "Pomodoro calculator" (how many sessions to finish X hours)<br>
+                            &nbsp;&nbsp;- "Focus time calculator" (based on goals)<br>
+                            &nbsp;&nbsp;- "Study session planner"<br>
+                            • Host at: superfocus.app/tools/[toolname]<br>
+                            • At bottom: "Made by Superfocus. Try the full timer →"<br>
+                            • Launch on Reddit/HN/PH separately<br>
+                            • Marc: "Free tools = SEO + backlinks + trust"<br>
+                            • <span class="highlight">Tweet the free tool launch</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 48: Re-launch Every 2 Weeks</strong>
+                        <div class="action">Marc: "Launch your startup 100 times"</div>
+                        <div class="detail">
+                            • Every 2 weeks, pick a new channel:<br>
+                            &nbsp;&nbsp;- Reddit (different subreddits)<br>
+                            &nbsp;&nbsp;- Product Hunt (as update/relaunch)<br>
+                            &nbsp;&nbsp;- Hacker News (Show HN with new feature)<br>
+                            &nbsp;&nbsp;- Indie Hackers<br>
+                            &nbsp;&nbsp;- Dev.to<br>
+                            • Each launch = new angle:<br>
+                            &nbsp;&nbsp;- "Added X feature"<br>
+                            &nbsp;&nbsp;- "Now supports Y"<br>
+                            &nbsp;&nbsp;- "Hit Z milestone"<br>
+                            • <span class="highlight">Every launch gets a Twitter thread</span><br>
+                            • Track which channels convert best
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 49: Product #2 Decision</strong>
+                        <div class="action">When to start next product</div>
+                        <div class="detail">
+                            • <span class="highlight">ONLY start product #2 if:</span><br>
+                            &nbsp;&nbsp;1. Superfocus revenue &gt; costs (break-even), OR<br>
+                            &nbsp;&nbsp;2. After 2 months without PMF (pivot with learnings)<br>
+                            • Marc: "Don't marry your idea"<br>
+                            • If PMF: Put Superfocus in maintenance mode (2-3 hrs/week)<br>
+                            • Reuse: Auth, payments, UI code from Superfocus<br>
+                            • Same process from Task 1 with new product<br>
+                            • Your Twitter audience = instant validation for product #2<br>
+                            • <span class="highlight">Tweet asking audience what to build next</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 50: Avoid Twitter Mistakes</strong>
+                        <div class="action">Anti-patterns that kill growth</div>
+                        <div class="detail">
+                            • ❌ <span class="warn">DON'T do:</span><br>
+                            &nbsp;&nbsp;1. "Check out my product" every tweet<br>
+                            &nbsp;&nbsp;2. Mass follow/unfollow<br>
+                            &nbsp;&nbsp;3. Reply "Great post!" without adding value<br>
+                            &nbsp;&nbsp;4. Copy/paste replies<br>
+                            &nbsp;&nbsp;5. Only post when launching something<br>
+                            &nbsp;&nbsp;6. Buy likes/followers<br>
+                            &nbsp;&nbsp;7. Fake engagement pods<br>
+                            • Marc: <span class="highlight">"Authenticity &gt; Growth hacks"</span><br>
+                            • Twitter detects fake engagement = shadowban<br>
+                            • Focus on genuine connections<br>
+                            • <span class="highlight">Keep this list visible and review monthly</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Landing Page Optimization</p>
+                
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 1: Write 10 Headlines</strong>
+                        <div class="action">"Too good to be true" variations to test</div>
+                        <div class="detail">
+                            • Formula: <span class="highlight">Promise + Emotional result</span><br>
+                            • Examples for Superfocus:<br>
+                            &nbsp;&nbsp;1. "Focus 10x better without distractions"<br>
+                            &nbsp;&nbsp;2. "The Pomodoro timer that actually works"<br>
+                            &nbsp;&nbsp;3. "Stop procrastinating, start achieving"<br>
+                            &nbsp;&nbsp;4. "The most beautiful timer for deep work"<br>
+                            • Write 10 in a Google Doc, save them
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 2: Memory Test</strong>
+                        <div class="action">Send to 5 friends, wait 24h, ask which they remember</div>
+                        <div class="detail">
+                            • Copy the 10 headlines and DM them to 5 friends<br>
+                            • No context, just the 10 lines<br>
+                            • <span class="warn">Wait full 24 hours</span><br>
+                            • <span class="highlight">DELETE the message</span><br>
+                            • Ask: "Which headline from yesterday do you remember?"<br>
+                            • Most mentioned = your official headline
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 3: Update Hero Section</strong>
+                        <div class="action">Implement winning headline + optimize CTA</div>
+                        <div class="detail">
+                            • Winning headline: <span class="highlight">48px, bold, -0.4px letter-spacing</span><br>
+                            • Put it above the fold (80% don't scroll - Marc)<br>
+                            • CTA button: <span class="highlight">Verb + Benefit</span><br>
+                            • ❌ NO: "Get Started" / "Sign Up"<br>
+                            • ✅ YES: "Start focusing now" / "Try Superfocus free"<br>
+                            • Timer screenshot visible WITHOUT scrolling
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 4: Simplify Onboarding</strong>
+                        <div class="action">Get to "aha moment" in 1-2 steps</div>
+                        <div class="detail">
+                            • Superfocus aha moment: <span class="highlight">See timer running + hear sounds</span><br>
+                            • Remove: Tutorials, password reset, invites, advanced config<br>
+                            • Flow: Signup → Email → Timer working<br>
+                            • Marc's rule: <span class="highlight">1 page = 1 step</span><br>
+                            • Test: Signup to timer in &lt;90 seconds
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 5: Record Demo Video</strong>
+                        <div class="action">60-90 seconds with Loom or QuickTime</div>
+                        <div class="detail">
+                            • Video structure:<br>
+                            &nbsp;&nbsp;1. (10s) "Hi, I'm Julio. This is Superfocus"<br>
+                            &nbsp;&nbsp;2. (20s) "I made it because [personal problem]"<br>
+                            &nbsp;&nbsp;3. (40s) Demo: Click → timer → sounds → pause<br>
+                            • <span class="warn">NO fancy production</span> - simple and authentic<br>
+                            • Upload to YouTube as "Unlisted"<br>
+                            • Copy link for Reddit
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 6: Configure ?ref=reddit</strong>
+                        <div class="action">Create no-pricing version for r/InternetIsBeautiful</div>
+                        <div class="detail">
+                            • Create: superfocus.app<span class="highlight">?ref=reddit</span><br>
+                            • This route → Hide pricing, only "Try Free"<br>
+                            • Why: <span class="warn">r/InternetIsBeautiful NO ads allowed</span><br>
+                            • Marc's tip: After launch you can reactivate pricing<br>
+                            • Post will get banned but you already got the traffic
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 7: Prepare Assets</strong>
+                        <div class="action">Copy formulas + clean screenshots ready</div>
+                        <div class="detail">
+                            • In a doc, copy your formulas:<br>
+                            &nbsp;&nbsp;- Reddit: "I made a site to [benefit]"<br>
+                            &nbsp;&nbsp;- First comment: "Hey, I'm Julio. Link: [url]. Feedback?"<br>
+                            • Clean screenshot of timer (no extra UI)<br>
+                            • <span class="highlight">Ready to launch</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+                <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Reddit Launches</p>
+                
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 8: Reddit r/SideProject</strong>
+                        <div class="action">First launch - ad-friendly and welcoming</div>
+                        <div class="detail">
+                            • Go to reddit.com/r/SideProject<br>
+                            • Create post: Link to video from Task 5<br>
+                            • Title: Winning headline from Task 2<br>
+                            • <span class="warn">NO superfocus.app link in title</span><br>
+                            • Post it<br>
+                            • IMMEDIATELY: First comment "Hey, I'm Julio. Link: superfocus.app"<br>
+                            • <span class="highlight">Be ONLINE 4 hours</span> on Reddit responding
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 9: Reddit Engagement</strong>
+                        <div class="action">Reply to every comment in &lt;30 minutes</div>
+                        <div class="detail">
+                            • Refresh r/SideProject every 30 min<br>
+                            • If they criticize: "Thanks for the feedback! Noted."<br>
+                            • If they ask: "Good question. [short answer]"<br>
+                            • If they praise: "Thank you! Means a lot."<br>
+                            • <span class="warn">DON'T sell, just genuinely converse</span><br>
+                            • Screenshot good comments for testimonials
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 10: Reddit r/InternetIsBeautiful</strong>
+                        <div class="action">The subreddit that gave Marc 47K visitors</div>
+                        <div class="detail">
+                            • Title: <span class="highlight">"I made a site to stay focused with a Pomodoro timer"</span><br>
+                            • Direct link: superfocus.app<span class="highlight">?ref=reddit</span><br>
+                            • <span class="warn">❌ NO EMOJIS</span><br>
+                            • Post and monitor every 30min for first 4 hours<br>
+                            • If it rises: Wait 24h, then reactivate normal pricing<br>
+                            • Post will probably get banned, but you already got traffic
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 11: Hacker News</strong>
+                        <div class="action">Launch in technical community</div>
+                        <div class="detail">
+                            • Go to news.ycombinator.com/submit<br>
+                            • Title: <span class="highlight">"Show HN: Superfocus - Pomodoro timer I made after losing my job"</span><br>
+                            • URL: superfocus.app<br>
+                            • <span class="warn">❌ NO EMOJIS</span><br>
+                            • Ideal timing: Tuesday or Wednesday 9am PST<br>
+                            • IMMEDIATELY: First comment<br>
+                            • "Hey HN, I'm Julio. Lost job, built this. Stack: [your tech]. Feedback welcome"<br>
+                            • Reply to EVERY comment
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 12: Reddit r/Entrepreneur</strong>
+                        <div class="action">Vulnerable story, NO direct link</div>
+                        <div class="detail">
+                            • Title: "Lost my job, built a Pomodoro timer, here's what I learned"<br>
+                            • Post: Real story of 1 week building + fears<br>
+                            • <span class="warn">DON'T mention superfocus.app in post</span><br>
+                            • Wait for them to ask "what's the app?"<br>
+                            • THEN reply with link<br>
+                            • Marc: "Vulnerability = engagement"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 13: More Subreddits</strong>
+                        <div class="action">r/Productivity + r/GetStudying</div>
+                        <div class="detail">
+                            • <span class="highlight">Read RULES first</span> in each subreddit<br>
+                            • Use format that worked on r/SideProject<br>
+                            • Post on both same day<br>
+                            • Note in dashboard: visitors per each
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 14: Weekly Analysis</strong>
+                        <div class="action">Which channel worked best?</div>
+                        <div class="detail">
+                            • Check Google Analytics: Which subreddit gave most traffic?<br>
+                            • What feedback repeats in comments?<br>
+                            • If 3+ people said same thing = change that<br>
+                            • Update landing if there's clear pattern<br>
+                            • Note learnings for product #2
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ph" class="checklist" style="display: none;">
+                <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Product Hunt Preparation & Launch</p>
+                
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 15: Animated Logo</strong>
+                        <div class="action">Create logo GIF for Product Hunt</div>
+                        <div class="detail">
+                            • Option A: Canva Pro (has animation templates)<br>
+                            • Option B: ezgif.com (free but more manual)<br>
+                            • Simple animation: Logo appears → small effect → loop<br>
+                            • <span class="highlight">1-2 second loop</span><br>
+                            • Export: Max 5MB<br>
+                            • Marc: "Few do this = you stand out"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 16: Product Hunt Tagline</strong>
+                        <div class="action">Write short and clear tagline</div>
+                        <div class="detail">
+                            • Max <span class="highlight">60 characters</span><br>
+                            • Must be understood by NON-technical people<br>
+                            • Examples:<br>
+                            &nbsp;&nbsp;- "Beautiful Pomodoro timer to help you focus"<br>
+                            &nbsp;&nbsp;- "Focus timer with ambient sounds"<br>
+                            • Avoid jargon: "Gamified productivity SaaS" ❌<br>
+                            • Test: Send to 3 friends "Do you understand what it does?"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 17: Screenshots Gallery</strong>
+                        <div class="action">5 images YouTube thumbnail style</div>
+                        <div class="detail">
+                            • Marc: <span class="highlight">"1 feature = 1 image. Zoom until you can't anymore"</span><br>
+                            • Text overlay: BENEFIT, not technical name<br>
+                            • ❌ "Settings panel" → ✅ "Customize your focus sessions"<br>
+                            • 5 screenshots:<br>
+                            &nbsp;&nbsp;1. Timer running (big, clean)<br>
+                            &nbsp;&nbsp;2. Ambient sounds (show options)<br>
+                            &nbsp;&nbsp;3. Stats (session graph)<br>
+                            &nbsp;&nbsp;4. Leaderboard (if you have)<br>
+                            &nbsp;&nbsp;5. Mobile version
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 18: First PH Comment</strong>
+                        <div class="action">Write with markdown + personal story</div>
+                        <div class="detail">
+                            • Exact template:<br><br>
+                            Hey Product Hunt! 👋<br><br>
+                            I'm Julio. Lost my job, built **[Superfocus](superfocus.app)** in 1 week.<br><br>
+                            The problem: [1 line of problem]<br><br>
+                            The solution: [1 line of what Superfocus does]<br><br>
+                            Would love your feedback!<br><br>
+                            • Use <span class="highlight">** ** for bold</span><br>
+                            • Link with [text](url) in markdown<br>
+                            • Save in doc to copy/paste on launch day
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 19: PH Badge on Landing</strong>
+                        <div class="action">Add widget before launch</div>
+                        <div class="detail">
+                            • Product Hunt gives official badge code<br>
+                            • Position: <span class="highlight">Fixed bottom-left corner</span><br>
+                            • On mobile: Smaller or hidden<br>
+                            • Link: To your Product Hunt page (you'll create tomorrow)<br>
+                            • Why: When you relaunch Reddit post-PH, badge gives credibility
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 20: Create PH Listing</strong>
+                        <div class="action">Upload everything to Product Hunt and schedule</div>
+                        <div class="detail">
+                            • Go to producthunt.com/posts/new<br>
+                            • Upload:<br>
+                            &nbsp;&nbsp;- Logo GIF (Task 15)<br>
+                            &nbsp;&nbsp;- Tagline (Task 16)<br>
+                            &nbsp;&nbsp;- 5 screenshots (Task 17)<br>
+                            &nbsp;&nbsp;- Link: superfocus.app<br>
+                            &nbsp;&nbsp;- Prepared first comment (Task 18)<br>
+                            • Schedule: <span class="highlight">Sunday 12:01am PST</span> (less competition)<br>
+                            • Marc: "Sunday for first launch"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 21: Pre-Launch Prep</strong>
+                        <div class="action">Notify community + block calendar</div>
+                        <div class="detail">
+                            • Notify friends/community: "Launching on PH this Sunday"<br>
+                            • Prepare tweet with short video of timer<br>
+                            • <span class="warn">Block 12-16 hours on calendar</span><br>
+                            • Tomorrow's timeline:<br>
+                            &nbsp;&nbsp;- 12:01am: Launch live<br>
+                            &nbsp;&nbsp;- 4am: Tweet<br>
+                            &nbsp;&nbsp;- 8am: Retweet<br>
+                            &nbsp;&nbsp;- All day: Reply<br>
+                            • Sleep well
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 22: 🚀 LAUNCH DAY</strong>
+                        <div class="action">100% present, reply to EVERYTHING</div>
+                        <div class="detail">
+                            • 12:01am PST: <span class="highlight">Launch goes live</span><br>
+                            • Post first comment NOW (copy/paste from Task 18)<br>
+                            • 0-4 hours: Reply to EVERY comment in &lt;30min<br>
+                            • 4 hours: Tweet with video + PH link<br>
+                            • 8 hours: Retweet your tweet<br>
+                            • <span class="warn">Be ONLINE 12-16 hours straight</span><br>
+                            • Constant engagement = PH algorithm favors you<br>
+                            • Marc: "More important than eating"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 23: Post-Launch</strong>
+                        <div class="action">Capitalize on testimonials + social proof</div>
+                        <div class="detail">
+                            • Keep replying to PH comments<br>
+                            • Screenshot best PH comments<br>
+                            • Add to landing in "What people say" section<br>
+                            • If you got badge: Update hero with "#1 Product of the Day"<br>
+                            • Tweet 2-3 unrelated things<br>
+                            • Marc: "If one goes viral, new people see your pinned launch tweet"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 24: Re-launch Reddit</strong>
+                        <div class="action">Use PH momentum for credibility</div>
+                        <div class="detail">
+                            • r/SideProject new post:<br>
+                            • Title: "Launched Superfocus on Product Hunt yesterday, got #X"<br>
+                            • "Updated based on YOUR feedback. Here's what changed: [list 2-3 changes]"<br>
+                            • Link: superfocus.app (normal, with PH badge visible)<br>
+                            • People love before/after<br>
+                            • Reply to comments
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="growth" class="checklist" style="display: none;">
+                <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Growth & Optimization</p>
+                
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 25: Calculate $ Per Visitor</strong>
+                        <div class="action">THE metric Marc uses to decide</div>
+                        <div class="detail">
+                            • Calculate: <span class="highlight">Total Revenue ÷ Total Visitors</span><br>
+                            • Example: $150 revenue, 500 visitors = $0.30 per visitor<br>
+                            • Marc's benchmarks:<br>
+                            &nbsp;&nbsp;• $0.06 = Bad<br>
+                            &nbsp;&nbsp;• $0.30 = Decent<br>
+                            &nbsp;&nbsp;• $0.50+ = Good<br>
+                            &nbsp;&nbsp;• $0.93 = Excellent (ShipFast)<br>
+                            • Note in dashboard<br>
+                            • This decides your next step
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 26: Initial Google Ads</strong>
+                        <div class="action">Start ads with $10/day</div>
+                        <div class="detail">
+                            • Google Ads → New campaign<br>
+                            • Keywords: "pomodoro timer" + "focus timer"<br>
+                            • Budget: <span class="highlight">$10/day max</span><br>
+                            • Ad copy: Winning headline from Task 2<br>
+                            • Landing: Optimized one (Task 3)<br>
+                            • Let it run 3 days before touching anything<br>
+                            • Goal: CAC &lt; $30
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 27: Optimize Resend</strong>
+                        <div class="action">Email sequence for conversions</div>
+                        <div class="detail">
+                            • Create 3 automated emails:<br>
+                            &nbsp;&nbsp;1. Welcome (day 0): "Thanks for trying Superfocus"<br>
+                            &nbsp;&nbsp;2. Value (day 2): "Did you know [feature they don't know]?"<br>
+                            &nbsp;&nbsp;3. Upgrade (day 5): "Upgrade to unlock [benefit]"<br>
+                            • Marc (DataFast): Onboarding emails improve conversion<br>
+                            • Simple, personal, short template
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 28: Analyze Google Ads</strong>
+                        <div class="action">Is CAC viable?</div>
+                        <div class="detail">
+                            • Calculate: <span class="highlight">Total spent ÷ Conversions</span> = CAC<br>
+                            • If CAC &lt; $30: <span class="highlight">Increase to $15/day</span><br>
+                            • If CAC $30-50: Keep $10/day, optimize ad copy<br>
+                            • If CAC &gt; $50: <span class="warn">Pause ads, not viable</span><br>
+                            • Pause keywords that don't convert<br>
+                            • Double budget on winning keywords
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 29: Final Decision</strong>
+                        <div class="action">Is there Product-Market Fit?</div>
+                        <div class="detail">
+                            • Marc: <span class="highlight">"If there's PMF, you'll know immediately"</span><br>
+                            • PMF checklist:<br>
+                            &nbsp;&nbsp;✅ $ per visitor &gt; $0.30<br>
+                            &nbsp;&nbsp;✅ Google Ads CAC &lt; $30<br>
+                            &nbsp;&nbsp;✅ People pay without push<br>
+                            &nbsp;&nbsp;✅ Enthusiastic comments<br>
+                            &nbsp;&nbsp;✅ They ask for features<br>
+                            • <span class="warn">If YES PMF:</span> Keep optimizing, grow revenue<br>
+                            • <span class="warn">If NO PMF:</span> Options:<br>
+                            &nbsp;&nbsp;→ Rebrand (new headline/colors) and relaunch<br>
+                            &nbsp;&nbsp;→ Reposition (different target) and relaunch<br>
+                            &nbsp;&nbsp;→ Product #2 with learnings
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 30: If PMF - Growth Mode</strong>
+                        <div class="action">Optimize conversion + scale</div>
+                        <div class="detail">
+                            • Relaunch every 2 weeks (Marc: "Launch 100 times")<br>
+                            • A/B test landing: Headlines, CTA, colors<br>
+                            • Create free tool to bring free traffic<br>
+                            • Continuously optimize Google Ads<br>
+                            • Ask active users for testimonials<br>
+                            • Goal: <span class="highlight">Revenue &gt; Costs = Break-even</span><br>
+                            • Once break-even: Product #2
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 31: If NO PMF - Option A: Rebrand</strong>
+                        <div class="action">Same product, different presentation</div>
+                        <div class="detail">
+                            • Change: Headline, colors, hero section<br>
+                            • Optional: New domain name<br>
+                            • <span class="highlight">DON'T change the product</span><br>
+                            • Marc: "MakeLanding → LandingAI. Same code, $35K sold"<br>
+                            • Go back to Task 1 with new headline<br>
+                            • Relaunch on Reddit/PH/HN as "new product"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 32: If NO PMF - Option B: Reposition</strong>
+                        <div class="action">Same product, different audience</div>
+                        <div class="detail">
+                            • Change landing copy to talk to different segment<br>
+                            • Marc's DataFast example:<br>
+                            &nbsp;&nbsp;- Before: "Analytics tool" = 0.22% conversion<br>
+                            &nbsp;&nbsp;- After: "Revenue attribution tool" = 1.45% conversion<br>
+                            • For Superfocus:<br>
+                            &nbsp;&nbsp;- Generic: "Pomodoro timer for everyone"<br>
+                            &nbsp;&nbsp;- Niche: "Focus timer for developers" or "Study timer for students"<br>
+                            • <span class="highlight">Niche down = better conversion</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 33: Product #2 - When to Start</strong>
+                        <div class="action">Correct timing per Marc</div>
+                        <div class="detail">
+                            • <span class="highlight">ONLY start product #2 if:</span><br>
+                            &nbsp;&nbsp;1. Superfocus revenue &gt; costs (break-even)<br>
+                            &nbsp;&nbsp;2. Or after 2 months without PMF (pivot with learnings)<br>
+                            • Marc: "Don't marry your idea"<br>
+                            • If PMF: Put in maintenance mode (2-3 hrs/week)<br>
+                            • Reuse: Auth, payments, UI from Superfocus code<br>
+                            • Same process from Task 1 with new product
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="twitter" class="checklist" style="display: none;">
+                <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Personal Brand on Twitter</p>
+                
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 34: Optimize Bio</strong>
+                        <div class="action">1 clear line of who you are + what you build</div>
+                        <div class="detail">
+                            • Marc's formula: <span class="highlight">"[Role] building [Product] to [Benefit]"</span><br>
+                            • Example: "Developer building Superfocus to help people focus better"<br>
+                            • ❌ NO: "Entrepreneur | Hustler | Coffee lover ☕"<br>
+                            • Add link: superfocus.app<br>
+                            • Profile pic: Your face (not logo, people connect with people)<br>
+                            • Header: Superfocus screenshot or your stats
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 35: Content Strategy</strong>
+                        <div class="action">Define your 3 content pillars</div>
+                        <div class="detail">
+                            • Pillar 1: <span class="highlight">Building in public</span> (your process, bugs, wins)<br>
+                            • Pillar 2: <span class="highlight">Lessons learned</span> (marketing, code, life)<br>
+                            • Pillar 3: <span class="highlight">Product updates</span> (features, users, stats)<br>
+                            • 80/20 rule: 80% value/insights, 20% promotion<br>
+                            • Marc: "Tweet about the process, not just the result"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 36: Proven Tweet Templates</strong>
+                        <div class="action">Copy formulas that work</div>
+                        <div class="detail">
+                            • <span class="highlight">Lessons learned:</span><br>
+                            &nbsp;&nbsp;"I spent $2500 on Google Ads. Here's what I learned:<br>
+                            &nbsp;&nbsp;1. [insight]<br>
+                            &nbsp;&nbsp;2. [insight]<br>
+                            &nbsp;&nbsp;3. [insight]"<br><br>
+                            • <span class="highlight">Build in public:</span><br>
+                            &nbsp;&nbsp;"Lost my job yesterday. Building Superfocus in public.<br>
+                            &nbsp;&nbsp;Day 1: [what you did]"<br><br>
+                            • <span class="highlight">Stats:</span><br>
+                            &nbsp;&nbsp;"Superfocus stats:<br>
+                            &nbsp;&nbsp;- $120 revenue<br>
+                            &nbsp;&nbsp;- X users<br>
+                            &nbsp;&nbsp;- Built in 1 week<br>
+                            &nbsp;&nbsp;Here's the breakdown:"<br><br>
+                            • <span class="warn">Save these templates in a doc</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 37: Tweet Calendar</strong>
+                        <div class="action">Post 2-3 tweets/day consistently</div>
+                        <div class="detail">
+                            • Marc's ideal timing:<br>
+                            &nbsp;&nbsp;- <span class="highlight">9am PST</span> (US audience wakes up)<br>
+                            &nbsp;&nbsp;- <span class="highlight">2pm PST</span> (lunch break)<br>
+                            &nbsp;&nbsp;- <span class="highlight">8pm PST</span> (after work)<br>
+                            • Tool: Typefully or Buffer to schedule<br>
+                            • Goal: <span class="highlight">Consistency &gt; Quantity</span><br>
+                            • Better 2 tweets/day for 30 days than 10 tweets/day for 3 days
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 38: Daily Engagement (1 hour)</strong>
+                        <div class="action">Reply first, post second</div>
+                        <div class="detail">
+                            • Marc: <span class="highlight">"Engagement is the algorithm"</span><br>
+                            • Daily routine:<br>
+                            &nbsp;&nbsp;1. (15min) Reply to 10 tweets from founders you follow<br>
+                            &nbsp;&nbsp;2. (15min) Reply to 10 tweets in your niche (productivity/dev)<br>
+                            &nbsp;&nbsp;3. (15min) Reply to tweets with &lt;100 likes (less competition)<br>
+                            &nbsp;&nbsp;4. (15min) Post your content<br>
+                            • <span class="warn">DON'T self-promo in replies</span><br>
+                            • Give genuine value, people will check your profile
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 39: Weekly Thread</strong>
+                        <div class="action">1 long thread every week</div>
+                        <div class="detail">
+                            • Winning thread formula:<br>
+                            &nbsp;&nbsp;1. Strong hook: "I lost my job. Built a SaaS. Here's the story 🧵"<br>
+                            &nbsp;&nbsp;2. 8-15 tweets<br>
+                            &nbsp;&nbsp;3. Each tweet = 1 complete idea<br>
+                            &nbsp;&nbsp;4. Last tweet: "If you found this helpful, follow me for more"<br>
+                            • Topics for Superfocus:<br>
+                            &nbsp;&nbsp;- "How I built Superfocus in 1 week"<br>
+                            &nbsp;&nbsp;- "Google Ads mistakes I made"<br>
+                            &nbsp;&nbsp;- "Reddit launch strategy that got X visitors"<br>
+                            • <span class="highlight">Pin your best thread</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 40: Screenshots with Results</strong>
+                        <div class="action">Visual content = more engagement</div>
+                        <div class="detail">
+                            • Marc: "Screenshots get 3x more engagement"<br>
+                            • What to screenshot:<br>
+                            &nbsp;&nbsp;- Stripe dashboard ($X revenue)<br>
+                            &nbsp;&nbsp;- Google Analytics (visitors)<br>
+                            &nbsp;&nbsp;- Product Hunt badge<br>
+                            &nbsp;&nbsp;- Reddit post with upvotes<br>
+                            &nbsp;&nbsp;- User testimonials<br>
+                            • Tool: <span class="highlight">CleanShot X</span> or native screenshot<br>
+                            • Add text overlay with context<br>
+                            • <span class="warn">Blur sensitive info</span> (emails, IPs)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 41: Strategic Follow</strong>
+                        <div class="action">Follow 50-100 relevant accounts</div>
+                        <div class="detail">
+                            • Who to follow:<br>
+                            &nbsp;&nbsp;1. <span class="highlight">Indie hackers</span> (@levelsio, @marc_louvion, @shipfa_st)<br>
+                            &nbsp;&nbsp;2. <span class="highlight">Your niche</span> (productivity tools, Pomodoro users)<br>
+                            &nbsp;&nbsp;3. <span class="highlight">Potential users</span> (developers, students)<br>
+                            • Strategy: Reply to their tweets with value<br>
+                            • If reply good → they might retweet your content<br>
+                            • <span class="warn">NO mass follow/unfollow</span> - obvious spam
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 42: Build in Public Daily</strong>
+                        <div class="action">1 tweet/day showing progress</div>
+                        <div class="detail">
+                            • Simple formula:<br>
+                            &nbsp;&nbsp;"Building Superfocus - Day X:<br>
+                            &nbsp;&nbsp;- [1 thing you did]<br>
+                            &nbsp;&nbsp;- [1 thing you learned]<br>
+                            &nbsp;&nbsp;- [1 metric]"<br>
+                            • Real example:<br>
+                            &nbsp;&nbsp;"Day 15:<br>
+                            &nbsp;&nbsp;- Fixed onboarding bug<br>
+                            &nbsp;&nbsp;- Learned CAC &lt; $30 is key<br>
+                            &nbsp;&nbsp;- Revenue: $135 (+$15)"<br>
+                            • Marc: <span class="highlight">"Document, don't create"</span><br>
+                            • People follow the journey, not just the result
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 43: Retweet with Commentary</strong>
+                        <div class="action">Quote tweets of relevant content</div>
+                        <div class="detail">
+                            • Find tweets about:<br>
+                            &nbsp;&nbsp;- Productivity tips<br>
+                            &nbsp;&nbsp;- Pomodoro technique<br>
+                            &nbsp;&nbsp;- Focus/deep work<br>
+                            • Quote tweet: <span class="highlight">Your opinion + how Superfocus solves it</span><br>
+                            • Example:<br>
+                            &nbsp;&nbsp;Original tweet: "Pomodoro changed my life"<br>
+                            &nbsp;&nbsp;Your quote: "Same. That's why I built Superfocus - to make it beautiful + easy"<br>
+                            • <span class="warn">NO spam</span> - add real value
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 44: Strategic Pinned Tweet</strong>
+                        <div class="action">Pin your best performing tweet</div>
+                        <div class="detail">
+                            • Options to pin:<br>
+                            &nbsp;&nbsp;1. <span class="highlight">Your story</span> ("Lost job → Built Superfocus")<br>
+                            &nbsp;&nbsp;2. <span class="highlight">Viral thread</span> (if you have one)<br>
+                            &nbsp;&nbsp;3. <span class="highlight">Launch tweet</span> ("Launching Superfocus today")<br>
+                            • Clear CTA: "Try it: superfocus.app"<br>
+                            • Change every 2-4 weeks based on what works<br>
+                            • Pin = first impression when someone visits your profile
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 45: Analyze & Iterate</strong>
+                        <div class="action">Review analytics every week</div>
+                        <div class="detail">
+                            • What to check in Twitter Analytics:<br>
+                            &nbsp;&nbsp;- <span class="highlight">Top tweet of the week</span> → Why did it work?<br>
+                            &nbsp;&nbsp;- Impressions vs Engagement rate<br>
+                            &nbsp;&nbsp;- What time/day had most reach<br>
+                            • Double down on what works:<br>
+                            &nbsp;&nbsp;- If "build in public" gets engagement → more of that<br>
+                            &nbsp;&nbsp;- If screenshots work → more screenshots<br>
+                            • <span class="warn">Remove what doesn't work</span><br>
+                            • Marc: "Data &gt; Feelings"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 46: Cross-Promote Launches</strong>
+                        <div class="action">Every launch = tweet thread</div>
+                        <div class="detail">
+                            • When you launch on Reddit/PH/HN:<br>
+                            &nbsp;&nbsp;1. Tweet pre-launch: "Launching tomorrow, here's why"<br>
+                            &nbsp;&nbsp;2. Tweet launch: "Live now: [link]"<br>
+                            &nbsp;&nbsp;3. Tweet results: "Got X upvotes, Y visitors. Here's what happened"<br>
+                            • Timing: <span class="highlight">Post on Twitter 4h after launch</span><br>
+                            • Why: Gives post time to rise first<br>
+                            • Include screenshot of post + stats
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 47: Strategic DMs</strong>
+                        <div class="action">10 personalized DMs/week</div>
+                        <div class="detail">
+                            • Who to DM:<br>
+                            &nbsp;&nbsp;- Founders who reply to your tweets<br>
+                            &nbsp;&nbsp;- People who mention "productivity" in bio<br>
+                            &nbsp;&nbsp;- Indie hackers at your same stage<br>
+                            • Message: <span class="highlight">Max 3 lines</span><br>
+                            • Example:<br>
+                            &nbsp;&nbsp;"Hey [name], saw your tweet about [topic].<br>
+                            &nbsp;&nbsp;I'm building something related. Mind if I share?"<br>
+                            • <span class="warn">NO spam</span> - genuine connection first<br>
+                            • Goal: Build relationships, not sell
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 48: Milestones = Content</strong>
+                        <div class="action">Every win is a tweet</div>
+                        <div class="detail">
+                            • Celebrate publicly:<br>
+                            &nbsp;&nbsp;- First dollar: "$1 revenue 🎉"<br>
+                            &nbsp;&nbsp;- 10 users: "10 people using Superfocus!"<br>
+                            &nbsp;&nbsp;- Break-even: "Hit break-even. Here's the breakdown:"<br>
+                            &nbsp;&nbsp;- 100 followers: "100 followers! Thank you"<br>
+                            • Marc: <span class="highlight">"Small wins = relatable content"</span><br>
+                            • People follow the journey, every milestone matters<br>
+                            • Include screenshot whenever you can
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 49: Goal 1,000 Followers</strong>
+                        <div class="action">Realistic initial goal in 60-90 days</div>
+                        <div class="detail">
+                            • Marc's strategy for first 1K:<br>
+                            &nbsp;&nbsp;1. <span class="highlight">Post 2-3x/day consistently</span><br>
+                            &nbsp;&nbsp;2. <span class="highlight">Reply 20+ tweets/day</span><br>
+                            &nbsp;&nbsp;3. <span class="highlight">1 thread/week</span><br>
+                            &nbsp;&nbsp;4. <span class="highlight">Build in public daily</span><br>
+                            • Realistic timeline:<br>
+                            &nbsp;&nbsp;- Month 1: 0 → 200 followers<br>
+                            &nbsp;&nbsp;- Month 2: 200 → 500<br>
+                            &nbsp;&nbsp;- Month 3: 500 → 1,000<br>
+                            • <span class="warn">DON'T buy followers</span> - engagement dies<br>
+                            • After 1K: Organic growth accelerates
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-item" onclick="toggle(this)">
+                    <div class="checkbox"></div>
+                    <div>
+                        <strong>TASK 50: Avoid These Mistakes</strong>
+                        <div class="action">Anti-patterns that kill growth</div>
+                        <div class="detail">
+                            • ❌ <span class="warn">DON'T do:</span><br>
+                            &nbsp;&nbsp;1. "Check out my product" every tweet<br>
+                            &nbsp;&nbsp;2. Mass follow/unfollow<br>
+                            &nbsp;&nbsp;3. Reply "Great post!" without adding value<br>
+                            &nbsp;&nbsp;4. Copy/paste replies<br>
+                            &nbsp;&nbsp;5. Only post when launching something<br>
+                            &nbsp;&nbsp;6. Buy likes/followers<br>
+                            &nbsp;&nbsp;7. Fake engagement pods<br>
+                            • Marc: <span class="highlight">"Authenticity &gt; Growth hacks"</span><br>
+                            • Twitter detects fake engagement = shadowban
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const d = new Date();
+        document.getElementById('current-date').textContent = d.toLocaleDateString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        let data = {
+            revenue: 0,
+            ads: 0,
+            vercel: 20,
+            resend: 20,
+            cursor: 60,
+            other: 0,
+            checks: []
+        };
+
+        function load() {
+            const saved = localStorage.getItem('sf');
+            if (saved) {
+                data = JSON.parse(saved);
+                
+                document.getElementById('revenue').textContent = `$${data.revenue}`;
+                document.getElementById('ads').textContent = `$${data.ads}`;
+                document.getElementById('vercel').textContent = `$${data.vercel}`;
+                document.getElementById('resend').textContent = `$${data.resend}`;
+                document.getElementById('cursor').textContent = `$${data.cursor}`;
+                document.getElementById('other').textContent = `$${data.other || 0}`;
+                
+                document.getElementById('input-revenue').value = data.revenue;
+                document.getElementById('input-ads').value = data.ads;
+                document.getElementById('input-vercel').value = data.vercel;
+                document.getElementById('input-resend').value = data.resend;
+                document.getElementById('input-cursor').value = data.cursor;
+                document.getElementById('input-other').value = data.other || 0;
+                
+                updateCalcs();
+                
+                data.checks.forEach(txt => {
+                    document.querySelectorAll('.checklist-item').forEach(item => {
+                        if (item.textContent.trim().includes(txt.substring(0, 20))) {
+                            item.classList.add('completed');
+                            item.querySelector('.checkbox').classList.add('checked');
+                        }
+                    });
+                });
+            }
+        }
+
+        function save() {
+            localStorage.setItem('sf', JSON.stringify(data));
+        }
+
+        function alert(msg, success = false) {
+            const el = document.getElementById('alert');
+            el.textContent = msg;
+            el.className = success ? 'alert success' : 'alert';
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function updateRevenue() {
+            const val = parseFloat(document.getElementById('input-revenue').value) || 0;
+            data.revenue = val;
+            document.getElementById('revenue').textContent = `$${val}`;
+            updateCalcs();
+            save();
+        }
+
+        function updateAds() {
+            const val = parseFloat(document.getElementById('input-ads').value) || 0;
+            data.ads = val;
+            document.getElementById('ads').textContent = `$${val}`;
+            updateCalcs();
+            save();
+        }
+
+        function updateVercel() {
+            const val = parseFloat(document.getElementById('input-vercel').value) || 0;
+            data.vercel = val;
+            document.getElementById('vercel').textContent = `$${val}`;
+            updateCalcs();
+            save();
+        }
+
+        function updateResend() {
+            const val = parseFloat(document.getElementById('input-resend').value) || 0;
+            data.resend = val;
+            document.getElementById('resend').textContent = `$${val}`;
+            updateCalcs();
+            save();
+        }
+
+        function updateCursor() {
+            const val = parseFloat(document.getElementById('input-cursor').value) || 0;
+            data.cursor = val;
+            document.getElementById('cursor').textContent = `$${val}`;
+            updateCalcs();
+            save();
+        }
+
+        function updateOther() {
+            const val = parseFloat(document.getElementById('input-other').value) || 0;
+            data.other = val;
+            document.getElementById('other').textContent = `$${val}`;
+            updateCalcs();
+            save();
+        }
+
+        function updateCalcs() {
+            const totalCosts = data.ads + data.vercel + data.resend + data.cursor + (data.other || 0);
+            document.getElementById('total-costs').textContent = `$${totalCosts.toFixed(0)}`;
+            
+            const profit = data.revenue - totalCosts;
+            const profitEl = document.getElementById('profit');
+            const profitCard = document.getElementById('profit-card');
+            const profitStatus = document.getElementById('profit-status');
+            
+            profitEl.textContent = `$${profit.toFixed(0)}`;
+            
+            if (profit >= 0) {
+                profitEl.className = 'stat-value profit-positive';
+                profitCard.className = 'stat-card profit-positive';
+                profitStatus.textContent = 'Break-even reached ✓';
+                profitStatus.style.color = '#4ade80';
+            } else {
+                profitEl.className = 'stat-value profit-negative';
+                profitCard.className = 'stat-card profit-negative';
+                profitStatus.textContent = 'Break-even not reached';
+                profitStatus.style.color = '#f87171';
+            }
+        }
+
+        function showWeek(week) {
+            // Single section now, no need to toggle
+        }
+
+        function toggle(item) {
+            const checkbox = item.querySelector('.checkbox');
+            const txt = item.textContent.trim().substring(0, 30);
+            
+            if (checkbox.classList.contains('checked')) {
+                checkbox.classList.remove('checked');
+                item.classList.remove('completed');
+                data.checks = data.checks.filter(c => !txt.includes(c.substring(0, 20)));
+            } else {
+                checkbox.classList.add('checked');
+                item.classList.add('completed');
+                data.checks.push(txt);
+            }
+            save();
+        }
+
+        load();
+        updateCalcs();
+    </script>
+</body>
+</html>

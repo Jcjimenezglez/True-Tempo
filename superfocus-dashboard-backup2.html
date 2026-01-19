@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superfocus - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            color: #e5e5e5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            border-radius: 3px;
+            padding: 12px;
+        }
+
+        .stat-card.profit-positive {
+            border-color: #2d4a2d;
+        }
+
+        .stat-card.profit-negative {
+            border-color: #4a2d2d;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #fff;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        .stat-value.profit-positive {
+            color: #4ade80;
+        }
+
+        .stat-value.profit-negative {
+            color: #f87171;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            color: #999;
+            font-size: 0.8rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            color: #fff;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .task-item {
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
+            border-radius: 3px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .task-item:hover {
+            border-color: #333;
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #333;
+            border-radius: 2px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .task-checkbox.checked {
+            background: #fff;
+            border-color: #fff;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-category {
+            display: inline-block;
+            font-size: 0.7rem;
+            color: #666;
+            background: #1a1a1a;
+            padding: 2px 8px;
+            border-radius: 2px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .task-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .task-action {
+            color: #e5e5e5;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .task-detail {
+            color: #888;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .task-detail .highlight {
+            color: #fff;
+            background: #1a1a1a;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-weight: 500;
+        }
+
+        .task-detail .warn {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .task-detail .example {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Superfocus Dashboard</h1>
+        <div class="subtitle" id="current-date"></div>
+
+        <!-- Update Metrics -->
+        <div class="section">
+            <div class="section-title">Update Metrics</div>
+            
+            <div class="input-group">
+                <div>
+                    <label>Revenue ($)</label>
+                    <input type="number" id="input-revenue" value="0" min="0">
+                </div>
+                <div>
+                    <label>Google Ads ($)</label>
+                    <input type="number" id="input-ads" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div>
+                    <label>Vercel ($)</label>
+                    <input type="number" id="input-vercel" value="20" min="0">
+                </div>
+                <div>
+                    <label>Resend ($)</label>
+                    <input type="number" id="input-resend" value="20" min="0">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div>
+                    <label>Cursor ($)</label>
+                    <input type="number" id="input-cursor" value="60" min="0">
+                </div>
+                <div>
+                    <label>Other Costs ($)</label>
+                    <input type="number" id="input-other" value="0" min="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="section">
+            <div class="section-title">Overview</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Revenue</div>
+                    <div class="stat-value" id="revenue">$0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Google Ads</div>
+                    <div class="stat-value" id="ads">$0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Vercel</div>
+                    <div class="stat-value" id="vercel">$20</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Resend</div>
+                    <div class="stat-value" id="resend">$20</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Cursor</div>
+                    <div class="stat-value" id="cursor">$60</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Other Costs</div>
+                    <div class="stat-value" id="other">$0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Total Costs</div>
+                    <div class="stat-value" id="total-costs">$100</div>
+                </div>
+
+                <div class="stat-card" id="profit-card">
+                    <div class="stat-label">Profit</div>
+                    <div class="stat-value" id="profit">-$100</div>
+                    <div class="status" id="profit-status">Break-even not reached</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Superfocus Tasks -->
+        <div class="section">
+            <div class="section-title">Superfocus Marketing Tasks</div>
+            <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem;">Complete in order. Click to mark as done.</p>
+            
+            <div id="superfocus-tasks"></div>
+        </div>
+
+        <!-- Resend Email Tasks -->
+        <div class="section">
+            <div class="section-title">Resend Email Tasks</div>
+            <p style="color: #666; margin-bottom: 16px; font-size: 0.85rem;">Email automation setup</p>
+            
+            <div id="resend-tasks"></div>
+        </div>
+    </div>
+
+    <script>
+        // Date
+        const d = new Date();
+        document.getElementById('current-date').textContent = d.toLocaleDateString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // Data
+        let data = {
+            revenue: 0,
+            ads: 0,
+            vercel: 20,
+            resend: 20,
+            cursor: 60,
+            other: 0,
+            superfocusTasks: [],
+            resendTasks: []
+        };
+
+        // Superfocus Tasks
+        const superfocusTasks = [
+            { 
+                id: 1,
+                category: 'Twitter',
+                title: 'Optimize Twitter Bio', 
+                action: '1 clear line of who you are + what you build',
+                detail: `• Marc's formula: <span class="highlight">"[Role] building [Product] to [Benefit]"</span><br>
+                         • <span class="example">Example: "Developer building Superfocus to help people focus better"</span><br>
+                         • <span class="warn">❌ NO:</span> "Entrepreneur | Hustler | Coffee lover ☕"<br>
+                         • Add link: superfocus.app<br>
+                         • Profile pic: Your face (not logo, people connect with people)<br>
+                         • Header: Superfocus screenshot or your stats<br>
+                         • <span class="highlight">Start building audience NOW while doing other tasks</span>`
+            },
+            { 
+                id: 2,
+                category: 'Landing Page',
+                title: 'Write 10 Headlines', 
+                action: '"Too good to be true" variations to test',
+                detail: `• Formula: <span class="highlight">Promise + Emotional result</span><br>
+                         • <span class="example">Examples for Superfocus:</span><br>
+                         &nbsp;&nbsp;1. "Focus 10x better without distractions"<br>
+                         &nbsp;&nbsp;2. "The Pomodoro timer that actually works"<br>
+                         &nbsp;&nbsp;3. "Stop procrastinating, start achieving"<br>
+                         &nbsp;&nbsp;4. "The most beautiful timer for deep work"<br>
+                         • Write 10 variations in a Google Doc<br>
+                         • Each should sound bold and memorable`
+            },
+            { 
+                id: 3, 
+                title: 'Memory Test Headlines', 
+                action: 'Send to 5 friends, wait 24h, ask which they remember',
+                detail: `• Copy the 10 headlines from Task 2<br>
+                         • DM them to 5 friends (no context, just the lines)<br>
+                         • <span class="warn">Wait exactly 24 hours</span><br>
+                         • <span class="highlight">DELETE the message</span><br>
+                         • Ask: "Which headline from yesterday do you remember?"<br>
+                         • Most mentioned = your official headline<br>
+                         • Marc uses this technique for all his products`
+            },
+            { 
+                id: 4, 
+                title: 'Update Hero Section', 
+                action: 'Implement winning headline + optimize CTA',
+                detail: `• Use winning headline from Task 3<br>
+                         • Style: <span class="highlight">48px, bold, -0.4px letter-spacing</span><br>
+                         • Put it above the fold (80% don't scroll - Marc)<br>
+                         • CTA button formula: <span class="highlight">Verb + Benefit</span><br>
+                         • <span class="warn">❌ NO:</span> "Get Started" / "Sign Up"<br>
+                         • <span class="example">✅ YES: "Start focusing now" / "Try Superfocus free"</span><br>
+                         • Timer screenshot visible WITHOUT scrolling<br>
+                         • Test on mobile: everything visible without scrolling`
+            },
+            { 
+                id: 5, 
+                title: 'Simplify Onboarding', 
+                action: 'Get to "aha moment" in 1-2 steps',
+                detail: `• Superfocus aha moment: <span class="highlight">See timer running + hear sounds</span><br>
+                         • Remove: Tutorials, password reset, invites, advanced config<br>
+                         • Flow: Signup → Email → Timer working (that's it!)<br>
+                         • Marc's rule: <span class="highlight">1 page = 1 step maximum</span><br>
+                         • Test: Signup to timer in <90 seconds<br>
+                         • 95% don't convert due to bad onboarding - Marc<br>
+                         • Kill your darlings: delete everything not essential`
+            },
+            { 
+                id: 6, 
+                title: 'Record Demo Video', 
+                action: '60-90 seconds with Loom or QuickTime',
+                detail: `• Structure (exact timing):<br>
+                         &nbsp;&nbsp;1. (10s) "Hi, I'm Julio. This is Superfocus"<br>
+                         &nbsp;&nbsp;2. (20s) "I made it because [your personal problem]"<br>
+                         &nbsp;&nbsp;3. (40s) Demo: Click start → timer runs → sounds play → pause<br>
+                         • <span class="warn">NO fancy production</span> - simple and authentic works better<br>
+                         • Record screen + face in corner (optional but adds personality)<br>
+                         • Upload to YouTube as "Unlisted"<br>
+                         • Copy link - you'll need it for Reddit (Task 10)`
+            },
+            { 
+                id: 7, 
+                title: 'Configure ?ref=reddit Route', 
+                action: 'Create no-pricing version for r/InternetIsBeautiful',
+                detail: `• Create route: <span class="highlight">superfocus.app?ref=reddit</span><br>
+                         • This URL → Hide pricing section, show only "Try Free" button<br>
+                         • Why: <span class="warn">r/InternetIsBeautiful NO ads allowed (instant ban)</span><br>
+                         • Marc's hack: Launch with free version, get traffic<br>
+                         • After 24h of launch: Reactivate normal pricing<br>
+                         • Post will get banned but you already got the traffic<br>
+                         • This got Marc 47K visitors in 24h for one product`
+            },
+            { 
+                id: 8, 
+                title: 'Follow 50 Strategic Twitter Accounts', 
+                action: 'Build your network before launching',
+                detail: `• Who to follow:<br>
+                         &nbsp;&nbsp;1. <span class="highlight">Indie hackers:</span> @levelsio, @marc_louvion, @dinkydani21<br>
+                         &nbsp;&nbsp;2. <span class="highlight">Your niche:</span> Search "pomodoro" "productivity" "focus"<br>
+                         &nbsp;&nbsp;3. <span class="highlight">Potential users:</span> Developers, students mentioning "focus"<br>
+                         • Don't just follow - reply to their tweets with real value<br>
+                         • If they reply back → they'll check your profile<br>
+                         • <span class="warn">NO mass follow/unfollow</span> (obvious spam, kills trust)`
+            },
+            { 
+                id: 9, 
+                title: 'First Tweet - Build in Public', 
+                action: 'Announce building Superfocus publicly',
+                detail: `• Template (copy this):<br>
+                         <span class="example">"Lost my job last week. Building Superfocus in public.<br>
+                         A Pomodoro timer to help people focus better.<br>
+                         Day 1: [what you did today]<br>
+                         Follow along 👇"</span><br>
+                         • <span class="highlight">Pin this tweet to your profile</span><br>
+                         • From now on: Tweet daily progress (Task 13)<br>
+                         • People follow journeys, not just results - Marc`
+            },
+            { 
+                id: 10, 
+                title: 'Reddit r/SideProject Launch', 
+                action: 'First launch - ad-friendly community',
+                detail: `• Go to reddit.com/r/SideProject<br>
+                         • Title: Use winning headline from Task 3<br>
+                         • Post: Link to video from Task 6<br>
+                         • <span class="warn">NO superfocus.app link in title</span> (breaks Reddit rules)<br>
+                         • Post it, then IMMEDIATELY add first comment:<br>
+                         <span class="example">"Hey, I'm Julio. Link: superfocus.app. Would love feedback!"</span><br>
+                         • <span class="highlight">Be ONLINE 4 hours</span> responding to every comment<br>
+                         • Response time <30min = algorithm boost`
+            },
+            { 
+                id: 11, 
+                title: 'Reddit Engagement Marathon', 
+                action: 'Reply to EVERY comment in <30 minutes',
+                detail: `• Refresh r/SideProject every 30 minutes<br>
+                         • Response templates:<br>
+                         &nbsp;&nbsp;• If criticism: <span class="example">"Thanks for the feedback! Noted."</span><br>
+                         &nbsp;&nbsp;• If question: <span class="example">"Good question. [short answer]"</span><br>
+                         &nbsp;&nbsp;• If praise: <span class="example">"Thank you! Means a lot."</span><br>
+                         • <span class="warn">DON'T sell, just genuinely converse</span><br>
+                         • Screenshot good comments → use as testimonials later<br>
+                         • Marc: "Engagement = algorithm loves you"`
+            },
+            { 
+                id: 12, 
+                title: 'Tweet Reddit Results', 
+                action: 'Share your launch learnings publicly',
+                detail: `• Template:<br>
+                         <span class="example">"Launched Superfocus on Reddit today.<br>
+                         Results:<br>
+                         - X upvotes<br>
+                         - Y visitors<br>
+                         - Z signups<br>
+                         Here's what I learned: [2-3 insights]"</span><br>
+                         • Include screenshot of Reddit post<br>
+                         • People love transparency - share real numbers<br>
+                         • Even if numbers are small, the learning is valuable`
+            },
+            { 
+                id: 13, 
+                title: 'Start Daily Twitter Engagement Routine', 
+                action: '1 hour/day in 4x 15min blocks',
+                detail: `• Marc: <span class="highlight">"Engagement IS the algorithm"</span><br>
+                         • Daily routine (every single day):<br>
+                         &nbsp;&nbsp;1. (15min) Reply to 10 tweets from founders you follow<br>
+                         &nbsp;&nbsp;2. (15min) Reply to 10 tweets in your niche (productivity/dev)<br>
+                         &nbsp;&nbsp;3. (15min) Reply to tweets with <100 likes (less competition)<br>
+                         &nbsp;&nbsp;4. (15min) Post your own content<br>
+                         • <span class="warn">NO self-promo in replies</span> - genuine value only<br>
+                         • People will check your profile if reply is good<br>
+                         • <span class="highlight">Do this EVERY day from now on</span>`
+            },
+            { 
+                id: 14, 
+                title: 'Reddit r/InternetIsBeautiful Launch', 
+                action: 'Marc got 47K visitors from this in 24h',
+                detail: `• Title format: <span class="highlight">"I made a site to [specific benefit]"</span><br>
+                         • <span class="example">Example: "I made a site to stay focused with Pomodoro"</span><br>
+                         • Link: <span class="highlight">superfocus.app?ref=reddit</span> (no pricing version from Task 7)<br>
+                         • <span class="warn">❌ NO EMOJIS</span> (instant mod flag)<br>
+                         • Post and monitor every 30min for first 4 hours<br>
+                         • If it rises: Wait 24h, then reactivate normal pricing<br>
+                         • Post will probably get banned after, but you already got traffic<br>
+                         • Timing: Tuesday-Thursday 9am PST works best`
+            },
+            { 
+                id: 15, 
+                title: 'Hacker News Launch', 
+                action: 'Technical community loves "made it after losing job" stories',
+                detail: `• Go to news.ycombinator.com/submit<br>
+                         • Title: <span class="highlight">"Show HN: Superfocus - Pomodoro timer I made after losing my job"</span><br>
+                         • URL: superfocus.app<br>
+                         • <span class="warn">❌ NO EMOJIS</span> (HN is technical/serious)<br>
+                         • Best timing: Tuesday or Wednesday 9am PST<br>
+                         • IMMEDIATELY post first comment:<br>
+                         <span class="example">"Hey HN, I'm Julio. Lost job, built this in 1 week. Stack: [your tech]. Feedback welcome on [specific aspect]"</span><br>
+                         • Reply to EVERY comment (even harsh ones) professionally<br>
+                         • Ask friends to find your post in /newest (NO direct link = vote manipulation)`
+            },
+            { 
+                id: 16, 
+                title: 'First Twitter Thread (Your Story)', 
+                action: 'Hook: "Lost my job. Built SaaS. Here\'s what happened"',
+                detail: `• Thread structure (8-12 tweets):<br>
+                         &nbsp;&nbsp;1. Hook: "I lost my job. Built a SaaS in 1 week. Here's the story 🧵"<br>
+                         &nbsp;&nbsp;2. The problem you faced<br>
+                         &nbsp;&nbsp;3. Why you built Superfocus<br>
+                         &nbsp;&nbsp;4. Tech stack + build time<br>
+                         &nbsp;&nbsp;5. Reddit launch results<br>
+                         &nbsp;&nbsp;6. HN launch results<br>
+                         &nbsp;&nbsp;7. Current stats (revenue, users)<br>
+                         &nbsp;&nbsp;8. Key learnings<br>
+                         &nbsp;&nbsp;9. Final: "If helpful, follow @yourhandle for more"<br>
+                         • <span class="highlight">Pin this if it performs well</span><br>
+                         • Each tweet = 1 complete idea (easy to read)`
+            },
+            { 
+                id: 17, 
+                title: 'Reddit r/Entrepreneur Launch', 
+                action: 'Vulnerability = engagement (no direct promo)',
+                detail: `• Title: <span class="example">"Lost my job, built a Pomodoro timer in 1 week, here's what I learned"</span><br>
+                         • Post: Write your REAL story (2-3 paragraphs):<br>
+                         &nbsp;&nbsp;- Getting laid off<br>
+                         &nbsp;&nbsp;- Your fears and doubts<br>
+                         &nbsp;&nbsp;- Building process<br>
+                         &nbsp;&nbsp;- Current state<br>
+                         • <span class="warn">DON'T mention superfocus.app in the post</span><br>
+                         • Wait for comments "what's the app?"<br>
+                         • THEN reply with link<br>
+                         • Marc: "Vulnerability gets 3x more engagement than promo"`
+            },
+            { 
+                id: 18, 
+                title: 'More Subreddits Launch', 
+                action: 'r/Productivity + r/GetStudying',
+                detail: `• <span class="highlight">Step 1: READ RULES</span> in each subreddit first<br>
+                         • Use format that worked best from Tasks 10-17<br>
+                         • r/Productivity: "productivity tool" angle<br>
+                         • r/GetStudying: "study sessions" angle<br>
+                         • Post both same day<br>
+                         • Track in dashboard: visitors per subreddit<br>
+                         • Goal: Identify which communities convert best for you<br>
+                         • Some will work, some won't - data > feelings`
+            },
+            { 
+                id: 19, 
+                title: 'Analyze All Launch Results', 
+                action: 'Which channel worked? What feedback repeats?',
+                detail: `• Check Google Analytics:<br>
+                         &nbsp;&nbsp;- Which subreddit gave most traffic?<br>
+                         &nbsp;&nbsp;- Which converted best (traffic → signups)?<br>
+                         &nbsp;&nbsp;- Where did people spend most time?<br>
+                         • Review all comments from Tasks 10-18:<br>
+                         &nbsp;&nbsp;- What feedback repeats 3+ times? = Real pain point<br>
+                         &nbsp;&nbsp;- What feature requests come up?<br>
+                         &nbsp;&nbsp;- What confused people?<br>
+                         • If "confusing" repeated → simplify hero<br>
+                         • If "expensive" repeated → add price comparison<br>
+                         • <span class="highlight">Tweet your learnings as a thread</span>`
+            },
+            { 
+                id: 20, 
+                title: 'Create Animated Logo GIF', 
+                action: 'Stand out on Product Hunt with animation',
+                detail: `• Tools:<br>
+                         &nbsp;&nbsp;• Canva Pro (easiest - has animation templates)<br>
+                         &nbsp;&nbsp;• ezgif.com (free but more manual)<br>
+                         • Animation: Simple 3-frame loop<br>
+                         &nbsp;&nbsp;- Frame 1: Logo normal<br>
+                         &nbsp;&nbsp;- Frame 2: Small effect (glow/scale/bounce)<br>
+                         &nbsp;&nbsp;- Frame 3: Back to normal<br>
+                         • Loop duration: <span class="highlight">1-2 seconds</span><br>
+                         • Export: GIF, max 5MB<br>
+                         • Test on white AND black backgrounds<br>
+                         • Marc: "Few people do this = instant standout"`
+            },
+            { 
+                id: 21, 
+                title: 'Write Product Hunt Tagline', 
+                action: 'Max 60 chars, understood by non-technical people',
+                detail: `• Rules:<br>
+                         &nbsp;&nbsp;• Max <span class="highlight">60 characters</span><br>
+                         &nbsp;&nbsp;• Your mom should understand it<br>
+                         &nbsp;&nbsp;• Focus on benefit, not features<br>
+                         • <span class="example">Good examples:</span><br>
+                         &nbsp;&nbsp;- "Beautiful Pomodoro timer to help you focus"<br>
+                         &nbsp;&nbsp;- "Focus timer with ambient sounds"<br>
+                         &nbsp;&nbsp;- "Pomodoro timer that doesn't suck"<br>
+                         • <span class="warn">❌ Avoid:</span> "Gamified productivity SaaS with ML"<br>
+                         • Test: Send to 3 non-tech friends "Do you understand what it does?"<br>
+                         • If they don't get it immediately, rewrite`
+            },
+            { 
+                id: 22, 
+                title: 'Create 5 Screenshots for PH Gallery', 
+                action: 'YouTube thumbnail style - zoom until you can\'t anymore',
+                detail: `• Marc's rule: <span class="highlight">"1 feature = 1 image. Zoom in HARD"</span><br>
+                         • Text overlay: BENEFIT not technical name<br>
+                         • <span class="warn">❌ Bad:</span> "Settings panel" <span class="example">✅ Good:</span> "Customize your focus time"<br>
+                         • 5 screenshots to create:<br>
+                         &nbsp;&nbsp;1. Timer running (HUGE, clean, main feature)<br>
+                         &nbsp;&nbsp;2. Ambient sounds selector (show the options)<br>
+                         &nbsp;&nbsp;3. Session history/stats (graph if you have)<br>
+                         &nbsp;&nbsp;4. Leaderboard (if applicable)<br>
+                         &nbsp;&nbsp;5. Mobile version (people care about mobile)<br>
+                         • Use contrast, make text BIG<br>
+                         • Think: Would this work as a YouTube thumbnail?`
+            },
+            { 
+                id: 23, 
+                title: 'Write First PH Comment', 
+                action: 'Personal story + markdown formatting',
+                detail: `• Template (save this for copy/paste on launch day):<br><br>
+                         <span class="example">Hey Product Hunt! 👋<br><br>
+                         I'm Julio. Lost my job last week, built **[Superfocus](superfocus.app)** in 1 week.<br><br>
+                         The problem: [1 line - your personal problem that led to this]<br><br>
+                         The solution: [1 line - what Superfocus does differently]<br><br>
+                         Would love your feedback!<br><br>
+                         Follow the journey: [@yourhandle]</span><br><br>
+                         • Markdown: Use <span class="highlight">** ** for bold</span><br>
+                         • Links: [text](url) format<br>
+                         • Keep it under 500 chars<br>
+                         • Save in a Google Doc to copy/paste on launch day`
+            },
+            { 
+                id: 24, 
+                title: 'Add PH Badge to Landing Page', 
+                action: 'Add BEFORE launch for credibility',
+                detail: `• Position: <span class="highlight">Fixed bottom-left corner</span> on desktop<br>
+                         • On mobile: Make smaller or hide completely<br>
+                         • Link: Will point to your PH page (create in Task 25)<br>
+                         • Why add before launch?<br>
+                         &nbsp;&nbsp;- When you re-launch Reddit after PH, badge = instant credibility<br>
+                         &nbsp;&nbsp;- "Oh they're on Product Hunt" = psychological trust<br>
+                         • Product Hunt gives official badge code<br>
+                         • Test: Make sure it doesn't block any important content`
+            },
+            { 
+                id: 25, 
+                title: 'Create Product Hunt Listing', 
+                action: 'Upload everything and schedule launch',
+                detail: `• Go to producthunt.com/posts/new<br>
+                         • Upload all assets:<br>
+                         &nbsp;&nbsp;✅ Logo GIF (Task 20)<br>
+                         &nbsp;&nbsp;✅ Tagline (Task 21)<br>
+                         &nbsp;&nbsp;✅ 5 screenshots (Task 22)<br>
+                         &nbsp;&nbsp;✅ Link: superfocus.app<br>
+                         &nbsp;&nbsp;✅ First comment ready (Task 23)<br>
+                         • Schedule launch day:<br>
+                         &nbsp;&nbsp;• <span class="highlight">Sunday 12:01am PST</span> = Less competition, easier badge<br>
+                         &nbsp;&nbsp;• <span class="example">Alternative: Monday 12:01am PST</span> = More traffic<br>
+                         • Marc recommends: Sunday for first launch<br>
+                         • <span class="warn">Block 12-16 hours in your calendar for launch day</span>`
+            },
+            { 
+                id: 26, 
+                title: 'Pre-Launch Tweet (24h before)', 
+                action: 'Build anticipation with your audience',
+                detail: `• 24 hours before launch, tweet:<br>
+                         <span class="example">"Launching Superfocus on Product Hunt tomorrow 🚀<br>
+                         A Pomodoro timer I built in 1 week after losing my job.<br>
+                         Would mean the world if you could support.<br>
+                         I'll share the link tomorrow at 12:01am PST 👇"</span><br>
+                         • Reply to this tweet 24h later with PH link<br>
+                         • DM close friends: "Launching tomorrow, would love support"<br>
+                         • Prepare launch tweet with:<br>
+                         &nbsp;&nbsp;- Short video of timer (30 sec)<br>
+                         &nbsp;&nbsp;- PH link<br>
+                         &nbsp;&nbsp;- Personal story (1 line)`
+            },
+            { 
+                id: 27, 
+                title: '🚀 PRODUCT HUNT LAUNCH DAY', 
+                action: 'Most important: Be 100% present for 12-16 hours',
+                detail: `• <span class="warn">THIS IS THE MOST IMPORTANT DAY</span><br>
+                         • Timeline:<br>
+                         &nbsp;&nbsp;• 12:01am PST: Launch goes live<br>
+                         &nbsp;&nbsp;• 12:02am: Post first comment (Task 23)<br>
+                         &nbsp;&nbsp;• 0-4h: Reply to EVERY comment in <30min<br>
+                         &nbsp;&nbsp;• 4h: Tweet with video + PH link<br>
+                         &nbsp;&nbsp;• 8h: Retweet your tweet<br>
+                         &nbsp;&nbsp;• All day: Keep responding<br>
+                         • <span class="highlight">Be ONLINE 12-16 hours straight</span><br>
+                         • Engagement = algorithm boost<br>
+                         • Marc: "More important than eating"<br>
+                         • Cancel all plans. This day decides if you get badge or not<br>
+                         • Tweet updates every 4h: "Currently #X, thank you!"`
+            },
+            { 
+                id: 28, 
+                title: 'Post-Launch Day Actions', 
+                action: 'Capitalize on momentum and testimonials',
+                detail: `• Actions for next 2 days:<br>
+                         &nbsp;&nbsp;• Keep replying to PH comments (slower pace OK now)<br>
+                         &nbsp;&nbsp;• Screenshot 5-10 best PH comments<br>
+                         &nbsp;&nbsp;• Add to landing page "What people say" section<br>
+                         &nbsp;&nbsp;• If you got badge: Add "#1 Product of the Day" to hero<br>
+                         &nbsp;&nbsp;• Update Twitter bio with PH achievement<br>
+                         • Tweet final results thread:<br>
+                         &nbsp;&nbsp;- Total upvotes<br>
+                         &nbsp;&nbsp;- Final ranking<br>
+                         &nbsp;&nbsp;- Visitors gained<br>
+                         &nbsp;&nbsp;- Key learnings (what worked/didn't)<br>
+                         • <span class="highlight">Pin this thread if it performs well (replace old pin)</span><br>
+                         • Tweet 2-3 unrelated things (if one goes viral → new people see your PH thread)`
+            },
+            { 
+                id: 29, 
+                title: 'Re-launch Reddit with PH Badge', 
+                action: 'Use Product Hunt success as social proof',
+                detail: `• r/SideProject new post:<br>
+                         • Title: <span class="example">"Launched Superfocus on Product Hunt yesterday, got #X Product of the Day"</span><br>
+                         • Post format:<br>
+                         <span class="example">"Hey r/SideProject! A week ago I posted here with my Pomodoro timer.<br>
+                         Based on YOUR feedback, I changed: [list 2-3 specific changes]<br>
+                         Launched on PH yesterday and got #X Product of the Day!<br>
+                         Link: superfocus.app"</span><br>
+                         • People LOVE before/after stories<br>
+                         • Showing you listened = huge credibility<br>
+                         • Badge on site = instant trust`
+            },
+            { 
+                id: 30, 
+                title: 'Calculate $ Per Visitor', 
+                action: 'THE metric Marc uses to decide success',
+                detail: `• Formula: <span class="highlight">Total Revenue ÷ Total Visitors</span><br>
+                         • <span class="example">Example: $150 revenue, 500 visitors = $0.30 per visitor</span><br>
+                         • Marc's benchmarks (from his products):<br>
+                         &nbsp;&nbsp;• <$0.06 = <span class="warn">Bad</span> (need to pivot)<br>
+                         &nbsp;&nbsp;• $0.30 = Decent (keep optimizing)<br>
+                         &nbsp;&nbsp;• $0.50+ = Good (scale up)<br>
+                         &nbsp;&nbsp;• $0.93 = Excellent (ShipFast benchmark)<br>
+                         • Track this metric monthly<br>
+                         • This ONE number tells you if your product will work<br>
+                         • Update in dashboard notes<br>
+                         • <span class="highlight">Tweet this metric - people love transparency</span>`
+            },
+            { 
+                id: 31, 
+                title: 'Start Google Ads ($10/day)', 
+                action: 'Test paid acquisition to understand CAC',
+                detail: `• Setup:<br>
+                         &nbsp;&nbsp;• Google Ads → New Search campaign<br>
+                         &nbsp;&nbsp;• Keywords: "pomodoro timer" + "focus timer"<br>
+                         &nbsp;&nbsp;• Budget: <span class="highlight">$10/day MAXIMUM</span><br>
+                         &nbsp;&nbsp;• Ad copy: Use winning headline from Task 3<br>
+                         &nbsp;&nbsp;• Landing: Optimized page from Task 4<br>
+                         • <span class="warn">Let it run 5 days before touching ANYTHING</span><br>
+                         • Goal: CAC (Cost per Acquisition) < $30<br>
+                         • Why test ads?<br>
+                         &nbsp;&nbsp;- Organic traffic = unpredictable<br>
+                         &nbsp;&nbsp;- Paid = you control growth<br>
+                         &nbsp;&nbsp;- Need to know if unit economics work<br>
+                         • Track daily in dashboard`
+            },
+            { 
+                id: 32, 
+                title: 'Twitter Screenshots Strategy', 
+                action: 'Visual content = 3x more engagement',
+                detail: `• Marc: <span class="highlight">"Screenshots get 3x more engagement than text"</span><br>
+                         • What to screenshot & post:<br>
+                         &nbsp;&nbsp;✅ Stripe dashboard ($X revenue milestone)<br>
+                         &nbsp;&nbsp;✅ Google Analytics (visitor spike)<br>
+                         &nbsp;&nbsp;✅ Product Hunt ranking/badge<br>
+                         &nbsp;&nbsp;✅ Reddit post with high upvotes<br>
+                         &nbsp;&nbsp;✅ User testimonial/feedback<br>
+                         &nbsp;&nbsp;✅ Email from happy customer<br>
+                         • Tool: CleanShot X (Mac) or native screenshot<br>
+                         • Always add context in tweet: "Here's what happened..."<br>
+                         • <span class="warn">Blur sensitive info</span> (emails, IPs, full names)<br>
+                         • Post 2-3 screenshots per week from now on`
+            },
+            { 
+                id: 33, 
+                title: 'Analyze Google Ads Results', 
+                action: 'After 5 days: Is CAC viable?',
+                detail: `• After 5 days of running ads (Task 31), calculate:<br>
+                         • CAC = <span class="highlight">Total Spent ÷ Number of Conversions</span><br>
+                         • <span class="example">Example: Spent $50, got 2 paying customers = $25 CAC</span><br>
+                         • Decision tree:<br>
+                         &nbsp;&nbsp;• If CAC <$30: <span class="highlight">Increase budget to $15/day</span><br>
+                         &nbsp;&nbsp;• If CAC $30-50: Keep $10/day, optimize ad copy<br>
+                         &nbsp;&nbsp;• If CAC >$50: <span class="warn">Pause ads, not viable yet</span><br>
+                         • Optimization tips:<br>
+                         &nbsp;&nbsp;- Pause keywords with 0 conversions<br>
+                         &nbsp;&nbsp;- Double budget on keywords that converted<br>
+                         &nbsp;&nbsp;- Test new ad copy (winning headline variations)<br>
+                         • Tweet your CAC learnings (people love this transparency)`
+            },
+            { 
+                id: 34, 
+                title: 'Weekly Twitter Thread', 
+                action: '1 educational thread every week about your learnings',
+                detail: `• Post ONE thread every week (same day/time):<br>
+                         • Week 1: "How I built Superfocus in 1 week"<br>
+                         • Week 2: "I spent $X on Google Ads. Here's what I learned:"<br>
+                         • Week 3: "Reddit launch: $0 → X visitors. Strategy breakdown:"<br>
+                         • Week 4: "Product Hunt launch: Everything that worked vs didn't"<br>
+                         • Week 5: "$ per visitor: Why this metric matters more than MRR"<br>
+                         • Thread format: 8-15 tweets<br>
+                         &nbsp;&nbsp;- Tweet 1: Hook (bold claim or question)<br>
+                         &nbsp;&nbsp;- Tweets 2-14: 1 idea per tweet<br>
+                         &nbsp;&nbsp;- Tweet 15: "If helpful, follow @yourhandle"<br>
+                         • <span class="highlight">Update pinned tweet to best performing thread</span><br>
+                         • Best day: Tuesday or Wednesday 9am PST`
+            },
+            { 
+                id: 35, 
+                title: 'Strategic DMs (10/week)', 
+                action: 'Build genuine relationships, not spam',
+                detail: `• Send 10 DMs per week to:<br>
+                         &nbsp;&nbsp;1. Founders who replied to your tweets<br>
+                         &nbsp;&nbsp;2. People mentioning "productivity" in their bio<br>
+                         &nbsp;&nbsp;3. Indie hackers at same stage (0-$1K MRR)<br>
+                         • Message format (max 3 lines):<br>
+                         <span class="example">"Hey [name], saw your tweet about [specific topic].<br>
+                         I'm building something related (Pomodoro timer).<br>
+                         Would you be open to trying it and giving feedback?"</span><br>
+                         • <span class="warn">NO spam, NO mass messages</span><br>
+                         • Personalize every single DM<br>
+                         • Goal: Relationships, not sales<br>
+                         • 10 DMs → 2-3 replies → 1 becomes friend/supporter<br>
+                         • These people will retweet you, support launches, etc.`
+            },
+            { 
+                id: 36, 
+                title: 'PMF Decision Point', 
+                action: 'Do you have product-market fit?',
+                detail: `• Marc: <span class="highlight">"If there's PMF, you'll know immediately"</span><br>
+                         • PMF checklist (need 4+ to be YES):<br>
+                         &nbsp;&nbsp;✅ $ per visitor > $0.30 (Task 30)<br>
+                         &nbsp;&nbsp;✅ Google Ads CAC < $30 (Task 33)<br>
+                         &nbsp;&nbsp;✅ People pay without you pushing<br>
+                         &nbsp;&nbsp;✅ Enthusiastic comments on PH/Reddit<br>
+                         &nbsp;&nbsp;✅ Users asking for specific features<br>
+                         &nbsp;&nbsp;✅ Organic word-of-mouth happening<br>
+                         &nbsp;&nbsp;✅ Retention: Users come back daily/weekly<br>
+                         • <span class="warn">If YES PMF:</span> Go to Task 37 (optimize & scale)<br>
+                         • <span class="warn">If NO PMF:</span> Options:<br>
+                         &nbsp;&nbsp;→ Rebrand (new headline/colors, same product)<br>
+                         &nbsp;&nbsp;→ Reposition (different target audience)<br>
+                         &nbsp;&nbsp;→ Start product #2 with learnings<br>
+                         • Tweet your honest assessment`
+            },
+            { 
+                id: 37, 
+                title: 'Weekly Twitter Analytics Review', 
+                action: 'Sunday routine: What content worked?',
+                detail: `• Every Sunday, open Twitter Analytics:<br>
+                         • Check this week vs last week:<br>
+                         &nbsp;&nbsp;- Top tweet (impressions + engagement)<br>
+                         &nbsp;&nbsp;- What TYPE of content worked? (thread/screenshot/update)<br>
+                         &nbsp;&nbsp;- Best posting time for you<br>
+                         &nbsp;&nbsp;- Engagement rate trend<br>
+                         • Pattern recognition:<br>
+                         &nbsp;&nbsp;- If "build in public" tweets → high engagement: Do more<br>
+                         &nbsp;&nbsp;- If screenshots → more likes: Post more visual<br>
+                         &nbsp;&nbsp;- If threads → more followers: Weekly thread is working<br>
+                         • <span class="highlight">Double down on what works, cut what doesn't</span><br>
+                         • Marc: "Data > Feelings. Always."<br>
+                         • Keep notes in Google Doc: "Week X: [insight]"`
+            },
+            { 
+                id: 38, 
+                title: 'Create Free Tool for SEO', 
+                action: 'Marc\'s strategy: Free tool = organic traffic forever',
+                detail: `• Build a simple, useful free tool related to Superfocus:<br>
+                         • Ideas:<br>
+                         &nbsp;&nbsp;1. "Pomodoro Calculator" - How many sessions to finish X hours<br>
+                         &nbsp;&nbsp;2. "Focus Time Calculator" - Based on goals<br>
+                         &nbsp;&nbsp;3. "Study Session Planner" - Pomodoro schedule generator<br>
+                         &nbsp;&nbsp;4. "Break Timer" - Simple 5min break timer<br>
+                         • Host at: superfocus.app/tools/[name]<br>
+                         • At bottom: "Made by Superfocus. Try the full timer →"<br>
+                         • Benefits:<br>
+                         &nbsp;&nbsp;- SEO: People search "[pomodoro calculator]" → find you<br>
+                         &nbsp;&nbsp;- Backlinks: Others link to useful tool<br>
+                         &nbsp;&nbsp;- Trust: Free value = people try paid product<br>
+                         • Launch separately on Reddit/PH (extra traffic)<br>
+                         • Marc has multiple free tools driving 1000s/month to paid products`
+            },
+            { 
+                id: 39, 
+                title: 'Re-launch Every 2 Weeks', 
+                action: 'Marc: "Launch your startup 100 times"',
+                detail: `• Every 2 weeks, launch on NEW channel with NEW angle:<br>
+                         • Channels to rotate:<br>
+                         &nbsp;&nbsp;- Different subreddits (100s you haven't tried)<br>
+                         &nbsp;&nbsp;- Product Hunt (as update/feature launch)<br>
+                         &nbsp;&nbsp;- Hacker News (new feature = new Show HN)<br>
+                         &nbsp;&nbsp;- Indie Hackers<br>
+                         &nbsp;&nbsp;- Dev.to<br>
+                         &nbsp;&nbsp;- Designer News (if visual)<br>
+                         • New angles each time:<br>
+                         &nbsp;&nbsp;- "Added dark mode to Superfocus"<br>
+                         &nbsp;&nbsp;- "Superfocus now has Spotify integration"<br>
+                         &nbsp;&nbsp;- "Hit 1,000 users milestone"<br>
+                         • <span class="highlight">Each launch = Twitter thread documenting results</span><br>
+                         • Track in spreadsheet: Channel | Date | Visitors | Conversions<br>
+                         • Find your best 2-3 channels, focus there`
+            },
+            { 
+                id: 40, 
+                title: 'Twitter 1,000 Followers Goal', 
+                action: 'Realistic timeline: 60-90 days',
+                detail: `• Marc's exact strategy for first 1K:<br>
+                         &nbsp;&nbsp;1. <span class="highlight">Post 2-3x per day consistently</span> (no exceptions)<br>
+                         &nbsp;&nbsp;2. <span class="highlight">Reply to 20+ tweets per day</span> (Task 13)<br>
+                         &nbsp;&nbsp;3. <span class="highlight">1 thread per week</span> (Task 34)<br>
+                         &nbsp;&nbsp;4. <span class="highlight">Build in public daily</span> (share progress)<br>
+                         • Realistic timeline:<br>
+                         &nbsp;&nbsp;- Month 1: 0 → 200 followers<br>
+                         &nbsp;&nbsp;- Month 2: 200 → 500<br>
+                         &nbsp;&nbsp;- Month 3: 500 → 1,000<br>
+                         • <span class="warn">DON'T buy followers</span> (kills engagement rate)<br>
+                         • After 1K: Growth accelerates (more people see your content)<br>
+                         • 1K = credibility unlock ("oh they have an audience")<br>
+                         • Celebrate hitting 1K with appreciation thread<br>
+                         • Your 1K followers = instant beta testers for product #2`
+            }
+        ];
+
+        // Resend Email Tasks  
+        const resendTasks = [
+            { 
+                id: 1, 
+                title: 'Welcome Email (Day 0)', 
+                action: 'Send immediately after signup - set expectations',
+                detail: `• Subject: <span class="example">"Welcome to Superfocus! Let's get you started 🎯"</span><br>
+                         • Content:<br>
+                         &nbsp;&nbsp;1. Thank you for signing up<br>
+                         &nbsp;&nbsp;2. What to expect: "Superfocus helps you focus with Pomodoro technique"<br>
+                         &nbsp;&nbsp;3. Quick tip: "Try your first 25-min session now"<br>
+                         &nbsp;&nbsp;4. Where to get help: Link to docs or your email<br>
+                         • Tone: Friendly, welcoming, SHORT (< 100 words)<br>
+                         • <span class="highlight">Send within 1 minute of signup</span><br>
+                         • Include: Your name + signature (makes it personal)<br>
+                         • No hard sell - just set expectations`
+            },
+            { 
+                id: 2, 
+                title: 'Value Email (Day 2)', 
+                action: 'Educate about hidden features they might miss',
+                detail: `• Subject: <span class="example">"Did you know Superfocus can do this? 🎵"</span><br>
+                         • Content:<br>
+                         &nbsp;&nbsp;1. "I noticed you've tried Superfocus - awesome!"<br>
+                         &nbsp;&nbsp;2. "Here's a feature 80% of users miss:"<br>
+                         &nbsp;&nbsp;3. Explain ONE feature (ambient sounds, stats, leaderboard, etc.)<br>
+                         &nbsp;&nbsp;4. Screenshot or GIF showing how to use it<br>
+                         &nbsp;&nbsp;5. "Try it: [Direct link to feature]"<br>
+                         • Goal: Increase activation (more features used = more sticky)<br>
+                         • <span class="warn">Only send if user logged in at least once</span><br>
+                         • Keep it about VALUE, not selling`
+            },
+            { 
+                id: 3, 
+                title: 'Upgrade Email (Day 5)', 
+                action: 'Soft conversion push - show what they\'re missing',
+                detail: `• Subject: <span class="example">"You're missing out on [specific benefit]"</span><br>
+                         • Content:<br>
+                         &nbsp;&nbsp;1. "You've completed X focus sessions - great progress!"<br>
+                         &nbsp;&nbsp;2. "Here's what you unlock with Pro:"<br>
+                         &nbsp;&nbsp;3. List 3-5 pro features with BENEFITS not features:<br>
+                         &nbsp;&nbsp;&nbsp;&nbsp;❌ "Unlimited sessions"<br>
+                         &nbsp;&nbsp;&nbsp;&nbsp;✅ "Focus as long as you want, no limits"<br>
+                         &nbsp;&nbsp;4. Social proof: "Join 500+ focused professionals"<br>
+                         &nbsp;&nbsp;5. Clear CTA: "Upgrade now → [link]"<br>
+                         • <span class="highlight">Only send if user active (3+ sessions)</span><br>
+                         • Timing: Day 5-7 = sweet spot (tried it, not yet paying)<br>
+                         • Marc: "Convert 2-5% with this email"`
+            },
+            { 
+                id: 4, 
+                title: 'Re-engagement Email (Day 10)', 
+                action: 'For users who signed up but haven\'t returned',
+                detail: `• Subject: <span class="example">"Miss you! Here's what's new in Superfocus"</span><br>
+                         • Content:<br>
+                         &nbsp;&nbsp;1. "Haven't seen you in a while - everything okay?"<br>
+                         &nbsp;&nbsp;2. "We've added: [new feature or improvement]"<br>
+                         &nbsp;&nbsp;3. "Quick question: What stopped you from using Superfocus?"<br>
+                         &nbsp;&nbsp;4. Reply CTA: "Hit reply and let me know - I read every response"<br>
+                         • <span class="warn">Only send if: Signed up, never used, or used once and ghosted</span><br>
+                         • Make it personal - from you (Julio), not "The Superfocus Team"<br>
+                         • Goal: Get feedback + bring them back<br>
+                         • Marc: "10% will reply with valuable feedback"`
+            },
+            { 
+                id: 5, 
+                title: 'Testimonial Request Email', 
+                action: 'For active happy users - timing is everything',
+                detail: `• When to send: User has 20+ sessions OR paid for 30+ days<br>
+                         • Subject: <span class="example">"Quick question about your Superfocus experience"</span><br>
+                         • Content:<br>
+                         &nbsp;&nbsp;1. "You've been using Superfocus for [X days] - thank you!"<br>
+                         &nbsp;&nbsp;2. "Would you mind sharing: What's your favorite thing about it?"<br>
+                         &nbsp;&nbsp;3. "It would help others discover Superfocus too"<br>
+                         &nbsp;&nbsp;4. Make it EASY: Button "Share my experience (2 min)"<br>
+                         &nbsp;&nbsp;5. Link to: Typeform or Google Form<br>
+                         • Questions to ask:<br>
+                         &nbsp;&nbsp;- What problem did Superfocus solve for you?<br>
+                         &nbsp;&nbsp;- How has your productivity changed?<br>
+                         &nbsp;&nbsp;- Would you recommend it to others? Why?<br>
+                         • <span class="highlight">Convert 5-10% → use on landing page</span>`
+            },
+            { 
+                id: 6, 
+                title: 'Setup Email Templates in Resend', 
+                action: 'Create all 5 emails as templates',
+                detail: `• Go to Resend dashboard → Templates<br>
+                         • Create 5 templates (Tasks 1-5):<br>
+                         &nbsp;&nbsp;1. welcome-email<br>
+                         &nbsp;&nbsp;2. value-email-day-2<br>
+                         &nbsp;&nbsp;3. upgrade-email-day-5<br>
+                         &nbsp;&nbsp;4. re-engagement-day-10<br>
+                         &nbsp;&nbsp;5. testimonial-request<br>
+                         • Use Resend's template system (React Email or HTML)<br>
+                         • Variables to include:<br>
+                         &nbsp;&nbsp;- {{firstName}}<br>
+                         &nbsp;&nbsp;- {{sessionsCompleted}}<br>
+                         &nbsp;&nbsp;- {{daysSinceSignup}}<br>
+                         • <span class="highlight">Test send to yourself for each template</span><br>
+                         • Check: Mobile view, dark mode, all links work<br>
+                         • Resend = $20/month for 50K emails (plenty for start)`
+            },
+            { 
+                id: 7, 
+                title: 'Test Full Email Sequence', 
+                action: 'Sign up as test user, verify all emails',
+                detail: `• Create test account: test+1@youremail.com<br>
+                         • Verify you receive (with correct timing):<br>
+                         &nbsp;&nbsp;✅ Day 0: Welcome email (immediate)<br>
+                         &nbsp;&nbsp;✅ Day 2: Value email (48h later)<br>
+                         &nbsp;&nbsp;✅ Day 5: Upgrade email (120h later)<br>
+                         • Test different user states:<br>
+                         &nbsp;&nbsp;1. Active user (3+ sessions) → gets all emails<br>
+                         &nbsp;&nbsp;2. Inactive user (0 sessions) → gets re-engagement<br>
+                         &nbsp;&nbsp;3. Paid user → doesn't get upgrade email<br>
+                         • Check each email:<br>
+                         &nbsp;&nbsp;- Subject line renders correctly<br>
+                         &nbsp;&nbsp;- All links work<br>
+                         &nbsp;&nbsp;- Looks good on mobile<br>
+                         &nbsp;&nbsp;- Personaliz ation works (name, etc.)<br>
+                         • <span class="warn">Fix any issues before sending to real users</span>`
+            },
+            { 
+                id: 8, 
+                title: 'Setup Automation Triggers', 
+                action: 'Connect emails to user actions in your app',
+                detail: `• Trigger logic in your app:<br>
+                         • <span class="highlight">On user signup:</span><br>
+                         &nbsp;&nbsp;→ Send welcome email immediately<br>
+                         &nbsp;&nbsp;→ Schedule value email (+2 days)<br>
+                         &nbsp;&nbsp;→ Schedule upgrade email (+5 days)<br>
+                         &nbsp;&nbsp;→ Schedule re-engagement (+10 days)<br>
+                         • <span class="highlight">On user action (cancel scheduled email):</span><br>
+                         &nbsp;&nbsp;- If user upgrades → cancel upgrade email<br>
+                         &nbsp;&nbsp;- If user very active → cancel re-engagement<br>
+                         • <span class="highlight">On milestone reached:</span><br>
+                         &nbsp;&nbsp;- 20 sessions → send testimonial request<br>
+                         &nbsp;&nbsp;- 30 days paid → send testimonial request<br>
+                         • Use Resend API to send from your backend<br>
+                         • Store: email_sent_at timestamps to avoid duplicates`
+            },
+            { 
+                id: 9, 
+                title: 'Track Email Metrics', 
+                action: 'Monitor what\'s working, optimize what isn\'t',
+                detail: `• Key metrics to track in Resend dashboard:<br>
+                         • <span class="highlight">Open Rate</span> (goal: >40%):<br>
+                         &nbsp;&nbsp;- If low: Test different subject lines<br>
+                         &nbsp;&nbsp;- Add personalization: "Julio, you're missing out"<br>
+                         • <span class="highlight">Click Rate</span> (goal: >15%):<br>
+                         &nbsp;&nbsp;- If low: CTAs not clear<br>
+                         &nbsp;&nbsp;- Make buttons bigger, clearer<br>
+                         • <span class="highlight">Conversion Rate</span> (goal: 2-5%):<br>
+                         &nbsp;&nbsp;- From upgrade email → paid<br>
+                         &nbsp;&nbsp;- Track in Stripe notes: "source: email"<br>
+                         • Review weekly: Which emails perform best?<br>
+                         • Marc: "Email = highest ROI channel for SaaS"<br>
+                         • Update dashboard with email → revenue attribution`
+            },
+            { 
+                id: 10, 
+                title: 'A/B Test Subject Lines', 
+                action: 'Test 2 versions, keep winner',
+                detail: `• Pick your worst performing email (lowest open rate)<br>
+                         • Create 2 subject line versions:<br>
+                         &nbsp;&nbsp;A: Current subject<br>
+                         &nbsp;&nbsp;B: New variation<br>
+                         • <span class="example">Example for upgrade email:</span><br>
+                         &nbsp;&nbsp;A: "Upgrade to Superfocus Pro"<br>
+                         &nbsp;&nbsp;B: "You're missing out on unlimited focus sessions"<br>
+                         • Split test: 50% get A, 50% get B<br>
+                         • Run for 100 sends minimum (statistically significant)<br>
+                         • Winner = highest open rate + click rate<br>
+                         • Update template with winner<br>
+                         • Repeat monthly: Always be testing<br>
+                         • <span class="highlight">Small improvements compound: 40% → 45% open = 12% more revenue</span>`
+            }
+        ];
+
+        // Render tasks
+        function renderTasks() {
+            const superfocusContainer = document.getElementById('superfocus-tasks');
+            const resendContainer = document.getElementById('resend-tasks');
+            
+            superfocusContainer.innerHTML = '';
+            resendContainer.innerHTML = '';
+            
+            // Render Superfocus tasks
+            superfocusTasks.forEach(task => {
+                const isCompleted = data.superfocusTasks.includes(task.id);
+                const taskEl = document.createElement('div');
+                taskEl.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                taskEl.onclick = () => toggleTask('superfocus', task.id);
+                taskEl.innerHTML = `
+                    <div class="task-checkbox ${isCompleted ? 'checked' : ''}"></div>
+                    <div class="task-content">
+                        <div class="task-title">TASK ${task.id}: ${task.title}</div>
+                        <div class="task-action">${task.action}</div>
+                        <div class="task-detail">${task.detail}</div>
+                    </div>
+                `;
+                superfocusContainer.appendChild(taskEl);
+            });
+            
+            // Render Resend tasks
+            resendTasks.forEach(task => {
+                const isCompleted = data.resendTasks.includes(task.id);
+                const taskEl = document.createElement('div');
+                taskEl.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                taskEl.onclick = () => toggleTask('resend', task.id);
+                taskEl.innerHTML = `
+                    <div class="task-checkbox ${isCompleted ? 'checked' : ''}"></div>
+                    <div class="task-content">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-action">${task.action}</div>
+                        <div class="task-detail">${task.detail}</div>
+                    </div>
+                `;
+                resendContainer.appendChild(taskEl);
+            });
+        }
+
+        // Toggle task
+        function toggleTask(type, taskId) {
+            const taskArray = type === 'superfocus' ? 'superfocusTasks' : 'resendTasks';
+            const index = data[taskArray].indexOf(taskId);
+            
+            if (index > -1) {
+                data[taskArray].splice(index, 1);
+            } else {
+                data[taskArray].push(taskId);
+            }
+            
+            save();
+            renderTasks();
+        }
+
+        // Update metric
+        function updateMetric(metric, inputId, displayId) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            
+            const val = parseFloat(input.value) || 0;
+            data[metric] = val;
+            display.textContent = `$${val}`;
+            
+            updateCalcs();
+            save();
+        }
+
+        // Update calculations
+        function updateCalcs() {
+            const totalCosts = data.ads + data.vercel + data.resend + data.cursor + data.other;
+            document.getElementById('total-costs').textContent = `$${totalCosts}`;
+            
+            const profit = data.revenue - totalCosts;
+            const profitEl = document.getElementById('profit');
+            const profitCard = document.getElementById('profit-card');
+            const profitStatus = document.getElementById('profit-status');
+            
+            profitEl.textContent = `$${profit}`;
+            
+            if (profit >= 0) {
+                profitEl.className = 'stat-value profit-positive';
+                profitCard.className = 'stat-card profit-positive';
+                profitStatus.textContent = 'Break-even reached ✓';
+                profitStatus.style.color = '#4ade80';
+            } else {
+                profitEl.className = 'stat-value profit-negative';
+                profitCard.className = 'stat-card profit-negative';
+                profitStatus.textContent = 'Break-even not reached';
+                profitStatus.style.color = '#f87171';
+            }
+        }
+
+        // Save to localStorage
+        function save() {
+            localStorage.setItem('sf', JSON.stringify(data));
+        }
+
+        // Load from localStorage
+        function load() {
+            const saved = localStorage.getItem('sf');
+            if (saved) {
+                data = JSON.parse(saved);
+                
+                // Update inputs
+                document.getElementById('input-revenue').value = data.revenue;
+                document.getElementById('input-ads').value = data.ads;
+                document.getElementById('input-vercel').value = data.vercel;
+                document.getElementById('input-resend').value = data.resend;
+                document.getElementById('input-cursor').value = data.cursor;
+                document.getElementById('input-other').value = data.other || 0;
+                
+                // Update displays
+                document.getElementById('revenue').textContent = `$${data.revenue}`;
+                document.getElementById('ads').textContent = `$${data.ads}`;
+                document.getElementById('vercel').textContent = `$${data.vercel}`;
+                document.getElementById('resend').textContent = `$${data.resend}`;
+                document.getElementById('cursor').textContent = `$${data.cursor}`;
+                document.getElementById('other').textContent = `$${data.other || 0}`;
+                
+                // Ensure task arrays exist
+                if (!data.superfocusTasks) data.superfocusTasks = [];
+                if (!data.resendTasks) data.resendTasks = [];
+                
+                updateCalcs();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('input-revenue').addEventListener('input', () => updateMetric('revenue', 'input-revenue', 'revenue'));
+        document.getElementById('input-ads').addEventListener('input', () => updateMetric('ads', 'input-ads', 'ads'));
+        document.getElementById('input-vercel').addEventListener('input', () => updateMetric('vercel', 'input-vercel', 'vercel'));
+        document.getElementById('input-resend').addEventListener('input', () => updateMetric('resend', 'input-resend', 'resend'));
+        document.getElementById('input-cursor').addEventListener('input', () => updateMetric('cursor', 'input-cursor', 'cursor'));
+        document.getElementById('input-other').addEventListener('input', () => updateMetric('other', 'input-other', 'other'));
+
+        // Initialize
+        load();
+        updateCalcs();
+        renderTasks();
+    </script>
+</body>
+</html>

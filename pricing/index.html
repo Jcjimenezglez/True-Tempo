@@ -391,7 +391,59 @@
             color: #ffffff;
         }
         
-        /* Intro Text Section Styles */
+        /* User Photos Social Proof Section */
+        .user-photos-section {
+            margin-top: 6rem;
+            margin-bottom: 6rem;
+            padding: 0 2rem;
+        }
+        
+        .user-photos-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .user-photos-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: -8px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .user-photo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid #1a1a1a;
+            object-fit: cover;
+            margin-left: -8px;
+            transition: transform 0.2s ease;
+        }
+        
+        .user-photo:first-child {
+            margin-left: 0;
+        }
+        
+        .user-photo:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            position: relative;
+        }
+        
+        .user-photos-text {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+        
+        .user-photos-number {
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
         /* Social Proof Section */
         .social-proof-section {
             text-align: center;
@@ -500,32 +552,21 @@
             .social-proof-text {
                 font-size: 1.1rem;
             }
-        }
-        
-        .intro-text-section {
-            margin-top: 10rem;
-            margin-bottom: 10rem;
-            padding: 0 2rem;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
-        }
-        
-        .intro-text {
-            color: rgba(255, 255, 255, 0.9);
-            margin: 0 auto 2rem auto;
-        }
-        
-        .intro-text:first-child {
-            font-size: 48px;
-            font-weight: 400;
-        }
-        
-        .intro-text:last-child {
-            font-size: 32px;
-            font-weight: 300;
-            margin-bottom: 0;
+            
+            .user-photos-section {
+                margin-top: 4rem;
+                margin-bottom: 4rem;
+                padding: 0 1rem;
+            }
+            
+            .user-photo {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .user-photos-text {
+                font-size: 1rem;
+            }
         }
         
         /* Use Cases Section Styles */
@@ -1069,25 +1110,6 @@
             
             .pricing-page-header .logo span {
                 display: none;
-            }
-            
-            .intro-text-section {
-                margin-top: 6rem;
-                margin-bottom: 6rem;
-                padding: 0;
-            }
-            
-            .intro-text {
-                width: 100%;
-                max-width: 100%;
-            }
-            
-            .intro-text:first-child {
-                font-size: 2rem;
-            }
-            
-            .intro-text:last-child {
-                font-size: 1.5rem;
             }
             
             .use-cases-section {
@@ -1648,21 +1670,23 @@
                     </div>
                 </div>
                 
-        <!-- Intro Text Section -->
-        <div class="intro-text-section">
-            <p class="intro-text">
-                Your brain wasn't built for distractions.
-            </p>
-            <p class="intro-text">
-                We help you get shit done without burning out. Focus when you need it. Rest when you want it.
-            </p>
-                    </div>
+        <!-- User Photos Social Proof Section -->
+        <div class="user-photos-section">
+            <div class="user-photos-container">
+                <div class="user-photos-grid" id="userPhotosGrid">
+                    <!-- User photos will be loaded here -->
+                </div>
+                <p class="user-photos-text">
+                    Loved by <span id="totalUsersCountDisplay" class="user-photos-number">5,050+</span> users
+                </p>
+            </div>
+        </div>
         
         <!-- Testimonial Section -->
         <div class="testimonial-section">
             <div class="social-proof-section">
                 <p class="social-proof-text">
-                    Join <span id="totalUsersCount" class="social-proof-number">900+</span> focused users
+                    Join <span id="totalUsersCount" class="social-proof-number">5,050+</span> focused users
                 </p>
             </div>
             
@@ -2561,64 +2585,186 @@
             }
         }
         
-        // Load social proof and testimonial data
+        // Load social proof and testimonial data (cached for 24h)
         async function loadSocialProof() {
-            try {
-                // Load total users count
-                const statsResponse = await fetch('/api/public/stats');
-                if (statsResponse.ok) {
-                    const statsData = await statsResponse.json();
-                    if (statsData.success && statsData.roundedTotalUsers) {
-                        const totalUsersElement = document.getElementById('totalUsersCount');
-                        if (totalUsersElement) {
-                            totalUsersElement.textContent = `${statsData.roundedTotalUsers}+`;
-                        }
+            const CACHE_KEY = 'pricing_social_proof';
+            const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+            
+            // Check cache first
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                try {
+                    const cachedData = JSON.parse(cached);
+                    const now = Date.now();
+                    if (cachedData.timestamp && (now - cachedData.timestamp) < CACHE_DURATION) {
+                        // Use cached data
+                        updateSocialProofUI(cachedData.stats, cachedData.users);
+                        return;
                     }
+                } catch (e) {
+                    // Invalid cache, continue to fetch
+                }
+            }
+            
+            // Fetch fresh data
+            try {
+                const [statsResponse, usersResponse] = await Promise.all([
+                    fetch('/api/public/stats'),
+                    fetch('/api/public/users-photos')
+                ]);
+                
+                let statsData = null;
+                let usersData = null;
+                
+                if (statsResponse.ok) {
+                    statsData = await statsResponse.json();
+                }
+                
+                if (usersResponse.ok) {
+                    usersData = await usersResponse.json();
+                }
+                
+                // Update UI
+                updateSocialProofUI(statsData, usersData);
+                
+                // Cache the data
+                if (statsData && usersData) {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify({
+                        timestamp: Date.now(),
+                        stats: statsData,
+                        users: usersData
+                    }));
                 }
             } catch (error) {
                 console.error('Error loading social proof:', error);
+                // Try to use cached data even if expired
+                if (cached) {
+                    try {
+                        const cachedData = JSON.parse(cached);
+                        updateSocialProofUI(cachedData.stats, cachedData.users);
+                    } catch (e) {
+                        // Fallback to default
+                        const totalUsersElement = document.getElementById('totalUsersCountDisplay');
+                        if (totalUsersElement) {
+                            totalUsersElement.textContent = '5,050+';
+                        }
+                    }
+                }
+            }
+        }
+        
+        function updateSocialProofUI(statsData, usersData) {
+            // Update total users count
+            if (statsData && statsData.success && statsData.roundedTotalUsers) {
+                const totalUsersElement = document.getElementById('totalUsersCountDisplay');
+                const oldTotalUsersElement = document.getElementById('totalUsersCount');
+                if (totalUsersElement) {
+                    totalUsersElement.textContent = `${statsData.roundedTotalUsers.toLocaleString()}+`;
+                }
+                if (oldTotalUsersElement) {
+                    oldTotalUsersElement.textContent = `${statsData.roundedTotalUsers}+`;
+                }
+            }
+            
+            // Update user photos
+            if (usersData && usersData.success && usersData.users && usersData.users.length > 0) {
+                const photosGrid = document.getElementById('userPhotosGrid');
+                if (photosGrid) {
+                    photosGrid.innerHTML = '';
+                    // Show up to 8 photos
+                    const photosToShow = usersData.users.slice(0, 8);
+                    photosToShow.forEach(user => {
+                        const img = document.createElement('img');
+                        img.src = user.imageUrl;
+                        img.alt = user.firstName || 'User';
+                        img.className = 'user-photo';
+                        img.onerror = function() {
+                            this.style.display = 'none';
+                        };
+                        photosGrid.appendChild(img);
+                    });
+                }
             }
         }
         
         async function loadTestimonial() {
+            const CACHE_KEY = 'pricing_testimonial';
+            const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+            
+            // Check cache first
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                try {
+                    const cachedData = JSON.parse(cached);
+                    const now = Date.now();
+                    if (cachedData.timestamp && (now - cachedData.timestamp) < CACHE_DURATION) {
+                        // Use cached data
+                        updateTestimonialUI(cachedData.testimonial);
+                        return;
+                    }
+                } catch (e) {
+                    // Invalid cache, continue to fetch
+                }
+            }
+            
+            // Fetch fresh data
             try {
                 const testimonialResponse = await fetch('/api/public/testimonial');
                 if (testimonialResponse.ok) {
                     const testimonialData = await testimonialResponse.json();
                     if (testimonialData.success) {
-                        const nameElement = document.getElementById('testimonialName');
-                        const imageElement = document.getElementById('testimonialImage');
-                        const initialsElement = document.getElementById('testimonialInitials');
+                        updateTestimonialUI(testimonialData);
                         
-                        if (nameElement && testimonialData.name) {
-                            nameElement.textContent = testimonialData.name;
-                        }
-                        
-                        if (imageElement && initialsElement) {
-                            if (testimonialData.imageUrl) {
-                                imageElement.src = testimonialData.imageUrl;
-                                imageElement.style.display = 'block';
-                                initialsElement.style.display = 'none';
-                                
-                                // Handle image load error - fallback to initials
-                                imageElement.onerror = function() {
-                                    const initial = testimonialData.name ? testimonialData.name.charAt(0).toUpperCase() : 'N';
-                                    initialsElement.textContent = initial;
-                                    imageElement.style.display = 'none';
-                                    initialsElement.style.display = 'flex';
-                                };
-                            } else {
-                                // Use first letter of name or 'N' as fallback
-                                const initial = testimonialData.name ? testimonialData.name.charAt(0).toUpperCase() : 'N';
-                                initialsElement.textContent = initial;
-                                imageElement.style.display = 'none';
-                                initialsElement.style.display = 'flex';
-                            }
-                        }
+                        // Cache the data
+                        localStorage.setItem(CACHE_KEY, JSON.stringify({
+                            timestamp: Date.now(),
+                            testimonial: testimonialData
+                        }));
                     }
                 }
             } catch (error) {
                 console.error('Error loading testimonial:', error);
+                // Try to use cached data even if expired
+                if (cached) {
+                    try {
+                        const cachedData = JSON.parse(cached);
+                        updateTestimonialUI(cachedData.testimonial);
+                    } catch (e) {
+                        // Fallback - do nothing, keep default
+                    }
+                }
+            }
+        }
+        
+        function updateTestimonialUI(testimonialData) {
+            const nameElement = document.getElementById('testimonialName');
+            const imageElement = document.getElementById('testimonialImage');
+            const initialsElement = document.getElementById('testimonialInitials');
+            
+            if (nameElement && testimonialData.name) {
+                nameElement.textContent = testimonialData.name;
+            }
+            
+            if (imageElement && initialsElement) {
+                if (testimonialData.imageUrl) {
+                    imageElement.src = testimonialData.imageUrl;
+                    imageElement.style.display = 'block';
+                    initialsElement.style.display = 'none';
+                    
+                    // Handle image load error - fallback to initials
+                    imageElement.onerror = function() {
+                        const initial = testimonialData.name ? testimonialData.name.charAt(0).toUpperCase() : 'N';
+                        initialsElement.textContent = initial;
+                        imageElement.style.display = 'none';
+                        initialsElement.style.display = 'flex';
+                    };
+                } else {
+                    // Use first letter of name or 'N' as fallback
+                    const initial = testimonialData.name ? testimonialData.name.charAt(0).toUpperCase() : 'N';
+                    initialsElement.textContent = initial;
+                    imageElement.style.display = 'none';
+                    initialsElement.style.display = 'flex';
+                }
             }
         }
         
@@ -2633,7 +2779,29 @@
             // Check upgrade intent
             setTimeout(checkUpgradeIntent, 1000);
             
-            // Load social proof and testimonial
+            // Load social proof and testimonial (cached for 24h)
+            // Try to load from cache immediately to avoid showing "+900" flash
+            const cachedSocialProof = localStorage.getItem('pricing_social_proof');
+            if (cachedSocialProof) {
+                try {
+                    const cachedData = JSON.parse(cachedSocialProof);
+                    updateSocialProofUI(cachedData.stats, cachedData.users);
+                } catch (e) {
+                    // Invalid cache, will fetch fresh
+                }
+            }
+            
+            const cachedTestimonial = localStorage.getItem('pricing_testimonial');
+            if (cachedTestimonial) {
+                try {
+                    const cachedData = JSON.parse(cachedTestimonial);
+                    updateTestimonialUI(cachedData.testimonial);
+                } catch (e) {
+                    // Invalid cache, will fetch fresh
+                }
+            }
+            
+            // Then fetch fresh data if needed (will update cache if expired)
             loadSocialProof();
             loadTestimonial();
         });
