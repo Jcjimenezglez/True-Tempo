@@ -667,10 +667,176 @@ class PomodoroTimer {
             try { this.updateDropdownItemsState(); } catch (_) {}
             // Removed extra welcome modal trigger to avoid duplicate rendering
             
-            // Session keepalive: Clerk handles this automatically, no manual touch needed
-            // Removed manual session.touch() calls as they can cause TypeErrors with certain Clerk versions
+            // Session keepalive with safe method
+            this.startSessionKeepalive();
+            
+            // Add visibility change handler to refresh session when user returns
+            this.setupVisibilityHandler();
         } catch (error) {
             console.error('Clerk initialization failed:', error);
+        }
+    }
+    
+    // Safe session keepalive that checks auth state periodically
+    startSessionKeepalive() {
+        // Check session every 5 minutes
+        setInterval(async () => {
+            try {
+                if (window.Clerk && window.Clerk.user) {
+                    // User is still logged in according to Clerk
+                    console.log('🔄 Session keepalive check: user is authenticated');
+                    
+                    // Try to get fresh token to keep session alive
+                    if (window.Clerk.session) {
+                        try {
+                            await window.Clerk.session.getToken();
+                            console.log('✅ Session token refreshed');
+                        } catch (tokenError) {
+                            console.warn('⚠️ Could not refresh token, session may have expired');
+                            this.handlePossibleLogout();
+                        }
+                    }
+                } else if (this.isAuthenticated) {
+                    // We think user is authenticated but Clerk disagrees
+                    console.warn('⚠️ Session may have expired, updating UI...');
+                    this.handlePossibleLogout();
+                }
+            } catch (error) {
+                console.error('❌ Error in session keepalive:', error);
+            }
+        }, 5 * 60 * 1000); // 5 minutes
+    }
+    
+    // Handle when user returns to the tab
+    setupVisibilityHandler() {
+        document.addEventListener('visibilitychange', async () => {
+            if (!document.hidden) {
+                console.log('🔄 Page visible again, checking session...');
+                
+                try {
+                    // Give Clerk a moment to hydrate
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    if (window.Clerk && window.Clerk.user) {
+                        // User is still logged in
+                        console.log('✅ Session still active');
+                        
+                        // Refresh token if possible
+                        if (window.Clerk.session) {
+                            try {
+                                await window.Clerk.session.getToken();
+                            } catch (_) {}
+                        }
+                        
+                        // Update UI if needed
+                        if (!this.isAuthenticated) {
+                            this.isAuthenticated = true;
+                            this.user = window.Clerk.user;
+                            this.updateAuthState();
+                        }
+                    } else if (this.isAuthenticated) {
+                        // We thought user was logged in but they're not
+                        console.warn('⚠️ User session expired while away');
+                        this.handlePossibleLogout();
+                    }
+                } catch (error) {
+                    console.error('❌ Error checking session on visibility change:', error);
+                }
+            }
+        });
+    }
+    
+    // Handle when session might have expired
+    handlePossibleLogout() {
+        console.log('🔄 Handling possible logout...');
+        
+        // Show expired indicator (red dot) before updating state
+        const authIndicator = document.getElementById('authStatusIndicator');
+        if (authIndicator) {
+            authIndicator.classList.add('expired');
+            authIndicator.title = 'Session expired - click to log in';
+        }
+        
+        // Show a notification to the user
+        this.showSessionExpiredNotification();
+        
+        // Update internal state
+        this.isAuthenticated = false;
+        this.user = null;
+        this.isPro = false;
+        
+        // Update UI
+        this.updateAuthState();
+    }
+    
+    // Show notification when session expires
+    showSessionExpiredNotification() {
+        // Create a notification element if it doesn't exist
+        let notification = document.getElementById('sessionExpiredNotification');
+        
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'sessionExpiredNotification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                animation: slideDown 0.3s ease;
+            `;
+            notification.innerHTML = `
+                <span>⚠️ Your session has expired. Please log in again.</span>
+                <button id="sessionExpiredLoginBtn" style="
+                    background: white;
+                    color: #ee5a5a;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 12px;
+                ">Log In</button>
+                <button id="sessionExpiredCloseBtn" style="
+                    background: transparent;
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 18px;
+                    padding: 0 4px;
+                ">×</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add click handlers
+            document.getElementById('sessionExpiredLoginBtn')?.addEventListener('click', () => {
+                notification.remove();
+                if (window.Clerk && window.Clerk.openSignIn) {
+                    window.Clerk.openSignIn();
+                }
+            });
+            
+            document.getElementById('sessionExpiredCloseBtn')?.addEventListener('click', () => {
+                notification.remove();
+            });
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 10000);
         }
     }
 
@@ -2305,6 +2471,14 @@ class PomodoroTimer {
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'flex';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'block';
             
+            // Show auth status indicator (green dot)
+            const authIndicator = document.getElementById('authStatusIndicator');
+            if (authIndicator) {
+                authIndicator.style.display = 'block';
+                authIndicator.classList.remove('expired');
+                authIndicator.title = 'Logged in';
+            }
+            
             // Hide timer header auth buttons when authenticated
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'none';
@@ -2426,6 +2600,12 @@ class PomodoroTimer {
             if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
+            
+            // Hide auth status indicator when not authenticated
+            const authIndicator = document.getElementById('authStatusIndicator');
+            if (authIndicator) {
+                authIndicator.style.display = 'none';
+            }
             
             // Show timer header auth buttons when not authenticated
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
