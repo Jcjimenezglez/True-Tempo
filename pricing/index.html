@@ -400,13 +400,12 @@
         
         .user-photos-container {
             max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
+            text-align: left;
         }
         
         .user-photos-grid {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             gap: -8px;
             margin-bottom: 1.5rem;
@@ -1684,12 +1683,6 @@
         
         <!-- Testimonial Section -->
         <div class="testimonial-section">
-            <div class="social-proof-section">
-                <p class="social-proof-text">
-                    Join <span id="totalUsersCount" class="social-proof-number">5,050+</span> focused users
-                </p>
-            </div>
-            
             <!-- Testimonial 1: Nina -->
             <div class="testimonial-content">
                 <div class="testimonial-avatar">
@@ -2657,12 +2650,8 @@
             // Update total users count
             if (statsData && statsData.success && statsData.roundedTotalUsers) {
                 const totalUsersElement = document.getElementById('totalUsersCountDisplay');
-                const oldTotalUsersElement = document.getElementById('totalUsersCount');
                 if (totalUsersElement) {
                     totalUsersElement.textContent = `${statsData.roundedTotalUsers.toLocaleString()}+`;
-                }
-                if (oldTotalUsersElement) {
-                    oldTotalUsersElement.textContent = `${statsData.roundedTotalUsers}+`;
                 }
             }
             
