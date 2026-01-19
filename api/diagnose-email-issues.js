@@ -97,7 +97,6 @@ module.exports = async (req, res) => {
   // 5. Verificar endpoints de triggers
   diagnosis.checks.endpoints = {
     onSignup: '/api/triggers/on-signup',
-    onCheckoutAbandoned: '/api/triggers/on-checkout-abandoned',
     processScheduled: '/api/cron/process-scheduled-emails',
     testConfig: '/api/test-resend-config',
     note: 'Verifica en Vercel Logs si estos endpoints se están llamando',

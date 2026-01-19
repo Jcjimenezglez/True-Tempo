@@ -61,7 +61,6 @@ module.exports = async (req, res) => {
         // Track emails sent in THIS execution to enforce sequence
         // We only send ONE email per sequence per user per cron run
         let signupEmailSentThisRun = false;
-        let checkoutEmailSentThisRun = false;
 
         // Helper to send email with rate limiting
         const sendScheduledEmail = async (templateFn, tag, sentKey) => {
@@ -123,41 +122,6 @@ module.exports = async (req, res) => {
             now >= scheduledEmails.signupFollowUp2) {
           const sent = await sendScheduledEmail(templates.getSignupFollowUp2, 'signup_followup_2', 'signupFollowUp2Sent');
           if (sent) signupEmailSentThisRun = true;
-        }
-
-        // ========== CHECKOUT ABANDONED SEQUENCE ==========
-        // Only send ONE checkout email per cron run per user
-        // Each email requires the previous one to be sent in a PREVIOUS run
-
-        // Check checkout abandoned 1 (1 hour after)
-        if (!checkoutEmailSentThisRun && 
-            scheduledEmails.checkoutAbandoned1 && 
-            !scheduledEmails.checkoutAbandoned1Sent && 
-            now >= scheduledEmails.checkoutAbandoned1) {
-          const sent = await sendScheduledEmail(templates.getCheckoutAbandonedEmail1, 'checkout_abandoned_1', 'checkoutAbandoned1Sent');
-          if (sent) checkoutEmailSentThisRun = true;
-        }
-
-        // Check checkout abandoned 2 (24 hours after)
-        // REQUIRES: checkoutAbandoned1 must be sent in a PREVIOUS run
-        if (!checkoutEmailSentThisRun && 
-            scheduledEmails.checkoutAbandoned1Sent && // Email 1 must have been sent BEFORE this run
-            scheduledEmails.checkoutAbandoned2 && 
-            !scheduledEmails.checkoutAbandoned2Sent && 
-            now >= scheduledEmails.checkoutAbandoned2) {
-          const sent = await sendScheduledEmail(templates.getCheckoutAbandonedEmail2, 'checkout_abandoned_2', 'checkoutAbandoned2Sent');
-          if (sent) checkoutEmailSentThisRun = true;
-        }
-
-        // Check checkout abandoned 3 (3 days after)
-        // REQUIRES: checkoutAbandoned2 must be sent in a PREVIOUS run
-        if (!checkoutEmailSentThisRun && 
-            scheduledEmails.checkoutAbandoned2Sent && // Email 2 must have been sent BEFORE this run
-            scheduledEmails.checkoutAbandoned3 && 
-            !scheduledEmails.checkoutAbandoned3Sent && 
-            now >= scheduledEmails.checkoutAbandoned3) {
-          const sent = await sendScheduledEmail(templates.getCheckoutAbandonedEmail3, 'checkout_abandoned_3', 'checkoutAbandoned3Sent');
-          if (sent) checkoutEmailSentThisRun = true;
         }
 
         processed++;

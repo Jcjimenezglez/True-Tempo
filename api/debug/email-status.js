@@ -54,21 +54,6 @@ module.exports = async (req, res) => {
           sent: scheduledEmails.signupFollowUp2Sent || false,
           ready: scheduledEmails.signupFollowUp2 && now >= scheduledEmails.signupFollowUp2,
         },
-        checkoutAbandoned1: {
-          scheduledFor: scheduledEmails.checkoutAbandoned1 ? new Date(scheduledEmails.checkoutAbandoned1).toISOString() : null,
-          sent: scheduledEmails.checkoutAbandoned1Sent || false,
-          ready: scheduledEmails.checkoutAbandoned1 && now >= scheduledEmails.checkoutAbandoned1,
-        },
-        checkoutAbandoned2: {
-          scheduledFor: scheduledEmails.checkoutAbandoned2 ? new Date(scheduledEmails.checkoutAbandoned2).toISOString() : null,
-          sent: scheduledEmails.checkoutAbandoned2Sent || false,
-          ready: scheduledEmails.checkoutAbandoned2 && now >= scheduledEmails.checkoutAbandoned2,
-        },
-        checkoutAbandoned3: {
-          scheduledFor: scheduledEmails.checkoutAbandoned3 ? new Date(scheduledEmails.checkoutAbandoned3).toISOString() : null,
-          sent: scheduledEmails.checkoutAbandoned3Sent || false,
-          ready: scheduledEmails.checkoutAbandoned3 && now >= scheduledEmails.checkoutAbandoned3,
-        },
       },
       rawMetadata: metadata,
     };

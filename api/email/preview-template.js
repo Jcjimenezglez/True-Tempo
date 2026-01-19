@@ -17,9 +17,6 @@ module.exports = async (req, res) => {
           'welcome',
           'signup_followup_1',
           'signup_followup_2',
-          'checkout_abandoned_1',
-          'checkout_abandoned_2',
-          'checkout_abandoned_3',
           'subscription_welcome'
         ]
       });
@@ -36,15 +33,6 @@ module.exports = async (req, res) => {
       case 'signup_followup_2':
         emailTemplate = templates.getSignupFollowUp2({ firstName });
         break;
-      case 'checkout_abandoned_1':
-        emailTemplate = templates.getCheckoutAbandonedEmail1({ firstName });
-        break;
-      case 'checkout_abandoned_2':
-        emailTemplate = templates.getCheckoutAbandonedEmail2({ firstName });
-        break;
-      case 'checkout_abandoned_3':
-        emailTemplate = templates.getCheckoutAbandonedEmail3({ firstName });
-        break;
       case 'subscription_welcome':
         emailTemplate = templates.getSubscriptionWelcomeEmail({ firstName });
         break;
@@ -55,9 +43,6 @@ module.exports = async (req, res) => {
             'welcome',
             'signup_followup_1',
             'signup_followup_2',
-            'checkout_abandoned_1',
-            'checkout_abandoned_2',
-            'checkout_abandoned_3',
             'subscription_welcome'
           ]
         });
