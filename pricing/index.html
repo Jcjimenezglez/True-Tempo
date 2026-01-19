@@ -583,7 +583,93 @@
             color: rgba(255, 255, 255, 0.9);
         }
         
+        /* How It Works Section */
+        .how-it-works-section {
+            margin-top: 6rem;
+            margin-bottom: 6rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .how-it-works-intro {
+            text-align: left;
+            margin-bottom: 4rem;
+        }
+        
+        .how-it-works-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+            line-height: 1.2;
+        }
+        
+        .how-it-works-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .how-it-works-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .how-it-works-step {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .how-it-works-step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 95, 70, 0.2));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #10b981;
+            flex-shrink: 0;
+        }
+        
+        .how-it-works-step-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .how-it-works-step-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1.3;
+        }
+        
+        .how-it-works-step-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.75);
+            margin: 0;
+        }
+        
         @media (max-width: 1024px) {
+            .how-it-works-steps {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .how-it-works-title {
+                font-size: 2.5rem;
+            }
+            
             .testimonial-section {
                 grid-template-columns: 1fr;
                 gap: 2rem;
@@ -1836,6 +1922,49 @@
                     <div class="testimonial-author-info">
                         <p class="testimonial-author-name">Alex S.</p>
                         <p class="testimonial-author-title">Associate Attorney</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works Section -->
+        <div class="how-it-works-section">
+            <div class="how-it-works-intro">
+                <h2 class="how-it-works-title">How it works</h2>
+                <p class="how-it-works-subtitle">Get started in three simple steps</p>
+            </div>
+            
+            <div class="how-it-works-steps">
+                <!-- Step 1 -->
+                <div class="how-it-works-step">
+                    <div class="how-it-works-step-number">1</div>
+                    <div class="how-it-works-step-content">
+                        <h3 class="how-it-works-step-title">Choose your technique</h3>
+                        <p class="how-it-works-step-description">
+                            Select from Pomodoro, Flowtime, Time Blocking, or create your own custom timer. Set durations that match how you actually work—not how someone else thinks you should.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="how-it-works-step">
+                    <div class="how-it-works-step-number">2</div>
+                    <div class="how-it-works-step-content">
+                        <h3 class="how-it-works-step-title">Start & focus</h3>
+                        <p class="how-it-works-step-description">
+                            Press start and dive into deep work. Background focus music helps you maintain concentration while the timer guides you through your session without distractions.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="how-it-works-step">
+                    <div class="how-it-works-step-number">3</div>
+                    <div class="how-it-works-step-content">
+                        <h3 class="how-it-works-step-title">Track & improve</h3>
+                        <p class="how-it-works-step-description">
+                            View your productivity statistics, identify your peak focus hours, and improve your routine with data-driven insights into your work habits.
+                        </p>
                     </div>
                 </div>
             </div>
