@@ -58,7 +58,7 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
               <p><strong>Want more?</strong></p>
               <p>Premium gives you unlimited timers, unlimited focus time, custom vibes, and advanced analytics.</p>
               
-              <p>Try it free for 7 days. Cancel anytime.</p>
+              <p>Try it free for 14 days. Cancel anytime.</p>
               
               <div class="button-container">
                 <a href="${PRICING_URL}" class="button">Start Free Trial</a>
@@ -90,7 +90,7 @@ What you can do now:
 - Use 1 hour of focus time per day
 - Listen to focus music
 
-Want more? Try Premium free for 7 days: ${PRICING_URL}
+Want more? Try Premium free for 14 days: ${PRICING_URL}
 
 Ready to focus? ${APP_URL}
 
@@ -118,7 +118,7 @@ function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
             </div>
             <div class="content">
               <p>Hi ${firstName},</p>
-              <p>You're now a Premium member. Your 7-day free trial has started.</p>
+              <p>You're now a Premium member. Your 14-day free trial has started.</p>
               
               <p><strong>What's unlocked:</strong></p>
               
@@ -171,7 +171,7 @@ Welcome to Premium
 
 Hi ${firstName},
 
-You're now a Premium member. Your 7-day free trial has started.
+You're now a Premium member. Your 14-day free trial has started.
 
 What's unlocked:
 - Unlimited Custom Timers
@@ -226,7 +226,7 @@ function getSignupFollowUp1({ firstName = 'there' }) {
               </div>
               
               <p><strong>Want unlimited timers and focus time?</strong></p>
-              <p>Try Premium free for 7 days. Create custom timers, design your own vibes, and track your progress.</p>
+              <p>Try Premium free for 14 days. Create custom timers, design your own vibes, and track your progress.</p>
               
               <p><a href="${PRICING_URL}">Start your free trial</a></p>
               
@@ -256,7 +256,7 @@ That's it. Repeat 4 times for a full cycle.
 
 Start your first session: ${APP_URL}
 
-Want unlimited timers and focus time? Try Premium free for 7 days: ${PRICING_URL}
+Want unlimited timers and focus time? Try Premium free for 14 days: ${PRICING_URL}
 
 — The Superfocus Team
     `,
@@ -293,7 +293,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
                 <li><strong>Analytics</strong> — See your productivity patterns</li>
               </ul>
               
-              <p>Try it free for 7 days. If it's not for you, cancel and pay nothing.</p>
+              <p>Try it free for 14 days. If it's not for you, cancel and pay nothing.</p>
               
               <p>After the trial, it's $3.99/month.</p>
               
@@ -327,7 +327,7 @@ If you're running into limits, Premium removes them:
 - Custom vibes — Design your focus environment
 - Analytics — See your productivity patterns
 
-Try it free for 7 days. If it's not for you, cancel and pay nothing.
+Try it free for 14 days. If it's not for you, cancel and pay nothing.
 
 After the trial, it's $3.99/month.
 

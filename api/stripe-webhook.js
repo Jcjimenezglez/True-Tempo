@@ -476,7 +476,7 @@ async function handleCheckoutCompleted(session, clerk) {
         try {
           const userName = currentUser.firstName || currentUser.username || 'Usuario';
           const userEmailDisplay = userEmail || 'N/A';
-          const trialDays = 7; // 7 days trial
+          const trialDays = 14; // 14 days trial
           const notificationTitle = '🎉 Nuevo Trial Suscrito!';
           const notificationMessage = `👤 Usuario: ${userName}\n📧 Email: ${userEmailDisplay}\n📦 Plan: Premium (${trialDays} días trial)\n📅 Fecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n💰 Trial gratuito activado`;
           
