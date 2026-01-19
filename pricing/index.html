@@ -395,7 +395,7 @@
         .user-photos-section {
             margin-top: 6rem;
             margin-bottom: 6rem;
-            padding: 0 2rem;
+            padding: 0;
         }
         
         .user-photos-container {
@@ -407,7 +407,7 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            gap: -8px;
+            gap: 0;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
@@ -418,7 +418,7 @@
             border-radius: 50%;
             border: 2px solid #1a1a1a;
             object-fit: cover;
-            margin-left: -8px;
+            margin-left: -12px;
             transition: transform 0.2s ease;
         }
         
@@ -555,7 +555,7 @@
             .user-photos-section {
                 margin-top: 4rem;
                 margin-bottom: 4rem;
-                padding: 0 1rem;
+                padding: 0;
             }
             
             .user-photo {
@@ -2660,16 +2660,38 @@
                 const photosGrid = document.getElementById('userPhotosGrid');
                 if (photosGrid) {
                     photosGrid.innerHTML = '';
-                    // Show up to 8 photos
-                    const photosToShow = usersData.users.slice(0, 8);
+                    // Show up to 8 photos, filter out invalid images
+                    const photosToShow = usersData.users.slice(0, 12); // Get more to filter
+                    let validPhotosCount = 0;
+                    const maxPhotos = 8;
+                    
                     photosToShow.forEach(user => {
+                        if (validPhotosCount >= maxPhotos) return;
+                        
+                        // Validate image URL - must be a real URL, not placeholder
+                        if (!user.imageUrl || 
+                            user.imageUrl.includes('placeholder') ||
+                            user.imageUrl.includes('default-avatar') ||
+                            user.imageUrl.includes('initials')) {
+                            return; // Skip this user
+                        }
+                        
                         const img = document.createElement('img');
                         img.src = user.imageUrl;
                         img.alt = user.firstName || 'User';
                         img.className = 'user-photo';
-                        img.onerror = function() {
-                            this.style.display = 'none';
+                        img.loading = 'lazy';
+                        
+                        // Only add to DOM if image loads successfully
+                        img.onload = function() {
+                            validPhotosCount++;
                         };
+                        
+                        img.onerror = function() {
+                            // Remove from DOM if image fails to load
+                            this.remove();
+                        };
+                        
                         photosGrid.appendChild(img);
                     });
                 }
