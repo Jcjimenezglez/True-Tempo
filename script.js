@@ -6735,6 +6735,11 @@ class PomodoroTimer {
             }
         }
         
+        // Pause Lofi music if playing
+        if (this.lofiPlaying) {
+            this.pauseLofiPlaylist();
+        }
+        
         // Pause Tron music if Tron theme is active
         if (this.currentImmersiveTheme === 'tron') {
             this.pauseTronMusic();
