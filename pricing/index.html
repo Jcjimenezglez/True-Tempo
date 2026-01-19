@@ -2111,64 +2111,63 @@
                 e.preventDefault();
                 console.log('Premium button clicked from', source);
                 
+                // Disable button immediately to prevent double clicks
+                const originalText = button.textContent;
+                button.disabled = true;
+                button.textContent = 'Loading...';
+                
                 // Check if user is authenticated
                 const isAuthenticated = window.Clerk && window.Clerk.user;
                 const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
                 
-                // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
-                if (window.mixpanel && window.mixpanel.track) {
-                    window.mixpanel.track('Stripe Checkout Opened', {
-                        source: source,
-                        user_type: isAuthenticated ? 'free_user' : 'guest',
-                        plan_type: 'premium',
-                        timestamp: new Date().toISOString()
-                    });
-                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Opened');
+                // Track asynchronously (don't block)
+                setTimeout(() => {
+                    // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
+                    if (window.mixpanel && window.mixpanel.track) {
+                        window.mixpanel.track('Stripe Checkout Opened', {
+                            source: source,
+                            user_type: isAuthenticated ? 'free_user' : 'guest',
+                            plan_type: 'premium',
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        // Also track as Subscribe Clicked
+                        window.mixpanel.track('Subscribe Clicked', {
+                            button_type: 'subscribe',
+                            source: source,
+                            location: source,
+                            user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
+                            modal_type: source,
+                            plan_type: 'premium'
+                        });
+                    }
                     
-                    // Also track as Subscribe Clicked
-                    window.mixpanel.track('Subscribe Clicked', {
-                        button_type: 'subscribe',
-                        source: source,
-                        location: source,
-                        user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
-                        modal_type: source,
-                        plan_type: 'premium'
-                    });
-                    console.log('✅ Mixpanel tracking sent: Subscribe Clicked');
-                } else {
-                    console.log('❌ Mixpanel not available');
-                }
-                
-                const userTypeForAds = isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest';
-                if (typeof window.gtag === 'function') {
-                    window.gtag('event', 'subscribe_clicked', {
-                        event_category: 'engagement',
-                        event_label: source,
-                        source: source,
-                        user_type: userTypeForAds,
-                        value: 0.1,
-                        currency: 'USD',
-                        non_interaction: false
-                    });
-                    
-                    window.gtag('event', 'conversion', {
-                        send_to: 'AW-17614436696/zsizCNqYgbgbENjym89B',
-                        value: 1.0,
-                        currency: 'USD',
-                        source: source,
-                        user_type: userTypeForAds
-                    });
-                    
-                    console.log('✅ Google Ads tracking sent: Subscribe Clicked');
-                } else {
-                    console.warn('⚠️ gtag not available for Google Ads tracking');
-                }
+                    const userTypeForAds = isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest';
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'subscribe_clicked', {
+                            event_category: 'engagement',
+                            event_label: source,
+                            source: source,
+                            user_type: userTypeForAds,
+                            value: 0.1,
+                            currency: 'USD',
+                            non_interaction: false
+                        });
+                        
+                        window.gtag('event', 'conversion', {
+                            send_to: 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                            value: 1.0,
+                            currency: 'USD',
+                            source: source,
+                            user_type: userTypeForAds
+                        });
+                    }
+                }, 0);
                 
                 if (isPremium) {
                     // Already premium
                     console.log('User already has Premium');
                     button.textContent = 'You have Premium';
-                    button.disabled = true;
                     button.classList.add('disabled');
                     return;
                 }
@@ -2176,7 +2175,11 @@
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
                     console.log('Creating checkout session for Premium trial...');
-                    createCheckoutSession('premium');
+                    createCheckoutSession('premium').catch(() => {
+                        // Re-enable button on error
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    });
                 } else {
                     // Guest user - redirect to signup with upgrade intent
                     console.log('Redirecting guest to signup with upgrade intent...');
@@ -2189,8 +2192,15 @@
         // Wait for Clerk to be fully loaded with session
         async function waitForClerkReady() {
             return new Promise((resolve) => {
+                // If Clerk is already loaded, resolve immediately
+                if (window.Clerk && window.Clerk.loaded) {
+                    console.log('✅ Clerk already loaded');
+                    resolve(true);
+                    return;
+                }
+                
                 let attempts = 0;
-                const maxAttempts = 50; // 5 seconds max
+                const maxAttempts = 30; // 3 seconds max (reduced from 5)
                 
                 const checkClerk = () => {
                     attempts++;
@@ -2203,7 +2213,7 @@
                     }
                     
                     if (attempts >= maxAttempts) {
-                        console.warn('⚠️ Clerk took too long to load');
+                        console.warn('⚠️ Clerk took too long to load, proceeding anyway');
                         resolve(false);
                         return;
                     }
@@ -2329,44 +2339,18 @@
 
         async function createCheckoutSession(planType = 'premium') {
             try {
-                // Attach a per-attempt run id so frontend+backend logs correlate
-                window.__debugRunId = window.__debugRunId || (`run_${Date.now()}_${Math.random().toString(16).slice(2,8)}`);
-
-                // #region agent log
-                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                    fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'A',location:'pricing/index.html:createCheckoutSession:start',message:'createCheckoutSession called',data:{planType,userIdPresent:!!(window.Clerk?.user?.id),emailPresent:!!(window.Clerk?.user?.primaryEmailAddress?.emailAddress)},timestamp:Date.now()})}).catch(()=>{});
-                }
-                // #endregion
-
-                // Track that checkout session is being created
-                if (window.mixpanel && window.mixpanel.track) {
-                    window.mixpanel.track('Stripe Checkout Session Created', {
-                        source: 'pricing_page',
-                        plan_type: planType,
-                        timestamp: new Date().toISOString()
-                    });
-                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Session Created');
-                }
+                console.log('🚀 Creating checkout session...');
                 
-                // Track Checkout Session Created in Google Ads
-                if (typeof window.gtag === 'function') {
-                    window.gtag('event', 'conversion', {
-                        'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
-                        'value': 1.0,
-                        'currency': 'USD'
-                    });
-                    console.log('✅ Google Ads tracking sent: Checkout Session Created');
-                }
-                
+                // Get user info immediately
                 const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress || '';
                 const userId = window.Clerk?.user?.id || '';
-
-                const response = await fetch('/api/create-checkout-session', {
+                
+                // Start API call immediately (don't wait for tracking)
+                const checkoutPromise = fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-clerk-userid': userId,
-                        'x-debug-runid': (window.__debugRunId || '')
+                        'x-clerk-userid': userId
                     },
                     body: JSON.stringify({
                         planType: planType,
@@ -2374,59 +2358,67 @@
                         userId: userId
                     })
                 });
+                
+                // Track asynchronously (don't block)
+                setTimeout(() => {
+                    if (window.mixpanel && window.mixpanel.track) {
+                        window.mixpanel.track('Stripe Checkout Session Created', {
+                            source: 'pricing_page',
+                            plan_type: planType,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                    
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'conversion', {
+                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                            'value': 1.0,
+                            'currency': 'USD'
+                        });
+                    }
+                }, 0);
 
-                // #region agent log
-                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                    fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'B',location:'pricing/index.html:createCheckoutSession:response',message:'create-checkout-session response received',data:{ok:response.ok,status:response.status,planType},timestamp:Date.now()})}).catch(()=>{});
-                }
-                // #endregion
+                const response = await checkoutPromise;
 
                 if (!response.ok) {
                     const errorData = await response.json();
-
-                    // #region agent log
-                    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                        fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'B',location:'pricing/index.html:createCheckoutSession:errorBody',message:'create-checkout-session non-OK',data:{status:response.status,error:(errorData && (errorData.error||errorData.message))?String(errorData.error||errorData.message).slice(0,200):'unknown'},timestamp:Date.now()})}).catch(()=>{});
-                    }
-                    // #endregion
-
                     throw new Error(errorData.error || 'Failed to create checkout session');
                 }
 
                 const data = await response.json();
                 if (data.url) {
-                    // #region agent log
-                    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                        fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(window.__debugRunId||'pre-fix'),hypothesisId:'D',location:'pricing/index.html:createCheckoutSession:redirect',message:'redirecting to Stripe checkout URL',data:{hasUrl:true,planType},timestamp:Date.now()})}).catch(()=>{});
-                    }
-                    // #endregion
+                    console.log('✅ Redirecting to Stripe checkout...');
                     window.location.href = data.url;
                 } else {
                     throw new Error('No checkout URL received');
                 }
             } catch (error) {
-                console.error('Error creating checkout session:', error);
+                console.error('❌ Error creating checkout session:', error);
                 
-                // Track checkout error
-                if (window.mixpanel && window.mixpanel.track) {
-                    window.mixpanel.track('Stripe Checkout Error', {
-                        source: 'pricing_page',
-                        error: error.message,
-                        plan_type: planType,
-                        timestamp: new Date().toISOString()
-                    });
-                    console.log('✅ Mixpanel tracking sent: Stripe Checkout Error');
-                }
+                // Track checkout error asynchronously
+                setTimeout(() => {
+                    if (window.mixpanel && window.mixpanel.track) {
+                        window.mixpanel.track('Stripe Checkout Error', {
+                            source: 'pricing_page',
+                            error: error.message,
+                            plan_type: planType,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                    
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'exception', {
+                            description: 'Checkout session creation failed: ' + error.message,
+                            fatal: false
+                        });
+                    }
+                }, 0);
                 
-                // Track error in Google Ads
-                if (typeof window.gtag === 'function') {
-                    window.gtag('event', 'exception', {
-                        description: 'Checkout session creation failed: ' + error.message,
-                        fatal: false
-                    });
-                }
+                // Show user-friendly error message
+                alert('Unable to open checkout. Please try again or contact support.');
                 
-                alert('Error creating checkout session. Please try again.');
+                // Re-throw to allow button to re-enable
+                throw error;
             }
         }
 
