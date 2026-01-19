@@ -2660,10 +2660,10 @@
                 const photosGrid = document.getElementById('userPhotosGrid');
                 if (photosGrid) {
                     photosGrid.innerHTML = '';
-                    // Show up to 5 photos, filter out invalid images
-                    const photosToShow = usersData.users.slice(0, 5);
+                    // Show up to 8 photos (fixed selection)
+                    const photosToShow = usersData.users.slice(0, 8);
                     let validPhotosCount = 0;
-                    const maxPhotos = 5;
+                    const maxPhotos = 8;
                     
                     photosToShow.forEach(user => {
                         if (validPhotosCount >= maxPhotos) return;

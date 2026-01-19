@@ -106,12 +106,48 @@ module.exports = async (req, res) => {
       return true; // Keep if no createdAt info
     });
 
-    // Shuffle and take first 5 users for display (prioritize older accounts)
-    // Fetch more to have better selection and avoid children/placeholders
-    const shuffled = filteredUsers.length > 0 
-      ? filteredUsers.sort(() => 0.5 - Math.random())
-      : allUsers.sort(() => 0.5 - Math.random());
-    const selectedUsers = shuffled.slice(0, 5);
+    // List of user emails/IDs to exclude (add specific ones here)
+    // TODO: Add the 3 specific user emails/IDs to exclude:
+    // 1. The girl with pigtails (yellow top)
+    // 2. The user with letter "V" on orange background
+    // 3. The generic profile icon (white silhouette)
+    const excludedEmails = [
+      // Add emails here to exclude specific users
+      // Example: 'user@example.com'
+    ];
+    
+    const excludedUserIds = [
+      // Add user IDs here to exclude specific users
+      // Example: 'user_abc123'
+    ];
+    
+    // Filter out excluded users
+    const finalFilteredUsers = (filteredUsers.length > 0 ? filteredUsers : allUsers)
+      .filter(user => {
+        // Exclude by email
+        if (user.emailAddress && excludedEmails.includes(user.emailAddress)) {
+          return false;
+        }
+        // Exclude by user ID
+        if (user.id && excludedUserIds.includes(user.id)) {
+          return false;
+        }
+        return true;
+      });
+    
+    // Sort deterministically (by createdAt or id) to get fixed users, not random
+    // This ensures the same 8 users are always selected (fixed selection)
+    const sortedUsers = finalFilteredUsers.sort((a, b) => {
+      // Sort by creation date (oldest first) for consistency
+      if (a.createdAt && b.createdAt) {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      }
+      // Fallback to ID for consistent sorting
+      return (a.id || '').localeCompare(b.id || '');
+    });
+    
+    // Take first 8 users (fixed selection - always the same users)
+    const selectedUsers = sortedUsers.slice(0, 8);
 
     // Update cache
     cachedUsers = selectedUsers;
