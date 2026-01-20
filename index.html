@@ -2601,10 +2601,8 @@
                     return; // Don't show modal if already completed
                 }
 
-                // Show modal after a short delay (500ms)
-                setTimeout(() => {
-                    modal.style.display = 'flex';
-                }, 500);
+                // Show modal immediately
+                modal.style.display = 'flex';
             };
         })();
     </script>
