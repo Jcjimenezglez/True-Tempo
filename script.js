@@ -13271,254 +13271,287 @@ class PomodoroTimer {
 
     displayBasicReport(containerElement, stats) {
         const totalHours = stats.totalHours || 0;
-        const hours = Math.floor(totalHours);
-        const minutes = Math.round((totalHours - hours) * 60);
-        const timeString = `${hours}h ${minutes}m`;
+        
+        // Calculate sessions, avg, breaks
+        const totalSessions = stats.completedCycles || 0;
+        const avgHours = totalSessions > 0 ? totalHours / totalSessions : 0;
+        const breaks = 0; // TODO: track breaks
 
-        // Calculate current streak
-        const currentStreak = this.calculateCurrentStreak(stats);
-        const longestStreak = this.calculateLongestStreak(stats);
-
-        // Get last 7 days data
-        const last7Days = this.getLastNDaysData(stats, 7);
+        // Get current month name
+        const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
         const html = `
             <div style="padding: 0;">
-                <!-- Basic Stats -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
-                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
-                    </div>
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
-                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
-                    </div>
-                </div>
-
-                <!-- Simple Chart (Last 7 Days) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Last 7 Days</h4>
-                    <div style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
-                        ${(() => {
-                            const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
-                            return last7Days.map(day => {
-                                const height = (day.hours / maxHours) * 100;
-                                return `
-                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
-                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
-                                        <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
-                                        <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
-                                    </div>
-                                `;
-                            }).join('');
-                        })()}
+                <!-- Summary Stats (HABILITADO para FREE) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
+                    <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
+                    
+                    <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${totalHours.toFixed(1)}</div>
+                    <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
+                        <span>${totalSessions} Sessions</span>
+                        <span>•</span>
+                        <span>${avgHours.toFixed(1)}h Avg</span>
+                        <span>•</span>
+                        <span>${breaks} Breaks</span>
                     </div>
                 </div>
 
-                <!-- Upgrade Prompt -->
-                <div style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); border-radius: 12px; padding: 20px; text-align: center;">
-                    <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 16px;">See what you're missing</h4>
-                    <p style="margin: 0 0 16px 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Heatmaps show when you focus best. Trends reveal your patterns. Comparisons show your growth. This is the data that helps you work smarter, not harder.</p>
-                    <button id="upgradeToUnlimitedFromReport" style="background: white; color: var(--onyx-dark, #064e3b); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
-                </div>
-            </div>
-        `;
-
-        containerElement.innerHTML = html;
-
-        // Add upgrade button event
-        const upgradeBtn = document.getElementById('upgradeToUnlimitedFromReport');
-        if (upgradeBtn) {
-            upgradeBtn.addEventListener('click', () => {
-                // 🎯 Track Subscribe Clicked event to Mixpanel
-                if (window.pomodoroTimer) {
-                    window.pomodoroTimer.trackEvent('Subscribe Clicked', {
-                        button_type: 'subscribe',
-                        source: 'report_panel',
-                        location: 'report_panel',
-                        user_type: window.pomodoroTimer.isAuthenticated ? (window.pomodoroTimer.isPremiumUser() ? 'pro' : 'free') : 'guest',
-                        modal_type: 'report_upgrade_prompt'
-                    });
-                }
-                window.location.href = '/pricing';
-            });
-        }
-    }
-
-    displayAdvancedReport(containerElement, stats) {
-        // This will be implemented with heatmap, trends, comparisons, and insights
-        const totalHours = stats.totalHours || 0;
-        const hours = Math.floor(totalHours);
-        const minutes = Math.round((totalHours - hours) * 60);
-        const timeString = `${hours}h ${minutes}m`;
-
-        // Calculate streaks
-        const currentStreak = this.calculateCurrentStreak(stats);
-        const longestStreak = this.calculateLongestStreak(stats);
-
-        // Get data for different time periods
-        const last7Days = this.getLastNDaysData(stats, 7);
-        const last30Days = this.getLastNDaysData(stats, 30);
-        const last4Weeks = this.getLastNWeeksData(stats, 4);
-        const last12Months = this.getLastNMonthsData(stats, 12);
-
-        // Calculate insights
-        const insights = this.calculateInsights(stats, last30Days);
-
-        // Generate heatmap data
-        const heatmapData = this.generateHeatmapData(stats, 365); // Last year
-
-        const html = `
-            <div style="padding: 0;">
-                <!-- Stats Overview -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${timeString}</div>
-                        <div style="font-size: 14px; color: #a3a3a3;">Total Focus Hours</div>
-                    </div>
-                    <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px;">${currentStreak}</div>
-                        <div style="font-size: 14px; color: #a3a3a3;">Day Streak</div>
-                    </div>
-                </div>
-
-                <!-- Trends Chart with Toggle -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h4 style="margin: 0; color: #fff; font-size: 16px;" id="trendsChartTitle">Last 4 Weeks</h4>
-                        <div style="display: flex; gap: 8px; background: #1a1a1a; padding: 4px; border-radius: 8px;">
-                            <button id="toggleToWeeks" class="trends-toggle-btn active" style="padding: 6px 12px; border: none; border-radius: 6px; background: var(--onyx-dark, #064e3b); color: white; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Weeks</button>
-                            <button id="toggleToDays" class="trends-toggle-btn" style="padding: 6px 12px; border: none; border-radius: 6px; background: transparent; color: #a3a3a3; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Days</button>
-                        </div>
-                    </div>
-                    <div id="trendsChartContent" style="height: 150px; display: flex; align-items: flex-end; gap: 8px;">
-                        ${(() => {
-                            const maxHours = Math.max(...last4Weeks.map(w => w.hours), 1);
-                            return last4Weeks.map(week => {
-                                const height = (week.hours / maxHours) * 100;
-                                return `
-                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
-                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
-                                        <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
-                                        <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
-                                    </div>
-                                `;
-                            }).join('');
-                        })()}
-                    </div>
-                </div>
-
-                <!-- Heatmap -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity Heatmap (Last Year)</h4>
-                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                        ${heatmapData.map(day => {
-                            const intensity = Math.min(day.hours / 4, 1); // Max 4 hours = full intensity
-                            const color = this.getHeatmapColor(intensity);
-                            return `
-                                <div 
-                                    style="width: 12px; height: 12px; background: ${color}; border-radius: 2px; cursor: pointer;"
-                                    title="${day.date}: ${day.hours.toFixed(1)}h"
-                                ></div>
-                            `;
-                        }).join('')}
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; color: #a3a3a3;">
-                        <span>Less</span>
-                        <div style="display: flex; gap: 4px;">
-                            <div style="width: 12px; height: 12px; background: #161b22; border-radius: 2px;"></div>
-                            <div style="width: 12px; height: 12px; background: #0e4429; border-radius: 2px;"></div>
-                            <div style="width: 12px; height: 12px; background: #006d32; border-radius: 2px;"></div>
-                            <div style="width: 12px; height: 12px; background: #26a641; border-radius: 2px;"></div>
-                            <div style="width: 12px; height: 12px; background: #39d353; border-radius: 2px;"></div>
-                        </div>
-                        <span>More</span>
-                    </div>
-                </div>
-
-                <!-- Comparison -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">This Month vs Last Month</h4>
-                    ${this.renderComparison(stats)}
-                </div>
-
-                <!-- Insights -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Insights</h4>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        ${insights.map(insight => `
-                            <div style="padding: 12px; background: #1a1a1a; border-radius: 8px; border-left: 3px solid var(--onyx-dark, #064e3b);">
-                                <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${insight.title}</div>
-                                <div style="color: #a3a3a3; font-size: 12px;">${insight.description}</div>
+                <!-- Gráfica (DESHABILITADO para FREE) -->
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
+                    <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Activity Chart</h4>
+                    <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
+                        ${Array(7).fill(0).map((_, i) => `
+                            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                                <div style="width: 100%; height: ${Math.random() * 60 + 20}%; background: #444; border-radius: 4px;"></div>
+                                <div style="font-size: 10px; color: #666;">Day ${i + 1}</div>
                             </div>
                         `).join('')}
                     </div>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Premium Feature</div>
+                            <button id="upgradeFromChart" style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity (DESHABILITADO para FREE) -->
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
+                    <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Recent Activity</h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${[1, 2].map(i => `
+                            <div style="background: #333; border-radius: 8px; padding: 12px;">
+                                <div style="color: #666; font-size: 14px; margin-bottom: 4px;">1/${16 - i}/26 • Task Name</div>
+                                <div style="color: #666; font-size: 12px;">2.5h • 3 sessions • 09:00 - 11:30</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Premium Feature</div>
+                            <button id="upgradeFromActivity" style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements (DESHABILITADO para FREE) -->
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
+                    <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Achievements</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        ${['🎯', '🔥', '⚡', '💎'].map(emoji => `
+                            <div style="background: #333; border-radius: 8px; padding: 16px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">${emoji}</div>
+                                <div style="color: #666; font-size: 12px;">Achievement</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Premium Feature</div>
+                            <button id="upgradeFromAchievements" style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Focus Level (DESHABILITADO para FREE) -->
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 24px; opacity: 0.5;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🧠</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #666; margin-bottom: 4px;">DEEP MIND</div>
+                        <div style="font-size: 14px; color: #666; margin-bottom: 16px;">Level 3 • 124 users at this level</div>
+                        <div style="width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: 65%; height: 100%; background: #555;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: #666;">12.5 hours to FLOW STATE</div>
+                    </div>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Premium Feature</div>
+                            <button id="upgradeFromLevel" style="background: linear-gradient(135deg, var(--onyx-dark, #064e3b) 0%, var(--onyx-light, #065f46) 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
 
         containerElement.innerHTML = html;
 
-        // Add toggle functionality for trends chart
-        // Store data in variables accessible to event listeners
-        const trendsData = {
-            last7Days: last7Days,
-            last4Weeks: last4Weeks
-        };
+        // Add upgrade button events
+        ['upgradeFromChart', 'upgradeFromActivity', 'upgradeFromAchievements', 'upgradeFromLevel'].forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    if (window.pomodoroTimer) {
+                        window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                            button_type: 'subscribe',
+                            source: 'report_panel',
+                            location: btnId.replace('upgradeFrom', '').toLowerCase(),
+                            user_type: 'free',
+                            modal_type: 'report_upgrade_prompt'
+                        });
+                    }
+                    window.location.href = '/pricing';
+                });
+            }
+        });
+    }
 
-        const toggleToWeeks = document.getElementById('toggleToWeeks');
-        const toggleToDays = document.getElementById('toggleToDays');
-        const trendsChartTitle = document.getElementById('trendsChartTitle');
-        const trendsChartContent = document.getElementById('trendsChartContent');
+    displayAdvancedReport(containerElement, stats) {
+        const totalHours = stats.totalHours || 0;
+        
+        // Calculate sessions, avg, breaks
+        const totalSessions = stats.completedCycles || 0;
+        const avgHours = totalSessions > 0 ? totalHours / totalSessions : 0;
+        const breaks = 0; // TODO: track breaks
 
-        if (toggleToWeeks && toggleToDays && trendsChartContent) {
-            const renderWeeksChart = () => {
-                const maxHours = Math.max(...trendsData.last4Weeks.map(w => w.hours), 1);
-                trendsChartContent.innerHTML = trendsData.last4Weeks.map(week => {
-                    const height = (week.hours / maxHours) * 100;
-                    return `
-                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
-                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${week.hours > 0 ? '4px' : '0'};"></div>
-                            <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${week.label}</div>
-                            <div style="font-size: 10px; color: #666; text-align: center;">${week.hours.toFixed(1)}h</div>
+        // Get current month name
+        const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        // Get data for chart
+        const last7Days = this.getLastNDaysData(stats, 7);
+        
+        // Calculate level based on total hours
+        const level = this.calculateUserLevel(totalHours);
+        
+        const html = `
+            <div style="padding: 0;">
+                <!-- Summary Stats + Chart (HABILITADO para PREMIUM) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
+                        
+                        <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${totalHours.toFixed(1)}</div>
+                        <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
+                        
+                        <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
+                            <span>${totalSessions} Sessions</span>
+                            <span>•</span>
+                            <span>${avgHours.toFixed(1)}h Avg</span>
+                            <span>•</span>
+                            <span>${breaks} Breaks</span>
                         </div>
-                    `;
-                }).join('');
-            };
-
-            const renderDaysChart = () => {
-                const maxHours = Math.max(...trendsData.last7Days.map(d => d.hours), 1);
-                trendsChartContent.innerHTML = trendsData.last7Days.map(day => {
-                    const height = (day.hours / maxHours) * 100;
-                    return `
-                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%;">
-                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
-                            <div style="font-size: 11px; color: #a3a3a3; text-align: center;">${day.label}</div>
-                            <div style="font-size: 10px; color: #666; text-align: center;">${day.hours.toFixed(1)}h</div>
+                    </div>
+                    
+                    <!-- Activity Chart -->
+                    <div>
+                        <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity</h4>
+                        <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
+                            ${(() => {
+                                const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
+                                return last7Days.map(day => {
+                                    const height = (day.hours / maxHours) * 100;
+                                    return `
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                            <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
+                                        </div>
+                                    `;
+                                }).join('');
+                            })()}
                         </div>
-                    `;
-                }).join('');
-            };
+                    </div>
+                </div>
 
-            toggleToWeeks.addEventListener('click', () => {
-                if (trendsChartTitle) trendsChartTitle.textContent = 'Last 4 Weeks';
-                toggleToWeeks.style.background = 'var(--onyx-dark, #064e3b)';
-                toggleToWeeks.style.color = 'white';
-                toggleToDays.style.background = 'transparent';
-                toggleToDays.style.color = '#a3a3a3';
-                renderWeeksChart();
-            });
+                <!-- Recent Activity (HABILITADO para PREMIUM) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Recent Activity</h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${(() => {
+                            // TODO: Get real recent activity from stats
+                            return [
+                                { date: '1/16/26', task: 'Study for Calculus', hours: 2.5, sessions: 3, time: '09:00 - 11:30' },
+                                { date: '1/15/26', task: 'React Project', hours: 1.8, sessions: 2, time: '14:00 - 15:48' }
+                            ].map(activity => `
+                                <div style="background: #1a1a1a; border-radius: 8px; padding: 12px;">
+                                    <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${activity.date} • ${activity.task}</div>
+                                    <div style="color: #a3a3a3; font-size: 12px;">${activity.hours}h • ${activity.sessions} sessions • ${activity.time}</div>
+                                </div>
+                            `).join('');
+                        })()}
+                    </div>
+                </div>
 
-            toggleToDays.addEventListener('click', () => {
-                if (trendsChartTitle) trendsChartTitle.textContent = 'Last 7 Days';
-                toggleToDays.style.background = 'var(--onyx-dark, #064e3b)';
-                toggleToDays.style.color = 'white';
-                toggleToWeeks.style.background = 'transparent';
-                toggleToWeeks.style.color = '#a3a3a3';
-                renderDaysChart();
-            });
+                <!-- Achievements (HABILITADO para PREMIUM) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Achievements</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        ${(() => {
+                            const achievements = [
+                                { emoji: '🎯', name: 'Deep Diver', desc: '5h in one day', unlocked: totalHours >= 5 },
+                                { emoji: '🔥', name: 'Focus Streak', desc: '7 days in a row', unlocked: false },
+                                { emoji: '⚡', name: 'Speed Runner', desc: '10 sessions', unlocked: totalSessions >= 10 },
+                                { emoji: '💎', name: 'Diamond Mind', desc: '50 hours total', unlocked: totalHours >= 50 }
+                            ];
+                            return achievements.map(ach => `
+                                <div style="background: ${ach.unlocked ? '#1a1a1a' : '#151515'}; border-radius: 8px; padding: 16px; text-align: center; ${ach.unlocked ? '' : 'opacity: 0.5;'}">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">${ach.emoji}</div>
+                                    <div style="color: ${ach.unlocked ? '#fff' : '#666'}; font-size: 12px; font-weight: 600; margin-bottom: 4px;">${ach.name}</div>
+                                    <div style="color: #666; font-size: 11px;">${ach.desc}</div>
+                                </div>
+                            `).join('');
+                        })()}
+                    </div>
+                </div>
+
+                <!-- Focus Level (HABILITADO para PREMIUM) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">${level.emoji}</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px;">${level.name}</div>
+                        <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 16px;">Level ${level.level} • ${level.usersCount} users at this level</div>
+                        <div style="width: 100%; height: 12px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${level.progress}%; height: 100%; background: linear-gradient(90deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));"></div>
+                        </div>
+                        <div style="font-size: 12px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)} hours to ${level.nextLevel}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        containerElement.innerHTML = html;
+    }
+
+    calculateUserLevel(totalHours) {
+        const levels = [
+            { level: 1, name: 'BEGINNER', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
+            { level: 2, name: 'FOCUSED', emoji: '🎯', min: 5, max: 15, color: '#3b82f6' },
+            { level: 3, name: 'DEEP MIND', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
+            { level: 4, name: 'FLOW STATE', emoji: '🌊', min: 30, max: 50, color: '#ec4899' },
+            { level: 5, name: 'ZEN MASTER', emoji: '🧘', min: 50, max: 100, color: '#f59e0b' },
+            { level: 6, name: 'ULTRA FOCUS', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
+            { level: 7, name: 'LIMITLESS', emoji: '👑', min: 200, max: Infinity, color: '#fbbf24' }
+        ];
+
+        let currentLevel = levels[0];
+        for (const level of levels) {
+            if (totalHours >= level.min && totalHours < level.max) {
+                currentLevel = level;
+                break;
+            }
         }
+
+        const nextLevelIndex = currentLevel.level < levels.length ? currentLevel.level : currentLevel.level - 1;
+        const nextLevel = levels[nextLevelIndex];
+        const hoursInLevel = totalHours - currentLevel.min;
+        const hoursNeededForLevel = currentLevel.max - currentLevel.min;
+        const progress = hoursNeededForLevel > 0 ? (hoursInLevel / hoursNeededForLevel) * 100 : 100;
+        const hoursToNext = currentLevel.max - totalHours;
+
+        // TODO: Get real user count from API
+        const usersCount = Math.floor(Math.random() * 200) + 50;
+
+        return {
+            level: currentLevel.level,
+            name: currentLevel.name,
+            emoji: currentLevel.emoji,
+            color: currentLevel.color,
+            progress: Math.min(progress, 100),
+            hoursToNext: Math.max(hoursToNext, 0),
+            nextLevel: nextLevel.name,
+            usersCount: usersCount
+        };
     }
 
     displayLeaderboard(modalElement, leaderboard, currentUserPosition) {
