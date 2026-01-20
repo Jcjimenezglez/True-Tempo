@@ -13262,23 +13262,34 @@ class PomodoroTimer {
         const stats = this.getFocusStats();
         
         // Display report based on premium status
-        if (isPremium) {
-            this.displayAdvancedReport(reportContent, stats);
-        } else {
-            this.displayBasicReport(reportContent, stats);
+        try {
+            if (isPremium) {
+                this.displayAdvancedReport(reportContent, stats);
+            } else {
+                this.displayBasicReport(reportContent, stats);
+            }
+        } catch (error) {
+            console.error('Error displaying report:', error);
+            reportContent.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #ff6b6b;">
+                    <div style="margin-bottom: 8px;">Error loading report</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${error.message}</div>
+                </div>
+            `;
         }
     }
 
     displayBasicReport(containerElement, stats) {
-        const totalHours = stats.totalHours || 0;
-        
-        // Calculate sessions, avg, breaks
-        const totalSessions = stats.completedCycles || 0;
-        const avgHours = totalSessions > 0 ? totalHours / totalSessions : 0;
-        const breaks = 0; // TODO: track breaks
+        try {
+            const totalHours = stats.totalHours || 0;
+            
+            // Calculate sessions, avg, breaks
+            const totalSessions = stats.completedCycles || 0;
+            const avgHours = totalSessions > 0 ? totalHours / totalSessions : 0;
+            const breaks = 0; // TODO: track breaks
 
-        // Get current month name
-        const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            // Get current month name
+            const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
         const html = `
             <div style="padding: 0;">
@@ -13424,10 +13435,20 @@ class PomodoroTimer {
                 });
             }
         });
+        } catch (error) {
+            console.error('Error in displayBasicReport:', error);
+            containerElement.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #ff6b6b;">
+                    <div style="margin-bottom: 8px;">Error loading report</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${error.message}</div>
+                </div>
+            `;
+        }
     }
 
     displayAdvancedReport(containerElement, stats) {
-        const totalHours = stats.totalHours || 0;
+        try {
+            const totalHours = stats.totalHours || 0;
         
         // Calculate sessions, avg, breaks
         const totalSessions = stats.completedCycles || 0;
@@ -13561,48 +13582,76 @@ class PomodoroTimer {
             </div>
         `;
 
-        containerElement.innerHTML = html;
+            containerElement.innerHTML = html;
+        } catch (error) {
+            console.error('Error in displayAdvancedReport:', error);
+            containerElement.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #ff6b6b;">
+                    <div style="margin-bottom: 8px;">Error loading report</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${error.message}</div>
+                </div>
+            `;
+        }
     }
 
     calculateUserLevel(totalHours) {
-        const levels = [
-            { level: 1, name: 'BEGINNER', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
-            { level: 2, name: 'FOCUSED', emoji: '🎯', min: 5, max: 15, color: '#3b82f6' },
-            { level: 3, name: 'DEEP MIND', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
-            { level: 4, name: 'FLOW STATE', emoji: '🌊', min: 30, max: 50, color: '#ec4899' },
-            { level: 5, name: 'ZEN MASTER', emoji: '🧘', min: 50, max: 100, color: '#f59e0b' },
-            { level: 6, name: 'ULTRA FOCUS', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
-            { level: 7, name: 'LIMITLESS', emoji: '👑', min: 200, max: Infinity, color: '#fbbf24' }
-        ];
+        try {
+            const levels = [
+                { level: 1, name: 'BEGINNER', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
+                { level: 2, name: 'FOCUSED', emoji: '🎯', min: 5, max: 15, color: '#3b82f6' },
+                { level: 3, name: 'DEEP MIND', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
+                { level: 4, name: 'FLOW STATE', emoji: '🌊', min: 30, max: 50, color: '#ec4899' },
+                { level: 5, name: 'ZEN MASTER', emoji: '🧘', min: 50, max: 100, color: '#f59e0b' },
+                { level: 6, name: 'ULTRA FOCUS', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
+                { level: 7, name: 'LIMITLESS', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
+            ];
 
-        let currentLevel = levels[0];
-        for (const level of levels) {
-            if (totalHours >= level.min && totalHours < level.max) {
-                currentLevel = level;
-                break;
+            let currentLevel = levels[0];
+            for (const level of levels) {
+                if (totalHours >= level.min && totalHours < level.max) {
+                    currentLevel = level;
+                    break;
+                }
             }
+            
+            // Handle max level case
+            if (totalHours >= 200) {
+                currentLevel = levels[6];
+            }
+
+            const nextLevelIndex = currentLevel.level < levels.length ? currentLevel.level : currentLevel.level - 1;
+            const nextLevel = levels[nextLevelIndex] || levels[levels.length - 1];
+            const hoursInLevel = totalHours - currentLevel.min;
+            const hoursNeededForLevel = currentLevel.max - currentLevel.min;
+            const progress = hoursNeededForLevel > 0 && isFinite(hoursNeededForLevel) ? (hoursInLevel / hoursNeededForLevel) * 100 : 100;
+            const hoursToNext = currentLevel.max - totalHours;
+
+            // TODO: Get real user count from API
+            const usersCount = Math.floor(Math.random() * 200) + 50;
+
+            return {
+                level: currentLevel.level,
+                name: currentLevel.name,
+                emoji: currentLevel.emoji,
+                color: currentLevel.color,
+                progress: Math.min(progress, 100),
+                hoursToNext: isFinite(hoursToNext) ? Math.max(hoursToNext, 0) : 0,
+                nextLevel: currentLevel.level >= 7 ? 'MAX LEVEL' : nextLevel.name,
+                usersCount: usersCount
+            };
+        } catch (error) {
+            console.error('Error calculating user level:', error);
+            return {
+                level: 1,
+                name: 'BEGINNER',
+                emoji: '🌱',
+                color: '#10b981',
+                progress: 0,
+                hoursToNext: 5,
+                nextLevel: 'FOCUSED',
+                usersCount: 100
+            };
         }
-
-        const nextLevelIndex = currentLevel.level < levels.length ? currentLevel.level : currentLevel.level - 1;
-        const nextLevel = levels[nextLevelIndex];
-        const hoursInLevel = totalHours - currentLevel.min;
-        const hoursNeededForLevel = currentLevel.max - currentLevel.min;
-        const progress = hoursNeededForLevel > 0 ? (hoursInLevel / hoursNeededForLevel) * 100 : 100;
-        const hoursToNext = currentLevel.max - totalHours;
-
-        // TODO: Get real user count from API
-        const usersCount = Math.floor(Math.random() * 200) + 50;
-
-        return {
-            level: currentLevel.level,
-            name: currentLevel.name,
-            emoji: currentLevel.emoji,
-            color: currentLevel.color,
-            progress: Math.min(progress, 100),
-            hoursToNext: Math.max(hoursToNext, 0),
-            nextLevel: nextLevel.name,
-            usersCount: usersCount
-        };
     }
 
     displayLeaderboard(modalElement, leaderboard, currentUserPosition) {
