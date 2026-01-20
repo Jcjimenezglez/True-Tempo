@@ -13495,8 +13495,9 @@ class PomodoroTimer {
             const monthlyHours = monthlyStats.hours || 0;
             const monthlySessions = monthlyStats.sessions || 0;
             
-            // For level calculation, use total hours (all-time)
+            // For level and achievements calculation, use all-time totals
             const totalHours = stats.totalHours || 0;
+            const totalSessions = stats.completedCycles || 0;
         
         // Calculate breaks and day streaks
         const breaks = 0; // TODO: track breaks
