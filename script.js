@@ -14162,6 +14162,11 @@ class PomodoroTimer {
                 setTimeout(() => {
                     this.checkAuthState();
                     this.updateAuthState();
+                    
+                    // Show onboarding modal for new users after signup
+                    if (window.showOnboardingModal && typeof window.showOnboardingModal === 'function') {
+                        window.showOnboardingModal();
+                    }
                 }, 1000);
             };
             

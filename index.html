@@ -2523,33 +2523,10 @@
     </div>
 
     <script>
-        // Onboarding Modal Logic
+        // Onboarding Modal Logic - Initialize event listeners only
         (function() {
-            // Check if user has already completed onboarding
-            const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted');
-            if (hasCompletedOnboarding) {
-                return; // Don't show modal if already completed
-            }
-
-            // Check if user is completely new (no focus stats, no tasks, no usage)
-            const hasFocusStats = localStorage.getItem('focusStats') || 
-                                  Object.keys(localStorage).some(key => key.startsWith('focusStats_'));
-            const hasTasks = localStorage.getItem('tasks');
-            const hasStreakData = localStorage.getItem('streakData');
-            
-            // If user has any existing data, they're not new - don't show modal
-            if (hasFocusStats || hasTasks || hasStreakData) {
-                localStorage.setItem('onboardingCompleted', 'true'); // Mark as completed so it doesn't show again
-                return;
-            }
-
             const modal = document.getElementById('onboardingModal');
             if (!modal) return;
-
-            // Show modal after a short delay (500ms) - only for completely new users
-            setTimeout(() => {
-                modal.style.display = 'flex';
-            }, 500);
 
             // Function to close modal
             function closeModal() {
@@ -2615,6 +2592,20 @@
                     closeModal();
                 }
             });
+
+            // Global function to show onboarding modal (called after signup)
+            window.showOnboardingModal = function() {
+                // Check if user has already completed onboarding
+                const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted');
+                if (hasCompletedOnboarding) {
+                    return; // Don't show modal if already completed
+                }
+
+                // Show modal after a short delay (500ms)
+                setTimeout(() => {
+                    modal.style.display = 'flex';
+                }, 500);
+            };
         })();
     </script>
 </body>
