@@ -13321,12 +13321,40 @@ class PomodoroTimer {
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
                     <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Recent Activity</h4>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
-                        ${[1, 2].map(i => `
-                            <div style="background: #333; border-radius: 8px; padding: 12px;">
-                                <div style="color: #666; font-size: 14px; margin-bottom: 4px;">1/${16 - i}/26 • Task Name</div>
-                                <div style="color: #666; font-size: 12px;">2.5h • 3 sessions • 09:00 - 11:30</div>
-                            </div>
-                        `).join('')}
+                        ${(() => {
+                            // Get real completed tasks but show them disabled
+                            const allTasks = this.getLocalTasks();
+                            const completedTasks = allTasks
+                                .filter(task => task.completed && task.completedAt)
+                                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+                                .slice(0, 2); // Show only 2 for free users
+                            
+                            if (completedTasks.length === 0) {
+                                return `
+                                    <div style="background: #333; border-radius: 8px; padding: 12px;">
+                                        <div style="color: #666; font-size: 14px; margin-bottom: 4px;">No completed tasks yet</div>
+                                        <div style="color: #666; font-size: 12px;">Complete tasks to see them here</div>
+                                    </div>
+                                `;
+                            }
+                            
+                            return completedTasks.map(task => {
+                                const completedDate = new Date(task.completedAt);
+                                const dateStr = completedDate.toLocaleDateString('en-US', { month: '1-digit', day: '1-digit', year: '2-digit' });
+                                const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                
+                                const taskConfig = this.getTaskConfig(task.id);
+                                const sessions = taskConfig.completedSessions || 0;
+                                const focusHours = (taskConfig.completedFocusTime || 0) / 3600;
+                                
+                                return `
+                                    <div style="background: #333; border-radius: 8px; padding: 12px;">
+                                        <div style="color: #666; font-size: 14px; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
+                                        <div style="color: #666; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • ${timeStr}</div>
+                                    </div>
+                                `;
+                            }).join('');
+                        })()}
                     </div>
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
@@ -13459,16 +13487,39 @@ class PomodoroTimer {
                     <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Recent Activity</h4>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         ${(() => {
-                            // TODO: Get real recent activity from stats
-                            return [
-                                { date: '1/16/26', task: 'Study for Calculus', hours: 2.5, sessions: 3, time: '09:00 - 11:30' },
-                                { date: '1/15/26', task: 'React Project', hours: 1.8, sessions: 2, time: '14:00 - 15:48' }
-                            ].map(activity => `
-                                <div style="background: #1a1a1a; border-radius: 8px; padding: 12px;">
-                                    <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${activity.date} • ${activity.task}</div>
-                                    <div style="color: #a3a3a3; font-size: 12px;">${activity.hours}h • ${activity.sessions} sessions • ${activity.time}</div>
-                                </div>
-                            `).join('');
+                            // Get real completed tasks
+                            const allTasks = this.getLocalTasks();
+                            const completedTasks = allTasks
+                                .filter(task => task.completed && task.completedAt)
+                                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+                                .slice(0, 5); // Show last 5 completed tasks
+                            
+                            if (completedTasks.length === 0) {
+                                return `
+                                    <div style="text-align: center; padding: 24px; color: #666;">
+                                        <div style="font-size: 14px;">No completed tasks yet</div>
+                                        <div style="font-size: 12px; margin-top: 4px;">Complete tasks to see them here</div>
+                                    </div>
+                                `;
+                            }
+                            
+                            return completedTasks.map(task => {
+                                const completedDate = new Date(task.completedAt);
+                                const dateStr = completedDate.toLocaleDateString('en-US', { month: '1-digit', day: '1-digit', year: '2-digit' });
+                                const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                
+                                // Get task config for sessions and focus time
+                                const taskConfig = this.getTaskConfig(task.id);
+                                const sessions = taskConfig.completedSessions || 0;
+                                const focusHours = (taskConfig.completedFocusTime || 0) / 3600; // Convert seconds to hours
+                                
+                                return `
+                                    <div style="background: #1a1a1a; border-radius: 8px; padding: 12px;">
+                                        <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
+                                        <div style="color: #a3a3a3; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • Completed at ${timeStr}</div>
+                                    </div>
+                                `;
+                            }).join('');
                         })()}
                     </div>
                 </div>
