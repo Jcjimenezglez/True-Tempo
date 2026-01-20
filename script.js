@@ -6925,6 +6925,11 @@ class PomodoroTimer {
             this.addBreakTime();
         }
         
+        // Track work session completion if this was a work session
+        if (this.isWorkSession && this.isAuthenticated) {
+            this.addWorkSession();
+        }
+        
         // Advance section pointer
         const finishedWasFocus = this.isWorkSession === true;
         this.currentSection++;
@@ -11995,13 +12000,9 @@ class PomodoroTimer {
         
         // Increment completed cycles counter without adding hours here
         // Focus time is already tracked in real-time during sessions
-        const today = new Date().toDateString();
+        // Sessions are now tracked individually when work sessions complete
         const stats = this.getFocusStats();
         stats.completedCycles = (stats.completedCycles || 0) + 1;
-        
-        // Add to today's sessions (for monthly tracking)
-        if (!stats.dailySessions) stats.dailySessions = {};
-        stats.dailySessions[today] = (stats.dailySessions[today] || 0) + 1;
         
         // Save with user-specific key
         const key = this.isAuthenticated && this.user?.id 
@@ -12025,6 +12026,26 @@ class PomodoroTimer {
         // Add to today's breaks (for monthly tracking)
         if (!stats.dailyBreaks) stats.dailyBreaks = {};
         stats.dailyBreaks[today] = (stats.dailyBreaks[today] || 0) + 1;
+        
+        // Save with user-specific key
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.setItem(key, JSON.stringify(stats));
+    }
+
+    addWorkSession() {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
+        const today = new Date().toDateString();
+        const stats = this.getFocusStats();
+        
+        // Add to today's sessions (for monthly tracking)
+        if (!stats.dailySessions) stats.dailySessions = {};
+        stats.dailySessions[today] = (stats.dailySessions[today] || 0) + 1;
         
         // Save with user-specific key
         const key = this.isAuthenticated && this.user?.id 
