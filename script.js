@@ -6920,6 +6920,11 @@ class PomodoroTimer {
             console.log('📊 Timer completed event tracked to Mixpanel');
         }
         
+        // Track break completion if this was a break session
+        if (!this.isWorkSession && this.isAuthenticated) {
+            this.addBreakTime();
+        }
+        
         // Advance section pointer
         const finishedWasFocus = this.isWorkSession === true;
         this.currentSection++;
@@ -12008,6 +12013,26 @@ class PomodoroTimer {
         this.updateFocusHoursDisplay();
     }
 
+    addBreakTime() {
+        // Only track stats for authenticated users
+        if (!this.isAuthenticated) {
+            return;
+        }
+        
+        const today = new Date().toDateString();
+        const stats = this.getFocusStats();
+        
+        // Add to today's breaks (for monthly tracking)
+        if (!stats.dailyBreaks) stats.dailyBreaks = {};
+        stats.dailyBreaks[today] = (stats.dailyBreaks[today] || 0) + 1;
+        
+        // Save with user-specific key
+        const key = this.isAuthenticated && this.user?.id 
+            ? `focusStats_${this.user.id}` 
+            : 'focusStats';
+        localStorage.setItem(key, JSON.stringify(stats));
+    }
+
     calculateFocusHoursInCycle() {
         // Calculate total focus time in the completed cycle
         let totalFocusSeconds = 0;
@@ -12213,6 +12238,7 @@ class PomodoroTimer {
         
         let monthlyHours = 0;
         let monthlySessions = 0;
+        let monthlyBreaks = 0;
         
         // Sum hours from daily data for current month
         if (stats.daily) {
@@ -12246,9 +12272,26 @@ class PomodoroTimer {
             });
         }
         
+        // For breaks, track monthly breaks separately
+        if (stats.dailyBreaks) {
+            Object.entries(stats.dailyBreaks).forEach(([dateStr, breaks]) => {
+                try {
+                    // Parse date string (format: "Mon Jan 01 2024" from toDateString())
+                    const date = new Date(dateStr);
+                    // Check if date is valid and matches current month/year
+                    if (!isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                        monthlyBreaks += breaks || 0;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing date in getMonthlyStats:', dateStr, e);
+                }
+            });
+        }
+        
         return {
             hours: monthlyHours,
-            sessions: monthlySessions
+            sessions: monthlySessions,
+            breaks: monthlyBreaks
         };
     }
 
@@ -13329,9 +13372,9 @@ class PomodoroTimer {
             const monthlyStats = this.getMonthlyStats(stats);
             const monthlyHours = monthlyStats.hours || 0;
             const monthlySessions = monthlyStats.sessions || 0;
+            const monthlyBreaks = monthlyStats.breaks || 0;
             
-            // Calculate breaks and day streaks
-            const breaks = 0; // TODO: track breaks
+            // Calculate day streaks
             const dayStreaks = this.calculateCurrentStreak(stats);
 
             // Get current month name
@@ -13349,7 +13392,7 @@ class PomodoroTimer {
                     <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
                         <span>${monthlySessions} Sessions</span>
                         <span>•</span>
-                        <span>${breaks} Breaks</span>
+                        <span>${monthlyBreaks} Breaks</span>
                         <span>•</span>
                         <span>${dayStreaks} Streaks</span>
                     </div>
@@ -13503,13 +13546,13 @@ class PomodoroTimer {
             const monthlyStats = this.getMonthlyStats(stats);
             const monthlyHours = monthlyStats.hours || 0;
             const monthlySessions = monthlyStats.sessions || 0;
+            const monthlyBreaks = monthlyStats.breaks || 0;
             
             // For level and achievements calculation, use all-time totals
             const totalHours = stats.totalHours || 0;
             const totalSessions = stats.completedCycles || 0;
         
-        // Calculate breaks and day streaks
-        const breaks = 0; // TODO: track breaks
+        // Calculate day streaks
         const dayStreaks = this.calculateCurrentStreak(stats);
 
         // Get current month name
@@ -13534,7 +13577,7 @@ class PomodoroTimer {
                         <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
                             <span>${monthlySessions} Sessions</span>
                             <span>•</span>
-                            <span>${breaks} Breaks</span>
+                            <span>${monthlyBreaks} Breaks</span>
                             <span>•</span>
                             <span>${dayStreaks} Streaks</span>
                         </div>
