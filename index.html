@@ -2530,14 +2530,20 @@
 
             // Function to close modal
             function closeModal() {
+                console.log('🎯 Onboarding skipped');
+                
                 localStorage.setItem('onboardingCompleted', 'true');
                 localStorage.setItem('userType', 'skipped');
                 
                 // Track skip in Mixpanel
                 if (window.mixpanel && window.mixpanel.track) {
+                    console.log('📊 Tracking to Mixpanel: Onboarding Skipped');
                     window.mixpanel.track('Onboarding Skipped', {
                         timestamp: new Date().toISOString()
                     });
+                    console.log('✅ Mixpanel tracking sent');
+                } else {
+                    console.warn('⚠️ Mixpanel not available for tracking');
                 }
                 
                 modal.style.display = 'none';
@@ -2545,16 +2551,22 @@
 
             // Function to handle selection
             function handleSelection(userType) {
+                console.log('🎯 Onboarding selection:', userType);
+                
                 // Save to localStorage
                 localStorage.setItem('onboardingCompleted', 'true');
                 localStorage.setItem('userType', userType);
 
                 // Track in Mixpanel
                 if (window.mixpanel && window.mixpanel.track) {
+                    console.log('📊 Tracking to Mixpanel: Onboarding Completed');
                     window.mixpanel.track('Onboarding Completed', {
                         user_type: userType,
                         timestamp: new Date().toISOString()
                     });
+                    console.log('✅ Mixpanel tracking sent');
+                } else {
+                    console.warn('⚠️ Mixpanel not available for tracking');
                 }
 
                 // Hide modal
