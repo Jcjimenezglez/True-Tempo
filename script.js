@@ -5160,18 +5160,35 @@ class PomodoroTimer {
     }
 
     showCycleStatsModal(cycleData) {
+        console.log('📊 showCycleStatsModal called with:', cycleData);
         const modal = document.getElementById('cycleStatsModal');
-        if (!modal) return;
+        if (!modal) {
+            console.error('❌ cycleStatsModal element not found!');
+            return;
+        }
 
         // Store cycle data for sharing
         this._lastCycleData = cycleData;
 
         // Populate modal with cycle statistics
         const totalMinutes = Math.round(cycleData.cycleDuration / 60);
-        document.getElementById('cycleStatTotalTime').textContent = `${totalMinutes} min`;
-        document.getElementById('cycleStatWorkSessions').textContent = cycleData.workSessions;
+        const totalTimeElement = document.getElementById('cycleStatTotalTime');
+        const workSessionsElement = document.getElementById('cycleStatWorkSessions');
+        
+        if (totalTimeElement) {
+            totalTimeElement.textContent = `${totalMinutes} min`;
+        } else {
+            console.error('❌ cycleStatTotalTime element not found!');
+        }
+        
+        if (workSessionsElement) {
+            workSessionsElement.textContent = cycleData.workSessions;
+        } else {
+            console.error('❌ cycleStatWorkSessions element not found!');
+        }
 
         // Show modal
+        console.log('✅ Showing cycle stats modal');
         modal.style.display = 'flex';
 
         // Close modal function
@@ -6949,30 +6966,39 @@ class PomodoroTimer {
             
             // Check if enough focus time was actually completed
             lastCycleWasLegitimate = (this.actualFocusTimeCompleted >= this.requiredFocusTimeForCycle);
-            if (lastCycleWasLegitimate) {
-                this.updateCycleCounter();
-                
-                // Calculate cycle stats for modal and tracking
-                const currentTechnique = this.getCurrentTechniqueName();
-                const cycleDuration = this.cycleSections.reduce((total, section) => total + section.duration, 0);
-                const workSessions = this.cycleSections.filter(section => section.type === 'work').length;
-                const shortBreaks = this.cycleSections.filter(section => section.type === 'break').length;
-                const longBreaks = this.cycleSections.filter(section => section.type === 'long-break').length;
-                
-                // Save current task name before it gets reset
-                this._lastTaskName = this.currentTaskName;
-                
-                // Show cycle completion stats modal (always show, not dependent on Mixpanel)
-                this.showCycleStatsModal({
-                    cycleDuration: cycleDuration,
-                    workSessions: workSessions
-                });
-                
-                // 🎯 Track Cycle Completed event to Mixpanel
-                if (window.mixpanelTracker) {
-                    window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
-                    console.log('📊 Cycle completed event tracked to Mixpanel');
-                }
+            
+            // Always show modal when cycle completes, regardless of legitimacy
+            // (legitimacy check is only for tracking purposes)
+            this.updateCycleCounter();
+            
+            // Calculate cycle stats for modal and tracking
+            const currentTechnique = this.getCurrentTechniqueName();
+            const cycleDuration = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+            const workSessions = this.cycleSections.filter(section => section.type === 'work').length;
+            const shortBreaks = this.cycleSections.filter(section => section.type === 'break').length;
+            const longBreaks = this.cycleSections.filter(section => section.type === 'long-break').length;
+            
+            // Save current task name before it gets reset
+            this._lastTaskName = this.currentTaskName;
+            
+            console.log('🎉 Cycle completed! Showing modal...', {
+                cycleDuration,
+                workSessions,
+                lastCycleWasLegitimate,
+                actualFocusTimeCompleted: this.actualFocusTimeCompleted,
+                requiredFocusTimeForCycle: this.requiredFocusTimeForCycle
+            });
+            
+            // Show cycle completion stats modal (always show when cycle completes)
+            this.showCycleStatsModal({
+                cycleDuration: cycleDuration,
+                workSessions: workSessions
+            });
+            
+            // 🎯 Track Cycle Completed event to Mixpanel (only if legitimate)
+            if (lastCycleWasLegitimate && window.mixpanelTracker) {
+                window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
+                console.log('📊 Cycle completed event tracked to Mixpanel');
             }
             // Reset focus time tracker for next cycle
             this.actualFocusTimeCompleted = 0;
