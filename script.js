@@ -206,7 +206,6 @@ class PomodoroTimer {
         this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
         this.settingsManageSubscriptionBtn = document.getElementById('settingsManageSubscriptionBtn');
         this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
-        this.settingsLeaderboardBtn = document.getElementById('settingsLeaderboardBtn');
         this.productivityResourcesBtn = document.getElementById('productivityResourcesBtn');
         this.productivityResourcesModalOverlay = document.getElementById('productivityResourcesModalOverlay');
         this.leaderboardModalOverlay = document.getElementById('leaderboardModalOverlay');
@@ -4415,18 +4414,6 @@ class PomodoroTimer {
         }
         
         // Settings dropdown - Leaderboard
-        if (this.settingsLeaderboardBtn) {
-            this.settingsLeaderboardBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.trackEvent('Account Menu Leaderboard Clicked', {
-                    button_type: 'leaderboard',
-                    source: 'account_menu'
-                });
-                this.settingsDropdown.style.display = 'none';
-                this.showLeaderboardModal();
-            });
-        }
-        
         // Close Leaderboard Modal
         const closeLeaderboardModal = document.getElementById('closeLeaderboardModal');
         if (closeLeaderboardModal) {
