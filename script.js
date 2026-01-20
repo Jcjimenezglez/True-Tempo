@@ -11990,8 +11990,14 @@ class PomodoroTimer {
         
         // Increment completed cycles counter without adding hours here
         // Focus time is already tracked in real-time during sessions
+        const today = new Date().toDateString();
         const stats = this.getFocusStats();
         stats.completedCycles = (stats.completedCycles || 0) + 1;
+        
+        // Add to today's sessions (for monthly tracking)
+        if (!stats.dailySessions) stats.dailySessions = {};
+        stats.dailySessions[today] = (stats.dailySessions[today] || 0) + 1;
+        
         // Save with user-specific key
         const key = this.isAuthenticated && this.user?.id 
             ? `focusStats_${this.user.id}` 
@@ -12091,9 +12097,13 @@ class PomodoroTimer {
         // Add to total
         stats.totalHours = (stats.totalHours || 0) + hours;
         
-        // Add to today
+        // Add to today's hours
         if (!stats.daily) stats.daily = {};
         stats.daily[today] = (stats.daily[today] || 0) + hours;
+        
+        // Add to today's sessions (for monthly tracking)
+        if (!stats.dailySessions) stats.dailySessions = {};
+        stats.dailySessions[today] = (stats.dailySessions[today] || 0) + 1;
         
         // Track technique usage
         const currentTechnique = this.getCurrentTechniqueName();
@@ -12193,6 +12203,44 @@ class PomodoroTimer {
 
     calculateLongestStreak(stats) {
         return this.streakData?.longestStreak || 0;
+    }
+
+    // Calculate stats for current month only
+    getMonthlyStats(stats) {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        let monthlyHours = 0;
+        let monthlySessions = 0;
+        
+        // Sum hours from daily data for current month
+        if (stats.daily) {
+            Object.entries(stats.daily).forEach(([dateStr, hours]) => {
+                const date = new Date(dateStr);
+                if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                    monthlyHours += hours;
+                    // Estimate sessions based on hours (rough estimate: 1 session ≈ 25min = 0.417h)
+                    // But we'll use a separate counter if available
+                }
+            });
+        }
+        
+        // For sessions, we need to track monthly sessions separately
+        // For now, use the daily data to estimate active days this month
+        if (stats.dailySessions) {
+            Object.entries(stats.dailySessions).forEach(([dateStr, sessions]) => {
+                const date = new Date(dateStr);
+                if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                    monthlySessions += sessions;
+                }
+            });
+        }
+        
+        return {
+            hours: monthlyHours,
+            sessions: monthlySessions
+        };
     }
 
     getLastNDaysData(stats, n) {
@@ -13268,10 +13316,12 @@ class PomodoroTimer {
 
     displayBasicReport(containerElement, stats) {
         try {
-            const totalHours = stats.totalHours || 0;
+            // Get monthly stats (current month only)
+            const monthlyStats = this.getMonthlyStats(stats);
+            const monthlyHours = monthlyStats.hours || 0;
+            const monthlySessions = monthlyStats.sessions || 0;
             
-            // Calculate sessions, breaks, day streaks
-            const totalSessions = stats.completedCycles || 0;
+            // Calculate breaks and day streaks
             const breaks = 0; // TODO: track breaks
             const dayStreaks = this.calculateCurrentStreak(stats);
 
@@ -13284,11 +13334,11 @@ class PomodoroTimer {
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
                     <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                     
-                    <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${totalHours.toFixed(1)}</div>
+                    <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours.toFixed(1)}</div>
                     <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
                     
                     <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
-                        <span>${totalSessions} Sessions</span>
+                        <span>${monthlySessions} Sessions</span>
                         <span>•</span>
                         <span>${breaks} Breaks</span>
                         <span>•</span>
@@ -13440,10 +13490,15 @@ class PomodoroTimer {
 
     displayAdvancedReport(containerElement, stats) {
         try {
+            // Get monthly stats (current month only)
+            const monthlyStats = this.getMonthlyStats(stats);
+            const monthlyHours = monthlyStats.hours || 0;
+            const monthlySessions = monthlyStats.sessions || 0;
+            
+            // For level calculation, use total hours (all-time)
             const totalHours = stats.totalHours || 0;
         
-        // Calculate sessions, breaks, day streaks
-        const totalSessions = stats.completedCycles || 0;
+        // Calculate breaks and day streaks
         const breaks = 0; // TODO: track breaks
         const dayStreaks = this.calculateCurrentStreak(stats);
 
@@ -13453,7 +13508,7 @@ class PomodoroTimer {
         // Get data for chart
         const last7Days = this.getLastNDaysData(stats, 7);
         
-        // Calculate level based on total hours
+        // Calculate level based on total hours (all-time)
         const level = this.calculateUserLevel(totalHours);
         
         const html = `
@@ -13463,11 +13518,11 @@ class PomodoroTimer {
                     <div style="text-align: center; margin-bottom: 24px;">
                         <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                         
-                        <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${totalHours.toFixed(1)}</div>
+                        <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours.toFixed(1)}</div>
                         <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
                         
                         <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
-                            <span>${totalSessions} Sessions</span>
+                            <span>${monthlySessions} Sessions</span>
                             <span>•</span>
                             <span>${breaks} Breaks</span>
                             <span>•</span>
