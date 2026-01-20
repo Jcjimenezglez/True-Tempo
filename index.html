@@ -2481,5 +2481,129 @@
             });
         });
     </script>
+
+    <!-- Onboarding Modal -->
+    <div class="logout-modal-overlay" id="onboardingModal" style="display: none;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeOnboardingModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3 class="logout-modal-title">Welcome to Superfocus</h3>
+                <p class="logout-modal-subtitle">What type of user are you?</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; margin: 24px 0;">
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingStudent" style="width: 100%; justify-content: center;">
+                        Student (College/University)
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingFreelancer" style="width: 100%; justify-content: center;">
+                        Freelancer
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingFullTime" style="width: 100%; justify-content: center;">
+                        Full-time
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingEntrepreneur" style="width: 100%; justify-content: center;">
+                        Entrepreneur
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingOther" style="width: 100%; justify-content: center;">
+                        Other
+                    </button>
+                </div>
+                
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="onboardingSkip" style="width: 100%; justify-content: center;">
+                        Skip
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Onboarding Modal Logic
+        (function() {
+            // Check if user has already completed onboarding
+            const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted');
+            if (hasCompletedOnboarding) {
+                return; // Don't show modal if already completed
+            }
+
+            const modal = document.getElementById('onboardingModal');
+            if (!modal) return;
+
+            // Show modal after a short delay (500ms)
+            setTimeout(() => {
+                modal.style.display = 'flex';
+            }, 500);
+
+            // Function to close modal
+            function closeModal() {
+                localStorage.setItem('onboardingCompleted', 'true');
+                localStorage.setItem('userType', 'skipped');
+                
+                // Track skip in Mixpanel
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Onboarding Skipped', {
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                modal.style.display = 'none';
+            }
+
+            // Function to handle selection
+            function handleSelection(userType) {
+                // Save to localStorage
+                localStorage.setItem('onboardingCompleted', 'true');
+                localStorage.setItem('userType', userType);
+
+                // Track in Mixpanel
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Onboarding Completed', {
+                        user_type: userType,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+
+                // Hide modal
+                modal.style.display = 'none';
+            }
+
+            // Event listeners
+            document.getElementById('onboardingStudent')?.addEventListener('click', () => {
+                handleSelection('student');
+            });
+
+            document.getElementById('onboardingFreelancer')?.addEventListener('click', () => {
+                handleSelection('freelancer');
+            });
+
+            document.getElementById('onboardingFullTime')?.addEventListener('click', () => {
+                handleSelection('full-time');
+            });
+
+            document.getElementById('onboardingEntrepreneur')?.addEventListener('click', () => {
+                handleSelection('entrepreneur');
+            });
+
+            document.getElementById('onboardingOther')?.addEventListener('click', () => {
+                handleSelection('other');
+            });
+
+            // Skip button and X button both close modal
+            document.getElementById('onboardingSkip')?.addEventListener('click', closeModal);
+            document.getElementById('closeOnboardingModalX')?.addEventListener('click', closeModal);
+
+            // Close on overlay click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
