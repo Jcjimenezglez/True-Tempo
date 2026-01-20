@@ -158,6 +158,7 @@ class PomodoroTimer {
         this.techniqueDropdown = document.getElementById('techniqueDropdown');
         this.dropdownMenu = document.getElementById('dropdownMenu');
         this.dropdownItems = document.querySelectorAll('.dropdown-item');
+        this.timerTechniqueLabel = document.getElementById('timerTechniqueLabel');
         
         // Custom timer modal elements
         this.customTimerModal = document.getElementById('customTimerModal');
@@ -3938,19 +3939,27 @@ class PomodoroTimer {
 
 
     updateTechniqueTitle() {
+        const saved = localStorage.getItem('selectedTechnique');
+        let label = 'Pomodoro';
+        
+        if (saved) {
+            const map = {
+                'pomodoro': 'Pomodoro',
+                'pomodoro-plus': 'Long Pomodoro',
+                'ultradian-rhythm': 'Ultradian Rhythm',
+                'custom': (document.querySelector('[data-technique="custom"] .item-title')?.textContent || 'Custom')
+            };
+            label = map[saved] || 'Pomodoro';
+        }
+        
+        // Update sidebar technique title
         if (this.techniqueTitle) {
-            const saved = localStorage.getItem('selectedTechnique');
-            let label = 'Pomodoro';
-            if (saved) {
-                const map = {
-                    'pomodoro': 'Pomodoro',
-                    'pomodoro-plus': 'Long Pomodoro',
-                    'ultradian-rhythm': 'Ultradian Rhythm',
-                    'custom': (document.querySelector('[data-technique="custom"] .item-title')?.textContent || 'Custom')
-                };
-                label = map[saved] || 'Pomodoro';
-            }
             this.techniqueTitle.innerHTML = `${label}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        }
+        
+        // Update timer technique label (main timer display)
+        if (this.timerTechniqueLabel) {
+            this.timerTechniqueLabel.innerHTML = `<span style="font-size: 14px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 1px;">${label}</span>`;
         }
     }
     
@@ -3986,10 +3995,16 @@ class PomodoroTimer {
             return;
         }
         
-        // Update the button text
+        // Update the button text (sidebar)
         if (this.techniqueTitle) {
             const safeTitle = title || technique || '';
             this.techniqueTitle.innerHTML = `${safeTitle}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        }
+        
+        // Update timer technique label (main timer display)
+        if (this.timerTechniqueLabel) {
+            const safeTitle = title || technique || '';
+            this.timerTechniqueLabel.innerHTML = `<span style="font-size: 14px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 1px;">${safeTitle}</span>`;
         }
         
         // Update selected state
@@ -4264,6 +4279,7 @@ class PomodoroTimer {
         if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
         if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
+        if (this.timerTechniqueLabel) this.timerTechniqueLabel.addEventListener('click', () => this.toggleSettingsPanel());
         
         // Subscribe button event listener
         const subscribeBtn = document.getElementById('subscribeBtn');
@@ -15497,7 +15513,7 @@ class PomodoroTimer {
         // Calculate required focus time for complete cycle
         this.calculateRequiredFocusTime();
 
-        // Update UI
+        // Update UI (sidebar)
         if (this.techniqueTitle) {
             // Preserve the chevron icon when updating the title
             const chevronIcon = this.techniqueTitle.querySelector('svg');
@@ -15505,6 +15521,11 @@ class PomodoroTimer {
             if (chevronIcon) {
                 this.techniqueTitle.appendChild(chevronIcon);
             }
+        }
+        
+        // Update timer technique label (main timer display)
+        if (this.timerTechniqueLabel) {
+            this.timerTechniqueLabel.innerHTML = `<span style="font-size: 14px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 1px;">${config.name}</span>`;
         }
         if (this.techniqueDescription) {
             this.techniqueDescription.textContent = `${config.focusTime/60} min focus, ${config.breakTime/60} min break${this.longBreakTime > 0 ? `, ${this.longBreakTime/60} min long break` : ''}`;
