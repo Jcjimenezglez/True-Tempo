@@ -6952,25 +6952,26 @@ class PomodoroTimer {
             if (lastCycleWasLegitimate) {
                 this.updateCycleCounter();
                 
+                // Calculate cycle stats for modal and tracking
+                const currentTechnique = this.getCurrentTechniqueName();
+                const cycleDuration = this.cycleSections.reduce((total, section) => total + section.duration, 0);
+                const workSessions = this.cycleSections.filter(section => section.type === 'work').length;
+                const shortBreaks = this.cycleSections.filter(section => section.type === 'break').length;
+                const longBreaks = this.cycleSections.filter(section => section.type === 'long-break').length;
+                
+                // Save current task name before it gets reset
+                this._lastTaskName = this.currentTaskName;
+                
+                // Show cycle completion stats modal (always show, not dependent on Mixpanel)
+                this.showCycleStatsModal({
+                    cycleDuration: cycleDuration,
+                    workSessions: workSessions
+                });
+                
                 // 🎯 Track Cycle Completed event to Mixpanel
                 if (window.mixpanelTracker) {
-                    const currentTechnique = this.getCurrentTechniqueName();
-                    const cycleDuration = this.cycleSections.reduce((total, section) => total + section.duration, 0);
-                    const workSessions = this.cycleSections.filter(section => section.type === 'work').length;
-                    const shortBreaks = this.cycleSections.filter(section => section.type === 'break').length;
-                    const longBreaks = this.cycleSections.filter(section => section.type === 'long-break').length;
-                    
                     window.mixpanelTracker.trackCycleComplete(currentTechnique, cycleDuration, workSessions, shortBreaks, longBreaks);
                     console.log('📊 Cycle completed event tracked to Mixpanel');
-                    
-                    // Save current task name before it gets reset
-                    this._lastTaskName = this.currentTaskName;
-                    
-                    // Show cycle completion stats modal
-                    this.showCycleStatsModal({
-                        cycleDuration: cycleDuration,
-                        workSessions: workSessions
-                    });
                 }
             }
             // Reset focus time tracker for next cycle
