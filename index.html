@@ -2531,10 +2531,22 @@
                 return; // Don't show modal if already completed
             }
 
+            // Check if user is completely new (no focus stats, no tasks, no usage)
+            const hasFocusStats = localStorage.getItem('focusStats') || 
+                                  Object.keys(localStorage).some(key => key.startsWith('focusStats_'));
+            const hasTasks = localStorage.getItem('tasks');
+            const hasStreakData = localStorage.getItem('streakData');
+            
+            // If user has any existing data, they're not new - don't show modal
+            if (hasFocusStats || hasTasks || hasStreakData) {
+                localStorage.setItem('onboardingCompleted', 'true'); // Mark as completed so it doesn't show again
+                return;
+            }
+
             const modal = document.getElementById('onboardingModal');
             if (!modal) return;
 
-            // Show modal after a short delay (500ms)
+            // Show modal after a short delay (500ms) - only for completely new users
             setTimeout(() => {
                 modal.style.display = 'flex';
             }, 500);
