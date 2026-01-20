@@ -1505,7 +1505,7 @@ class PomodoroTimer {
                     reason: 'lifetime_limit_reached'
                 });
                 
-                this.showCustomTechniqueProModal('You\'ve used your free timer creation. Upgrade to Premium to create unlimited custom timers and control your focus.', lifetimeCreated);
+                this.showCustomTechniqueProModal('You\'ve used your free timer creation. Upgrade to Premium to create unlimited custom timers and manage your focus effectively.', lifetimeCreated);
             } else {
                 // Free user can create their first timer
                 const form = document.getElementById('customForm');
