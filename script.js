@@ -4800,7 +4800,7 @@ class PomodoroTimer {
                     };
                     this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
                 } catch (_) {}
-                window.open('/pricing/', '_blank');
+                window.location.href = '/pricing';
             });
         }
         
