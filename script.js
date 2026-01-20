@@ -13351,7 +13351,7 @@ class PomodoroTimer {
                             
                             return completedTasks.map(task => {
                                 const completedDate = new Date(task.completedAt);
-                                const dateStr = completedDate.toLocaleDateString('en-US', { month: '1-digit', day: '1-digit', year: '2-digit' });
+                                const dateStr = completedDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
                                 const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
                                 
                                 const taskConfig = this.getTaskConfig(task.id);
@@ -13526,7 +13526,7 @@ class PomodoroTimer {
                             
                             return completedTasks.map(task => {
                                 const completedDate = new Date(task.completedAt);
-                                const dateStr = completedDate.toLocaleDateString('en-US', { month: '1-digit', day: '1-digit', year: '2-digit' });
+                                const dateStr = completedDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
                                 const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
                                 
                                 // Get task config for sessions and focus time
