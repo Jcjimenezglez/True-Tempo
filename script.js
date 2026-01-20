@@ -13270,10 +13270,10 @@ class PomodoroTimer {
         try {
             const totalHours = stats.totalHours || 0;
             
-            // Calculate sessions, avg, breaks
+            // Calculate sessions, breaks, day streaks
             const totalSessions = stats.completedCycles || 0;
-            const avgHours = totalSessions > 0 ? totalHours / totalSessions : 0;
             const breaks = 0; // TODO: track breaks
+            const dayStreaks = this.calculateCurrentStreak(stats);
 
             // Get current month name
             const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -13290,9 +13290,9 @@ class PomodoroTimer {
                     <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
                         <span>${totalSessions} Sessions</span>
                         <span>•</span>
-                        <span>${avgHours.toFixed(1)}h Avg</span>
-                        <span>•</span>
                         <span>${breaks} Breaks</span>
+                        <span>•</span>
+                        <span>${dayStreaks} Day Streaks</span>
                     </div>
                 </div>
 
@@ -13437,10 +13437,10 @@ class PomodoroTimer {
         try {
             const totalHours = stats.totalHours || 0;
         
-        // Calculate sessions, avg, breaks
+        // Calculate sessions, breaks, day streaks
         const totalSessions = stats.completedCycles || 0;
-        const avgHours = totalSessions > 0 ? totalHours / totalSessions : 0;
         const breaks = 0; // TODO: track breaks
+        const dayStreaks = this.calculateCurrentStreak(stats);
 
         // Get current month name
         const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -13464,9 +13464,9 @@ class PomodoroTimer {
                         <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
                             <span>${totalSessions} Sessions</span>
                             <span>•</span>
-                            <span>${avgHours.toFixed(1)}h Avg</span>
-                            <span>•</span>
                             <span>${breaks} Breaks</span>
+                            <span>•</span>
+                            <span>${dayStreaks} Day Streaks</span>
                         </div>
                     </div>
                     
