@@ -1244,6 +1244,17 @@ body.is-scrolling .streak-fire {
     gap: 12px;
 }
 
+.timer-header-center {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .timer-auth-buttons {
     display: flex;
     gap: 12px;

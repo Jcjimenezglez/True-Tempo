@@ -158,7 +158,8 @@ class PomodoroTimer {
         this.techniqueDropdown = document.getElementById('techniqueDropdown');
         this.dropdownMenu = document.getElementById('dropdownMenu');
         this.dropdownItems = document.querySelectorAll('.dropdown-item');
-        this.timerTechniqueLabel = document.getElementById('timerTechniqueLabel');
+        this.timerTechniqueBtn = document.getElementById('timerTechniqueBtn');
+        this.timerTechniqueName = document.getElementById('timerTechniqueName');
         
         // Custom timer modal elements
         this.customTimerModal = document.getElementById('customTimerModal');
@@ -3945,8 +3946,11 @@ class PomodoroTimer {
         if (saved) {
             const map = {
                 'pomodoro': 'Pomodoro',
-                'pomodoro-plus': 'Long Pomodoro',
-                'ultradian-rhythm': 'Ultradian Rhythm',
+                'sprint': 'Sprint',
+                'focus': 'Focus',
+                'flow': 'Flow State',
+                'marathon': 'Marathon',
+                'deepwork': 'Deep Work',
                 'custom': (document.querySelector('[data-technique="custom"] .item-title')?.textContent || 'Custom')
             };
             label = map[saved] || 'Pomodoro';
@@ -3957,9 +3961,9 @@ class PomodoroTimer {
             this.techniqueTitle.innerHTML = `${label}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
         }
         
-        // Update timer technique label (main timer display)
-        if (this.timerTechniqueLabel) {
-            this.timerTechniqueLabel.innerHTML = `<span style="font-size: 14px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 1px;">${label}</span>`;
+        // Update timer technique button (center top)
+        if (this.timerTechniqueName) {
+            this.timerTechniqueName.textContent = label;
         }
     }
     
@@ -4001,10 +4005,10 @@ class PomodoroTimer {
             this.techniqueTitle.innerHTML = `${safeTitle}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
         }
         
-        // Update timer technique label (main timer display)
-        if (this.timerTechniqueLabel) {
+        // Update timer technique button (center top)
+        if (this.timerTechniqueName) {
             const safeTitle = title || technique || '';
-            this.timerTechniqueLabel.innerHTML = `<span style="font-size: 14px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 1px;">${safeTitle}</span>`;
+            this.timerTechniqueName.textContent = safeTitle;
         }
         
         // Update selected state
@@ -4113,20 +4117,6 @@ class PomodoroTimer {
                 this.workTime = 90 * 60;
                 this.shortBreakTime = 20 * 60;
                 this.longBreakTime = 30 * 60;
-                this.sessionsPerCycle = 2;
-                this.buildCycleSections();
-                break;
-            case 'pomodoro-plus':
-                this.workTime = 50 * 60;
-                this.shortBreakTime = 10 * 60;
-                this.longBreakTime = 0; // No long break for this technique
-                this.sessionsPerCycle = 4;
-                this.buildCycleSections();
-                break;
-            case 'ultradian-rhythm':
-                this.workTime = 90 * 60;
-                this.shortBreakTime = 20 * 60;
-                this.longBreakTime = 0; // No long break - uses short breaks only
                 this.sessionsPerCycle = 2;
                 this.buildCycleSections();
                 break;
@@ -4279,7 +4269,7 @@ class PomodoroTimer {
         if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
         if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
-        if (this.timerTechniqueLabel) this.timerTechniqueLabel.addEventListener('click', () => this.toggleSettingsPanel());
+        if (this.timerTechniqueBtn) this.timerTechniqueBtn.addEventListener('click', () => this.toggleSettingsPanel());
         
         // Subscribe button event listener
         const subscribeBtn = document.getElementById('subscribeBtn');
@@ -8028,8 +8018,6 @@ class PomodoroTimer {
     setupLoginButtons() {
         // Setup login buttons for advanced techniques
         const loginButtons = [
-            { id: 'loginPomodoroPlusBtn', technique: 'pomodoro-plus' },
-            { id: 'loginUltradianBtn', technique: 'ultradian-rhythm' },
             { id: 'loginCustomBtn', technique: 'custom' }
         ];
         
@@ -14879,8 +14867,11 @@ class PomodoroTimer {
         
         const techniqueMap = {
             'pomodoro': 'Pomodoro',
-            'pomodoro-plus': 'Long Pomodoro',
-            'ultradian-rhythm': 'Ultradian Rhythm'
+            'sprint': 'Sprint',
+            'focus': 'Focus',
+            'flow': 'Flow State',
+            'marathon': 'Marathon',
+            'deepwork': 'Deep Work'
         };
         
         return techniqueMap[selectedTechnique] || 'Pomodoro';
@@ -14940,28 +14931,6 @@ class PomodoroTimer {
                     'Helps manage time effectively'
                 ],
                 videoId: 'IlU-zDU6aQ0'
-            },
-            'pomodoro-plus': {
-                title: 'Long Pomodoro',
-                description: 'An extended version of the Pomodoro Technique with longer work sessions. Perfect for deep work and complex tasks that require sustained attention. The 50-minute focus periods allow for deeper immersion in your work.',
-                benefits: [
-                    'Better for deep work sessions',
-                    'Reduces context switching',
-                    'Ideal for complex projects',
-                    'Maintains focus for longer periods'
-                ],
-                videoId: 'bmnoNm64ovI'
-            },
-            'ultradian-rhythm': {
-                title: 'Ultradian Rhythm',
-                description: 'Based on natural biological rhythms, the Ultradian Rhythm technique aligns with your body\'s natural energy cycles. Work for 90 minutes followed by a 20-minute break to match your natural attention span.',
-                benefits: [
-                    'Aligns with natural body rhythms',
-                    'Optimizes energy levels',
-                    'Reduces mental fatigue',
-                    'Enhances cognitive performance'
-                ],
-                videoId: 'lsODSDmY4CY'
             }
         };
 
@@ -15523,9 +15492,9 @@ class PomodoroTimer {
             }
         }
         
-        // Update timer technique label (main timer display)
-        if (this.timerTechniqueLabel) {
-            this.timerTechniqueLabel.innerHTML = `<span style="font-size: 14px; color: rgba(255, 255, 255, 0.7); text-transform: uppercase; letter-spacing: 1px;">${config.name}</span>`;
+        // Update timer technique button (center top)
+        if (this.timerTechniqueName) {
+            this.timerTechniqueName.textContent = config.name;
         }
         if (this.techniqueDescription) {
             this.techniqueDescription.textContent = `${config.focusTime/60} min focus, ${config.breakTime/60} min break${this.longBreakTime > 0 ? `, ${this.longBreakTime/60} min long break` : ''}`;

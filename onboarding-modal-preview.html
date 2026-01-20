@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding Modal Preview</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Onboarding Modal -->
+    <div class="logout-modal-overlay" id="onboardingModal" style="display: flex;">
+        <div class="logout-modal">
+            <button class="close-logout-modal-x" id="closeOnboardingModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3 class="logout-modal-title">Welcome to Superfocus</h3>
+                <p class="logout-modal-subtitle">What type of user are you?</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; margin: 24px 0;">
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingStudent" style="width: 100%; justify-content: center;">
+                        Student (College/University)
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingFreelancer" style="width: 100%; justify-content: center;">
+                        Freelancer
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingFullTime" style="width: 100%; justify-content: center;">
+                        Full-time
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingEntrepreneur" style="width: 100%; justify-content: center;">
+                        Entrepreneur
+                    </button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="onboardingOther" style="width: 100%; justify-content: center;">
+                        Other
+                    </button>
+                </div>
+                
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="onboardingSkip" style="width: 100%; justify-content: center;">
+                        Skip
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
