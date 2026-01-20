@@ -4271,11 +4271,17 @@ class PomodoroTimer {
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         if (this.timerTechniqueBtn) {
             this.timerTechniqueBtn.addEventListener('click', () => {
-                this.trackEvent('Timer Settings Clicked', {
-                    button_type: 'timer_technique',
-                    source: 'timer_header'
-                });
-                this.openSettingsPanel();
+                if (window.mixpanelTracker) {
+                    window.mixpanelTracker.trackEvent('Timer Settings Clicked', {
+                        button_type: 'timer_technique',
+                        source: 'timer_header'
+                    });
+                }
+                // Open Timer settings panel
+                const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
+                if (settingsNavItem) {
+                    settingsNavItem.click();
+                }
             });
         }
         
