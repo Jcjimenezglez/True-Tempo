@@ -12217,22 +12217,31 @@ class PomodoroTimer {
         // Sum hours from daily data for current month
         if (stats.daily) {
             Object.entries(stats.daily).forEach(([dateStr, hours]) => {
-                const date = new Date(dateStr);
-                if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
-                    monthlyHours += hours;
-                    // Estimate sessions based on hours (rough estimate: 1 session ≈ 25min = 0.417h)
-                    // But we'll use a separate counter if available
+                try {
+                    // Parse date string (format: "Mon Jan 01 2024" from toDateString())
+                    const date = new Date(dateStr);
+                    // Check if date is valid and matches current month/year
+                    if (!isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                        monthlyHours += hours || 0;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing date in getMonthlyStats:', dateStr, e);
                 }
             });
         }
         
         // For sessions, we need to track monthly sessions separately
-        // For now, use the daily data to estimate active days this month
         if (stats.dailySessions) {
             Object.entries(stats.dailySessions).forEach(([dateStr, sessions]) => {
-                const date = new Date(dateStr);
-                if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
-                    monthlySessions += sessions;
+                try {
+                    // Parse date string (format: "Mon Jan 01 2024" from toDateString())
+                    const date = new Date(dateStr);
+                    // Check if date is valid and matches current month/year
+                    if (!isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                        monthlySessions += sessions || 0;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing date in getMonthlyStats:', dateStr, e);
                 }
             });
         }
@@ -13334,7 +13343,7 @@ class PomodoroTimer {
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
                     <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                     
-                    <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours.toFixed(1)}</div>
+                    <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
                     <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
                     
                     <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
@@ -13519,7 +13528,7 @@ class PomodoroTimer {
                     <div style="text-align: center; margin-bottom: 24px;">
                         <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                         
-                        <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours.toFixed(1)}</div>
+                        <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
                         <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
                         
                         <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
