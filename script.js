@@ -4269,7 +4269,15 @@ class PomodoroTimer {
         if (this.taskToggleBtn) this.taskToggleBtn.addEventListener('click', () => this.toggleTaskList());
         if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
-        if (this.timerTechniqueBtn) this.timerTechniqueBtn.addEventListener('click', () => this.toggleSettingsPanel());
+        if (this.timerTechniqueBtn) {
+            this.timerTechniqueBtn.addEventListener('click', () => {
+                this.trackEvent('Timer Settings Clicked', {
+                    button_type: 'timer_technique',
+                    source: 'timer_header'
+                });
+                this.openSettingsPanel();
+            });
+        }
         
         // Subscribe button event listener
         const subscribeBtn = document.getElementById('subscribeBtn');
