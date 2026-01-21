@@ -1379,6 +1379,7 @@ body.is-scrolling .streak-fire {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    padding-bottom: 32px;
 }
 
 .task-name-display {
