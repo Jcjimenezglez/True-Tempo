@@ -2278,10 +2278,31 @@ class PomodoroTimer {
             // Save automatically to localStorage
             this.saveTechniqueSettings(technique);
             
+            // Update timer technique button with proper capitalized name
+            this.updateTimerTechniqueButton(technique.name);
+            
             console.log('✅ Technique applied immediately');
             
         } catch (error) {
             console.error('Error applying technique immediately:', error);
+        }
+    }
+    
+    // Update the timer technique button text
+    updateTimerTechniqueButton(techniqueName) {
+        const techniqueDisplayNames = {
+            'pomodoro': 'Pomodoro',
+            'sprint': 'Sprint',
+            'focus': 'Focus',
+            'flow': 'Flow State',
+            'marathon': 'Marathon',
+            'deepwork': 'Deep Work'
+        };
+        
+        const displayName = techniqueDisplayNames[techniqueName] || techniqueName || 'Pomodoro';
+        
+        if (this.timerTechniqueName) {
+            this.timerTechniqueName.textContent = displayName;
         }
     }
     
@@ -3944,16 +3965,28 @@ class PomodoroTimer {
         let label = 'Pomodoro';
         
         if (saved) {
-            const map = {
-                'pomodoro': 'Pomodoro',
-                'sprint': 'Sprint',
-                'focus': 'Focus',
-                'flow': 'Flow State',
-                'marathon': 'Marathon',
-                'deepwork': 'Deep Work',
-                'custom': (document.querySelector('[data-technique="custom"] .item-title')?.textContent || 'Custom')
-            };
-            label = map[saved] || 'Pomodoro';
+            // Handle custom techniques
+            if (saved.startsWith('custom_')) {
+                const customId = saved.replace('custom_', '');
+                try {
+                    const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                    const customTechnique = techniques.find(t => t.id === customId);
+                    if (customTechnique) {
+                        label = customTechnique.name;
+                    }
+                } catch (_) {}
+            } else {
+                const map = {
+                    'pomodoro': 'Pomodoro',
+                    'sprint': 'Sprint',
+                    'focus': 'Focus',
+                    'flow': 'Flow State',
+                    'marathon': 'Marathon',
+                    'deepwork': 'Deep Work',
+                    'custom': (document.querySelector('[data-technique="custom"] .item-title')?.textContent || 'Custom')
+                };
+                label = map[saved] || 'Pomodoro';
+            }
         }
         
         // Update sidebar technique title
@@ -3982,7 +4015,11 @@ class PomodoroTimer {
     selectTechnique(item) {
         if (!item) return;
         const technique = item.dataset ? item.dataset.technique : undefined;
-        const titleEl = item.querySelector ? item.querySelector('.item-title') : null;
+        // Try both .item-title and .technique-name for different UI elements
+        let titleEl = item.querySelector ? item.querySelector('.item-title') : null;
+        if (!titleEl) {
+            titleEl = item.querySelector ? item.querySelector('.technique-name') : null;
+        }
         const title = titleEl ? (titleEl.textContent || '') : '';
         if (!technique) return;
         const requiresAccount = item.dataset.requiresAccount === 'true';
@@ -4270,18 +4307,15 @@ class PomodoroTimer {
         if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         if (this.timerTechniqueBtn) {
-            this.timerTechniqueBtn.addEventListener('click', () => {
-                if (window.mixpanelTracker) {
-                    window.mixpanelTracker.trackEvent('Timer Settings Clicked', {
-                        button_type: 'timer_technique',
-                        source: 'timer_header'
-                    });
-                }
+            const self = this;
+            this.timerTechniqueBtn.addEventListener('click', function() {
+                // Track event
+                self.trackEvent('Timer Settings Clicked', {
+                    button_type: 'timer_technique',
+                    source: 'timer_header'
+                });
                 // Open Timer settings panel
-                const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
-                if (settingsNavItem) {
-                    settingsNavItem.click();
-                }
+                self.openSettingsPanel();
             });
         }
         
