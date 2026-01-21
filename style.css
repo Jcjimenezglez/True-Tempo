@@ -1417,14 +1417,15 @@ body.is-scrolling .streak-fire {
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
-    background: none;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     cursor: pointer;
     font-family: inherit;
+    backdrop-filter: blur(4px);
 }
 
 .task-name-display:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .task-name-display:active {
