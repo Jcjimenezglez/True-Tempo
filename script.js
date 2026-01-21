@@ -12686,37 +12686,29 @@ class PomodoroTimer {
             return;
         }
         
-        // Check if report panel is currently open by checking the DOM
-        const isOpen = this.reportSidePanel && this.reportSidePanel.classList.contains('open');
+        // Check if report panel is currently open
+        const reportPanel = document.getElementById('reportSidePanel');
+        const isOpen = reportPanel && reportPanel.classList.contains('open');
+        
+        console.log('🔍 Report panel check:', {
+            panelExists: !!reportPanel,
+            isOpen: isOpen,
+            classList: reportPanel ? Array.from(reportPanel.classList) : []
+        });
         
         if (isOpen) {
-            // Close the Report panel
-            this.closeReportPanel();
+            console.log('🔒 Closing report panel');
+            // Close by clicking nav item
+            const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+            if (reportNavItem && reportNavItem.classList.contains('active')) {
+                reportNavItem.click();
+            }
         } else {
-            // Open the Report panel in the sidebar
-            if (window.sidebarManager) {
-                window.sidebarManager.openReportPanel();
-            } else {
-                // Fallback - try calling directly if sidebarManager not available
-                if (this.reportSidePanel) {
-                    this.reportSidePanel.classList.add('open');
-                    this.isReportPanelOpen = true;
-                    
-                    if (this.reportPanelOverlay) {
-                        this.reportPanelOverlay.classList.add('active');
-                    }
-                    
-                    const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
-                    if (reportNavItem) {
-                        reportNavItem.classList.add('active');
-                    }
-                    
-                    if (this.mainContent) {
-                        this.mainContent.classList.add('task-panel-open');
-                    }
-                    
-                    this.loadReportForPanel();
-                }
+            console.log('🔓 Opening report panel');
+            // Open by clicking nav item
+            const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+            if (reportNavItem) {
+                reportNavItem.click();
             }
         }
     }
