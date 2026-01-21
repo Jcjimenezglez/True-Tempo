@@ -2132,7 +2132,7 @@ class PomodoroTimer {
                 const sessionsElement = card.querySelector('.custom-card-sessions');
                 
                 if (nameElement) nameElement.textContent = technique.name;
-                if (durationElement) durationElement.textContent = `${technique.workMinutes}min work`;
+                if (durationElement) durationElement.textContent = `${technique.workMinutes}min focus`;
                 if (breakElement) breakElement.textContent = `${technique.shortBreakMinutes}min short break`;
                 if (longBreakElement) longBreakElement.textContent = `${technique.longBreakMinutes}min long break`;
                 if (sessionsElement) sessionsElement.textContent = `${technique.sessions} sessions`;
@@ -2192,7 +2192,7 @@ class PomodoroTimer {
         card.innerHTML = `
             <div class="custom-card-icon">${technique.emoji || '🎯'}</div>
             <div class="custom-card-name">${technique.name}</div>
-            <div class="custom-card-duration">${technique.workMinutes}min work</div>
+            <div class="custom-card-duration">${technique.workMinutes}min focus</div>
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
             <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
             <div class="custom-card-sessions">${technique.sessions} sessions</div>
@@ -5489,34 +5489,34 @@ class PomodoroTimer {
                         <button class="technique-preset" data-technique="pomodoro">
                             <div class="technique-icon">🍅</div>
                             <div class="technique-name">Pomodoro</div>
-                            <div class="technique-desc">25min work, 5min break</div>
+                            <div class="technique-desc">25min focus, 5min break</div>
                         </button>
                         <button class="technique-preset" data-technique="flow">
                             <div class="technique-icon">🌊</div>
                             <div class="technique-name">Flow State</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
                             <div class="subscribe-required-text hidden">(Premium required)</div>
-                            <div class="technique-desc">45min work, 15min break</div>
+                            <div class="technique-desc">45min focus, 15min break</div>
                         </button>
                         <button class="technique-preset" data-technique="deepwork">
                             <div class="technique-icon">🧠</div>
                             <div class="technique-name">Deep Work</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
                             <div class="subscribe-required-text hidden">(Premium required)</div>
-                            <div class="technique-desc">90min work, 20min break</div>
+                            <div class="technique-desc">90min focus, 20min break</div>
                         </button>
                         <button class="technique-preset" data-technique="sprint">
                             <div class="technique-icon">⚡</div>
                             <div class="technique-name">Sprint</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
-                            <div class="technique-desc">15min work, 3min break</div>
+                            <div class="technique-desc">15min focus, 3min break</div>
                         </button>
                         <button class="technique-preset" data-technique="marathon">
                             <div class="technique-icon">🏃</div>
                             <div class="technique-name">Marathon</div>
                             <div class="signup-required-text hidden">(Sign up required)</div>
                             <div class="subscribe-required-text hidden">(Premium required)</div>
-                            <div class="technique-desc">60min work, 10min break</div>
+                            <div class="technique-desc">60min focus, 10min break</div>
                         </button>
                     </div>
                 </div>
@@ -7100,7 +7100,7 @@ class PomodoroTimer {
         } else {
             // Fallback to session type if no current task
             if (this.isWorkSession) {
-                titleText = 'Work';
+                titleText = 'Focus';
             } else {
                 titleText = this.isLongBreak ? 'Long Break' : 'Short Break';
             }
