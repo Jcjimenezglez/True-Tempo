@@ -1234,69 +1234,142 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 2rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .comparison-plan-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 3rem 2rem;
+            border-radius: 20px;
+            padding: 2.5rem;
             display: flex;
             flex-direction: column;
             gap: 2rem;
         }
         
         .comparison-plan-card.premium-plan {
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
         }
         
         .plan-header {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
         
-        .plan-name {
-            font-size: 2rem;
+        .plan-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        
+        .plan-pricing {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+        
+        .price {
+            font-size: 3rem;
             font-weight: 700;
             color: #ffffff;
-            margin: 0;
+        }
+        
+        .period {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
         }
         
         .plan-features {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
+            flex-grow: 1;
         }
         
-        .feature-row {
+        .feature-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            align-items: flex-start;
+            gap: 0.75rem;
         }
         
-        .feature-row:last-child {
-            border-bottom: none;
+        .feature-item.disabled {
+            opacity: 0.5;
         }
         
-        .feature-label {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.75);
-            font-weight: 500;
-        }
-        
-        .feature-value {
-            font-size: 1.25rem;
+        .feature-icon {
             font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.25rem;
+            min-width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .comparison-plan-card.premium-plan .feature-icon {
+            color: #10b981;
+        }
+        
+        .feature-text {
+            font-size: 1rem;
             color: #ffffff;
+            line-height: 1.4;
+        }
+        
+        .plan-cta {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+        }
+        
+        .plan-cta:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .plan-cta.premium {
+            background: #10b981;
+            border-color: #10b981;
+            color: #000000;
+        }
+        
+        .plan-cta.premium:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .plan-footnote {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin: 0;
         }
         
         @media (max-width: 768px) {
             .comparison-plans-wrapper {
                 grid-template-columns: 1fr;
             }
+            
+            .price {
+                font-size: 2.5rem;
+            }
+            
+            .comparison-table-section {
                 margin-top: 6rem;
                 margin-bottom: 6rem;
                 padding: 0 1rem;
@@ -2339,59 +2412,74 @@
                 <!-- Starter Plan Card -->
                 <div class="comparison-plan-card starter-plan">
                     <div class="plan-header">
-                        <h2 class="plan-name">Starter</h2>
+                        <h3 class="plan-label">STARTER</h3>
+                        <div class="plan-pricing">
+                            <span class="price">Free</span>
+                        </div>
                     </div>
+                    
                     <div class="plan-features">
-                        <div class="feature-row">
-                            <span class="feature-label">Custom Timers</span>
-                            <span class="feature-value">1 timer</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">1 timer</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Daily Focus Limit</span>
-                            <span class="feature-value">30 min/day</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">30 min/day focus</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Tasks</span>
-                            <span class="feature-value">Limit to 1</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">1 task</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Custom Cassettes</span>
-                            <span class="feature-value">1 cassette</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">1 cassette</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Advanced Analytics</span>
-                            <span class="feature-value">❌</span>
+                        <div class="feature-item disabled">
+                            <span class="feature-icon">✗</span>
+                            <span class="feature-text">Advanced Analytics</span>
                         </div>
                     </div>
+                    
+                    <button class="plan-cta">Get Started</button>
+                    <p class="plan-footnote">Forever free</p>
                 </div>
                 
                 <!-- Premium Plan Card -->
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
-                        <h2 class="plan-name">Premium</h2>
+                        <h3 class="plan-label">PREMIUM</h3>
+                        <div class="plan-pricing">
+                            <span class="price">$3.99</span>
+                            <span class="period">/month</span>
+                        </div>
                     </div>
+                    
                     <div class="plan-features">
-                        <div class="feature-row">
-                            <span class="feature-label">Custom Timers</span>
-                            <span class="feature-value">Unlimited</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited timers</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Daily Focus Limit</span>
-                            <span class="feature-value">Unlimited</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited focus</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Tasks</span>
-                            <span class="feature-value">Unlimited</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited tasks</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Custom Cassettes</span>
-                            <span class="feature-value">Unlimited</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited cassettes</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-label">Advanced Analytics</span>
-                            <span class="feature-value">✅</span>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Advanced Analytics</span>
                         </div>
                     </div>
+                    
+                    <button class="plan-cta premium">Start 14-Day Free Trial</button>
+                    <p class="plan-footnote">Then $3.99/month. Cancel anytime.</p>
                 </div>
             </div>
             
