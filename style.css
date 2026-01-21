@@ -1441,15 +1441,6 @@ body.is-scrolling .streak-fire {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
-.session-status {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 0;
-    text-transform: capitalize;
-    letter-spacing: 0.03em;
-}
-
 /* Combined Session Label in Header */
 .session-label {
     font-size: 1rem;

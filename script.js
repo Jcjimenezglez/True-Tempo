@@ -139,7 +139,6 @@ class PomodoroTimer {
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.currentTaskElement = document.getElementById('currentTask');
         this.taskNameDisplay = document.getElementById('taskNameDisplay');
-        this.sessionStatus = document.getElementById('sessionStatus');
         this.sessionLabelElement = document.getElementById('sessionLabel');
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
@@ -7128,9 +7127,6 @@ class PomodoroTimer {
         // Update task name display
         this.updateTaskNameDisplay();
         
-        // Update session status
-        this.updateSessionStatus();
-        
         // Update browser tab title with current task content
         let titleText;
         if (this.currentTaskName) {
@@ -7148,22 +7144,19 @@ class PomodoroTimer {
     
     updateTaskNameDisplay() {
         if (this.taskNameDisplay) {
-            const displayText = this.currentTaskName || 'No task';
+            let displayText;
+            if (this.isLongBreak) {
+                displayText = 'Long Break';
+            } else if (!this.isWorkSession) {
+                displayText = 'Short Break';
+            } else {
+                // Focus session
+                displayText = this.currentTaskName || 'Focus';
+            }
             this.taskNameDisplay.textContent = displayText;
         }
     }
     
-    updateSessionStatus() {
-        if (this.sessionStatus) {
-            let statusText = 'Focus';
-            if (this.isLongBreak) {
-                statusText = 'Long Break';
-            } else if (!this.isWorkSession) {
-                statusText = 'Short Break';
-            }
-            this.sessionStatus.textContent = statusText;
-        }
-    }
     
     updateSessionDots() {
         if (!this.sessionDots) return;
