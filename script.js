@@ -12686,8 +12686,11 @@ class PomodoroTimer {
             return;
         }
         
-        // For authenticated users, toggle the Report panel
-        if (this.isReportPanelOpen) {
+        // Check if report panel is currently open by checking the DOM
+        const isOpen = this.reportSidePanel && this.reportSidePanel.classList.contains('open');
+        
+        if (isOpen) {
+            // Close the Report panel
             this.closeReportPanel();
         } else {
             // Open the Report panel in the sidebar
