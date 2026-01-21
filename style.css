@@ -1407,7 +1407,7 @@ body.is-scrolling .streak-fire {
 .task-name-display {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #b8b8b8;
+    color: #ffffff;
     margin: 0;
     padding: 0.5rem 1rem;
     border-radius: 100px;
@@ -1424,7 +1424,6 @@ body.is-scrolling .streak-fire {
 }
 
 .task-name-display:hover {
-    color: #ffffff;
     background: rgba(255, 255, 255, 0.08);
 }
 
