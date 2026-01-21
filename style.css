@@ -1262,21 +1262,21 @@ body.is-scrolling .streak-fire {
     justify-content: center;
     gap: 0.35rem;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
     border: none;
     cursor: pointer;
     padding: 0.5rem 1.5rem;
     border-radius: 1000px;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px);
     transition: all 0.3s ease;
     white-space: nowrap;
 }
 
 .timer-technique-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.4);
     transform: translateY(-1px);
     color: #ffffff;
 }
@@ -1417,15 +1417,15 @@ body.is-scrolling .streak-fire {
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
     border: none;
     cursor: pointer;
     font-family: inherit;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px);
 }
 
 .task-name-display:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .task-name-display:active {
@@ -1485,22 +1485,22 @@ body.is-scrolling .streak-fire {
     justify-content: center;
     gap: 0.25rem;
     font-size: 18px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
     border: none;
     cursor: pointer;
     padding: 0.5rem 1rem;
     border-radius: 1000px;
     box-shadow: none;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px);
     transition: all 0.3s ease;
     width: 64px;
 }
 
 .streak-info:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.4);
     transform: translateY(-1px);
     color: #ffffff;
 }
