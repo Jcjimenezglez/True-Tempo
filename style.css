@@ -1265,7 +1265,7 @@ body.is-scrolling .streak-fire {
     color: rgba(255, 255, 255, 0.95);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.15);
     border: none;
     cursor: pointer;
     padding: 0.5rem 1.5rem;
@@ -1276,7 +1276,7 @@ body.is-scrolling .streak-fire {
 }
 
 .timer-technique-btn:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.25);
     transform: translateY(-1px);
     color: #ffffff;
 }
@@ -1417,7 +1417,7 @@ body.is-scrolling .streak-fire {
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.15);
     border: none;
     cursor: pointer;
     font-family: inherit;
@@ -1425,7 +1425,7 @@ body.is-scrolling .streak-fire {
 }
 
 .task-name-display:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.25);
 }
 
 .task-name-display:active {
@@ -1488,7 +1488,7 @@ body.is-scrolling .streak-fire {
     color: rgba(255, 255, 255, 0.95);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.15);
     border: none;
     cursor: pointer;
     padding: 0.5rem 1rem;
@@ -1500,7 +1500,7 @@ body.is-scrolling .streak-fire {
 }
 
 .streak-info:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.25);
     transform: translateY(-1px);
     color: #ffffff;
 }
