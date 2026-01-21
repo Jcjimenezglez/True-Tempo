@@ -7289,18 +7289,29 @@ class PomodoroTimer {
 
     // Build an execution queue from selected tasks and their configured sessions
     rebuildTaskQueue() {
+        console.log('🔄 rebuildTaskQueue called');
+        
         // Only include tasks that are explicitly selected
         const selected = this.getSelectedTasks();
+        console.log('🔄 Selected tasks:', selected.map(t => ({ 
+            id: t.id, 
+            content: t.content,
+            config: this.getTaskConfig(t.id)
+        })));
+        
         const queue = [];
         
         // Calculate total sessions needed
         const totalSessions = this.getTotalFocusSessions();
+        console.log('🔄 Total focus sessions in technique:', totalSessions);
         
         selected.forEach(task => {
             const config = this.getTaskConfig(task.id);
-            const totalSessions = Math.max(1, config.sessions || 1);
+            const taskTotalSessions = Math.max(1, config.sessions || 1);
             const completedSessions = config.completedSessions || 0;
-            const remainingSessions = Math.max(0, totalSessions - completedSessions);
+            const remainingSessions = Math.max(0, taskTotalSessions - completedSessions);
+            
+            console.log(`🔄 Task ${task.content}: total=${taskTotalSessions}, completed=${completedSessions}, remaining=${remainingSessions}`);
             
             for (let i = 0; i < remainingSessions; i++) {
                 queue.push({ id: task.id, content: task.content, source: task.source || 'local' });
@@ -7311,6 +7322,7 @@ class PomodoroTimer {
         const totalTaskSlots = queue.length;
         if (totalSessions > totalTaskSlots) {
             const extraSessions = totalSessions - totalTaskSlots;
+            console.log(`🔄 Adding ${extraSessions} empty slots`);
             for (let i = 0; i < extraSessions; i++) {
                 queue.push({ id: null, content: '', source: 'empty' });
             }
@@ -7319,6 +7331,9 @@ class PomodoroTimer {
         this.taskQueue = queue;
         this.currentTaskIndex = 0;
         this.currentTask = this.taskQueue.length > 0 ? this.taskQueue[0] : null;
+        
+        console.log('🔄 Final taskQueue:', queue.map(t => ({ id: t.id, content: t.content })));
+        console.log('🔄 Final taskQueue.length:', queue.length);
 
         // Keep sessionTasks in sync with taskQueue
         this.updateSessionTasksFromSelected();
@@ -7338,20 +7353,32 @@ class PomodoroTimer {
 
     // Advance to next task slot after finishing a focus session
     advanceTaskQueueAfterFocus() {
+        console.log('🚀 advanceTaskQueueAfterFocus called', {
+            taskQueueLength: this.taskQueue?.length,
+            currentTask: this.currentTask,
+            currentTaskIndex: this.currentTaskIndex
+        });
+        
         if (!this.taskQueue || this.taskQueue.length === 0) return;
         
         // Increment completed sessions for current task (only if it's a real task, not empty slot)
         const finishedTaskId = this.currentTask && this.currentTask.id ? this.currentTask.id : null;
+        console.log('🚀 finishedTaskId:', finishedTaskId);
+        
         if (finishedTaskId) {
             this.incrementTaskCompletedSessions(finishedTaskId);
             // If the task reached its planned sessions, mark completed and rebuild queue
             const cfg = this.getTaskConfig(finishedTaskId);
             const planned = Math.max(1, cfg.sessions || 1);
-            const done = Math.min(cfg.completedSessions || 0, planned);
+            const done = cfg.completedSessions || 0;
             const taskFinished = done >= planned;
+            console.log('🚀 Task completion check:', { planned, done, taskFinished });
+            
             if (taskFinished) {
+                console.log('🚀 Task finished! Marking as completed and rebuilding queue');
                 try { this.markLocalTaskAsCompleted(finishedTaskId); } catch (_) {}
                 // Queue rebuilt from remaining selected tasks
+                console.log('🚀 After rebuild, taskQueue.length:', this.taskQueue?.length);
                 if (this.taskQueue && this.taskQueue.length > 0) {
                     this.currentTaskIndex = 0;
                     this.currentTask = this.taskQueue[0];
@@ -7501,23 +7528,29 @@ class PomodoroTimer {
     }
 
     updateCurrentTaskFromQueue() {
+        const selected = this.getSelectedTasks();
         console.log('🎯 updateCurrentTaskFromQueue called', {
             isWorkSession: this.isWorkSession,
+            currentSection: this.currentSection,
             taskQueueLength: this.taskQueue?.length,
-            taskQueue: this.taskQueue?.map(t => t.content)
+            taskQueue: this.taskQueue?.map(t => ({ content: t.content, id: t.id })),
+            selectedTasks: selected.map(t => ({ 
+                content: t.content, 
+                id: t.id,
+                config: this.getTaskConfig(t.id)
+            }))
         });
         
         // Update current task based on task queue and current session
         if (this.isWorkSession && this.taskQueue && this.taskQueue.length > 0) {
             // Calculate how many task slots have been completed so far
-            const selected = this.getSelectedTasks();
-            console.log('🎯 Selected tasks:', selected.map(t => t.content));
             
             let slotsCompleted = 0;
             selected.forEach(task => {
                 const cfg = this.getTaskConfig(task.id);
                 const total = Math.max(1, cfg.sessions || 1);
                 const done = Math.min(cfg.completedSessions || 0, total);
+                console.log(`🎯 Task ${task.content}: total=${total}, done=${done}`);
                 slotsCompleted += done;
             });
             
@@ -7532,7 +7565,7 @@ class PomodoroTimer {
                 this.currentTaskIndex = slotsCompleted;
                 this.currentTask = this.taskQueue[this.currentTaskIndex];
                 this.currentTaskName = this.currentTask ? this.currentTask.content : null;
-                console.log('🎯 Setting currentTaskName to:', this.currentTaskName);
+                console.log('🎯 Setting currentTaskName to:', this.currentTaskName, 'at index', this.currentTaskIndex);
             }
         } else {
             // Not in work session (Short Break or Long Break) OR no tasks selected
