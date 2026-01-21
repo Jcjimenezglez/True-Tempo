@@ -1267,14 +1267,6 @@
             color: rgba(255, 255, 255, 0.7);
         }
         
-        .comparison-plan-card.premium-plan .feature-item.disabled .feature-text {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        .comparison-plan-card.starter-plan .feature-item.disabled .feature-text {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
         .plan-header {
             display: flex;
             flex-direction: column;
@@ -1326,7 +1318,19 @@
         }
         
         .feature-item.disabled {
-            opacity: 0.4;
+            opacity: 1;
+        }
+        
+        .feature-item.disabled .feature-icon {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .comparison-plan-card.starter-plan .feature-item.disabled .feature-text {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .comparison-plan-card.premium-plan .feature-item.disabled .feature-text {
+            color: #ffffff;
         }
         
         .feature-icon {
