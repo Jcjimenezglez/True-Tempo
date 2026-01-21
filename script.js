@@ -12686,12 +12686,11 @@ class PomodoroTimer {
             return;
         }
         
-        // For authenticated users, open the Report panel in the sidebar
-        if (window.sidebarManager) {
-            window.sidebarManager.openReportPanel();
+        // For authenticated users, toggle the Report panel
+        if (this.isReportPanelOpen) {
+            this.closeReportPanel();
         } else {
-            // Fallback to modal if sidebarManager is not available
-            this.showStatisticsModal();
+            this.openReportPanel();
         }
     }
 
