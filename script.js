@@ -473,39 +473,28 @@ class PomodoroTimer {
         
         // Add click handler to task name display to toggle task panel
         if (this.taskNameDisplay) {
-            console.log('✅ Task name display element found, adding click handler');
             this.taskNameDisplay.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🖱️ Task name display clicked');
+                
                 try {
                     const taskPanel = document.getElementById('taskSidePanel');
-                    console.log('📋 Task panel element:', taskPanel);
-                    console.log('📋 Panel has open class:', taskPanel?.classList.contains('open'));
                     
                     if (taskPanel && taskPanel.classList.contains('open')) {
                         // Panel is open, close it
-                        console.log('🔴 Closing task panel');
-                        if (typeof this.closeTaskPanel === 'function') {
-                            this.closeTaskPanel();
-                        } else {
-                            console.error('❌ closeTaskPanel is not a function');
+                        if (window.sidebarManager && typeof window.sidebarManager.closeTaskPanel === 'function') {
+                            window.sidebarManager.closeTaskPanel();
                         }
                     } else {
                         // Panel is closed, open it
-                        console.log('🟢 Opening task panel');
-                        if (typeof this.openTaskPanel === 'function') {
-                            this.openTaskPanel();
-                        } else {
-                            console.error('❌ openTaskPanel is not a function');
+                        if (window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
+                            window.sidebarManager.openTaskPanel();
                         }
                     }
                 } catch (error) {
-                    console.error('❌ Error toggling task panel:', error);
+                    console.error('Error toggling task panel:', error);
                 }
             });
-        } else {
-            console.error('❌ Task name display element NOT found');
         }
         
         // Load custom timer labels if it exists (do not auto-select here)
