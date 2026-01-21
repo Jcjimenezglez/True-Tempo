@@ -121,13 +121,13 @@ class PomodoroTimer {
         
         // Complete cycle: 25/5/25/5/25/5/25/15
         this.cycleSections = [
-            { type: 'work', duration: this.workTime, name: 'Work 1' },
+            { type: 'work', duration: this.workTime, name: 'Focus 1' },
             { type: 'break', duration: this.shortBreakTime, name: 'Break 1' },
-            { type: 'work', duration: this.workTime, name: 'Work 2' },
+            { type: 'work', duration: this.workTime, name: 'Focus 2' },
             { type: 'break', duration: this.shortBreakTime, name: 'Break 2' },
-            { type: 'work', duration: this.workTime, name: 'Work 3' },
+            { type: 'work', duration: this.workTime, name: 'Focus 3' },
             { type: 'break', duration: this.shortBreakTime, name: 'Break 3' },
-            { type: 'work', duration: this.workTime, name: 'Work 4' },
+            { type: 'work', duration: this.workTime, name: 'Focus 4' },
             { type: 'long-break', duration: this.longBreakTime, name: 'Long Break' }
         ];
         
@@ -4075,7 +4075,7 @@ class PomodoroTimer {
             this.cycleSections.push({
                 type: 'work',
                 duration: this.workTime,
-                name: `Work ${i + 1}`
+                name: `Focus ${i + 1}`
             });
             
             // Add break after work session
