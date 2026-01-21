@@ -679,7 +679,36 @@
         
         .founder-story-audio {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .founder-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .founder-profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .founder-profile-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .founder-profile-name:hover {
+            color: rgba(255, 255, 255, 0.8);
         }
         
         .audio-player-wrapper {
@@ -2058,6 +2087,10 @@
         <div class="founder-story-section">
             <div class="founder-story-container">
                 <div class="founder-story-audio">
+                    <div class="founder-profile">
+                        <img src="/images/Julio-Doodle.jpeg" alt="Julius Caesar" class="founder-profile-image">
+                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-name">Julius Caesar</a>
+                    </div>
                     <div class="audio-player-wrapper">
                         <button class="audio-play-button" id="audioPlayBtn">
                             <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
