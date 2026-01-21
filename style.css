@@ -1388,7 +1388,7 @@ body.is-scrolling .streak-fire {
     color: #b8b8b8;
     margin: 0;
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: 100px;
     transition: all 0.2s ease;
     max-width: 300px;
     white-space: nowrap;
