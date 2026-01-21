@@ -484,11 +484,25 @@ class PomodoroTimer {
                     if (taskPanel && taskPanel.classList.contains('open')) {
                         // Panel is open, close it
                         if (window.sidebarManager && typeof window.sidebarManager.closeTaskPanel === 'function') {
+                            // Track task panel close in Mixpanel
+                            if (window.mixpanelTracker) {
+                                window.mixpanelTracker.track('Task Panel Closed', {
+                                    trigger: 'task_name_display_button',
+                                    timestamp: new Date().toISOString()
+                                });
+                            }
                             window.sidebarManager.closeTaskPanel();
                         }
                     } else {
                         // Panel is closed, open it
                         if (window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
+                            // Track task panel open in Mixpanel
+                            if (window.mixpanelTracker) {
+                                window.mixpanelTracker.track('Task Panel Opened', {
+                                    trigger: 'task_name_display_button',
+                                    timestamp: new Date().toISOString()
+                                });
+                            }
                             window.sidebarManager.openTaskPanel();
                         }
                     }
