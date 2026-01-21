@@ -161,6 +161,7 @@ class PomodoroTimer {
         this.dropdownItems = document.querySelectorAll('.dropdown-item');
         this.timerTechniqueBtn = document.getElementById('timerTechniqueBtn');
         this.timerTechniqueName = document.getElementById('timerTechniqueName');
+        this.sessionDots = document.getElementById('sessionDots');
         
         // Custom timer modal elements
         this.customTimerModal = document.getElementById('customTimerModal');
@@ -4212,6 +4213,9 @@ class PomodoroTimer {
         this.pauseTimerSilent();
         this.currentSection = 1;
         this.loadCurrentSection();
+        
+        // Update session dots
+        this.updateSessionDots();
         this.updateNavigationButtons();
         this.updateSessionInfo();
     }
@@ -7145,6 +7149,34 @@ class PomodoroTimer {
         }
     }
     
+    updateSessionDots() {
+        if (!this.sessionDots) return;
+        
+        // Clear existing dots
+        this.sessionDots.innerHTML = '';
+        
+        // Get total sessions for current technique
+        const totalSessions = this.cycleSections.filter(s => s.type === 'work').length;
+        
+        // Calculate completed sessions
+        let completedSessions = 0;
+        for (let i = 0; i < this.currentSection; i++) {
+            if (this.cycleSections[i] && this.cycleSections[i].type === 'work') {
+                completedSessions++;
+            }
+        }
+        
+        // Create dots for each session
+        for (let i = 0; i < totalSessions; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'session-dot';
+            if (i < completedSessions) {
+                dot.classList.add('completed');
+            }
+            this.sessionDots.appendChild(dot);
+        }
+    }
+    
     updateProgress() {
         const currentSectionInfo = this.cycleSections[this.currentSection - 1];
         const totalTime = currentSectionInfo.duration;
@@ -7237,6 +7269,7 @@ class PomodoroTimer {
     
     updateSections() {
         // No highlight: segments remain uniform per type
+        this.updateSessionDots();
     }
     
 
