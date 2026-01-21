@@ -7534,16 +7534,12 @@ class PomodoroTimer {
                 this.currentTaskName = this.currentTask ? this.currentTask.content : null;
                 console.log('🎯 Setting currentTaskName to:', this.currentTaskName);
             }
-        } else if (this.isWorkSession) {
-            // In work session but no tasks selected - show "Focus"
-            this.currentTask = null;
-            this.currentTaskName = null;
-            console.log('🎯 Work session but no tasks, setting currentTaskName to null');
         } else {
-            // Not in work session
+            // Not in work session (Short Break or Long Break) OR no tasks selected
+            // Always clear current task display for breaks
             this.currentTask = null;
             this.currentTaskName = null;
-            console.log('🎯 Not in work session, setting currentTaskName to null');
+            console.log('🎯 Not in work session or no tasks, setting currentTaskName to null');
         }
         
         console.log('🎯 Final currentTaskName:', this.currentTaskName);
