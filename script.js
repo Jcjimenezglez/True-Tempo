@@ -473,8 +473,24 @@ class PomodoroTimer {
         
         // Add click handler to task name display to toggle task panel
         if (this.taskNameDisplay) {
-            this.taskNameDisplay.addEventListener('click', () => {
-                this.toggleTaskPanel();
+            this.taskNameDisplay.addEventListener('click', (e) => {
+                e.stopPropagation();
+                try {
+                    const taskPanel = document.getElementById('taskSidePanel');
+                    if (taskPanel && taskPanel.classList.contains('open')) {
+                        // Panel is open, close it
+                        if (typeof this.closeTaskPanel === 'function') {
+                            this.closeTaskPanel();
+                        }
+                    } else {
+                        // Panel is closed, open it
+                        if (typeof this.openTaskPanel === 'function') {
+                            this.openTaskPanel();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error toggling task panel:', error);
+                }
             });
         }
         
