@@ -1375,6 +1375,31 @@ body.is-scrolling .streak-fire {
     transform: translate(-50%, -50%);
     text-align: center;
     z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.task-name-display {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #b8b8b8;
+    margin: 0;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+
+.task-name-display:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .time {

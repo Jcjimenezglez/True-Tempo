@@ -138,6 +138,7 @@ class PomodoroTimer {
         this.timeElement = document.getElementById('time');
         this.sessionInfoElement = document.getElementById('sessionInfo');
         this.currentTaskElement = document.getElementById('currentTask');
+        this.taskNameDisplay = document.getElementById('taskNameDisplay');
         this.sessionLabelElement = document.getElementById('sessionLabel');
         this.startPauseBtn = document.getElementById('startPause');
         this.prevSectionBtn = document.getElementById('prevSectionBtn');
@@ -467,6 +468,13 @@ class PomodoroTimer {
             this.currentTaskElement.style.cursor = 'pointer';
             this.currentTaskElement.addEventListener('click', () => {
                 this.toggleTaskList();
+            });
+        }
+        
+        // Add click handler to task name display to toggle task panel
+        if (this.taskNameDisplay) {
+            this.taskNameDisplay.addEventListener('click', () => {
+                this.toggleTaskPanel();
             });
         }
         
@@ -7093,6 +7101,9 @@ class PomodoroTimer {
         // Update main display
         this.timeElement.textContent = timeString;
         
+        // Update task name display
+        this.updateTaskNameDisplay();
+        
         // Update browser tab title with current task content
         let titleText;
         if (this.currentTaskName) {
@@ -7106,6 +7117,13 @@ class PomodoroTimer {
             }
         }
         document.title = `${timeString} - ${titleText}`;
+    }
+    
+    updateTaskNameDisplay() {
+        if (this.taskNameDisplay) {
+            const displayText = this.currentTaskName || 'No task';
+            this.taskNameDisplay.textContent = displayText;
+        }
     }
     
     updateProgress() {
@@ -7403,11 +7421,13 @@ class PomodoroTimer {
     setCurrentTask(taskName) {
         this.currentTaskName = taskName;
         this.updateCurrentTaskDisplay();
+        this.updateTaskNameDisplay();
     }
     
     clearCurrentTask() {
         this.currentTaskName = null;
         this.updateCurrentTaskDisplay();
+        this.updateTaskNameDisplay();
     }
     
     updateCurrentTaskDisplay() {
@@ -7467,6 +7487,7 @@ class PomodoroTimer {
         
         console.log('🎯 Final currentTaskName:', this.currentTaskName);
         this.updateCurrentTaskDisplay();
+        this.updateTaskNameDisplay();
     }
     
     // Initialize tasks for each focus session from selected tasks
