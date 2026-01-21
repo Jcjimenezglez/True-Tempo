@@ -660,10 +660,139 @@
             margin: 0;
         }
         
+        /* Founder Story Section */
+        .founder-story-section {
+            margin-top: 8rem;
+            margin-bottom: 6rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .founder-story-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .founder-story-audio {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .audio-player-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 300px;
+            width: 100%;
+        }
+        
+        .audio-play-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 95, 70, 0.3));
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-play-button:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(6, 95, 70, 0.4));
+            border-color: rgba(16, 185, 129, 0.7);
+            transform: scale(1.05);
+        }
+        
+        .play-icon, .pause-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .audio-progress-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .audio-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .audio-progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+        
+        .audio-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .founder-story-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .founder-story-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .founder-story-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .founder-story-content p {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0;
+        }
+        
         @media (max-width: 1024px) {
             .how-it-works-steps {
                 grid-template-columns: 1fr;
                 gap: 3rem;
+            }
+            
+            .founder-story-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .founder-story-title {
+                font-size: 2rem;
+            }
+            
+            .audio-player-wrapper {
+                max-width: 100%;
             }
             
             .how-it-works-title {
@@ -1925,7 +2054,55 @@
             </div>
         </div>
         
-        <!-- How It Works Section -->
+        <!-- Founder Story Section -->
+        <div class="founder-story-section">
+            <div class="founder-story-container">
+                <div class="founder-story-audio">
+                    <div class="audio-player-wrapper">
+                        <button class="audio-play-button" id="audioPlayBtn">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                            </svg>
+                        </button>
+                        <audio id="founderAudio" src="/audio/ElevenLabs_2026-01-21T20_48_44_Mark - Casual, Relaxed and Light_pvc_sp100_s50_sb75_v3.mp3"></audio>
+                        <div class="audio-progress-wrapper">
+                            <div class="audio-progress-bar">
+                                <div class="audio-progress-fill" id="audioProgressFill"></div>
+                            </div>
+                            <div class="audio-time">
+                                <span id="currentTime">0:00</span>
+                                <span id="duration">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="founder-story-text">
+                    <h2 class="founder-story-title">Why I built Superfocus</h2>
+                    <div class="founder-story-content" id="founderStoryContent">
+                        <p>
+                            Hey! I'm Julius. So, I made this app because I had a serious focus problem. Like, I'd sit down to work and literally five minutes later I'm on my phone scrolling through Instagram or whatever. Next thing I know, an hour's gone by and I haven't done anything.
+                        </p>
+                        <p>
+                            So I was like, you know what? I'm just gonna build something super simple. You hit start, timer goes, some chill ambient sounds play in the background to keep you locked in. Need a break? Just pause it. That's literally it.
+                        </p>
+                        <p>
+                            Turns out a bunch of college students started using it to study for exams and stuff. And freelancers like me use it to actually get client work done without losing focus every two seconds.
+                        </p>
+                        <p>
+                            No crazy features, no BS. Just something that actually helps you stay focused and get stuff done.
+                        </p>
+                        <p>
+                            Anyway, yeah. That's it.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="how-it-works-section">
             <div class="how-it-works-intro">
                 <h2 class="how-it-works-title">How it works</h2>
@@ -3172,6 +3349,82 @@
             // Check initial scroll position
             checkScroll();
         }
+        
+        // Founder Story Audio Player
+        (function() {
+            const audioElement = document.getElementById('founderAudio');
+            const playButton = document.getElementById('audioPlayBtn');
+            const playIcon = document.querySelector('.play-icon');
+            const pauseIcon = document.querySelector('.pause-icon');
+            const progressBar = document.querySelector('.audio-progress-bar');
+            const progressFill = document.getElementById('audioProgressFill');
+            const currentTimeEl = document.getElementById('currentTime');
+            const durationEl = document.getElementById('duration');
+            
+            if (!audioElement || !playButton) return;
+            
+            // Format time as MM:SS
+            function formatTime(seconds) {
+                if (!isFinite(seconds)) return '0:00';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            
+            // Play/Pause button
+            playButton.addEventListener('click', () => {
+                if (audioElement.paused) {
+                    audioElement.play();
+                } else {
+                    audioElement.pause();
+                }
+            });
+            
+            // Update play/pause icons
+            audioElement.addEventListener('play', () => {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            });
+            
+            audioElement.addEventListener('pause', () => {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            });
+            
+            // Update duration when metadata loads
+            audioElement.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(audioElement.duration);
+            });
+            
+            // Update progress bar and current time
+            audioElement.addEventListener('timeupdate', () => {
+                const percent = (audioElement.currentTime / audioElement.duration) * 100;
+                progressFill.style.width = percent + '%';
+                currentTimeEl.textContent = formatTime(audioElement.currentTime);
+            });
+            
+            // Click on progress bar to seek
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audioElement.currentTime = percent * audioElement.duration;
+            });
+            
+            // Reset when audio ends
+            audioElement.addEventListener('ended', () => {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            });
+            
+            // Track audio play in Mixpanel
+            audioElement.addEventListener('play', () => {
+                if (window.mixpanel && window.mixpanel.track) {
+                    window.mixpanel.track('Founder Story Audio Played', {
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            });
+        })();
         
     </script>
 </body>
