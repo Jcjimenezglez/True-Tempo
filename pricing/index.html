@@ -1250,9 +1250,9 @@
         }
         
         .comparison-plan-card.premium-plan {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
         }
         
         .plan-header {
@@ -1326,47 +1326,6 @@
             font-size: 0.95rem;
             color: #ffffff;
             line-height: 1.4;
-        }
-        
-        .plan-cta {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            padding: 0.875rem 1.5rem;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: none;
-        }
-        
-        .plan-cta:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        
-        .plan-cta.premium {
-            background: #10b981;
-            border-color: #10b981;
-            color: #000000;
-        }
-        
-        .plan-cta.premium:hover:not(:disabled) {
-            background: #059669;
-            border-color: #059669;
-        }
-        
-        .plan-cta:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .plan-footnote {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-align: center;
-            margin: 0;
         }
         
         @media (max-width: 768px) {
@@ -2449,9 +2408,6 @@
                             <span class="feature-text">Advanced Analytics</span>
                         </div>
                     </div>
-                    
-                    <button class="plan-cta">Get Started</button>
-                    <p class="plan-footnote">Forever free</p>
                 </div>
                 
                 <!-- Premium Plan Card -->
@@ -2486,9 +2442,6 @@
                             <span class="feature-text">Advanced Analytics</span>
                         </div>
                     </div>
-                    
-                    <button class="plan-cta premium">Start 14-Day Free Trial</button>
-                    <p class="plan-footnote">Then $3.99/month. Cancel anytime.</p>
                 </div>
             </div>
             
@@ -3651,54 +3604,6 @@
             // Check initial scroll position
             checkScroll();
         }
-        
-        // Pricing Plan Buttons Logic
-        (function() {
-            const starterBtn = document.querySelector('.comparison-plan-card.starter-plan .plan-cta');
-            const premiumBtn = document.querySelector('.comparison-plan-card.premium-plan .plan-cta');
-            
-            // Check if user is authenticated
-            const isAuthenticated = window.auth0?.isAuthenticated || false;
-            
-            // Check if user has premium
-            const hasPremium = window.userMetadata?.premium || false;
-            
-            if (starterBtn) {
-                if (isAuthenticated) {
-                    starterBtn.textContent = 'You have Starter';
-                    starterBtn.disabled = true;
-                } else {
-                    starterBtn.textContent = 'Sign up for free';
-                    starterBtn.addEventListener('click', () => {
-                        // Trigger signup/login
-                        if (window.auth0) {
-                            window.auth0.loginWithRedirect();
-                        }
-                    });
-                }
-            }
-            
-            if (premiumBtn) {
-                if (hasPremium) {
-                    premiumBtn.textContent = 'You have Premium';
-                    premiumBtn.disabled = true;
-                } else if (isAuthenticated) {
-                    premiumBtn.textContent = 'Upgrade to Premium';
-                    premiumBtn.addEventListener('click', () => {
-                        // Trigger upgrade flow
-                        window.location.href = '/create-checkout-session';
-                    });
-                } else {
-                    premiumBtn.textContent = 'Start 14-Day Free Trial';
-                    premiumBtn.addEventListener('click', () => {
-                        // Trigger signup with trial
-                        if (window.auth0) {
-                            window.auth0.loginWithRedirect();
-                        }
-                    });
-                }
-            }
-        })();
         
         // Founder Story Audio Player
         (function() {
