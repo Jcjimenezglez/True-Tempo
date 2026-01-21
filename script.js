@@ -12690,7 +12690,31 @@ class PomodoroTimer {
         if (this.isReportPanelOpen) {
             this.closeReportPanel();
         } else {
-            this.openReportPanel();
+            // Open the Report panel in the sidebar
+            if (window.sidebarManager) {
+                window.sidebarManager.openReportPanel();
+            } else {
+                // Fallback - try calling directly if sidebarManager not available
+                if (this.reportSidePanel) {
+                    this.reportSidePanel.classList.add('open');
+                    this.isReportPanelOpen = true;
+                    
+                    if (this.reportPanelOverlay) {
+                        this.reportPanelOverlay.classList.add('active');
+                    }
+                    
+                    const reportNavItem = document.querySelector('.nav-item[data-section="report"]');
+                    if (reportNavItem) {
+                        reportNavItem.classList.add('active');
+                    }
+                    
+                    if (this.mainContent) {
+                        this.mainContent.classList.add('task-panel-open');
+                    }
+                    
+                    this.loadReportForPanel();
+                }
+            }
         }
     }
 
