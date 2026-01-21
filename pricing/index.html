@@ -1226,85 +1226,77 @@
         
         .comparison-cards-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 2rem;
         }
         
-        .comparison-feature-card {
+        .comparison-plans-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        
+        .comparison-plan-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 2rem;
+            padding: 3rem 2rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
         }
         
-        .comparison-feature-header {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 1rem;
-        }
-        
-        .comparison-feature-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #ffffff;
-            margin: 0;
-        }
-        
-        .comparison-plans {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .comparison-plan-item {
-            flex: 1;
-            text-align: center;
-            padding: 1rem;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        .comparison-plan-item.premium {
-            background: rgba(16, 185, 129, 0.1);
+        .comparison-plan-card.premium-plan {
+            background: rgba(16, 185, 129, 0.08);
             border: 1px solid rgba(16, 185, 129, 0.2);
         }
         
-        .comparison-plan-item.starter {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .plan-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1.5rem;
         }
         
-        .comparison-plan-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.6);
-            margin: 0 0 0.5rem 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .comparison-plan-value {
-            font-size: 1.25rem;
+        .plan-name {
+            font-size: 2rem;
             font-weight: 700;
             color: #ffffff;
             margin: 0;
         }
         
-        .comparison-divider {
-            width: 1px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.1);
-            flex-shrink: 0;
+        .plan-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .feature-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-row:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.75);
+            font-weight: 500;
+        }
+        
+        .feature-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
         }
         
         @media (max-width: 768px) {
-            .comparison-cards-container {
+            .comparison-plans-wrapper {
                 grid-template-columns: 1fr;
             }
-            
-            .comparison-table-section {
                 margin-top: 6rem;
                 margin-bottom: 6rem;
                 padding: 0 1rem;
@@ -2343,93 +2335,61 @@
                 <p class="comparison-table-description">See what you unlock</p>
             </div>
             
-            <div class="comparison-cards-container">
-                <!-- Feature 1: Custom Timers -->
-                <div class="comparison-feature-card">
-                    <div class="comparison-feature-header">
-                        <h3 class="comparison-feature-name">Custom Timers</h3>
+            <div class="comparison-plans-wrapper">
+                <!-- Starter Plan Card -->
+                <div class="comparison-plan-card starter-plan">
+                    <div class="plan-header">
+                        <h2 class="plan-name">Starter</h2>
                     </div>
-                    <div class="comparison-plans">
-                        <div class="comparison-plan-item premium">
-                            <p class="comparison-plan-label">Premium</p>
-                            <p class="comparison-plan-value">Unlimited</p>
+                    <div class="plan-features">
+                        <div class="feature-row">
+                            <span class="feature-label">Custom Timers</span>
+                            <span class="feature-value">1 timer</span>
                         </div>
-                        <div class="comparison-divider"></div>
-                        <div class="comparison-plan-item starter">
-                            <p class="comparison-plan-label">Starter</p>
-                            <p class="comparison-plan-value">1 timer</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Daily Focus Limit</span>
+                            <span class="feature-value">30 min/day</span>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Feature 2: Daily Focus Limit -->
-                <div class="comparison-feature-card">
-                    <div class="comparison-feature-header">
-                        <h3 class="comparison-feature-name">Daily Focus Limit</h3>
-                    </div>
-                    <div class="comparison-plans">
-                        <div class="comparison-plan-item premium">
-                            <p class="comparison-plan-label">Premium</p>
-                            <p class="comparison-plan-value">Unlimited</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Tasks</span>
+                            <span class="feature-value">Limit to 1</span>
                         </div>
-                        <div class="comparison-divider"></div>
-                        <div class="comparison-plan-item starter">
-                            <p class="comparison-plan-label">Starter</p>
-                            <p class="comparison-plan-value">30 min/day</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Custom Cassettes</span>
+                            <span class="feature-value">1 cassette</span>
+                        </div>
+                        <div class="feature-row">
+                            <span class="feature-label">Advanced Analytics</span>
+                            <span class="feature-value">❌</span>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Feature 3: Tasks -->
-                <div class="comparison-feature-card">
-                    <div class="comparison-feature-header">
-                        <h3 class="comparison-feature-name">Tasks</h3>
+                <!-- Premium Plan Card -->
+                <div class="comparison-plan-card premium-plan">
+                    <div class="plan-header">
+                        <h2 class="plan-name">Premium</h2>
                     </div>
-                    <div class="comparison-plans">
-                        <div class="comparison-plan-item premium">
-                            <p class="comparison-plan-label">Premium</p>
-                            <p class="comparison-plan-value">Unlimited</p>
+                    <div class="plan-features">
+                        <div class="feature-row">
+                            <span class="feature-label">Custom Timers</span>
+                            <span class="feature-value">Unlimited</span>
                         </div>
-                        <div class="comparison-divider"></div>
-                        <div class="comparison-plan-item starter">
-                            <p class="comparison-plan-label">Starter</p>
-                            <p class="comparison-plan-value">Limit to 1</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Daily Focus Limit</span>
+                            <span class="feature-value">Unlimited</span>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Feature 4: Custom Cassettes -->
-                <div class="comparison-feature-card">
-                    <div class="comparison-feature-header">
-                        <h3 class="comparison-feature-name">Custom Cassettes</h3>
-                    </div>
-                    <div class="comparison-plans">
-                        <div class="comparison-plan-item premium">
-                            <p class="comparison-plan-label">Premium</p>
-                            <p class="comparison-plan-value">Unlimited</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Tasks</span>
+                            <span class="feature-value">Unlimited</span>
                         </div>
-                        <div class="comparison-divider"></div>
-                        <div class="comparison-plan-item starter">
-                            <p class="comparison-plan-label">Starter</p>
-                            <p class="comparison-plan-value">1 cassette</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Custom Cassettes</span>
+                            <span class="feature-value">Unlimited</span>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Feature 5: Advanced Analytics -->
-                <div class="comparison-feature-card">
-                    <div class="comparison-feature-header">
-                        <h3 class="comparison-feature-name">Advanced Analytics</h3>
-                    </div>
-                    <div class="comparison-plans">
-                        <div class="comparison-plan-item premium">
-                            <p class="comparison-plan-label">Premium</p>
-                            <p class="comparison-plan-value">✅</p>
-                        </div>
-                        <div class="comparison-divider"></div>
-                        <div class="comparison-plan-item starter">
-                            <p class="comparison-plan-label">Starter</p>
-                            <p class="comparison-plan-value">❌</p>
+                        <div class="feature-row">
+                            <span class="feature-label">Advanced Analytics</span>
+                            <span class="feature-value">✅</span>
                         </div>
                     </div>
                 </div>
