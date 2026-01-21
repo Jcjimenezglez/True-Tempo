@@ -2288,7 +2288,7 @@ class PomodoroTimer {
         }
     }
     
-    // Update the timer technique button text
+    // Update the timer technique button text and sidebar title
     updateTimerTechniqueButton(techniqueName) {
         const techniqueDisplayNames = {
             'pomodoro': 'Pomodoro',
@@ -2301,8 +2301,14 @@ class PomodoroTimer {
         
         const displayName = techniqueDisplayNames[techniqueName] || techniqueName || 'Pomodoro';
         
+        // Update timer technique button (center top)
         if (this.timerTechniqueName) {
             this.timerTechniqueName.textContent = displayName;
+        }
+        
+        // Update sidebar technique title
+        if (this.techniqueTitle) {
+            this.techniqueTitle.innerHTML = `${displayName}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
         }
     }
     
@@ -4037,16 +4043,8 @@ class PomodoroTimer {
         }
         
         // Update the button text (sidebar)
-        if (this.techniqueTitle) {
-            const safeTitle = title || technique || '';
-            this.techniqueTitle.innerHTML = `${safeTitle}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
-        }
-        
-        // Update timer technique button (center top)
-        if (this.timerTechniqueName) {
-            const safeTitle = title || technique || '';
-            this.timerTechniqueName.textContent = safeTitle;
-        }
+        // Update both sidebar and timer technique button with proper capitalized name
+        this.updateTimerTechniqueButton(technique);
         
         // Update selected state
         if (this.dropdownItems && this.dropdownItems.forEach) {
@@ -4307,15 +4305,17 @@ class PomodoroTimer {
         if (this.sessionLabelElement) this.sessionLabelElement.addEventListener('click', () => this.toggleTaskList());
         if (this.techniqueTitle) this.techniqueTitle.addEventListener('click', () => this.toggleDropdown());
         if (this.timerTechniqueBtn) {
-            const self = this;
-            this.timerTechniqueBtn.addEventListener('click', function() {
+            this.timerTechniqueBtn.addEventListener('click', () => {
                 // Track event
-                self.trackEvent('Timer Settings Clicked', {
+                this.trackEvent('Timer Settings Clicked', {
                     button_type: 'timer_technique',
                     source: 'timer_header'
                 });
-                // Open Timer settings panel
-                self.openSettingsPanel();
+                // Open Timer settings panel by clicking nav item
+                const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
+                if (settingsNavItem) {
+                    settingsNavItem.click();
+                }
             });
         }
         
