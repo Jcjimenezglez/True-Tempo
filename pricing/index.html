@@ -2272,8 +2272,8 @@
             <div class="founder-story-container">
                 <div class="founder-story-audio">
                     <div class="founder-profile">
-                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-name">Julius Caesar</a>
-                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-image-link">
+                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-name" id="founderNameLink">Julius Caesar</a>
+                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-image-link" id="founderImageLink">
                             <img src="/images/Julio-Doodle.jpeg" alt="Julius Caesar" class="founder-profile-image">
                         </a>
                     </div>
@@ -3859,6 +3859,38 @@
                     });
                 }
             });
+        })();
+        
+        // Founder Profile Social Links Tracking
+        (function() {
+            const founderNameLink = document.getElementById('founderNameLink');
+            const founderImageLink = document.getElementById('founderImageLink');
+            
+            if (founderNameLink) {
+                founderNameLink.addEventListener('click', () => {
+                    if (window.mixpanel && window.mixpanel.track) {
+                        window.mixpanel.track('Founder Profile Click', {
+                            element_type: 'name_link',
+                            destination: 'https://x.com/Neutral314',
+                            source: 'pricing_page',
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                });
+            }
+            
+            if (founderImageLink) {
+                founderImageLink.addEventListener('click', () => {
+                    if (window.mixpanel && window.mixpanel.track) {
+                        window.mixpanel.track('Founder Profile Click', {
+                            element_type: 'image_link',
+                            destination: 'https://x.com/Neutral314',
+                            source: 'pricing_page',
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                });
+            }
         })();
         
     </script>
