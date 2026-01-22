@@ -3866,8 +3866,13 @@
             const founderNameLink = document.getElementById('founderNameLink');
             const founderImageLink = document.getElementById('founderImageLink');
             
+            console.log('🎯 Initializing Founder Profile tracking...');
+            console.log('Name link found:', !!founderNameLink);
+            console.log('Image link found:', !!founderImageLink);
+            
             if (founderNameLink) {
                 founderNameLink.addEventListener('click', () => {
+                    console.log('📍 Founder name clicked');
                     if (window.mixpanel && window.mixpanel.track) {
                         window.mixpanel.track('Founder Profile Click', {
                             element_type: 'name_link',
@@ -3875,12 +3880,16 @@
                             source: 'pricing_page',
                             timestamp: new Date().toISOString()
                         });
+                        console.log('✅ Founder name click tracked');
+                    } else {
+                        console.log('⚠️ Mixpanel not available');
                     }
                 });
             }
             
             if (founderImageLink) {
                 founderImageLink.addEventListener('click', () => {
+                    console.log('📸 Founder image clicked');
                     if (window.mixpanel && window.mixpanel.track) {
                         window.mixpanel.track('Founder Profile Click', {
                             element_type: 'image_link',
@@ -3888,6 +3897,9 @@
                             source: 'pricing_page',
                             timestamp: new Date().toISOString()
                         });
+                        console.log('✅ Founder image click tracked');
+                    } else {
+                        console.log('⚠️ Mixpanel not available');
                     }
                 });
             }
