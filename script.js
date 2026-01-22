@@ -2015,13 +2015,13 @@ class PomodoroTimer {
         if (nameInput && wordCount) {
             const characterCount = nameInput.value.length;
             
-            wordCount.textContent = `${characterCount}/15 characters`;
+            wordCount.textContent = `${characterCount}/20 characters`;
             
             // Update styling based on character count
             wordCount.classList.remove('warning', 'error');
-            if (characterCount > 15) {
+            if (characterCount > 20) {
                 wordCount.classList.add('error');
-            } else if (characterCount > 12) {
+            } else if (characterCount > 16) {
                 wordCount.classList.add('warning');
             }
         }
@@ -2062,8 +2062,8 @@ class PomodoroTimer {
             }
             
             // Validate character count
-            if (name.length > 15) {
-                alert('Technique name cannot exceed 15 characters. Please shorten your name.');
+            if (name.length > 20) {
+                alert('Technique name cannot exceed 20 characters. Please shorten your name.');
                 return;
             }
             
@@ -7483,8 +7483,8 @@ class PomodoroTimer {
                 // Get session type
                 const sessionLabel = this.getCurrentTaskLabel();
                 
-                // Helper function to truncate text to max 15 characters
-                const truncateText = (text, maxLength = 15) => {
+                // Helper function to truncate text to max 20 characters
+                const truncateText = (text, maxLength = 20) => {
                     if (!text) return text;
                     // Count actual characters including emojis, spaces, etc.
                     const chars = Array.from(text);
