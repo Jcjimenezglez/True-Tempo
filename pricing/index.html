@@ -1143,38 +1143,6 @@
         }
         
         /* CTA Before FAQ Section Styles */
-        .cta-before-faq-section {
-            margin-top: 12.5rem;
-            margin-bottom: 12.5rem;
-            padding: 6rem 2rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
-        }
-        
-        .cta-before-faq-section .cta-title {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 0 0 1.5rem 0;
-        }
-        
-        .cta-before-faq-section .cta-subtitle {
-            font-size: 1.25rem;
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.7);
-            margin: 0 0 2.5rem 0;
-        }
-        
-        .cta-before-faq-section .pricing-cta-spotify {
-            margin-bottom: 1.5rem;
-        }
-        
-        .cta-before-faq-section .pricing-offer-explanation {
-            margin: 0 auto;
-        }
-        
         /* Additional Testimonials Section */
         .additional-testimonials-section {
             margin-top: 12.5rem;
@@ -1606,12 +1574,6 @@
             
             .user-type-item {
                 padding: 2rem;
-            }
-            
-            .cta-before-faq-section {
-                margin-top: 6rem;
-                margin-bottom: 6rem;
-                padding: 3rem 1rem;
             }
             
             .faq-section {
@@ -2837,15 +2799,6 @@
                 </div>
         </div>
         
-        <!-- CTA Section Before FAQ -->
-        <div class="cta-before-faq-section">
-            <h2 class="cta-title">The world is focusing here.</h2>
-            <p class="cta-subtitle">Join the party with Premium.</p>
-            <button class="pricing-cta-spotify" id="ctaBeforeFaq">Start 14-Day Free Trial</button>
-            <div class="pricing-offer-explanation">
-                Get 14 days free, then $3.99 per month after. Offer only available if you haven't tried Premium before. Cancel anytime.
-            </div>
-        </div>
         
         <!-- FAQ Section -->
         <div class="faq-section">
@@ -3044,7 +2997,6 @@
             <div class="pricing-offer-explanation">
                 Get 14 days free, then $3.99 per month after. Offer only available if you haven't tried Premium before. Cancel anytime.
             </div>
-        </div>
         
     </main>
     
@@ -3207,18 +3159,6 @@
                 console.error('Could not find main pricing button');
             }
             
-            if (ctaBeforeFaqButton) {
-                console.log('CTA before FAQ button found, adding event listener...');
-                ctaBeforeFaqButton.addEventListener('click', handleCTAClick(ctaBeforeFaqButton, 'cta_before_faq'));
-                console.log('✅ CTA before FAQ button event listener added successfully');
-            }
-            
-            if (headerCTAButton) {
-                console.log('Header CTA button found, adding event listener...');
-                headerCTAButton.addEventListener('click', handleCTAClick(headerCTAButton, 'header_cta'));
-                console.log('✅ Header CTA button event listener added successfully');
-            }
-            
             if (comparisonTableCTAButton) {
                 console.log('Comparison table CTA button found, adding event listener...');
                 comparisonTableCTAButton.addEventListener('click', handleCTAClick(comparisonTableCTAButton, 'comparison_table_cta'));
@@ -3265,13 +3205,6 @@
                 premiumButton.textContent = 'You have Premium';
                 premiumButton.disabled = true;
                 premiumButton.classList.add('disabled');
-            }
-            
-            // Update CTA before FAQ button
-            if (ctaBeforeFaqButton && isPremium) {
-                ctaBeforeFaqButton.textContent = 'You have Premium';
-                ctaBeforeFaqButton.disabled = true;
-                ctaBeforeFaqButton.classList.add('disabled');
             }
             
             // Update Header CTA button
