@@ -701,6 +701,16 @@
             text-decoration: none;
             transition: color 0.3s ease;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .founder-profile-name svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
         }
         
         .founder-profile-name:hover {
@@ -2284,7 +2294,10 @@
             <div class="founder-story-container">
                 <div class="founder-story-audio">
                     <div class="founder-profile">
-                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-name" id="founderNameLink">Julius Caesar</a>
+                        <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-name" id="founderNameLink">
+                            Julius Caesar
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link-icon lucide-external-link"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                        </a>
                         <a href="https://x.com/Neutral314" target="_blank" rel="noopener noreferrer" class="founder-profile-image-link" id="founderImageLink">
                             <img src="/images/Julio-Doodle.jpeg" alt="Julius Caesar" class="founder-profile-image">
                         </a>
