@@ -17,6 +17,32 @@
         gtag('js', new Date());
         gtag('config', 'G-T3T0PES8C0');
         gtag('config', 'AW-17614436696');
+        
+        // Helper function for Google Ads Enhanced Conversions
+        async function hashEmail(email) {
+            if (!email) return null;
+            
+            try {
+                // Normalize email: lowercase and trim
+                const normalizedEmail = email.toLowerCase().trim();
+                
+                // Convert string to Uint8Array
+                const encoder = new TextEncoder();
+                const data = encoder.encode(normalizedEmail);
+                
+                // Hash with SHA-256
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                
+                // Convert to hex string
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                return hashHex;
+            } catch (error) {
+                console.error('Error hashing email:', error);
+                return null;
+            }
+        }
     </script>
     
     <!-- Mixpanel -->
@@ -3259,7 +3285,7 @@
                 });
                 
                 // Track asynchronously (don't block)
-                setTimeout(() => {
+                (async () => {
                     if (window.mixpanel && window.mixpanel.track) {
                         window.mixpanel.track('Stripe Checkout Session Created', {
                             source: 'pricing_page',
@@ -3269,13 +3295,30 @@
                     }
                     
                     if (typeof window.gtag === 'function') {
-                        window.gtag('event', 'conversion', {
+                        const conversionData = {
                             'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
                             'value': 1.0,
                             'currency': 'USD'
-                        });
+                        };
+                        
+                        // Add Enhanced Conversions user data
+                        if (userEmail && typeof hashEmail === 'function') {
+                            try {
+                                const hashedEmail = await hashEmail(userEmail);
+                                if (hashedEmail) {
+                                    conversionData.user_data = {
+                                        email_address: hashedEmail
+                                    };
+                                    console.log('✅ Enhanced Conversions: User data included (Checkout)');
+                                }
+                            } catch (error) {
+                                console.error('Error hashing email for Enhanced Conversions:', error);
+                            }
+                        }
+                        
+                        window.gtag('event', 'conversion', conversionData);
                     }
-                }, 0);
+                })();
 
                 const response = await checkoutPromise;
 

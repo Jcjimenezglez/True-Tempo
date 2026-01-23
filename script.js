@@ -1,3 +1,29 @@
+// Helper function to hash email for Google Ads Enhanced Conversions
+async function hashEmail(email) {
+    if (!email) return null;
+    
+    try {
+        // Normalize email: lowercase and trim
+        const normalizedEmail = email.toLowerCase().trim();
+        
+        // Convert string to Uint8Array
+        const encoder = new TextEncoder();
+        const data = encoder.encode(normalizedEmail);
+        
+        // Hash with SHA-256
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        
+        // Convert to hex string
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        return hashHex;
+    } catch (error) {
+        console.error('Error hashing email:', error);
+        return null;
+    }
+}
+
 class PomodoroTimer {
     constructor() {
         // Initialize Mixpanel tracking removed - Page Loaded event no longer needed
@@ -372,11 +398,20 @@ class PomodoroTimer {
     }
     
     // Track Subscribe Clicked to Google Ads (for Performance Max optimization)
-    trackSubscribeClickedToGoogleAds(properties = {}) {
+    async trackSubscribeClickedToGoogleAds(properties = {}) {
         if (typeof gtag !== 'undefined') {
             try {
                 const source = properties.source || 'unknown';
                 const userType = properties.user_type || (this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest');
+                
+                // Get user email for Enhanced Conversions
+                let hashedEmail = null;
+                if (window.Clerk && window.Clerk.user) {
+                    const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress;
+                    if (userEmail) {
+                        hashedEmail = await hashEmail(userEmail);
+                    }
+                }
                 
                 // Track as engagement event (intent signal, not conversion)
                 gtag('event', 'subscribe_clicked', {
@@ -389,14 +424,24 @@ class PomodoroTimer {
                     'non_interaction': false
                 });
                 
-                // Track Google Ads conversion event (for conversion tracking)
-                gtag('event', 'conversion', {
+                // Track Google Ads conversion event with Enhanced Conversions
+                const conversionData = {
                     'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
                     'value': 1.0,
                     'currency': 'USD',
                     'source': source,
                     'user_type': userType
-                });
+                };
+                
+                // Add Enhanced Conversions user data if available
+                if (hashedEmail) {
+                    conversionData.user_data = {
+                        email_address: hashedEmail
+                    };
+                    console.log('✅ Enhanced Conversions: User data included');
+                }
+                
+                gtag('event', 'conversion', conversionData);
                 
                 console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
                 console.log('✅ Google Ads conversion event sent');
