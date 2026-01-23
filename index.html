@@ -35,8 +35,15 @@
         });
         
         // Helper function for Google Ads Enhanced Conversions
+        // Uses Web Crypto API (SHA-256) - only works in secure contexts (HTTPS)
         async function hashEmail(email) {
             if (!email) return null;
+            
+            // Check if crypto.subtle is available (requires HTTPS)
+            if (!window.crypto || !window.crypto.subtle) {
+                console.warn('⚠️ crypto.subtle not available (requires HTTPS)');
+                return null;
+            }
             
             try {
                 // Normalize email: lowercase and trim

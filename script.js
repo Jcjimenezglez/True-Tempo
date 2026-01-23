@@ -1,6 +1,13 @@
 // Helper function to hash email for Google Ads Enhanced Conversions
+// Uses Web Crypto API (SHA-256) - only works in secure contexts (HTTPS)
 async function hashEmail(email) {
     if (!email) return null;
+    
+    // Check if crypto.subtle is available (requires HTTPS)
+    if (!window.crypto || !window.crypto.subtle) {
+        console.warn('⚠️ crypto.subtle not available (requires HTTPS)');
+        return null;
+    }
     
     try {
         // Normalize email: lowercase and trim
@@ -373,7 +380,9 @@ class PomodoroTimer {
                 typeof eventName === 'string' &&
                 eventName.toLowerCase().includes('subscribe clicked')
             ) {
-                this.trackSubscribeClickedToGoogleAds(enrichedProperties || properties);
+                // Call async function with .catch() to handle any unhandled rejections
+                this.trackSubscribeClickedToGoogleAds(enrichedProperties || properties)
+                    .catch(err => console.error('❌ Error in async Google Ads tracking:', err));
             }
         } catch (adsError) {
             console.error('❌ Error triggering Google Ads tracking:', adsError);

@@ -19,8 +19,15 @@
         gtag('config', 'AW-17614436696');
         
         // Helper function for Google Ads Enhanced Conversions
+        // Uses Web Crypto API (SHA-256) - only works in secure contexts (HTTPS)
         async function hashEmail(email) {
             if (!email) return null;
+            
+            // Check if crypto.subtle is available (requires HTTPS)
+            if (!window.crypto || !window.crypto.subtle) {
+                console.warn('⚠️ crypto.subtle not available (requires HTTPS)');
+                return null;
+            }
             
             try {
                 // Normalize email: lowercase and trim
@@ -3065,7 +3072,7 @@
                 const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
                 
                 // Track asynchronously (don't block)
-                setTimeout(() => {
+                (async () => {
                     // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
                     if (window.mixpanel && window.mixpanel.track) {
                         window.mixpanel.track('Stripe Checkout Opened', {
@@ -3098,15 +3105,34 @@
                             non_interaction: false
                         });
                         
-                        window.gtag('event', 'conversion', {
+                        // Build conversion data with Enhanced Conversions
+                        const conversionData = {
                             send_to: 'AW-17614436696/zsizCNqYgbgbENjym89B',
                             value: 1.0,
                             currency: 'USD',
                             source: source,
                             user_type: userTypeForAds
-                        });
+                        };
+                        
+                        // Add Enhanced Conversions user data if user is authenticated
+                        if (isAuthenticated && window.Clerk?.user?.primaryEmailAddress?.emailAddress && typeof hashEmail === 'function') {
+                            try {
+                                const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
+                                const hashedEmail = await hashEmail(userEmail);
+                                if (hashedEmail) {
+                                    conversionData.user_data = {
+                                        email_address: hashedEmail
+                                    };
+                                    console.log('✅ Enhanced Conversions: User data included (Subscribe Clicked)');
+                                }
+                            } catch (error) {
+                                console.error('Error hashing email for Enhanced Conversions:', error);
+                            }
+                        }
+                        
+                        window.gtag('event', 'conversion', conversionData);
                     }
-                }, 0);
+                })();
                 
                 if (isPremium) {
                     // Already premium
