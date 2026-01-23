@@ -1,6 +1,27 @@
 {
-  "latestVersion": "1.1",
+  "latestVersion": "1.2",
   "releases": [
+    {
+      "version": "Version 1.2",
+      "date": "January 22, 2026",
+      "sections": {
+        "new": [
+          "Automatic Data Backup: Your focus stats, custom timers, and vibes now auto-sync to the cloud every 5 sessions",
+          "Data Recovery: Lost data can now be recovered from server backups when you log in",
+          "Admin Diagnostics: New monitoring system to detect and prevent data loss issues"
+        ],
+        "improved": [
+          "Report now shows your total hours when monthly breakdown is unavailable",
+          "Custom timers and vibes stay visible (but disabled) when logged out, just like Tasks",
+          "Better visual feedback with '(Sign up required)' labels on disabled features"
+        ],
+        "fixed": [
+          "CRITICAL: Fixed data loss issue affecting users who logged out between Jan 6-22. Users lost their focus stats, custom timers, vibes, and streaks due to a security fix that cleared localStorage without server backup. New auto-sync system prevents this from happening again.",
+          "Report now correctly displays all-time stats when daily data is missing",
+          "Custom timers and vibes now reload properly after logout"
+        ]
+      }
+    },
     {
       "version": "Version 1.1",
       "date": "January 17, 2026",
