@@ -13794,6 +13794,12 @@ class PomodoroTimer {
 
         const html = `
             <div style="padding: 0;">
+                <!-- Data Loss Notice -->
+                <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #d0d0d0; margin-bottom: 6px; font-weight: 500;">⚠️ Monthly data reset</div>
+                    <p style="font-size: 11px; color: #b0b0b0; margin: 0; line-height: 1.4;">Some users experienced data loss on Jan 6-22. New backup system now protects your data. <a href="/release-notes/" style="color: #4a9eff; text-decoration: none; font-weight: 500;">Learn more →</a></p>
+                </div>
+                
                 <!-- Summary Stats (HABILITADO para FREE) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
                     <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
@@ -13978,6 +13984,12 @@ class PomodoroTimer {
         
         const html = `
             <div style="padding: 0;">
+                <!-- Data Loss Notice -->
+                <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #d0d0d0; margin-bottom: 6px; font-weight: 500;">⚠️ Monthly data reset</div>
+                    <p style="font-size: 11px; color: #b0b0b0; margin: 0; line-height: 1.4;">Some users experienced data loss on Jan 6-22. New backup system now protects your data. <a href="/release-notes/" style="color: #4a9eff; text-decoration: none; font-weight: 500;">Learn more →</a></p>
+                </div>
+                
                 <!-- Summary Stats + Chart (HABILITADO para PREMIUM) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
                     <div style="text-align: center; margin-bottom: 24px;">
