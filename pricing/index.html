@@ -1383,7 +1383,7 @@
         .plan-header {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.25rem;
             margin-bottom: 1.5rem;
         }
         
@@ -1398,41 +1398,43 @@
         }
         
         .plan-description {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.6);
             margin: 0;
             font-weight: 400;
+            line-height: 1.2;
         }
         
         .plan-pricing {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.35rem;
             align-items: flex-start;
+            margin-top: 0.5rem;
         }
         
         .pricing-trial {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 0.5rem;
         }
         
         .trial-price {
-            font-size: 2.5rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: #ffffff;
         }
         
         .trial-period {
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(255, 255, 255, 0.7);
         }
         
         .pricing-regular {
             display: flex;
-            align-items: baseline;
-            gap: 0.5rem;
-            font-size: 0.85rem;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.9rem;
         }
         
         .regular-label {
@@ -1440,7 +1442,7 @@
         }
         
         .price {
-            font-size: 1.5rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: #ffffff;
         }
@@ -1462,7 +1464,7 @@
         .plan-features {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.9rem;
             flex-grow: 1;
             margin: 0;
         }
@@ -1475,6 +1477,7 @@
             padding: 0;
             border-radius: 0;
             border: none;
+            min-height: 1.2rem;
         }
         
         .feature-item.disabled {
@@ -2587,6 +2590,7 @@
                 <div class="comparison-plan-card starter-plan">
                     <div class="plan-header">
                         <h3 class="plan-label">STARTER</h3>
+                        <p class="plan-description">Free plan (limited)</p>
                         <div class="plan-pricing">
                             <span class="price">Free</span>
                         </div>
@@ -2620,7 +2624,7 @@
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
                         <h3 class="plan-label">PREMIUM</h3>
-                        <p class="plan-description">For students, professionals & power users</p>
+                        <p class="plan-description">College & university students</p>
                         <div class="plan-pricing">
                             <div class="pricing-trial">
                                 <span class="trial-price">$0</span>
