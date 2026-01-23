@@ -2137,18 +2137,21 @@ class PomodoroTimer {
         }
     }
     
-    // Save custom technique to localStorage
+    // Save custom technique to localStorage and sync to server
     saveCustomTechniqueToStorage(technique) {
         try {
             const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
             existing.push(technique);
             localStorage.setItem('customTechniques', JSON.stringify(existing));
+            
+            // Sync to server in background (don't wait)
+            this.syncTechniquesToServer();
         } catch (error) {
             console.error('Error saving to localStorage:', error);
         }
     }
     
-    // Update custom technique in localStorage
+    // Update custom technique in localStorage and sync to server
     updateCustomTechniqueInStorage(technique) {
         try {
             const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
@@ -2156,9 +2159,37 @@ class PomodoroTimer {
             if (index !== -1) {
                 existing[index] = technique;
                 localStorage.setItem('customTechniques', JSON.stringify(existing));
+                
+                // Sync to server in background (don't wait)
+                this.syncTechniquesToServer();
             }
         } catch (error) {
             console.error('Error updating in localStorage:', error);
+        }
+    }
+    
+    // Sync custom techniques to server
+    async syncTechniquesToServer() {
+        if (!this.isAuthenticated || !this.user?.id) return;
+        
+        try {
+            const customTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const stats = this.getFocusStats();
+            
+            await fetch('/api/sync-stats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ 
+                    totalHours: stats?.totalHours || 0,
+                    customTechniques: customTechniques
+                })
+            });
+            console.log('📤 Custom techniques synced to server');
+        } catch (error) {
+            console.error('Error syncing techniques to server:', error);
         }
     }
     
@@ -3864,12 +3895,28 @@ class PomodoroTimer {
                 localStorage.setItem('hasPaidSubscription', 'false');
             } catch (_) {}
             
-            // 🔥 CRITICAL: Clear ALL user-specific data to prevent data leakage between accounts
+            // 🔥 CRITICAL: Backup data before clearing to prevent data loss
             try {
-                console.log('🧹 Cleaning user data on logout...');
+                console.log('📤 Backing up user data before logout...');
                 
                 // Get user-specific keys before clearing user reference
                 const userId = this.user?.id;
+                
+                // Perform full backup to Clerk before clearing local data
+                if (userId && this.isAuthenticated) {
+                    try {
+                        const stats = this.getFocusStats();
+                        if (stats && stats.totalHours > 0) {
+                            console.log('📤 Performing final data backup to server...');
+                            await this.syncStatsToClerk(stats.totalHours, true);
+                            console.log('✅ Final backup completed');
+                        }
+                    } catch (backupError) {
+                        console.error('⚠️ Backup failed, but continuing with logout:', backupError);
+                    }
+                }
+                
+                console.log('🧹 Cleaning user data on logout...');
                 
                 // Clear focus statistics (both user-specific and generic)
                 if (userId) {
@@ -3890,23 +3937,23 @@ class PomodoroTimer {
                 localStorage.removeItem('shortBreakTime');
                 localStorage.removeItem('longBreakTime');
                 
-                // Clear task data
+                // Clear task data (note: actual tasks are in 'localTasks', keeping that)
                 localStorage.removeItem('tasks');
                 
-                // Clear integration tokens (security)
+                // Clear integration tokens (security - must clear these)
                 localStorage.removeItem('todoistToken');
                 localStorage.removeItem('notionToken');
                 
-                // Clear custom techniques (user-specific)
+                // Clear custom techniques (now backed up to server)
                 localStorage.removeItem('customTechniques');
                 
-                // Clear custom vibes (user-specific)
+                // Clear custom vibes (now backed up to server)
                 localStorage.removeItem('customCassettes');
                 
                 // Clear saved technique selection
                 localStorage.removeItem('savedTechnique');
                 
-                console.log('✅ User data cleaned successfully');
+                console.log('✅ User data cleaned successfully (backup was sent to server)');
             } catch (err) {
                 console.error('⚠️ Error cleaning user data:', err);
             }
@@ -12346,7 +12393,13 @@ class PomodoroTimer {
         localStorage.setItem(key, JSON.stringify(stats));
 
         // Sync stats to Clerk (async, don't wait)
-        this.syncStatsToClerk(stats.totalHours);
+        // Do a full sync every 5 sessions to keep backup updated
+        const shouldFullSync = stats.completedCycles && stats.completedCycles % 5 === 0;
+        this.syncStatsToClerk(stats.totalHours, shouldFullSync);
+        
+        if (shouldFullSync) {
+            console.log('📤 Periodic full backup triggered (every 5 sessions)');
+        }
     }
 
     getFocusStats() {
@@ -13045,27 +13098,84 @@ class PomodoroTimer {
         });
     }
 
-    async syncStatsToClerk(totalHours) {
+    async syncStatsToClerk(totalHours, fullSync = false) {
         // Only sync if authenticated
         if (!this.isAuthenticated || !this.user?.id) {
             return;
         }
 
         try {
+            // Build sync payload
+            const payload = { totalHours };
+            
+            // For full sync, include all user data for backup
+            if (fullSync) {
+                console.log('📤 Performing full data sync to Clerk...');
+                
+                // Get full focus stats
+                const focusStats = this.getFocusStats();
+                if (focusStats && Object.keys(focusStats).length > 0) {
+                    payload.focusStats = focusStats;
+                }
+                
+                // Get custom techniques
+                try {
+                    const customTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                    if (customTechniques.length > 0) {
+                        payload.customTechniques = customTechniques;
+                    }
+                } catch (_) {}
+                
+                // Get custom cassettes (including private ones)
+                try {
+                    const customCassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+                    if (customCassettes.length > 0) {
+                        payload.customCassettes = customCassettes;
+                    }
+                } catch (_) {}
+                
+                // Get streak data
+                if (this.streakData) {
+                    payload.streakData = this.streakData;
+                }
+            }
+            
             const response = await fetch('/api/sync-stats', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'x-clerk-userid': this.user.id
                 },
-                body: JSON.stringify({ totalHours })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
                 console.error('Failed to sync stats to Clerk');
+            } else if (fullSync) {
+                const result = await response.json();
+                console.log('✅ Full sync completed:', result);
             }
         } catch (error) {
             console.error('Error syncing stats to Clerk:', error);
+        }
+    }
+    
+    // Perform a full backup of user data to Clerk
+    async performFullDataBackup() {
+        if (!this.isAuthenticated || !this.user?.id) {
+            console.log('❌ Cannot backup: Not authenticated');
+            return false;
+        }
+        
+        try {
+            const stats = this.getFocusStats();
+            const totalHours = stats?.totalHours || 0;
+            await this.syncStatsToClerk(totalHours, true);
+            console.log('✅ Full data backup completed');
+            return true;
+        } catch (error) {
+            console.error('❌ Full data backup failed:', error);
+            return false;
         }
     }
     
@@ -13077,7 +13187,7 @@ class PomodoroTimer {
         }
         
         try {
-            console.log('🔄 Checking if stats need to be restored from server...');
+            console.log('🔄 Checking if data needs to be restored from server...');
             console.log('👤 User details:', {
                 userId: this.user.id,
                 email: this.user.emailAddresses?.[0]?.emailAddress,
@@ -13088,24 +13198,33 @@ class PomodoroTimer {
             const localStats = this.getFocusStats();
             const hasLocalData = localStats && localStats.totalHours && localStats.totalHours > 0;
             
-            // Get stats from Clerk publicMetadata
+            // Get all backup data from Clerk publicMetadata
             const serverTotalHours = this.user.publicMetadata?.totalFocusHours || 0;
             const serverStatsLastUpdated = this.user.publicMetadata?.statsLastUpdated;
+            const focusStatsBackup = this.user.publicMetadata?.focusStatsBackup;
+            const serverCustomTechniques = this.user.publicMetadata?.customTechniques;
+            const serverPrivateCassettes = this.user.publicMetadata?.privateCassettes;
+            const serverPublicCassettes = this.user.publicMetadata?.publicCassettes;
+            const serverStreakData = this.user.publicMetadata?.streakData;
             
             // Check if there's any old generic data that shouldn't be migrated
             const oldGenericStats = localStorage.getItem('focusStats');
             if (oldGenericStats) {
                 console.warn('⚠️ Found old generic focusStats in localStorage:', oldGenericStats.substring(0, 100));
-                // Don't auto-migrate, let user explicitly restore if needed
             }
             
-            console.log('📊 Stats comparison:', {
+            console.log('📊 Data comparison:', {
                 userId: this.user.id,
                 userEmail: this.user.emailAddresses?.[0]?.emailAddress,
                 localTotalHours: localStats.totalHours || 0,
                 localHasData: hasLocalData,
                 serverTotalHours: serverTotalHours,
                 serverLastUpdated: serverStatsLastUpdated,
+                hasStatsBackup: !!focusStatsBackup,
+                hasCustomTechniques: !!(serverCustomTechniques && serverCustomTechniques.length > 0),
+                hasPrivateCassettes: !!(serverPrivateCassettes && serverPrivateCassettes.length > 0),
+                hasPublicCassettes: !!(serverPublicCassettes && serverPublicCassettes.length > 0),
+                hasStreakData: !!serverStreakData,
                 hasOldGenericData: !!oldGenericStats
             });
             
@@ -13121,57 +13240,114 @@ class PomodoroTimer {
                     email: this.user.emailAddresses?.[0]?.emailAddress
                 });
                 console.warn('🚫 Skipping auto-restore for new account. User may need manual reset if this is wrong data.');
-                // Start fresh for new accounts
                 return false;
             }
             
-            // Restore from server if:
-            // 1. User has no local data OR local data is less than server data
-            // 2. Server has data to restore
-            // 3. Account is NOT brand new (to avoid migrating wrong data)
+            let restoredAnything = false;
+            
+            // Restore focus stats if server has more data
             if (serverTotalHours > 0 && (!hasLocalData || (localStats.totalHours || 0) < serverTotalHours)) {
-                console.log('✅ Restoring stats from server to localStorage');
-                console.log('📋 Restoration details:', {
-                    accountAge: Math.round(accountAge / 1000 / 60 / 60) + ' hours',
-                    isNewAccount: isNewAccount,
-                    serverHours: serverTotalHours,
-                    localHours: localStats.totalHours || 0
-                });
+                console.log('✅ Restoring focus stats from server to localStorage');
                 
-                // Create or update local stats with server data
-                const restoredStats = {
-                    ...localStats,
-                    totalHours: serverTotalHours,
-                    lastRestored: new Date().toISOString(),
-                    restoredFrom: 'clerk_publicMetadata',
-                    restoredForUser: this.user.id
-                };
+                // Start with local stats as base
+                let restoredStats = { ...localStats };
+                
+                // If we have a full backup, use that
+                if (focusStatsBackup) {
+                    console.log('📦 Found full stats backup, restoring detailed data...');
+                    restoredStats = {
+                        ...restoredStats,
+                        totalHours: focusStatsBackup.totalHours || serverTotalHours,
+                        completedCycles: focusStatsBackup.completedCycles || restoredStats.completedCycles,
+                        daily: focusStatsBackup.daily || restoredStats.daily || {},
+                        dailySessions: focusStatsBackup.dailySessions || restoredStats.dailySessions || {},
+                        dailyBreaks: focusStatsBackup.dailyBreaks || restoredStats.dailyBreaks || {}
+                    };
+                } else {
+                    // Only totalHours available
+                    restoredStats.totalHours = serverTotalHours;
+                }
+                
+                restoredStats.lastRestored = new Date().toISOString();
+                restoredStats.restoredFrom = 'clerk_publicMetadata';
+                restoredStats.restoredForUser = this.user.id;
                 
                 // Save to user-specific localStorage key
                 const key = `focusStats_${this.user.id}`;
                 localStorage.setItem(key, JSON.stringify(restoredStats));
                 
-                console.log('✅ Stats restored successfully:', {
-                    totalHours: serverTotalHours,
-                    key: key,
-                    userId: this.user.id
+                console.log('✅ Focus stats restored:', {
+                    totalHours: restoredStats.totalHours,
+                    hasDailyData: Object.keys(restoredStats.daily || {}).length > 0,
+                    key: key
                 });
                 
-                // Update UI
-                this.updateFocusHoursDisplay();
-                
-                return true;
-            } else if (hasLocalData && (localStats.totalHours || 0) > serverTotalHours) {
-                // Local data is more recent, sync to server
-                console.log('📤 Local data is more recent, syncing to server');
-                await this.syncStatsToClerk(localStats.totalHours);
-            } else {
-                console.log('✅ Stats are in sync (no restoration needed)');
+                restoredAnything = true;
             }
             
-            return false;
+            // Restore custom techniques if server has them and local is empty
+            const localTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            if (serverCustomTechniques && serverCustomTechniques.length > 0 && localTechniques.length === 0) {
+                console.log('📦 Restoring custom techniques from server...');
+                localStorage.setItem('customTechniques', JSON.stringify(serverCustomTechniques));
+                console.log(`✅ Restored ${serverCustomTechniques.length} custom techniques`);
+                restoredAnything = true;
+                
+                // Reload custom techniques UI
+                try { this.loadCustomTechniques(); } catch (_) {}
+            }
+            
+            // Restore cassettes if server has them and local is empty
+            const localCassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+            if (localCassettes.length === 0) {
+                const cassettesToRestore = [];
+                
+                // Add private cassettes from backup
+                if (serverPrivateCassettes && serverPrivateCassettes.length > 0) {
+                    cassettesToRestore.push(...serverPrivateCassettes);
+                }
+                
+                // Add public cassettes from publicCassettes
+                if (serverPublicCassettes && serverPublicCassettes.length > 0) {
+                    cassettesToRestore.push(...serverPublicCassettes);
+                }
+                
+                if (cassettesToRestore.length > 0) {
+                    console.log('📦 Restoring cassettes from server...');
+                    localStorage.setItem('customCassettes', JSON.stringify(cassettesToRestore));
+                    console.log(`✅ Restored ${cassettesToRestore.length} cassettes`);
+                    restoredAnything = true;
+                    
+                    // Reload cassettes UI
+                    try { this.loadCustomCassettes(); } catch (_) {}
+                }
+            }
+            
+            // Restore streak data if server has it
+            if (serverStreakData && (!this.streakData || !this.streakData.currentStreak)) {
+                console.log('📦 Restoring streak data from server...');
+                this.streakData = serverStreakData;
+                console.log('✅ Streak data restored:', serverStreakData);
+                restoredAnything = true;
+            }
+            
+            // If local data is more recent, do a full sync to server
+            if (hasLocalData && (localStats.totalHours || 0) > serverTotalHours) {
+                console.log('📤 Local data is more recent, performing full sync to server...');
+                await this.syncStatsToClerk(localStats.totalHours, true);
+            }
+            
+            // Update UI if we restored anything
+            if (restoredAnything) {
+                this.updateFocusHoursDisplay();
+                console.log('🎉 Data restoration completed!');
+            } else {
+                console.log('✅ Data is in sync (no restoration needed)');
+            }
+            
+            return restoredAnything;
         } catch (error) {
-            console.error('❌ Error restoring stats from Clerk:', error);
+            console.error('❌ Error restoring data from Clerk:', error);
             return false;
         }
     }
@@ -18235,10 +18411,11 @@ class PomodoroTimer {
             console.log('💾 Saving cassettes to localStorage:', cassettes.map(c => ({ id: c.id, title: c.title })));
             localStorage.setItem('customCassettes', JSON.stringify(cassettes));
             
-            // Sync public vibes to Clerk when authenticated
+            // Sync all cassettes to Clerk when authenticated
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
                 try {
+                    // Sync public cassettes via dedicated endpoint
                     const response = await fetch('/api/sync-cassettes', {
                         method: 'POST',
                         headers: {
@@ -18248,10 +18425,25 @@ class PomodoroTimer {
                         body: JSON.stringify({ cassettes: allCassettes })
                     });
                     if (!response.ok) {
-                        console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                        console.error('❌ Error syncing public cassettes to Clerk:', response.statusText);
                     } else {
-                        console.log('✅ Cassettes synced to Clerk');
+                        console.log('✅ Public cassettes synced to Clerk');
                     }
+                    
+                    // Also backup ALL cassettes (including private) via sync-stats
+                    const stats = this.getFocusStats();
+                    await fetch('/api/sync-stats', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-clerk-userid': this.user.id
+                        },
+                        body: JSON.stringify({ 
+                            totalHours: stats?.totalHours || 0,
+                            customCassettes: allCassettes
+                        })
+                    });
+                    console.log('✅ All cassettes (including private) backed up to Clerk');
                 } catch (err) {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
                 }
