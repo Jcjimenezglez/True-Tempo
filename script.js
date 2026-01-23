@@ -2260,6 +2260,7 @@ class PomodoroTimer {
         
         // Check if user is authenticated - show disabled style if not
         const isDisabled = !this.isAuthenticated;
+        const signupText = isDisabled ? ' <span class="signup-required-text">(Sign up required)</span>' : '';
         
         const card = document.createElement('div');
         card.className = 'custom-card';
@@ -2269,13 +2270,11 @@ class PomodoroTimer {
         if (isDisabled) {
             card.style.opacity = '0.5';
             card.style.pointerEvents = 'none';
-            card.style.position = 'relative';
         }
         
         card.innerHTML = `
-            ${isDisabled ? '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: #a3a3a3; padding: 4px 8px; border-radius: 4px; font-size: 10px; z-index: 5; white-space: nowrap;">Login to use</div>' : ''}
             <div class="custom-card-icon">${technique.emoji || '🎯'}</div>
-            <div class="custom-card-name">${technique.name}</div>
+            <div class="custom-card-name">${technique.name}${signupText}</div>
             <div class="custom-card-duration">${technique.workMinutes}min focus</div>
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
             <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
@@ -2713,6 +2712,10 @@ class PomodoroTimer {
             if (this.settingsReportSection) this.settingsReportSection.style.display = 'none';
             if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
+            
+            // Reload custom techniques and cassettes to show them disabled
+            try { this.loadCustomTechniques(); } catch (_) {}
+            try { this.loadCustomCassettes(); } catch (_) {}
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             
             // Hide auth status indicator when not authenticated
@@ -17592,11 +17595,7 @@ class PomodoroTimer {
         // Check if user is authenticated - show disabled style if not
         const isDisabled = !this.isAuthenticated;
         const disabledStyle = isDisabled ? 'opacity: 0.5; pointer-events: none;' : '';
-        const disabledOverlay = isDisabled ? `
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; border-radius: 12px; z-index: 5;">
-                <span style="background: rgba(0,0,0,0.7); color: #a3a3a3; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Login to use</span>
-            </div>
-        ` : '';
+        const signupText = isDisabled ? '<span class="signup-required-text">(Sign up required)</span>' : '';
         
         customCassettesList.innerHTML = privateCassettes.map(cassette => {
             // Escape URL for CSS: escape single quotes and wrap in quotes
@@ -17607,10 +17606,9 @@ class PomodoroTimer {
             
             return `
                 <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative; ${disabledStyle}">
-                    ${disabledOverlay}
                     <div class="theme-preview" style="${previewStyle}"></div>
                     <div class="theme-info">
-                        <h4>${cassette.title}</h4>
+                        <h4>${cassette.title} ${signupText}</h4>
                         <p>${cassette.description || 'Custom focus environment'}</p>
                     </div>
                     <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
