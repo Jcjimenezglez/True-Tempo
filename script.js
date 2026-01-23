@@ -12490,9 +12490,13 @@ class PomodoroTimer {
         let monthlyHours = 0;
         let monthlySessions = 0;
         let monthlyBreaks = 0;
+        let isAllTime = false; // Flag to indicate if we're showing all-time instead of monthly
+        
+        // Check if we have any daily data at all
+        const hasDailyData = stats.daily && Object.keys(stats.daily).length > 0;
         
         // Sum hours from daily data for current month
-        if (stats.daily) {
+        if (hasDailyData) {
             Object.entries(stats.daily).forEach(([dateStr, hours]) => {
                 try {
                     // Parse date string (format: "Mon Jan 01 2024" from toDateString())
@@ -12539,10 +12543,20 @@ class PomodoroTimer {
             });
         }
         
+        // FALLBACK: If no monthly data but we have totalHours, show all-time stats
+        // This happens when user data was restored from server without daily breakdown
+        if (monthlyHours === 0 && stats.totalHours && stats.totalHours > 0) {
+            monthlyHours = stats.totalHours;
+            monthlySessions = stats.completedCycles || 0;
+            isAllTime = true;
+            console.log('📊 Using all-time stats as fallback (no monthly data available)');
+        }
+        
         return {
             hours: monthlyHours,
             sessions: monthlySessions,
-            breaks: monthlyBreaks
+            breaks: monthlyBreaks,
+            isAllTime: isAllTime
         };
     }
 
@@ -13765,18 +13779,21 @@ class PomodoroTimer {
             const monthlyHours = monthlyStats.hours || 0;
             const monthlySessions = monthlyStats.sessions || 0;
             const monthlyBreaks = monthlyStats.breaks || 0;
+            const isAllTime = monthlyStats.isAllTime || false;
             
             // Calculate day streaks
             const dayStreaks = this.calculateCurrentStreak(stats);
 
-            // Get current month name
+            // Get current month name or "All Time" label
             const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const periodLabel = isAllTime ? 'ALL TIME' : `THIS MONTH (${currentMonth})`;
 
         const html = `
             <div style="padding: 0;">
                 <!-- Summary Stats (HABILITADO para FREE) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
-                    <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
+                    <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">${periodLabel}</div>
+                    ${isAllTime ? '<div style="font-size: 11px; color: #666; margin-bottom: 8px;">(Monthly breakdown unavailable)</div>' : ''}
                     
                     <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
                     <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
@@ -13939,6 +13956,7 @@ class PomodoroTimer {
             const monthlyHours = monthlyStats.hours || 0;
             const monthlySessions = monthlyStats.sessions || 0;
             const monthlyBreaks = monthlyStats.breaks || 0;
+            const isAllTime = monthlyStats.isAllTime || false;
             
             // For level and achievements calculation, use all-time totals
             const totalHours = stats.totalHours || 0;
@@ -13947,8 +13965,9 @@ class PomodoroTimer {
         // Calculate day streaks
         const dayStreaks = this.calculateCurrentStreak(stats);
 
-        // Get current month name
+        // Get current month name or "All Time" label
         const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const periodLabel = isAllTime ? 'ALL TIME' : `THIS MONTH (${currentMonth})`;
 
         // Get data for chart
         const last7Days = this.getLastNDaysData(stats, 7);
@@ -13961,7 +13980,8 @@ class PomodoroTimer {
                 <!-- Summary Stats + Chart (HABILITADO para PREMIUM) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
                     <div style="text-align: center; margin-bottom: 24px;">
-                        <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
+                        <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">${periodLabel}</div>
+                        ${isAllTime ? '<div style="font-size: 11px; color: #666; margin-bottom: 8px;">(Monthly breakdown unavailable)</div>' : ''}
                         
                         <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
                         <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
@@ -13977,7 +13997,7 @@ class PomodoroTimer {
                     
                     <!-- Activity Chart -->
                     <div>
-                        <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity</h4>
+                        <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity${isAllTime ? ' <span style="font-size: 11px; color: #666; font-weight: normal;">(Chart unavailable - no daily data)</span>' : ''}</h4>
                         <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                             ${(() => {
                                 const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
