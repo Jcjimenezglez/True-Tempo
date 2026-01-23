@@ -2258,26 +2258,39 @@ class PomodoroTimer {
             return;
         }
         
+        // Check if user is authenticated - show disabled style if not
+        const isDisabled = !this.isAuthenticated;
+        
         const card = document.createElement('div');
         card.className = 'custom-card';
         card.dataset.techniqueId = technique.id;
         
+        // Apply disabled styling if not authenticated
+        if (isDisabled) {
+            card.style.opacity = '0.5';
+            card.style.pointerEvents = 'none';
+            card.style.position = 'relative';
+        }
+        
         card.innerHTML = `
+            ${isDisabled ? '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: #a3a3a3; padding: 4px 8px; border-radius: 4px; font-size: 10px; z-index: 5; white-space: nowrap;">Login to use</div>' : ''}
             <div class="custom-card-icon">${technique.emoji || '🎯'}</div>
             <div class="custom-card-name">${technique.name}</div>
             <div class="custom-card-duration">${technique.workMinutes}min focus</div>
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
             <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
             <div class="custom-card-sessions">${technique.sessions} sessions</div>
-            <button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>
+            ${!isDisabled ? `<button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>` : ''}
         `;
         
-        // Add click handler to select technique
-        card.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('custom-card-delete')) {
-                this.selectCustomTechnique(technique);
-            }
-        });
+        // Add click handler to select technique (only if authenticated)
+        if (!isDisabled) {
+            card.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('custom-card-delete')) {
+                    this.selectCustomTechnique(technique);
+                }
+            });
+        }
         
         container.appendChild(card);
     }
@@ -3944,11 +3957,11 @@ class PomodoroTimer {
                 localStorage.removeItem('todoistToken');
                 localStorage.removeItem('notionToken');
                 
-                // Clear custom techniques (now backed up to server)
-                localStorage.removeItem('customTechniques');
-                
-                // Clear custom vibes (now backed up to server)
-                localStorage.removeItem('customCassettes');
+                // NOTE: We NO LONGER clear customTechniques and customCassettes
+                // They are backed up to server and will be shown disabled when logged out
+                // This provides better UX as users can see their creations (like Tasks do)
+                // localStorage.removeItem('customTechniques');
+                // localStorage.removeItem('customCassettes');
                 
                 // Clear saved technique selection
                 localStorage.removeItem('savedTechnique');
@@ -12543,20 +12556,36 @@ class PomodoroTimer {
             });
         }
         
-        // FALLBACK: If no monthly data but we have totalHours, show all-time stats
+        // FALLBACK: If monthly data is significantly less than total, show all-time stats
         // This happens when user data was restored from server without daily breakdown
-        if (monthlyHours === 0 && stats.totalHours && stats.totalHours > 0) {
-            monthlyHours = stats.totalHours;
-            monthlySessions = stats.completedCycles || 0;
-            isAllTime = true;
-            console.log('📊 Using all-time stats as fallback (no monthly data available)');
+        // or when user lost their monthly data but kept total hours
+        const totalHours = stats.totalHours || 0;
+        const totalSessions = stats.completedCycles || 0;
+        
+        // Use all-time if:
+        // 1. Monthly hours is 0 but total is > 0, OR
+        // 2. Monthly hours is less than 10% of total hours (data loss detected)
+        const dataLossDetected = totalHours > 0 && (monthlyHours === 0 || (monthlyHours < totalHours * 0.1 && totalHours > 1));
+        
+        if (dataLossDetected) {
+            console.log('📊 Using all-time stats as fallback (data loss detected)', {
+                monthlyHours,
+                totalHours,
+                ratio: monthlyHours / totalHours
+            });
+            return {
+                hours: totalHours,
+                sessions: totalSessions,
+                breaks: monthlyBreaks,
+                isAllTime: true
+            };
         }
         
         return {
             hours: monthlyHours,
             sessions: monthlySessions,
             breaks: monthlyBreaks,
-            isAllTime: isAllTime
+            isAllTime: false
         };
     }
 
@@ -17423,10 +17452,8 @@ class PomodoroTimer {
         // Initialize metadata extraction listeners
         this.initializeCassetteMetadataExtraction();
         
-        // Load and render custom cassettes (only Pro users have custom cassettes to load)
-        if (this.isPremiumUser()) {
-            this.loadCustomCassettes();
-        }
+        // Load and render custom cassettes (show for all users, disabled if not authenticated)
+        this.loadCustomCassettes();
         
         // Load and render public cassettes (for all users, with restriction for Guest)
         // Moved to openImmersiveThemePanel to ensure refresh on open
@@ -17562,6 +17589,15 @@ class PomodoroTimer {
             return;
         }
         
+        // Check if user is authenticated - show disabled style if not
+        const isDisabled = !this.isAuthenticated;
+        const disabledStyle = isDisabled ? 'opacity: 0.5; pointer-events: none;' : '';
+        const disabledOverlay = isDisabled ? `
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; border-radius: 12px; z-index: 5;">
+                <span style="background: rgba(0,0,0,0.7); color: #a3a3a3; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Login to use</span>
+            </div>
+        ` : '';
+        
         customCassettesList.innerHTML = privateCassettes.map(cassette => {
             // Escape URL for CSS: escape single quotes and wrap in quotes
             const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
@@ -17570,7 +17606,8 @@ class PomodoroTimer {
                 : 'background: #0a0a0a;';
             
             return `
-                <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative;">
+                <div class="theme-option custom-cassette" data-cassette-id="${cassette.id}" style="position: relative; ${disabledStyle}">
+                    ${disabledOverlay}
                     <div class="theme-preview" style="${previewStyle}"></div>
                     <div class="theme-info">
                         <h4>${cassette.title}</h4>
