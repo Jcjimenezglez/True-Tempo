@@ -1383,7 +1383,8 @@
         .plan-header {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
         
         .plan-label {
@@ -1396,21 +1397,57 @@
             text-align: left;
         }
         
+        .plan-description {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+            font-weight: 400;
+        }
+        
         .plan-pricing {
             display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+        
+        .pricing-trial {
+            display: flex;
             align-items: baseline;
-            gap: 0.25rem;
+            gap: 0.5rem;
+        }
+        
+        .trial-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .trial-period {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.75);
+        }
+        
+        .pricing-regular {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .regular-label {
+            color: rgba(255, 255, 255, 0.6);
         }
         
         .price {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #ffffff;
         }
         
         .period {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
         }
         
         .comparison-plan-card.premium-plan .period {
@@ -2583,9 +2620,17 @@
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
                         <h3 class="plan-label">PREMIUM</h3>
+                        <p class="plan-description">For students, professionals & power users</p>
                         <div class="plan-pricing">
-                            <span class="price">$3.99</span>
-                            <span class="period">/month</span>
+                            <div class="pricing-trial">
+                                <span class="trial-price">$0</span>
+                                <span class="trial-period">for 14 days</span>
+                            </div>
+                            <div class="pricing-regular">
+                                <span class="regular-label">Then</span>
+                                <span class="price">$3.99</span>
+                                <span class="period">/month</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -2596,19 +2641,23 @@
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited focus</span>
+                            <span class="feature-text">Unlimited focus sessions</span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited tasks</span>
+                            <span class="feature-text">Unlimited tasks & projects</span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited cassettes</span>
+                            <span class="feature-text">Unlimited focus soundtracks</span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
                             <span class="feature-text">Advanced Analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Cancel anytime</span>
                         </div>
                     </div>
                 </div>
