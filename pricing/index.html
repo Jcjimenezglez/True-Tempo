@@ -1403,20 +1403,35 @@
             margin: 0;
             font-weight: 400;
             line-height: 1.2;
+            text-align: left;
         }
         
         .plan-pricing {
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0.4rem;
             align-items: flex-start;
             margin-top: 0.5rem;
         }
         
-        .pricing-trial {
+        .free-price {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            align-items: flex-start;
+        }
+        
+        .price-limited {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 400;
+        }
+        
+        .pricing-row {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
+            width: 100%;
         }
         
         .trial-price {
@@ -1425,29 +1440,12 @@
             color: #ffffff;
         }
         
-        .trial-period {
-            font-size: 0.9rem;
+        .trial-text {
+            font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.7);
         }
         
-        .pricing-regular {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.9rem;
-        }
-        
-        .regular-label {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        .price {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-        
-        .period {
+        .period-text {
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.7);
         }
@@ -2590,9 +2588,12 @@
                 <div class="comparison-plan-card starter-plan">
                     <div class="plan-header">
                         <h3 class="plan-label">STARTER</h3>
-                        <p class="plan-description">Free plan (limited)</p>
+                        <p class="plan-description">For users testing the tool</p>
                         <div class="plan-pricing">
-                            <span class="price">Free</span>
+                            <div class="free-price">
+                                <span class="price">Free</span>
+                                <span class="price-limited">Limited</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -2624,16 +2625,15 @@
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
                         <h3 class="plan-label">PREMIUM</h3>
-                        <p class="plan-description">College & university students</p>
+                        <p class="plan-description">for college & university students</p>
                         <div class="plan-pricing">
-                            <div class="pricing-trial">
+                            <div class="pricing-row">
                                 <span class="trial-price">$0</span>
-                                <span class="trial-period">for 14 days</span>
+                                <span class="trial-text">for 14 days</span>
                             </div>
-                            <div class="pricing-regular">
-                                <span class="regular-label">Then</span>
+                            <div class="pricing-row">
                                 <span class="price">$3.99</span>
-                                <span class="period">/month</span>
+                                <span class="period-text">/month after</span>
                             </div>
                         </div>
                     </div>
