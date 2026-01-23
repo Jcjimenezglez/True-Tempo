@@ -12944,6 +12944,12 @@ class PomodoroTimer {
                 <h3>Your Focus Progress</h3>
                 <p style="color: #a3a3a3; margin-bottom: 24px;">Here's what you've accomplished so far</p>
                 
+                <!-- Data Loss Notice -->
+                <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #d0d0d0; margin-bottom: 6px; font-weight: 500;">⚠️ Monthly data reset</div>
+                    <p style="font-size: 11px; color: #b0b0b0; margin: 0; line-height: 1.4;">Some users experienced data loss on Jan 6-22. New backup system now protects your data. <a href="/release-notes/" style="color: #4a9eff; text-decoration: none; font-weight: 500;">Learn more →</a></p>
+                </div>
+                
                 <div style="background: var(--onyx-dark, #064e3b); border-radius: 12px; padding: 20px; margin: 24px 0; display: flex; align-items: center; gap: 16px;">
                     <div style="flex-shrink: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
