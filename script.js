@@ -2463,6 +2463,9 @@ class PomodoroTimer {
                 card.remove();
             }
             
+            // Sync deletion to server
+            this.syncTechniquesToServer();
+            
             console.log('✅ Custom technique deleted:', techniqueId);
             
         } catch (error) {
@@ -18510,11 +18513,11 @@ class PomodoroTimer {
             // Remove the cassette from the public vibes cache immediately
             this.removeCassetteFromPublicCache(cassetteId);
             
-            // Sync public vibes to Clerk after deletion
+            // Sync cassettes to Clerk after deletion
             if (this.isAuthenticated && this.user?.id) {
                 const allCassettes = this.getCustomCassettes();
                 
-                // Sync in background (don't wait for response)
+                // Sync public cassettes via dedicated endpoint
                 fetch('/api/sync-cassettes', {
                     method: 'POST',
                     headers: {
@@ -18524,12 +18527,32 @@ class PomodoroTimer {
                     body: JSON.stringify({ cassettes: allCassettes })
                 }).then(response => {
                     if (response.ok) {
-                        console.log('✅ Cassettes synced to Clerk after deletion');
+                        console.log('✅ Public cassettes synced to Clerk after deletion');
                     } else {
-                        console.error('❌ Error syncing cassettes to Clerk:', response.statusText);
+                        console.error('❌ Error syncing public cassettes to Clerk:', response.statusText);
                     }
                 }).catch(err => {
-                    console.error('❌ Error syncing cassettes to Clerk:', err);
+                    console.error('❌ Error syncing public cassettes to Clerk:', err);
+                });
+                
+                // Also sync ALL cassettes (including private) to backup via sync-stats
+                const stats = this.getFocusStats();
+                fetch('/api/sync-stats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-clerk-userid': this.user.id
+                    },
+                    body: JSON.stringify({ 
+                        totalHours: stats?.totalHours || 0,
+                        customCassettes: allCassettes
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('✅ All cassettes (including private) backed up to Clerk after deletion');
+                    }
+                }).catch(err => {
+                    console.error('❌ Error backing up cassettes:', err);
                 });
             }
             
