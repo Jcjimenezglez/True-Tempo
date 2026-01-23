@@ -3510,7 +3510,7 @@ class PomodoroTimer {
                         style="
                             padding: 8px 16px;
                             background: ${currentPage > 1 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-                            color: ${currentPage > 1 ? '#fff' : '#666'};
+                            color: ${currentPage > 1 ? '#fff' : '#d0d0d0'};
                             border: 1px solid rgba(255, 255, 255, 0.1);
                             border-radius: 8px;
                             cursor: ${currentPage > 1 ? 'pointer' : 'not-allowed'};
@@ -3531,7 +3531,7 @@ class PomodoroTimer {
                         style="
                             padding: 8px 16px;
                             background: ${currentPage < totalPages ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-                            color: ${currentPage < totalPages ? '#fff' : '#666'};
+                            color: ${currentPage < totalPages ? '#fff' : '#d0d0d0'};
                             border: 1px solid rgba(255, 255, 255, 0.1);
                             border-radius: 8px;
                             cursor: ${currentPage < totalPages ? 'pointer' : 'not-allowed'};
@@ -6109,7 +6109,7 @@ class PomodoroTimer {
                         <div class="music-header disabled">
                             <div class="music-info">
                                 <div class="music-details">
-                                    <h4 style="color: #666;">Lofi Music</h4>
+                                    <h4 style="color: #d0d0d0;">Lofi Music</h4>
                                     <p style="color: #888;">Relaxing beats for deep focus</p>
                                 </div>
                             </div>
@@ -13671,7 +13671,7 @@ class PomodoroTimer {
                         style="
                             padding: 8px 16px;
                             background: ${currentPage > 1 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-                            color: ${currentPage > 1 ? '#fff' : '#666'};
+                            color: ${currentPage > 1 ? '#fff' : '#d0d0d0'};
                             border: 1px solid rgba(255, 255, 255, 0.1);
                             border-radius: 8px;
                             cursor: ${currentPage > 1 ? 'pointer' : 'not-allowed'};
@@ -13692,7 +13692,7 @@ class PomodoroTimer {
                         style="
                             padding: 8px 16px;
                             background: ${currentPage < totalPages ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-                            color: ${currentPage < totalPages ? '#fff' : '#666'};
+                            color: ${currentPage < totalPages ? '#fff' : '#d0d0d0'};
                             border: 1px solid rgba(255, 255, 255, 0.1);
                             border-radius: 8px;
                             cursor: ${currentPage < totalPages ? 'pointer' : 'not-allowed'};
@@ -13796,12 +13796,12 @@ class PomodoroTimer {
             <div style="padding: 0;">
                 <!-- Summary Stats (HABILITADO para FREE) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
-                    <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
+                    <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                     
                     <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
-                    <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
+                    <div style="font-size: 16px; color: #d0d0d0; margin-bottom: 20px;">Total Hours</div>
                     
-                    <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
+                    <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #d0d0d0;">
                         <span>${monthlySessions} Sessions</span>
                         <span>•</span>
                         <span>${monthlyBreaks} Breaks</span>
@@ -13812,12 +13812,12 @@ class PomodoroTimer {
 
                 <!-- Gráfica (DESHABILITADO para FREE) -->
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Activity Chart</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #d0d0d0; font-size: 16px;">Activity Chart</h4>
                     <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                         ${Array(7).fill(0).map((_, i) => `
                             <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                                 <div style="width: 100%; height: ${Math.random() * 60 + 20}%; background: #444; border-radius: 4px;"></div>
-                                <div style="font-size: 10px; color: #666;">Day ${i + 1}</div>
+                                <div style="font-size: 10px; color: #d0d0d0;">Day ${i + 1}</div>
                             </div>
                         `).join('')}
                     </div>
@@ -13831,7 +13831,7 @@ class PomodoroTimer {
 
                 <!-- Recent Activity (DESHABILITADO para FREE) -->
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Recent Activity</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #d0d0d0; font-size: 16px;">Recent Activity</h4>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         ${(() => {
                             // Get real completed tasks but show them disabled
@@ -13844,8 +13844,8 @@ class PomodoroTimer {
                             if (completedTasks.length === 0) {
                                 return `
                                     <div style="background: #333; border-radius: 8px; padding: 12px;">
-                                        <div style="color: #666; font-size: 14px; margin-bottom: 4px;">No completed tasks yet</div>
-                                        <div style="color: #666; font-size: 12px;">Complete tasks to see them here</div>
+                                        <div style="color: #d0d0d0; font-size: 14px; margin-bottom: 4px;">No completed tasks yet</div>
+                                        <div style="color: #d0d0d0; font-size: 12px;">Complete tasks to see them here</div>
                                     </div>
                                 `;
                             }
@@ -13861,8 +13861,8 @@ class PomodoroTimer {
                                 
                                 return `
                                     <div style="background: #333; border-radius: 8px; padding: 12px;">
-                                        <div style="color: #666; font-size: 14px; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
-                                        <div style="color: #666; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • ${timeStr}</div>
+                                        <div style="color: #d0d0d0; font-size: 14px; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
+                                        <div style="color: #d0d0d0; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • ${timeStr}</div>
                                     </div>
                                 `;
                             }).join('');
@@ -13878,7 +13878,7 @@ class PomodoroTimer {
 
                 <!-- Achievements (DESHABILITADO para FREE) -->
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #666; font-size: 16px;">Achievements</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #d0d0d0; font-size: 16px;">Achievements</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         ${[
                             { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target-icon lucide-target"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', name: 'Deep Diver' },
@@ -13887,8 +13887,8 @@ class PomodoroTimer {
                             { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gem-icon lucide-gem"><path d="M10.5 3 8 9l4 13 4-13-2.5-6"/><path d="M17 3a2 2 0 0 1 1.6.8l3 4a2 2 0 0 1 .013 2.382l-7.99 10.986a2 2 0 0 1-3.247 0l-7.99-10.986A2 2 0 0 1 2.4 7.8l2.998-3.997A2 2 0 0 1 7 3z"/><path d="M2 9h20"/></svg>', name: 'Diamond Mind' }
                         ].map(ach => `
                             <div style="background: #333; border-radius: 8px; padding: 16px; text-align: center;">
-                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px; color: #666;">${ach.icon}</div>
-                                <div style="color: #666; font-size: 12px;">${ach.name}</div>
+                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px; color: #d0d0d0;">${ach.icon}</div>
+                                <div style="color: #d0d0d0; font-size: 12px;">${ach.name}</div>
                             </div>
                         `).join('')}
                     </div>
@@ -13904,12 +13904,12 @@ class PomodoroTimer {
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 24px; opacity: 0.5;">
                     <div style="text-align: center;">
                         <div style="font-size: 32px; margin-bottom: 8px;">🧠</div>
-                        <div style="font-size: 24px; font-weight: 700; color: #666; margin-bottom: 4px;">DEEP MIND</div>
-                        <div style="font-size: 14px; color: #666; margin-bottom: 16px;">Level 3 • 124 users at this level</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #d0d0d0; margin-bottom: 4px;">DEEP MIND</div>
+                        <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 16px;">Level 3 • 124 users at this level</div>
                         <div style="width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
                             <div style="width: 65%; height: 100%; background: #555;"></div>
                         </div>
-                        <div style="font-size: 12px; color: #666;">12.5 hours to FLOW STATE</div>
+                        <div style="font-size: 12px; color: #d0d0d0;">12.5 hours to FLOW STATE</div>
                     </div>
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
@@ -13981,12 +13981,12 @@ class PomodoroTimer {
                 <!-- Summary Stats + Chart (HABILITADO para PREMIUM) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
                     <div style="text-align: center; margin-bottom: 24px;">
-                        <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
+                        <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                         
                         <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
-                        <div style="font-size: 16px; color: #a3a3a3; margin-bottom: 20px;">Total Hours</div>
+                        <div style="font-size: 16px; color: #d0d0d0; margin-bottom: 20px;">Total Hours</div>
                         
-                        <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #a3a3a3;">
+                        <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #d0d0d0;">
                             <span>${monthlySessions} Sessions</span>
                             <span>•</span>
                             <span>${monthlyBreaks} Breaks</span>
@@ -14029,7 +14029,7 @@ class PomodoroTimer {
                             
                             if (completedTasks.length === 0) {
                                 return `
-                                    <div style="text-align: center; padding: 24px; color: #666;">
+                                    <div style="text-align: center; padding: 24px; color: #d0d0d0;">
                                         <div style="font-size: 14px;">No completed tasks yet</div>
                                         <div style="font-size: 12px; margin-top: 4px;">Complete tasks to see them here</div>
                                     </div>
@@ -14070,9 +14070,9 @@ class PomodoroTimer {
                             ];
                             return achievements.map(ach => `
                                 <div style="background: ${ach.unlocked ? '#1a1a1a' : '#151515'}; border-radius: 8px; padding: 16px; text-align: center; ${ach.unlocked ? '' : 'opacity: 0.5;'}">
-                                    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px; color: ${ach.unlocked ? '#fff' : '#666'}; width: 24px; height: 24px; margin: 0 auto 8px auto;">${ach.icon}</div>
-                                    <div style="color: ${ach.unlocked ? '#fff' : '#666'}; font-size: 12px; font-weight: 600; margin-bottom: 4px;">${ach.name}</div>
-                                    <div style="color: #666; font-size: 11px;">${ach.desc}</div>
+                                    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px; color: ${ach.unlocked ? '#fff' : '#d0d0d0'}; width: 24px; height: 24px; margin: 0 auto 8px auto;">${ach.icon}</div>
+                                    <div style="color: ${ach.unlocked ? '#fff' : '#d0d0d0'}; font-size: 12px; font-weight: 600; margin-bottom: 4px;">${ach.name}</div>
+                                    <div style="color: #d0d0d0; font-size: 11px;">${ach.desc}</div>
                                 </div>
                             `).join('');
                         })()}
