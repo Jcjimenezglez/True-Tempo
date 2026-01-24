@@ -10,7 +10,10 @@
     "setup-dev": "node scripts/setup-dev.js",
     "deploy-staging": "node scripts/deploy-staging.js",
     "logs": "vercel logs --follow",
-    "update-logo": "node scripts/update-logo-from-png.js"
+    "update-logo": "node scripts/update-logo-from-png.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@clerk/clerk-js": "^5.113.0",
@@ -19,6 +22,8 @@
     "stripe": "^12.18.0"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-mock-extended": "^3.0.5",
     "sharp": "^0.34.5"
   }
 }
