@@ -58,8 +58,8 @@ async function createLifetimePrice39() {
     process.exit(1);
   }
 
-  if (!STRIPE_SECRET_KEY.startsWith('sk_')) {
-    console.error('❌ Error: STRIPE_SECRET_KEY inválida (debe empezar con sk_live_ o sk_test_)');
+  if (!STRIPE_SECRET_KEY.startsWith('sk_') && !STRIPE_SECRET_KEY.startsWith('rk_')) {
+    console.error('❌ Error: STRIPE_SECRET_KEY inválida (debe empezar con sk_live_, sk_test_ o rk_live_)');
     process.exit(1);
   }
 
