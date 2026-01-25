@@ -3930,6 +3930,54 @@ class PomodoroTimer {
             console.log('✅ Checkout session created:', data);
             
             if (data.url) {
+                // Track Stripe Checkout Session Created to Mixpanel
+                if (window.mixpanelTracker) {
+                    window.mixpanelTracker.trackCustomEvent('Stripe Checkout Session Created', {
+                        source: 'pricing_modal',
+                        plan_type: planType,
+                        user_email: userEmail,
+                        timestamp: new Date().toISOString()
+                    });
+                    console.log('📊 Stripe Checkout Session Created tracked to Mixpanel:', planType);
+                }
+                
+                // Track Stripe Checkout Session Created to Google Ads
+                // This is a key funnel step - user has committed to starting checkout
+                try {
+                    if (typeof window.gtag === 'function') {
+                        const checkoutConversionData = {
+                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                            'value': 1.0,
+                            'currency': 'USD'
+                        };
+                        
+                        // Add Enhanced Conversions user data if available
+                        if (userEmail && typeof window.hashEmail === 'function') {
+                            try {
+                                const hashedEmail = await window.hashEmail(userEmail);
+                                if (hashedEmail) {
+                                    checkoutConversionData.user_data = {
+                                        email_address: hashedEmail
+                                    };
+                                    console.log('✅ Enhanced Conversions: User data included (Checkout Created)');
+                                }
+                            } catch (error) {
+                                console.log('⚠️ Enhanced Conversions: Email hashing failed');
+                            }
+                        }
+                        
+                        window.gtag('event', 'conversion', checkoutConversionData);
+                        console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
+                    }
+                } catch (error) {
+                    console.error('⚠️ Google Ads checkout tracking failed:', error);
+                }
+                
+                // Wait 500ms to ensure Google Ads beacon is sent before redirect
+                // This is critical because page unload can cancel pending network requests
+                console.log('⏳ Waiting for tracking beacons to send...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 console.log('✅ Redirecting to Stripe checkout:', data.url);
                 window.location.href = data.url;
             } else {

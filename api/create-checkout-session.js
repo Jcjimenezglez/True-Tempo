@@ -149,6 +149,60 @@ module.exports = async (req, res) => {
       payment_status: session.payment_status
     });
 
+    // Track Stripe Checkout Session Created to GA4 (server-side backup)
+    // This ensures tracking even if client-side fails
+    try {
+      const ga4MeasurementId = process.env.GA4_MEASUREMENT_ID || 'G-T3T0PES8C0';
+      const ga4ApiSecret = process.env.GA4_API_SECRET;
+      
+      if (ga4ApiSecret) {
+        const clientId = userEmail 
+          ? `server.${userEmail.replace(/[^a-zA-Z0-9]/g, '').substring(0, 40)}.${Date.now()}`
+          : `server.checkout.${Date.now()}`;
+        
+        const ga4Payload = {
+          client_id: clientId,
+          user_id: userEmail ? userEmail.toLowerCase() : undefined,
+          events: [{
+            name: 'begin_checkout',
+            params: {
+              transaction_id: session.id,
+              value: planType === 'lifetime' ? 24.0 : 3.99,
+              currency: 'USD',
+              plan_type: planType,
+              source: 'server_checkout_created',
+              items: [{
+                item_id: `premium_${planType}`,
+                item_name: `Premium ${planType.charAt(0).toUpperCase() + planType.slice(1)}`,
+                price: planType === 'lifetime' ? 24.0 : 3.99,
+                quantity: 1
+              }]
+            }
+          }]
+        };
+        
+        const ga4Url = `https://www.google-analytics.com/mp/collect?measurement_id=${ga4MeasurementId}&api_secret=${ga4ApiSecret}`;
+        
+        // Fire and forget - don't block the response
+        fetch(ga4Url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ga4Payload)
+        }).then(response => {
+          if (response.ok || response.status === 204) {
+            console.log(`✅ GA4 begin_checkout event sent for ${planType}`);
+          } else {
+            console.warn(`⚠️ GA4 begin_checkout failed: ${response.status}`);
+          }
+        }).catch(err => {
+          console.warn('⚠️ GA4 begin_checkout error:', err.message);
+        });
+      }
+    } catch (trackingError) {
+      console.warn('⚠️ Server-side checkout tracking error:', trackingError.message);
+      // Don't fail the checkout if tracking fails
+    }
+
     console.log(`✅ Checkout session created for ${planType} plan`);
     res.status(200).json({ url: session.url });
   } catch (err) {
