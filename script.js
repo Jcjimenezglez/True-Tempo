@@ -1638,8 +1638,79 @@ class PomodoroTimer {
     
     // Show Pro Feature modal for Custom Techniques
     showCustomTechniqueProModal(customMessage = null, customTimersCount = 0) {
-        // Directly open pricing plans modal
-        this.showPricingPlansModal();
+        if (!this.isAuthenticated) {
+            // Guest user - show modal with Sign up CTA
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'logout-modal-overlay';
+            modalOverlay.style.display = 'flex';
+            
+            const modal = document.createElement('div');
+            modal.className = 'logout-modal';
+            
+            const guestMessage = 'Create personalized focus timers tailored to your workflow! Set custom work periods, break times, and session cycles that match your productivity style.';
+            
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCustomModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </div>
+                    <h3>Build your perfect timer</h3>
+                    <p>${guestMessage}</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up for free</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            modalOverlay.appendChild(modal);
+            document.body.appendChild(modalOverlay);
+            
+            const closeModal = () => {
+                try { document.body.removeChild(modalOverlay); } catch (_) {}
+            };
+            
+            const closeBtn = modal.querySelector('#closeCustomModal');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+            
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+            
+            const cancelBtn = modal.querySelector('#customLearnMoreBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+            
+            const signupBtn = modal.querySelector('#customSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', () => {
+                    this.trackEvent('Sign Up Clicked', {
+                        modal_type: 'create_timer',
+                        button_text: 'Sign up for free',
+                        user_type: 'guest',
+                        source: 'create_timer_modal'
+                    });
+                    closeModal();
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                });
+            }
+        } else {
+            // Free/authenticated user - open pricing modal
+            this.showPricingPlansModal();
+        }
     }
 
     // Show Pro Feature modal for Cassettes
@@ -1719,8 +1790,80 @@ class PomodoroTimer {
     }
 
     showCassetteProModal(customMessage = null) {
-        // Directly open pricing plans modal
-        this.showPricingPlansModal();
+        if (!this.isAuthenticated) {
+            // Guest user - show modal with Sign up CTA
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'logout-modal-overlay';
+            modalOverlay.style.display = 'flex';
+            
+            const modal = document.createElement('div');
+            modal.className = 'logout-modal';
+            
+            modal.innerHTML = `
+                <button class="close-logout-modal-x" id="closeCassetteModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <div class="upgrade-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cassette-tape-icon lucide-cassette-tape">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/>
+                            <circle cx="8" cy="10" r="2"/>
+                            <path d="M8 12h8"/>
+                            <circle cx="16" cy="10" r="2"/>
+                            <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
+                        </svg>
+                    </div>
+                    <h3>Create your focus cassette</h3>
+                    <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
+                    <div class="logout-modal-buttons">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up for free</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            modalOverlay.appendChild(modal);
+            document.body.appendChild(modalOverlay);
+            
+            const closeModal = () => {
+                try { document.body.removeChild(modalOverlay); } catch (_) {}
+            };
+            
+            const closeBtn = modal.querySelector('#closeCassetteModal');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+            
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+            
+            const cancelBtn = modal.querySelector('#cassetteLearnMoreBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+            
+            const signupBtn = modal.querySelector('#cassetteSignupBtn');
+            if (signupBtn) {
+                signupBtn.addEventListener('click', () => {
+                    this.trackEvent('Sign Up Clicked', {
+                        modal_type: 'create_cassette',
+                        button_text: 'Sign up for free',
+                        user_type: 'guest',
+                        source: 'create_cassette_modal'
+                    });
+                    closeModal();
+                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                });
+            }
+        } else {
+            // Free/authenticated user - open pricing modal
+            this.showPricingPlansModal();
+        }
     }
 
     // Hide custom form
@@ -3419,8 +3562,19 @@ class PomodoroTimer {
     
     
     showTaskLimitModal() {
-        // Directly open pricing plans modal
-        this.showPricingPlansModal();
+        if (!this.isAuthenticated) {
+            // Guest user - show modal with Sign up CTA
+            if (this.guestTaskLimitModalOverlay) {
+                const button = this.guestTaskLimitModalOverlay.querySelector('#guestTaskLimitSignupBtn');
+                if (button) {
+                    button.textContent = 'Sign up for free';
+                }
+                this.guestTaskLimitModalOverlay.style.display = 'flex';
+            }
+        } else {
+            // Free/authenticated user - open pricing modal
+            this.showPricingPlansModal();
+        }
     }
     
     showGuestTaskLimitModal() {
