@@ -402,6 +402,54 @@
             transform: none;
         }
         
+        /* Dual button styles */
+        .pricing-cta-buttons-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .pricing-btn-lifetime {
+            background: #ffffff;
+            border: none;
+            border-radius: 500px;
+            padding: 1.25rem 2.5rem;
+            color: #000000;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
+        }
+        
+        .pricing-btn-lifetime:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
+        }
+        
+        .pricing-btn-monthly {
+            background: #d0d0d0;
+            border: none;
+            border-radius: 500px;
+            padding: 1.25rem 2.5rem;
+            color: #000000;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pricing-btn-monthly:hover {
+            background: #b8b8b8;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
         .pricing-offer-explanation {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.75);
@@ -2240,7 +2288,10 @@
         <div class="pricing-page-header-section">
             <h1>Grow your focus time 3x.</h1>
             
-            <button class="pricing-cta-spotify" id="pricingPageUpgrade">Unlock Unlimited</button>
+            <div class="pricing-cta-buttons-container">
+                <button class="pricing-btn-lifetime" id="pricingPageUpgrade">Get Lifetime Access</button>
+                <button class="pricing-btn-monthly" id="pricingPageMonthly">Subscribe Monthly</button>
+            </div>
             
             <div class="pricing-offer-explanation">
                 Choose between monthly subscription or lifetime access.
@@ -3147,10 +3198,10 @@
     
     <script>
         // Function to handle CTA button click
-        function handleCTAClick(button, source = 'pricing_page') {
+        function handleCTAClick(button, source = 'pricing_page', planType = 'lifetime') {
             return function(e) {
                 e.preventDefault();
-                console.log('Premium button clicked from', source);
+                console.log('CTA button clicked from', source, 'with plan type:', planType);
                 
                 // Disable button immediately to prevent double clicks
                 const originalText = button.textContent;
@@ -3169,6 +3220,7 @@
                             button_type: 'subscribe',
                             source: source,
                             location: source,
+                            plan_type: planType,
                             user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
                             modal_type: source
                         });
@@ -3179,42 +3231,9 @@
                             event_category: 'engagement',
                             event_label: source,
                             source: source,
+                            plan_type: planType,
                             user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest'
                         });
-                    }
-                })();
-                
-                // Re-enable button and restore text after a short delay
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.textContent = originalText;
-                }, 500);
-                
-                // Close pricing page and open pricing modal in main app
-                if (window.opener) {
-                    // If opened from main app, signal it to open the modal
-                    window.opener.postMessage({ action: 'openPricingModal' }, window.location.origin);
-                    window.close();
-                } else {
-                    // Otherwise redirect home (main app will handle opening the modal on load)
-                    window.location.href = '/';
-                }
-            };
-        }
-                                const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
-                                const hashedEmail = await hashEmail(userEmail);
-                                if (hashedEmail) {
-                                    conversionData.user_data = {
-                                        email_address: hashedEmail
-                                    };
-                                    console.log('✅ Enhanced Conversions: User data included (Subscribe Clicked)');
-                                }
-                            } catch (error) {
-                                console.error('Error hashing email for Enhanced Conversions:', error);
-                            }
-                        }
-                        
-                        window.gtag('event', 'conversion', conversionData);
                     }
                 })();
                 
@@ -3228,8 +3247,8 @@
                 
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
-                    console.log('Creating checkout session for Premium trial...');
-                    createCheckoutSession('premium').catch(() => {
+                    console.log('Creating checkout session with plan type:', planType);
+                    createCheckoutSession(planType).catch(() => {
                         // Re-enable button on error
                         button.disabled = false;
                         button.textContent = originalText;
@@ -3238,6 +3257,7 @@
                     // Guest user - redirect to signup with upgrade intent
                     console.log('Redirecting guest to signup with upgrade intent...');
                     localStorage.setItem('upgradeAfterLogin', 'true');
+                    localStorage.setItem('selectedPlan', planType);
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 }
             };
@@ -3288,29 +3308,38 @@
             
             console.log('Clerk ready, initializing pricing buttons...');
             
-            const premiumButton = document.getElementById('pricingPageUpgrade');
+            const lifetimeButton = document.getElementById('pricingPageUpgrade');
+            const monthlyButton = document.getElementById('pricingPageMonthly');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
             const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
             const finalCTAButton = document.getElementById('finalCTA');
             
-            if (premiumButton) {
-                console.log('Main pricing button found, adding event listener...');
-                premiumButton.addEventListener('click', handleCTAClick(premiumButton, 'pricing_page'));
-                console.log('✅ Main button event listener added successfully');
+            if (lifetimeButton) {
+                console.log('Lifetime button found, adding event listener...');
+                lifetimeButton.addEventListener('click', handleCTAClick(lifetimeButton, 'pricing_page', 'lifetime'));
+                console.log('✅ Lifetime button event listener added successfully');
             } else {
-                console.error('Could not find main pricing button');
+                console.error('Could not find lifetime button');
+            }
+            
+            if (monthlyButton) {
+                console.log('Monthly button found, adding event listener...');
+                monthlyButton.addEventListener('click', handleCTAClick(monthlyButton, 'pricing_page', 'monthly'));
+                console.log('✅ Monthly button event listener added successfully');
+            } else {
+                console.error('Could not find monthly button');
             }
             
             if (comparisonTableCTAButton) {
                 console.log('Comparison table CTA button found, adding event listener...');
-                comparisonTableCTAButton.addEventListener('click', handleCTAClick(comparisonTableCTAButton, 'comparison_table_cta'));
+                comparisonTableCTAButton.addEventListener('click', handleCTAClick(comparisonTableCTAButton, 'comparison_table_cta', 'lifetime'));
                 console.log('✅ Comparison table CTA button event listener added successfully');
             }
             
             if (finalCTAButton) {
                 console.log('Final CTA button found, adding event listener...');
-                finalCTAButton.addEventListener('click', handleCTAClick(finalCTAButton, 'final_cta'));
+                finalCTAButton.addEventListener('click', handleCTAClick(finalCTAButton, 'final_cta', 'lifetime'));
                 console.log('✅ Final CTA button event listener added successfully');
             }
             
@@ -3327,7 +3356,8 @@
                 await waitForClerkReady();
             }
             
-            const premiumButton = document.getElementById('pricingPageUpgrade');
+            const lifetimeButton = document.getElementById('pricingPageUpgrade');
+            const monthlyButton = document.getElementById('pricingPageMonthly');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
             const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
@@ -3343,11 +3373,18 @@
                 hasUser: !!window.Clerk?.user
             });
             
-            // Update Premium button
-            if (premiumButton && isPremium) {
-                premiumButton.textContent = 'You have Premium';
-                premiumButton.disabled = true;
-                premiumButton.classList.add('disabled');
+            // Update Lifetime button
+            if (lifetimeButton && isPremium) {
+                lifetimeButton.textContent = 'You have Premium';
+                lifetimeButton.disabled = true;
+                lifetimeButton.classList.add('disabled');
+            }
+            
+            // Update Monthly button
+            if (monthlyButton && isPremium) {
+                monthlyButton.textContent = 'You have Premium';
+                monthlyButton.disabled = true;
+                monthlyButton.classList.add('disabled');
             }
             
             // Update Header CTA button
@@ -3477,15 +3514,17 @@
         // Check if user came from login with upgrade intent
         function checkUpgradeIntent() {
             const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
+            const selectedPlan = localStorage.getItem('selectedPlan') || 'lifetime';
             
             if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
-                console.log('User returned after login with upgrade intent');
+                console.log('User returned after login with upgrade intent for plan:', selectedPlan);
                 localStorage.removeItem('upgradeAfterLogin');
+                localStorage.removeItem('selectedPlan');
                 
                 // Wait for page to be fully updated
                 setTimeout(() => {
-                    console.log('Opening Stripe checkout for Premium...');
-                    createCheckoutSession('premium');
+                    console.log('Opening Stripe checkout for plan:', selectedPlan);
+                    createCheckoutSession(selectedPlan);
                 }, 2000);
             }
         }
