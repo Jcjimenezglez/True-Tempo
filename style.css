@@ -2137,7 +2137,7 @@ body.is-scrolling .streak-fire {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     padding: 2rem;
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
@@ -2465,6 +2465,7 @@ body.is-scrolling .streak-fire {
 .logout-modal-btn-primary {
     background: #ffffff;
     color: #000000;
+    padding: 1rem 1.5rem;
 }
 
 .logout-modal-btn-primary:hover {
