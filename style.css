@@ -2137,7 +2137,7 @@ body.is-scrolling .streak-fire {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     padding: 2rem;
-    max-width: 500px;
+    max-width: 400px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
@@ -2351,7 +2351,7 @@ body.is-scrolling .streak-fire {
     }
     
     .logout-modal {
-        max-width: 500px;
+        max-width: 90%;
     }
 }
 
