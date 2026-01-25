@@ -3809,6 +3809,17 @@ class PomodoroTimer {
     selectPlan(plan) {
         this.selectedPlan = plan;
         
+        // Update check icons visibility
+        if (this.monthlyCheckIcon && this.lifetimeCheckIcon) {
+            if (plan === 'monthly') {
+                this.monthlyCheckIcon.style.display = 'flex';
+                this.lifetimeCheckIcon.style.display = 'none';
+            } else {
+                this.monthlyCheckIcon.style.display = 'none';
+                this.lifetimeCheckIcon.style.display = 'flex';
+            }
+        }
+        
         // Update card styles
         if (this.monthlyPlanCard && this.lifetimePlanCard) {
             if (plan === 'monthly') {
@@ -3824,22 +3835,39 @@ class PomodoroTimer {
             }
         }
         
-        // Update CTA button text
-        if (this.selectedPlanCTA) {
+        // Update CTA button text and plan details
+        if (this.selectedPlanCTA && this.planDetailsText) {
             if (plan === 'monthly') {
                 this.selectedPlanCTA.textContent = 'Subscribe Monthly';
+                this.planDetailsText.textContent = 'Cancel anytime';
             } else {
                 this.selectedPlanCTA.textContent = 'Get Lifetime Access';
+                this.planDetailsText.textContent = 'No subscription • One-time payment';
             }
         }
     }
     
     async proceedToCheckout() {
-        const planType = this.selectedPlan;
+        // Map 'monthly' to 'premium' since STRIPE_PRICE_ID_MONTHLY is currently pointing to an inactive product
+        // TODO: Update STRIPE_PRICE_ID_MONTHLY in Vercel to point to active product
+        const planType = this.selectedPlan === 'monthly' ? 'premium' : this.selectedPlan;
         
         try {
+            // Verify user is authenticated
+            if (!this.isAuthenticated) {
+                console.log('❌ User not authenticated, showing sign up prompt');
+                alert('Please sign up or log in first to upgrade to Premium.');
+                return;
+            }
+            
             const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress || '';
             const userId = window.Clerk?.user?.id || '';
+            
+            if (!userId) {
+                console.log('❌ User ID not found');
+                alert('Please sign up or log in first to upgrade to Premium.');
+                return;
+            }
             
             // Track to Mixpanel
             if (window.mixpanelTracker) {
@@ -3887,6 +3915,8 @@ class PomodoroTimer {
             }
             
             console.log('🚀 Creating checkout session for plan:', planType);
+            console.log('   User ID:', userId);
+            console.log('   User Email:', userEmail);
             
             const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
@@ -3901,21 +3931,31 @@ class PomodoroTimer {
                 })
             });
             
+            console.log('📡 Checkout session response status:', response.status);
+            
             if (!response.ok) {
-                const errorData = await response.json();
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                console.error('❌ Checkout session error:', errorData);
                 throw new Error(errorData.error || 'Failed to create checkout session');
             }
             
             const data = await response.json();
+            console.log('✅ Checkout session created:', data);
+            
             if (data.url) {
-                console.log('✅ Redirecting to Stripe checkout...');
+                console.log('✅ Redirecting to Stripe checkout:', data.url);
                 window.location.href = data.url;
             } else {
-                throw new Error('No checkout URL received');
+                throw new Error('No checkout URL received from server');
             }
         } catch (error) {
-            console.error('❌ Error creating checkout session:', error);
-            alert('There was an error starting the checkout. Please try again.');
+            console.error('❌ Error in proceedToCheckout:', error);
+            console.error('Error details:', {
+                message: error.message,
+                planType: planType,
+                isAuthenticated: this.isAuthenticated
+            });
+            alert(`There was an error starting the checkout: ${error.message}\n\nPlease try again or contact support.`);
         }
     }
 
@@ -5175,7 +5215,10 @@ class PomodoroTimer {
         this.closePricingPlansModalX = document.getElementById('closePricingPlansModalX');
         this.monthlyPlanCard = document.getElementById('monthlyPlanCard');
         this.lifetimePlanCard = document.getElementById('lifetimePlanCard');
+        this.monthlyCheckIcon = document.getElementById('monthlyCheckIcon');
+        this.lifetimeCheckIcon = document.getElementById('lifetimeCheckIcon');
         this.selectedPlanCTA = document.getElementById('selectedPlanCTA');
+        this.planDetailsText = document.getElementById('planDetailsText');
         this.selectedPlan = 'lifetime'; // Default to lifetime
         
         if (this.closePricingPlansModalX && !this.closePricingPlansModalX.hasAttribute('data-bound')) {
