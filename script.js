@@ -1695,7 +1695,7 @@ class PomodoroTimer {
                     <h3>Build your perfect timer</h3>
                     <p>${guestMessage}</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up for free</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -1929,7 +1929,7 @@ class PomodoroTimer {
                     <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up for free</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -3656,7 +3656,7 @@ class PomodoroTimer {
             <h3 class="logout-modal-title">${techniqueName}</h3>
             <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
             <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up for free</button>
                 <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Cancel</button>
             </div>
         `;
