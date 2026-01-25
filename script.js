@@ -382,9 +382,11 @@ class PomodoroTimer {
             console.warn('⚠️ Mixpanel not available or track function missing');
         }
 
-        // Note: Google Ads conversion tracking is now handled directly in proceedToCheckout
-        // to avoid duplicate conversions. The trackSubscribeClickedToGoogleAds function
-        // is kept but no longer auto-triggered from Mixpanel events.
+        // Track Subscribe Clicked to Google Ads for ALL CTA buttons (Unlock Unlimited, etc.)
+        // This captures the initial intent signal when user clicks any upgrade button
+        if (eventName === 'Subscribe Clicked' || eventName === 'Daily Limit Subscribe Clicked') {
+            this.trackSubscribeClickedToGoogleAds(enrichedProperties);
+        }
     }
     
     identifyUser() {
@@ -406,23 +408,24 @@ class PomodoroTimer {
     
     // Track Subscribe Clicked to Google Ads (intent signal, not final conversion)
     // Uses generic label zsizCNqYgbgbENjym89B with $1.0 value
+    // Called automatically from trackEvent() for all Subscribe Clicked events
     async trackSubscribeClickedToGoogleAds(properties = {}) {
-        if (typeof gtag !== 'undefined') {
+        if (typeof window.gtag === 'function') {
             try {
                 const source = properties.source || 'unknown';
                 const userType = properties.user_type || (this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest');
                 
                 // Get user email for Enhanced Conversions
                 let hashedEmail = null;
-                if (window.Clerk && window.Clerk.user) {
+                if (window.Clerk && window.Clerk.user && typeof window.hashEmail === 'function') {
                     const userEmail = window.Clerk.user.primaryEmailAddress?.emailAddress;
                     if (userEmail) {
-                        hashedEmail = await hashEmail(userEmail);
+                        hashedEmail = await window.hashEmail(userEmail);
                     }
                 }
                 
                 // Track as engagement event (intent signal)
-                gtag('event', 'subscribe_clicked', {
+                window.gtag('event', 'subscribe_clicked', {
                     'event_category': 'engagement',
                     'event_label': source,
                     'source': source,
@@ -447,7 +450,7 @@ class PomodoroTimer {
                     console.log('✅ Enhanced Conversions: User data included');
                 }
                 
-                gtag('event', 'conversion', conversionData);
+                window.gtag('event', 'conversion', conversionData);
                 
                 console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
             } catch (error) {
