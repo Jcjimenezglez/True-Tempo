@@ -404,14 +404,13 @@ class PomodoroTimer {
         }
     }
     
-    // Track Subscribe Clicked to Google Ads (for Performance Max optimization)
-    // Uses different conversion labels for Monthly vs Lifetime plans
+    // Track Subscribe Clicked to Google Ads (intent signal, not final conversion)
+    // Uses generic label zsizCNqYgbgbENjym89B with $1.0 value
     async trackSubscribeClickedToGoogleAds(properties = {}) {
         if (typeof gtag !== 'undefined') {
             try {
                 const source = properties.source || 'unknown';
                 const userType = properties.user_type || (this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest');
-                const planType = properties.plan_type || 'monthly';
                 
                 // Get user email for Enhanced Conversions
                 let hashedEmail = null;
@@ -422,33 +421,22 @@ class PomodoroTimer {
                     }
                 }
                 
-                // Use specific conversion labels for each plan type
-                // Monthly: wlmKCI_fiuwbENjym89B ($3.99)
-                // Lifetime: unsECLnWiewbENjym89B ($24.0)
-                const conversionLabel = planType === 'lifetime' 
-                    ? 'AW-17614436696/unsECLnWiewbENjym89B'
-                    : 'AW-17614436696/wlmKCI_fiuwbENjym89B';
-                const conversionValue = planType === 'lifetime' ? 24.0 : 3.99;
-                
                 // Track as engagement event (intent signal)
                 gtag('event', 'subscribe_clicked', {
                     'event_category': 'engagement',
                     'event_label': source,
                     'source': source,
                     'user_type': userType,
-                    'plan_type': planType,
-                    'value': conversionValue,
+                    'value': 1.0,
                     'currency': 'USD',
                     'non_interaction': false
                 });
                 
-                // Track Google Ads conversion event with Enhanced Conversions
+                // Track Google Ads Subscribe Clicked conversion
                 const conversionData = {
-                    'send_to': conversionLabel,
-                    'value': conversionValue,
-                    'currency': 'USD',
-                    'source': source,
-                    'user_type': userType
+                    'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                    'value': 1.0,
+                    'currency': 'USD'
                 };
                 
                 // Add Enhanced Conversions user data if available
@@ -461,7 +449,7 @@ class PomodoroTimer {
                 
                 gtag('event', 'conversion', conversionData);
                 
-                console.log(`✅ Subscribe Clicked (${planType}) tracked to Google Ads:`, source, conversionValue);
+                console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
             } catch (error) {
                 console.error('❌ Error tracking to Google Ads:', error);
             }
@@ -3882,18 +3870,12 @@ class PomodoroTimer {
                 console.log('📊 Pricing modal subscribe clicked event tracked to Mixpanel:', planType);
             }
             
-            // Track to Google Ads - Different labels for Monthly vs Lifetime
+            // Track Subscribe Clicked to Google Ads (intent signal, not final conversion)
             try {
                 if (typeof window.gtag === 'function') {
-                    // Use specific conversion labels for each plan type
-                    const conversionLabel = planType === 'lifetime' 
-                        ? 'AW-17614436696/unsECLnWiewbENjym89B'  // Lifetime conversion
-                        : 'AW-17614436696/wlmKCI_fiuwbENjym89B'; // Monthly conversion
-                    const conversionValue = planType === 'lifetime' ? 24.0 : 3.99;
-                    
                     const conversionData = {
-                        'send_to': conversionLabel,
-                        'value': conversionValue,
+                        'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                        'value': 1.0,
                         'currency': 'USD'
                     };
                     
@@ -3905,15 +3887,15 @@ class PomodoroTimer {
                                 conversionData.user_data = {
                                     email_address: hashedEmail
                                 };
-                                console.log('✅ Enhanced Conversions: User data included (Pricing Modal)');
+                                console.log('✅ Enhanced Conversions: User data included (Subscribe Clicked)');
                             }
                         } catch (error) {
-                            console.log('⚠️ Enhanced Conversions: Email hashing failed (Pricing Modal)');
+                            console.log('⚠️ Enhanced Conversions: Email hashing failed');
                         }
                     }
                     
                     window.gtag('event', 'conversion', conversionData);
-                    console.log(`📊 Google Ads ${planType} conversion tracked:`, conversionLabel, conversionValue);
+                    console.log('📊 Google Ads Subscribe Clicked tracked:', planType);
                 }
             } catch (error) {
                 console.error('⚠️ Google Ads tracking failed:', error);
@@ -6918,7 +6900,21 @@ class PomodoroTimer {
                 return;
             }
 
-            console.log('✅ Checkout session confirmed with backend');
+            const confirmData = await response.json().catch(() => ({}));
+            console.log('✅ Checkout session confirmed with backend:', confirmData);
+            
+            // Track Premium Success to Mixpanel
+            const paymentType = confirmData.paymentType || 'monthly';
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackCustomEvent('Premium Success', {
+                    plan_type: paymentType,
+                    value: paymentType === 'lifetime' ? 24.0 : 3.99,
+                    source: 'stripe_checkout',
+                    timestamp: new Date().toISOString()
+                });
+                console.log('📊 Premium Success tracked to Mixpanel:', paymentType);
+            }
+            
             await this.refreshPremiumFromServer();
             this.removeUrlParams(['session_id']);
         } catch (error) {

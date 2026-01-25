@@ -3493,21 +3493,15 @@
                         window.mixpanel.track('Stripe Checkout Session Created', {
                             source: 'pricing_page',
                             plan_type: planType,
-                            value: planType === 'lifetime' ? 24.0 : 3.99,
                             timestamp: new Date().toISOString()
                         });
                     }
                     
+                    // Track Stripe Checkout Session Created to Google Ads
                     if (typeof window.gtag === 'function') {
-                        // Use specific conversion labels for each plan type
-                        const conversionLabel = planType === 'lifetime' 
-                            ? 'AW-17614436696/unsECLnWiewbENjym89B'  // Lifetime conversion
-                            : 'AW-17614436696/wlmKCI_fiuwbENjym89B'; // Monthly conversion
-                        const conversionValue = planType === 'lifetime' ? 24.0 : 3.99;
-                        
                         const conversionData = {
-                            'send_to': conversionLabel,
-                            'value': conversionValue,
+                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                            'value': 1.0,
                             'currency': 'USD'
                         };
                         
@@ -3519,7 +3513,7 @@
                                     conversionData.user_data = {
                                         email_address: hashedEmail
                                     };
-                                    console.log('✅ Enhanced Conversions: User data included (Checkout)');
+                                    console.log('✅ Enhanced Conversions: User data included (Checkout Created)');
                                 }
                             } catch (error) {
                                 console.error('Error hashing email for Enhanced Conversions:', error);
@@ -3527,7 +3521,7 @@
                         }
                         
                         window.gtag('event', 'conversion', conversionData);
-                        console.log(`📊 Google Ads ${planType} conversion tracked (Pricing Page):`, conversionLabel, conversionValue);
+                        console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
                     }
                 })();
 
