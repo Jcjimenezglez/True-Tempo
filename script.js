@@ -9382,6 +9382,25 @@ class PomodoroTimer {
                 this.rebuildTaskQueue();
                 this.updateCurrentTaskFromQueue();
                 this.updateDisplay();
+                
+                // After deletion, check if user can now add another task
+                const allLocalTasks = this.getLocalTasks();
+                const currentTasks = allLocalTasks.filter(task => !task.completed);
+                let taskLimit;
+                if (!this.isAuthenticated) {
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
+                    taskLimit = 2;
+                } else {
+                    taskLimit = Infinity;
+                }
+                
+                // If we're below the limit, show form so user can add another task
+                if (currentTasks.length < taskLimit) {
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                    if (taskInput) taskInput.focus();
+                }
             });
         }
 
@@ -12354,6 +12373,10 @@ class PomodoroTimer {
             
             // Re-render Task Sidebar immediately
             this.renderTasksInSidePanel();
+            
+            // Refresh task modal if it's open
+            this.loadAllTasks();
+            if (typeof renderTasks === 'function') renderTasks();
             
             close();
         });
