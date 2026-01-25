@@ -13889,7 +13889,7 @@ class PomodoroTimer {
 
                 <!-- Gráfica (DESHABILITADO para FREE) -->
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #d0d0d0; font-size: 16px;">Activity Chart</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #ffffff; font-size: 16px;">Activity Chart</h4>
                     <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                         ${Array(7).fill(0).map((_, i) => `
                             <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
@@ -13908,7 +13908,7 @@ class PomodoroTimer {
 
                 <!-- Recent Activity (DESHABILITADO para FREE) -->
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #d0d0d0; font-size: 16px;">Recent Activity</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #ffffff; font-size: 16px;">Recent Activity</h4>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         ${(() => {
                             // Get real completed tasks but show them disabled
@@ -13978,11 +13978,11 @@ class PomodoroTimer {
                 </div>
 
                 <!-- Focus Level (DESHABILITADO para FREE) -->
-                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 24px; opacity: 0.5;">
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 24px;">
                     <div style="text-align: center;">
                         <div style="font-size: 32px; margin-bottom: 8px;">🧠</div>
-                        <div style="font-size: 24px; font-weight: 700; color: #d0d0d0; margin-bottom: 4px;">DEEP MIND</div>
-                        <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 16px;">Level 3 • 124 users at this level</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">DEEP MIND</div>
+                        <div style="font-size: 14px; color: #ffffff; margin-bottom: 16px;">Level 3 • 124 users at this level</div>
                         <div style="width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
                             <div style="width: 65%; height: 100%; background: #555;"></div>
                         </div>
