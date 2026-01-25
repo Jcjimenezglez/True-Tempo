@@ -95,8 +95,15 @@ class PomodoroTimer {
             this.focusLimitCooldownUntil = rawUntil ? parseInt(rawUntil, 10) : 0;
             if (isNaN(this.focusLimitCooldownUntil)) this.focusLimitCooldownUntil = 0;
             if (this.focusLimitCooldownUntil && Date.now() >= this.focusLimitCooldownUntil) {
+                console.log('⏰ Daily focus cooldown has expired, resetting');
                 this.focusLimitCooldownUntil = 0;
                 localStorage.removeItem('focusLimitCooldownUntil');
+            } else if (this.focusLimitCooldownUntil) {
+                const remainingHours = (this.focusLimitCooldownUntil - Date.now()) / (60 * 60 * 1000);
+                console.log('⏳ Daily focus cooldown active:', {
+                    expiresAt: new Date(this.focusLimitCooldownUntil).toLocaleString(),
+                    remainingHours: remainingHours.toFixed(2)
+                });
             }
         } catch (_) {
             this.focusLimitCooldownUntil = 0;
@@ -6862,6 +6869,13 @@ class PomodoroTimer {
                 // If user crosses the 120-minute threshold now, start cooldown
                 if (!this.isPremiumUser() && (this.focusSecondsToday || 0) >= this.DAILY_FOCUS_LIMIT_SECONDS && !this.focusLimitCooldownUntil) {
                     this.focusLimitCooldownUntil = Date.now() + this.FOCUS_LIMIT_COOLDOWN_MS;
+                    const cooldownExpiresAt = new Date(this.focusLimitCooldownUntil);
+                    console.log('🚫 Daily focus limit reached! Cooldown activated:', {
+                        focusSecondsToday: this.focusSecondsToday,
+                        cooldownDurationHours: this.FOCUS_LIMIT_COOLDOWN_MS / (60 * 60 * 1000),
+                        cooldownExpiresAt: cooldownExpiresAt.toLocaleString(),
+                        cooldownTimestamp: this.focusLimitCooldownUntil
+                    });
                     try { localStorage.setItem('focusLimitCooldownUntil', String(this.focusLimitCooldownUntil)); } catch (_) {}
                 }
                 if (this.hasReachedDailyFocusLimit()) {
