@@ -3716,7 +3716,7 @@ class PomodoroTimer {
                 // Free user (authenticated but not Premium)
                 title.textContent = 'Task limit reached';
                 message.textContent = 'You\'ve hit your 1-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
-                button.textContent = 'Start FREE Trial';
+                button.textContent = 'Unlock Unlimited';
             }
             
             this.guestTaskLimitModalOverlay.style.display = 'flex';
@@ -5148,7 +5148,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial' || text === 'Unlock Unlimited') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
