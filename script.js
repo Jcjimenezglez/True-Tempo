@@ -12536,10 +12536,8 @@ class PomodoroTimer {
             if (savedFocusDate === todayStr) {
                 return Math.max(0, savedFocusSecs);
             } else {
-                // New day, reset focus seconds AND cooldown
+                // New day, reset
                 this.saveFocusSecondsToday(0);
-                this.focusLimitCooldownUntil = 0;
-                try { localStorage.removeItem('focusLimitCooldownUntil'); } catch (_) {}
                 return 0;
             }
         } catch (_) {
