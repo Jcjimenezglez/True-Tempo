@@ -552,6 +552,13 @@ async function handleSubscriptionChange(subscription, clerk) {
     const user = await findClerkUserByStripeCustomerId(clerk, customerId);
 
     if (user) {
+      // 🛡️ PROTECTION: Don't update if user is already Lifetime (permanent)
+      // Lifetime users should never have their metadata changed by subscription events
+      if (user.publicMetadata?.isLifetime) {
+        console.log(`⚠️ Skipping subscription update for Lifetime user ${user.id} - Lifetime is permanent`);
+        return;
+      }
+
       // Determine payment type from subscription
       const priceId = subscription.items.data[0]?.price?.id;
       let paymentType = user.publicMetadata?.paymentType || 'premium';

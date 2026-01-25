@@ -92,10 +92,17 @@ module.exports = async (req, res) => {
     const isSubscription = subscription && typeof subscription === 'object';
     const paymentTypeFromSession = sessionMetadata.payment_type || sessionMetadata.planType;
     const price = subscription?.items?.data?.[0]?.price;
+    
+    // Improved payment type derivation logic
+    // Priority 1: metadata from session (most reliable)
+    // Priority 2: session mode (payment = lifetime, subscription = monthly)
+    // Priority 3: price metadata
+    // Priority 4: recurring interval
     const derivedPaymentType =
       paymentTypeFromSession ||
+      (session.mode === 'payment' ? 'lifetime' : null) ||
       price?.metadata?.plan_type ||
-      (price?.recurring?.interval ? `${price.recurring.interval}` : 'premium');
+      (price?.recurring?.interval === 'month' ? 'monthly' : 'premium');
 
     const updatedMetadata = {
       ...(targetUser.publicMetadata || {}),
@@ -103,7 +110,8 @@ module.exports = async (req, res) => {
       isPremium: true,
       premiumSince: targetUser.publicMetadata?.premiumSince || new Date().toISOString(),
       paymentType: derivedPaymentType || 'premium',
-      isTrial: subscription?.status === 'trialing' || paymentTypeFromSession === 'premium',
+      // Set isLifetime flag if payment type is lifetime
+      isLifetime: derivedPaymentType === 'lifetime' ? true : undefined,
       lastUpdated: new Date().toISOString(),
       confirmedByCheckout: true,
       confirmedSessionId: session.id,
