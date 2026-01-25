@@ -1742,7 +1742,7 @@ class PomodoroTimer {
                 <p>Create a free account to start building your own custom focus environments. Upload your own images, set the perfect atmosphere, and personalize your workspace.</p>
                 <div class="upgrade-required-buttons">
                     <button class="upgrade-btn" id="cassetteLoginSignupBtn">Sign up for free</button>
-                    <button class="cancel-btn" id="cassetteLoginCancelBtn">Maybe later</button>
+                    <button class="cancel-btn" id="cassetteLoginCancelBtn">Cancel</button>
                 </div>
             </div>
         `;
@@ -8991,7 +8991,10 @@ class PomodoroTimer {
                 
                 // Define limits based on user type
                 let taskLimit;
-                if (this.isAuthenticated && !this.isPro) {
+                if (!this.isAuthenticated) {
+                    // Guest users: 1 task
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
                     // Free users: 2 tasks
                     taskLimit = 2;
                 } else {
