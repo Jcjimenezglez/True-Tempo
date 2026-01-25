@@ -69,10 +69,10 @@ async function createLifetimeProductAndPrice() {
     console.log('🚀 Creando Product y Price en Stripe...\n');
 
     // 1. Crear el Product
-    console.log('📦 Creando Product: "Superfocus Pro - Lifetime Deal"...');
+    console.log('📦 Creando Product: "Superfocus - Lifetime"...');
     const product = await stripe.products.create({
-      name: 'Superfocus Pro - Lifetime Deal',
-      description: 'Lifetime access to Superfocus Pro features. One-time payment, no subscription required.',
+      name: 'Superfocus - Lifetime',
+      description: 'Lifetime access to Superfocus Premium features. One-time payment, forever access.',
       metadata: {
         type: 'lifetime_deal',
         created_by: 'create-lifetime-price-script',
@@ -82,16 +82,15 @@ async function createLifetimeProductAndPrice() {
     console.log(`✅ Product creado: ${product.id}`);
     console.log(`   Name: ${product.name}\n`);
 
-    // 2. Crear el Price (one-time, $9.99 USD)
-    console.log('💰 Creando Price: $9.99 USD (one-time)...');
+    // 2. Crear el Price (one-time, $24.00 USD)
+    console.log('💰 Creando Price: $24.00 USD (one-time)...');
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: 999, // $9.99 en centavos
+      unit_amount: 2400, // $24.00 en centavos
       currency: 'usd',
       metadata: {
         type: 'lifetime_deal',
-        original_price: '25.00',
-        discount_price: '9.99',
+        price: '24.00',
       },
     });
 

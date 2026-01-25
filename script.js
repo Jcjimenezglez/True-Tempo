@@ -1670,7 +1670,7 @@ class PomodoroTimer {
                     <h3>Timer creation limit reached</h3>
                     <p>${message}</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Start FREE Trial</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customUpgradeBtn">Unlock Unlimited</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -1903,7 +1903,7 @@ class PomodoroTimer {
                     <h3>${title}</h3>
                     <p>${message}</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Start FREE Trial</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteUpgradeBtn">Unlock Unlimited</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -13887,7 +13887,7 @@ class PomodoroTimer {
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
                             <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Activity Chart</div>
-                            <button id="upgradeFromChart" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                            <button id="upgradeFromChart" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                         </div>
                     </div>
                 </div>
@@ -13934,7 +13934,7 @@ class PomodoroTimer {
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
                             <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Recent Activity</div>
-                            <button id="upgradeFromActivity" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                            <button id="upgradeFromActivity" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                         </div>
                     </div>
                 </div>
@@ -13958,7 +13958,7 @@ class PomodoroTimer {
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
                             <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Achievements</div>
-                            <button id="upgradeFromAchievements" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                            <button id="upgradeFromAchievements" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                         </div>
                     </div>
                 </div>
@@ -13977,7 +13977,7 @@ class PomodoroTimer {
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
                             <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Level</div>
-                            <button id="upgradeFromLevel" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Start FREE Trial</button>
+                            <button id="upgradeFromLevel" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                         </div>
                     </div>
                 </div>
