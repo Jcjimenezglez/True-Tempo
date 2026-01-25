@@ -3493,14 +3493,21 @@
                         window.mixpanel.track('Stripe Checkout Session Created', {
                             source: 'pricing_page',
                             plan_type: planType,
+                            value: planType === 'lifetime' ? 24.0 : 3.99,
                             timestamp: new Date().toISOString()
                         });
                     }
                     
                     if (typeof window.gtag === 'function') {
+                        // Use specific conversion labels for each plan type
+                        const conversionLabel = planType === 'lifetime' 
+                            ? 'AW-17614436696/unsECLnWiewbENjym89B'  // Lifetime conversion
+                            : 'AW-17614436696/wlmKCI_fiuwbENjym89B'; // Monthly conversion
+                        const conversionValue = planType === 'lifetime' ? 24.0 : 3.99;
+                        
                         const conversionData = {
-                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
-                            'value': 1.0,
+                            'send_to': conversionLabel,
+                            'value': conversionValue,
                             'currency': 'USD'
                         };
                         
@@ -3520,6 +3527,7 @@
                         }
                         
                         window.gtag('event', 'conversion', conversionData);
+                        console.log(`📊 Google Ads ${planType} conversion tracked (Pricing Page):`, conversionLabel, conversionValue);
                     }
                 })();
 

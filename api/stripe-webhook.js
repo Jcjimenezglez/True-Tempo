@@ -19,13 +19,16 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
     const ga4MeasurementId = process.env.GA4_MEASUREMENT_ID || 'G-T3T0PES8C0';
     const ga4ApiSecret = process.env.GA4_API_SECRET; // Required for Measurement Protocol
     
-    // Google Ads Conversion ID and Label for logging
+    // Google Ads Conversion ID and Labels
+    // Monthly: wlmKCI_fiuwbENjym89B ($3.99)
+    // Lifetime: unsECLnWiewbENjym89B ($24.0)
     const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
     let conversionLabel;
     if (customConversionLabel) {
       conversionLabel = customConversionLabel;
     } else {
-      conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'PHPkCOP1070bENjym89B';
+      // Default to Monthly label if not specified
+      conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'wlmKCI_fiuwbENjym89B';
     }
     
     // Generate a consistent client ID from email (for user matching in GA4)
@@ -341,15 +344,8 @@ module.exports = async (req, res) => {
         await handleSubscriptionDeleted(event.data.object, clerk);
         break;
       
-      case 'customer.subscription.trial_will_end':
-        console.log('⏰ Processing customer.subscription.trial_will_end...');
-        await handleTrialWillEnd(event.data.object, clerk);
-        break;
-      
-      case 'invoice.payment_succeeded':
-        console.log('💰 Processing invoice.payment_succeeded...');
-        await handleInvoicePaymentSucceeded(event.data.object, clerk);
-        break;
+      // Note: trial_will_end and invoice.payment_succeeded handlers removed
+      // since we no longer use trial-based plans
       
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
@@ -414,6 +410,15 @@ async function handleCheckoutCompleted(session, clerk) {
 
     // For lifetime deals, mark as premium permanently
     if (isLifetime) {
+      // Get user email for tracking
+      let userEmail = null;
+      try {
+        const user = await clerk.users.getUser(targetUserId);
+        userEmail = user.emailAddresses?.[0]?.emailAddress || null;
+      } catch (e) {
+        console.log('Could not get user email for tracking');
+      }
+
       await clerk.users.updateUser(targetUserId, {
         publicMetadata: {
           stripeCustomerId: customerId,
@@ -426,13 +431,15 @@ async function handleCheckoutCompleted(session, clerk) {
 
       console.log(`✅ Updated Clerk user ${targetUserId} with LIFETIME premium status`);
       
-      // Track lifetime deal conversion server-side
-      await trackConversionServerSide('subscription', 48.0, session.id);
+      // Track lifetime deal conversion server-side with correct label and value
+      // Lifetime: $24.0 with label unsECLnWiewbENjym89B
+      await trackConversionServerSide('lifetime', 24.0, session.id, null, userEmail, 'unsECLnWiewbENjym89B');
+      console.log(`✅ Google Ads LIFETIME conversion tracked: ${targetUserId} - $24.0`);
       
       return; // Don't process as subscription
     }
 
-    // For subscriptions (premium, monthly, or yearly)
+    // For monthly subscriptions ($3.99/month)
     if (isSubscription) {
       // Get user email for tracking
       let userEmail = null;
@@ -453,14 +460,12 @@ async function handleCheckoutCompleted(session, clerk) {
       }
 
       // Update Clerk user with Stripe customer ID and premium status
-      // The subscription status will be updated by handleSubscriptionChange
       const updatedMetadata = {
         ...(currentUser.publicMetadata || {}),
         stripeCustomerId: customerId,
-        isPremium: true, // Set immediately for trial, will be confirmed by subscription.created event
+        isPremium: true,
         premiumSince: currentUser.publicMetadata?.premiumSince || new Date().toISOString(),
-        paymentType: paymentType || 'premium', // premium, monthly, or yearly
-        isTrial: paymentType === 'premium', // Mark as trial if Premium plan
+        paymentType: 'monthly',
         lastUpdated: new Date().toISOString(),
       };
 
@@ -468,33 +473,30 @@ async function handleCheckoutCompleted(session, clerk) {
         publicMetadata: updatedMetadata,
       });
 
-      console.log(`✅ Updated Clerk user ${targetUserId} with ${paymentType?.toUpperCase() || 'SUBSCRIPTION'} premium status (trial: ${paymentType === 'premium'})`);
+      console.log(`✅ Updated Clerk user ${targetUserId} with MONTHLY premium status`);
       console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
       
-      // 🆕 Send push notification via ntfy.sh when user subscribes to trial
-      if (isSubscription && paymentType === 'premium') {
-        try {
-          const userName = currentUser.firstName || currentUser.username || 'Usuario';
-          const userEmailDisplay = userEmail || 'N/A';
-          const trialDays = 14; // 14 days trial
-          const notificationTitle = '🎉 Nuevo Trial Suscrito!';
-          const notificationMessage = `👤 Usuario: ${userName}\n📧 Email: ${userEmailDisplay}\n📦 Plan: Premium (${trialDays} días trial)\n📅 Fecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n💰 Trial gratuito activado`;
-          
-          const ntfyResult = await sendNtfyNotification(notificationTitle, notificationMessage);
-          
-          if (ntfyResult.success) {
-            console.log(`✅ Push notification sent for new trial subscription: ${targetUserId}`);
-          } else {
-            console.warn(`⚠️ Failed to send push notification: ${ntfyResult.error}`);
-          }
-        } catch (ntfyError) {
-          console.error('❌ Error sending push notification:', ntfyError);
-          // Don't fail the webhook if notification fails
+      // Send push notification via ntfy.sh for new monthly subscription
+      try {
+        const userName = currentUser.firstName || currentUser.username || 'Usuario';
+        const userEmailDisplay = userEmail || 'N/A';
+        const notificationTitle = 'Nueva Suscripcion Monthly!';
+        const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmailDisplay}\nPlan: Monthly ($3.99/mes)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\nPago completado`;
+        
+        const ntfyResult = await sendNtfyNotification(notificationTitle, notificationMessage);
+        
+        if (ntfyResult.success) {
+          console.log(`✅ Push notification sent for new monthly subscription: ${targetUserId}`);
+        } else {
+          console.warn(`⚠️ Failed to send push notification: ${ntfyResult.error}`);
         }
+      } catch (ntfyError) {
+        console.error('❌ Error sending push notification:', ntfyError);
+        // Don't fail the webhook if notification fails
       }
       
       // Send welcome email for new subscriptions
-      if (isSubscription && userEmail) {
+      if (userEmail) {
         try {
           const { sendEmail } = require('../email/send-email');
           const templates = require('../email/templates');
@@ -520,23 +522,10 @@ async function handleCheckoutCompleted(session, clerk) {
         }
       }
       
-      // Track Google Ads conversion for Premium plan (real conversion, not just intent)
-      if (paymentType === 'premium') {
-        // Track Premium subscription conversion to Google Ads
-        // Value is 3.99 (monthly subscription value) for Google Ads value-based bidding
-        // Even though user is on trial, we send the actual subscription value for optimization
-        await trackConversionServerSide('subscription', 3.99, session.id, null, userEmail);
-        console.log(`✅ Google Ads conversion tracked for Premium subscription: ${targetUserId}`);
-      } else {
-        // Track other subscription types
-        let conversionValue = 1.99; // Default to monthly (old plan)
-        if (paymentType === 'yearly') {
-          conversionValue = 12.0;
-        } else if (paymentType === 'monthly') {
-          conversionValue = 1.99; // Old monthly plan
-        }
-        await trackConversionServerSide('subscription', conversionValue, session.id, null, userEmail);
-      }
+      // Track Google Ads conversion for Monthly subscription
+      // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
+      await trackConversionServerSide('monthly', 3.99, session.id, null, userEmail, 'wlmKCI_fiuwbENjym89B');
+      console.log(`✅ Google Ads MONTHLY conversion tracked: ${targetUserId} - $3.99`);
     }
 
   } catch (error) {
@@ -604,39 +593,7 @@ async function handleSubscriptionChange(subscription, clerk) {
   }
 }
 
-async function handleTrialWillEnd(subscription, clerk) {
-  const customerId = subscription.customer;
-  
-  try {
-    // Find Clerk user by Stripe customer ID
-    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
-
-    if (user) {
-      // Calculate days until trial ends
-      const trialEnd = subscription.trial_end * 1000; // Convert to milliseconds
-      const now = Date.now();
-      const daysUntilEnd = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
-      
-      // Update user metadata to indicate trial ending soon
-      await clerk.users.updateUser(user.id, {
-        publicMetadata: {
-          ...user.publicMetadata,
-          trialEndingSoon: true,
-          trialEndsAt: new Date(trialEnd).toISOString(),
-        },
-      });
-
-      console.log(`✅ Trial ending soon for user ${user.id}: ${daysUntilEnd} days remaining`);
-      
-      // Note: You can send an email notification here using your email service
-      // For now, we just log it. The frontend can check trialEndingSoon to show a notification
-    } else {
-      console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
-    }
-  } catch (error) {
-    console.error('❌ Error handling trial will end:', error);
-  }
-}
+// Note: handleTrialWillEnd function removed - no longer using trial-based plans
 
 async function handleSubscriptionDeleted(subscription, clerk) {
   const customerId = subscription.customer;
@@ -661,75 +618,4 @@ async function handleSubscriptionDeleted(subscription, clerk) {
   }
 }
 
-async function handleInvoicePaymentSucceeded(invoice, clerk) {
-  const customerId = invoice.customer;
-  const subscriptionId = invoice.subscription;
-  const amountPaid = invoice.amount_paid / 100; // Convert from cents to dollars
-  const billingReason = invoice.billing_reason;
-  
-  console.log('💰 Invoice payment succeeded:', {
-    customerId,
-    subscriptionId,
-    amountPaid,
-    billingReason,
-    invoiceId: invoice.id,
-    periodStart: new Date(invoice.period_start * 1000).toISOString(),
-    periodEnd: new Date(invoice.period_end * 1000).toISOString(),
-  });
-  
-  try {
-    // Find Clerk user by Stripe customer ID
-    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
-    
-    if (!user) {
-      console.log(`⚠️ No Clerk user found for Stripe customer: ${customerId}`);
-      return;
-    }
-    
-    const userEmail = user.emailAddresses?.[0]?.emailAddress || null;
-    
-    // Check if this is the first payment after trial
-    // billing_reason = 'subscription_cycle' indicates recurring payment (including first payment after trial)
-    // We check if firstPaymentCompleted is not set to track only the FIRST real payment
-    const isFirstPaymentAfterTrial = 
-      billingReason === 'subscription_cycle' && 
-      !user.publicMetadata?.firstPaymentCompleted &&
-      amountPaid > 0;
-    
-    if (isFirstPaymentAfterTrial) {
-      console.log(`🎯 First payment after trial detected for user ${user.id}`);
-      
-      // Track Google Ads conversion for FIRST REAL PAYMENT after trial
-      // Value: $20.0 (LTV-based value representing ~5 months retention at $3.99)
-      // This is higher than trial value ($3.99) to signal to Google Ads
-      // that users who complete their first payment are more valuable
-      await trackConversionServerSide(
-        'first_payment',
-        20.0,  // LTV-based value (~5 months retention estimate at $3.99/month)
-        invoice.id,
-        null,
-        userEmail,
-        'wek8COjyr90bENjym89B'  // First Payment conversion label from Google Ads
-      );
-      
-      console.log(`✅ Google Ads conversion tracked for FIRST PAYMENT: ${user.id} - $16.0 (actual payment: $${amountPaid})`);
-      
-      // Update user metadata to mark first payment completed
-      await clerk.users.updateUser(user.id, {
-        publicMetadata: {
-          ...user.publicMetadata,
-          firstPaymentCompleted: true,
-          firstPaymentDate: new Date().toISOString(),
-          firstPaymentAmount: amountPaid,
-          firstPaymentInvoiceId: invoice.id,
-        },
-      });
-      
-      console.log(`✅ User ${user.id} marked as first payment completed`);
-    } else {
-      console.log(`ℹ️ Not tracking - billing_reason: ${billingReason}, firstPaymentCompleted: ${user.publicMetadata?.firstPaymentCompleted || false}`);
-    }
-  } catch (error) {
-    console.error('❌ Error handling invoice payment succeeded:', error);
-  }
-}
+// Note: handleInvoicePaymentSucceeded function removed - no longer tracking first payment after trial

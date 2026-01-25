@@ -34,20 +34,22 @@ module.exports = async (req, res) => {
   }
   // #endregion
   
-  // Validate planType
-  if (!['premium', 'monthly', 'yearly', 'lifetime'].includes(planType)) {
-    res.status(400).json({ error: 'Invalid planType. Must be premium, monthly, yearly, or lifetime' });
+  // Validate planType - only monthly ($3.99/month) and lifetime ($24 one-time) are supported
+  // Note: 'premium' is deprecated but treated as 'monthly' for backwards compatibility
+  if (!['monthly', 'lifetime', 'premium'].includes(planType)) {
+    res.status(400).json({ error: 'Invalid planType. Must be monthly or lifetime' });
     return;
+  }
+  
+  // Treat 'premium' as 'monthly' for backwards compatibility
+  if (planType === 'premium') {
+    planType = 'monthly';
   }
   
   // Get price ID from environment variables based on planType
   let priceId;
-  if (planType === 'premium') {
-    priceId = (process.env.STRIPE_PRICE_ID_PREMIUM || '').trim();
-  } else if (planType === 'monthly') {
+  if (planType === 'monthly') {
     priceId = (process.env.STRIPE_PRICE_ID_MONTHLY || '').trim();
-  } else if (planType === 'yearly') {
-    priceId = (process.env.STRIPE_PRICE_ID_YEARLY || '').trim();
   } else if (planType === 'lifetime') {
     priceId = (process.env.STRIPE_PRICE_ID_LIFETIME || '').trim();
   }
@@ -94,7 +96,9 @@ module.exports = async (req, res) => {
     // Determine mode based on planType
     const mode = planType === 'lifetime' ? 'payment' : 'subscription';
 
-    // For Premium plan with trial, add subscription data to clarify $0 today
+    // Create checkout session config
+    // Monthly: $3.99/month subscription
+    // Lifetime: $24 one-time payment
     const sessionConfig = {
       mode: mode,
       line_items: [
@@ -110,7 +114,7 @@ module.exports = async (req, res) => {
         app_version: '1.0',
         business_name: 'Superfocus',
         business_type: 'Pomodoro Timer & Focus App',
-        payment_type: planType, // premium, monthly, yearly, or lifetime
+        payment_type: planType, // monthly or lifetime
       },
       // Pre-fill user email to prevent email mismatch
       customer_email: userEmail || undefined,
@@ -121,44 +125,6 @@ module.exports = async (req, res) => {
       // Use the Superfocus payment configuration (includes all payment methods)
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     };
-
-    // For Premium plan with trial, add subscription description and trial period
-    if (planType === 'premium' && mode === 'subscription') {
-      // Verify the price has trial configured
-      let trialPeriodDays = 14; // Default to 14 days (2 weeks)
-      try {
-        const price = await stripe.prices.retrieve(priceId);
-        console.log('📋 Price details:', {
-          id: price.id,
-          amount: price.unit_amount,
-          recurring: price.recurring,
-          trial_period_days: price.recurring?.trial_period_days
-        });
-        
-        if (price.recurring?.trial_period_days) {
-          trialPeriodDays = price.recurring.trial_period_days;
-          console.log(`✅ Using trial period from price: ${trialPeriodDays} days`);
-        } else {
-          console.error('❌ WARNING: Price does not have trial_period_days configured!');
-          console.error('   Using default trial period of 14 days.');
-        }
-      } catch (priceError) {
-        console.error('❌ Error retrieving price:', priceError);
-        console.log('   Using default trial period of 14 days.');
-      }
-      
-      // IMPORTANT: Stripe requires trial_period_days to be explicitly set in subscription_data
-      // even if the price has trial_period_days configured, due to deprecation of trial_from_plan
-      sessionConfig.subscription_data = {
-        trial_period_days: trialPeriodDays, // Explicitly set trial period (required by Stripe)
-        description: '14-day free trial. You will be charged $3.99/month after the trial ends. Cancel anytime.',
-        metadata: {
-          trial_info: '14 days free, then $3.99/month',
-        },
-      };
-      
-      console.log(`✅ Premium trial configured: ${trialPeriodDays} days free trial`);
-    }
 
     // #region agent log
     if (process.env.NODE_ENV !== 'production') {
