@@ -3841,6 +3841,51 @@ class PomodoroTimer {
             const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress || '';
             const userId = window.Clerk?.user?.id || '';
             
+            // Track to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackCustomEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source: 'pricing_plans_modal',
+                    location: 'pricing_plans_modal',
+                    plan_type: planType,
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    modal_type: 'pricing_plans',
+                    timestamp: new Date().toISOString()
+                });
+                console.log('📊 Pricing modal subscribe clicked event tracked to Mixpanel:', planType);
+            }
+            
+            // Track to Google Ads
+            try {
+                if (typeof window.gtag === 'function') {
+                    const conversionData = {
+                        'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                        'value': planType === 'lifetime' ? 24.0 : 3.99,
+                        'currency': 'USD'
+                    };
+                    
+                    // Add Enhanced Conversions user data if available
+                    if (userEmail && typeof window.hashEmail === 'function') {
+                        try {
+                            const hashedEmail = await window.hashEmail(userEmail);
+                            if (hashedEmail) {
+                                conversionData.user_data = {
+                                    email_address: hashedEmail
+                                };
+                                console.log('✅ Enhanced Conversions: User data included (Pricing Modal)');
+                            }
+                        } catch (error) {
+                            console.log('⚠️ Enhanced Conversions: Email hashing failed (Pricing Modal)');
+                        }
+                    }
+                    
+                    window.gtag('event', 'conversion', conversionData);
+                    console.log('📊 Google Ads conversion tracked (Pricing Modal):', planType, conversionData.value);
+                }
+            } catch (error) {
+                console.error('⚠️ Google Ads tracking failed:', error);
+            }
+            
             console.log('🚀 Creating checkout session for plan:', planType);
             
             const response = await fetch('/api/create-checkout-session', {
@@ -5157,7 +5202,10 @@ class PomodoroTimer {
         
         if (this.selectedPlanCTA && !this.selectedPlanCTA.hasAttribute('data-bound')) {
             this.selectedPlanCTA.setAttribute('data-bound', 'true');
-            this.selectedPlanCTA.addEventListener('click', async () => {
+            this.selectedPlanCTA.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔘 Pricing modal CTA button clicked');
                 await this.proceedToCheckout();
             });
         }
