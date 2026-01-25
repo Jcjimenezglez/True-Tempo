@@ -406,13 +406,32 @@
         .pricing-cta-buttons-container {
             display: flex;
             gap: 1rem;
-            justify-content: center;
+            justify-content: flex-start;
             margin-top: 1rem;
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
         
         .pricing-btn-lifetime {
+            background: #22c55e;
+            border: none;
+            border-radius: 500px;
+            padding: 1.25rem 2.5rem;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+        }
+        
+        .pricing-btn-lifetime:hover {
+            background: #16a34a;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+        
+        .pricing-btn-monthly {
             background: #ffffff;
             border: none;
             border-radius: 500px;
@@ -425,29 +444,26 @@
             box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
         }
         
-        .pricing-btn-lifetime:hover {
+        .pricing-btn-monthly:hover {
             background: #f0f0f0;
             transform: scale(1.05);
             box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
         }
         
-        .pricing-btn-monthly {
-            background: #d0d0d0;
-            border: none;
-            border-radius: 500px;
-            padding: 1.25rem 2.5rem;
-            color: #000000;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+        .pricing-btn-lifetime:disabled,
+        .pricing-btn-lifetime.disabled {
+            background: #22c55e;
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
         
-        .pricing-btn-monthly:hover {
-            background: #b8b8b8;
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        .pricing-btn-monthly:disabled,
+        .pricing-btn-monthly.disabled {
+            background: #ffffff;
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .pricing-offer-explanation {
@@ -1377,9 +1393,9 @@
         
         .comparison-plans-wrapper {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
-            max-width: 700px;
+            max-width: 900px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -2756,9 +2772,12 @@
             </div>
             
             <!-- CTA after comparison table -->
-            <div style="text-align: center; margin-top: 3rem;">
-                <button class="pricing-cta-spotify" id="comparisonTableCTA">Unlock Unlimited</button>
-                <div class="pricing-offer-explanation" style="margin: 0.5rem auto 0 auto;">
+            <div style="text-align: left; margin-top: 3rem;">
+                <div class="pricing-cta-buttons-container">
+                    <button class="pricing-btn-lifetime" id="comparisonTableCTA">Get Lifetime Access</button>
+                    <button class="pricing-btn-monthly" id="comparisonTableCTAMonthly">Subscribe Monthly</button>
+                </div>
+                <div class="pricing-offer-explanation" style="margin: 0.5rem 0 0 0;">
                     Choose your plan and start focusing today.
                 </div>
             </div>
@@ -3173,7 +3192,10 @@
         <div class="final-cta-section">
             <h2 class="cta-title">Block distractions +++</h2>
             <p class="cta-subtitle">Join thousands who use Superfocus to maintain 2-3 hours of uninterrupted deep work every day and complete their most important tasks.</p>
-            <button class="pricing-cta-spotify" id="finalCTA">Unlock Unlimited</button>
+            <div class="pricing-cta-buttons-container">
+                <button class="pricing-btn-lifetime" id="finalCTA">Get Lifetime Access</button>
+                <button class="pricing-btn-monthly" id="finalCTAMonthly">Subscribe Monthly</button>
+            </div>
             <div class="pricing-offer-explanation">
                 Choose your perfect plan and start focusing today.
             </div>
@@ -3310,10 +3332,12 @@
             
             const lifetimeButton = document.getElementById('pricingPageUpgrade');
             const monthlyButton = document.getElementById('pricingPageMonthly');
+            const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
+            const comparisonTableCTAMonthlyButton = document.getElementById('comparisonTableCTAMonthly');
+            const finalCTAButton = document.getElementById('finalCTA');
+            const finalCTAMonthlyButton = document.getElementById('finalCTAMonthly');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
-            const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
-            const finalCTAButton = document.getElementById('finalCTA');
             
             if (lifetimeButton) {
                 console.log('Lifetime button found, adding event listener...');
@@ -3332,15 +3356,27 @@
             }
             
             if (comparisonTableCTAButton) {
-                console.log('Comparison table CTA button found, adding event listener...');
+                console.log('Comparison table lifetime CTA button found, adding event listener...');
                 comparisonTableCTAButton.addEventListener('click', handleCTAClick(comparisonTableCTAButton, 'comparison_table_cta', 'lifetime'));
-                console.log('✅ Comparison table CTA button event listener added successfully');
+                console.log('✅ Comparison table lifetime CTA button event listener added successfully');
+            }
+            
+            if (comparisonTableCTAMonthlyButton) {
+                console.log('Comparison table monthly CTA button found, adding event listener...');
+                comparisonTableCTAMonthlyButton.addEventListener('click', handleCTAClick(comparisonTableCTAMonthlyButton, 'comparison_table_cta', 'monthly'));
+                console.log('✅ Comparison table monthly CTA button event listener added successfully');
             }
             
             if (finalCTAButton) {
-                console.log('Final CTA button found, adding event listener...');
+                console.log('Final lifetime CTA button found, adding event listener...');
                 finalCTAButton.addEventListener('click', handleCTAClick(finalCTAButton, 'final_cta', 'lifetime'));
-                console.log('✅ Final CTA button event listener added successfully');
+                console.log('✅ Final lifetime CTA button event listener added successfully');
+            }
+            
+            if (finalCTAMonthlyButton) {
+                console.log('Final monthly CTA button found, adding event listener...');
+                finalCTAMonthlyButton.addEventListener('click', handleCTAClick(finalCTAMonthlyButton, 'final_cta', 'monthly'));
+                console.log('✅ Final monthly CTA button event listener added successfully');
             }
             
             // Update button states after Clerk loads
@@ -3358,10 +3394,12 @@
             
             const lifetimeButton = document.getElementById('pricingPageUpgrade');
             const monthlyButton = document.getElementById('pricingPageMonthly');
+            const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
+            const comparisonTableCTAMonthlyButton = document.getElementById('comparisonTableCTAMonthly');
+            const finalCTAButton = document.getElementById('finalCTA');
+            const finalCTAMonthlyButton = document.getElementById('finalCTAMonthly');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
-            const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
-            const finalCTAButton = document.getElementById('finalCTA');
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
             const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
@@ -3387,25 +3425,39 @@
                 monthlyButton.classList.add('disabled');
             }
             
-            // Update Header CTA button
-            if (headerCTAButton && isPremium) {
-                headerCTAButton.textContent = 'You have Premium';
-                headerCTAButton.disabled = true;
-                headerCTAButton.classList.add('disabled');
-            }
-            
-            // Update Comparison Table CTA button
+            // Update Comparison Table Lifetime CTA button
             if (comparisonTableCTAButton && isPremium) {
                 comparisonTableCTAButton.textContent = 'You have Premium';
                 comparisonTableCTAButton.disabled = true;
                 comparisonTableCTAButton.classList.add('disabled');
             }
             
-            // Update Final CTA button
+            // Update Comparison Table Monthly CTA button
+            if (comparisonTableCTAMonthlyButton && isPremium) {
+                comparisonTableCTAMonthlyButton.textContent = 'You have Premium';
+                comparisonTableCTAMonthlyButton.disabled = true;
+                comparisonTableCTAMonthlyButton.classList.add('disabled');
+            }
+            
+            // Update Final Lifetime CTA button
             if (finalCTAButton && isPremium) {
                 finalCTAButton.textContent = 'You have Premium';
                 finalCTAButton.disabled = true;
                 finalCTAButton.classList.add('disabled');
+            }
+            
+            // Update Final Monthly CTA button
+            if (finalCTAMonthlyButton && isPremium) {
+                finalCTAMonthlyButton.textContent = 'You have Premium';
+                finalCTAMonthlyButton.disabled = true;
+                finalCTAMonthlyButton.classList.add('disabled');
+            }
+            
+            // Update Header CTA button
+            if (headerCTAButton && isPremium) {
+                headerCTAButton.textContent = 'You have Premium';
+                headerCTAButton.disabled = true;
+                headerCTAButton.classList.add('disabled');
             }
         }
 
