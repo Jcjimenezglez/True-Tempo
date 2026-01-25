@@ -3722,7 +3722,7 @@ class PomodoroTimer {
             } else {
                 // Free user (authenticated but not Premium)
                 title.textContent = 'Task limit reached';
-                message.textContent = 'You\'ve hit your 1-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
+                message.textContent = 'You\'ve hit your 2-task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.';
                 button.textContent = 'Unlock Unlimited';
             }
             
@@ -8876,8 +8876,8 @@ class PomodoroTimer {
                 // Define limits based on user type
                 let taskLimit;
                 if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 1 task
-                    taskLimit = 1;
+                    // Free users: 2 tasks
+                    taskLimit = 2;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
@@ -16679,8 +16679,8 @@ class PomodoroTimer {
                 // Define limits based on user type
                 let taskLimit;
                 if (this.isAuthenticated && !this.isPro) {
-                    // Free users: 1 task
-                    taskLimit = 1;
+                    // Free users: 2 tasks
+                    taskLimit = 2;
                 } else {
                     // Pro users: unlimited
                     taskLimit = Infinity;
