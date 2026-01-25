@@ -8986,8 +8986,11 @@ class PomodoroTimer {
                     return;
                 }
                 
+                // Refresh tasks from storage to ensure we have latest data
+                const allLocalTasks = this.getLocalTasks();
+                
                 // Only count tasks in To-do (not completed), not tasks in Done
-                const currentTasks = this.getLocalTasks().filter(task => !task.completed);
+                const currentTasks = allLocalTasks.filter(task => !task.completed);
                 
                 // Define limits based on user type
                 let taskLimit;
@@ -9213,6 +9216,25 @@ class PomodoroTimer {
                 this.rebuildTaskQueue();
                 this.updateCurrentTaskFromQueue();
                 this.updateDisplay();
+                
+                // After deletion, check if user can now add another task
+                const allLocalTasks = this.getLocalTasks();
+                const currentTasks = allLocalTasks.filter(task => !task.completed);
+                let taskLimit;
+                if (!this.isAuthenticated) {
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
+                    taskLimit = 2;
+                } else {
+                    taskLimit = Infinity;
+                }
+                
+                // If we're below the limit, show form so user can add another task
+                if (currentTasks.length < taskLimit) {
+                    addTaskForm.style.display = 'block';
+                    addTaskBtn.disabled = true;
+                    if (taskInput) taskInput.focus();
+                }
             });
         }
 
