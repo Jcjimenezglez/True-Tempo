@@ -3848,9 +3848,7 @@ class PomodoroTimer {
     }
     
     async proceedToCheckout() {
-        // Map 'monthly' to 'premium' since STRIPE_PRICE_ID_MONTHLY is currently pointing to an inactive product
-        // TODO: Update STRIPE_PRICE_ID_MONTHLY in Vercel to point to active product
-        const planType = this.selectedPlan === 'monthly' ? 'premium' : this.selectedPlan;
+        const planType = this.selectedPlan;
         
         try {
             // Verify user is authenticated
