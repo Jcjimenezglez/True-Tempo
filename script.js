@@ -1641,6 +1641,7 @@ class PomodoroTimer {
         
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 500px; width: 100%;';
         
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
@@ -1794,6 +1795,7 @@ class PomodoroTimer {
         
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 500px; width: 100%;';
         
         modal.innerHTML = `
             <button class="close-logout-modal-x" id="closeCassetteLoginModal">
@@ -1869,6 +1871,7 @@ class PomodoroTimer {
         
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 500px; width: 100%;';
         
         // Check if user is authenticated (Free) or Guest
         const isAuthenticated = this.isAuthenticated;
@@ -3639,6 +3642,7 @@ class PomodoroTimer {
         
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 500px; width: 100%;';
         
         modal.innerHTML = `
             <button class="close-logout-modal-x" id="closeTechniqueModal">
@@ -12308,6 +12312,7 @@ class PomodoroTimer {
         // Create modal
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 500px; width: 100%;';
         modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         modal.innerHTML = `
             <button class="close-modal-x" id="closeClearDoneModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
@@ -12374,6 +12379,7 @@ class PomodoroTimer {
         // Create modal
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 500px; width: 100%;';
         modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         modal.innerHTML = `
             <button class="close-modal-x" id="closeClearAllModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
