@@ -2225,7 +2225,7 @@
                 <img src="/Superfocus-logo.svg" alt="Superfocus Logo">
                 <span>Superfocus</span>
             </a>
-            <button class="pricing-page-header-cta" id="headerCTA">Start 14-Day Free Trial</button>
+            <button class="pricing-page-header-cta" id="headerCTA">Unlock Unlimited</button>
         </div>
         <a href="/" class="close-btn" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2240,10 +2240,10 @@
         <div class="pricing-page-header-section">
             <h1>Grow your focus time 3x.</h1>
             
-            <button class="pricing-cta-spotify" id="pricingPageUpgrade">Start 14-Day Free Trial</button>
+            <button class="pricing-cta-spotify" id="pricingPageUpgrade">Unlock Unlimited</button>
             
             <div class="pricing-offer-explanation">
-                Get 14 days free, then $3.99 per month after. Offer only available if you haven't tried Premium before. Cancel anytime.
+                Choose between monthly subscription or lifetime access.
             </div>
         </div>
                 
@@ -2624,16 +2624,12 @@
                 <!-- Premium Plan Card -->
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
-                        <h3 class="plan-label">PREMIUM</h3>
-                        <p class="plan-description">for college & university students</p>
+                        <h3 class="plan-label">MONTHLY</h3>
+                        <p class="plan-description">Pay as you go</p>
                         <div class="plan-pricing">
                             <div class="pricing-row">
-                                <span class="trial-price">$0</span>
-                                <span class="trial-text">for 14 days</span>
-                            </div>
-                            <div class="pricing-row">
                                 <span class="price">$3.99</span>
-                                <span class="period-text">/month after</span>
+                                <span class="period-text">/month</span>
                             </div>
                         </div>
                     </div>
@@ -2665,13 +2661,54 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Lifetime Plan Card -->
+                <div class="comparison-plan-card premium-plan">
+                    <div class="plan-header">
+                        <h3 class="plan-label">LIFETIME</h3>
+                        <p class="plan-description">One-time payment, forever access</p>
+                        <div class="plan-pricing">
+                            <div class="pricing-row">
+                                <span class="price">$24</span>
+                                <span class="period-text">one-time</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited timers</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited focus sessions</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited tasks & projects</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Unlimited focus soundtracks</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Advanced Analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">No subscription • One-time payment</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- CTA after comparison table -->
             <div style="text-align: center; margin-top: 3rem;">
-                <button class="pricing-cta-spotify" id="comparisonTableCTA">Start 14-Day Free Trial</button>
+                <button class="pricing-cta-spotify" id="comparisonTableCTA">Unlock Unlimited</button>
                 <div class="pricing-offer-explanation" style="margin: 0.5rem auto 0 auto;">
-                    Get 14 days free, then $3.99 per month after. Offer only available if you haven't tried Premium before. Cancel anytime.
+                    Choose your plan and start focusing today.
                 </div>
             </div>
                     </div>
@@ -3085,9 +3122,9 @@
         <div class="final-cta-section">
             <h2 class="cta-title">Block distractions +++</h2>
             <p class="cta-subtitle">Join thousands who use Superfocus to maintain 2-3 hours of uninterrupted deep work every day and complete their most important tasks.</p>
-            <button class="pricing-cta-spotify" id="finalCTA">Start 14-Day Free Trial</button>
+            <button class="pricing-cta-spotify" id="finalCTA">Unlock Unlimited</button>
             <div class="pricing-offer-explanation">
-                Get 14 days free, then $3.99 per month after. Offer only available if you haven't tried Premium before. Cancel anytime.
+                Choose your perfect plan and start focusing today.
             </div>
         </div>
     
@@ -3126,50 +3163,44 @@
                 
                 // Track asynchronously (don't block)
                 (async () => {
-                    // 🎯 TRACKING: Stripe Checkout Opened from Pricing Page
+                    // 🎯 TRACKING: Subscribe Clicked from Pricing Page
                     if (window.mixpanel && window.mixpanel.track) {
-                        window.mixpanel.track('Stripe Checkout Opened', {
-                            source: source,
-                            user_type: isAuthenticated ? 'free_user' : 'guest',
-                            plan_type: 'premium',
-                            timestamp: new Date().toISOString()
-                        });
-                        
-                        // Also track as Subscribe Clicked
                         window.mixpanel.track('Subscribe Clicked', {
                             button_type: 'subscribe',
                             source: source,
                             location: source,
                             user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
-                            modal_type: source,
-                            plan_type: 'premium'
+                            modal_type: source
                         });
                     }
                     
-                    const userTypeForAds = isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest';
                     if (typeof window.gtag === 'function') {
                         window.gtag('event', 'subscribe_clicked', {
                             event_category: 'engagement',
                             event_label: source,
                             source: source,
-                            user_type: userTypeForAds,
-                            value: 0.1,
-                            currency: 'USD',
-                            non_interaction: false
+                            user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest'
                         });
-                        
-                        // Build conversion data with Enhanced Conversions
-                        const conversionData = {
-                            send_to: 'AW-17614436696/zsizCNqYgbgbENjym89B',
-                            value: 1.0,
-                            currency: 'USD',
-                            source: source,
-                            user_type: userTypeForAds
-                        };
-                        
-                        // Add Enhanced Conversions user data if user is authenticated
-                        if (isAuthenticated && window.Clerk?.user?.primaryEmailAddress?.emailAddress && typeof hashEmail === 'function') {
-                            try {
+                    }
+                })();
+                
+                // Re-enable button and restore text after a short delay
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 500);
+                
+                // Close pricing page and open pricing modal in main app
+                if (window.opener) {
+                    // If opened from main app, signal it to open the modal
+                    window.opener.postMessage({ action: 'openPricingModal' }, window.location.origin);
+                    window.close();
+                } else {
+                    // Otherwise redirect home (main app will handle opening the modal on load)
+                    window.location.href = '/';
+                }
+            };
+        }
                                 const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
                                 const hashedEmail = await hashEmail(userEmail);
                                 if (hashedEmail) {

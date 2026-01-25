@@ -20797,6 +20797,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const timer = new PomodoroTimer();
     window.pomodoroTimer = timer; // Make it globally accessible
     
+    // Listen for messages from pricing page
+    window.addEventListener('message', (event) => {
+        // Only accept messages from same origin
+        if (event.origin !== window.location.origin) return;
+        
+        if (event.data && event.data.action === 'openPricingModal') {
+            console.log('📬 Message received: opening pricing modal');
+            timer.showPricingPlansModal();
+        }
+    });
+    
+    // Check if we should open pricing modal on load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('showPricingModal')) {
+        setTimeout(() => {
+            console.log('🎯 Opening pricing modal from URL param');
+            timer.showPricingPlansModal();
+        }, 500);
+    }
+    
     // 🧪 Testing function for Share on X modal
     // Usage: testShareModal() or testShareModal(45, 3, "Study for exam")
     window.testShareModal = (minutes = 25, sessions = 4, taskName = "Study for final exam") => {
