@@ -1823,6 +1823,106 @@
         </div>
     </div>
 
+    <!-- Pricing Plans Modal -->
+    <div class="logout-modal-overlay" id="pricingPlansModalOverlay" style="display: none;">
+        <div class="logout-modal" style="max-width: 600px; width: 95%;">
+            <button class="close-logout-modal-x" id="closePricingPlansModalX">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <h3 class="logout-modal-title" style="font-size: 24px; margin-bottom: 24px;">Unlock all features</h3>
+                
+                <!-- Plans Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <!-- Monthly Plan -->
+                    <div id="monthlyPlanCard" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s ease;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span style="font-size: 20px;">⚡</span>
+                            <span style="font-weight: 600; color: #fff;">Monthly</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <span style="font-size: 32px; font-weight: 700; color: #fff;">$3.99</span>
+                            <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">per month</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Lifetime Plan -->
+                    <div id="lifetimePlanCard" style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1)); border: 2px solid rgba(6, 78, 59, 0.8); border-radius: 12px; padding: 20px; cursor: pointer; position: relative; transition: all 0.3s ease;">
+                        <div style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span style="font-size: 20px;">👑</span>
+                            <span style="font-weight: 600; color: #fff;">Lifetime</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <span style="font-size: 32px; font-weight: 700; color: #fff;">$24</span>
+                            <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">one-time</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Features List -->
+                <div style="margin-bottom: 24px;">
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">EVERYTHING YOU'LL GET</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Unlimited custom timers</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Unlimited focus time per day</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Unlimited tasks & projects</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Unlimited custom cassettes</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Advanced analytics & insights</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Achievements & leaderboard</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CTA Button -->
+                <button class="logout-modal-btn logout-modal-btn-primary" id="selectedPlanCTA" style="width: 100%; margin-bottom: 12px;">
+                    Get Lifetime Access
+                </button>
+                
+                <!-- Learn More Link -->
+                <div style="text-align: center;">
+                    <a href="/pricing" target="_blank" style="color: rgba(255, 255, 255, 0.6); font-size: 14px; text-decoration: underline;">Learn more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Feedback Modal -->
     <div class="logout-modal-overlay" id="feedbackModalOverlay" style="display: none;">
         <div class="logout-modal">

@@ -1766,8 +1766,7 @@ class PomodoroTimer {
                     this.trackEvent('Subscribe Clicked', eventProperties);
                     
                     closeModal();
-                    // Redirect to pricing page
-                    await this.handleUpgrade();
+                    this.showPricingPlansModal();
                 });
             }
         } else {
@@ -1988,8 +1987,7 @@ class PomodoroTimer {
                     this.trackEvent('Subscribe Clicked', eventProperties);
                     
                     closeModal();
-                    // Redirect to pricing page
-                    await this.handleUpgrade();
+                    this.showPricingPlansModal();
                 });
             }
         } else {
@@ -3794,6 +3792,87 @@ class PomodoroTimer {
         this.dailyLimitModalOverlay.style.display = 'none';
         this.stopDailyLimitCountdown();
     }
+    
+    // Pricing Plans Modal
+    showPricingPlansModal() {
+        if (!this.pricingPlansModalOverlay) return;
+        this.pricingPlansModalOverlay.style.display = 'flex';
+        // Default to lifetime selected
+        this.selectPlan('lifetime');
+    }
+    
+    hidePricingPlansModal() {
+        if (!this.pricingPlansModalOverlay) return;
+        this.pricingPlansModalOverlay.style.display = 'none';
+    }
+    
+    selectPlan(plan) {
+        this.selectedPlan = plan;
+        
+        // Update card styles
+        if (this.monthlyPlanCard && this.lifetimePlanCard) {
+            if (plan === 'monthly') {
+                this.monthlyPlanCard.style.background = 'linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1))';
+                this.monthlyPlanCard.style.border = '2px solid rgba(6, 78, 59, 0.8)';
+                this.lifetimePlanCard.style.background = 'rgba(255, 255, 255, 0.05)';
+                this.lifetimePlanCard.style.border = '2px solid rgba(255, 255, 255, 0.1)';
+            } else {
+                this.lifetimePlanCard.style.background = 'linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1))';
+                this.lifetimePlanCard.style.border = '2px solid rgba(6, 78, 59, 0.8)';
+                this.monthlyPlanCard.style.background = 'rgba(255, 255, 255, 0.05)';
+                this.monthlyPlanCard.style.border = '2px solid rgba(255, 255, 255, 0.1)';
+            }
+        }
+        
+        // Update CTA button text
+        if (this.selectedPlanCTA) {
+            if (plan === 'monthly') {
+                this.selectedPlanCTA.textContent = 'Subscribe Monthly';
+            } else {
+                this.selectedPlanCTA.textContent = 'Get Lifetime Access';
+            }
+        }
+    }
+    
+    async proceedToCheckout() {
+        const planType = this.selectedPlan;
+        
+        try {
+            const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress || '';
+            const userId = window.Clerk?.user?.id || '';
+            
+            console.log('🚀 Creating checkout session for plan:', planType);
+            
+            const response = await fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': userId
+                },
+                body: JSON.stringify({
+                    planType: planType,
+                    userEmail: userEmail,
+                    userId: userId
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create checkout session');
+            }
+            
+            const data = await response.json();
+            if (data.url) {
+                console.log('✅ Redirecting to Stripe checkout...');
+                window.location.href = data.url;
+            } else {
+                throw new Error('No checkout URL received');
+            }
+        } catch (error) {
+            console.error('❌ Error creating checkout session:', error);
+            alert('There was an error starting the checkout. Please try again.');
+        }
+    }
 
     // Countdown handling for daily limit modal
     startDailyLimitCountdown() {
@@ -4503,7 +4582,7 @@ class PomodoroTimer {
                 };
                 this.trackEvent('Subscribe Clicked', eventProperties);
                 
-                window.location.href = 'https://www.superfocus.live/pricing';
+                this.showPricingPlansModal();
             });
         }
 
@@ -4613,7 +4692,7 @@ class PomodoroTimer {
                 this.trackEvent('Subscribe Clicked', eventProperties);
                 
                 this.settingsDropdown.style.display = 'none';
-                window.location.href = '/pricing';
+                this.showPricingPlansModal();
             });
         }
         
@@ -5026,7 +5105,7 @@ class PomodoroTimer {
                     };
                     this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
                 } catch (_) {}
-                window.location.href = '/pricing';
+                this.showPricingPlansModal();
             });
         }
         
@@ -5043,6 +5122,43 @@ class PomodoroTimer {
             this.closeDailyLimitModalX.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideDailyLimitModal();
+            });
+        }
+
+        // Pricing Plans Modal
+        this.pricingPlansModalOverlay = document.getElementById('pricingPlansModalOverlay');
+        this.closePricingPlansModalX = document.getElementById('closePricingPlansModalX');
+        this.monthlyPlanCard = document.getElementById('monthlyPlanCard');
+        this.lifetimePlanCard = document.getElementById('lifetimePlanCard');
+        this.selectedPlanCTA = document.getElementById('selectedPlanCTA');
+        this.selectedPlan = 'lifetime'; // Default to lifetime
+        
+        if (this.closePricingPlansModalX && !this.closePricingPlansModalX.hasAttribute('data-bound')) {
+            this.closePricingPlansModalX.setAttribute('data-bound', 'true');
+            this.closePricingPlansModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hidePricingPlansModal();
+            });
+        }
+        
+        if (this.monthlyPlanCard && !this.monthlyPlanCard.hasAttribute('data-bound')) {
+            this.monthlyPlanCard.setAttribute('data-bound', 'true');
+            this.monthlyPlanCard.addEventListener('click', () => {
+                this.selectPlan('monthly');
+            });
+        }
+        
+        if (this.lifetimePlanCard && !this.lifetimePlanCard.hasAttribute('data-bound')) {
+            this.lifetimePlanCard.setAttribute('data-bound', 'true');
+            this.lifetimePlanCard.addEventListener('click', () => {
+                this.selectPlan('lifetime');
+            });
+        }
+        
+        if (this.selectedPlanCTA && !this.selectedPlanCTA.hasAttribute('data-bound')) {
+            this.selectedPlanCTA.setAttribute('data-bound', 'true');
+            this.selectedPlanCTA.addEventListener('click', async () => {
+                await this.proceedToCheckout();
             });
         }
 
@@ -5084,7 +5200,7 @@ class PomodoroTimer {
                 this.trackEvent('Subscribe Clicked', eventProperties);
                 
                 this.hideSettingsModal();
-                window.location.href = '/pricing';
+                this.showPricingPlansModal();
             });
         }
         
@@ -5253,8 +5369,8 @@ class PomodoroTimer {
                     };
                     this.trackEvent('Subscribe Clicked', eventProperties);
                     
-                    // Redirect to upgrade flow
-                    await this.handleUpgrade();
+                    this.hideGuestTaskLimitModal();
+                    this.showPricingPlansModal();
                     return;
                 }
                 
@@ -5377,8 +5493,8 @@ class PomodoroTimer {
     }
 
     showUpgradeModal() {
-        // Redirect to pricing page instead of showing modal
-        window.location.href = '/pricing';
+        // Show pricing plans modal instead of redirecting
+        this.showPricingPlansModal();
     }
     
     hidePricingModal() {
@@ -14013,8 +14129,8 @@ class PomodoroTimer {
                             user_type: 'free',
                             modal_type: 'report_upgrade_prompt'
                         });
+                        window.pomodoroTimer.showPricingPlansModal();
                     }
-                    window.location.href = '/pricing';
                 });
             }
         });
