@@ -2145,6 +2145,30 @@ body.is-scrolling .streak-fire {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
+/* Custom scrollbar for logout-modal */
+.logout-modal::-webkit-scrollbar {
+    width: 4px;
+}
+
+.logout-modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.logout-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.logout-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Firefox scrollbar styling */
+.logout-modal {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
 .custom-timer-modal {
     overflow: visible !important;
     max-height: none !important;
