@@ -2351,7 +2351,7 @@ body.is-scrolling .streak-fire {
     }
     
     .logout-modal {
-        max-width: 90%;
+        max-width: 500px;
     }
 }
 
