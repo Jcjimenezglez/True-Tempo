@@ -14285,9 +14285,9 @@ class PomodoroTimer {
                     <p style="font-size: 11px; color: #b0b0b0; margin: 0; line-height: 1.4;">Some users experienced data loss on Jan 6-22. New backup system now protects your data. <a href="/release-notes/" style="color: #4a9eff; text-decoration: none; font-weight: 500;">Learn more →</a></p>
                 </div>
                 
-                <!-- Summary Stats + Chart (HABILITADO para PREMIUM) -->
+                <!-- Summary Stats (HABILITADO para PREMIUM) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-                    <div style="text-align: center; margin-bottom: 24px;">
+                    <div style="text-align: center; margin-bottom: 0;">
                         <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
                         
                         <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
@@ -14301,24 +14301,24 @@ class PomodoroTimer {
                             <span>${dayStreaks} Streaks</span>
                         </div>
                     </div>
-                    
-                    <!-- Activity Chart -->
-                    <div>
-                        <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity</h4>
-                        <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
-                            ${(() => {
-                                const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
-                                return last7Days.map(day => {
-                                    const height = (day.hours / maxHours) * 100;
-                                    return `
-                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
-                                            <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
-                                            <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
-                                        </div>
-                                    `;
-                                }).join('');
-                            })()}
-                        </div>
+                </div>
+
+                <!-- Activity Chart (HABILITADO para PREMIUM) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity Chart</h4>
+                    <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
+                        ${(() => {
+                            const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
+                            return last7Days.map(day => {
+                                const height = (day.hours / maxHours) * 100;
+                                return `
+                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                                        <div style="width: 100%; height: ${height}%; background: linear-gradient(to top, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46)); border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                        <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
+                                    </div>
+                                `;
+                            }).join('');
+                        })()}
                     </div>
                 </div>
 
