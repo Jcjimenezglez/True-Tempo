@@ -9231,8 +9231,22 @@ class PomodoroTimer {
                 
                 // If we're below the limit, show form so user can add another task
                 if (currentTasks.length < taskLimit) {
+                    // Reset to "add" mode (not edit mode)
+                    this.editingTaskId = null;
+                    
+                    // Hide delete button (only for edit mode)
+                    const deleteButton = modal.querySelector('#deleteTask');
+                    if (deleteButton) deleteButton.style.display = 'none';
+                    
+                    // Clear input fields
+                    if (taskInput) taskInput.value = '';
+                    if (pomodorosInput) pomodorosInput.value = '1';
+                    
+                    // Show form and disable add button
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
+                    
+                    // Focus on input
                     if (taskInput) taskInput.focus();
                 }
             });
@@ -9397,8 +9411,22 @@ class PomodoroTimer {
                 
                 // If we're below the limit, show form so user can add another task
                 if (currentTasks.length < taskLimit) {
+                    // Reset to "add" mode (not edit mode)
+                    this.editingTaskId = null;
+                    
+                    // Hide delete button (only for edit mode)
+                    const deleteButton = panel.querySelector('#deleteTask');
+                    if (deleteButton) deleteButton.style.display = 'none';
+                    
+                    // Clear input fields
+                    if (taskInput) taskInput.value = '';
+                    if (pomodorosInput) pomodorosInput.value = '1';
+                    
+                    // Show form and disable add button
                     addTaskForm.style.display = 'block';
                     addTaskBtn.disabled = true;
+                    
+                    // Focus on input
                     if (taskInput) taskInput.focus();
                 }
             });
