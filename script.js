@@ -9241,16 +9241,28 @@ class PomodoroTimer {
                         const deleteButton = modal.querySelector('#deleteTask');
                         if (deleteButton) deleteButton.style.display = 'none';
                         
-                        // Clear input fields
-                        if (taskInput) taskInput.value = '';
-                        if (pomodorosInput) pomodorosInput.value = '1';
+                        // Clear input fields - get fresh references
+                        const freshTaskInput = modal.querySelector('#taskDescription');
+                        const freshPomodorosInput = modal.querySelector('#pomodorosCount');
+                        if (freshTaskInput) {
+                            freshTaskInput.value = '';
+                            freshTaskInput.setAttribute('value', '');
+                        }
+                        if (freshPomodorosInput) {
+                            freshPomodorosInput.value = '1';
+                        }
                         
                         // Show form and disable add button
                         addTaskForm.style.display = 'block';
                         addTaskBtn.disabled = true;
                         
-                        // Focus on input
-                        if (taskInput) taskInput.focus();
+                        // Focus on input after a brief delay to ensure it's cleared
+                        setTimeout(() => {
+                            if (freshTaskInput) {
+                                freshTaskInput.value = '';
+                                freshTaskInput.focus();
+                            }
+                        }, 50);
                     }
                 }
             });
@@ -9425,16 +9437,28 @@ class PomodoroTimer {
                         const deleteButton = panel.querySelector('#deleteTask');
                         if (deleteButton) deleteButton.style.display = 'none';
                         
-                        // Clear input fields
-                        if (taskInput) taskInput.value = '';
-                        if (pomodorosInput) pomodorosInput.value = '1';
+                        // Clear input fields - get fresh references
+                        const freshTaskInput = panel.querySelector('#taskDescription');
+                        const freshPomodorosInput = panel.querySelector('#pomodorosCount');
+                        if (freshTaskInput) {
+                            freshTaskInput.value = '';
+                            freshTaskInput.setAttribute('value', '');
+                        }
+                        if (freshPomodorosInput) {
+                            freshPomodorosInput.value = '1';
+                        }
                         
                         // Show form and disable add button
                         addTaskForm.style.display = 'block';
                         addTaskBtn.disabled = true;
                         
-                        // Focus on input
-                        if (taskInput) taskInput.focus();
+                        // Focus on input after a brief delay to ensure it's cleared
+                        setTimeout(() => {
+                            if (freshTaskInput) {
+                                freshTaskInput.value = '';
+                                freshTaskInput.focus();
+                            }
+                        }, 50);
                     }
                 }
             });
