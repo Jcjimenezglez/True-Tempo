@@ -14179,7 +14179,7 @@ class PomodoroTimer {
 
                 <!-- Achievements (DESHABILITADO para FREE) -->
                 <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #d0d0d0; font-size: 16px;">Achievements</h4>
+                    <h4 style="margin: 0 0 16px 0; color: #ffffff; font-size: 16px;">Achievements</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         ${[
                             { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target-icon lucide-target"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', name: 'Deep Diver' },
