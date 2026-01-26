@@ -3277,7 +3277,7 @@
                                 const hashedEmail = await hashEmail(userEmail);
                                 if (hashedEmail) {
                                     conversionData.user_data = {
-                                        email_address: hashedEmail
+                                        sha256_email_address: hashedEmail
                                     };
                                     console.log('✅ Enhanced Conversions: User data included (Subscribe Clicked)');
                                 }
@@ -3539,7 +3539,7 @@
                                 const hashedEmail = await hashEmail(userEmail);
                                 if (hashedEmail) {
                                     conversionData.user_data = {
-                                        email_address: hashedEmail
+                                        sha256_email_address: hashedEmail
                                     };
                                     console.log('✅ Enhanced Conversions: User data included (Checkout Created)');
                                 }

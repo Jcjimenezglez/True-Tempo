@@ -62,7 +62,7 @@ if (window.Clerk && window.Clerk.user) {
 // Add Enhanced Conversions user data if available
 if (hashedEmail) {
     conversionData.user_data = {
-        email_address: hashedEmail
+        sha256_email_address: hashedEmail  // Use sha256_email_address for pre-hashed emails
     };
     console.log('✅ Enhanced Conversions: User data included');
 }
@@ -87,7 +87,7 @@ if (userEmail && typeof hashEmail === 'function') {
         const hashedEmail = await hashEmail(userEmail);
         if (hashedEmail) {
             conversionData.user_data = {
-                email_address: hashedEmail
+                sha256_email_address: hashedEmail  // Use sha256_email_address for pre-hashed emails
             };
             console.log('✅ Enhanced Conversions: User data included (Checkout)');
         }
@@ -157,7 +157,7 @@ gtag('event', 'conversion', {
     'value': 1.0,
     'currency': 'USD',
     'user_data': {
-        'email_address': 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3' // SHA-256 hash
+        'sha256_email_address': 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3' // Pre-hashed SHA-256
     }
 });
 ```

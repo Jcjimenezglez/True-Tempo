@@ -445,7 +445,7 @@ class PomodoroTimer {
                 // Add Enhanced Conversions user data if available
                 if (hashedEmail) {
                     conversionData.user_data = {
-                        email_address: hashedEmail
+                        sha256_email_address: hashedEmail
                     };
                     console.log('✅ Enhanced Conversions: User data included');
                 }
@@ -3745,7 +3745,7 @@ class PomodoroTimer {
                             const hashedEmail = await window.hashEmail(userEmail);
                             if (hashedEmail) {
                                 conversionData.user_data = {
-                                    email_address: hashedEmail
+                                    sha256_email_address: hashedEmail
                                 };
                                 console.log('✅ Enhanced Conversions: User data included (Subscribe Clicked)');
                             }
@@ -3817,7 +3817,7 @@ class PomodoroTimer {
                                 const hashedEmail = await window.hashEmail(userEmail);
                                 if (hashedEmail) {
                                     checkoutConversionData.user_data = {
-                                        email_address: hashedEmail
+                                        sha256_email_address: hashedEmail
                                     };
                                     console.log('✅ Enhanced Conversions: User data included (Checkout Created)');
                                 }
