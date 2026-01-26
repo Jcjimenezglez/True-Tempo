@@ -1,6 +1,29 @@
 {
-  "latestVersion": "1.2",
+  "latestVersion": "1.3",
   "releases": [
+    {
+      "version": "Version 1.3",
+      "date": "January 25, 2026",
+      "sections": {
+        "new": [
+          "Premium Plans: Choose between Monthly ($3.99) or Lifetime ($24) access with flexible payment options",
+          "Smart Tier System: Personalized experience with different limits for Guest (1), Free (2), and Premium users",
+          "Enhanced Analytics: Separate Activity Chart and Summary Stats for better insights into your focus patterns"
+        ],
+        "improved": [
+          "Pricing modal messaging: Clearer, more concise call-to-action messaging with reduced redundancy",
+          "Visual refinements: Better spacing, typography, and dark scrollbar design throughout pricing sections",
+          "Form management: Smarter form reset logic that automatically shows creation forms when under limits",
+          "Task management UX: Improved feedback when deleting tasks with proper state management"
+        ],
+        "fixed": [
+          "Fixed form not clearing properly after deleting last task",
+          "Fixed task input not resetting to show placeholder after deletion",
+          "Improved conditional flow for Guest vs Free user limit modals",
+          "Better form display logic to prevent unnecessary modal overlays"
+        ]
+      }
+    },
     {
       "version": "Version 1.2",
       "date": "January 22, 2026",
