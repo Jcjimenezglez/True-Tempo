@@ -1502,6 +1502,19 @@
             width: 100%;
         }
         
+        .original-price {
+            font-size: 0.85rem;
+            color: #ffffff60;
+            text-decoration: line-through;
+            font-weight: 400;
+        }
+        
+        .price-with-discount {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        
         .trial-price {
             font-size: 0.9rem;
             font-weight: 700;
@@ -2740,7 +2753,10 @@
                         <p class="plan-description">One-time payment, forever access</p>
                         <div class="plan-pricing">
                             <div class="pricing-row">
-                                <span class="price">$24</span>
+                                <div class="price-with-discount">
+                                    <span class="original-price">$48</span>
+                                    <span class="price">$24</span>
+                                </div>
                                 <span class="period-text">one-time</span>
                             </div>
                         </div>
