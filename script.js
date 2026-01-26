@@ -9217,37 +9217,41 @@ class PomodoroTimer {
                 this.updateCurrentTaskFromQueue();
                 this.updateDisplay();
                 
-                // After deletion, check if user can now add another task
+                // After deletion, check if user has 0 tasks and is below limit
                 const allLocalTasks = this.getLocalTasks();
                 const currentTasks = allLocalTasks.filter(task => !task.completed);
-                let taskLimit;
-                if (!this.isAuthenticated) {
-                    taskLimit = 1;
-                } else if (this.isAuthenticated && !this.isPro) {
-                    taskLimit = 2;
-                } else {
-                    taskLimit = Infinity;
-                }
                 
-                // If we're below the limit, show form so user can add another task
-                if (currentTasks.length < taskLimit) {
-                    // Reset to "add" mode (not edit mode)
-                    this.editingTaskId = null;
+                // Only show form if there are NO tasks remaining and user can add tasks
+                if (currentTasks.length === 0) {
+                    let taskLimit;
+                    if (!this.isAuthenticated) {
+                        taskLimit = 1;
+                    } else if (this.isAuthenticated && !this.isPro) {
+                        taskLimit = 2;
+                    } else {
+                        taskLimit = Infinity;
+                    }
                     
-                    // Hide delete button (only for edit mode)
-                    const deleteButton = modal.querySelector('#deleteTask');
-                    if (deleteButton) deleteButton.style.display = 'none';
-                    
-                    // Clear input fields
-                    if (taskInput) taskInput.value = '';
-                    if (pomodorosInput) pomodorosInput.value = '1';
-                    
-                    // Show form and disable add button
-                    addTaskForm.style.display = 'block';
-                    addTaskBtn.disabled = true;
-                    
-                    // Focus on input
-                    if (taskInput) taskInput.focus();
+                    // If we can add tasks, show form
+                    if (taskLimit > 0) {
+                        // Reset to "add" mode (not edit mode)
+                        this.editingTaskId = null;
+                        
+                        // Hide delete button (only for edit mode)
+                        const deleteButton = modal.querySelector('#deleteTask');
+                        if (deleteButton) deleteButton.style.display = 'none';
+                        
+                        // Clear input fields
+                        if (taskInput) taskInput.value = '';
+                        if (pomodorosInput) pomodorosInput.value = '1';
+                        
+                        // Show form and disable add button
+                        addTaskForm.style.display = 'block';
+                        addTaskBtn.disabled = true;
+                        
+                        // Focus on input
+                        if (taskInput) taskInput.focus();
+                    }
                 }
             });
         }
@@ -9397,37 +9401,41 @@ class PomodoroTimer {
                 this.updateCurrentTaskFromQueue();
                 this.updateDisplay();
                 
-                // After deletion, check if user can now add another task
+                // After deletion, check if user has 0 tasks and is below limit
                 const allLocalTasks = this.getLocalTasks();
                 const currentTasks = allLocalTasks.filter(task => !task.completed);
-                let taskLimit;
-                if (!this.isAuthenticated) {
-                    taskLimit = 1;
-                } else if (this.isAuthenticated && !this.isPro) {
-                    taskLimit = 2;
-                } else {
-                    taskLimit = Infinity;
-                }
                 
-                // If we're below the limit, show form so user can add another task
-                if (currentTasks.length < taskLimit) {
-                    // Reset to "add" mode (not edit mode)
-                    this.editingTaskId = null;
+                // Only show form if there are NO tasks remaining and user can add tasks
+                if (currentTasks.length === 0) {
+                    let taskLimit;
+                    if (!this.isAuthenticated) {
+                        taskLimit = 1;
+                    } else if (this.isAuthenticated && !this.isPro) {
+                        taskLimit = 2;
+                    } else {
+                        taskLimit = Infinity;
+                    }
                     
-                    // Hide delete button (only for edit mode)
-                    const deleteButton = panel.querySelector('#deleteTask');
-                    if (deleteButton) deleteButton.style.display = 'none';
-                    
-                    // Clear input fields
-                    if (taskInput) taskInput.value = '';
-                    if (pomodorosInput) pomodorosInput.value = '1';
-                    
-                    // Show form and disable add button
-                    addTaskForm.style.display = 'block';
-                    addTaskBtn.disabled = true;
-                    
-                    // Focus on input
-                    if (taskInput) taskInput.focus();
+                    // If we can add tasks, show form
+                    if (taskLimit > 0) {
+                        // Reset to "add" mode (not edit mode)
+                        this.editingTaskId = null;
+                        
+                        // Hide delete button (only for edit mode)
+                        const deleteButton = panel.querySelector('#deleteTask');
+                        if (deleteButton) deleteButton.style.display = 'none';
+                        
+                        // Clear input fields
+                        if (taskInput) taskInput.value = '';
+                        if (pomodorosInput) pomodorosInput.value = '1';
+                        
+                        // Show form and disable add button
+                        addTaskForm.style.display = 'block';
+                        addTaskBtn.disabled = true;
+                        
+                        // Focus on input
+                        if (taskInput) taskInput.focus();
+                    }
                 }
             });
         }
