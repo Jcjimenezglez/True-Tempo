@@ -21141,7 +21141,7 @@ class SidebarManager {
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
         this.isMobile = window.innerWidth <= 768;
-        this.isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
+        this.isTablet = window.innerWidth > 768 && window.innerWidth <= 1200;
         this.isTaskPanelOpen = false;
         this.isSettingsPanelOpen = false;
         this.isImmersiveThemePanelOpen = false;
@@ -21443,7 +21443,7 @@ class SidebarManager {
         const wasMobile = this.isMobile;
         const wasTablet = this.isTablet;
         this.isMobile = window.innerWidth <= 768;
-        this.isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
+        this.isTablet = window.innerWidth > 768 && window.innerWidth <= 1200;
         
         if (wasMobile !== this.isMobile || wasTablet !== this.isTablet) {
             this.setupResponsive();
@@ -22383,7 +22383,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check if we're on mobile/tablet
     function isMobileOrTablet() {
-        return window.innerWidth < 1024;
+        return window.innerWidth < 1200;
     }
     
     if (!isMobileOrTablet()) {
@@ -22637,7 +22637,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            if (window.innerWidth >= 1024) {
+            if (window.innerWidth >= 1200) {
                 closeAll();
             }
         }, 250);

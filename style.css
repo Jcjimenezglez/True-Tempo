@@ -9968,7 +9968,7 @@ input:checked + .toggle-slider:before {
    ======================================== */
 
 /* Tablet Landscape (1024px - 768px) */
-@media (max-width: 1024px) and (min-width: 769px) {
+@media (max-width: 1200px) and (min-width: 769px) {
     /* Sidebar adjustments for tablet */
     .sidebar {
         width: var(--sidebar-collapsed-width);
@@ -10778,7 +10778,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* Tablet adjustments */
-@media (max-width: 1024px) {
+@media (max-width: 1199px) {
     .release-notes-toast {
         min-width: 420px;
         max-width: calc(100% - 48px);
@@ -10995,8 +10995,8 @@ input:checked + .toggle-slider:before {
 }
 
 
-/* Hide bottom sheets by default on desktop */
-@media (min-width: 1024px) {
+/* Hide bottom sheets by default on desktop (1200px+) */
+@media (min-width: 1200px) {
     .bottom-sheet-overlay,
     .bottom-sheet {
         display: none !important;
@@ -11007,7 +11007,7 @@ input:checked + .toggle-slider:before {
    TABLET & MOBILE LAYOUT (<1024px)
    =================================== */
 
-@media (max-width: 1023px) {
+@media (max-width: 1199px) {
     /* Hide desktop sidebar */
     .sidebar {
         display: none !important;
