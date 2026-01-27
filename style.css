@@ -719,6 +719,7 @@ a.resource-item:hover,
     justify-content: center;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    padding: 0;
 }
 
 .mobile-menu-toggle:hover {
@@ -727,7 +728,11 @@ a.resource-item:hover,
 }
 
 .mobile-menu-toggle svg {
+    width: 24px;
+    height: 24px;
     color: rgba(255, 255, 255, 0.9);
+    stroke: currentColor;
+    flex-shrink: 0;
 }
 
 .mobile-menu-toggle:active {
@@ -11219,11 +11224,17 @@ input:checked + .toggle-slider:before {
         left: 12px;
         width: 40px;
         height: 40px;
+        padding: 0 !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     .mobile-menu-toggle svg {
-        width: 20px;
-        height: 20px;
+        width: 20px !important;
+        height: 20px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        stroke: currentColor !important;
+        flex-shrink: 0 !important;
     }
     
     .bottom-sheet-nav-item {
