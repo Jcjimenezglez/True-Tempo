@@ -10152,9 +10152,9 @@ input:checked + .toggle-slider:before {
         display: none !important;
     }
     
-    /* Main content hidden - shown via bottom sheets */
+    /* Main content visible with timer */
     .main-content {
-        display: none !important;
+        display: block !important;
     }
     
     /* Sidebar full width on mobile */
@@ -11040,9 +11040,18 @@ input:checked + .toggle-slider:before {
         display: none !important;
     }
     
-    /* Hide main content (will be shown in bottom sheets) */
+    /* Show main content but simplify it - keep timer visible */
     .main-content {
-        display: none !important;
+        display: block !important;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Show only timer section, hide panels */
+    .timer-section {
+        display: flex !important;
+        min-height: 100vh;
     }
     
     /* Hide side panels but keep them in DOM for cloning */

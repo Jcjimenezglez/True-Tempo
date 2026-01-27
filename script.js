@@ -22374,11 +22374,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // BOTTOM SHEET SYSTEM (Tablets & Mobile)
 // ========================================
 
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     'use strict';
+    
+    console.log('🔧 Bottom sheet system initializing...');
+    console.log('📱 Window width:', window.innerWidth);
     
     // Only run on tablets and mobile
     if (window.innerWidth >= 1024) {
+        console.log('⏭️ Desktop mode - bottom sheets disabled');
         return;
     }
     
@@ -22386,6 +22390,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('bottomSheetOverlay');
     const navigationMenu = document.getElementById('navigationMenu');
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
+    console.log('📋 Elements found:', {
+        overlay: !!overlay,
+        navigationMenu: !!navigationMenu,
+        mobileMenuToggle: !!mobileMenuToggle
+    });
+    
+    if (!overlay || !navigationMenu || !mobileMenuToggle) {
+        console.error('❌ Bottom sheet elements not found! Check HTML.');
+        return;
+    }
     
     const bottomSheets = {
         timer: document.getElementById('timerSheet'),
@@ -22395,6 +22410,15 @@ document.addEventListener('DOMContentLoaded', () => {
         leaderboard: document.getElementById('leaderboardSheet'),
         account: document.getElementById('accountSheet')
     };
+    
+    console.log('📋 Bottom sheets found:', {
+        timer: !!bottomSheets.timer,
+        tasks: !!bottomSheets.tasks,
+        cassettes: !!bottomSheets.cassettes,
+        report: !!bottomSheets.report,
+        leaderboard: !!bottomSheets.leaderboard,
+        account: !!bottomSheets.account
+    });
     
     let currentSheet = null;
     let sheetHistory = [];
@@ -22722,5 +22746,5 @@ document.addEventListener('DOMContentLoaded', () => {
     handleSwipe(navigationMenu);
     
     console.log('✅ Bottom sheet system initialized for tablets/mobile');
-})();
+});
 
