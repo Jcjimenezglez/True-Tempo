@@ -22372,268 +22372,204 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========================================
 // BOTTOM SHEET SYSTEM (Tablets & Mobile)
+// Uses original side panels as bottom sheets
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
     
-    console.log('🔧 Bottom sheet system initializing...');
+    console.log('🔧 Mobile/Tablet bottom sheet system initializing...');
     console.log('📱 Window width:', window.innerWidth);
     
-    // Only run on tablets and mobile
-    if (window.innerWidth >= 1024) {
-        console.log('⏭️ Desktop mode - bottom sheets disabled');
+    // Check if we're on mobile/tablet
+    function isMobileOrTablet() {
+        return window.innerWidth < 1024;
+    }
+    
+    if (!isMobileOrTablet()) {
+        console.log('⏭️ Desktop mode - mobile bottom sheets disabled');
         return;
     }
     
-    // Elements
+    // Navigation menu elements
     const overlay = document.getElementById('bottomSheetOverlay');
     const navigationMenu = document.getElementById('navigationMenu');
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     
+    // Original side panels (these have all the functionality)
+    const sidePanels = {
+        timer: {
+            panel: document.getElementById('settingsSidePanel'),
+            overlay: document.getElementById('settingsPanelOverlay')
+        },
+        tasks: {
+            panel: document.getElementById('taskSidePanel'),
+            overlay: document.getElementById('taskPanelOverlay')
+        },
+        cassettes: {
+            panel: document.getElementById('immersiveThemeSidePanel'),
+            overlay: document.getElementById('immersiveThemePanelOverlay')
+        },
+        report: {
+            panel: document.getElementById('reportSidePanel'),
+            overlay: document.getElementById('reportPanelOverlay')
+        },
+        leaderboard: {
+            panel: document.getElementById('leaderboardSidePanel'),
+            overlay: document.getElementById('leaderboardPanelOverlay')
+        }
+    };
+    
+    // Settings modal for Account
+    const settingsModal = document.getElementById('settingsModal');
+    
     console.log('📋 Elements found:', {
         overlay: !!overlay,
         navigationMenu: !!navigationMenu,
-        mobileMenuToggle: !!mobileMenuToggle
+        mobileMenuToggle: !!mobileMenuToggle,
+        sidePanels: Object.keys(sidePanels).reduce((acc, key) => {
+            acc[key] = !!sidePanels[key].panel;
+            return acc;
+        }, {}),
+        settingsModal: !!settingsModal
     });
     
     if (!overlay || !navigationMenu || !mobileMenuToggle) {
-        console.error('❌ Bottom sheet elements not found! Check HTML.');
+        console.error('❌ Required elements not found!');
         return;
     }
     
-    const bottomSheets = {
-        timer: document.getElementById('timerSheet'),
-        tasks: document.getElementById('tasksSheet'),
-        cassettes: document.getElementById('cassettesSheet'),
-        report: document.getElementById('reportSheet'),
-        leaderboard: document.getElementById('leaderboardSheet'),
-        account: document.getElementById('accountSheet')
-    };
+    let currentOpenPanel = null;
     
-    console.log('📋 Bottom sheets found:', {
-        timer: !!bottomSheets.timer,
-        tasks: !!bottomSheets.tasks,
-        cassettes: !!bottomSheets.cassettes,
-        report: !!bottomSheets.report,
-        leaderboard: !!bottomSheets.leaderboard,
-        account: !!bottomSheets.account
-    });
-    
-    let currentSheet = null;
-    let sheetHistory = [];
-    
-    // Helper functions
+    // Helper: Show overlay
     function showOverlay() {
         overlay.style.display = 'block';
         requestAnimationFrame(() => {
             overlay.classList.add('active');
         });
+        document.body.style.overflow = 'hidden';
     }
     
+    // Helper: Hide overlay
     function hideOverlay() {
         overlay.classList.remove('active');
         setTimeout(() => {
             overlay.style.display = 'none';
         }, 300);
+        document.body.style.overflow = '';
     }
     
-    function showBottomSheet(sheet) {
-        if (!sheet) return;
-        
-        sheet.style.display = 'flex';
-        requestAnimationFrame(() => {
-            sheet.classList.add('active');
-        });
-        
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function hideBottomSheet(sheet) {
-        if (!sheet) return;
-        
-        sheet.classList.remove('active');
-        setTimeout(() => {
-            sheet.style.display = 'none';
-        }, 400);
-        
-        // Re-enable body scroll if no sheets are open
-        if (sheetHistory.length === 0) {
-            document.body.style.overflow = '';
-        }
-    }
-    
+    // Open navigation menu
     function openNavigationMenu() {
+        console.log('📂 Opening navigation menu');
         showOverlay();
-        showBottomSheet(navigationMenu);
-        currentSheet = navigationMenu;
-        sheetHistory = ['navigation'];
+        navigationMenu.style.display = 'flex';
+        requestAnimationFrame(() => {
+            navigationMenu.classList.add('active');
+        });
     }
     
+    // Close navigation menu
     function closeNavigationMenu() {
-        hideBottomSheet(navigationMenu);
+        console.log('📁 Closing navigation menu');
+        navigationMenu.classList.remove('active');
+        setTimeout(() => {
+            navigationMenu.style.display = 'none';
+        }, 400);
         hideOverlay();
-        currentSheet = null;
-        sheetHistory = [];
     }
     
-    function openContentSheet(sheetId) {
-        const sheet = bottomSheets[sheetId];
-        if (!sheet) return;
+    // Open a side panel as bottom sheet
+    function openPanel(panelKey) {
+        console.log('📂 Opening panel:', panelKey);
         
-        // Hide navigation menu
-        if (currentSheet === navigationMenu) {
-            hideBottomSheet(navigationMenu);
+        // Close navigation menu first
+        navigationMenu.classList.remove('active');
+        setTimeout(() => {
+            navigationMenu.style.display = 'none';
+        }, 300);
+        
+        if (panelKey === 'account') {
+            // Special handling for Account - use settings modal
+            if (settingsModal) {
+                settingsModal.style.display = 'flex';
+                settingsModal.classList.add('active');
+            }
+            currentOpenPanel = 'account';
+            return;
         }
         
-        // Load content for the sheet
-        loadSheetContent(sheetId);
+        const panelData = sidePanels[panelKey];
+        if (!panelData || !panelData.panel) {
+            console.error('Panel not found:', panelKey);
+            return;
+        }
         
-        // Show the content sheet
-        showBottomSheet(sheet);
-        currentSheet = sheet;
-        sheetHistory.push(sheetId);
+        // Show overlay
+        if (panelData.overlay) {
+            panelData.overlay.style.display = 'block';
+            panelData.overlay.classList.add('active');
+        }
+        
+        // Show panel as bottom sheet
+        panelData.panel.classList.add('open');
+        currentOpenPanel = panelKey;
     }
     
-    function goBack() {
-        if (sheetHistory.length === 0) return;
+    // Close current panel
+    function closeCurrentPanel() {
+        if (!currentOpenPanel) return;
         
-        // Close current sheet
-        if (currentSheet && currentSheet !== navigationMenu) {
-            hideBottomSheet(currentSheet);
-        }
+        console.log('📁 Closing panel:', currentOpenPanel);
         
-        sheetHistory.pop();
-        
-        if (sheetHistory.length === 0) {
-            // Go back to navigation menu
-            openNavigationMenu();
+        if (currentOpenPanel === 'account') {
+            if (settingsModal) {
+                settingsModal.classList.remove('active');
+                setTimeout(() => {
+                    settingsModal.style.display = 'none';
+                }, 300);
+            }
         } else {
-            // Go to previous sheet
-            const previousSheetId = sheetHistory[sheetHistory.length - 1];
-            if (previousSheetId === 'navigation') {
-                showBottomSheet(navigationMenu);
-                currentSheet = navigationMenu;
-            } else {
-                const previousSheet = bottomSheets[previousSheetId];
-                showBottomSheet(previousSheet);
-                currentSheet = previousSheet;
+            const panelData = sidePanels[currentOpenPanel];
+            if (panelData) {
+                panelData.panel.classList.remove('open');
+                if (panelData.overlay) {
+                    panelData.overlay.classList.remove('active');
+                    setTimeout(() => {
+                        panelData.overlay.style.display = 'none';
+                    }, 300);
+                }
             }
         }
-    }
-    
-    function closeAllSheets() {
-        // Close current sheet
-        if (currentSheet) {
-            hideBottomSheet(currentSheet);
-        }
         
-        // Close all content sheets
-        Object.values(bottomSheets).forEach(sheet => {
-            if (sheet.classList.contains('active')) {
-                hideBottomSheet(sheet);
-            }
-        });
-        
+        currentOpenPanel = null;
         hideOverlay();
-        currentSheet = null;
-        sheetHistory = [];
     }
     
-    function loadSheetContent(sheetId) {
-        const contentMap = {
-            timer: loadTimerContent,
-            tasks: loadTasksContent,
-            cassettes: loadCassettesContent,
-            report: loadReportContent,
-            leaderboard: loadLeaderboardContent,
-            account: loadAccountContent
-        };
-        
-        const loadFunction = contentMap[sheetId];
-        if (loadFunction) {
-            loadFunction();
-        }
+    // Close everything
+    function closeAll() {
+        closeCurrentPanel();
+        closeNavigationMenu();
     }
     
-    // Content loading functions
-    function loadTimerContent() {
-        const content = document.getElementById('timerSheetContent');
-        const settingsPanel = document.getElementById('settingsSidePanel');
-        
-        if (settingsPanel && content) {
-            // Clone the settings panel content
-            content.innerHTML = settingsPanel.innerHTML;
-        }
-    }
-    
-    function loadTasksContent() {
-        const content = document.getElementById('tasksSheetContent');
-        const taskPanel = document.getElementById('taskSidePanel');
-        
-        if (taskPanel && content) {
-            // Clone the task panel content
-            content.innerHTML = taskPanel.innerHTML;
-        }
-    }
-    
-    function loadCassettesContent() {
-        const content = document.getElementById('cassettesSheetContent');
-        const themePanel = document.getElementById('immersiveThemeSidePanel');
-        
-        if (themePanel && content) {
-            // Clone the theme panel content
-            content.innerHTML = themePanel.innerHTML;
-        }
-    }
-    
-    function loadReportContent() {
-        const content = document.getElementById('reportSheetContent');
-        const reportPanel = document.getElementById('reportSidePanel');
-        
-        if (reportPanel && content) {
-            // Clone the report panel content
-            content.innerHTML = reportPanel.innerHTML;
-        }
-    }
-    
-    function loadLeaderboardContent() {
-        const content = document.getElementById('leaderboardSheetContent');
-        const leaderboardPanel = document.getElementById('leaderboardSidePanel');
-        
-        if (leaderboardPanel && content) {
-            // Clone the leaderboard panel content
-            content.innerHTML = leaderboardPanel.innerHTML;
-        }
-    }
-    
-    function loadAccountContent() {
-        const content = document.getElementById('accountSheetContent');
-        const settingsModal = document.getElementById('settingsModal');
-        
-        if (settingsModal && content) {
-            // Clone the settings modal content
-            const modalContent = settingsModal.querySelector('.settings-modal-content');
-            if (modalContent) {
-                content.innerHTML = modalContent.innerHTML;
-            }
-        }
-    }
-    
+    // ==================
     // Event Listeners
+    // ==================
     
-    // Mobile menu toggle - open navigation menu
-    if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (currentSheet === navigationMenu) {
-                closeNavigationMenu();
-            } else {
-                openNavigationMenu();
+    // Mobile menu toggle
+    mobileMenuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log('🍔 Hamburger menu clicked');
+        
+        if (navigationMenu.classList.contains('active')) {
+            closeNavigationMenu();
+        } else {
+            if (currentOpenPanel) {
+                closeCurrentPanel();
             }
-        });
-    }
+            openNavigationMenu();
+        }
+    });
     
     // Navigation menu items
     const navItems = document.querySelectorAll('.bottom-sheet-nav-item');
@@ -22641,49 +22577,60 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', () => {
             const target = item.getAttribute('data-target');
             if (target) {
-                const sheetId = target.replace('Sheet', '');
-                openContentSheet(sheetId);
+                const panelKey = target.replace('Sheet', '');
+                openPanel(panelKey);
             }
         });
     });
     
-    // Back buttons
-    const backButtons = document.querySelectorAll('.bottom-sheet-back');
-    backButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            goBack();
-        });
-    });
-    
-    // Close buttons
-    const closeButtons = document.querySelectorAll('.bottom-sheet-close');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            closeAllSheets();
-        });
-    });
-    
     // Overlay click - close all
-    if (overlay) {
-        overlay.addEventListener('click', () => {
-            closeAllSheets();
-        });
-    }
+    overlay.addEventListener('click', () => {
+        closeAll();
+    });
     
-    // Prevent sheet clicks from closing
-    Object.values(bottomSheets).forEach(sheet => {
-        if (sheet) {
-            sheet.addEventListener('click', (e) => {
-                e.stopPropagation();
+    // Navigation menu click - prevent close
+    navigationMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    
+    // Panel overlay clicks - close panel
+    Object.values(sidePanels).forEach(panelData => {
+        if (panelData.overlay) {
+            panelData.overlay.addEventListener('click', () => {
+                closeCurrentPanel();
             });
         }
     });
     
-    if (navigationMenu) {
-        navigationMenu.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-    }
+    // Handle swipe down to close on navigation menu
+    let touchStartY = 0;
+    let touchEndY = 0;
+    
+    navigationMenu.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    navigationMenu.addEventListener('touchmove', (e) => {
+        touchEndY = e.touches[0].clientY;
+        const diff = touchEndY - touchStartY;
+        
+        if (diff > 0 && navigationMenu.scrollTop === 0) {
+            const translateY = Math.min(diff, 200);
+            navigationMenu.style.transform = `translateY(${translateY}px)`;
+        }
+    }, { passive: true });
+    
+    navigationMenu.addEventListener('touchend', () => {
+        const diff = touchEndY - touchStartY;
+        navigationMenu.style.transform = '';
+        
+        if (diff > 100) {
+            closeNavigationMenu();
+        }
+        
+        touchStartY = 0;
+        touchEndY = 0;
+    });
     
     // Handle window resize
     let resizeTimeout;
@@ -22691,60 +22638,11 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             if (window.innerWidth >= 1024) {
-                // Switched to desktop - close all sheets
-                closeAllSheets();
+                closeAll();
             }
         }, 250);
     });
     
-    // Handle swipe down to close (touch devices)
-    let touchStartY = 0;
-    let touchEndY = 0;
-    
-    function handleSwipe(sheet) {
-        if (!sheet) return;
-        
-        sheet.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-        
-        sheet.addEventListener('touchmove', (e) => {
-            touchEndY = e.touches[0].clientY;
-            const diff = touchEndY - touchStartY;
-            
-            // Only allow swipe down
-            if (diff > 0 && sheet.scrollTop === 0) {
-                e.preventDefault();
-                // Apply visual feedback
-                const translateY = Math.min(diff, 200);
-                sheet.style.transform = `translateY(${translateY}px)`;
-            }
-        }, { passive: false });
-        
-        sheet.addEventListener('touchend', () => {
-            const diff = touchEndY - touchStartY;
-            
-            // Reset transform
-            sheet.style.transform = '';
-            
-            // If swiped down more than 100px, close
-            if (diff > 100 && sheet.scrollTop === 0) {
-                if (sheet === navigationMenu) {
-                    closeNavigationMenu();
-                } else {
-                    goBack();
-                }
-            }
-            
-            touchStartY = 0;
-            touchEndY = 0;
-        });
-    }
-    
-    // Enable swipe to close on all sheets
-    Object.values(bottomSheets).forEach(handleSwipe);
-    handleSwipe(navigationMenu);
-    
-    console.log('✅ Bottom sheet system initialized for tablets/mobile');
+    console.log('✅ Mobile/Tablet bottom sheet system initialized');
 });
 

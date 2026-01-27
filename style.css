@@ -10994,33 +10994,6 @@ input:checked + .toggle-slider:before {
     flex: 1;
 }
 
-/* Content Sheet Specific Styles */
-.content-sheet .bottom-sheet-content {
-    padding-top: 0;
-}
-
-/* Reset cloned panel styles for bottom sheets */
-.bottom-sheet-content .task-side-panel {
-    position: relative !important;
-    visibility: visible !important;
-    pointer-events: all !important;
-    z-index: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    transform: none !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-}
-
-/* Ensure sections within bottom sheets are styled properly */
-.bottom-sheet-content .settings-section,
-.bottom-sheet-content .task-list,
-.bottom-sheet-content .cassette-list {
-    width: 100% !important;
-    max-width: 100% !important;
-}
 
 /* Hide bottom sheets by default on desktop */
 @media (min-width: 1024px) {
@@ -11040,30 +11013,33 @@ input:checked + .toggle-slider:before {
         display: none !important;
     }
     
-    /* Show main content but simplify it - keep timer visible */
+    /* Main content full width */
     .main-content {
         display: block !important;
-        width: 100%;
-        margin: 0;
-        padding: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     
-    /* Show only timer section, hide panels */
+    /* Timer section full screen */
     .timer-section {
         display: flex !important;
         min-height: 100vh;
+        width: 100%;
     }
     
-    /* Hide side panels but keep them in DOM for cloning */
-    .task-side-panel {
-        position: absolute;
-        visibility: hidden;
-        pointer-events: none;
-        z-index: -1;
+    /* Hide header buttons on timer (Pomodoro pill, streaks, task) */
+    .timer-header,
+    .timer-header-auth,
+    #timerHeaderAuth,
+    #timerHeaderFocusReport {
+        display: none !important;
     }
     
-    /* Hide panel overlays */
-    .task-panel-overlay {
+    /* Hide Spotify widget on mobile/tablet - too big */
+    .spotify-widget,
+    .spotify-embed-container,
+    iframe[src*="spotify"] {
         display: none !important;
     }
     
@@ -11096,16 +11072,106 @@ input:checked + .toggle-slider:before {
     .mobile-menu-toggle svg {
         width: 24px;
         height: 24px;
+        color: #fff;
     }
     
-    /* Show timer section centered when no bottom sheet is active */
-    body {
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    }
-    
-    /* Remove desktop-required screen for tablets */
+    /* Remove desktop-required screen */
     .desktop-required-screen {
         display: none !important;
+    }
+    
+    /* =============================================
+       SIDE PANELS AS BOTTOM SHEETS (Mobile/Tablet)
+       ============================================= */
+    
+    /* Panel overlays - full screen dark background */
+    .task-panel-overlay {
+        display: none;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(0, 0, 0, 0.7) !important;
+        z-index: 9998 !important;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .task-panel-overlay.active {
+        display: block !important;
+        opacity: 1;
+    }
+    
+    /* Transform side panels into bottom sheets */
+    .task-side-panel {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 85vh !important;
+        transform: translateY(100%) !important;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-radius: 24px 24px 0 0 !important;
+        z-index: 9999 !important;
+        background: #1a1a1a !important;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .task-side-panel.open {
+        transform: translateY(0) !important;
+    }
+    
+    /* Add drag handle to panels */
+    .task-side-panel::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        z-index: 10;
+    }
+    
+    /* Panel header adjustments */
+    .task-side-panel .settings-section-header,
+    .task-side-panel .panel-header {
+        padding-top: 24px !important;
+    }
+    
+    /* Panel content scrollable */
+    .task-side-panel .panel-content,
+    .task-side-panel .settings-content {
+        flex: 1;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 40px !important;
+    }
+    
+    /* Settings modal as bottom sheet */
+    .settings-modal-overlay.active .settings-modal {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 85vh !important;
+        border-radius: 24px 24px 0 0 !important;
+        transform: translateY(0) !important;
     }
 }
 
@@ -11128,15 +11194,38 @@ input:checked + .toggle-slider:before {
     }
     
     .mobile-menu-toggle {
+        display: flex !important;
         top: 16px;
         left: 16px;
         width: 44px;
         height: 44px;
     }
+    
+    /* Adjust side panels for smaller screens */
+    .task-side-panel {
+        max-height: 90vh !important;
+    }
 }
 
-/* Very small mobile devices (< 375px) */
-@media (max-width: 374px) {
+/* Very small mobile devices (< 480px) */
+@media (max-width: 480px) {
+    .desktop-required-screen {
+        display: none !important;
+    }
+    
+    .mobile-menu-toggle {
+        display: flex !important;
+        top: 12px;
+        left: 12px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .mobile-menu-toggle svg {
+        width: 20px;
+        height: 20px;
+    }
+    
     .bottom-sheet-nav-item {
         padding: 14px 16px;
         font-size: 0.9375rem;
@@ -11145,5 +11234,21 @@ input:checked + .toggle-slider:before {
     .bottom-sheet-nav-item svg {
         width: 20px;
         height: 20px;
+    }
+    
+    .task-side-panel {
+        max-height: 92vh !important;
+    }
+}
+
+/* Very small mobile devices (< 375px) */
+@media (max-width: 374px) {
+    .mobile-menu-toggle {
+        display: flex !important;
+    }
+    
+    .bottom-sheet-nav-item {
+        padding: 12px 14px;
+        font-size: 0.875rem;
     }
 }
