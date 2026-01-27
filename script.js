@@ -22370,3 +22370,357 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })();
 
+// ========================================
+// BOTTOM SHEET SYSTEM (Tablets & Mobile)
+// ========================================
+
+(function() {
+    'use strict';
+    
+    // Only run on tablets and mobile
+    if (window.innerWidth >= 1024) {
+        return;
+    }
+    
+    // Elements
+    const overlay = document.getElementById('bottomSheetOverlay');
+    const navigationMenu = document.getElementById('navigationMenu');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
+    const bottomSheets = {
+        timer: document.getElementById('timerSheet'),
+        tasks: document.getElementById('tasksSheet'),
+        cassettes: document.getElementById('cassettesSheet'),
+        report: document.getElementById('reportSheet'),
+        leaderboard: document.getElementById('leaderboardSheet'),
+        account: document.getElementById('accountSheet')
+    };
+    
+    let currentSheet = null;
+    let sheetHistory = [];
+    
+    // Helper functions
+    function showOverlay() {
+        overlay.style.display = 'block';
+        requestAnimationFrame(() => {
+            overlay.classList.add('active');
+        });
+    }
+    
+    function hideOverlay() {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+    }
+    
+    function showBottomSheet(sheet) {
+        if (!sheet) return;
+        
+        sheet.style.display = 'flex';
+        requestAnimationFrame(() => {
+            sheet.classList.add('active');
+        });
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function hideBottomSheet(sheet) {
+        if (!sheet) return;
+        
+        sheet.classList.remove('active');
+        setTimeout(() => {
+            sheet.style.display = 'none';
+        }, 400);
+        
+        // Re-enable body scroll if no sheets are open
+        if (sheetHistory.length === 0) {
+            document.body.style.overflow = '';
+        }
+    }
+    
+    function openNavigationMenu() {
+        showOverlay();
+        showBottomSheet(navigationMenu);
+        currentSheet = navigationMenu;
+        sheetHistory = ['navigation'];
+    }
+    
+    function closeNavigationMenu() {
+        hideBottomSheet(navigationMenu);
+        hideOverlay();
+        currentSheet = null;
+        sheetHistory = [];
+    }
+    
+    function openContentSheet(sheetId) {
+        const sheet = bottomSheets[sheetId];
+        if (!sheet) return;
+        
+        // Hide navigation menu
+        if (currentSheet === navigationMenu) {
+            hideBottomSheet(navigationMenu);
+        }
+        
+        // Load content for the sheet
+        loadSheetContent(sheetId);
+        
+        // Show the content sheet
+        showBottomSheet(sheet);
+        currentSheet = sheet;
+        sheetHistory.push(sheetId);
+    }
+    
+    function goBack() {
+        if (sheetHistory.length === 0) return;
+        
+        // Close current sheet
+        if (currentSheet && currentSheet !== navigationMenu) {
+            hideBottomSheet(currentSheet);
+        }
+        
+        sheetHistory.pop();
+        
+        if (sheetHistory.length === 0) {
+            // Go back to navigation menu
+            openNavigationMenu();
+        } else {
+            // Go to previous sheet
+            const previousSheetId = sheetHistory[sheetHistory.length - 1];
+            if (previousSheetId === 'navigation') {
+                showBottomSheet(navigationMenu);
+                currentSheet = navigationMenu;
+            } else {
+                const previousSheet = bottomSheets[previousSheetId];
+                showBottomSheet(previousSheet);
+                currentSheet = previousSheet;
+            }
+        }
+    }
+    
+    function closeAllSheets() {
+        // Close current sheet
+        if (currentSheet) {
+            hideBottomSheet(currentSheet);
+        }
+        
+        // Close all content sheets
+        Object.values(bottomSheets).forEach(sheet => {
+            if (sheet.classList.contains('active')) {
+                hideBottomSheet(sheet);
+            }
+        });
+        
+        hideOverlay();
+        currentSheet = null;
+        sheetHistory = [];
+    }
+    
+    function loadSheetContent(sheetId) {
+        const contentMap = {
+            timer: loadTimerContent,
+            tasks: loadTasksContent,
+            cassettes: loadCassettesContent,
+            report: loadReportContent,
+            leaderboard: loadLeaderboardContent,
+            account: loadAccountContent
+        };
+        
+        const loadFunction = contentMap[sheetId];
+        if (loadFunction) {
+            loadFunction();
+        }
+    }
+    
+    // Content loading functions
+    function loadTimerContent() {
+        const content = document.getElementById('timerSheetContent');
+        const settingsPanel = document.getElementById('settingsSidePanel');
+        
+        if (settingsPanel && content) {
+            // Clone the settings panel content
+            content.innerHTML = settingsPanel.innerHTML;
+        }
+    }
+    
+    function loadTasksContent() {
+        const content = document.getElementById('tasksSheetContent');
+        const taskPanel = document.getElementById('taskSidePanel');
+        
+        if (taskPanel && content) {
+            // Clone the task panel content
+            content.innerHTML = taskPanel.innerHTML;
+        }
+    }
+    
+    function loadCassettesContent() {
+        const content = document.getElementById('cassettesSheetContent');
+        const themePanel = document.getElementById('immersiveThemeSidePanel');
+        
+        if (themePanel && content) {
+            // Clone the theme panel content
+            content.innerHTML = themePanel.innerHTML;
+        }
+    }
+    
+    function loadReportContent() {
+        const content = document.getElementById('reportSheetContent');
+        const reportPanel = document.getElementById('reportSidePanel');
+        
+        if (reportPanel && content) {
+            // Clone the report panel content
+            content.innerHTML = reportPanel.innerHTML;
+        }
+    }
+    
+    function loadLeaderboardContent() {
+        const content = document.getElementById('leaderboardSheetContent');
+        const leaderboardPanel = document.getElementById('leaderboardSidePanel');
+        
+        if (leaderboardPanel && content) {
+            // Clone the leaderboard panel content
+            content.innerHTML = leaderboardPanel.innerHTML;
+        }
+    }
+    
+    function loadAccountContent() {
+        const content = document.getElementById('accountSheetContent');
+        const settingsModal = document.getElementById('settingsModal');
+        
+        if (settingsModal && content) {
+            // Clone the settings modal content
+            const modalContent = settingsModal.querySelector('.settings-modal-content');
+            if (modalContent) {
+                content.innerHTML = modalContent.innerHTML;
+            }
+        }
+    }
+    
+    // Event Listeners
+    
+    // Mobile menu toggle - open navigation menu
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentSheet === navigationMenu) {
+                closeNavigationMenu();
+            } else {
+                openNavigationMenu();
+            }
+        });
+    }
+    
+    // Navigation menu items
+    const navItems = document.querySelectorAll('.bottom-sheet-nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const target = item.getAttribute('data-target');
+            if (target) {
+                const sheetId = target.replace('Sheet', '');
+                openContentSheet(sheetId);
+            }
+        });
+    });
+    
+    // Back buttons
+    const backButtons = document.querySelectorAll('.bottom-sheet-back');
+    backButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            goBack();
+        });
+    });
+    
+    // Close buttons
+    const closeButtons = document.querySelectorAll('.bottom-sheet-close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            closeAllSheets();
+        });
+    });
+    
+    // Overlay click - close all
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            closeAllSheets();
+        });
+    }
+    
+    // Prevent sheet clicks from closing
+    Object.values(bottomSheets).forEach(sheet => {
+        if (sheet) {
+            sheet.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+    });
+    
+    if (navigationMenu) {
+        navigationMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (window.innerWidth >= 1024) {
+                // Switched to desktop - close all sheets
+                closeAllSheets();
+            }
+        }, 250);
+    });
+    
+    // Handle swipe down to close (touch devices)
+    let touchStartY = 0;
+    let touchEndY = 0;
+    
+    function handleSwipe(sheet) {
+        if (!sheet) return;
+        
+        sheet.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        sheet.addEventListener('touchmove', (e) => {
+            touchEndY = e.touches[0].clientY;
+            const diff = touchEndY - touchStartY;
+            
+            // Only allow swipe down
+            if (diff > 0 && sheet.scrollTop === 0) {
+                e.preventDefault();
+                // Apply visual feedback
+                const translateY = Math.min(diff, 200);
+                sheet.style.transform = `translateY(${translateY}px)`;
+            }
+        }, { passive: false });
+        
+        sheet.addEventListener('touchend', () => {
+            const diff = touchEndY - touchStartY;
+            
+            // Reset transform
+            sheet.style.transform = '';
+            
+            // If swiped down more than 100px, close
+            if (diff > 100 && sheet.scrollTop === 0) {
+                if (sheet === navigationMenu) {
+                    closeNavigationMenu();
+                } else {
+                    goBack();
+                }
+            }
+            
+            touchStartY = 0;
+            touchEndY = 0;
+        });
+    }
+    
+    // Enable swipe to close on all sheets
+    Object.values(bottomSheets).forEach(handleSwipe);
+    handleSwipe(navigationMenu);
+    
+    console.log('✅ Bottom sheet system initialized for tablets/mobile');
+})();
+
