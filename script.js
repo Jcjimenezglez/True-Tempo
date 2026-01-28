@@ -6823,6 +6823,51 @@ class PomodoroTimer {
                 console.log('📊 Premium Success tracked to Mixpanel:', paymentType);
             }
             
+            // Track Google Ads conversion for Monthly or Lifetime
+            // This is the actual purchase conversion (different from Checkout Session Created)
+            try {
+                if (typeof window.gtag === 'function') {
+                    let conversionLabel, conversionValue;
+                    
+                    if (paymentType === 'lifetime') {
+                        // Lifetime: $24.0 with label unsECLnWiewbENjym89B
+                        conversionLabel = 'AW-17614436696/unsECLnWiewbENjym89B';
+                        conversionValue = 24.0;
+                    } else {
+                        // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
+                        conversionLabel = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
+                        conversionValue = 3.99;
+                    }
+                    
+                    const conversionData = {
+                        'send_to': conversionLabel,
+                        'value': conversionValue,
+                        'currency': 'USD',
+                        'transaction_id': sessionId
+                    };
+                    
+                    // Add Enhanced Conversions user data if available
+                    if (userEmail && typeof window.hashEmail === 'function') {
+                        try {
+                            const hashedEmail = await window.hashEmail(userEmail);
+                            if (hashedEmail) {
+                                conversionData.user_data = {
+                                    sha256_email_address: hashedEmail
+                                };
+                                console.log('✅ Enhanced Conversions: User data included for', paymentType);
+                            }
+                        } catch (hashError) {
+                            console.log('⚠️ Enhanced Conversions: Email hashing failed');
+                        }
+                    }
+                    
+                    window.gtag('event', 'conversion', conversionData);
+                    console.log(`📊 Google Ads ${paymentType.toUpperCase()} conversion tracked: $${conversionValue}`);
+                }
+            } catch (gtagError) {
+                console.error('⚠️ Google Ads conversion tracking failed:', gtagError);
+            }
+            
             await this.refreshPremiumFromServer();
             this.removeUrlParams(['session_id']);
         } catch (error) {
