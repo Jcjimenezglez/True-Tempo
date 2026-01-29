@@ -6447,6 +6447,41 @@ input:checked + .toggle-slider:before {
     font-weight: 600;
 }
 
+/* Editable duration input styles */
+.duration-value.editable-duration {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 4px 8px;
+    text-align: center;
+    width: 60px;
+    cursor: text;
+    transition: all 0.2s ease;
+}
+
+.duration-value.editable-duration:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.duration-value.editable-duration:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.duration-value.editable-duration:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Show unit after the input using CSS */
+.duration-value.editable-duration::after {
+    content: ' ' attr(data-unit);
+    pointer-events: none;
+}
+
 .duration-slider {
     width: 100%;
     height: 6px;

@@ -1274,7 +1274,7 @@ class PomodoroTimer {
                 sessionsCard.style.opacity = '1';
                 sessionsCard.style.pointerEvents = 'auto';
                 sessionsCard.style.cursor = 'auto';
-                sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+                sessionsValue.value = this.sessionsPerCycle;
             }
             
             // Enable Long Break card
@@ -1470,7 +1470,7 @@ class PomodoroTimer {
         if (workSlider && workValue) {
             workSlider.addEventListener('input', (e) => {
                 const minutes = parseInt(e.target.value);
-                workValue.textContent = `${minutes} min`;
+                workValue.value = minutes;
             });
         }
         
@@ -1480,7 +1480,7 @@ class PomodoroTimer {
         if (shortBreakSlider && shortBreakValue) {
             shortBreakSlider.addEventListener('input', (e) => {
                 const minutes = parseInt(e.target.value);
-                shortBreakValue.textContent = `${minutes} min`;
+                shortBreakValue.value = minutes;
             });
         }
         
@@ -1490,7 +1490,7 @@ class PomodoroTimer {
         if (longBreakSlider && longBreakValue) {
             longBreakSlider.addEventListener('input', (e) => {
                 const minutes = parseInt(e.target.value);
-                longBreakValue.textContent = `${minutes} min`;
+                longBreakValue.value = minutes;
             });
         }
         
@@ -1500,7 +1500,7 @@ class PomodoroTimer {
         if (sessionsSlider && sessionsValue) {
             sessionsSlider.addEventListener('input', (e) => {
                 const sessions = parseInt(e.target.value);
-                sessionsValue.textContent = `${sessions} sesh`;
+                sessionsValue.value = sessions;
             });
         }
         
@@ -1580,6 +1580,9 @@ class PomodoroTimer {
                 form.style.display = 'block';
                 createBtn.style.display = 'none';
                 
+                // Setup editable duration inputs
+                this.setupEditableDurationInputs(form);
+                
                 // Focus on name input
                 const nameInput = document.getElementById('customName');
                 if (nameInput) {
@@ -1614,6 +1617,9 @@ class PomodoroTimer {
                 if (form && createBtn) {
                     form.style.display = 'block';
                     createBtn.style.display = 'none';
+                    
+                    // Setup editable duration inputs
+                    this.setupEditableDurationInputs(form);
                     
                     // Focus on name input
                     const nameInput = document.getElementById('customName');
@@ -1903,16 +1909,16 @@ class PomodoroTimer {
         }
         
         // Reset text values AND sliders to default positions
-        if (workValue) workValue.textContent = '25 min';
+        if (workValue) workValue.value = 25;
         if (workSlider) workSlider.value = 25;
         
-        if (shortBreakValue) shortBreakValue.textContent = '5 min';
+        if (shortBreakValue) shortBreakValue.value = 5;
         if (shortBreakSlider) shortBreakSlider.value = 5;
         
-        if (longBreakValue) longBreakValue.textContent = '15 min';
+        if (longBreakValue) longBreakValue.value = 15;
         if (longBreakSlider) longBreakSlider.value = 15;
         
-        if (sessionsValue) sessionsValue.textContent = '4 sesh';
+        if (sessionsValue) sessionsValue.value = 4;
         if (sessionsSlider) sessionsSlider.value = 4;
         
         // Reset emoji to default
@@ -1969,10 +1975,10 @@ class PomodoroTimer {
             if (!nameInput || !workValue || !shortBreakValue || !longBreakValue || !sessionsValue) return;
             
             const name = nameInput.value.trim();
-            const workMinutes = parseInt(workValue.textContent);
-            const shortBreakMinutes = parseInt(shortBreakValue.textContent);
-            const longBreakMinutes = parseInt(longBreakValue.textContent);
-            const sessions = parseInt(sessionsValue.textContent);
+            const workMinutes = parseInt(workValue.value);
+            const shortBreakMinutes = parseInt(shortBreakValue.value);
+            const longBreakMinutes = parseInt(longBreakValue.value);
+            const sessions = parseInt(sessionsValue.value);
             const emoji = selectedEmoji ? selectedEmoji.dataset.emoji : '🎯';
             
             if (!name) {
@@ -2236,19 +2242,19 @@ class PomodoroTimer {
             if (nameInput) nameInput.value = technique.name;
             if (workSlider && workValue) {
                 workSlider.value = technique.workMinutes;
-                workValue.textContent = `${technique.workMinutes} min`;
+                workValue.value = technique.workMinutes;
             }
             if (shortBreakSlider && shortBreakValue) {
                 shortBreakSlider.value = technique.shortBreakMinutes;
-                shortBreakValue.textContent = `${technique.shortBreakMinutes} min`;
+                shortBreakValue.value = technique.shortBreakMinutes;
             }
             if (longBreakSlider && longBreakValue) {
                 longBreakSlider.value = technique.longBreakMinutes;
-                longBreakValue.textContent = `${technique.longBreakMinutes} min`;
+                longBreakValue.value = technique.longBreakMinutes;
             }
             if (sessionsSlider && sessionsValue) {
                 sessionsSlider.value = technique.sessions;
-                sessionsValue.textContent = `${technique.sessions} sesh`;
+                sessionsValue.value = technique.sessions;
             }
             
             // Update word count
@@ -2853,25 +2859,81 @@ class PomodoroTimer {
         if (pomodoroSlider && pomodoroValue) {
             const minutes = Math.floor(this.workTime / 60);
             pomodoroSlider.value = minutes;
-            pomodoroValue.textContent = `${minutes} min`;
+            pomodoroValue.value = minutes;
         }
         
         if (shortBreakSlider && shortBreakValue) {
             const minutes = Math.floor(this.shortBreakTime / 60);
             shortBreakSlider.value = minutes;
-            shortBreakValue.textContent = `${minutes} min`;
+            shortBreakValue.value = minutes;
         }
         
         if (longBreakSlider && longBreakValue) {
             const minutes = Math.floor(this.longBreakTime / 60);
             longBreakSlider.value = minutes;
-            longBreakValue.textContent = `${minutes} min`;
+            longBreakValue.value = minutes;
         }
         
         if (sessionsSlider && sessionsValue) {
             sessionsSlider.value = this.sessionsPerCycle;
-            sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+            sessionsValue.value = this.sessionsPerCycle;
         }
+    }
+
+    // Setup editable duration inputs to allow manual keyboard input
+    setupEditableDurationInputs(container) {
+        const editableInputs = container.querySelectorAll('.editable-duration');
+        
+        editableInputs.forEach(input => {
+            const sliderId = input.dataset.slider;
+            const slider = document.getElementById(sliderId);
+            const min = parseInt(input.dataset.min);
+            const max = parseInt(input.dataset.max);
+            const unit = input.dataset.unit;
+            
+            if (!slider) return;
+            
+            // Skip if already initialized
+            if (input.dataset.initialized === 'true') return;
+            input.dataset.initialized = 'true';
+            
+            // Handle focus - select all text for easy editing
+            input.addEventListener('focus', (e) => {
+                e.target.select();
+            });
+            
+            // Handle input - only allow numbers
+            input.addEventListener('input', (e) => {
+                // Remove non-numeric characters
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+            
+            // Handle blur - validate and sync with slider
+            input.addEventListener('blur', (e) => {
+                let value = parseInt(e.target.value);
+                
+                // Validate value
+                if (isNaN(value) || value < min) {
+                    value = min;
+                } else if (value > max) {
+                    value = max;
+                }
+                
+                // Update input and slider
+                e.target.value = value;
+                slider.value = value;
+                
+                // Trigger slider input event to update everything
+                slider.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            
+            // Handle Enter key - blur to apply changes
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.target.blur();
+                }
+            });
+        });
     }
 
     // Apply saved technique once, after auth/user state is hydrated
@@ -6030,10 +6092,10 @@ class PomodoroTimer {
             sessionsSlider.value = preset.sessions;
 
             // Update display values
-            document.querySelector('#sidebarPomodoroValue').textContent = `${preset.work} min`;
-            document.querySelector('#sidebarShortBreakValue').textContent = `${preset.shortBreak} min`;
-            document.querySelector('#sidebarLongBreakValue').textContent = `${preset.longBreak} min`;
-            document.querySelector('#sidebarSessionsValue').textContent = `${preset.sessions} sesh`;
+            document.querySelector('#sidebarPomodoroValue').value = preset.work;
+            document.querySelector('#sidebarShortBreakValue').value = preset.shortBreak;
+            document.querySelector('#sidebarLongBreakValue').value = preset.longBreak;
+            document.querySelector('#sidebarSessionsValue').value = preset.sessions;
         }
     }
 
@@ -17265,7 +17327,7 @@ class PomodoroTimer {
 
         if (pomodoroSlider && pomodoroValue) {
             pomodoroSlider.value = pomodoroMin;
-            pomodoroValue.textContent = `${pomodoroMin} min`;
+            pomodoroValue.value = pomodoroMin;
             
             pomodoroSlider.addEventListener('input', (e) => {
                 // Track Mixpanel event for sidebar slider
@@ -17276,7 +17338,7 @@ class PomodoroTimer {
                     source: 'sidebar'
                 });
                 
-                pomodoroValue.textContent = `${e.target.value} min`;
+                pomodoroValue.value = e.target.value;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
                 this.deselectTechniqueInPanel();
@@ -17285,7 +17347,7 @@ class PomodoroTimer {
 
         if (shortBreakSlider && shortBreakValue) {
             shortBreakSlider.value = shortBreakMin;
-            shortBreakValue.textContent = `${shortBreakMin} min`;
+            shortBreakValue.value = shortBreakMin;
             
             shortBreakSlider.addEventListener('input', (e) => {
                 // Track Mixpanel event for sidebar slider
@@ -17296,7 +17358,7 @@ class PomodoroTimer {
                     source: 'sidebar'
                 });
                 
-                shortBreakValue.textContent = `${e.target.value} min`;
+                shortBreakValue.value = e.target.value;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
                 this.deselectTechniqueInPanel();
@@ -17305,7 +17367,7 @@ class PomodoroTimer {
 
         if (longBreakSlider && longBreakValue) {
             longBreakSlider.value = longBreakMin;
-            longBreakValue.textContent = `${longBreakMin} min`;
+            longBreakValue.value = longBreakMin;
             
             const longBreakCard = longBreakSlider.closest('.duration-item');
             
@@ -17336,7 +17398,7 @@ class PomodoroTimer {
                     source: 'sidebar'
                 });
                 
-                longBreakValue.textContent = `${e.target.value} min`;
+                longBreakValue.value = e.target.value;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
                 this.deselectTechniqueInPanel();
@@ -17350,7 +17412,7 @@ class PomodoroTimer {
         
         if (sessionsSlider && sessionsValue && sessionsCard) {
             sessionsSlider.value = this.sessionsPerCycle;
-            sessionsValue.textContent = `${this.sessionsPerCycle} sesh`;
+            sessionsValue.value = this.sessionsPerCycle;
             
             // Disable entire sessions card for guest users
             if (!this.isAuthenticated) {
@@ -17379,12 +17441,15 @@ class PomodoroTimer {
                     source: 'sidebar'
                 });
                 
-                sessionsValue.textContent = `${e.target.value} sesh`;
+                sessionsValue.value = e.target.value;
                 this.enableSaveButton();
                 // Deselect technique when manually changing duration
                 this.deselectTechniqueInPanel();
             });
         }
+
+        // Setup editable duration inputs for sidebar
+        this.setupEditableDurationInputs(settingsPanel);
 
         // Techniques presets
         const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
