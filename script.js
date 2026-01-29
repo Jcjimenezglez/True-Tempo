@@ -2897,15 +2897,34 @@ class PomodoroTimer {
             if (input.dataset.initialized === 'true') return;
             input.dataset.initialized = 'true';
             
+            // Store the last valid value
+            let lastValidValue = input.value;
+            
             // Handle focus - select all text for easy editing
             input.addEventListener('focus', (e) => {
+                lastValidValue = e.target.value;
                 e.target.select();
             });
             
-            // Handle input - only allow numbers
+            // Handle input - only allow numbers and max 3 digits
             input.addEventListener('input', (e) => {
+                let value = e.target.value;
+                
                 // Remove non-numeric characters
-                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                value = value.replace(/[^0-9]/g, '');
+                
+                // Limit to 3 digits
+                if (value.length > 3) {
+                    value = value.slice(0, 3);
+                }
+                
+                // If value is empty after cleaning, restore last valid value
+                if (value === '') {
+                    e.target.value = lastValidValue;
+                } else {
+                    e.target.value = value;
+                    lastValidValue = value;
+                }
             });
             
             // Handle blur - validate and sync with slider
@@ -2922,6 +2941,7 @@ class PomodoroTimer {
                 // Update input and slider
                 e.target.value = value;
                 slider.value = value;
+                lastValidValue = value.toString();
                 
                 // Trigger slider input event to update everything
                 slider.dispatchEvent(new Event('input', { bubbles: true }));
