@@ -6447,27 +6447,50 @@ input:checked + .toggle-slider:before {
     font-weight: 600;
 }
 
-/* Editable duration input styles */
-.duration-value.editable-duration {
+/* Duration input wrapper */
+.duration-input-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     padding: 4px 8px;
-    text-align: center;
-    width: 60px;
-    cursor: text;
     transition: all 0.2s ease;
 }
 
-.duration-value.editable-duration:hover {
+.duration-input-wrapper:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-.duration-value.editable-duration:focus {
-    outline: none;
+.duration-input-wrapper:focus-within {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Editable duration input styles */
+.duration-value.editable-duration {
+    background: transparent;
+    border: none;
+    padding: 0;
+    text-align: right;
+    width: 40px;
+    cursor: text;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.duration-value.editable-duration:hover {
+    background: transparent;
+    border: none;
+}
+
+.duration-value.editable-duration:focus {
+    outline: none;
+    background: transparent;
+    border: none;
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -6476,9 +6499,13 @@ input:checked + .toggle-slider:before {
     opacity: 0.5;
 }
 
-/* Show unit after the input using CSS */
-.duration-value.editable-duration::after {
-    content: ' ' attr(data-unit);
+/* Duration unit label */
+.duration-unit {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    white-space: nowrap;
+    user-select: none;
     pointer-events: none;
 }
 

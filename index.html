@@ -776,28 +776,40 @@
                                         <div class="duration-item">
                                             <div class="duration-header">
                                                 <label>Focus</label>
-                                                <input type="text" class="duration-value editable-duration" id="customWorkValue" value="25" data-unit="min" data-slider="customWorkSlider" data-min="1" data-max="500" inputmode="numeric">
+                                                <div class="duration-input-wrapper">
+                                                    <input type="text" class="duration-value editable-duration" id="customWorkValue" value="25" data-unit="min" data-slider="customWorkSlider" data-min="1" data-max="120" inputmode="numeric">
+                                                    <span class="duration-unit">min</span>
+                                                </div>
                                             </div>
-                                            <input type="range" id="customWorkSlider" min="1" max="500" value="25" class="duration-slider" aria-label="Focus duration in minutes">
+                                            <input type="range" id="customWorkSlider" min="1" max="120" value="25" class="duration-slider" aria-label="Focus duration in minutes">
                                         </div>
                                         <div class="duration-item">
                                             <div class="duration-header">
                                                 <label>Short Break</label>
-                                                <input type="text" class="duration-value editable-duration" id="customShortBreakValue" value="5" data-unit="min" data-slider="customShortBreakSlider" data-min="1" data-max="30" inputmode="numeric">
+                                                <div class="duration-input-wrapper">
+                                                    <input type="text" class="duration-value editable-duration" id="customShortBreakValue" value="5" data-unit="min" data-slider="customShortBreakSlider" data-min="1" data-max="30" inputmode="numeric">
+                                                    <span class="duration-unit">min</span>
+                                                </div>
                                             </div>
                                             <input type="range" id="customShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
                                         </div>
                                         <div class="duration-item">
                                             <div class="duration-header">
                                                 <label>Long Break</label>
-                                                <input type="text" class="duration-value editable-duration" id="customLongBreakValue" value="15" data-unit="min" data-slider="customLongBreakSlider" data-min="1" data-max="60" inputmode="numeric">
+                                                <div class="duration-input-wrapper">
+                                                    <input type="text" class="duration-value editable-duration" id="customLongBreakValue" value="15" data-unit="min" data-slider="customLongBreakSlider" data-min="1" data-max="60" inputmode="numeric">
+                                                    <span class="duration-unit">min</span>
+                                                </div>
                                             </div>
                                             <input type="range" id="customLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
                                         </div>
                                         <div class="duration-item">
                                             <div class="duration-header">
                                                 <label>Sessions</label>
-                                                <input type="text" class="duration-value editable-duration" id="customSessionsValue" value="4" data-unit="sesh" data-slider="customSessionsSlider" data-min="1" data-max="12" inputmode="numeric">
+                                                <div class="duration-input-wrapper">
+                                                    <input type="text" class="duration-value editable-duration" id="customSessionsValue" value="4" data-unit="sesh" data-slider="customSessionsSlider" data-min="1" data-max="12" inputmode="numeric">
+                                                    <span class="duration-unit">sesh</span>
+                                                </div>
                                             </div>
                                             <input type="range" id="customSessionsSlider" min="1" max="12" value="4" class="duration-slider" aria-label="Number of sessions">
                                         </div>
@@ -888,28 +900,40 @@
                         <div class="duration-item" id="sidebarFocusOption">
                             <div class="duration-header">
                                 <label>Focus</label>
-                                <input type="text" class="duration-value editable-duration" id="sidebarPomodoroValue" value="25" data-unit="min" data-slider="sidebarPomodoroSlider" data-min="1" data-max="500" inputmode="numeric">
+                                <div class="duration-input-wrapper">
+                                    <input type="text" class="duration-value editable-duration" id="sidebarPomodoroValue" value="25" data-unit="min" data-slider="sidebarPomodoroSlider" data-min="1" data-max="120" inputmode="numeric">
+                                    <span class="duration-unit">min</span>
+                                </div>
                             </div>
-                            <input type="range" id="sidebarPomodoroSlider" min="1" max="500" value="25" class="duration-slider" aria-label="Duration in minutes">
+                            <input type="range" id="sidebarPomodoroSlider" min="1" max="120" value="25" class="duration-slider" aria-label="Duration in minutes">
                         </div>
                         <div class="duration-item" id="sidebarShortBreakOption">
                             <div class="duration-header">
                                 <label>Short Break</label>
-                                <input type="text" class="duration-value editable-duration" id="sidebarShortBreakValue" value="5" data-unit="min" data-slider="sidebarShortBreakSlider" data-min="1" data-max="30" inputmode="numeric">
+                                <div class="duration-input-wrapper">
+                                    <input type="text" class="duration-value editable-duration" id="sidebarShortBreakValue" value="5" data-unit="min" data-slider="sidebarShortBreakSlider" data-min="1" data-max="30" inputmode="numeric">
+                                    <span class="duration-unit">min</span>
+                                </div>
                             </div>
                             <input type="range" id="sidebarShortBreakSlider" min="1" max="30" value="5" class="duration-slider" aria-label="Short break duration in minutes">
                         </div>
                         <div class="duration-item" id="sidebarLongBreakOption">
                             <div class="duration-header">
                                 <label>Long Break <span class="signup-required-text hidden">(Sign up required)</span></label>
-                                <input type="text" class="duration-value editable-duration" id="sidebarLongBreakValue" value="15" data-unit="min" data-slider="sidebarLongBreakSlider" data-min="1" data-max="60" inputmode="numeric">
+                                <div class="duration-input-wrapper">
+                                    <input type="text" class="duration-value editable-duration" id="sidebarLongBreakValue" value="15" data-unit="min" data-slider="sidebarLongBreakSlider" data-min="1" data-max="60" inputmode="numeric">
+                                    <span class="duration-unit">min</span>
+                                </div>
                             </div>
                             <input type="range" id="sidebarLongBreakSlider" min="1" max="60" value="15" class="duration-slider" aria-label="Long break duration in minutes">
                         </div>
                         <div class="duration-item">
                             <div class="duration-header">
                                 <label>Sessions <span class="signup-required-text hidden">(Sign up required)</span></label>
-                                <input type="text" class="duration-value editable-duration" id="sidebarSessionsValue" value="4" data-unit="sesh" data-slider="sidebarSessionsSlider" data-min="1" data-max="12" inputmode="numeric">
+                                <div class="duration-input-wrapper">
+                                    <input type="text" class="duration-value editable-duration" id="sidebarSessionsValue" value="4" data-unit="sesh" data-slider="sidebarSessionsSlider" data-min="1" data-max="12" inputmode="numeric">
+                                    <span class="duration-unit">sesh</span>
+                                </div>
                             </div>
                             <input type="range" id="sidebarSessionsSlider" min="1" max="12" value="4" class="duration-slider">
                         </div>
