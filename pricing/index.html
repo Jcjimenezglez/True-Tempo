@@ -50,6 +50,9 @@
                 return null;
             }
         }
+        
+        // Make hashEmail available globally for Enhanced Conversions
+        window.hashEmail = hashEmail;
     </script>
     
     <!-- Mixpanel -->
@@ -3292,9 +3295,9 @@
                         
                         // Add Enhanced Conversions user data if available
                         const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress;
-                        if (userEmail && typeof hashEmail === 'function') {
+                        if (userEmail && typeof window.hashEmail === 'function') {
                             try {
-                                const hashedEmail = await hashEmail(userEmail);
+                                const hashedEmail = await window.hashEmail(userEmail);
                                 if (hashedEmail) {
                                     conversionData.user_data = {
                                         sha256_email_address: hashedEmail
@@ -3554,9 +3557,9 @@
                         };
                         
                         // Add Enhanced Conversions user data
-                        if (userEmail && typeof hashEmail === 'function') {
+                        if (userEmail && typeof window.hashEmail === 'function') {
                             try {
-                                const hashedEmail = await hashEmail(userEmail);
+                                const hashedEmail = await window.hashEmail(userEmail);
                                 if (hashedEmail) {
                                     conversionData.user_data = {
                                         sha256_email_address: hashedEmail

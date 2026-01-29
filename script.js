@@ -31,6 +31,9 @@ async function hashEmail(email) {
     }
 }
 
+// Make hashEmail available globally for Enhanced Conversions
+window.hashEmail = hashEmail;
+
 class PomodoroTimer {
     constructor() {
         // Initialize Mixpanel tracking removed - Page Loaded event no longer needed
