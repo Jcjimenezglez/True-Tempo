@@ -711,26 +711,26 @@ a.resource-item:hover,
     z-index: 1002;
     width: 44px;
     height: 44px;
-    background: rgba(30, 30, 30, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 1000px;
     cursor: pointer;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
     padding: 0;
 }
 
 .mobile-menu-toggle:hover {
-    background: rgba(40, 40, 40, 0.95);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+    transform: translateY(-1px);
 }
 
 .mobile-menu-toggle svg {
     width: 24px;
     height: 24px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     stroke: currentColor;
     flex-shrink: 0;
 }
@@ -10234,7 +10234,7 @@ input:checked + .toggle-slider:before {
     .mobile-menu-toggle {
         display: flex;
         position: fixed;
-        top: 16px;
+        top: 20px;
         left: 16px;
         z-index: 1000;
         /* Keep base size - no changes */
@@ -11165,29 +11165,7 @@ input:checked + .toggle-slider:before {
         top: 20px;
         left: 20px;
         z-index: 9997;
-        width: 48px;
-        height: 48px;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        color: #fff;
-        cursor: pointer;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        transition: all 0.2s ease;
-    }
-    
-    .mobile-menu-toggle:hover {
-        background: rgba(0, 0, 0, 0.9);
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-    
-    .mobile-menu-toggle svg {
-        width: 24px;
-        height: 24px;
-        color: #fff;
+        /* Keep base styles - consistent with other buttons */
     }
     
     /* Remove desktop-required screen */
@@ -11325,7 +11303,7 @@ input:checked + .toggle-slider:before {
     
     .mobile-menu-toggle {
         display: flex !important;
-        top: 16px;
+        top: 20px;
         left: 16px;
         /* Keep base size - no changes */
     }
@@ -11348,19 +11326,16 @@ input:checked + .toggle-slider:before {
     
     .mobile-menu-toggle {
         display: flex !important;
-        top: 12px;
-        left: 12px;
-        /* Keep base size - no changes */
+        top: 20px;
+        left: 16px;
+        /* Keep base size and styles - consistent with other buttons */
         padding: 0 !important;
         align-items: center !important;
         justify-content: center !important;
     }
     
     .mobile-menu-toggle svg {
-        /* Keep base size - no changes */
-        color: rgba(255, 255, 255, 0.9) !important;
-        stroke: currentColor !important;
-        flex-shrink: 0 !important;
+        /* Keep base size and color - consistent with other buttons */
     }
     
     .bottom-sheet-nav-item {
