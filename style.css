@@ -2012,8 +2012,7 @@ body.is-scrolling .streak-fire {
     }
     
     .timer-container {
-        width: 320px;
-        height: 320px;
+        /* Keep base size - no changes */
     }
     
     .time {
