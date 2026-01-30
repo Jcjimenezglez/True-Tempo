@@ -11958,16 +11958,9 @@ class PomodoroTimer {
         // Load local tasks
         this.localTasks = this.getLocalTasks();
         
-        // Load Todoist tasks if authenticated
-        if (this.isAuthenticated && this.user) {
-            this.fetchTodoistData().catch(() => {
-                this.todoistTasks = [];
-                this.todoistProjectsById = {};
-            });
-        } else {
-            this.todoistTasks = [];
-            this.todoistProjectsById = {};
-        }
+        // Todoist integration disabled - no longer in use
+        this.todoistTasks = [];
+        this.todoistProjectsById = {};
     }
 
     showTaskMenu(modal) {
@@ -12621,57 +12614,11 @@ class PomodoroTimer {
 
 
     async fetchTodoistData() {
-        // Never fetch Todoist data when not authenticated
-        if (!this.isAuthenticated || !this.user) {
-            this.todoistTasks = [];
-            this.todoistProjectsById = {};
-            return;
-        }
-        try {
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const userId = window.Clerk?.user?.id || '';
-            
-            // Build query params
-            const params = new URLSearchParams();
-            if (viewMode === 'pro') {
-                params.append('devMode', 'pro');
-                params.append('bypass', 'true'); // Extra bypass flag for testing
-            }
-            if (userId) params.append('uid', userId);
-            const queryString = params.toString() ? `?${params.toString()}` : '';
-            
-            console.log('🚀 Fetching Todoist data with params:', queryString);
-            console.log('🚀 viewMode:', viewMode);
-            console.log('🚀 userId:', userId);
-            
-            // Fetch projects via proxy
-            const projRes = await fetch(`/api/todoist-projects${queryString}`);
-            if (projRes.ok) {
-                const projects = await projRes.json();
-                this.todoistProjectsById = {};
-                projects.forEach(p => { this.todoistProjectsById[p.id] = p; });
-                console.log('Todoist projects loaded:', projects.length);
-            } else {
-                console.error('Failed to fetch projects:', projRes.status, await projRes.text());
-                this.todoistProjectsById = {};
-            }
-
-            // Fetch tasks via proxy
-            const tasksRes = await fetch(`/api/todoist-tasks${queryString}`);
-            if (tasksRes.ok) {
-                const tasks = await tasksRes.json();
-                this.todoistTasks = tasks;
-                console.log('Todoist tasks loaded:', tasks.length);
-            } else {
-                console.error('Failed to fetch tasks:', tasksRes.status, await tasksRes.text());
-                this.todoistTasks = [];
-            }
-        } catch (e) {
-            console.error('Error fetching Todoist data:', e);
-            this.todoistTasks = [];
-            this.todoistProjectsById = {};
-        }
+        // Todoist integration disabled - no longer in use
+        // This function is kept for compatibility but does nothing
+        this.todoistTasks = [];
+        this.todoistProjectsById = {};
+        return;
     }
 
     updateCurrentTaskBanner() {
