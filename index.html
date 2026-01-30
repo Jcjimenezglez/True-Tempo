@@ -92,8 +92,10 @@
             batch_flush_interval_ms: 5000
         })
         
-        // Suppress Mixpanel mutex lock errors (they don't affect functionality)
+        // Suppress Mixpanel mutex lock errors and Clerk/Radix warnings
         const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
         console.error = function(...args) {
             const errorMsg = args[0]?.toString() || '';
             // Suppress Mixpanel mutex lock errors
@@ -104,6 +106,21 @@
                 return; // Silently ignore timeout errors
             }
             originalConsoleError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            const warnMsg = args[0]?.toString() || '';
+            // Suppress Clerk/Radix DialogContent warnings
+            if (warnMsg.includes('DialogContent') && warnMsg.includes('DialogTitle')) {
+                return; // Silently ignore Clerk internal warnings
+            }
+            if (warnMsg.includes('VisuallyHidden') && warnMsg.includes('DialogContent')) {
+                return; // Silently ignore Clerk accessibility warnings
+            }
+            if (warnMsg.includes('Public vibes pre-loaded')) {
+                return; // Silently ignore Clerk preload messages
+            }
+            originalConsoleWarn.apply(console, args);
         };
         
         // Debug Mixpanel initialization
