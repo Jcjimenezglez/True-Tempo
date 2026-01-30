@@ -10916,7 +10916,7 @@ input:checked + .toggle-slider:before {
     bottom: 0;
     left: 0;
     width: 100%;
-    max-height: 90vh;
+    max-height: 75vh; /* Standardized height for all bottom sheets */
     background: #1a1a1a;
     border-radius: 24px 24px 0 0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
@@ -11139,7 +11139,7 @@ input:checked + .toggle-slider:before {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        max-height: 90vh !important;
+        max-height: 75vh !important; /* Standardized height for all bottom sheets */
         transform: translateY(100%) !important;
         transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 24px 24px 0 0 !important;
@@ -11236,7 +11236,7 @@ input:checked + .toggle-slider:before {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        max-height: 85vh !important;
+        max-height: 75vh !important; /* Standardized height for all bottom sheets */
         transform: translateY(100%) !important;
         transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 24px 24px 0 0 !important;
@@ -11290,7 +11290,7 @@ input:checked + .toggle-slider:before {
         right: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
-        max-height: 85vh !important;
+        max-height: 75vh !important; /* Standardized height for all bottom sheets */
         border-radius: 24px 24px 0 0 !important;
         transform: translateY(0) !important;
     }
@@ -11299,7 +11299,7 @@ input:checked + .toggle-slider:before {
 /* Mobile specific adjustments (< 768px) */
 @media (max-width: 767px) {
     .bottom-sheet {
-        max-height: 95vh;
+        max-height: 75vh; /* Standardized height for all bottom sheets */
     }
     
     .bottom-sheet-header {
@@ -11323,8 +11323,11 @@ input:checked + .toggle-slider:before {
     }
     
     /* Adjust side panels for smaller screens */
-    .task-side-panel {
-        max-height: 90vh !important;
+    .task-side-panel,
+    .timer-side-panel,
+    .immersive-theme-side-panel,
+    .focus-report-panel {
+        max-height: 75vh !important; /* Standardized height for all bottom sheets */
     }
 }
 
@@ -11363,8 +11366,12 @@ input:checked + .toggle-slider:before {
         height: 20px;
     }
     
-    .task-side-panel {
-        max-height: 92vh !important;
+    .task-side-panel,
+    .timer-side-panel,
+    .immersive-theme-side-panel,
+    .focus-report-panel,
+    .bottom-sheet {
+        max-height: 75vh !important; /* Standardized height for all bottom sheets */
     }
 }
 
