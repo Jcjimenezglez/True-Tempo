@@ -438,22 +438,20 @@ class PomodoroTimer {
                     'non_interaction': false
                 });
                 
+                // Set Enhanced Conversions user data BEFORE the conversion event
+                if (hashedEmail) {
+                    window.gtag('set', 'user_data', {
+                        'sha256_email_address': hashedEmail
+                    });
+                    console.log('✅ Enhanced Conversions: User data set');
+                }
+                
                 // Track Google Ads Subscribe Clicked conversion
-                const conversionData = {
+                window.gtag('event', 'conversion', {
                     'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
                     'value': 1.0,
                     'currency': 'USD'
-                };
-                
-                // Add Enhanced Conversions user data if available
-                if (hashedEmail) {
-                    conversionData.user_data = {
-                        sha256_email_address: hashedEmail
-                    };
-                    console.log('✅ Enhanced Conversions: User data included');
-                }
-                
-                window.gtag('event', 'conversion', conversionData);
+                });
                 
                 console.log('✅ Subscribe Clicked tracked to Google Ads:', source);
             } catch (error) {
@@ -3824,28 +3822,26 @@ class PomodoroTimer {
             // Track Subscribe Clicked to Google Ads (intent signal, not final conversion)
             try {
                 if (typeof window.gtag === 'function') {
-                    const conversionData = {
-                        'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
-                        'value': 1.0,
-                        'currency': 'USD'
-                    };
-                    
-                    // Add Enhanced Conversions user data if available
+                    // Set Enhanced Conversions user data BEFORE the conversion event
                     if (userEmail && typeof window.hashEmail === 'function') {
                         try {
                             const hashedEmail = await window.hashEmail(userEmail);
                             if (hashedEmail) {
-                                conversionData.user_data = {
-                                    sha256_email_address: hashedEmail
-                                };
-                                console.log('✅ Enhanced Conversions: User data included (Subscribe Clicked)');
+                                window.gtag('set', 'user_data', {
+                                    'sha256_email_address': hashedEmail
+                                });
+                                console.log('✅ Enhanced Conversions: User data set (Subscribe Clicked)');
                             }
                         } catch (error) {
                             console.log('⚠️ Enhanced Conversions: Email hashing failed');
                         }
                     }
                     
-                    window.gtag('event', 'conversion', conversionData);
+                    window.gtag('event', 'conversion', {
+                        'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                        'value': 1.0,
+                        'currency': 'USD'
+                    });
                     console.log('📊 Google Ads Subscribe Clicked tracked:', planType);
                 }
             } catch (error) {
@@ -3896,28 +3892,26 @@ class PomodoroTimer {
                 // This is a key funnel step - user has committed to starting checkout
                 try {
                     if (typeof window.gtag === 'function') {
-                        const checkoutConversionData = {
-                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
-                            'value': 1.0,
-                            'currency': 'USD'
-                        };
-                        
-                        // Add Enhanced Conversions user data if available
+                        // Set Enhanced Conversions user data BEFORE the conversion event
                         if (userEmail && typeof window.hashEmail === 'function') {
                             try {
                                 const hashedEmail = await window.hashEmail(userEmail);
                                 if (hashedEmail) {
-                                    checkoutConversionData.user_data = {
-                                        sha256_email_address: hashedEmail
-                                    };
-                                    console.log('✅ Enhanced Conversions: User data included (Checkout Created)');
+                                    window.gtag('set', 'user_data', {
+                                        'sha256_email_address': hashedEmail
+                                    });
+                                    console.log('✅ Enhanced Conversions: User data set (Checkout Created)');
                                 }
                             } catch (error) {
                                 console.log('⚠️ Enhanced Conversions: Email hashing failed');
                             }
                         }
                         
-                        window.gtag('event', 'conversion', checkoutConversionData);
+                        window.gtag('event', 'conversion', {
+                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                            'value': 1.0,
+                            'currency': 'USD'
+                        });
                         console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
                     }
                 } catch (error) {
@@ -6930,29 +6924,27 @@ class PomodoroTimer {
                         conversionValue = 3.99;
                     }
                     
-                    const conversionData = {
-                        'send_to': conversionLabel,
-                        'value': conversionValue,
-                        'currency': 'USD',
-                        'transaction_id': sessionId
-                    };
-                    
-                    // Add Enhanced Conversions user data if available
+                    // Set Enhanced Conversions user data BEFORE the conversion event
                     if (userEmail && typeof window.hashEmail === 'function') {
                         try {
                             const hashedEmail = await window.hashEmail(userEmail);
                             if (hashedEmail) {
-                                conversionData.user_data = {
-                                    sha256_email_address: hashedEmail
-                                };
-                                console.log('✅ Enhanced Conversions: User data included for', paymentType);
+                                window.gtag('set', 'user_data', {
+                                    'sha256_email_address': hashedEmail
+                                });
+                                console.log('✅ Enhanced Conversions: User data set for', paymentType);
                             }
                         } catch (hashError) {
                             console.log('⚠️ Enhanced Conversions: Email hashing failed');
                         }
                     }
                     
-                    window.gtag('event', 'conversion', conversionData);
+                    window.gtag('event', 'conversion', {
+                        'send_to': conversionLabel,
+                        'value': conversionValue,
+                        'currency': 'USD',
+                        'transaction_id': sessionId
+                    });
                     console.log(`📊 Google Ads ${paymentType.toUpperCase()} conversion tracked: $${conversionValue}`);
                 }
             } catch (gtagError) {
