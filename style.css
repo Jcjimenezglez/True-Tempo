@@ -11057,8 +11057,40 @@ input:checked + .toggle-slider:before {
 }
 
 
-/* Hide bottom sheets by default on desktop (1200px+) */
+/* Desktop (1200px+) - Sidebar ALWAYS visible */
 @media (min-width: 1200px) {
+    /* Sidebar must ALWAYS be visible on desktop - NEVER hide */
+    .sidebar,
+    .sidebar.hidden,
+    .sidebar.collapsed,
+    .sidebar.open,
+    aside.sidebar,
+    #sidebar {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Ensure nav items are always visible */
+    .sidebar .nav-item {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure SVG icons are always visible */
+    .sidebar .nav-item svg {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* Hide bottom sheets on desktop */
     .bottom-sheet-overlay,
     .bottom-sheet {
         display: none !important;

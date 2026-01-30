@@ -21420,10 +21420,13 @@ class SidebarManager {
             });
         }
         
-            // Overlay click to close sidebar AND all panels
+            // Overlay click to close sidebar AND all panels (MOBILE ONLY)
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
-                this.hideMobile();
+                // Only close sidebar on mobile - desktop sidebar is always visible
+                if (this.isMobile) {
+                    this.hideMobile();
+                }
                 this.closeTaskPanel();
                 this.closeSettingsPanel();
                 this.closeImmersiveThemePanel();
@@ -21610,6 +21613,12 @@ class SidebarManager {
     }
     
     hideMobile() {
+        // NEVER hide sidebar on desktop (>= 1200px)
+        if (window.innerWidth >= 1200) {
+            console.log('🚫 hideMobile blocked - we are on desktop');
+            return;
+        }
+        
         this.sidebar.classList.remove('open');
         this.sidebar.classList.add('hidden');
         if (this.sidebarOverlay) {
