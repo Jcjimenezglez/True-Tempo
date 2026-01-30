@@ -11116,7 +11116,7 @@ input:checked + .toggle-slider:before {
         position: fixed;
         top: 20px;
         right: 20px;
-        z-index: 9998;
+        z-index: 9997; /* Below overlays (9998) so it's hidden when panels open */
     }
     
     /* Hide Spotify widget on mobile/tablet - too big */
