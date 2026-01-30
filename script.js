@@ -22545,9 +22545,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return window.innerWidth < 1200;
     }
     
-    if (!isMobileOrTablet()) {
+    // Early check - but don't return yet, we need to expose functions
+    const isCurrentlyMobile = isMobileOrTablet();
+    if (!isCurrentlyMobile) {
         console.log('⏭️ Desktop mode - mobile bottom sheets disabled');
-        return;
     }
     
     // Navigation menu elements
@@ -22558,6 +22559,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Original side panels (these have all the functionality)
     const sidePanels = {
         timer: {
+            panel: document.getElementById('settingsSidePanel'),
+            overlay: document.getElementById('settingsPanelOverlay')
+        },
+        settings: {
             panel: document.getElementById('settingsSidePanel'),
             overlay: document.getElementById('settingsPanelOverlay')
         },
@@ -22593,28 +22598,27 @@ document.addEventListener('DOMContentLoaded', function() {
         settingsModal: !!settingsModal
     });
     
-    if (!overlay || !navigationMenu || !mobileMenuToggle) {
-        console.error('❌ Required elements not found!');
-        return;
-    }
-    
     let currentOpenPanel = null;
     
     // Helper: Show overlay
     function showOverlay() {
-        overlay.style.display = 'block';
-        requestAnimationFrame(() => {
-            overlay.classList.add('active');
-        });
+        if (overlay) {
+            overlay.style.display = 'block';
+            requestAnimationFrame(() => {
+                overlay.classList.add('active');
+            });
+        }
         document.body.style.overflow = 'hidden';
     }
     
     // Helper: Hide overlay
     function hideOverlay() {
-        overlay.classList.remove('active');
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 300);
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
         document.body.style.overflow = '';
     }
     
@@ -22622,19 +22626,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function openNavigationMenu() {
         console.log('📂 Opening navigation menu');
         showOverlay();
-        navigationMenu.style.display = 'flex';
-        requestAnimationFrame(() => {
-            navigationMenu.classList.add('active');
-        });
+        if (navigationMenu) {
+            navigationMenu.style.display = 'flex';
+            requestAnimationFrame(() => {
+                navigationMenu.classList.add('active');
+            });
+        }
     }
     
     // Close navigation menu
     function closeNavigationMenu() {
         console.log('📁 Closing navigation menu');
-        navigationMenu.classList.remove('active');
-        setTimeout(() => {
-            navigationMenu.style.display = 'none';
-        }, 400);
+        if (navigationMenu) {
+            navigationMenu.classList.remove('active');
+            setTimeout(() => {
+                navigationMenu.style.display = 'none';
+            }, 400);
+        }
         hideOverlay();
     }
     
@@ -22643,10 +22651,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('📂 Opening panel:', panelKey);
         
         // Close navigation menu first
-        navigationMenu.classList.remove('active');
-        setTimeout(() => {
-            navigationMenu.style.display = 'none';
-        }, 300);
+        if (navigationMenu) {
+            navigationMenu.classList.remove('active');
+            setTimeout(() => {
+                navigationMenu.style.display = 'none';
+            }, 300);
+        }
         
         if (panelKey === 'account') {
             // Special handling for Account - use settings modal
@@ -22709,6 +22719,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeAll() {
         closeCurrentPanel();
         closeNavigationMenu();
+    }
+    
+    // Expose functions immediately for external access
+    if (window.sidebarManager) {
+        window.sidebarManager.openPanel = openPanel;
+        window.sidebarManager.closeCurrentPanel = closeCurrentPanel;
+        window.sidebarManager.closeAll = closeAll;
+    }
+    
+    // If not mobile, skip event listener setup
+    if (!isCurrentlyMobile) {
+        console.log('⏭️ Functions exposed, but event listeners skipped (desktop mode)');
+        return;
+    }
+    
+    if (!overlay || !navigationMenu || !mobileMenuToggle) {
+        console.error('❌ Required elements not found!');
+        return;
     }
     
     // ==================
@@ -22846,11 +22874,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 250);
     });
-    
-    // Expose functions for external access
-    window.sidebarManager.openPanel = openPanel;
-    window.sidebarManager.closeCurrentPanel = closeCurrentPanel;
-    window.sidebarManager.closeAll = closeAll;
     
     console.log('✅ Mobile/Tablet bottom sheet system initialized');
 });

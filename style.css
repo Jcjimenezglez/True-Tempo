@@ -11196,7 +11196,11 @@ input:checked + .toggle-slider:before {
        ============================================= */
     
     /* Panel overlays - full screen dark background */
-    .task-panel-overlay {
+    .task-panel-overlay,
+    .settings-panel-overlay,
+    .immersive-theme-panel-overlay,
+    .report-panel-overlay,
+    .leaderboard-panel-overlay {
         display: none;
         position: fixed !important;
         top: 0 !important;
@@ -11209,11 +11213,17 @@ input:checked + .toggle-slider:before {
         z-index: 9998 !important;
         opacity: 0;
         transition: opacity 0.3s ease;
+        pointer-events: all !important; /* Enable clicks on mobile */
     }
     
-    .task-panel-overlay.active {
+    .task-panel-overlay.active,
+    .settings-panel-overlay.active,
+    .immersive-theme-panel-overlay.active,
+    .report-panel-overlay.active,
+    .leaderboard-panel-overlay.active {
         display: block !important;
         opacity: 1;
+        pointer-events: all !important; /* Enable clicks on mobile */
     }
     
     /* Transform side panels into bottom sheets */
