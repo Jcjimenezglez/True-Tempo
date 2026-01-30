@@ -11153,11 +11153,27 @@ input:checked + .toggle-slider:before {
         pointer-events: auto !important; /* Ensure panel can receive clicks */
     }
     
-    /* Ensure all panel content is interactive */
-    .task-side-panel *,
-    .timer-side-panel *,
-    .immersive-theme-side-panel *,
-    .focus-report-panel * {
+    /* Ensure all panel content is interactive - only affects buttons and interactive elements */
+    .task-side-panel button,
+    .task-side-panel input,
+    .task-side-panel select,
+    .task-side-panel a,
+    .task-side-panel [role="button"],
+    .timer-side-panel button,
+    .timer-side-panel input,
+    .timer-side-panel select,
+    .timer-side-panel a,
+    .timer-side-panel [role="button"],
+    .immersive-theme-side-panel button,
+    .immersive-theme-side-panel input,
+    .immersive-theme-side-panel select,
+    .immersive-theme-side-panel a,
+    .immersive-theme-side-panel [role="button"],
+    .focus-report-panel button,
+    .focus-report-panel input,
+    .focus-report-panel select,
+    .focus-report-panel a,
+    .focus-report-panel [role="button"] {
         pointer-events: auto;
     }
     
