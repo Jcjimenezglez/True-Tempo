@@ -21737,8 +21737,8 @@ class SidebarManager {
             // Set Tasks nav item as active
             this.setActiveNavItem('tasks');
             
-            // Push main content to the right (only on desktop/tablet)
-            if (this.mainContent && !this.isMobile) {
+            // Push main content to the right (only on desktop >= 1200px)
+            if (this.mainContent && window.innerWidth >= 1200) {
                 this.mainContent.classList.add('task-panel-open');
             }
             
@@ -21830,8 +21830,8 @@ class SidebarManager {
             // Set Settings nav item as active
             this.setActiveNavItem('settings');
             
-            // Push main content to the right (only on desktop/tablet)
-            if (this.mainContent && !this.isMobile) {
+            // Push main content to the right (only on desktop >= 1200px)
+            if (this.mainContent && window.innerWidth >= 1200) {
                 this.mainContent.classList.add('task-panel-open');
             }
             
