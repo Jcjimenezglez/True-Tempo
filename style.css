@@ -11095,12 +11095,20 @@ input:checked + .toggle-slider:before {
         width: 100%;
     }
     
-    /* Hide header buttons on timer (Pomodoro pill, streaks, task) */
+    /* Hide header buttons on timer (Pomodoro pill, task) */
     .timer-header,
     .timer-header-auth,
-    #timerHeaderAuth,
-    #timerHeaderFocusReport {
+    #timerHeaderAuth {
         display: none !important;
+    }
+    
+    /* Keep streak-info button visible on mobile/tablet */
+    #timerHeaderFocusReport {
+        display: flex !important;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9998;
     }
     
     /* Hide Spotify widget on mobile/tablet - too big */
