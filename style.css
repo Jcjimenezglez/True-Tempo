@@ -2017,7 +2017,7 @@ body.is-scrolling .streak-fire {
     }
     
     .time {
-        font-size: 4.5rem;
+        /* Keep base size - no changes */
     }
     
     .technique-title {
@@ -2110,9 +2110,7 @@ body.is-scrolling .streak-fire {
     }
     
     .start-btn {
-        width: 56px;
-        height: 56px;
-        padding: 0.75rem;
+        /* Keep base size - no changes */
     }
     
     .nav-btn, .music-btn, .task-btn {
@@ -10065,7 +10063,7 @@ input:checked + .toggle-slider:before {
     
     /* Timer optimizations */
     .time {
-        font-size: 5.5rem;
+        /* Keep base size - no changes */
     }
     
     .session-info {
@@ -10113,7 +10111,7 @@ input:checked + .toggle-slider:before {
     
     /* Timer display */
     .time {
-        font-size: 5rem;
+        /* Keep base size - no changes */
     }
     
     .session-info {
@@ -10132,14 +10130,11 @@ input:checked + .toggle-slider:before {
     }
     
     .start-btn {
-        min-width: 140px;
-        height: 64px;
-        font-size: 1.1rem;
+        /* Keep base size - no changes */
     }
     
     .start-btn svg {
-        width: 28px;
-        height: 28px;
+        /* Keep base size - no changes */
     }
     
     /* Task side panel - bottom sheet on tablet */
@@ -10202,7 +10197,7 @@ input:checked + .toggle-slider:before {
     
     /* Progress bar adjustments */
     .progress-container {
-        width: 280px;
+        /* Keep base size - no changes */
     }
     
     /* Technique dropdown */
@@ -10243,8 +10238,7 @@ input:checked + .toggle-slider:before {
         top: 16px;
         left: 16px;
         z-index: 1000;
-        width: 44px;
-        height: 44px;
+        /* Keep base size - no changes */
     }
     
     /* Timer section - optimize for small screens */
@@ -10254,7 +10248,7 @@ input:checked + .toggle-slider:before {
     
     /* Timer display - make it prominent */
     .time {
-        font-size: 4rem;
+        /* Keep base size - no changes */
         line-height: 1;
     }
     
@@ -10282,19 +10276,15 @@ input:checked + .toggle-slider:before {
     }
     
     .start-btn {
-        min-width: 140px;
-        height: 64px;
-        font-size: 1rem;
-        padding: 0 24px;
+        /* Keep base size - no changes */
     }
     
     .start-btn svg {
-        width: 26px;
-        height: 26px;
+        /* Keep base size - no changes */
     }
     
     .start-btn .btn-text {
-        font-size: 1rem;
+        /* Keep base size - no changes */
     }
     
     /* Task side panel - bottom sheet on mobile */
@@ -10386,7 +10376,7 @@ input:checked + .toggle-slider:before {
     
     /* Progress container */
     .progress-container {
-        width: 240px;
+        /* Keep base size - no changes */
         margin: 16px auto;
     }
     
@@ -10509,7 +10499,7 @@ input:checked + .toggle-slider:before {
 /* Extra small mobile (375px and below) */
 @media (max-width: 375px) {
     .time {
-        font-size: 3.5rem;
+        /* Keep base size - no changes */
     }
     
     .session-info {
@@ -10517,12 +10507,11 @@ input:checked + .toggle-slider:before {
     }
     
     .start-btn {
-        min-width: 120px;
-        height: 56px;
+        /* Keep base size - no changes */
     }
     
     .progress-container {
-        width: 200px;
+        /* Keep base size - no changes */
     }
     
     .technique-title {
@@ -10539,7 +10528,7 @@ input:checked + .toggle-slider:before {
     }
     
     .time {
-        font-size: 3.5rem;
+        /* Keep base size - no changes */
     }
     
     .session-info {
@@ -10548,6 +10537,7 @@ input:checked + .toggle-slider:before {
     }
     
     .progress-container {
+        /* Keep base size - no changes */
         margin: 12px auto;
     }
     
@@ -10556,7 +10546,7 @@ input:checked + .toggle-slider:before {
     }
     
     .start-btn {
-        height: 48px;
+        /* Keep base size - no changes */
     }
 }
 
@@ -11338,8 +11328,7 @@ input:checked + .toggle-slider:before {
         display: flex !important;
         top: 16px;
         left: 16px;
-        width: 44px;
-        height: 44px;
+        /* Keep base size - no changes */
     }
     
     /* Adjust side panels for smaller screens */
@@ -11362,16 +11351,14 @@ input:checked + .toggle-slider:before {
         display: flex !important;
         top: 12px;
         left: 12px;
-        width: 40px;
-        height: 40px;
+        /* Keep base size - no changes */
         padding: 0 !important;
         align-items: center !important;
         justify-content: center !important;
     }
     
     .mobile-menu-toggle svg {
-        width: 20px !important;
-        height: 20px !important;
+        /* Keep base size - no changes */
         color: rgba(255, 255, 255, 0.9) !important;
         stroke: currentColor !important;
         flex-shrink: 0 !important;
