@@ -22538,6 +22538,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================================
 // BOTTOM SHEET SYSTEM (Tablets & Mobile)
 // Uses original side panels as bottom sheets
+// ALWAYS registers listeners, checks resolution at runtime
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -22546,21 +22547,15 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Mobile/Tablet bottom sheet system initializing...');
     console.log('📱 Window width:', window.innerWidth);
     
-    // Check if we're on mobile/tablet
+    // Check if we're on mobile/tablet - ALWAYS check at runtime, not just once
     function isMobileOrTablet() {
         return window.innerWidth < 1200;
-    }
-    
-    // Early check - but don't return yet, we need to expose functions
-    const isCurrentlyMobile = isMobileOrTablet();
-    if (!isCurrentlyMobile) {
-        console.log('⏭️ Desktop mode - mobile bottom sheets disabled');
     }
     
     // Navigation menu elements
     const overlay = document.getElementById('bottomSheetOverlay');
     const navigationMenu = document.getElementById('navigationMenu');
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     
     // Original side panels (these have all the functionality)
     const sidePanels = {
@@ -22630,6 +22625,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Open navigation menu
     function openNavigationMenu() {
+        if (!isMobileOrTablet()) return; // Check at runtime
         console.log('📂 Opening navigation menu');
         showOverlay();
         if (navigationMenu) {
@@ -22654,6 +22650,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Open a side panel as bottom sheet
     function openPanel(panelKey) {
+        if (!isMobileOrTablet()) return; // Check at runtime
         console.log('📂 Opening panel:', panelKey);
         
         // Close navigation menu first
@@ -22721,53 +22718,93 @@ document.addEventListener('DOMContentLoaded', function() {
         hideOverlay();
     }
     
-    // Close everything
+    // Close everything - works on any resolution
     function closeAll() {
         closeCurrentPanel();
         closeNavigationMenu();
-    }
-    
-    // Expose functions immediately for external access
-    if (window.sidebarManager) {
-        window.sidebarManager.openPanel = openPanel;
-        window.sidebarManager.closeCurrentPanel = closeCurrentPanel;
-        window.sidebarManager.closeAll = closeAll;
-    }
-    
-    // If not mobile, skip event listener setup
-    if (!isCurrentlyMobile) {
-        console.log('⏭️ Functions exposed, but event listeners skipped (desktop mode)');
-        return;
-    }
-    
-    if (!overlay || !navigationMenu || !mobileMenuToggle) {
-        console.error('❌ Required elements not found!');
-        return;
-    }
-    
-    // ==================
-    // Event Listeners
-    // ==================
-    
-    // Mobile menu toggle
-    mobileMenuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        console.log('🍔 Hamburger menu clicked');
         
-        if (navigationMenu.classList.contains('active')) {
-            closeNavigationMenu();
-        } else {
-            if (currentOpenPanel) {
-                closeCurrentPanel();
+        // Force close ALL panels and overlays regardless of state
+        const allPanels = [
+            document.querySelector('.task-side-panel'),
+            document.querySelector('.timer-side-panel'),
+            document.querySelector('.immersive-theme-side-panel'),
+            document.querySelector('.focus-report-panel')
+        ];
+        
+        allPanels.forEach(panel => {
+            if (panel) panel.classList.remove('open');
+        });
+        
+        const allOverlays = [
+            document.querySelector('.task-panel-overlay'),
+            document.querySelector('.settings-panel-overlay'),
+            document.querySelector('.immersive-theme-panel-overlay'),
+            document.querySelector('.report-panel-overlay'),
+            document.querySelector('.leaderboard-panel-overlay')
+        ];
+        
+        allOverlays.forEach(ov => {
+            if (ov) {
+                ov.classList.remove('active');
+                ov.style.display = 'none';
             }
-            openNavigationMenu();
+        });
+        
+        // Close settings modal
+        const modal = document.querySelector('.settings-modal');
+        const modalOverlay = document.querySelector('.settings-modal-overlay');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
         }
-    });
+        if (modalOverlay) {
+            modalOverlay.classList.remove('active');
+        }
+        
+        // Remove main-content classes
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.classList.remove('task-panel-open', 'settings-panel-open', 'immersive-theme-panel-open');
+        }
+        
+        // Reset body overflow
+        document.body.style.overflow = '';
+    }
     
-    // Navigation menu items
+    // Expose functions immediately for external access - ALWAYS
+    window.sidebarManager = window.sidebarManager || {};
+    window.sidebarManager.openPanel = openPanel;
+    window.sidebarManager.closeCurrentPanel = closeCurrentPanel;
+    window.sidebarManager.closeAll = closeAll;
+    window.sidebarManager.isMobile = isMobileOrTablet;
+    
+    // ==================
+    // Event Listeners - ALWAYS registered, check resolution at runtime
+    // ==================
+    
+    // Mobile menu toggle - ALWAYS listen, check resolution in handler
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', (e) => {
+            if (!isMobileOrTablet()) return; // Skip if desktop
+            e.stopPropagation();
+            console.log('🍔 Hamburger menu clicked');
+            
+            if (navigationMenu && navigationMenu.classList.contains('active')) {
+                closeNavigationMenu();
+            } else {
+                if (currentOpenPanel) {
+                    closeCurrentPanel();
+                }
+                openNavigationMenu();
+            }
+        });
+    }
+    
+    // Navigation menu items - ALWAYS listen
     const navItems = document.querySelectorAll('.bottom-sheet-nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', () => {
+            if (!isMobileOrTablet()) return; // Skip if desktop
             const target = item.getAttribute('data-target');
             if (target) {
                 const panelKey = target.replace('Sheet', '');
@@ -22777,19 +22814,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Overlay click - close all
-    overlay.addEventListener('click', () => {
-        closeAll();
-    });
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            if (!isMobileOrTablet()) return;
+            closeAll();
+        });
+    }
     
     // Navigation menu click - prevent close
-    navigationMenu.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
+    if (navigationMenu) {
+        navigationMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
     
     // Panel overlay clicks - close panel
     Object.values(sidePanels).forEach(panelData => {
         if (panelData.overlay) {
             panelData.overlay.addEventListener('click', (e) => {
+                if (!isMobileOrTablet()) return;
                 // Only close if clicking directly on the overlay, not on the panel
                 if (e.target === panelData.overlay) {
                     closeCurrentPanel();
@@ -22799,34 +22842,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Handle swipe down to close on navigation menu
-    let touchStartY = 0;
-    let touchEndY = 0;
-    
-    navigationMenu.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-    
-    navigationMenu.addEventListener('touchmove', (e) => {
-        touchEndY = e.touches[0].clientY;
-        const diff = touchEndY - touchStartY;
+    if (navigationMenu) {
+        let touchStartY = 0;
+        let touchEndY = 0;
         
-        if (diff > 0 && navigationMenu.scrollTop === 0) {
-            const translateY = Math.min(diff, 200);
-            navigationMenu.style.transform = `translateY(${translateY}px)`;
-        }
-    }, { passive: true });
-    
-    navigationMenu.addEventListener('touchend', () => {
-        const diff = touchEndY - touchStartY;
-        navigationMenu.style.transform = '';
+        navigationMenu.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
         
-        if (diff > 100) {
-            closeNavigationMenu();
-        }
+        navigationMenu.addEventListener('touchmove', (e) => {
+            if (!isMobileOrTablet()) return;
+            touchEndY = e.touches[0].clientY;
+            const diff = touchEndY - touchStartY;
+            
+            if (diff > 0 && navigationMenu.scrollTop === 0) {
+                const translateY = Math.min(diff, 200);
+                navigationMenu.style.transform = `translateY(${translateY}px)`;
+            }
+        }, { passive: true });
         
-        touchStartY = 0;
-        touchEndY = 0;
-    });
+        navigationMenu.addEventListener('touchend', () => {
+            if (!isMobileOrTablet()) return;
+            const diff = touchEndY - touchStartY;
+            navigationMenu.style.transform = '';
+            
+            if (diff > 100) {
+                closeNavigationMenu();
+            }
+            
+            touchStartY = 0;
+            touchEndY = 0;
+        });
+    }
     
     // Handle swipe down to close on all side panels
     Object.values(sidePanels).forEach(panelData => {
@@ -22840,6 +22887,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
         
         panelData.panel.addEventListener('touchmove', (e) => {
+            if (!isMobileOrTablet()) return;
             panelTouchEndY = e.touches[0].clientY;
             const diff = panelTouchEndY - panelTouchStartY;
             
@@ -22854,6 +22902,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
         
         panelData.panel.addEventListener('touchend', () => {
+            if (!isMobileOrTablet()) return;
             const diff = panelTouchEndY - panelTouchStartY;
             panelData.panel.style.transform = '';
             
@@ -22866,88 +22915,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle window resize - close panels when switching between desktop/mobile
+    // Handle window resize - close ALL panels when crossing 1200px threshold
     let resizeTimeout;
-    let previousWidth = window.innerWidth;
-    let wasMobile = window.innerWidth < 1200;
+    let wasMobile = isMobileOrTablet();
     
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            const currentWidth = window.innerWidth;
-            const isMobile = currentWidth < 1200;
+            const isMobile = isMobileOrTablet();
             
-            // Close all panels when crossing the 1200px threshold in either direction
+            // Close all panels when crossing the 1200px threshold in EITHER direction
             if (wasMobile !== isMobile) {
                 console.log(`📱 Resolution changed: ${wasMobile ? 'mobile' : 'desktop'} → ${isMobile ? 'mobile' : 'desktop'}`);
-                closeAll();
-                
-                // Close desktop panels if switching to mobile
-                if (isMobile) {
-                    // Close all side panels
-                    const taskPanel = document.querySelector('.task-side-panel');
-                    const timerPanel = document.querySelector('.timer-side-panel');
-                    const themePanel = document.querySelector('.immersive-theme-side-panel');
-                    const reportPanel = document.querySelector('.focus-report-panel');
-                    
-                    if (taskPanel) taskPanel.classList.remove('open');
-                    if (timerPanel) timerPanel.classList.remove('open');
-                    if (themePanel) themePanel.classList.remove('open');
-                    if (reportPanel) reportPanel.classList.remove('open');
-                    
-                    // Close all overlays
-                    const taskOverlay = document.querySelector('.task-panel-overlay');
-                    const settingsOverlay = document.querySelector('.settings-panel-overlay');
-                    const themeOverlay = document.querySelector('.immersive-theme-panel-overlay');
-                    const reportOverlay = document.querySelector('.report-panel-overlay');
-                    const leaderboardOverlay = document.querySelector('.leaderboard-panel-overlay');
-                    
-                    if (taskOverlay) {
-                        taskOverlay.classList.remove('active');
-                        taskOverlay.style.display = 'none';
-                    }
-                    if (settingsOverlay) {
-                        settingsOverlay.classList.remove('active');
-                        settingsOverlay.style.display = 'none';
-                    }
-                    if (themeOverlay) {
-                        themeOverlay.classList.remove('active');
-                        themeOverlay.style.display = 'none';
-                    }
-                    if (reportOverlay) {
-                        reportOverlay.classList.remove('active');
-                        reportOverlay.style.display = 'none';
-                    }
-                    if (leaderboardOverlay) {
-                        leaderboardOverlay.classList.remove('active');
-                        leaderboardOverlay.style.display = 'none';
-                    }
-                    
-                    // Close settings modal
-                    const settingsModal = document.querySelector('.settings-modal');
-                    const settingsModalOverlay = document.querySelector('.settings-modal-overlay');
-                    if (settingsModal) {
-                        settingsModal.classList.remove('active');
-                        settingsModal.style.display = 'none';
-                    }
-                    if (settingsModalOverlay) {
-                        settingsModalOverlay.classList.remove('active');
-                    }
-                    
-                    // Remove main-content classes
-                    const mainContent = document.querySelector('.main-content');
-                    if (mainContent) {
-                        mainContent.classList.remove('task-panel-open', 'settings-panel-open', 'immersive-theme-panel-open');
-                    }
-                }
-                
-                wasMobile = isMobile;
+                closeAll(); // This now handles everything
+                currentOpenPanel = null;
             }
             
-            previousWidth = currentWidth;
-        }, 250);
+            wasMobile = isMobile;
+        }, 100); // Reduced debounce for faster response
     });
     
-    console.log('✅ Mobile/Tablet bottom sheet system initialized');
+    console.log('✅ Mobile/Tablet bottom sheet system initialized (listeners ALWAYS active)');
 });
 
