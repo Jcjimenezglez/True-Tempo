@@ -111,7 +111,7 @@ body::-webkit-scrollbar {
     height: 100vh;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
-    z-index: 1001;
+    z-index: 1100; /* Higher than panels (999) and overlays (998) */
     transition: transform 0.3s ease, width 0.3s ease;
     overflow: visible;
     display: flex;
