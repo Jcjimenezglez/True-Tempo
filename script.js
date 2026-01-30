@@ -2922,6 +2922,12 @@ class PomodoroTimer {
                 if (value === '') {
                     e.target.value = lastValidValue;
                 } else {
+                    // Check if value exceeds max and auto-correct it
+                    let numValue = parseInt(value);
+                    if (!isNaN(numValue) && numValue > max) {
+                        value = max.toString();
+                    }
+                    
                     e.target.value = value;
                     lastValidValue = value;
                 }
