@@ -11082,6 +11082,7 @@ input:checked + .toggle-slider:before {
         pointer-events: none !important;
         transform: translateX(-100%) !important;
         box-shadow: none !important; /* Remove any shadow */
+        transition: none !important; /* Disable transitions to prevent visual movement */
     }
     
     /* Main content full width - prevent sidebar space */

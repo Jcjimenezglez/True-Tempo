@@ -22866,14 +22866,85 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle window resize
+    // Handle window resize - close panels when switching between desktop/mobile
     let resizeTimeout;
+    let previousWidth = window.innerWidth;
+    let wasMobile = window.innerWidth < 1200;
+    
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            if (window.innerWidth >= 1200) {
+            const currentWidth = window.innerWidth;
+            const isMobile = currentWidth < 1200;
+            
+            // Close all panels when crossing the 1200px threshold in either direction
+            if (wasMobile !== isMobile) {
+                console.log(`📱 Resolution changed: ${wasMobile ? 'mobile' : 'desktop'} → ${isMobile ? 'mobile' : 'desktop'}`);
                 closeAll();
+                
+                // Close desktop panels if switching to mobile
+                if (isMobile) {
+                    // Close all side panels
+                    const taskPanel = document.querySelector('.task-side-panel');
+                    const timerPanel = document.querySelector('.timer-side-panel');
+                    const themePanel = document.querySelector('.immersive-theme-side-panel');
+                    const reportPanel = document.querySelector('.focus-report-panel');
+                    
+                    if (taskPanel) taskPanel.classList.remove('open');
+                    if (timerPanel) timerPanel.classList.remove('open');
+                    if (themePanel) themePanel.classList.remove('open');
+                    if (reportPanel) reportPanel.classList.remove('open');
+                    
+                    // Close all overlays
+                    const taskOverlay = document.querySelector('.task-panel-overlay');
+                    const settingsOverlay = document.querySelector('.settings-panel-overlay');
+                    const themeOverlay = document.querySelector('.immersive-theme-panel-overlay');
+                    const reportOverlay = document.querySelector('.report-panel-overlay');
+                    const leaderboardOverlay = document.querySelector('.leaderboard-panel-overlay');
+                    
+                    if (taskOverlay) {
+                        taskOverlay.classList.remove('active');
+                        taskOverlay.style.display = 'none';
+                    }
+                    if (settingsOverlay) {
+                        settingsOverlay.classList.remove('active');
+                        settingsOverlay.style.display = 'none';
+                    }
+                    if (themeOverlay) {
+                        themeOverlay.classList.remove('active');
+                        themeOverlay.style.display = 'none';
+                    }
+                    if (reportOverlay) {
+                        reportOverlay.classList.remove('active');
+                        reportOverlay.style.display = 'none';
+                    }
+                    if (leaderboardOverlay) {
+                        leaderboardOverlay.classList.remove('active');
+                        leaderboardOverlay.style.display = 'none';
+                    }
+                    
+                    // Close settings modal
+                    const settingsModal = document.querySelector('.settings-modal');
+                    const settingsModalOverlay = document.querySelector('.settings-modal-overlay');
+                    if (settingsModal) {
+                        settingsModal.classList.remove('active');
+                        settingsModal.style.display = 'none';
+                    }
+                    if (settingsModalOverlay) {
+                        settingsModalOverlay.classList.remove('active');
+                    }
+                    
+                    // Remove main-content classes
+                    const mainContent = document.querySelector('.main-content');
+                    if (mainContent) {
+                        mainContent.classList.remove('task-panel-open', 'settings-panel-open', 'immersive-theme-panel-open');
+                    }
+                }
+                
+                wasMobile = isMobile;
             }
+            
+            previousWidth = currentWidth;
         }, 250);
     });
     
