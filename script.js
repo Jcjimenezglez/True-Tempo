@@ -21027,7 +21027,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Mobile menu toggle
+    // Mobile menu toggle - Handled by bottom sheet system below (line ~22747)
+    // This old code is disabled to prevent conflicts with the new bottom sheet navigation
+    /*
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.getElementById('sidebar');
     
@@ -21055,6 +21057,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+    */
     
     // Show timer header auth buttons for guest users
     const timerHeaderAuth = document.getElementById('timerHeaderAuth');
@@ -21415,12 +21418,15 @@ class SidebarManager {
         
         // No click to expand functionality - sidebar always stays collapsed
         
-        // Mobile menu toggle
+        // Mobile menu toggle - Disabled, handled by bottom sheet system
+        // The bottom sheet system (line ~22747) handles mobile menu for < 1200px
+        /*
         if (this.mobileMenuToggle) {
             this.mobileMenuToggle.addEventListener('click', () => {
                 this.toggleMobile();
             });
         }
+        */
         
         // Navigation items
         this.navItems.forEach(item => {
