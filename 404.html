@@ -34,8 +34,11 @@
             record_sessions_percent: 0,
             track_pageview: false,
             persistence: 'localStorage',
-            debug: true,
-            ignore_dnt: true
+            debug: false, // Disabled to prevent mutex lock errors
+            ignore_dnt: true,
+            batch_requests: true,
+            batch_size: 50,
+            batch_flush_interval_ms: 5000
         })
     </script>
     <!-- End Mixpanel -->

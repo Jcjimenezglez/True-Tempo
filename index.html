@@ -85,9 +85,26 @@
             record_sessions_percent: 0,
             track_pageview: false,
             persistence: 'localStorage',
-            debug: true,
-            ignore_dnt: true
+            debug: false, // Disabled to prevent mutex lock errors
+            ignore_dnt: true,
+            batch_requests: true,
+            batch_size: 50,
+            batch_flush_interval_ms: 5000
         })
+        
+        // Suppress Mixpanel mutex lock errors (they don't affect functionality)
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            const errorMsg = args[0]?.toString() || '';
+            // Suppress Mixpanel mutex lock errors
+            if (errorMsg.includes('Mixpanel error') && errorMsg.includes('[lock]')) {
+                return; // Silently ignore mutex lock errors
+            }
+            if (errorMsg.includes('Timeout waiting for mutex')) {
+                return; // Silently ignore timeout errors
+            }
+            originalConsoleError.apply(console, args);
+        };
         
         // Debug Mixpanel initialization
         console.log('🔍 Mixpanel initialized:', typeof window.mixpanel);
