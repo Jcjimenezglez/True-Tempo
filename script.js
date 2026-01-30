@@ -22783,15 +22783,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Panel overlay clicks - close panel
     Object.values(sidePanels).forEach(panelData => {
         if (panelData.overlay) {
-            panelData.overlay.addEventListener('click', () => {
-                closeCurrentPanel();
-            });
-        }
-        
-        // Add click handler to panel itself to prevent closing when clicking inside
-        if (panelData.panel) {
-            panelData.panel.addEventListener('click', (e) => {
-                e.stopPropagation();
+            panelData.overlay.addEventListener('click', (e) => {
+                // Only close if clicking directly on the overlay, not on the panel
+                if (e.target === panelData.overlay) {
+                    closeCurrentPanel();
+                }
             });
         }
     });
