@@ -11150,6 +11150,15 @@ input:checked + .toggle-slider:before {
         border-radius: 24px 24px 0 0 !important;
         box-shadow: none !important; /* Remove shadow */
         z-index: 10002 !important;
+        pointer-events: auto !important; /* Ensure panel can receive clicks */
+    }
+    
+    /* Ensure all panel content is interactive */
+    .task-side-panel *,
+    .timer-side-panel *,
+    .immersive-theme-side-panel *,
+    .focus-report-panel * {
+        pointer-events: auto;
     }
     
     .task-side-panel.open,
@@ -11226,12 +11235,14 @@ input:checked + .toggle-slider:before {
         transform: translateY(100%) !important;
         transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
         border-radius: 24px 24px 0 0 !important;
-        z-index: 9999 !important;
+        z-index: 10002 !important; /* Higher than overlays */
         background: #1a1a1a !important;
         box-shadow: none !important; /* Remove shadow */
-        overflow: hidden !important;
+        overflow-y: auto !important; /* Allow scroll but not clip */
+        overflow-x: hidden !important;
         display: flex !important;
         flex-direction: column !important;
+        pointer-events: auto !important; /* Ensure clicks work */
     }
     
     .task-side-panel.open {
