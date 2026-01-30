@@ -533,31 +533,40 @@ class PomodoroTimer {
                 e.stopPropagation();
                 
                 try {
-                    const taskPanel = document.getElementById('taskSidePanel');
-                    
-                    if (taskPanel && taskPanel.classList.contains('open')) {
-                        // Panel is open, close it
-                        if (window.sidebarManager && typeof window.sidebarManager.closeTaskPanel === 'function') {
-                            // Track task panel close in Mixpanel
-                            if (window.mixpanelTracker) {
-                                window.mixpanelTracker.track('Task Panel Closed', {
-                                    trigger: 'task_name_display_button',
-                                    timestamp: new Date().toISOString()
-                                });
-                            }
-                            window.sidebarManager.closeTaskPanel();
+                    // Check if we're on mobile/tablet (< 1200px)
+                    if (window.innerWidth < 1200) {
+                        // Use bottom sheet on mobile
+                        if (window.sidebarManager && typeof window.sidebarManager.openPanel === 'function') {
+                            window.sidebarManager.openPanel('tasks');
                         }
                     } else {
-                        // Panel is closed, open it
-                        if (window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
-                            // Track task panel open in Mixpanel
-                            if (window.mixpanelTracker) {
-                                window.mixpanelTracker.track('Task Panel Opened', {
-                                    trigger: 'task_name_display_button',
-                                    timestamp: new Date().toISOString()
-                                });
+                        // Use sidebar panel on desktop
+                        const taskPanel = document.getElementById('taskSidePanel');
+                        
+                        if (taskPanel && taskPanel.classList.contains('open')) {
+                            // Panel is open, close it
+                            if (window.sidebarManager && typeof window.sidebarManager.closeTaskPanel === 'function') {
+                                // Track task panel close in Mixpanel
+                                if (window.mixpanelTracker) {
+                                    window.mixpanelTracker.track('Task Panel Closed', {
+                                        trigger: 'task_name_display_button',
+                                        timestamp: new Date().toISOString()
+                                    });
+                                }
+                                window.sidebarManager.closeTaskPanel();
                             }
-                            window.sidebarManager.openTaskPanel();
+                        } else {
+                            // Panel is closed, open it
+                            if (window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
+                                // Track task panel open in Mixpanel
+                                if (window.mixpanelTracker) {
+                                    window.mixpanelTracker.track('Task Panel Opened', {
+                                        trigger: 'task_name_display_button',
+                                        timestamp: new Date().toISOString()
+                                    });
+                                }
+                                window.sidebarManager.openTaskPanel();
+                            }
                         }
                     }
                 } catch (error) {
@@ -4627,10 +4636,19 @@ class PomodoroTimer {
                     button_type: 'timer_technique',
                     source: 'timer_header'
                 });
-                // Open Timer settings panel by clicking nav item
-                const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
-                if (settingsNavItem) {
-                    settingsNavItem.click();
+                
+                // Check if we're on mobile/tablet (< 1200px)
+                if (window.innerWidth < 1200) {
+                    // Use bottom sheet on mobile
+                    if (window.sidebarManager && typeof window.sidebarManager.openPanel === 'function') {
+                        window.sidebarManager.openPanel('settings');
+                    }
+                } else {
+                    // Open Timer settings panel by clicking nav item on desktop
+                    const settingsNavItem = document.querySelector('.nav-item[data-section="settings"]');
+                    if (settingsNavItem) {
+                        settingsNavItem.click();
+                    }
                 }
             });
         }
@@ -4659,7 +4677,17 @@ class PomodoroTimer {
                     button_type: 'report',
                     source: 'timer_header'
                 });
-                this.showStreakInfo();
+                
+                // Check if we're on mobile/tablet (< 1200px)
+                if (window.innerWidth < 1200) {
+                    // Use bottom sheet on mobile
+                    if (window.sidebarManager && typeof window.sidebarManager.openPanel === 'function') {
+                        window.sidebarManager.openPanel('report');
+                    }
+                } else {
+                    // Show modal on desktop
+                    this.showStreakInfo();
+                }
             });
         }
         
@@ -22731,6 +22759,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeCurrentPanel();
             });
         }
+        
+        // Add click handler to panel itself to prevent closing when clicking inside
+        if (panelData.panel) {
+            panelData.panel.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
     });
     
     // Handle swipe down to close on navigation menu
@@ -22763,6 +22798,44 @@ document.addEventListener('DOMContentLoaded', function() {
         touchEndY = 0;
     });
     
+    // Handle swipe down to close on all side panels
+    Object.values(sidePanels).forEach(panelData => {
+        if (!panelData.panel) return;
+        
+        let panelTouchStartY = 0;
+        let panelTouchEndY = 0;
+        
+        panelData.panel.addEventListener('touchstart', (e) => {
+            panelTouchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        panelData.panel.addEventListener('touchmove', (e) => {
+            panelTouchEndY = e.touches[0].clientY;
+            const diff = panelTouchEndY - panelTouchStartY;
+            
+            // Only allow swipe down if at top of scroll
+            const scrollableContent = panelData.panel.querySelector('.panel-content, .timer-side-panel-content');
+            const isAtTop = !scrollableContent || scrollableContent.scrollTop === 0;
+            
+            if (diff > 0 && isAtTop) {
+                const translateY = Math.min(diff, 200);
+                panelData.panel.style.transform = `translateY(${translateY}px)`;
+            }
+        }, { passive: true });
+        
+        panelData.panel.addEventListener('touchend', () => {
+            const diff = panelTouchEndY - panelTouchStartY;
+            panelData.panel.style.transform = '';
+            
+            if (diff > 100) {
+                closeCurrentPanel();
+            }
+            
+            panelTouchStartY = 0;
+            panelTouchEndY = 0;
+        });
+    });
+    
     // Handle window resize
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -22773,6 +22846,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 250);
     });
+    
+    // Expose functions for external access
+    window.sidebarManager.openPanel = openPanel;
+    window.sidebarManager.closeCurrentPanel = closeCurrentPanel;
+    window.sidebarManager.closeAll = closeAll;
     
     console.log('✅ Mobile/Tablet bottom sheet system initialized');
 });

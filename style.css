@@ -11080,12 +11080,20 @@ input:checked + .toggle-slider:before {
         display: none !important;
     }
     
-    /* Main content full width */
+    /* Main content full width - prevent sidebar space */
     .main-content {
         display: block !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+    
+    /* Prevent main content from shifting when panels open */
+    .main-content.task-panel-open,
+    .main-content.settings-panel-open,
+    .main-content.immersive-theme-panel-open {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
     
     /* Timer section full screen */
@@ -11116,6 +11124,34 @@ input:checked + .toggle-slider:before {
     .spotify-embed-container,
     iframe[src*="spotify"] {
         display: none !important;
+    }
+    
+    /* Convert side panels to bottom sheets on mobile/tablet */
+    .task-side-panel,
+    .timer-side-panel,
+    .immersive-theme-side-panel,
+    .focus-report-panel {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 90vh !important;
+        transform: translateY(100%) !important;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-radius: 24px 24px 0 0 !important;
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4) !important;
+        z-index: 10002 !important;
+    }
+    
+    .task-side-panel.open,
+    .timer-side-panel.open,
+    .immersive-theme-side-panel.open,
+    .focus-report-panel.open {
+        transform: translateY(0) !important;
     }
     
     /* Show mobile menu toggle */
