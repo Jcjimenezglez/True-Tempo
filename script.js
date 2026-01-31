@@ -3127,7 +3127,7 @@ class PomodoroTimer {
     showLogoutModal() {
         if (this.user && this.logoutModalMessage) {
             const userEmail = this.user.emailAddresses?.[0]?.emailAddress || 'user';
-            this.logoutModalMessage.textContent = `Log out of True Tempo as ${userEmail}?`;
+            this.logoutModalMessage.textContent = `Log out of Superfocus as ${userEmail}?`;
         }
         if (this.logoutModalOverlay) {
             this.logoutModalOverlay.style.display = 'flex';
