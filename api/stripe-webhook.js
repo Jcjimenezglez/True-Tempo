@@ -431,6 +431,32 @@ async function handleCheckoutCompleted(session, clerk) {
 
       console.log(`✅ Updated Clerk user ${targetUserId} with LIFETIME premium status`);
       
+      // Send push notification via ntfy.sh for new lifetime purchase
+      try {
+        let currentUser;
+        try {
+          currentUser = await clerk.users.getUser(targetUserId);
+        } catch (e) {
+          console.error('❌ Error getting current user for notification:', e);
+        }
+        
+        const userName = currentUser?.firstName || currentUser?.username || 'Usuario';
+        const userEmailDisplay = userEmail || 'N/A';
+        const notificationTitle = 'Nueva Suscripcion Lifetime!';
+        const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmailDisplay}\nPlan: Lifetime ($24.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
+        
+        const ntfyResult = await sendNtfyNotification(notificationTitle, notificationMessage);
+        
+        if (ntfyResult.success) {
+          console.log(`✅ Push notification sent for new lifetime purchase: ${targetUserId}`);
+        } else {
+          console.warn(`⚠️ Failed to send push notification: ${ntfyResult.error}`);
+        }
+      } catch (ntfyError) {
+        console.error('❌ Error sending push notification:', ntfyError);
+        // Don't fail the webhook if notification fails
+      }
+      
       // Track lifetime deal conversion server-side with correct label and value
       // Lifetime: $24.0 with label unsECLnWiewbENjym89B
       await trackConversionServerSide('lifetime', 24.0, session.id, null, userEmail, 'unsECLnWiewbENjym89B');
