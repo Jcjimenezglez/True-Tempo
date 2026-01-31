@@ -14883,8 +14883,29 @@ class PomodoroTimer {
                         eventData.event_category = 'engagement';
                         eventData.event_label = 'user_signup';
                         break;
+                    case 'monthly':
+                        // Monthly subscription: $3.99/month
+                        conversionId = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
+                        eventName = 'purchase';
+                        eventData.transaction_id = transactionId;
+                        eventData.event_category = 'ecommerce';
+                        eventData.event_label = 'monthly_subscription';
+                        eventData.value = 3.99;
+                        value = 3.99; // Ensure value is set correctly
+                        break;
+                    case 'lifetime':
+                        // Lifetime purchase: $24.00 one-time
+                        conversionId = 'AW-17614436696/unsECLnWiewbENjym89B';
+                        eventName = 'purchase';
+                        eventData.transaction_id = transactionId;
+                        eventData.event_category = 'ecommerce';
+                        eventData.event_label = 'lifetime_purchase';
+                        eventData.value = 24.0;
+                        value = 24.0; // Ensure value is set correctly
+                        break;
                     case 'subscription':
-                        conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
+                        // Legacy/fallback - treat as monthly
+                        conversionId = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
                         eventName = 'purchase';
                         eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
@@ -15012,27 +15033,35 @@ class PomodoroTimer {
         }
         
         if (paymentSuccess === 'success' || premiumStatus === '1') {
+            // Get the plan type from URL (monthly or lifetime)
+            const planType = urlParams.get('plan') || 'monthly'; // Default to monthly for backwards compatibility
+            const isLifetime = planType === 'lifetime';
+            const conversionValue = isLifetime ? 24.0 : 3.99;
+            
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
             
             // Track successful subscription conversion
             this.trackEvent('Subscribe Success', {
-                conversion_type: 'signup_to_premium',
+                conversion_type: isLifetime ? 'lifetime_purchase' : 'monthly_subscription',
+                plan_type: planType,
                 user_journey: 'signup → premium',
                 source: 'stripe_payment',
+                value: conversionValue,
                 timestamp: new Date().toISOString()
             });
             
-            // Track subscription conversion immediately
-            // Use 3.99 value for Google Ads conversion tracking (actual subscription value)
-            // ENABLED: Client-side tracking for better attribution
-            this.trackConversion('subscription', 3.99);
+            // Track conversion with correct plan type and value
+            // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
+            // Lifetime: $24.0 with label unsECLnWiewbENjym89B
+            console.log(`🎯 Tracking ${planType} conversion with value $${conversionValue}`);
+            this.trackConversion(planType, conversionValue);
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackSubscriptionUpgrade('premium', 3.99);
-                console.log('📊 Subscription upgrade event tracked to Mixpanel');
+                window.mixpanelTracker.trackSubscriptionUpgrade(planType, conversionValue);
+                console.log(`📊 ${planType} upgrade event tracked to Mixpanel`);
             }
             
             // Refresh premium status immediately and wait for webhook to update
