@@ -14194,21 +14194,43 @@ class PomodoroTimer {
     }
 
     async loadReportForPanel() {
-        // Only load if authenticated
-        if (!this.isAuthenticated || !this.user?.id) {
-            const reportContent = document.getElementById('reportContent');
-            if (reportContent) {
-                reportContent.innerHTML = `
-                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                        Please log in to view your report.
-                    </div>
-                `;
-            }
-            return;
-        }
-
         const reportContent = document.getElementById('reportContent');
         if (!reportContent) return;
+
+        // Demo mode for preview/local (no login required)
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const demoParam = params.get('demo');
+            const hostname = window.location.hostname;
+            const isPreviewHost = hostname.includes('vercel.app') || hostname.includes('localhost');
+            const isDemo = isPreviewHost && (demoParam === '1' || demoParam === 'true');
+            if (isDemo) {
+                reportContent.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                        Loading report...
+                    </div>
+                `;
+                const demo = this.getDemoReportData();
+                // Seed demo tasks if none exist
+                if (this.getLocalTasks().length === 0) {
+                    this.setLocalTasks(demo.tasks);
+                    demo.taskConfigs.forEach(cfg => this.setTaskConfig(cfg.id, cfg.config));
+                }
+                this.streakData = demo.streakData;
+                this.displayAdvancedReport(reportContent, demo.stats);
+                return;
+            }
+        } catch (_) {}
+
+        // Only load if authenticated
+        if (!this.isAuthenticated || !this.user?.id) {
+            reportContent.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    Please log in to view your report.
+                </div>
+            `;
+            return;
+        }
 
         // Check if user is premium
         const isPremium = this.isPremiumUser();
@@ -14239,6 +14261,49 @@ class PomodoroTimer {
                 </div>
             `;
         }
+    }
+
+    getDemoReportData() {
+        const today = new Date();
+        const dayHours = [0.6, 1.2, 0.8, 1.7, 2.4, 0.4, 1.1];
+        const daily = {};
+        const dailySessions = {};
+        const dailyBreaks = {};
+        dayHours.forEach((hours, index) => {
+            const d = new Date(today);
+            d.setDate(today.getDate() - (6 - index));
+            const dateStr = d.toDateString();
+            daily[dateStr] = hours;
+            dailySessions[dateStr] = Math.max(1, Math.round(hours / 0.5));
+            dailyBreaks[dateStr] = Math.max(0, Math.round(hours / 1.5));
+        });
+        const totalHours = dayHours.reduce((sum, h) => sum + h, 0);
+        const completedCycles = Object.values(dailySessions).reduce((sum, v) => sum + v, 0);
+        const nowIso = new Date().toISOString();
+        return {
+            stats: {
+                totalHours,
+                completedCycles,
+                daily,
+                dailySessions,
+                dailyBreaks
+            },
+            streakData: {
+                currentStreak: 4,
+                longestStreak: 8,
+                lastActiveDate: today.toDateString()
+            },
+            tasks: [
+                { id: 'demo-1', content: 'Calculus — Chapter 3', completed: true, completedAt: nowIso },
+                { id: 'demo-2', content: 'History — Essay outline', completed: true, completedAt: nowIso },
+                { id: 'demo-3', content: 'Biology — Review notes', completed: true, completedAt: nowIso }
+            ],
+            taskConfigs: [
+                { id: 'demo-1', config: { completedSessions: 3, completedFocusTime: 3 * 25 * 60 } },
+                { id: 'demo-2', config: { completedSessions: 2, completedFocusTime: 2 * 25 * 60 } },
+                { id: 'demo-3', config: { completedSessions: 4, completedFocusTime: 4 * 25 * 60 } }
+            ]
+        };
     }
 
     displayBasicReport(containerElement, stats) {
