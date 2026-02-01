@@ -14308,40 +14308,34 @@ class PomodoroTimer {
 
     displayBasicReport(containerElement, stats) {
         try {
-            // Get monthly stats (current month only)
-            const monthlyStats = this.getMonthlyStats(stats);
-            const monthlyHours = monthlyStats.hours || 0;
-            const monthlySessions = monthlyStats.sessions || 0;
-            const monthlyBreaks = monthlyStats.breaks || 0;
-            
-            // Calculate day streaks
-            const dayStreaks = this.calculateCurrentStreak(stats);
-
-            // Get current month name
-            const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const currentStreak = this.calculateCurrentStreak(stats);
+            const longestStreak = this.streakData?.longestStreak || 0;
+            const streakTitle = currentStreak > 0 ? `${currentStreak}-day streak` : 'No streak yet';
+            const streakSubtitle = currentStreak > 0 ? `Best: ${longestStreak} days` : 'Start today with one session';
+            const last7Days = this.getLastNDaysData(stats, 7);
+            const weekTotalHours = last7Days.reduce((sum, day) => sum + (day.hours || 0), 0);
 
         const html = `
             <div style="padding: 0;">
-                
-                <!-- Summary Stats (HABILITADO para FREE) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
-                    <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
-                    
-                    <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
-                    <div style="font-size: 16px; color: #d0d0d0; margin-bottom: 20px;">Total Hours</div>
-                    
-                    <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #d0d0d0;">
-                        <span>${monthlySessions} Sessions</span>
-                        <span>•</span>
-                        <span>${monthlyBreaks} Breaks</span>
-                        <span>•</span>
-                        <span>${dayStreaks} Streaks</span>
+
+                <!-- Streak (FREE) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 28px;">🔥</div>
+                        <div>
+                            <div style="font-size: 22px; font-weight: 700; color: #fff;">${streakTitle}</div>
+                            <div style="font-size: 12px; color: #a3a3a3;">${streakSubtitle}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: #a3a3a3;">Last 7 days</div>
+                        <div style="font-size: 16px; color: #fff; font-weight: 600;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h total</div>
                     </div>
                 </div>
 
-                <!-- Gráfica (DESHABILITADO para FREE) -->
-                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
-                    <h4 style="margin: 0 0 16px 0; color: #ffffff; font-size: 16px;">Activity Chart</h4>
+                <!-- Activity (disabled for Free) -->
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
+                    <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 12px;">Activity</div>
                     <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                         ${Array(7).fill(0).map((_, i) => `
                             <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
@@ -14352,8 +14346,23 @@ class PomodoroTimer {
                     </div>
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
-                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Activity Chart</div>
-                            <button id="upgradeFromChart" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Unlock Activity</div>
+                            <button id="upgradeFromActivity" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level (disabled for Free) -->
+                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
+                    <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 12px;">Level</div>
+                    <div style="width: 100%; height: 5px; background: #333; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                        <div style="width: 50%; height: 100%; background: #555;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">Unlock to see your level</div>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Unlock Level</div>
+                            <button id="upgradeFromLevel" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                         </div>
                     </div>
                 </div>
@@ -14400,7 +14409,7 @@ class PomodoroTimer {
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
                         <div style="text-align: center;">
                             <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Recent Activity</div>
-                            <button id="upgradeFromActivity" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                            <button id="upgradeFromRecent" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                         </div>
                     </div>
                 </div>
@@ -14411,7 +14420,7 @@ class PomodoroTimer {
         containerElement.innerHTML = html;
 
         // Add upgrade button events
-        ['upgradeFromChart', 'upgradeFromActivity', 'upgradeFromAchievements', 'upgradeFromLevel'].forEach(btnId => {
+        ['upgradeFromActivity', 'upgradeFromLevel', 'upgradeFromRecent'].forEach(btnId => {
             const btn = document.getElementById(btnId);
             if (btn) {
                 btn.addEventListener('click', () => {
@@ -14482,7 +14491,7 @@ class PomodoroTimer {
                             <button class="activity-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
                         </div>
                     </div>
-                    <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">This week · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                    <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
                     <div id="activityChartBars" style="height: 140px; display: flex; align-items: flex-end; gap: 6px;">
                         ${(() => {
                             const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
