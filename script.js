@@ -14607,7 +14607,7 @@ class PomodoroTimer {
                         label: new Date(item.start).toLocaleDateString('en-US', { month: 'short' })
                     }));
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
-                    labelText = `Last 6 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                    labelText = `This month · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 } else if (range === 'Y') {
                     items = this.getLastNMonthsData(stats, 12);
                     items = items.map(item => ({
@@ -14671,17 +14671,20 @@ class PomodoroTimer {
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             ${(() => {
                                 const levels = [
-                                    { name: 'JUST STARTING', range: '0–5h' },
-                                    { name: 'GETTING SERIOUS', range: '5–15h' },
-                                    { name: 'CONSISTENT STUDENT', range: '15–30h' },
-                                    { name: 'EXAM READY', range: '30–50h' },
-                                    { name: 'EXAM CRUSHER', range: '50–100h' },
-                                    { name: 'TOP OF CLASS', range: '100–200h' },
-                                    { name: 'LEGENDARY STUDENT', range: '200h+' }
+                                    { name: 'JUST STARTING', range: '0–5h', emoji: '🌱' },
+                                    { name: 'GETTING SERIOUS', range: '5–15h', emoji: '📘' },
+                                    { name: 'CONSISTENT STUDENT', range: '15–30h', emoji: '🧠' },
+                                    { name: 'EXAM READY', range: '30–50h', emoji: '🎓' },
+                                    { name: 'EXAM CRUSHER', range: '50–100h', emoji: '🏆' },
+                                    { name: 'TOP OF CLASS', range: '100–200h', emoji: '🥇' },
+                                    { name: 'LEGENDARY STUDENT', range: '200h+', emoji: '👑' }
                                 ];
                                 return levels.map(l => `
                                     <div style="display:flex; justify-content:space-between; align-items:center; background:#222; border-radius:8px; padding:8px 10px;">
-                                        <div style="font-size:12px; color:#fff;">${l.name}</div>
+                                        <div style="font-size:12px; color:#fff; display:flex; align-items:center; gap:6px;">
+                                            <span>${l.emoji}</span>
+                                            <span>${l.name}</span>
+                                        </div>
                                         <div style="font-size:11px; color:#a3a3a3;">${l.range}</div>
                                     </div>
                                 `).join('');
