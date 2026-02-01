@@ -14467,7 +14467,7 @@ class PomodoroTimer {
                         </div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 12px; color: #a3a3a3;">This week</div>
+                        <div style="font-size: 12px; color: #a3a3a3;">Last 7 days</div>
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h total</div>
                     </div>
                 </div>
@@ -14478,8 +14478,8 @@ class PomodoroTimer {
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
                     <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
-                            <button class="activity-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">M</button>
-                            <button class="activity-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">Y</button>
+                            <button class="activity-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
+                            <button class="activity-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
                         </div>
                     </div>
                     <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">This week · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
