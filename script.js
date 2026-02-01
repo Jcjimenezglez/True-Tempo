@@ -14507,19 +14507,19 @@ class PomodoroTimer {
                             <div style="font-size: 22px;">${level.emoji}</div>
                             <div style="font-size: 14px; color: #fff; font-weight: 600;">${level.name}</div>
                         </div>
-                        <div style="width: 100%; height: 10px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
-                            <div style="width: ${level.progress}%; height: 100%; background: linear-gradient(90deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));"></div>
-                        </div>
+                    <div style="width: 100%; height: 10px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="width: ${level.progress}%; height: 100%; background: #ffffff;"></div>
+                    </div>
                         <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
                     <div style="margin-top: 10px;">
                         <button style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; font-size: 11px; cursor: pointer;">View all levels</button>
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
+                <!-- Recent Activity (Done Tasks) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">RECENT ACTIVITY</div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
                         ${(() => {
                             const allTasks = this.getLocalTasks();
                             const completedTasks = allTasks
@@ -14538,21 +14538,22 @@ class PomodoroTimer {
                             return completedTasks.map(task => {
                                 const completedDate = new Date(task.completedAt);
                                 const dateStr = completedDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+                                const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
                                 const taskConfig = this.getTaskConfig(task.id);
                                 const sessions = taskConfig.completedSessions || 0;
                                 const focusHours = (taskConfig.completedFocusTime || 0) / 3600;
                                 
                                 return `
-                                    <div style="background: #1a1a1a; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                                        <div style="min-width: 0;">
-                                            <div style="color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${task.content}</div>
-                                            <div style="color: #a3a3a3; font-size: 10px;">${dateStr}</div>
-                                        </div>
-                                        <div style="text-align: right; font-size: 11px; color: #a3a3a3;">${focusHours.toFixed(1)}h · ${sessions} ses</div>
+                                    <div style="background: #1a1a1a; border-radius: 12px; padding: 12px;">
+                                        <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
+                                        <div style="color: #a3a3a3; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • Completed at ${timeStr}</div>
                                     </div>
                                 `;
                             }).join('');
                         })()}
+                    </div>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <button id="openDoneHistory" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View Done History</button>
                     </div>
                 </div>
 
@@ -14560,6 +14561,12 @@ class PomodoroTimer {
         `;
 
             containerElement.innerHTML = html;
+            const openDoneHistoryBtn = document.getElementById('openDoneHistory');
+            if (openDoneHistoryBtn && window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
+                openDoneHistoryBtn.addEventListener('click', () => {
+                    window.sidebarManager.openTaskPanel();
+                });
+            }
         } catch (error) {
             console.error('Error in displayAdvancedReport:', error);
             containerElement.innerHTML = `
