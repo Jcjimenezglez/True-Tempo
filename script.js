@@ -1600,22 +1600,22 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else if (this.isAuthenticated && this.user) {
-            // Free users - check current count of custom timers
-            const customTimersCount = this.getCustomTimersCount();
+            // Free users - check lifetime count of custom timers (permanent limit)
+            const lifetimeTimersCreated = this.getLifetimeTimersCreated();
             
-            if (customTimersCount >= 1) {
-                // Free user already has 1 custom timer created
+            if (lifetimeTimersCreated >= 1) {
+                // Free user has already created 1 custom timer in their lifetime
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_techniques',
                     source: 'create_custom_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    custom_timers_count: customTimersCount,
+                    lifetime_timers_created: lifetimeTimersCreated,
                     limit_reached: true,
-                    reason: 'active_timer_limit_reached'
+                    reason: 'permanent_timer_limit_reached'
                 });
                 
-                this.showCustomTechniqueProModal('You can only have 1 custom timer at a time. Delete your current timer or upgrade to Premium to create unlimited custom timers.', customTimersCount);
+                this.showCustomTechniqueProModal('Free users can only create 1 custom timer permanently. Once deleted, you cannot create another. Upgrade to Premium for unlimited timers.', lifetimeTimersCreated);
             } else {
                 // Free user can create their first timer
                 const form = document.getElementById('customForm');
@@ -2076,6 +2076,9 @@ class PomodoroTimer {
             existing.push(technique);
             localStorage.setItem('customTechniques', JSON.stringify(existing));
             
+            // Increment lifetime counter (permanent tracking)
+            this.incrementLifetimeTimersCreated();
+            
             // Sync to server in background (don't wait)
             this.syncTechniquesToServer();
         } catch (error) {
@@ -2211,7 +2214,7 @@ class PomodoroTimer {
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
             <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
             <div class="custom-card-sessions">${technique.sessions} sessions</div>
-            ${!isDisabled ? `<button class="custom-card-delete" onclick="window.pomodoroTimer.deleteCustomTechnique('${technique.id}')">×</button>` : ''}
+            ${!isDisabled ? `<button class="custom-card-delete" onclick="window.pomodoroTimer.showDeleteTimerConfirmation('${technique.id}', '${technique.name.replace(/'/g, "\\'").replace(/"/g, "&quot;")}')">×</button>` : ''}
         `;
         
         // Add click handler to select technique (only if authenticated)
@@ -2379,6 +2382,71 @@ class PomodoroTimer {
         } catch (error) {
             console.error('Error selecting custom technique:', error);
         }
+    }
+    
+    // Show delete timer confirmation modal
+    showDeleteTimerConfirmation(techniqueId, techniqueName) {
+        const isPremium = this.isPremiumUser();
+        
+        // Escape the technique name to prevent XSS
+        const escapedName = this.escapeHtml(techniqueName);
+        
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
+        
+        // Warning message differs for free vs premium
+        const warningMessage = !isPremium 
+            ? 'This action CANNOT be undone. Free users can only create 1 custom timer permanently.'
+            : 'This action cannot be undone.';
+        
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeDeleteTimerModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+                Delete Timer Permanently?
+            </h3>
+            <p style="font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,0.9); text-align: left;">
+                "${escapedName}"
+            </p>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
+                ${warningMessage}
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelDeleteTimer">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmDeleteTimer">Delete</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Close X button
+        modal.querySelector('#closeDeleteTimerModal').addEventListener('click', close);
+        
+        // Cancel button
+        modal.querySelector('#cancelDeleteTimer').addEventListener('click', close);
+        
+        // Confirm button
+        modal.querySelector('#confirmDeleteTimer').addEventListener('click', () => {
+            this.deleteCustomTechnique(techniqueId);
+            close();
+        });
     }
     
     // Delete custom technique
@@ -18091,7 +18159,7 @@ class PomodoroTimer {
                 deleteOption.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    this.deleteCustomCassette(cassette.id);
+                    this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
                 });
             }
         });
@@ -18630,7 +18698,7 @@ class PomodoroTimer {
                     deleteOption.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (optionsDropdown) optionsDropdown.style.display = 'none';
-                        this.deleteCustomCassette(cassette.id);
+                        this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
                     });
                 }
             }
@@ -18858,10 +18926,8 @@ class PomodoroTimer {
                 console.log('➕ Adding new cassette to array');
                 cassettes.push(cassette);
                 
-                // Increment lifetime creation counter for free users
-                if (!this.isPremiumUser()) {
-                    this.incrementLifetimeCassettesCreated();
-                }
+                // Increment lifetime creation counter (for all users, permanent tracking)
+                this.incrementLifetimeCassettesCreated();
             }
             
             console.log('💾 Saving cassettes to localStorage:', cassettes.map(c => ({ id: c.id, title: c.title })));
@@ -18910,6 +18976,71 @@ class PomodoroTimer {
             console.error('Error saving custom cassette:', error);
             throw error;
         }
+    }
+
+    // Show delete cassette confirmation modal
+    showDeleteCassetteConfirmation(cassetteId, cassetteName) {
+        const isPremium = this.isPremiumUser();
+        
+        // Escape the cassette name to prevent XSS
+        const escapedName = this.escapeHtml(cassetteName);
+        
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
+        
+        // Warning message differs for free vs premium
+        const warningMessage = !isPremium 
+            ? 'This action CANNOT be undone. Free users can only create 1 custom cassette permanently.'
+            : 'This action cannot be undone.';
+        
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeDeleteCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+                Delete Cassette Permanently?
+            </h3>
+            <p style="font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,0.9); text-align: left;">
+                "${escapedName}"
+            </p>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
+                ${warningMessage}
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="cancelDeleteCassette">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="confirmDeleteCassette">Delete</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        
+        // Close X button
+        modal.querySelector('#closeDeleteCassetteModal').addEventListener('click', close);
+        
+        // Cancel button
+        modal.querySelector('#cancelDeleteCassette').addEventListener('click', close);
+        
+        // Confirm button
+        modal.querySelector('#confirmDeleteCassette').addEventListener('click', () => {
+            this.deleteCustomCassette(cassetteId);
+            close();
+        });
     }
 
     async deleteCustomCassette(cassetteId) {
@@ -19408,21 +19539,21 @@ class PomodoroTimer {
         
         // Free users can create 1 cassette LIFETIME, Premium users unlimited
         if (!this.isPremiumUser() && !cassetteId) {
-            // Check current count of custom cassettes
-            const customCassettesCount = this.getCustomCassettes().length;
+            // Check lifetime count of custom cassettes (permanent limit)
+            const lifetimeCassettesCreated = this.getLifetimeCassettesCreated();
             
-            if (customCassettesCount >= 1) {
-                // Free user already has 1 active cassette
+            if (lifetimeCassettesCreated >= 1) {
+                // Free user has already created 1 cassette in their lifetime
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_cassettes',
                     source: 'create_cassette_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    custom_cassettes_count: customCassettesCount,
-                    reason: 'active_limit_reached'
+                    lifetime_cassettes_created: lifetimeCassettesCreated,
+                    reason: 'permanent_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('You can only have 1 custom cassette at a time. Delete your current cassette or upgrade to Premium to create unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('Free users can only create 1 custom cassette permanently. Once deleted, you cannot create another. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
                 return;
             }
             // Free user can create their first cassette - continue to form
@@ -19960,7 +20091,7 @@ class PomodoroTimer {
                                     deleteOption.addEventListener('click', (e) => {
                                         e.stopPropagation();
                                         if (optionsDropdown) optionsDropdown.style.display = 'none';
-                                        this.deleteCustomCassette(cassette.id);
+                                        this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
                                     });
                                 }
                             }
