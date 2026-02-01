@@ -14289,9 +14289,9 @@ class PomodoroTimer {
                 dailyBreaks
             },
             streakData: {
-                currentStreak: 4,
+                currentStreak: 0,
                 longestStreak: 8,
-                lastActiveDate: today.toDateString()
+                lastActiveDate: null
             },
             tasks: [
                 { id: 'demo-1', content: 'Calculus — Chapter 3', completed: true, completedAt: nowIso },
@@ -14477,14 +14477,14 @@ class PomodoroTimer {
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
                         <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">D</button>
-                            <button style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
-                            <button style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">M</button>
-                            <button style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">Y</button>
+                            <button class="activity-range-btn" data-range="D" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">D</button>
+                            <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
+                            <button class="activity-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">M</button>
+                            <button class="activity-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">Y</button>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">This week · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
-                    <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
+                    <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">This week · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                    <div id="activityChartBars" style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                         ${(() => {
                             const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
                             return last7Days.map(day => {
@@ -14511,8 +14511,8 @@ class PomodoroTimer {
                         <div style="width: ${level.progress}%; height: 100%; background: #ffffff;"></div>
                     </div>
                         <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
-                    <div style="margin-top: 10px;">
-                        <button style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; font-size: 11px; cursor: pointer;">View all levels</button>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View All Levels</button>
                     </div>
                 </div>
 
@@ -14565,6 +14565,130 @@ class PomodoroTimer {
             if (openDoneHistoryBtn && window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
                 openDoneHistoryBtn.addEventListener('click', () => {
                     window.sidebarManager.openTaskPanel();
+                    setTimeout(() => {
+                        const panel = document.getElementById('taskSidePanel');
+                        const doneTab = panel?.querySelector('.task-tab[data-tab="done"]');
+                        if (doneTab) doneTab.click();
+                    }, 50);
+                });
+            }
+
+            // Activity range buttons (D/W/M/Y)
+            const rangeButtons = containerElement.querySelectorAll('.activity-range-btn');
+            const rangeLabel = containerElement.querySelector('#activityRangeLabel');
+            const barsEl = containerElement.querySelector('#activityChartBars');
+            const renderBars = (items) => {
+                if (!barsEl) return;
+                const maxHours = Math.max(...items.map(d => d.hours || 0), 1);
+                barsEl.innerHTML = items.map(item => {
+                    const height = ((item.hours || 0) / maxHours) * 100;
+                    return `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                            <div style="width: 100%; height: ${height}%; background: #ffffff; border-radius: 4px; min-height: ${(item.hours || 0) > 0 ? '4px' : '0'}; opacity: ${(item.hours || 0) > 0 ? '0.9' : '0.2'};"></div>
+                            <div style="font-size: 10px; color: #a3a3a3;">${item.label}</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+            const setRange = (range) => {
+                let items = [];
+                let labelText = '';
+                if (range === 'D') {
+                    items = this.getLastNDaysData(stats, 7);
+                    const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
+                    labelText = `Last 7 days · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                } else if (range === 'W') {
+                    items = this.getLastNDaysData(stats, 7);
+                    const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
+                    labelText = `This week · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                } else if (range === 'M') {
+                    items = this.getLastNMonthsData(stats, 6);
+                    const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
+                    labelText = `Last 6 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                } else if (range === 'Y') {
+                    items = this.getLastNMonthsData(stats, 12);
+                    const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
+                    labelText = `Last 12 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                }
+                if (rangeLabel) rangeLabel.textContent = labelText;
+                renderBars(items);
+            };
+            rangeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    rangeButtons.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#a3a3a3';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = '#2a2a2a';
+                    btn.style.color = '#fff';
+                    setRange(btn.dataset.range);
+                });
+            });
+            // Initialize with W
+            setRange('W');
+
+            // View all levels modal
+            const viewAllLevelsBtn = document.getElementById('viewAllLevels');
+            if (viewAllLevelsBtn) {
+                viewAllLevelsBtn.addEventListener('click', () => {
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,0.6);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 9999;
+                    `;
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        background: #1a1a1a;
+                        border: 1px solid rgba(255,255,255,0.08);
+                        border-radius: 12px;
+                        padding: 20px;
+                        width: 90%;
+                        max-width: 420px;
+                        color: #fff;
+                    `;
+                    modal.innerHTML = `
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px;">
+                            <div style="font-size: 14px; font-weight: 600;">All Levels</div>
+                            <button id="closeLevelsModal" style="background: transparent; border: none; color: #a3a3a3; font-size: 16px; cursor: pointer;">✕</button>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            ${(() => {
+                                const levels = [
+                                    { name: 'BEGINNER', range: '0–5h' },
+                                    { name: 'FOCUSED', range: '5–15h' },
+                                    { name: 'DEEP MIND', range: '15–30h' },
+                                    { name: 'FLOW STATE', range: '30–50h' },
+                                    { name: 'ZEN MASTER', range: '50–100h' },
+                                    { name: 'ULTRA FOCUS', range: '100–200h' },
+                                    { name: 'LIMITLESS', range: '200h+' }
+                                ];
+                                return levels.map(l => `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#222; border-radius:8px; padding:8px 10px;">
+                                        <div style="font-size:12px; color:#fff;">${l.name}</div>
+                                        <div style="font-size:11px; color:#a3a3a3;">${l.range}</div>
+                                    </div>
+                                `).join('');
+                            })()}
+                        </div>
+                    `;
+                    overlay.appendChild(modal);
+                    document.body.appendChild(overlay);
+                    const close = () => overlay.remove();
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) close();
+                    });
+                    const closeBtn = modal.querySelector('#closeLevelsModal');
+                    if (closeBtn) closeBtn.addEventListener('click', close);
                 });
             }
         } catch (error) {
