@@ -14680,7 +14680,7 @@ class PomodoroTimer {
                                     { name: 'LEGENDARY STUDENT', range: '200h+', emoji: '👑' }
                                 ];
                                 return levels.map(l => `
-                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#222; border-radius:8px; padding:8px 10px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 2px;">
                                         <div style="font-size:12px; color:#fff; display:flex; align-items:center; gap:6px;">
                                             <span>${l.emoji}</span>
                                             <span>${l.name}</span>
