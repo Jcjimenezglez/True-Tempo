@@ -2414,12 +2414,9 @@ class PomodoroTimer {
                 </svg>
             </button>
             
-            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: white; line-height: 1.3; text-align: left;">
                 Delete Timer Permanently?
             </h3>
-            <p style="font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,0.9); text-align: left;">
-                "${escapedName}"
-            </p>
             <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
                 ${warningMessage}
             </p>
@@ -19008,12 +19005,9 @@ class PomodoroTimer {
                 </svg>
             </button>
             
-            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: white; line-height: 1.3; text-align: left;">
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: white; line-height: 1.3; text-align: left;">
                 Delete Cassette Permanently?
             </h3>
-            <p style="font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,0.9); text-align: left;">
-                "${escapedName}"
-            </p>
             <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
                 ${warningMessage}
             </p>
