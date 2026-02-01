@@ -14599,7 +14599,7 @@ class PomodoroTimer {
                 if (range === 'W') {
                     items = this.getLastNDaysData(stats, 7);
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
-                    labelText = `This week · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                    labelText = `Last 7 days · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 } else if (range === 'M') {
                     items = this.getLastNWeeksData(stats, 4);
                     items = items.map(item => ({
@@ -14607,7 +14607,7 @@ class PomodoroTimer {
                         label: new Date(item.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                     }));
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
-                    labelText = `This month · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                    labelText = `Last 4 weeks · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 } else if (range === 'Y') {
                     items = this.getLastNMonthsData(stats, 12);
                     items = items.map(item => ({
