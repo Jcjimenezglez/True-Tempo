@@ -14476,21 +14476,22 @@ class PomodoroTimer {
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
-                        <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button class="activity-range-btn" data-range="D" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">D</button>
+                    <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
                             <button class="activity-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">M</button>
                             <button class="activity-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">Y</button>
                         </div>
                     </div>
                     <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">This week · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
-                    <div id="activityChartBars" style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
+                    <div id="activityChartBars" style="height: 140px; display: flex; align-items: flex-end; gap: 6px;">
                         ${(() => {
                             const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
                             return last7Days.map(day => {
                                 const height = (day.hours / maxHours) * 100;
+                                const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
                                 return `
                                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                                        <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
                                         <div style="width: 100%; height: ${height}%; background: #ffffff; border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'}; opacity: ${day.hours > 0 ? '0.9' : '0.2'};"></div>
                                         <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
                                     </div>
@@ -14507,7 +14508,7 @@ class PomodoroTimer {
                             <div style="font-size: 22px;">${level.emoji}</div>
                             <div style="font-size: 14px; color: #fff; font-weight: 600;">${level.name}</div>
                         </div>
-                    <div style="width: 100%; height: 10px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
+                    <div style="width: 100%; height: 5px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
                         <div style="width: ${level.progress}%; height: 100%; background: #ffffff;"></div>
                     </div>
                         <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
@@ -14582,8 +14583,10 @@ class PomodoroTimer {
                 const maxHours = Math.max(...items.map(d => d.hours || 0), 1);
                 barsEl.innerHTML = items.map(item => {
                     const height = ((item.hours || 0) / maxHours) * 100;
+                    const valueLabel = item.hours ? (item.hours < 0.1 ? item.hours.toFixed(2) : item.hours.toFixed(1)) + 'h' : '—';
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                            <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
                             <div style="width: 100%; height: ${height}%; background: #ffffff; border-radius: 4px; min-height: ${(item.hours || 0) > 0 ? '4px' : '0'}; opacity: ${(item.hours || 0) > 0 ? '0.9' : '0.2'};"></div>
                             <div style="font-size: 10px; color: #a3a3a3;">${item.label}</div>
                         </div>
@@ -14593,20 +14596,24 @@ class PomodoroTimer {
             const setRange = (range) => {
                 let items = [];
                 let labelText = '';
-                if (range === 'D') {
-                    items = this.getLastNDaysData(stats, 7);
-                    const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
-                    labelText = `Last 7 days · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
-                } else if (range === 'W') {
+                if (range === 'W') {
                     items = this.getLastNDaysData(stats, 7);
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
                     labelText = `This week · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 } else if (range === 'M') {
                     items = this.getLastNMonthsData(stats, 6);
+                    items = items.map(item => ({
+                        ...item,
+                        label: new Date(item.start).toLocaleDateString('en-US', { month: 'short' })
+                    }));
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
                     labelText = `Last 6 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 } else if (range === 'Y') {
                     items = this.getLastNMonthsData(stats, 12);
+                    items = items.map(item => ({
+                        ...item,
+                        label: new Date(item.start).toLocaleDateString('en-US', { month: 'short' })
+                    }));
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
                     labelText = `Last 12 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 }
@@ -14664,13 +14671,13 @@ class PomodoroTimer {
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             ${(() => {
                                 const levels = [
-                                    { name: 'BEGINNER', range: '0–5h' },
-                                    { name: 'FOCUSED', range: '5–15h' },
-                                    { name: 'DEEP MIND', range: '15–30h' },
-                                    { name: 'FLOW STATE', range: '30–50h' },
-                                    { name: 'ZEN MASTER', range: '50–100h' },
-                                    { name: 'ULTRA FOCUS', range: '100–200h' },
-                                    { name: 'LIMITLESS', range: '200h+' }
+                                    { name: 'JUST STARTING', range: '0–5h' },
+                                    { name: 'GETTING SERIOUS', range: '5–15h' },
+                                    { name: 'CONSISTENT STUDENT', range: '15–30h' },
+                                    { name: 'EXAM READY', range: '30–50h' },
+                                    { name: 'EXAM CRUSHER', range: '50–100h' },
+                                    { name: 'TOP OF CLASS', range: '100–200h' },
+                                    { name: 'LEGENDARY STUDENT', range: '200h+' }
                                 ];
                                 return levels.map(l => `
                                     <div style="display:flex; justify-content:space-between; align-items:center; background:#222; border-radius:8px; padding:8px 10px;">
@@ -14705,13 +14712,13 @@ class PomodoroTimer {
     calculateUserLevel(totalHours) {
         try {
             const levels = [
-                { level: 1, name: 'BEGINNER', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
-                { level: 2, name: 'FOCUSED', emoji: '🎯', min: 5, max: 15, color: '#3b82f6' },
-                { level: 3, name: 'DEEP MIND', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
-                { level: 4, name: 'FLOW STATE', emoji: '🌊', min: 30, max: 50, color: '#ec4899' },
-                { level: 5, name: 'ZEN MASTER', emoji: '🧘', min: 50, max: 100, color: '#f59e0b' },
-                { level: 6, name: 'ULTRA FOCUS', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
-                { level: 7, name: 'LIMITLESS', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
+                { level: 1, name: 'JUST STARTING', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
+                { level: 2, name: 'GETTING SERIOUS', emoji: '📘', min: 5, max: 15, color: '#3b82f6' },
+                { level: 3, name: 'CONSISTENT STUDENT', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
+                { level: 4, name: 'EXAM READY', emoji: '🎓', min: 30, max: 50, color: '#ec4899' },
+                { level: 5, name: 'EXAM CRUSHER', emoji: '🏆', min: 50, max: 100, color: '#f59e0b' },
+                { level: 6, name: 'TOP OF CLASS', emoji: '🥇', min: 100, max: 200, color: '#ef4444' },
+                { level: 7, name: 'LEGENDARY STUDENT', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
             ];
 
             let currentLevel = levels[0];
