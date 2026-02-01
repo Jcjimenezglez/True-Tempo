@@ -14418,53 +14418,54 @@ class PomodoroTimer {
 
     displayAdvancedReport(containerElement, stats) {
         try {
-            // Get monthly stats (current month only)
-            const monthlyStats = this.getMonthlyStats(stats);
-            const monthlyHours = monthlyStats.hours || 0;
-            const monthlySessions = monthlyStats.sessions || 0;
-            const monthlyBreaks = monthlyStats.breaks || 0;
-            
             // For level and achievements calculation, use all-time totals
             const totalHours = stats.totalHours || 0;
             const totalSessions = stats.completedCycles || 0;
         
-        // Calculate day streaks
-        const dayStreaks = this.calculateCurrentStreak(stats);
-
-        // Get current month name
-        const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
         // Get data for chart
         const last7Days = this.getLastNDaysData(stats, 7);
+        const weekTotalHours = last7Days.reduce((sum, day) => sum + (day.hours || 0), 0);
+        const last2Weeks = this.getLastNWeeksData(stats, 2);
+        const previousWeekHours = last2Weeks[0]?.hours || 0;
+        const currentWeekHours = last2Weeks[1]?.hours || weekTotalHours;
+        const maxWeekHours = Math.max(previousWeekHours, currentWeekHours, 1);
+        const improvementDelta = currentWeekHours - previousWeekHours;
+        const improvementSign = improvementDelta >= 0 ? '+' : '';
         
         // Calculate level based on total hours (all-time)
         const level = this.calculateUserLevel(totalHours);
+        const currentStreak = this.calculateCurrentStreak(stats);
+        const longestStreak = this.streakData?.longestStreak || 0;
         
         const html = `
             <div style="padding: 0;">
-                <!-- Data Loss Notice -->
-                
-                <!-- Summary Stats (HABILITADO para PREMIUM) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-                    <div style="text-align: center; margin-bottom: 0;">
-                        <div style="font-size: 14px; color: #d0d0d0; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">THIS MONTH (${currentMonth})</div>
-                        
-                        <div style="font-size: 64px; font-weight: 700; color: #fff; margin: 16px 0 8px 0; line-height: 1;">${monthlyHours < 0.1 ? monthlyHours.toFixed(3) : monthlyHours.toFixed(1)}</div>
-                        <div style="font-size: 16px; color: #d0d0d0; margin-bottom: 20px;">Total Hours</div>
-                        
-                        <div style="display: flex; justify-content: center; gap: 24px; font-size: 14px; color: #d0d0d0;">
-                            <span>${monthlySessions} Sessions</span>
-                            <span>•</span>
-                            <span>${monthlyBreaks} Breaks</span>
-                            <span>•</span>
-                            <span>${dayStreaks} Streaks</span>
+                <!-- Streak Hero -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 28px;">🔥</div>
+                        <div>
+                            <div style="font-size: 22px; font-weight: 700; color: #fff;">${currentStreak}-day streak</div>
+                            <div style="font-size: 12px; color: #a3a3a3;">Best: ${longestStreak} days</div>
                         </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: #a3a3a3;">This week</div>
+                        <div style="font-size: 16px; color: #fff; font-weight: 600;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h total</div>
                     </div>
                 </div>
 
-                <!-- Activity Chart (HABILITADO para PREMIUM) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Activity Chart</h4>
+                <!-- Activity Chart -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
+                        <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
+                            <button style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">D</button>
+                            <button style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
+                            <button style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">M</button>
+                            <button style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px;">Y</button>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">This week · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
                     <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                         ${(() => {
                             const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
@@ -14481,23 +14482,74 @@ class PomodoroTimer {
                     </div>
                 </div>
 
-                <!-- Recent Activity (HABILITADO para PREMIUM) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Recent Activity</h4>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <!-- Level -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 8px;">LEVEL</div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <div style="font-size: 22px;">${level.emoji}</div>
+                            <div style="font-size: 14px; color: #fff; font-weight: 600;">${level.name}</div>
+                        </div>
+                        <div style="width: 100%; height: 10px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
+                            <div style="width: ${level.progress}%; height: 100%; background: linear-gradient(90deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
+                    </div>
+
+                    <!-- Improvement -->
+                    <div style="background: #2a2a2a; border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 8px;">IMPROVING?</div>
+                        <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 6px;">This week</div>
+                        <div style="height: 8px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${(currentWeekHours / maxWeekHours) * 100}%; height: 100%; background: #22c55e;"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 6px;">Last week</div>
+                        <div style="height: 8px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${(previousWeekHours / maxWeekHours) * 100}%; height: 100%; background: #555;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: ${improvementDelta >= 0 ? '#22c55e' : '#f87171'}; font-weight: 600;">${improvementSign}${improvementDelta.toFixed(1)}h</div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">ACHIEVEMENTS</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         ${(() => {
-                            // Get real completed tasks
+                            const achievements = [
+                                { icon: '🎯', name: 'Deep Diver', desc: '5h in one day', unlocked: totalHours >= 5 },
+                                { icon: '🔥', name: 'Focus Streak', desc: '7 days in a row', unlocked: false },
+                                { icon: '⚡', name: 'Speed Runner', desc: '10 sessions', unlocked: totalSessions >= 10 },
+                                { icon: '💎', name: 'Diamond Mind', desc: '50 hours total', unlocked: totalHours >= 50 }
+                            ];
+                            return achievements.map(ach => `
+                                <div style="background: ${ach.unlocked ? '#1a1a1a' : '#151515'}; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 8px; ${ach.unlocked ? '' : 'opacity: 0.5;'}">
+                                    <div style="font-size: 16px;">${ach.icon}</div>
+                                    <div>
+                                        <div style="color: ${ach.unlocked ? '#fff' : '#d0d0d0'}; font-size: 12px; font-weight: 600;">${ach.name}</div>
+                                        <div style="color: #a3a3a3; font-size: 10px;">${ach.desc}</div>
+                                    </div>
+                                </div>
+                            `).join('');
+                        })()}
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">RECENT ACTIVITY</div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${(() => {
                             const allTasks = this.getLocalTasks();
                             const completedTasks = allTasks
                                 .filter(task => task.completed && task.completedAt)
                                 .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-                                .slice(0, 5); // Show last 5 completed tasks
+                                .slice(0, 5);
                             
                             if (completedTasks.length === 0) {
                                 return `
-                                    <div style="text-align: center; padding: 24px; color: #d0d0d0;">
-                                        <div style="font-size: 14px;">No completed tasks yet</div>
-                                        <div style="font-size: 12px; margin-top: 4px;">Complete tasks to see them here</div>
+                                    <div style="text-align: center; padding: 16px; color: #d0d0d0;">
+                                        <div style="font-size: 12px;">No completed tasks yet</div>
                                     </div>
                                 `;
                             }
@@ -14505,17 +14557,17 @@ class PomodoroTimer {
                             return completedTasks.map(task => {
                                 const completedDate = new Date(task.completedAt);
                                 const dateStr = completedDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
-                                const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-                                
-                                // Get task config for sessions and focus time
                                 const taskConfig = this.getTaskConfig(task.id);
                                 const sessions = taskConfig.completedSessions || 0;
-                                const focusHours = (taskConfig.completedFocusTime || 0) / 3600; // Convert seconds to hours
+                                const focusHours = (taskConfig.completedFocusTime || 0) / 3600;
                                 
                                 return `
-                                    <div style="background: #1a1a1a; border-radius: 8px; padding: 12px;">
-                                        <div style="color: #fff; font-size: 14px; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
-                                        <div style="color: #a3a3a3; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • Completed at ${timeStr}</div>
+                                    <div style="background: #1a1a1a; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                        <div style="min-width: 0;">
+                                            <div style="color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${task.content}</div>
+                                            <div style="color: #a3a3a3; font-size: 10px;">${dateStr}</div>
+                                        </div>
+                                        <div style="text-align: right; font-size: 11px; color: #a3a3a3;">${focusHours.toFixed(1)}h · ${sessions} ses</div>
                                     </div>
                                 `;
                             }).join('');
@@ -14523,40 +14575,6 @@ class PomodoroTimer {
                     </div>
                 </div>
 
-                <!-- Achievements (HABILITADO para PREMIUM) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                    <h4 style="margin: 0 0 16px 0; color: #fff; font-size: 16px;">Achievements</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        ${(() => {
-                            const achievements = [
-                                { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target-icon lucide-target"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', name: 'Deep Diver', desc: '5h in one day', unlocked: totalHours >= 5 },
-                                { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/></svg>', name: 'Focus Streak', desc: '7 days in a row', unlocked: false },
-                                { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap-icon lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>', name: 'Speed Runner', desc: '10 sessions', unlocked: totalSessions >= 10 },
-                                { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gem-icon lucide-gem"><path d="M10.5 3 8 9l4 13 4-13-2.5-6"/><path d="M17 3a2 2 0 0 1 1.6.8l3 4a2 2 0 0 1 .013 2.382l-7.99 10.986a2 2 0 0 1-3.247 0l-7.99-10.986A2 2 0 0 1 2.4 7.8l2.998-3.997A2 2 0 0 1 7 3z"/><path d="M2 9h20"/></svg>', name: 'Diamond Mind', desc: '50 hours total', unlocked: totalHours >= 50 }
-                            ];
-                            return achievements.map(ach => `
-                                <div style="background: ${ach.unlocked ? '#1a1a1a' : '#151515'}; border-radius: 8px; padding: 16px; text-align: center; ${ach.unlocked ? '' : 'opacity: 0.5;'}">
-                                    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px; color: ${ach.unlocked ? '#fff' : '#d0d0d0'}; width: 24px; height: 24px; margin: 0 auto 8px auto;">${ach.icon}</div>
-                                    <div style="color: ${ach.unlocked ? '#fff' : '#d0d0d0'}; font-size: 12px; font-weight: 600; margin-bottom: 4px;">${ach.name}</div>
-                                    <div style="color: #d0d0d0; font-size: 11px;">${ach.desc}</div>
-                                </div>
-                            `).join('');
-                        })()}
-                    </div>
-                </div>
-
-                <!-- Focus Level (HABILITADO para PREMIUM) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">${level.emoji}</div>
-                        <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px;">${level.name}</div>
-                        <div style="font-size: 14px; color: #a3a3a3; margin-bottom: 16px;">Level ${level.level} • ${level.usersCount} users at this level</div>
-                        <div style="width: 100%; height: 12px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
-                            <div style="width: ${level.progress}%; height: 100%; background: linear-gradient(90deg, var(--onyx-dark, #064e3b), var(--onyx-light, #065f46));"></div>
-                        </div>
-                        <div style="font-size: 12px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)} hours to ${level.nextLevel}</div>
-                    </div>
-                </div>
             </div>
         `;
 
