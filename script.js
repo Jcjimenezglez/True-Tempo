@@ -14601,10 +14601,10 @@ class PomodoroTimer {
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
                     labelText = `This week · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
                 } else if (range === 'M') {
-                    items = this.getLastNMonthsData(stats, 6);
+                    items = this.getLastNWeeksData(stats, 4);
                     items = items.map(item => ({
                         ...item,
-                        label: new Date(item.start).toLocaleDateString('en-US', { month: 'short' })
+                        label: new Date(item.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                     }));
                     const total = items.reduce((sum, d) => sum + (d.hours || 0), 0);
                     labelText = `This month · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
