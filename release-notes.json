@@ -1,6 +1,25 @@
 {
-  "latestVersion": "1.3",
+  "latestVersion": "1.4",
   "releases": [
+    {
+      "version": "Version 1.4",
+      "date": "January 31, 2026",
+      "sections": {
+        "new": [
+          "Report redesign: New section order (Streak → Activity Chart → Level → Recent Activity) with a more visual, easy-to-scan layout",
+          "Streak (Commitment Meter): See which days you showed up (✓/✗), total focus in Last 7 days, and your current and best streak",
+          "Recent Activity: Card layout for completed tasks (up to 5) with a \"View Done History\" button that opens Tasks on the Done tab",
+          "Free users: Single overlay over Activity, Level, and Recent Activity with \"Unlock analytics to see if you're improving every day\" and one Unlock Unlimited button"
+        ],
+        "improved": [
+          "Activity Chart: Removed Daily filter; only Weekly, Monthly, Yearly. White bars with hours above each bar. Clearer labels (Last 7 days, Last 4 weeks, month names)",
+          "Level: White progress bar (slimmer), student-focused level names with emojis (e.g. JUST STARTING, EXAM READY, LEGENDARY STUDENT), total hours in section, centered \"View All Levels\" modal",
+          "Streak: A day counts as active only if you focused at least ~36 seconds (no checkmark for 0.00h)",
+          "Report styling: Consistent border-radius on range buttons, right-aligned \"Xh to NEXT LEVEL\" text"
+        ],
+        "fixed": []
+      }
+    },
     {
       "version": "Version 1.3",
       "date": "January 25, 2026",
