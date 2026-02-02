@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   //   return;
   // }
 
-  const { userId, action } = req.body;
+  const { userId, action, reason } = req.body;
   
   if (!userId || !action) {
     res.status(400).json({ error: 'userId and action are required' });
@@ -52,8 +52,18 @@ module.exports = async (req, res) => {
         ...user.publicMetadata,
         isPremium: isPremium,
         premiumSince: premiumSince,
+        ...(isPremium
+          ? {}
+          : {
+              paymentType: 'free',
+              isLifetime: false,
+              isTrial: false,
+              confirmedByCheckout: false,
+              confirmedSessionId: null,
+            }),
         adminUpdated: true,
-        adminUpdatedAt: new Date().toISOString()
+        adminUpdatedAt: new Date().toISOString(),
+        adminUpdatedReason: reason || 'manual_override',
       },
     });
 
