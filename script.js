@@ -281,13 +281,16 @@ class PomodoroTimer {
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
 
         // Bottom sheet account (mobile/tablet)
+        this.bottomSheetAccountItem = document.querySelector('.bottom-sheet-account-item');
         this.bottomSheetAccountIcon = document.getElementById('bottomSheetAccountIcon');
         this.bottomSheetAccountAvatar = document.getElementById('bottomSheetAccountAvatar');
         this.bottomSheetAccountName = document.getElementById('bottomSheetAccountName');
         this.bottomSheetAccountBadge = document.getElementById('bottomSheetAccountBadge');
+        this.accountMenuLogin = document.getElementById('accountMenuLogin');
+        this.accountMenuSignup = document.getElementById('accountMenuSignup');
+        this.accountMenuUnlock = document.getElementById('accountMenuUnlock');
         this.accountMenuManageSubscription = document.getElementById('accountMenuManageSubscription');
         this.accountMenuSettings = document.getElementById('accountMenuSettings');
-        this.accountMenuHelp = document.getElementById('accountMenuHelp');
         this.accountMenuLogout = document.getElementById('accountMenuLogout');
         
         // Logo and achievement elements
@@ -3219,6 +3222,9 @@ class PomodoroTimer {
         if (!this.bottomSheetAccountName) return;
 
         const isLoggedIn = this.isAuthenticated && this.user;
+        if (this.bottomSheetAccountItem) {
+            this.bottomSheetAccountItem.classList.toggle('is-guest', !isLoggedIn);
+        }
         if (isLoggedIn) {
             const firstName = this.user.firstName;
             const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress;
@@ -3253,9 +3259,16 @@ class PomodoroTimer {
             this.bottomSheetAccountBadge.style.display = isPremium ? 'inline-flex' : 'none';
         }
 
-        if (this.accountMenuLogout) {
-            this.accountMenuLogout.style.display = isLoggedIn ? 'flex' : 'none';
-        }
+        const isPremium = this.isAuthenticated && this.isPremiumUser();
+        const isFreeUser = this.isAuthenticated && !isPremium;
+        const isGuest = !this.isAuthenticated;
+
+        if (this.accountMenuLogin) this.accountMenuLogin.style.display = isGuest ? 'flex' : 'none';
+        if (this.accountMenuSignup) this.accountMenuSignup.style.display = isGuest ? 'flex' : 'none';
+        if (this.accountMenuUnlock) this.accountMenuUnlock.style.display = isFreeUser ? 'flex' : 'none';
+        if (this.accountMenuManageSubscription) this.accountMenuManageSubscription.style.display = isPremium ? 'flex' : 'none';
+        if (this.accountMenuSettings) this.accountMenuSettings.style.display = this.isAuthenticated ? 'flex' : 'none';
+        if (this.accountMenuLogout) this.accountMenuLogout.style.display = this.isAuthenticated ? 'flex' : 'none';
     }
 
     getInitials(name) {
@@ -23351,10 +23364,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Account menu actions
+    const accountLoginBtn = document.getElementById('accountMenuLogin');
+    const accountSignupBtn = document.getElementById('accountMenuSignup');
+    const accountUnlockBtn = document.getElementById('accountMenuUnlock');
     const accountManageBtn = document.getElementById('accountMenuManageSubscription');
     const accountSettingsBtn = document.getElementById('accountMenuSettings');
-    const accountHelpBtn = document.getElementById('accountMenuHelp');
     const accountLogoutBtn = document.getElementById('accountMenuLogout');
+
+    if (accountLoginBtn) {
+        accountLoginBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.handleLogin) {
+                window.pomodoroTimer.handleLogin();
+            }
+        });
+    }
+
+    if (accountSignupBtn) {
+        accountSignupBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.handleSignup) {
+                window.pomodoroTimer.handleSignup();
+            }
+        });
+    }
+
+    if (accountUnlockBtn) {
+        accountUnlockBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.showPricingPlansModal) {
+                window.pomodoroTimer.showPricingPlansModal();
+            } else {
+                window.location.href = '/pricing';
+            }
+        });
+    }
 
     if (accountManageBtn) {
         accountManageBtn.addEventListener('click', () => {
@@ -23375,14 +23419,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.pomodoroTimer?.showSettingsModal) {
                 window.pomodoroTimer.showSettingsModal();
             }
-        });
-    }
-
-    if (accountHelpBtn) {
-        accountHelpBtn.addEventListener('click', () => {
-            closeAccountMenu();
-            const helpToggle = document.getElementById('helpToggle');
-            if (helpToggle) helpToggle.click();
         });
     }
 

@@ -11022,6 +11022,10 @@ input:checked + .toggle-slider:before {
     justify-content: space-between;
 }
 
+.bottom-sheet-account-item.is-guest {
+    justify-content: flex-start;
+}
+
 .bottom-sheet-account-left {
     display: flex;
     align-items: center;
@@ -11046,6 +11050,7 @@ input:checked + .toggle-slider:before {
 .bottom-sheet-account-name {
     font-size: 1rem;
     color: #fff;
+    text-transform: uppercase;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -11055,11 +11060,12 @@ input:checked + .toggle-slider:before {
     margin-left: auto;
     padding: 4px 10px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #0f7a4b;
+    border: 1px solid rgba(15, 122, 75, 0.5);
     font-size: 11px;
     font-weight: 600;
     color: #fff;
+    text-transform: uppercase;
 }
 
 .bottom-sheet-nav {
@@ -11079,6 +11085,7 @@ input:checked + .toggle-slider:before {
     color: #fff;
     font-size: 1rem;
     font-weight: 500;
+    text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
