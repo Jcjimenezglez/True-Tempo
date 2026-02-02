@@ -14334,7 +14334,7 @@ class PomodoroTimer {
                 </div>
 
                 <!-- Activity (disabled for Free) -->
-                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
                     <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 12px;">Activity</div>
                     <div style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
                         ${Array(7).fill(0).map((_, i) => `
@@ -14344,31 +14344,19 @@ class PomodoroTimer {
                             </div>
                         `).join('')}
                     </div>
-                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Unlock Activity</div>
-                            <button id="upgradeFromActivity" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Level (disabled for Free) -->
-                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
                     <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 12px;">Level</div>
                     <div style="width: 100%; height: 5px; background: #333; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
                         <div style="width: 50%; height: 100%; background: #555;"></div>
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">Unlock to see your level</div>
-                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Unlock Level</div>
-                            <button id="upgradeFromLevel" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Recent Activity (DESHABILITADO para FREE) -->
-                <div style="position: relative; background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 24px; opacity: 0.5;">
+                <!-- Recent Activity (disabled for Free) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
                     <h4 style="margin: 0 0 16px 0; color: #ffffff; font-size: 16px;">Recent Activity</h4>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         ${(() => {
@@ -14406,12 +14394,11 @@ class PomodoroTimer {
                             }).join('');
                         })()}
                     </div>
-                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px;">Recent Activity</div>
-                            <button id="upgradeFromRecent" style="background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
-                        </div>
-                    </div>
+                </div>
+
+                <!-- Single Unlock CTA for Free -->
+                <div style="text-align: center; margin: 8px 0 24px 0;">
+                    <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                 </div>
 
             </div>
@@ -14419,24 +14406,22 @@ class PomodoroTimer {
 
         containerElement.innerHTML = html;
 
-        // Add upgrade button events
-        ['upgradeFromActivity', 'upgradeFromLevel', 'upgradeFromRecent'].forEach(btnId => {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    if (window.pomodoroTimer) {
-                        window.pomodoroTimer.trackEvent('Subscribe Clicked', {
-                            button_type: 'subscribe',
-                            source: 'report_panel',
-                            location: btnId.replace('upgradeFrom', '').toLowerCase(),
-                            user_type: 'free',
-                            modal_type: 'report_upgrade_prompt'
-                        });
-                        window.pomodoroTimer.showPricingPlansModal();
-                    }
-                });
-            }
-        });
+        // Single upgrade button event
+        const freeUpgradeBtn = document.getElementById('upgradeFromFreeReport');
+        if (freeUpgradeBtn) {
+            freeUpgradeBtn.addEventListener('click', () => {
+                if (window.pomodoroTimer) {
+                    window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                        button_type: 'subscribe',
+                        source: 'report_panel',
+                        location: 'free_report',
+                        user_type: 'free',
+                        modal_type: 'report_upgrade_prompt'
+                    });
+                    window.pomodoroTimer.showPricingPlansModal();
+                }
+            });
+        }
         } catch (error) {
             console.error('Error in displayBasicReport:', error);
             containerElement.innerHTML = `
