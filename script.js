@@ -3387,13 +3387,6 @@ class PomodoroTimer {
             }
         }
 
-        // Show loading state
-        leaderboardContent.innerHTML = `
-            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                Loading leaderboard...
-            </div>
-        `;
-
         console.log(`🔄 Fetching fresh leaderboard page ${page} from server...`);
         if (needsRefresh) {
             console.log(`   Reason: Earned ${(hoursEarnedSinceCache * 60).toFixed(1)} minutes since last load`);
@@ -12853,6 +12846,15 @@ class PomodoroTimer {
 
         // Update display in real-time
         this.updateFocusHoursDisplay();
+
+        // If leaderboard panel is open, refresh when user gains >= 1 minute
+        const hoursEarnedSinceCache = stats.totalHours - (this.leaderboardCachedAtHours || 0);
+        const needsLeaderboardRefresh = hoursEarnedSinceCache >= (1 / 60);
+        const leaderboardPanel = document.getElementById('leaderboardSidePanel');
+
+        if (needsLeaderboardRefresh && leaderboardPanel?.classList.contains('open')) {
+            this.loadLeaderboardForPanel(this.leaderboardCurrentPage || 1);
+        }
     }
 
     addTechniqueTime(seconds) {
@@ -13921,6 +13923,8 @@ class PomodoroTimer {
         const leaderboardContent = document.getElementById('leaderboardContent');
         if (!leaderboardContent) return;
 
+        this.leaderboardCurrentPage = page;
+
         // Get current user's total hours
         const stats = this.getFocusStats();
         const currentTotalHours = stats.totalHours || 0;
@@ -13960,13 +13964,6 @@ class PomodoroTimer {
                 return;
             }
         }
-
-        // Show loading state
-        leaderboardContent.innerHTML = `
-            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                Loading leaderboard...
-            </div>
-        `;
 
         console.log(`🔄 Fetching fresh leaderboard page ${page} from server...`);
         if (needsRefresh) {
