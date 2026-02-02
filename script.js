@@ -14333,12 +14333,6 @@ class PomodoroTimer {
                     </div>
                 </div>
 
-                <!-- Upgrade CTA (Free) -->
-                <div style="text-align: center; margin: 8px 0 16px 0;">
-                    <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px;">See your real progress.</div>
-                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Unlock Activity, Level, and Done History to track your progress.</div>
-                </div>
-
                 <!-- Disabled Sections Wrapper -->
                 <div style="position: relative;">
                 <!-- Activity (disabled for Free) -->
@@ -14405,7 +14399,7 @@ class PomodoroTimer {
                 </div>
 
                 <!-- Single Unlock Overlay -->
-                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border-radius: 16px;">
+                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 16px;">
                     <div style="text-align: center;">
                         <div style="font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 6px;">Unlock your full report</div>
                         <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Activity, Level, and Done History</div>
