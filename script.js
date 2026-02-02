@@ -7023,16 +7023,19 @@ class PomodoroTimer {
         const integrationsSection = document.getElementById('integrationsSection');
         
         if (this.isPremiumUser()) {
-            // Show Manage subscription, hide Upgrade, show Pro badge, show Integrations
+            const meta = window.Clerk?.user?.publicMetadata || {};
+            const isLifetime = meta.isLifetime === true || meta.paymentType === 'lifetime';
+            
+            // Show Manage subscription only for non-lifetime premium users
             if (upgradeButton) upgradeButton.style.display = 'none';
-            if (manageSubscriptionButton) manageSubscriptionButton.style.display = 'flex';
+            if (manageSubscriptionButton) manageSubscriptionButton.style.display = isLifetime ? 'none' : 'flex';
             if (userProBadge) userProBadge.style.display = 'inline-block';
             if (integrationsButton) integrationsButton.style.display = 'flex';
             if (integrationsSection) integrationsSection.style.display = 'block';
             
             // Settings dropdown elements
             if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
-            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = 'flex';
+            if (this.settingsManageSubscriptionBtn) this.settingsManageSubscriptionBtn.style.display = isLifetime ? 'none' : 'flex';
             if (this.settingsProBadge) this.settingsProBadge.style.display = 'inline-block';
             // Integrations removed from menu
             // if (this.settingsIntegrationsBtn) this.settingsIntegrationsBtn.style.display = 'flex';
