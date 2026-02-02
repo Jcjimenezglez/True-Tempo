@@ -11017,6 +11017,51 @@ input:checked + .toggle-slider:before {
     margin-bottom: 8px;
 }
 
+/* Account row in navigation menu */
+.bottom-sheet-account-item {
+    justify-content: space-between;
+}
+
+.bottom-sheet-account-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.bottom-sheet-account-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottom-sheet-account-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: none;
+}
+
+.bottom-sheet-account-name {
+    font-size: 1rem;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bottom-sheet-account-badge {
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+}
+
 .bottom-sheet-nav {
     display: flex;
     flex-direction: column;
@@ -11153,7 +11198,7 @@ input:checked + .toggle-slider:before {
     }
 
     .timer-header-center {
-        top: 68px;
+        top: 20px;
     }
 
     .timer-technique-btn {

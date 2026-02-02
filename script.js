@@ -279,6 +279,16 @@ class PomodoroTimer {
         this.helpPanel = document.getElementById('helpPanel');
         this.settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
         this.settingsLogoutDivider = document.getElementById('settingsLogoutDivider');
+
+        // Bottom sheet account (mobile/tablet)
+        this.bottomSheetAccountIcon = document.getElementById('bottomSheetAccountIcon');
+        this.bottomSheetAccountAvatar = document.getElementById('bottomSheetAccountAvatar');
+        this.bottomSheetAccountName = document.getElementById('bottomSheetAccountName');
+        this.bottomSheetAccountBadge = document.getElementById('bottomSheetAccountBadge');
+        this.accountMenuManageSubscription = document.getElementById('accountMenuManageSubscription');
+        this.accountMenuSettings = document.getElementById('accountMenuSettings');
+        this.accountMenuHelp = document.getElementById('accountMenuHelp');
+        this.accountMenuLogout = document.getElementById('accountMenuLogout');
         
         // Logo and achievement elements
         this.logoIcon = document.getElementById('logoIcon');
@@ -2713,6 +2723,8 @@ class PomodoroTimer {
             // Reset header settings button to show user icon (not logged in)
             if (this.headerSettingsIcon) this.headerSettingsIcon.style.display = 'block';
             if (this.headerSettingsAvatar) this.headerSettingsAvatar.style.display = 'none';
+
+            this.updateBottomSheetAccountUI();
             
             // Update settings dropdown for non-authenticated user
             if (this.settingsUserInfo) this.settingsUserInfo.style.display = 'none';
@@ -2789,6 +2801,8 @@ class PomodoroTimer {
         
         // Update technique presets visibility based on user type
         this.updateTechniquePresetsVisibility();
+
+        this.updateBottomSheetAccountUI();
     }
 
     // Close all open modals to focus on timer
@@ -3196,6 +3210,51 @@ class PomodoroTimer {
             this.headerSettingsAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
             this.headerSettingsAvatar.style.display = 'block';
             this.headerSettingsIcon.style.display = 'none';
+        }
+
+        this.updateBottomSheetAccountUI();
+    }
+
+    updateBottomSheetAccountUI() {
+        if (!this.bottomSheetAccountName) return;
+
+        const isLoggedIn = this.isAuthenticated && this.user;
+        if (isLoggedIn) {
+            const firstName = this.user.firstName;
+            const email = this.user.primaryEmailAddress?.emailAddress || this.user.emailAddresses?.[0]?.emailAddress;
+            const displayName = firstName || email || 'User';
+            this.bottomSheetAccountName.textContent = displayName;
+
+            if (this.bottomSheetAccountAvatar && this.bottomSheetAccountIcon) {
+                if (this.user.imageUrl) {
+                    this.bottomSheetAccountAvatar.src = this.user.imageUrl;
+                } else {
+                    const initials = this.getInitials(this.user.fullName || this.user.firstName || (email || 'U'));
+                    const svg = `
+                        <svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="28" height="28" fill="#555" rx="14"/>
+                            <text x="14" y="17" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">${initials}</text>
+                        </svg>`;
+                    this.bottomSheetAccountAvatar.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+                }
+                this.bottomSheetAccountAvatar.style.display = 'block';
+                this.bottomSheetAccountIcon.style.display = 'none';
+            }
+        } else {
+            this.bottomSheetAccountName.textContent = 'Account';
+            if (this.bottomSheetAccountAvatar && this.bottomSheetAccountIcon) {
+                this.bottomSheetAccountAvatar.style.display = 'none';
+                this.bottomSheetAccountIcon.style.display = 'flex';
+            }
+        }
+
+        if (this.bottomSheetAccountBadge) {
+            const isPremium = this.isAuthenticated && this.isPremiumUser();
+            this.bottomSheetAccountBadge.style.display = isPremium ? 'inline-flex' : 'none';
+        }
+
+        if (this.accountMenuLogout) {
+            this.accountMenuLogout.style.display = isLoggedIn ? 'flex' : 'none';
         }
     }
 
@@ -22961,6 +23020,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Navigation menu elements
     const overlay = document.getElementById('bottomSheetOverlay');
     const navigationMenu = document.getElementById('navigationMenu');
+    const accountMenu = document.getElementById('accountMenu');
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     
     // Original side panels (these have all the functionality)
@@ -22997,6 +23057,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('📋 Elements found:', {
         overlay: !!overlay,
         navigationMenu: !!navigationMenu,
+        accountMenu: !!accountMenu,
         mobileMenuToggle: !!mobileMenuToggle,
         sidePanels: Object.keys(sidePanels).reduce((acc, key) => {
             acc[key] = !!sidePanels[key].panel;
@@ -23053,6 +23114,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         hideOverlay();
     }
+
+    function openAccountMenu() {
+        if (!isMobileOrTablet()) return;
+        console.log('📂 Opening account menu');
+        showOverlay();
+        if (accountMenu) {
+            accountMenu.style.display = 'flex';
+            requestAnimationFrame(() => {
+                accountMenu.classList.add('active');
+            });
+        }
+    }
+
+    function closeAccountMenu() {
+        console.log('📁 Closing account menu');
+        if (accountMenu) {
+            accountMenu.classList.remove('active');
+            setTimeout(() => {
+                accountMenu.style.display = 'none';
+            }, 400);
+        }
+        hideOverlay();
+    }
     
     // Open a side panel as bottom sheet
     function openPanel(panelKey) {
@@ -23069,11 +23153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideOverlay();
         
         if (panelKey === 'account') {
-            // Special handling for Account - use settings modal
-            if (settingsModal) {
-                settingsModal.style.display = 'flex';
-                settingsModal.classList.add('active');
-            }
+            openAccountMenu();
             currentOpenPanel = 'account';
             return;
         }
@@ -23132,12 +23212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('📁 Closing panel:', currentOpenPanel);
         
         if (currentOpenPanel === 'account') {
-            if (settingsModal) {
-                settingsModal.classList.remove('active');
-                setTimeout(() => {
-                    settingsModal.style.display = 'none';
-                }, 300);
-            }
+            closeAccountMenu();
         } else if (window.sidebarManager) {
             switch (currentOpenPanel) {
                 case 'tasks':
@@ -23183,6 +23258,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeAll() {
         closeCurrentPanel();
         closeNavigationMenu();
+        closeAccountMenu();
         
         // Force close ALL panels and overlays regardless of state
         const allPanels = [
@@ -23273,6 +23349,51 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Account menu actions
+    const accountManageBtn = document.getElementById('accountMenuManageSubscription');
+    const accountSettingsBtn = document.getElementById('accountMenuSettings');
+    const accountHelpBtn = document.getElementById('accountMenuHelp');
+    const accountLogoutBtn = document.getElementById('accountMenuLogout');
+
+    if (accountManageBtn) {
+        accountManageBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.isPremiumUser?.()) {
+                window.pomodoroTimer.handleManageSubscription();
+            } else if (window.pomodoroTimer?.showPricingPlansModal) {
+                window.pomodoroTimer.showPricingPlansModal();
+            } else {
+                window.location.href = '/pricing';
+            }
+        });
+    }
+
+    if (accountSettingsBtn) {
+        accountSettingsBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.showSettingsModal) {
+                window.pomodoroTimer.showSettingsModal();
+            }
+        });
+    }
+
+    if (accountHelpBtn) {
+        accountHelpBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            const helpToggle = document.getElementById('helpToggle');
+            if (helpToggle) helpToggle.click();
+        });
+    }
+
+    if (accountLogoutBtn) {
+        accountLogoutBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.isAuthenticated) {
+                window.pomodoroTimer.showLogoutModal();
+            }
+        });
+    }
     
     // Overlay click - close all
     if (overlay) {
@@ -23285,6 +23406,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Navigation menu click - prevent close
     if (navigationMenu) {
         navigationMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    if (accountMenu) {
+        accountMenu.addEventListener('click', (e) => {
             e.stopPropagation();
         });
     }

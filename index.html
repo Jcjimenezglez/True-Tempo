@@ -2811,12 +2811,40 @@
                     </svg>
                     <span>Leaderboard</span>
                 </button>
-                <button class="bottom-sheet-nav-item" data-target="accountSheet">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span>Account</span>
+                <button class="bottom-sheet-nav-item bottom-sheet-account-item" data-target="accountSheet">
+                    <span class="bottom-sheet-account-left">
+                        <span class="bottom-sheet-account-icon" id="bottomSheetAccountIcon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <img class="bottom-sheet-account-avatar" id="bottomSheetAccountAvatar" alt="Profile">
+                        <span class="bottom-sheet-account-name" id="bottomSheetAccountName">Account</span>
+                    </span>
+                    <span class="bottom-sheet-account-badge" id="bottomSheetAccountBadge" style="display: none;">Premium</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Account Menu (Bottom Sheet) -->
+    <div class="bottom-sheet account-menu" id="accountMenu" style="display: none;">
+        <div class="bottom-sheet-handle"></div>
+        <div class="bottom-sheet-content">
+            <h2 class="bottom-sheet-title">Account</h2>
+            <nav class="bottom-sheet-nav">
+                <button class="bottom-sheet-nav-item" id="accountMenuManageSubscription">
+                    Manage subscription
+                </button>
+                <button class="bottom-sheet-nav-item" id="accountMenuSettings">
+                    Settings
+                </button>
+                <button class="bottom-sheet-nav-item" id="accountMenuHelp">
+                    Help
+                </button>
+                <button class="bottom-sheet-nav-item" id="accountMenuLogout">
+                    Log out
                 </button>
             </nav>
         </div>
