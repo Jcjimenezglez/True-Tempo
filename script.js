@@ -3357,18 +3357,22 @@ class PomodoroTimer {
             localStorage.removeItem('leaderboardCachedAtHours');
         }
 
-        // If we have cache for this page and user hasn't earned 1+ minute, show cached data
-        if (cachedData && !needsRefresh) {
-            console.log(`📦 Using cached leaderboard page ${page} (no new focus time earned)`);
+        // If we have cache for this page, show it immediately
+        if (cachedData) {
+            console.log(`📦 Using cached leaderboard page ${page}`);
             console.log(`   Current: ${currentTotalHours.toFixed(2)}h, Cached at: ${cachedTotalHours.toFixed(2)}h, Diff: ${(hoursEarnedSinceCache * 60).toFixed(1)} min`);
             
             this.displayLeaderboardInModal(
-                leaderboardContent, 
-                cachedData.leaderboard, 
-                cachedData.currentUserPosition, 
-                cachedData.pagination
+                leaderboardContent,
+                cachedData.leaderboard,
+                cachedData.currentUserPosition,
+                cachedData.pagination,
+                cachedData.rankMeta
             );
-            return;
+
+            if (!needsRefresh) {
+                return;
+            }
         }
 
         // Show loading state
@@ -3421,8 +3425,11 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays
+                        hasMore: data.hasMore
+                    },
+                    rankMeta: {
+                        nextRankGapMinutes: data.nextRankGapMinutes,
+                        nextRankTargetRank: data.nextRankTargetRank
                     }
                 };
                 
@@ -3439,13 +3446,21 @@ class PomodoroTimer {
                 
                 console.log(`✅ Leaderboard page ${page} cached at ${currentTotalHours.toFixed(2)}h`);
 
-                this.displayLeaderboardInModal(leaderboardContent, data.leaderboard, data.currentUserPosition, {
-                    page: data.page,
-                    totalPages: data.totalPages,
-                    totalUsers: data.totalUsers,
-                    hasMore: data.hasMore,
-                    activityWindowDays: data.activityWindowDays
-                });
+                this.displayLeaderboardInModal(
+                    leaderboardContent,
+                    data.leaderboard,
+                    data.currentUserPosition,
+                    {
+                        page: data.page,
+                        totalPages: data.totalPages,
+                        totalUsers: data.totalUsers,
+                        hasMore: data.hasMore
+                    },
+                    {
+                        nextRankGapMinutes: data.nextRankGapMinutes,
+                        nextRankTargetRank: data.nextRankTargetRank
+                    }
+                );
             } else {
                 leaderboardContent.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: #a3a3a3;">
@@ -3463,13 +3478,28 @@ class PomodoroTimer {
         }
     }
 
-    displayLeaderboardInModal(containerElement, leaderboard, currentUserPosition, pagination = null) {
+    displayLeaderboardInModal(containerElement, leaderboard, currentUserPosition, pagination = null, rankMeta = null) {
         // Find current user's stats
         const stats = this.getFocusStats();
         const totalHours = stats.totalHours || 0;
         const hours = Math.floor(totalHours);
         const minutes = Math.round((totalHours - hours) * 60);
         const userTimeString = `${hours}h ${minutes}m`;
+        const nextRankGapMinutes = rankMeta?.nextRankGapMinutes;
+        const nextRankTargetRank = rankMeta?.nextRankTargetRank;
+
+        let nextRankGapLine = '';
+        if (
+            currentUserPosition &&
+            Number.isFinite(nextRankGapMinutes) &&
+            nextRankGapMinutes > 0 &&
+            nextRankTargetRank
+        ) {
+            const gapHours = Math.floor(nextRankGapMinutes / 60);
+            const gapMinutes = nextRankGapMinutes % 60;
+            const gapTime = gapHours > 0 ? `${gapHours}h ${gapMinutes}m` : `${gapMinutes}m`;
+            nextRankGapLine = `${gapTime} to pass #${nextRankTargetRank}`;
+        }
 
         let html = '';
 
@@ -3480,27 +3510,10 @@ class PomodoroTimer {
                 <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
                     <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} total users</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} premium users</div>
+                    ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
                 </div>
             `;
-        }
-
-        const activityWindowDays = pagination?.activityWindowDays;
-        if (activityWindowDays) {
-            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
-            html += `
-                <div style="padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border-radius: 12px; margin-bottom: 16px; color: #a3a3a3; font-size: 12px;">
-                    Showing users active in the last ${activityWindowDays} ${dayLabel}.
-                </div>
-            `;
-
-            if (!currentUserPosition && totalHours > 0) {
-                html += `
-                    <div style="padding: 12px 16px; background: rgba(234, 179, 8, 0.1); border-radius: 12px; margin-bottom: 16px; color: #facc15; font-size: 12px; border: 1px solid rgba(234, 179, 8, 0.2);">
-                        You haven't logged focus time in the last ${activityWindowDays} ${dayLabel}. Start a session to rejoin the leaderboard.
-                    </div>
-                `;
-            }
         }
 
         // Leaderboard list
@@ -3511,43 +3524,36 @@ class PomodoroTimer {
         const startRank = (currentPage - 1) * pageSize + 1;
         
         if (topUsers.length === 0) {
-            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    ${activityWindowDays ? `No users have been active in the last ${activityWindowDays} ${dayLabel}.` : 'No users yet. Be the first!'}
+                    No Premium users yet. Be the first!
                 </div>
             `;
         } else {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
             html += topUsers.map((user, index) => {
                 const isCurrentUser = user.isCurrentUser;
-                const isPremium = user.isPremium === true;
                 const userHours = Math.floor(user.totalFocusHours);
                 const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
                 const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
                 const globalRank = startRank + index;
-                
-                // Premium crown badge - shown after rank number for Premium users
-                const premiumCrown = isPremium ? `
-                    <span 
-                        style="
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            margin-left: 8px;
-                            cursor: help;
-                            position: relative;
-                        "
-                        title="Premium Member"
-                        class="premium-crown-badge"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
-                            <path d="M5 21h14"/>
-                        </svg>
-                    </span>
-                ` : '';
+
+                const rankChange = user.rankChange;
+                let rankChangeIcon = '';
+                if (typeof rankChange === 'number' && rankChange !== 0) {
+                    const isUp = rankChange > 0;
+                    const color = isUp ? '#22c55e' : '#ef4444';
+                    const iconSvg = isUp
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-icon"><path d="M8 6L12 2L16 6"/><path d="M12 2V22"/></svg>`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-down-icon"><path d="M8 18L12 22L16 18"/><path d="M12 2V22"/></svg>`;
+
+                    rankChangeIcon = `
+                        <span style="display: inline-flex; align-items: center; margin-left: 6px; color: ${color};">
+                            ${iconSvg}
+                        </span>
+                    `;
+                }
 
                 return `
                     <div style="
@@ -3563,7 +3569,7 @@ class PomodoroTimer {
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; min-width: 60px;">
                                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
-                                ${premiumCrown}
+                                ${rankChangeIcon}
                             </div>
                             <span style="
                                 color: ${isCurrentUser ? '#22c55e' : '#fff'}; 
@@ -13900,17 +13906,21 @@ class PomodoroTimer {
         }
 
         // If we have cache for this page and user hasn't earned 1+ minute, show cached data
-        if (cachedData && !needsRefresh) {
-            console.log(`📦 Using cached leaderboard page ${page} (no new focus time earned)`);
+        if (cachedData) {
+            console.log(`📦 Using cached leaderboard page ${page}`);
             console.log(`   Current: ${currentTotalHours.toFixed(2)}h, Cached at: ${cachedTotalHours.toFixed(2)}h, Diff: ${(hoursEarnedSinceCache * 60).toFixed(1)} min`);
             
             this.displayLeaderboardInPanel(
-                leaderboardContent, 
-                cachedData.leaderboard, 
-                cachedData.currentUserPosition, 
-                cachedData.pagination
+                leaderboardContent,
+                cachedData.leaderboard,
+                cachedData.currentUserPosition,
+                cachedData.pagination,
+                cachedData.rankMeta
             );
-            return;
+
+            if (!needsRefresh) {
+                return;
+            }
         }
 
         // Show loading state
@@ -13963,8 +13973,11 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays
+                        hasMore: data.hasMore
+                    },
+                    rankMeta: {
+                        nextRankGapMinutes: data.nextRankGapMinutes,
+                        nextRankTargetRank: data.nextRankTargetRank
                     }
                 };
                 
@@ -13981,13 +13994,21 @@ class PomodoroTimer {
                 
                 console.log(`✅ Leaderboard page ${page} cached at ${currentTotalHours.toFixed(2)}h`);
 
-                this.displayLeaderboardInPanel(leaderboardContent, data.leaderboard, data.currentUserPosition, {
-                    page: data.page,
-                    totalPages: data.totalPages,
-                    totalUsers: data.totalUsers,
-                    hasMore: data.hasMore,
-                    activityWindowDays: data.activityWindowDays
-                });
+                this.displayLeaderboardInPanel(
+                    leaderboardContent,
+                    data.leaderboard,
+                    data.currentUserPosition,
+                    {
+                        page: data.page,
+                        totalPages: data.totalPages,
+                        totalUsers: data.totalUsers,
+                        hasMore: data.hasMore
+                    },
+                    {
+                        nextRankGapMinutes: data.nextRankGapMinutes,
+                        nextRankTargetRank: data.nextRankTargetRank
+                    }
+                );
             } else {
                 leaderboardContent.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: #a3a3a3;">
@@ -14005,13 +14026,28 @@ class PomodoroTimer {
         }
     }
 
-    displayLeaderboardInPanel(containerElement, leaderboard, currentUserPosition, pagination = null) {
+    displayLeaderboardInPanel(containerElement, leaderboard, currentUserPosition, pagination = null, rankMeta = null) {
         // Find current user's stats
         const stats = this.getFocusStats();
         const totalHours = stats.totalHours || 0;
         const hours = Math.floor(totalHours);
         const minutes = Math.round((totalHours - hours) * 60);
         const userTimeString = `${hours}h ${minutes}m`;
+        const nextRankGapMinutes = rankMeta?.nextRankGapMinutes;
+        const nextRankTargetRank = rankMeta?.nextRankTargetRank;
+
+        let nextRankGapLine = '';
+        if (
+            currentUserPosition &&
+            Number.isFinite(nextRankGapMinutes) &&
+            nextRankGapMinutes > 0 &&
+            nextRankTargetRank
+        ) {
+            const gapHours = Math.floor(nextRankGapMinutes / 60);
+            const gapMinutes = nextRankGapMinutes % 60;
+            const gapTime = gapHours > 0 ? `${gapHours}h ${gapMinutes}m` : `${gapMinutes}m`;
+            nextRankGapLine = `${gapTime} to pass #${nextRankTargetRank}`;
+        }
 
         let html = '';
 
@@ -14022,27 +14058,10 @@ class PomodoroTimer {
                 <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
                     <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} total users</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} premium users</div>
+                    ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
                 </div>
             `;
-        }
-
-        const activityWindowDays = pagination?.activityWindowDays;
-        if (activityWindowDays) {
-            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
-            html += `
-                <div style="padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border-radius: 12px; margin-bottom: 16px; color: #a3a3a3; font-size: 12px;">
-                    Showing users active in the last ${activityWindowDays} ${dayLabel}.
-                </div>
-            `;
-
-            if (!currentUserPosition && totalHours > 0) {
-                html += `
-                    <div style="padding: 12px 16px; background: rgba(234, 179, 8, 0.1); border-radius: 12px; margin-bottom: 16px; color: #facc15; font-size: 12px; border: 1px solid rgba(234, 179, 8, 0.2);">
-                        You haven't logged focus time in the last ${activityWindowDays} ${dayLabel}. Start a session to rejoin the leaderboard.
-                    </div>
-                `;
-            }
         }
 
         // Leaderboard list
@@ -14053,43 +14072,36 @@ class PomodoroTimer {
         const startRank = (currentPage - 1) * pageSize + 1;
         
         if (topUsers.length === 0) {
-            const dayLabel = activityWindowDays === 1 ? 'day' : 'days';
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    ${activityWindowDays ? `No users have been active in the last ${activityWindowDays} ${dayLabel}.` : 'No users yet. Be the first!'}
+                    No Premium users yet. Be the first!
                 </div>
             `;
         } else {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
             html += topUsers.map((user, index) => {
                 const isCurrentUser = user.isCurrentUser;
-                const isPremium = user.isPremium === true;
                 const userHours = Math.floor(user.totalFocusHours);
                 const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
                 const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
                 const globalRank = startRank + index;
-                
-                // Premium crown badge - shown after rank number for Premium users
-                const premiumCrown = isPremium ? `
-                    <span 
-                        style="
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            margin-left: 8px;
-                            cursor: help;
-                            position: relative;
-                        "
-                        title="Premium Member"
-                        class="premium-crown-badge"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
-                            <path d="M5 21h14"/>
-                        </svg>
-                    </span>
-                ` : '';
+
+                const rankChange = user.rankChange;
+                let rankChangeIcon = '';
+                if (typeof rankChange === 'number' && rankChange !== 0) {
+                    const isUp = rankChange > 0;
+                    const color = isUp ? '#22c55e' : '#ef4444';
+                    const iconSvg = isUp
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-icon"><path d="M8 6L12 2L16 6"/><path d="M12 2V22"/></svg>`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-down-icon"><path d="M8 18L12 22L16 18"/><path d="M12 2V22"/></svg>`;
+
+                    rankChangeIcon = `
+                        <span style="display: inline-flex; align-items: center; margin-left: 6px; color: ${color};">
+                            ${iconSvg}
+                        </span>
+                    `;
+                }
 
                 return `
                     <div style="
@@ -14105,7 +14117,7 @@ class PomodoroTimer {
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; min-width: 60px;">
                                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
-                                ${premiumCrown}
+                                ${rankChangeIcon}
                             </div>
                             <span style="
                                 color: ${isCurrentUser ? '#22c55e' : '#fff'}; 

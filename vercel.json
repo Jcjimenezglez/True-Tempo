@@ -64,6 +64,10 @@
     {
       "path": "/api/cron/sync-premium-status",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/build-premium-leaderboard",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
