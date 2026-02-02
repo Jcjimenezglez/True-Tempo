@@ -6424,6 +6424,11 @@ class PomodoroTimer {
     }
     
     showShortcutsModal() {
+        // Evitar abrir más de un modal: si ya existe uno visible, no crear otro
+        const existing = document.querySelector('.shortcuts-modal-overlay');
+        if (existing && existing.parentNode) {
+            return;
+        }
         const modalContent = `
             <div class="focus-stats-modal timer-settings-modal">
                 <button class="close-focus-stats-x">
@@ -6464,27 +6469,26 @@ class PomodoroTimer {
         `;
         
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'focus-stats-overlay';
+        modalOverlay.className = 'focus-stats-overlay shortcuts-modal-overlay';
         modalOverlay.innerHTML = modalContent;
         document.body.appendChild(modalOverlay);
         modalOverlay.style.display = 'flex';
         
-        // Close button
-        const closeBtn = modalOverlay.querySelector('.close-focus-stats-x');
-        closeBtn.addEventListener('click', () => {
+        const closeShortcutsModal = () => {
             modalOverlay.style.display = 'none';
             if (modalOverlay.parentNode) {
                 document.body.removeChild(modalOverlay);
             }
-        });
+        };
+        
+        // Close button
+        const closeBtn = modalOverlay.querySelector('.close-focus-stats-x');
+        closeBtn.addEventListener('click', closeShortcutsModal);
         
         // Close on overlay click
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
-                modalOverlay.style.display = 'none';
-                if (modalOverlay.parentNode) {
-                    document.body.removeChild(modalOverlay);
-                }
+                closeShortcutsModal();
             }
         });
     }
