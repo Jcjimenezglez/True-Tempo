@@ -14316,7 +14316,7 @@ class PomodoroTimer {
             const weekTotalHours = last7Days.reduce((sum, day) => sum + (day.hours || 0), 0);
 
         const html = `
-            <div style="padding: 0;">
+            <div style="padding: 0; position: relative;">
 
                 <!-- Streak (FREE) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
@@ -14335,11 +14335,12 @@ class PomodoroTimer {
 
                 <!-- Upgrade CTA (Free) -->
                 <div style="text-align: center; margin: 8px 0 16px 0;">
-                    <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px;">You're going to fail this exam.</div>
-                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Not because you can't pass it. Because you won't start studying.</div>
-                    <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                    <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px;">See your real progress.</div>
+                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Unlock Activity, Level, and Done History to track your progress.</div>
                 </div>
 
+                <!-- Disabled Sections Wrapper -->
+                <div style="position: relative;">
                 <!-- Activity (disabled for Free) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
                     <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 12px;">Activity</div>
@@ -14401,6 +14402,16 @@ class PomodoroTimer {
                             }).join('');
                         })()}
                     </div>
+                </div>
+
+                <!-- Single Unlock Overlay -->
+                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border-radius: 16px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 6px;">Unlock your full report</div>
+                        <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Activity, Level, and Done History</div>
+                        <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                    </div>
+                </div>
                 </div>
 
 
