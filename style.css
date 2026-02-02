@@ -699,7 +699,7 @@ a.resource-item:hover,
 }
 
 .main-content.task-panel-open {
-    margin-left: calc(var(--sidebar-collapsed-width) + 400px) !important;
+    margin-left: var(--sidebar-collapsed-width) !important;
 }
 
 /* Mobile Menu Toggle Button */

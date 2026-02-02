@@ -21785,6 +21785,7 @@ class SidebarManager {
         this.bindEvents();
         this.setupResponsive();
         this.setupTaskPanelScrollBehavior();
+        this.setupPanelA11yState();
         // Don't set any nav item as active by default
         
         // Auto-open task panel for guest users - DISABLED
@@ -21804,6 +21805,72 @@ class SidebarManager {
                 }
             }
         }, 500); // Small delay to ensure pomodoroTimer is initialized
+    }
+
+    setupPanelA11yState() {
+        this.a11yPanels = [
+            this.taskSidePanel,
+            this.settingsSidePanel,
+            this.immersiveThemeSidePanel,
+            this.leaderboardSidePanel,
+            this.reportSidePanel,
+            this.resourcesSidePanel
+        ].filter(Boolean);
+
+        // Ensure main landmark isn't aria-hidden by default
+        [this.sidebar, this.mainContent].forEach((element) => {
+            if (!element) return;
+            if (element.getAttribute('aria-hidden') === 'true') {
+                element.removeAttribute('aria-hidden');
+            }
+            if (element.inert) {
+                element.inert = false;
+            }
+        });
+
+        // Initialize closed panels as aria-hidden and inert
+        this.a11yPanels.forEach((panel) => {
+            this.setPanelA11yState(panel, false);
+        });
+
+        // Keep inert in sync if aria-hidden is toggled elsewhere
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type !== 'attributes' || mutation.attributeName !== 'aria-hidden') continue;
+                this.syncAriaHiddenToInert(mutation.target);
+            }
+        });
+
+        [...this.a11yPanels, this.sidebar, this.mainContent].forEach((element) => {
+            if (!element) return;
+            observer.observe(element, { attributes: true, attributeFilter: ['aria-hidden'] });
+            this.syncAriaHiddenToInert(element);
+        });
+
+        this.ariaHiddenObserver = observer;
+    }
+
+    syncAriaHiddenToInert(element) {
+        if (!element) return;
+        const isHidden = element.getAttribute('aria-hidden') === 'true';
+        if (isHidden) {
+            element.inert = true;
+        } else if (element.inert) {
+            element.inert = false;
+        }
+    }
+
+    setPanelA11yState(panel, isOpen) {
+        if (!panel) return;
+        if (isOpen) {
+            panel.removeAttribute('aria-hidden');
+            if (panel.inert) {
+                panel.inert = false;
+            }
+        } else {
+            panel.setAttribute('aria-hidden', 'true');
+            panel.inert = true;
+        }
     }
     
     setupTaskPanelScrollBehavior() {
@@ -22248,6 +22315,7 @@ class SidebarManager {
             
             this.taskSidePanel.classList.add('open');
             this.isTaskPanelOpen = true;
+            this.setPanelA11yState(this.taskSidePanel, true);
             
             // Show overlay
             if (this.taskPanelOverlay) {
@@ -22287,6 +22355,7 @@ class SidebarManager {
         if (this.taskSidePanel) {
             this.taskSidePanel.classList.remove('open');
             this.isTaskPanelOpen = false;
+            this.setPanelA11yState(this.taskSidePanel, false);
             
             // Hide overlay
             if (this.taskPanelOverlay) {
@@ -22341,6 +22410,7 @@ class SidebarManager {
             
             this.settingsSidePanel.classList.add('open');
             this.isSettingsPanelOpen = true;
+            this.setPanelA11yState(this.settingsSidePanel, true);
             
             // Show overlay
             if (this.settingsPanelOverlay) {
@@ -22376,6 +22446,7 @@ class SidebarManager {
         if (this.settingsSidePanel) {
             this.settingsSidePanel.classList.remove('open');
             this.isSettingsPanelOpen = false;
+            this.setPanelA11yState(this.settingsSidePanel, false);
             
             // Hide overlay
             if (this.settingsPanelOverlay) {
@@ -22434,6 +22505,7 @@ class SidebarManager {
             
             this.immersiveThemeSidePanel.classList.add('open');
             this.isImmersiveThemePanelOpen = true;
+            this.setPanelA11yState(this.immersiveThemeSidePanel, true);
             
             // Show overlay
             if (this.immersiveThemePanelOverlay) {
@@ -22516,6 +22588,7 @@ class SidebarManager {
         if (this.leaderboardSidePanel) {
             this.leaderboardSidePanel.classList.add('open');
             this.isLeaderboardPanelOpen = true;
+            this.setPanelA11yState(this.leaderboardSidePanel, true);
 
             // Show overlay
             if (this.leaderboardPanelOverlay) {
@@ -22545,6 +22618,7 @@ class SidebarManager {
         if (this.leaderboardSidePanel) {
             this.leaderboardSidePanel.classList.remove('open');
             this.isLeaderboardPanelOpen = false;
+            this.setPanelA11yState(this.leaderboardSidePanel, false);
 
             // Hide overlay
             if (this.leaderboardPanelOverlay) {
@@ -22593,6 +22667,7 @@ class SidebarManager {
         if (this.reportSidePanel) {
             this.reportSidePanel.classList.add('open');
             this.isReportPanelOpen = true;
+            this.setPanelA11yState(this.reportSidePanel, true);
 
             // Show overlay
             if (this.reportPanelOverlay) {
@@ -22621,6 +22696,7 @@ class SidebarManager {
         if (this.reportSidePanel) {
             this.reportSidePanel.classList.remove('open');
             this.isReportPanelOpen = false;
+            this.setPanelA11yState(this.reportSidePanel, false);
 
             // Hide overlay
             if (this.reportPanelOverlay) {
@@ -22644,6 +22720,7 @@ class SidebarManager {
         if (this.immersiveThemeSidePanel) {
             this.immersiveThemeSidePanel.classList.remove('open');
             this.isImmersiveThemePanelOpen = false;
+            this.setPanelA11yState(this.immersiveThemeSidePanel, false);
             
             // Hide overlay
             if (this.immersiveThemePanelOverlay) {
@@ -22688,6 +22765,7 @@ class SidebarManager {
         if (this.resourcesSidePanel) {
             this.resourcesSidePanel.classList.add('open');
             this.isResourcesPanelOpen = true;
+            this.setPanelA11yState(this.resourcesSidePanel, true);
 
             // Show overlay
             if (this.resourcesPanelOverlay) {
@@ -22711,6 +22789,7 @@ class SidebarManager {
         if (this.resourcesSidePanel) {
             this.resourcesSidePanel.classList.remove('open');
             this.isResourcesPanelOpen = false;
+            this.setPanelA11yState(this.resourcesSidePanel, false);
 
             // Hide overlay
             if (this.resourcesPanelOverlay) {
