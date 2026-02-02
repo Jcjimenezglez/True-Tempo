@@ -23,13 +23,31 @@ module.exports = async (req, res) => {
       : DEFAULT_PAGE_SIZE;
 
   try {
-    let snapshot = await kv.get(LEADERBOARD_KV_KEY);
+    const hasKvConfig =
+      !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
+    let snapshot = null;
+
+    if (hasKvConfig) {
+      try {
+        snapshot = await kv.get(LEADERBOARD_KV_KEY);
+      } catch (kvError) {
+        console.warn('KV read failed, falling back to live snapshot:', kvError);
+      }
+    }
+
     if (!snapshot) {
       snapshot = await buildPremiumLeaderboardSnapshot({
         previousRanks: {},
         clerkSecretKey: process.env.CLERK_SECRET_KEY,
       });
-      await kv.set(LEADERBOARD_KV_KEY, snapshot);
+
+      if (hasKvConfig) {
+        try {
+          await kv.set(LEADERBOARD_KV_KEY, snapshot);
+        } catch (kvError) {
+          console.warn('KV write failed, continuing without cache:', kvError);
+        }
+      }
     }
 
     const allLeaderboardUsers = (snapshot.leaderboard || []).filter(

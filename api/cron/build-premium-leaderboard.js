@@ -13,6 +13,13 @@ module.exports = async (req, res) => {
   }
 
   try {
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+      return res.status(500).json({
+        error: 'KV not configured',
+        details: 'Missing KV_REST_API_URL or KV_REST_API_TOKEN',
+      });
+    }
+
     const previousSnapshot = await kv.get(LEADERBOARD_KV_KEY);
     const previousRanks = buildPreviousRanks(previousSnapshot?.leaderboard || []);
 
