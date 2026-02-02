@@ -1,8 +1,6 @@
 // API endpoint to get premium-only leaderboard snapshot
-const { kv } = require('@vercel/kv');
 const { buildPremiumLeaderboardSnapshot } = require('./leaderboard-premium-service');
-
-const LEADERBOARD_KV_KEY = 'leaderboard:premium:current';
+const { getSnapshot, setSnapshot } = require('./leaderboard-cache');
 const DEFAULT_PAGE_SIZE = 100;
 const MAX_PAGE_SIZE = 200;
 
@@ -23,17 +21,7 @@ module.exports = async (req, res) => {
       : DEFAULT_PAGE_SIZE;
 
   try {
-    const hasKvConfig =
-      !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
-    let snapshot = null;
-
-    if (hasKvConfig) {
-      try {
-        snapshot = await kv.get(LEADERBOARD_KV_KEY);
-      } catch (kvError) {
-        console.warn('KV read failed, falling back to live snapshot:', kvError);
-      }
-    }
+    let snapshot = await getSnapshot();
 
     if (!snapshot) {
       snapshot = await buildPremiumLeaderboardSnapshot({
@@ -41,13 +29,7 @@ module.exports = async (req, res) => {
         clerkSecretKey: process.env.CLERK_SECRET_KEY,
       });
 
-      if (hasKvConfig) {
-        try {
-          await kv.set(LEADERBOARD_KV_KEY, snapshot);
-        } catch (kvError) {
-          console.warn('KV write failed, continuing without cache:', kvError);
-        }
-      }
+      await setSnapshot(snapshot);
     }
 
     const allLeaderboardUsers = (snapshot.leaderboard || []).filter(

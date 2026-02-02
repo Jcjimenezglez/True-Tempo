@@ -1,10 +1,12 @@
-const { kv } = require('@vercel/kv');
 const {
   buildPremiumLeaderboardSnapshot,
   buildPreviousRanks,
 } = require('../leaderboard-premium-service');
-
-const LEADERBOARD_KV_KEY = 'leaderboard:premium:current';
+const {
+  getSnapshot,
+  setSnapshot,
+  isCacheConfigured,
+} = require('../leaderboard-cache');
 
 module.exports = async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -13,14 +15,14 @@ module.exports = async (req, res) => {
   }
 
   try {
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+    if (!isCacheConfigured()) {
       return res.status(500).json({
-        error: 'KV not configured',
-        details: 'Missing KV_REST_API_URL or KV_REST_API_TOKEN',
+        error: 'Cache not configured',
+        details: 'Missing KV_REST_API_URL/KV_REST_API_TOKEN or REDIS_URL',
       });
     }
 
-    const previousSnapshot = await kv.get(LEADERBOARD_KV_KEY);
+    const previousSnapshot = await getSnapshot();
     const previousRanks = buildPreviousRanks(previousSnapshot?.leaderboard || []);
 
     const snapshot = await buildPremiumLeaderboardSnapshot({
@@ -28,7 +30,7 @@ module.exports = async (req, res) => {
       clerkSecretKey: process.env.CLERK_SECRET_KEY,
     });
 
-    await kv.set(LEADERBOARD_KV_KEY, snapshot);
+    await setSnapshot(snapshot);
 
     return res.status(200).json({
       success: true,
