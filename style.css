@@ -2130,7 +2130,7 @@ body.is-scrolling .streak-fire {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 10050;
     backdrop-filter: blur(3px);
 }
 
@@ -3628,7 +3628,7 @@ audio {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;
+    z-index: 10050;
     backdrop-filter: blur(4px);
 }
 
@@ -8453,7 +8453,7 @@ input:checked + .toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 10050;
     backdrop-filter: blur(4px);
 }
 
