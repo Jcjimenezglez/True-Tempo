@@ -14333,6 +14333,13 @@ class PomodoroTimer {
                     </div>
                 </div>
 
+                <!-- Upgrade CTA (Free) -->
+                <div style="text-align: center; margin: 8px 0 16px 0;">
+                    <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px;">You're going to fail this exam.</div>
+                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Not because you can't pass it. Because you won't start studying.</div>
+                    <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                </div>
+
                 <!-- Activity (disabled for Free) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; opacity: 0.5;">
                     <div style="font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 12px;">Activity</div>
@@ -14396,10 +14403,6 @@ class PomodoroTimer {
                     </div>
                 </div>
 
-                <!-- Single Unlock CTA for Free -->
-                <div style="text-align: center; margin: 8px 0 24px 0;">
-                    <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
-                </div>
 
             </div>
         `;
