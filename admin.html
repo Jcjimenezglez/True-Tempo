@@ -490,20 +490,6 @@
         </div>
     </div>
 
-    <!-- User Status Change Modal -->
-    <div id="statusModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Change User Status</h3>
-                <p id="modalUserInfo"></p>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" id="confirmStatusChange">Confirm</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         class AdminPanel {
             constructor() {
@@ -512,8 +498,6 @@
                 this.paymentIssues = [];
                 this.paymentLogs = [];
                 this.webhookLogs = [];
-                this.currentUserId = null;
-                this.currentAction = null;
                 
                 this.init();
             }
@@ -682,10 +666,6 @@
                             </div>
                         </div>
                         <div class="user-actions">
-                            <button class="btn ${user.isPremium ? 'btn-danger' : 'btn-primary'}" 
-                                    onclick="adminPanel.changeUserStatus('${user.id}', '${user.email}', ${user.isPremium})">
-                                ${user.isPremium ? 'Remove Pro' : 'Make Pro'}
-                            </button>
                             <button class="btn btn-secondary" onclick="adminPanel.viewUserDetails('${user.id}')">
                                 View Details
                             </button>
@@ -792,51 +772,6 @@
                 }
             }
 
-            changeUserStatus(userId, email, currentStatus) {
-                this.currentUserId = userId;
-                this.currentAction = currentStatus ? 'remove' : 'add';
-                
-                document.getElementById('modalUserInfo').textContent = 
-                    `Change ${email} from ${currentStatus ? 'PRO' : 'FREE'} to ${currentStatus ? 'FREE' : 'PRO'}?`;
-                
-                document.getElementById('statusModal').style.display = 'block';
-            }
-
-            async confirmStatusChange() {
-                try {
-                    const response = await fetch('/api/admin/change-user-status', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            userId: this.currentUserId,
-                            action: this.currentAction
-                        })
-                    });
-
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        const newStatus = this.currentAction === 'add' ? 'PRO' : 'FREE';
-                        this.showSuccess(`✅ User status updated to ${newStatus}. The user needs to refresh their browser to see the changes.`);
-                        this.closeModal();
-                        this.loadUsers();
-                        this.loadStats();
-                    } else {
-                        this.showError('Failed to update user status: ' + data.error);
-                    }
-                } catch (error) {
-                    this.showError('Error updating user status: ' + error.message);
-                }
-            }
-
-            closeModal() {
-                document.getElementById('statusModal').style.display = 'none';
-                this.currentUserId = null;
-                this.currentAction = null;
-            }
-
             viewUserDetails(userId) {
                 const user = this.users.find(u => u.id === userId);
                 if (user) {
@@ -912,18 +847,8 @@
             }
         }
 
-        // Global functions
-        function closeModal() {
-            adminPanel.closeModal();
-        }
-
         // Initialize admin panel
         const adminPanel = new AdminPanel();
-
-        // Setup confirm button
-        document.getElementById('confirmStatusChange').addEventListener('click', () => {
-            adminPanel.confirmStatusChange();
-        });
     </script>
 </body>
 </html>
