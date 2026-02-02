@@ -14800,6 +14800,7 @@ class PomodoroTimer {
             if (viewAllLevelsBtn) {
                 viewAllLevelsBtn.addEventListener('click', () => {
                     const overlay = document.createElement('div');
+                    overlay.className = 'focus-stats-overlay';
                     overlay.style.cssText = `
                         position: fixed;
                         top: 0;
@@ -14810,7 +14811,7 @@ class PomodoroTimer {
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        z-index: 9999;
+                        z-index: 10050;
                     `;
                     const modal = document.createElement('div');
                     modal.style.cssText = `
