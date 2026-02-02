@@ -14399,7 +14399,7 @@ class PomodoroTimer {
                 </div>
 
                 <!-- Single Unlock Overlay -->
-                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 16px;">
+                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-radius: 12px;">
                     <div style="text-align: center;">
                         <div style="font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 6px;">Unlock your full report</div>
                         <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Activity, Level, and Done History</div>
