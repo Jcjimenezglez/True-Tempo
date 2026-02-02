@@ -14401,8 +14401,7 @@ class PomodoroTimer {
                 <!-- Single Unlock Overlay -->
                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-radius: 12px;">
                     <div style="text-align: center;">
-                        <div style="font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 6px;">Pass the exam by showing up.</div>
-                        <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Unlock analytics to see if you're improving every day.</div>
+                        <div style="font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 12px;">Unlock analytics to see if you're improving every day.</div>
                         <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
                     </div>
                 </div>
