@@ -14521,7 +14521,7 @@ class PomodoroTimer {
                     <div style="width: 100%; height: 5px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
                         <div style="width: ${level.progress}%; height: 100%; background: #ffffff;"></div>
                     </div>
-                    <div style="font-size: 11px; color: #a3a3a3; text-align: right;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
+                        <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
                     <div style="margin-top: 12px; text-align: center;">
                         <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View All Levels</button>
                     </div>
