@@ -75,6 +75,10 @@ class PomodoroTimer {
         // Leaderboard cache to avoid unnecessary API calls (multi-page support)
         this.LEADERBOARD_CACHE_VERSION = 'premium-v2';
         this.LEADERBOARD_CACHE_TTL_MS = 10 * 60 * 1000;
+        this.LEADERBOARD_AUTO_REFRESH_MS = 30 * 1000;
+        this.leaderboardAutoRefreshId = null;
+        this.leaderboardCurrentPage = 1;
+        this.leaderboardModalCurrentPage = 1;
 
         // Load from localStorage if exists
         try {
@@ -3321,12 +3325,46 @@ class PomodoroTimer {
             this.leaderboardModalOverlay.style.display = 'flex';
             // Load leaderboard in modal
             this.loadLeaderboardForModal();
+            this.startLeaderboardAutoRefresh();
         }
     }
     
     hideLeaderboardModal() {
         if (this.leaderboardModalOverlay) {
             this.leaderboardModalOverlay.style.display = 'none';
+        }
+        this.stopLeaderboardAutoRefreshIfIdle();
+    }
+
+    isLeaderboardModalOpen() {
+        return this.leaderboardModalOverlay?.style.display === 'flex';
+    }
+
+    isLeaderboardPanelOpen() {
+        const panel = document.getElementById('leaderboardSidePanel');
+        return !!panel?.classList.contains('open');
+    }
+
+    startLeaderboardAutoRefresh() {
+        if (this.leaderboardAutoRefreshId) return;
+
+        this.leaderboardAutoRefreshId = setInterval(() => {
+            if (this.isLeaderboardPanelOpen()) {
+                this.loadLeaderboardForPanel(this.leaderboardCurrentPage || 1);
+            }
+            if (this.isLeaderboardModalOpen()) {
+                this.loadLeaderboardForModal(this.leaderboardModalCurrentPage || 1);
+            }
+        }, this.LEADERBOARD_AUTO_REFRESH_MS);
+    }
+
+    stopLeaderboardAutoRefreshIfIdle() {
+        if (this.isLeaderboardPanelOpen() || this.isLeaderboardModalOpen()) {
+            return;
+        }
+        if (this.leaderboardAutoRefreshId) {
+            clearInterval(this.leaderboardAutoRefreshId);
+            this.leaderboardAutoRefreshId = null;
         }
     }
     
@@ -3346,6 +3384,8 @@ class PomodoroTimer {
 
         const leaderboardContent = document.getElementById('leaderboardModalContent');
         if (!leaderboardContent) return;
+
+        this.leaderboardModalCurrentPage = page;
 
         // Get current user's total hours
         const stats = this.getFocusStats();
@@ -12847,13 +12887,13 @@ class PomodoroTimer {
         // Update display in real-time
         this.updateFocusHoursDisplay();
 
-        // If leaderboard panel is open, refresh when user gains >= 1 minute
-        const hoursEarnedSinceCache = stats.totalHours - (this.leaderboardCachedAtHours || 0);
-        const needsLeaderboardRefresh = hoursEarnedSinceCache >= (1 / 60);
+        // If leaderboard panel or modal is open, refresh immediately
         const leaderboardPanel = document.getElementById('leaderboardSidePanel');
-
-        if (needsLeaderboardRefresh && leaderboardPanel?.classList.contains('open')) {
+        if (leaderboardPanel?.classList.contains('open')) {
             this.loadLeaderboardForPanel(this.leaderboardCurrentPage || 1);
+        }
+        if (this.isLeaderboardModalOpen()) {
+            this.loadLeaderboardForModal(this.leaderboardModalCurrentPage || 1);
         }
     }
 
@@ -22374,6 +22414,7 @@ class SidebarManager {
             // Load leaderboard
             if (window.pomodoroTimer) {
                 window.pomodoroTimer.loadLeaderboardForPanel();
+                window.pomodoroTimer.startLeaderboardAutoRefresh();
             }
         }
     }
@@ -22398,6 +22439,10 @@ class SidebarManager {
             if (this.mainContent) {
                 this.mainContent.classList.remove('task-panel-open');
             }
+        }
+
+        if (window.pomodoroTimer) {
+            window.pomodoroTimer.stopLeaderboardAutoRefreshIfIdle();
         }
     }
 
