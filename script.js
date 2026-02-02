@@ -3719,6 +3719,11 @@ class PomodoroTimer {
         const upgradeBtn = containerElement.querySelector('#leaderboardModalUpgradeBtn');
         if (upgradeBtn) {
             upgradeBtn.addEventListener('click', () => {
+                this.trackEvent('Subscribe Clicked', {
+                    source: 'leaderboard_modal',
+                    location: 'leaderboard_modal',
+                    button_text: 'Unlock Unlimited'
+                });
                 this.showPricingPlansModal();
             });
         }
@@ -14313,6 +14318,11 @@ class PomodoroTimer {
         const upgradeBtn = containerElement.querySelector('#leaderboardPanelUpgradeBtn');
         if (upgradeBtn) {
             upgradeBtn.addEventListener('click', () => {
+                this.trackEvent('Subscribe Clicked', {
+                    source: 'leaderboard_panel',
+                    location: 'leaderboard_panel',
+                    button_text: 'Unlock Unlimited'
+                });
                 this.showPricingPlansModal();
             });
         }
