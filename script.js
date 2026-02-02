@@ -73,8 +73,18 @@ class PomodoroTimer {
             this.focusSecondsToday = 0;
 
         // Leaderboard cache to avoid unnecessary API calls (multi-page support)
+        this.LEADERBOARD_CACHE_VERSION = 'premium-v2';
+        this.LEADERBOARD_CACHE_TTL_MS = 10 * 60 * 1000;
+
         // Load from localStorage if exists
         try {
+            const savedVersion = localStorage.getItem('leaderboardCacheVersion');
+            if (savedVersion !== this.LEADERBOARD_CACHE_VERSION) {
+                localStorage.removeItem('leaderboardCache');
+                localStorage.removeItem('leaderboardCachedAtHours');
+                localStorage.setItem('leaderboardCacheVersion', this.LEADERBOARD_CACHE_VERSION);
+            }
+
             const savedCache = localStorage.getItem('leaderboardCache');
             const savedHours = localStorage.getItem('leaderboardCachedAtHours');
             this.leaderboardCache = savedCache ? JSON.parse(savedCache) : {};
@@ -3344,6 +3354,8 @@ class PomodoroTimer {
         // Check if we have cached leaderboard data for this specific page
         const cachedData = this.leaderboardCache[page];
         const cachedTotalHours = this.leaderboardCachedAtHours || 0;
+        const cacheAgeMs = cachedData?.cachedAt ? Date.now() - cachedData.cachedAt : Number.POSITIVE_INFINITY;
+        const isCacheStale = cacheAgeMs > this.LEADERBOARD_CACHE_TTL_MS;
 
         // Calculate if user has earned at least 1 minute (0.0167 hours) since last cache
         const hoursEarnedSinceCache = currentTotalHours - cachedTotalHours;
@@ -3370,7 +3382,7 @@ class PomodoroTimer {
                 cachedData.rankMeta
             );
 
-            if (!needsRefresh) {
+            if (!needsRefresh && !isCacheStale) {
                 return;
             }
         }
@@ -3430,7 +3442,8 @@ class PomodoroTimer {
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
                         nextRankTargetRank: data.nextRankTargetRank
-                    }
+                    },
+                    cachedAt: Date.now()
                 };
                 
                 // Update cached hours timestamp (shared across all pages)
@@ -3440,6 +3453,7 @@ class PomodoroTimer {
                 try {
                     localStorage.setItem('leaderboardCache', JSON.stringify(this.leaderboardCache));
                     localStorage.setItem('leaderboardCachedAtHours', currentTotalHours.toString());
+                    localStorage.setItem('leaderboardCacheVersion', this.LEADERBOARD_CACHE_VERSION);
                 } catch (err) {
                     console.error('Failed to save leaderboard cache to localStorage:', err);
                 }
@@ -3517,7 +3531,7 @@ class PomodoroTimer {
         }
 
         // Leaderboard list
-        const topUsers = leaderboard;
+        const topUsers = leaderboard.filter((user) => user.isPremium === true);
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
         const pageSize = pagination?.pageSize || 100;
@@ -3533,11 +3547,32 @@ class PomodoroTimer {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
             html += topUsers.map((user, index) => {
                 const isCurrentUser = user.isCurrentUser;
+                const isPremium = user.isPremium === true;
                 const userHours = Math.floor(user.totalFocusHours);
                 const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
                 const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
                 const globalRank = startRank + index;
+
+                const premiumCrown = isPremium ? `
+                    <span 
+                        style="
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-left: 8px;
+                            cursor: help;
+                            position: relative;
+                        "
+                        title="Premium Member"
+                        class="premium-crown-badge"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
+                            <path d="M5 21h14"/>
+                        </svg>
+                    </span>
+                ` : '';
 
                 const rankChange = user.rankChange;
                 let rankChangeIcon = '';
@@ -3569,6 +3604,7 @@ class PomodoroTimer {
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; min-width: 60px;">
                                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
+                                ${premiumCrown}
                                 ${rankChangeIcon}
                             </div>
                             <span style="
@@ -13892,6 +13928,8 @@ class PomodoroTimer {
         // Check if we have cached leaderboard data for this specific page
         const cachedData = this.leaderboardCache[page];
         const cachedTotalHours = this.leaderboardCachedAtHours || 0;
+        const cacheAgeMs = cachedData?.cachedAt ? Date.now() - cachedData.cachedAt : Number.POSITIVE_INFINITY;
+        const isCacheStale = cacheAgeMs > this.LEADERBOARD_CACHE_TTL_MS;
 
         // Calculate if user has earned at least 1 minute (0.0167 hours) since last cache
         const hoursEarnedSinceCache = currentTotalHours - cachedTotalHours;
@@ -13918,7 +13956,7 @@ class PomodoroTimer {
                 cachedData.rankMeta
             );
 
-            if (!needsRefresh) {
+            if (!needsRefresh && !isCacheStale) {
                 return;
             }
         }
@@ -13978,7 +14016,8 @@ class PomodoroTimer {
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
                         nextRankTargetRank: data.nextRankTargetRank
-                    }
+                    },
+                    cachedAt: Date.now()
                 };
                 
                 // Update cached hours timestamp (shared across all pages)
@@ -13988,6 +14027,7 @@ class PomodoroTimer {
                 try {
                     localStorage.setItem('leaderboardCache', JSON.stringify(this.leaderboardCache));
                     localStorage.setItem('leaderboardCachedAtHours', currentTotalHours.toString());
+                    localStorage.setItem('leaderboardCacheVersion', this.LEADERBOARD_CACHE_VERSION);
                 } catch (err) {
                     console.error('Failed to save leaderboard cache to localStorage:', err);
                 }
@@ -14065,7 +14105,7 @@ class PomodoroTimer {
         }
 
         // Leaderboard list
-        const topUsers = leaderboard;
+        const topUsers = leaderboard.filter((user) => user.isPremium === true);
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
         const pageSize = pagination?.pageSize || 100;
@@ -14081,11 +14121,32 @@ class PomodoroTimer {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
             html += topUsers.map((user, index) => {
                 const isCurrentUser = user.isCurrentUser;
+                const isPremium = user.isPremium === true;
                 const userHours = Math.floor(user.totalFocusHours);
                 const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
                 const userTimeStr = `${userHours}h ${userMinutes}m`;
                 
                 const globalRank = startRank + index;
+
+                const premiumCrown = isPremium ? `
+                    <span 
+                        style="
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-left: 8px;
+                            cursor: help;
+                            position: relative;
+                        "
+                        title="Premium Member"
+                        class="premium-crown-badge"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
+                            <path d="M5 21h14"/>
+                        </svg>
+                    </span>
+                ` : '';
 
                 const rankChange = user.rankChange;
                 let rankChangeIcon = '';
@@ -14117,6 +14178,7 @@ class PomodoroTimer {
                         <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; min-width: 60px;">
                                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
+                                ${premiumCrown}
                                 ${rankChangeIcon}
                             </div>
                             <span style="

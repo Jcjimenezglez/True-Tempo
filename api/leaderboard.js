@@ -32,8 +32,10 @@ module.exports = async (req, res) => {
       await kv.set(LEADERBOARD_KV_KEY, snapshot);
     }
 
-    const allLeaderboardUsers = snapshot.leaderboard || [];
-    const totalUsers = snapshot.totalUsers ?? allLeaderboardUsers.length;
+    const allLeaderboardUsers = (snapshot.leaderboard || []).filter(
+      (user) => user.isPremium === true
+    );
+    const totalUsers = allLeaderboardUsers.length;
     const totalPages = totalUsers > 0 ? Math.ceil(totalUsers / itemsPerPage) : 1;
     const safePage = totalPages > 0 ? Math.max(1, Math.min(page, totalPages)) : 1;
     const startIndex = (safePage - 1) * itemsPerPage;
