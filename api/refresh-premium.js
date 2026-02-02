@@ -54,6 +54,27 @@ module.exports = async (req, res) => {
 
     // Prefer stored customer id in Clerk metadata
     const metadataCustomerId = user.publicMetadata?.stripeCustomerId;
+    const currentMeta = user.publicMetadata || {};
+    
+    // 🛡️ Lifetime users are permanent — never downgrade from refresh.
+    if (currentMeta.isLifetime === true || currentMeta.paymentType === 'lifetime') {
+      const lifetimeMeta = {
+        ...currentMeta,
+        isPremium: true,
+        paymentType: 'lifetime',
+        isLifetime: true,
+        lastUpdated: new Date().toISOString(),
+      };
+      await clerk.users.updateUser(user.id, { publicMetadata: lifetimeMeta });
+      return res.status(200).json({
+        ok: true,
+        isPremium: true,
+        stripeCustomerId: metadataCustomerId || null,
+        subscriptionId: null,
+        subscriptionStatus: null,
+        lifetime: true,
+      });
+    }
     const premiumStatuses = new Set(['active', 'trialing', 'past_due']);
     const checkedCustomers = new Set();
 
@@ -103,7 +124,6 @@ module.exports = async (req, res) => {
     const isPremium = !!matchedCustomerId;
 
     try {
-      const currentMeta = user.publicMetadata || {};
       const newMeta = {
         ...currentMeta,
         isPremium,
