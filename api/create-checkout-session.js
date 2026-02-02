@@ -126,6 +126,12 @@ module.exports = async (req, res) => {
       // Use the Superfocus payment configuration (includes all payment methods)
       payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     };
+    
+    // Ensure Checkout creates a Stripe Customer for one-time payments
+    // so webhook handling can always link to a customer.
+    if (mode === 'payment') {
+      sessionConfig.customer_creation = 'always';
+    }
 
     // #region agent log
     if (process.env.NODE_ENV !== 'production') {

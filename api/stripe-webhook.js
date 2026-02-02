@@ -364,6 +364,7 @@ async function handleCheckoutCompleted(session, clerk) {
   const paymentType = session.metadata?.payment_type; // premium, monthly, yearly, or lifetime
   const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
   const isSubscription = session.mode === 'subscription';
+  const fallbackEmail = session.customer_details?.email || session.customer_email || null;
 
   console.log('🔔 Checkout completed event received:', {
     customerId,
@@ -373,9 +374,13 @@ async function handleCheckoutCompleted(session, clerk) {
     subscriptionId: session.subscription
   });
 
-  if (!customerId) {
+  if (!customerId && !isLifetime) {
     console.log('❌ Missing customer ID in checkout session');
     return;
+  }
+  
+  if (!customerId && isLifetime) {
+    console.warn('⚠️ Missing customer ID for lifetime checkout; will proceed using email lookup if possible');
   }
 
   try {
@@ -388,17 +393,22 @@ async function handleCheckoutCompleted(session, clerk) {
 
     // If no Clerk user ID in metadata (Apple Pay case), find by email
     if (!targetUserId) {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-      const customer = await stripe.customers.retrieve(customerId);
+      let emailToLookup = fallbackEmail;
       
-      if (customer.email) {
-        const user = await findClerkUserByEmail(clerk, customer.email);
+      if (!emailToLookup && customerId) {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        const customer = await stripe.customers.retrieve(customerId);
+        emailToLookup = customer.email || null;
+      }
+      
+      if (emailToLookup) {
+        const user = await findClerkUserByEmail(clerk, emailToLookup);
 
         if (user) {
           targetUserId = user.id;
-          console.log(`Found Clerk user by email: ${customer.email} -> ${targetUserId}`);
+          console.log(`Found Clerk user by email: ${emailToLookup} -> ${targetUserId}`);
         } else {
-          console.warn(`⚠️ Unable to locate Clerk user by email ${customer.email} for Stripe customer ${customerId}`);
+          console.warn(`⚠️ Unable to locate Clerk user by email ${emailToLookup} for Stripe customer ${customerId || 'none'}`);
         }
       }
     }
@@ -419,13 +429,20 @@ async function handleCheckoutCompleted(session, clerk) {
         console.log('Could not get user email for tracking');
       }
 
+      const lifetimeMetadata = {
+        isPremium: true,
+        premiumSince: new Date().toISOString(),
+        paymentType: 'lifetime',
+        isLifetime: true,
+      };
+      
+      if (customerId) {
+        lifetimeMetadata.stripeCustomerId = customerId;
+      }
+      
       await clerk.users.updateUser(targetUserId, {
         publicMetadata: {
-          stripeCustomerId: customerId,
-          isPremium: true,
-          premiumSince: new Date().toISOString(),
-          paymentType: 'lifetime',
-          isLifetime: true,
+          ...lifetimeMetadata,
         },
       });
 
