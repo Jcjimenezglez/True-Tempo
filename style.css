@@ -9722,7 +9722,7 @@ input:checked + .toggle-slider:before {
 .premium-crown-badge {
     display: inline-flex;
     align-items: center;
-    animation: subtle-glow 3s ease-in-out infinite;
+    animation: none;
 }
 
 .premium-crown-badge:hover {
@@ -9746,7 +9746,7 @@ input:checked + .toggle-slider:before {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
     z-index: 1000;
 }
 
@@ -9757,10 +9757,10 @@ input:checked + .toggle-slider:before {
 
 @keyframes subtle-glow {
     0%, 100% {
-        filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
+        filter: none;
     }
     50% {
-        filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+        filter: none;
     }
 }
 

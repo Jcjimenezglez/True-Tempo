@@ -3545,20 +3545,29 @@ class PomodoroTimer {
             const gapHours = Math.floor(nextRankGapMinutes / 60);
             const gapMinutes = nextRankGapMinutes % 60;
             const gapTime = gapHours > 0 ? `${gapHours}h ${gapMinutes}m` : `${gapMinutes}m`;
-            nextRankGapLine = `${gapTime} to pass #${nextRankTargetRank}`;
+            nextRankGapLine = `You need ${gapTime} to pass Rank ${nextRankTargetRank}.`;
         }
 
         let html = '';
+        const isPremiumUser = this.isPremiumUser ? this.isPremiumUser() : false;
 
         // Header with user position
-        if (currentUserPosition) {
+        if (isPremiumUser && currentUserPosition) {
             const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
             html += `
-                <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
-                    <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
+                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} premium users</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
+                </div>
+            `;
+        } else if (!isPremiumUser) {
+            html += `
+                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your Rank</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-bottom: 12px;">Upgrade to Premium to see your ranking.</div>
+                    <button id="leaderboardModalUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
                 </div>
             `;
         }
@@ -3706,6 +3715,13 @@ class PomodoroTimer {
         }
 
         containerElement.innerHTML = html;
+
+        const upgradeBtn = containerElement.querySelector('#leaderboardModalUpgradeBtn');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', () => {
+                this.showPricingPlansModal();
+            });
+        }
 
         // Add event listeners for pagination buttons
         if (pagination && totalPages > 1) {
@@ -14123,20 +14139,29 @@ class PomodoroTimer {
             const gapHours = Math.floor(nextRankGapMinutes / 60);
             const gapMinutes = nextRankGapMinutes % 60;
             const gapTime = gapHours > 0 ? `${gapHours}h ${gapMinutes}m` : `${gapMinutes}m`;
-            nextRankGapLine = `${gapTime} to pass #${nextRankTargetRank}`;
+            nextRankGapLine = `You need ${gapTime} to pass Rank ${nextRankTargetRank}.`;
         }
 
         let html = '';
+        const isPremiumUser = this.isPremiumUser ? this.isPremiumUser() : false;
 
         // Header with user position
-        if (currentUserPosition) {
+        if (isPremiumUser && currentUserPosition) {
             const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
             html += `
-                <div style="padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(34, 197, 94, 0.3);">
-                    <div style="color: #22c55e; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
+                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} premium users</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
+                </div>
+            `;
+        } else if (!isPremiumUser) {
+            html += `
+                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your Rank</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-bottom: 12px;">Upgrade to Premium to see your ranking.</div>
+                    <button id="leaderboardPanelUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
                 </div>
             `;
         }
@@ -14284,6 +14309,13 @@ class PomodoroTimer {
         }
 
         containerElement.innerHTML = html;
+
+        const upgradeBtn = containerElement.querySelector('#leaderboardPanelUpgradeBtn');
+        if (upgradeBtn) {
+            upgradeBtn.addEventListener('click', () => {
+                this.showPricingPlansModal();
+            });
+        }
 
         // Add event listeners for pagination buttons
         if (pagination && totalPages > 1) {
