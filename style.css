@@ -11140,11 +11140,25 @@ input:checked + .toggle-slider:before {
         width: 100%;
     }
     
-    /* Hide header buttons on timer (Pomodoro pill, task) */
-    .timer-header,
-    .timer-header-auth,
-    #timerHeaderAuth {
-        display: none !important;
+    /* Use dynamic viewport height on mobile/tablet browsers */
+    .timer-section {
+        min-height: 100dvh;
+        height: 100dvh;
+    }
+    
+    /* Keep timer header visible on tablet/mobile */
+    .timer-header {
+        right: 16px;
+        top: 16px;
+    }
+
+    .timer-header-center {
+        top: 68px;
+    }
+
+    .timer-technique-btn {
+        padding: 0.4rem 1.1rem;
+        font-size: 13px;
     }
     
     /* Keep streak-info button visible on mobile/tablet */

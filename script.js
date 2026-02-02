@@ -23065,6 +23065,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 navigationMenu.style.display = 'none';
             }, 300);
         }
+        hideOverlay();
         
         if (panelKey === 'account') {
             // Special handling for Account - use settings modal
@@ -23073,6 +23074,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 settingsModal.classList.add('active');
             }
             currentOpenPanel = 'account';
+            return;
+        }
+        
+        // Delegate to SidebarManager methods to keep functionality consistent
+        if (window.sidebarManager) {
+            switch (panelKey) {
+                case 'tasks':
+                    window.sidebarManager.openTaskPanel();
+                    break;
+                case 'settings':
+                case 'timer':
+                    window.sidebarManager.openSettingsPanel();
+                    break;
+                case 'cassettes':
+                    window.sidebarManager.openImmersiveThemePanel();
+                    break;
+                case 'report':
+                    window.sidebarManager.openReportPanel();
+                    break;
+                case 'leaderboard':
+                    window.sidebarManager.openLeaderboardPanel();
+                    break;
+                case 'resources':
+                    window.sidebarManager.openResourcesPanel();
+                    break;
+                default:
+                    console.error('Panel not found:', panelKey);
+                    return;
+            }
+            currentOpenPanel = panelKey;
             return;
         }
         
@@ -23105,6 +23136,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     settingsModal.style.display = 'none';
                 }, 300);
+            }
+        } else if (window.sidebarManager) {
+            switch (currentOpenPanel) {
+                case 'tasks':
+                    window.sidebarManager.closeTaskPanel();
+                    break;
+                case 'settings':
+                case 'timer':
+                    window.sidebarManager.closeSettingsPanel();
+                    break;
+                case 'cassettes':
+                    window.sidebarManager.closeImmersiveThemePanel();
+                    break;
+                case 'report':
+                    window.sidebarManager.closeReportPanel();
+                    break;
+                case 'leaderboard':
+                    window.sidebarManager.closeLeaderboardPanel();
+                    break;
+                case 'resources':
+                    window.sidebarManager.closeResourcesPanel();
+                    break;
+                default:
+                    break;
             }
         } else {
             const panelData = sidePanels[currentOpenPanel];
