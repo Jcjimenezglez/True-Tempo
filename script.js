@@ -14517,6 +14517,7 @@ class PomodoroTimer {
                             <div style="font-size: 22px;">${level.emoji}</div>
                             <div style="font-size: 14px; color: #fff; font-weight: 600;">${level.name}</div>
                         </div>
+                    <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 6px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
                     <div style="width: 100%; height: 5px; background: #1a1a1a; border-radius: 6px; overflow: hidden; margin-bottom: 6px;">
                         <div style="width: ${level.progress}%; height: 100%; background: #ffffff;"></div>
                     </div>
