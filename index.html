@@ -2718,6 +2718,53 @@
     </footer>
     </main> <!-- End main-content wrapper -->
     
+    <!-- Guest Onboarding Modal: only for non-authenticated visitors (never shown to free or premium users) -->
+    <div class="logout-modal-overlay" id="guestOnboardingModalOverlay" style="display: none;">
+        <div class="logout-modal guest-onboarding-modal" style="max-width: 440px; width: 95%;">
+            <button class="close-logout-modal-x" id="closeGuestOnboardingX" aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div id="guestOnboardingStep1">
+                <h3 class="logout-modal-title">Welcome to Superfocus</h3>
+                <p class="logout-modal-subtitle">What best describes you?</p>
+                <div class="guest-onboarding-profiles">
+                    <button type="button" class="logout-modal-btn logout-modal-btn-secondary guest-onboarding-profile" data-profile="student">
+                        <span class="guest-onboarding-profile-title">Student</span>
+                        <span class="guest-onboarding-profile-subtitle">College & university</span>
+                    </button>
+                    <button type="button" class="logout-modal-btn logout-modal-btn-secondary guest-onboarding-profile" data-profile="fulltime">
+                        <span class="guest-onboarding-profile-title">Full-time</span>
+                        <span class="guest-onboarding-profile-subtitle">9–5 job</span>
+                    </button>
+                    <button type="button" class="logout-modal-btn logout-modal-btn-secondary guest-onboarding-profile" data-profile="freelancer">
+                        <span class="guest-onboarding-profile-title">Freelancer</span>
+                        <span class="guest-onboarding-profile-subtitle">Self-employed & side projects</span>
+                    </button>
+                    <button type="button" class="logout-modal-btn logout-modal-btn-secondary guest-onboarding-profile" data-profile="other">
+                        <span class="guest-onboarding-profile-title">Just exploring</span>
+                        <span class="guest-onboarding-profile-subtitle">Trying it out</span>
+                    </button>
+                </div>
+            </div>
+            <div id="guestOnboardingStep2" style="display: none;">
+                <h3 class="logout-modal-title">Create a free account</h3>
+                <p class="logout-modal-message">Save your progress, track focus time, and unlock more features—all free.</p>
+                <ul class="guest-onboarding-benefits">
+                    <li>Save sessions and stats across devices</li>
+                    <li>Track focus time and streaks</li>
+                    <li>Unlock reports and leaderboard</li>
+                </ul>
+                <div class="logout-modal-buttons">
+                    <button type="button" class="logout-modal-btn logout-modal-btn-primary" id="guestOnboardingSignupBtn">Create free account</button>
+                    <button type="button" class="logout-modal-btn logout-modal-btn-secondary" id="guestOnboardingSkipBtn">Try without account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Premium Welcome Modal -->
     <div class="welcome-modal-overlay" id="premiumWelcomeModal" style="display: none;">
         <div class="welcome-modal">

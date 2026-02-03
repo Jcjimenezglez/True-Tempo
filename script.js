@@ -21595,8 +21595,101 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize Premium Welcome Modal
     initPremiumWelcome(timer);
+    // Initialize Guest Onboarding – only for non-authenticated visitors (never free or premium)
+    initGuestOnboarding(timer);
 });
 
+
+// Guest Onboarding Modal – shown ONLY to guests (not logged in). Never to free or premium users.
+function initGuestOnboarding(timer) {
+    const overlay = document.getElementById('guestOnboardingModalOverlay');
+    const step1 = document.getElementById('guestOnboardingStep1');
+    const step2 = document.getElementById('guestOnboardingStep2');
+    const closeBtn = document.getElementById('closeGuestOnboardingX');
+    const signupBtn = document.getElementById('guestOnboardingSignupBtn');
+    const skipBtn = document.getElementById('guestOnboardingSkipBtn');
+    const profileBtns = document.querySelectorAll('.guest-onboarding-profile');
+
+    if (!overlay || !step1 || !step2) return;
+
+    // Only for guests: never show to authenticated users (free or premium)
+    if (timer.isAuthenticated) return;
+    if (localStorage.getItem('hasSeenOnboarding') === 'true') return;
+
+    function closeOnboarding(profile) {
+        localStorage.setItem('hasSeenOnboarding', 'true');
+        overlay.style.display = 'none';
+        step1.style.display = '';
+        step2.style.display = 'none';
+        if (timer.trackEvent) {
+            timer.trackEvent('Onboarding Dismissed', { profile: profile || 'none', method: 'close' });
+        }
+    }
+
+    function showStep2(profile) {
+        step1.style.display = 'none';
+        step2.style.display = '';
+        if (timer.trackEvent) {
+            timer.trackEvent('Onboarding Profile Selected', { profile: profile });
+        }
+        localStorage.setItem('userProfile', profile);
+    }
+
+    // Delay so Clerk can set isAuthenticated – only then show to guests (never to free/premium)
+    setTimeout(function () {
+        if (timer.isAuthenticated) return;
+        if (localStorage.getItem('hasSeenOnboarding') === 'true') return;
+        overlay.style.display = 'flex';
+        if (timer.trackEvent) {
+            timer.trackEvent('Onboarding Shown', {});
+        }
+    }, 1200);
+
+    profileBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var profile = btn.getAttribute('data-profile') || 'other';
+            showStep2(profile);
+        });
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            var profile = localStorage.getItem('userProfile') || 'none';
+            closeOnboarding(profile);
+        });
+    }
+
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+            var profile = localStorage.getItem('userProfile') || 'none';
+            if (timer.trackEvent) {
+                timer.trackEvent('Onboarding Dismissed', { profile: profile, method: 'overlay_click' });
+            }
+            closeOnboarding(profile);
+        }
+    });
+
+    if (signupBtn) {
+        signupBtn.addEventListener('click', function () {
+            var profile = localStorage.getItem('userProfile') || 'other';
+            if (timer.trackEvent) {
+                timer.trackEvent('Onboarding Signup Clicked', { profile: profile });
+            }
+            closeOnboarding(profile);
+            timer.handleSignup();
+        });
+    }
+
+    if (skipBtn) {
+        skipBtn.addEventListener('click', function () {
+            var profile = localStorage.getItem('userProfile') || 'other';
+            if (timer.trackEvent) {
+                timer.trackEvent('Onboarding Skipped', { profile: profile });
+            }
+            closeOnboarding(profile);
+        });
+    }
+}
 
 // Premium Welcome Modal
 function initPremiumWelcome(timer) {
