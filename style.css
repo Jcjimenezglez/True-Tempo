@@ -2553,41 +2553,6 @@ body.is-scrolling .streak-fire {
     fill: #000000;
 }
 
-/* Guest onboarding modal – only shown to non-authenticated visitors */
-.guest-onboarding-profiles {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-}
-.guest-onboarding-profile {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    gap: 0.15rem;
-}
-.guest-onboarding-profile-title {
-    font-weight: 600;
-    color: #ffffff;
-    font-size: 1rem;
-}
-.guest-onboarding-profile-subtitle {
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 0.85rem;
-}
-.guest-onboarding-benefits {
-    color: #b8b8b8;
-    font-size: 0.9rem;
-    margin: 0 0 1.25rem 0;
-    padding-left: 1.25rem;
-    line-height: 1.6;
-}
-.guest-onboarding-benefits li {
-    margin-bottom: 0.35rem;
-}
-
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
