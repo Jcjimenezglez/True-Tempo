@@ -647,6 +647,7 @@ a.resource-item:hover,
 /* Study Coach Panel */
 .coach-panel-content {
     gap: 12px;
+    overflow: hidden;
 }
 
 .coach-chat {
@@ -655,6 +656,51 @@ a.resource-item:hover,
     gap: 12px;
     min-height: 0;
     flex: 1;
+}
+
+.coach-chat-gate {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.coach-chat-example {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.coach-example-question {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+.coach-example-answer {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.coach-upgrade-btn,
+.coach-signup-btn {
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.coach-signup-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .coach-chat-messages {
@@ -676,9 +722,11 @@ a.resource-item:hover,
 }
 
 .coach-chat-message.assistant {
-    align-self: flex-start;
-    background: rgba(255, 255, 255, 0.08);
+    align-self: stretch;
+    background: transparent;
     color: rgba(255, 255, 255, 0.9);
+    padding: 0;
+    max-width: 100%;
 }
 
 .coach-chat-message.user {
@@ -690,41 +738,100 @@ a.resource-item:hover,
 .coach-chat-message.loading {
     font-style: italic;
     color: rgba(255, 255, 255, 0.6);
+    align-self: flex-start;
 }
 
 .coach-chat-input {
     display: flex;
-    gap: 10px;
     align-items: flex-end;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 8px 10px;
 }
 
 .coach-chat-input textarea {
     flex: 1;
-    min-height: 44px;
-    max-height: 120px;
-    resize: vertical;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
-    padding: 10px 12px;
+    min-height: 36px;
+    max-height: 220px;
+    resize: none;
+    background: transparent;
+    border: none;
+    padding: 10px 4px 6px 4px;
     color: #ffffff;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 .coach-chat-input textarea:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.3);
 }
 
-.coach-chat-input .btn-primary {
-    padding: 10px 16px;
+.coach-chat-send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
     border-radius: 10px;
-    white-space: nowrap;
+    border: none;
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    align-self: flex-end;
 }
 
-.coach-chat-note {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
+.coach-chat-send:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.coach-chat-send.has-text {
+    background: #ffffff;
+    color: #0a0a0a;
+}
+
+.coach-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.coach-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.coach-new-chat-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    justify-self: end;
+}
+
+.coach-new-chat-btn:hover {
+    color: #ffffff;
+}
+
+.coach-panel-content .tasks-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+}
+
+.coach-panel-content .tasks-subtitle {
+    text-align: left;
+    margin: 0.25rem 0 0 0;
 }
 
 /* Timer specific layout */

@@ -471,11 +471,6 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                 </div>
-                <div class="nav-item" data-section="coach" data-tooltip="Coach">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
-                    </svg>
-                </div>
                 <div class="nav-item" data-section="immersive-theme" data-tooltip="Cassettes">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-boom-box-icon lucide-boom-box">
                         <path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
@@ -501,6 +496,11 @@
                         <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
                         <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
                         <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    </svg>
+                </div>
+                <div class="nav-item" data-section="coach" data-tooltip="Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
                     </svg>
                 </div>
             </div>
@@ -1560,29 +1560,6 @@
         </div>
     </div>
 
-    <!-- Study Coach Side Panel -->
-    <div class="task-side-panel" id="coachSidePanel" aria-label="Study Coach">
-        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Coach Panel" title="Close Coach">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m15 18-6-6 6-6"/>
-            </svg>
-        </button>
-        <div class="task-side-panel-content coach-panel-content">
-            <div class="tasks-header">
-                <h3>Study Coach</h3>
-                <p class="tasks-subtitle">Ask anything about your classes and study plans</p>
-            </div>
-            <div class="coach-chat">
-                <div class="coach-chat-messages" id="coachChatMessages" aria-live="polite"></div>
-                <div class="coach-chat-input">
-                    <textarea id="coachChatInput" rows="2" placeholder="Ask a study question..." aria-label="Study Coach message"></textarea>
-                    <button class="btn-primary" id="coachChatSend" type="button">Send</button>
-                </div>
-                <p class="coach-chat-note">Study topics only. The coach guides, not solves.</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Report Side Panel -->
     <div class="task-side-panel" id="reportSidePanel">
         <button class="close-side-panel-btn" id="closeReportPanel" aria-label="Close Report Panel" title="Close Report">
@@ -1606,6 +1583,49 @@
 
     <!-- Report Panel Overlay -->
     <div class="task-panel-overlay" id="reportPanelOverlay"></div>
+
+    <!-- Study Coach Side Panel -->
+    <div class="task-side-panel" id="coachSidePanel" aria-label="Chat">
+        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Chat Panel" title="Close Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content coach-panel-content">
+            <div class="tasks-header coach-header">
+                <div class="coach-header-text">
+                    <h3>Chat</h3>
+                    <p class="tasks-subtitle">What are you studying?</p>
+                </div>
+                <button class="coach-new-chat-btn" id="coachNewChatBtn" type="button" aria-label="Start a new chat" title="New chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 5v14"/>
+                        <path d="M5 12h14"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="coach-chat">
+                <div class="coach-chat-messages" id="coachChatMessages" aria-live="polite"></div>
+                <div class="coach-chat-gate" id="coachChatGate" style="display: none;">
+                    <div class="coach-chat-example">
+                        <div class="coach-example-question">Example question: How do I study for calculus?</div>
+                        <div class="coach-example-answer">Start with 25–45 minute blocks, focus on understanding core concepts, and practice problems daily.</div>
+                    </div>
+                    <button class="coach-upgrade-btn" id="coachUpgradeBtn" type="button">Unlock Unlimited</button>
+                    <button class="coach-signup-btn" id="coachSignupBtn" type="button">Sign up for free</button>
+                </div>
+                <div class="coach-chat-input" id="coachChatInputRow">
+                    <textarea id="coachChatInput" rows="1" placeholder="Ask a study question..." aria-label="Chat message"></textarea>
+                    <button class="coach-chat-send" id="coachChatSend" type="button" aria-label="Send message">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -2851,12 +2871,6 @@
                     </svg>
                     <span>Tasks</span>
                 </button>
-                <button class="bottom-sheet-nav-item" data-target="coachSheet">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
-                    </svg>
-                    <span>Coach</span>
-                </button>
                 <button class="bottom-sheet-nav-item" data-target="cassettesSheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
@@ -2886,6 +2900,12 @@
                         <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
                     </svg>
                     <span>Leaderboard</span>
+                </button>
+                <button class="bottom-sheet-nav-item" data-target="coachSheet">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+                    </svg>
+                    <span>Chat</span>
                 </button>
                 <button class="bottom-sheet-nav-item bottom-sheet-account-item" data-target="accountSheet">
                     <span class="bottom-sheet-account-left">

@@ -7057,6 +7057,10 @@ class PomodoroTimer {
         
         // Update technique presets visibility based on user type
         this.updateTechniquePresetsVisibility();
+
+        if (window.updateCoachAccess) {
+            window.updateCoachAccess();
+        }
     }
 
     async refreshPremiumFromServer() {
@@ -22901,6 +22905,11 @@ function initStudyCoachChat() {
     const messagesEl = document.getElementById('coachChatMessages');
     const inputEl = document.getElementById('coachChatInput');
     const sendBtn = document.getElementById('coachChatSend');
+    const newChatBtn = document.getElementById('coachNewChatBtn');
+    const inputRow = document.getElementById('coachChatInputRow');
+    const gateEl = document.getElementById('coachChatGate');
+    const upgradeBtn = document.getElementById('coachUpgradeBtn');
+    const signupBtn = document.getElementById('coachSignupBtn');
 
     if (!messagesEl || !inputEl || !sendBtn) {
         return;
@@ -22910,8 +22919,6 @@ function initStudyCoachChat() {
         isSending: false,
         messages: []
     };
-
-    const greeting = "Hi! I'm UniTutor Pro — your personal university-level tutor for any subject. What class or topic are you working on today? 😊";
 
     function scrollToBottom() {
         messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -22929,18 +22936,39 @@ function initStudyCoachChat() {
         return messageEl;
     }
 
-    function ensureGreeting() {
-        if (state.messages.length === 0) {
-            state.messages.push({ role: 'assistant', content: greeting });
-            addMessage('assistant', greeting);
+    function resetChat() {
+        state.messages = [];
+        messagesEl.innerHTML = '';
+        inputEl.value = '';
+        syncSendButtonState();
+        resizeInput();
+    }
+
+    function updateCoachAccess() {
+        const timer = window.pomodoroTimer;
+        const isAuthenticated = !!timer?.isAuthenticated;
+        const isPremium = !!timer?.isPremiumUser?.();
+
+        if (isPremium) {
+            if (gateEl) gateEl.style.display = 'none';
+            if (messagesEl) messagesEl.style.display = '';
+            if (inputRow) inputRow.style.display = '';
+            if (newChatBtn) newChatBtn.style.display = '';
+            return;
         }
+
+        if (messagesEl) messagesEl.style.display = 'none';
+        if (inputRow) inputRow.style.display = 'none';
+        if (newChatBtn) newChatBtn.style.display = 'none';
+        if (gateEl) gateEl.style.display = 'flex';
+
+        if (upgradeBtn) upgradeBtn.style.display = isAuthenticated ? 'inline-flex' : 'none';
+        if (signupBtn) signupBtn.style.display = isAuthenticated ? 'none' : 'inline-flex';
     }
 
     async function sendMessage() {
         const content = inputEl.value.trim();
         if (!content || state.isSending) return;
-
-        ensureGreeting();
 
         state.isSending = true;
         sendBtn.disabled = true;
@@ -22958,12 +22986,20 @@ function initStudyCoachChat() {
                 body: JSON.stringify({ messages: state.messages })
             });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data?.error || 'Request failed');
+            const rawText = await response.text();
+            let data = null;
+            try {
+                data = rawText ? JSON.parse(rawText) : null;
+            } catch (_) {
+                data = null;
             }
 
-            const reply = data?.reply || 'I did not get a response. Try again.';
+            if (!response.ok) {
+                const errorMessage = data?.error || rawText || 'Request failed';
+                throw new Error(errorMessage);
+            }
+
+            const reply = data?.reply || rawText || 'I did not get a response. Try again.';
             loadingEl.classList.remove('loading');
             loadingEl.textContent = reply;
             state.messages.push({ role: 'assistant', content: reply });
@@ -22986,7 +23022,54 @@ function initStudyCoachChat() {
         }
     });
 
-    ensureGreeting();
+    function syncSendButtonState() {
+        const hasText = inputEl.value.trim().length > 0;
+        sendBtn.classList.toggle('has-text', hasText);
+    }
+
+    function resizeInput() {
+        inputEl.style.height = 'auto';
+        const maxHeight = 220;
+        const nextHeight = Math.min(inputEl.scrollHeight, maxHeight);
+        inputEl.style.height = `${nextHeight}px`;
+        inputEl.style.overflowY = inputEl.scrollHeight > maxHeight ? 'auto' : 'hidden';
+    }
+
+    inputEl.addEventListener('input', () => {
+        syncSendButtonState();
+        resizeInput();
+    });
+    syncSendButtonState();
+    resizeInput();
+
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', resetChat);
+    }
+
+    if (upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+            if (window.pomodoroTimer) {
+                window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source: 'coach_panel',
+                    location: 'coach_gate',
+                    user_type: 'free'
+                });
+                window.pomodoroTimer.showPricingPlansModal();
+            }
+        });
+    }
+
+    if (signupBtn) {
+        signupBtn.addEventListener('click', () => {
+            if (window.pomodoroTimer?.handleSignup) {
+                window.pomodoroTimer.handleSignup();
+            }
+        });
+    }
+
+    window.updateCoachAccess = updateCoachAccess;
+    updateCoachAccess();
 }
 
 // Initialize sidebar when DOM is loaded
@@ -23627,6 +23710,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const target = item.getAttribute('data-target');
             if (target) {
                 const panelKey = target.replace('Sheet', '');
+                if (window.pomodoroTimer) {
+                    let panelName = panelKey;
+                    if (panelKey === 'tasks') panelName = 'Tasks Panel';
+                    else if (panelKey === 'settings') panelName = 'Timer Panel';
+                    else if (panelKey === 'cassettes') panelName = 'Cassettes Panel';
+                    else if (panelKey === 'leaderboard') panelName = 'Leaderboard Panel';
+                    else if (panelKey === 'report') panelName = 'Report Panel';
+                    else if (panelKey === 'resources') panelName = 'Resources Panel';
+                    else if (panelKey === 'coach') panelName = 'Coach Panel';
+
+                    window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
+                        panel_name: panelName,
+                        section: panelKey,
+                        button_type: 'bottom_sheet_navigation',
+                        source: 'bottom_sheet'
+                    });
+                }
                 openPanel(panelKey);
             }
         });
