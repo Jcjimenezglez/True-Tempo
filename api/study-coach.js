@@ -57,13 +57,13 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const apiKey = getEnvValue('AI_API_KEY', 'DASHSCOPE_API_KEY', 'XAI_API_KEY', 'OPENAI_API_KEY');
+    const apiKey = getEnvValue('AI_API_KEY', 'OPENROUTER_API_KEY', 'DASHSCOPE_API_KEY', 'XAI_API_KEY', 'OPENAI_API_KEY');
     if (!apiKey) {
         return res.status(500).json({ error: 'Missing AI API key' });
     }
 
-    const baseUrl = process.env.AI_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
-    const model = process.env.AI_MODEL || 'qwen-turbo-latest';
+    const baseUrl = process.env.AI_BASE_URL || 'https://openrouter.ai/api/v1/chat/completions';
+    const model = process.env.AI_MODEL || 'qwen/qwen-turbo';
 
     try {
         const { messages } = req.body || {};
