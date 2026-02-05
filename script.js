@@ -21766,6 +21766,8 @@ class SidebarManager {
         this.reportPanelOverlay = document.getElementById('reportPanelOverlay');
         this.resourcesSidePanel = document.getElementById('resourcesSidePanel');
         this.resourcesPanelOverlay = document.getElementById('resourcesPanelOverlay');
+        this.coachSidePanel = document.getElementById('coachSidePanel');
+        this.coachPanelOverlay = document.getElementById('coachPanelOverlay');
         
         this.isCollapsed = true; // Always collapsed by default
         this.isHidden = false;
@@ -21777,6 +21779,7 @@ class SidebarManager {
         this.isLeaderboardPanelOpen = false;
         this.isReportPanelOpen = false;
         this.isResourcesPanelOpen = false;
+        this.isCoachPanelOpen = false;
         
         this.init();
     }
@@ -21814,7 +21817,8 @@ class SidebarManager {
             this.immersiveThemeSidePanel,
             this.leaderboardSidePanel,
             this.reportSidePanel,
-            this.resourcesSidePanel
+            this.resourcesSidePanel,
+            this.coachSidePanel
         ].filter(Boolean);
 
         // Ensure main landmark isn't aria-hidden by default
@@ -21976,6 +21980,7 @@ class SidebarManager {
                     else if (section === 'leaderboard') panelName = 'Leaderboard Panel';
                     else if (section === 'report') panelName = 'Report Panel';
                     else if (section === 'resources') panelName = 'Resources Panel';
+                    else if (section === 'coach') panelName = 'Coach Panel';
                     
                     window.pomodoroTimer.trackEvent('Sidebar Panel Opened', {
                         panel_name: panelName,
@@ -22006,6 +22011,13 @@ class SidebarManager {
                 this.closeResourcesPanel();
             });
         }
+
+        const closeCoachPanelBtn = document.getElementById('closeCoachPanel');
+        if (closeCoachPanelBtn) {
+            closeCoachPanelBtn.addEventListener('click', () => {
+                this.closeCoachPanel();
+            });
+        }
         
             // Overlay click to close sidebar AND all panels (MOBILE ONLY)
         if (this.sidebarOverlay) {
@@ -22019,6 +22031,8 @@ class SidebarManager {
                 this.closeImmersiveThemePanel();
                 this.closeLeaderboardPanel();
                 this.closeReportPanel();
+                this.closeResourcesPanel();
+                this.closeCoachPanel();
             });
         }
         
@@ -22110,6 +22124,12 @@ class SidebarManager {
                 this.closeResourcesPanel();
             });
         }
+
+        if (this.coachPanelOverlay) {
+            this.coachPanelOverlay.addEventListener('click', () => {
+                this.closeCoachPanel();
+            });
+        }
         
         // Overlay is present but doesn't close panel on click
         // Panel only closes when clicking the Tasks button
@@ -22165,6 +22185,9 @@ class SidebarManager {
             }
             if (this.isSettingsPanelOpen) {
                 this.closeSettingsPanel();
+            }
+            if (this.isCoachPanelOpen) {
+                this.closeCoachPanel();
             }
         }
     }
@@ -22260,6 +22283,10 @@ class SidebarManager {
                 // Toggle resources side panel
                 this.toggleResourcesPanel();
                 break;
+            case 'coach':
+                // Toggle coach side panel
+                this.toggleCoachPanel();
+                break;
             case 'timer':
                 // Scroll to timer section
                 const timerSection = document.querySelector('.timer-section');
@@ -22306,6 +22333,9 @@ class SidebarManager {
             }
             if (this.isResourcesPanelOpen) {
                 this.closeResourcesPanel();
+            }
+            if (this.isCoachPanelOpen) {
+                this.closeCoachPanel();
             }
             
             // Close mobile sidebar if open
@@ -22578,6 +22608,7 @@ class SidebarManager {
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isReportPanelOpen) this.closeReportPanel();
         if (this.isResourcesPanelOpen) this.closeResourcesPanel();
+        if (this.isCoachPanelOpen) this.closeCoachPanel();
 
         // 🎯 Track Leaderboard Panel Opened event to Mixpanel
         if (window.mixpanelTracker) {
@@ -22657,6 +22688,7 @@ class SidebarManager {
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
         if (this.isResourcesPanelOpen) this.closeResourcesPanel();
+        if (this.isCoachPanelOpen) this.closeCoachPanel();
 
         // 🎯 Track Report Panel Opened event to Mixpanel
         if (window.mixpanelTracker) {
@@ -22755,6 +22787,7 @@ class SidebarManager {
         if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
         if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
         if (this.isReportPanelOpen) this.closeReportPanel();
+        if (this.isCoachPanelOpen) this.closeCoachPanel();
 
         // Track Resources Panel Opened event
         if (window.mixpanelTracker) {
@@ -22808,11 +22841,158 @@ class SidebarManager {
             }
         }
     }
+
+    toggleCoachPanel() {
+        if (this.isCoachPanelOpen) {
+            this.closeCoachPanel();
+        } else {
+            this.openCoachPanel();
+        }
+    }
+
+    openCoachPanel() {
+        if (this.isTaskPanelOpen) this.closeTaskPanel();
+        if (this.isSettingsPanelOpen) this.closeSettingsPanel();
+        if (this.isImmersiveThemePanelOpen) this.closeImmersiveThemePanel();
+        if (this.isLeaderboardPanelOpen) this.closeLeaderboardPanel();
+        if (this.isReportPanelOpen) this.closeReportPanel();
+        if (this.isResourcesPanelOpen) this.closeResourcesPanel();
+
+        if (this.coachSidePanel) {
+            this.coachSidePanel.classList.add('open');
+            this.isCoachPanelOpen = true;
+            this.setPanelA11yState(this.coachSidePanel, true);
+
+            if (this.coachPanelOverlay) {
+                this.coachPanelOverlay.classList.add('active');
+            }
+
+            this.setActiveNavItem('coach');
+
+            if (this.mainContent) {
+                this.mainContent.classList.add('task-panel-open');
+            }
+        }
+    }
+
+    closeCoachPanel() {
+        if (this.coachSidePanel) {
+            this.coachSidePanel.classList.remove('open');
+            this.isCoachPanelOpen = false;
+            this.setPanelA11yState(this.coachSidePanel, false);
+
+            if (this.coachPanelOverlay) {
+                this.coachPanelOverlay.classList.remove('active');
+            }
+
+            const coachNavItem = document.querySelector('.nav-item[data-section="coach"]');
+            if (coachNavItem) {
+                coachNavItem.classList.remove('active');
+            }
+
+            if (this.mainContent) {
+                this.mainContent.classList.remove('task-panel-open');
+            }
+        }
+    }
+}
+
+function initStudyCoachChat() {
+    const messagesEl = document.getElementById('coachChatMessages');
+    const inputEl = document.getElementById('coachChatInput');
+    const sendBtn = document.getElementById('coachChatSend');
+
+    if (!messagesEl || !inputEl || !sendBtn) {
+        return;
+    }
+
+    const state = {
+        isSending: false,
+        messages: []
+    };
+
+    const greeting = "Hi! I'm UniTutor Pro — your personal university-level tutor for any subject. What class or topic are you working on today? 😊";
+
+    function scrollToBottom() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addMessage(role, content, options = {}) {
+        const messageEl = document.createElement('div');
+        messageEl.classList.add('coach-chat-message', role);
+        if (options.loading) {
+            messageEl.classList.add('loading');
+        }
+        messageEl.textContent = content;
+        messagesEl.appendChild(messageEl);
+        scrollToBottom();
+        return messageEl;
+    }
+
+    function ensureGreeting() {
+        if (state.messages.length === 0) {
+            state.messages.push({ role: 'assistant', content: greeting });
+            addMessage('assistant', greeting);
+        }
+    }
+
+    async function sendMessage() {
+        const content = inputEl.value.trim();
+        if (!content || state.isSending) return;
+
+        ensureGreeting();
+
+        state.isSending = true;
+        sendBtn.disabled = true;
+
+        inputEl.value = '';
+        addMessage('user', content);
+        state.messages.push({ role: 'user', content });
+
+        const loadingEl = addMessage('assistant', 'Thinking...', { loading: true });
+
+        try {
+            const response = await fetch('/api/study-coach', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: state.messages })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data?.error || 'Request failed');
+            }
+
+            const reply = data?.reply || 'I did not get a response. Try again.';
+            loadingEl.classList.remove('loading');
+            loadingEl.textContent = reply;
+            state.messages.push({ role: 'assistant', content: reply });
+        } catch (error) {
+            loadingEl.classList.remove('loading');
+            loadingEl.textContent = 'Sorry, something went wrong. Try again in a moment.';
+            console.error('Study coach error:', error);
+        } finally {
+            state.isSending = false;
+            sendBtn.disabled = false;
+            inputEl.focus();
+        }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    inputEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    ensureGreeting();
 }
 
 // Initialize sidebar when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.sidebarManager = new SidebarManager();
+    initStudyCoachChat();
     
     // Track resource link clicks for Mixpanel analytics
     const resourceLinks = document.querySelectorAll('.resource-item');
@@ -23143,6 +23323,10 @@ document.addEventListener('DOMContentLoaded', function() {
         leaderboard: {
             panel: document.getElementById('leaderboardSidePanel'),
             overlay: document.getElementById('leaderboardPanelOverlay')
+        },
+        coach: {
+            panel: document.getElementById('coachSidePanel'),
+            overlay: document.getElementById('coachPanelOverlay')
         }
     };
     
@@ -23274,6 +23458,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
                 case 'resources':
                     window.sidebarManager.openResourcesPanel();
+                    break;
+                case 'coach':
+                    window.sidebarManager.openCoachPanel();
                     break;
                 default:
                     console.error('Panel not found:', panelKey);

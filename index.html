@@ -471,6 +471,11 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                 </div>
+                <div class="nav-item" data-section="coach" data-tooltip="Coach">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+                    </svg>
+                </div>
                 <div class="nav-item" data-section="immersive-theme" data-tooltip="Cassettes">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-boom-box-icon lucide-boom-box">
                         <path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
@@ -1150,6 +1155,9 @@
     <!-- Resources Panel Overlay -->
     <div class="task-panel-overlay" id="resourcesPanelOverlay"></div>
 
+    <!-- Coach Panel Overlay -->
+    <div class="task-panel-overlay" id="coachPanelOverlay"></div>
+
     <!-- Resources Side Panel -->
     <div class="task-side-panel" id="resourcesSidePanel">
         <button class="close-side-panel-btn" id="closeResourcesPanel" aria-label="Close Resources Panel" title="Close Resources">
@@ -1548,6 +1556,29 @@
                     </button>
                 </a>
             </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Coach Side Panel -->
+    <div class="task-side-panel" id="coachSidePanel" aria-label="Study Coach">
+        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Coach Panel" title="Close Coach">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+        </button>
+        <div class="task-side-panel-content coach-panel-content">
+            <div class="tasks-header">
+                <h3>Study Coach</h3>
+                <p class="tasks-subtitle">Ask anything about your classes and study plans</p>
+            </div>
+            <div class="coach-chat">
+                <div class="coach-chat-messages" id="coachChatMessages" aria-live="polite"></div>
+                <div class="coach-chat-input">
+                    <textarea id="coachChatInput" rows="2" placeholder="Ask a study question..." aria-label="Study Coach message"></textarea>
+                    <button class="btn-primary" id="coachChatSend" type="button">Send</button>
+                </div>
+                <p class="coach-chat-note">Study topics only. The coach guides, not solves.</p>
             </div>
         </div>
     </div>
@@ -2819,6 +2850,12 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                     <span>Tasks</span>
+                </button>
+                <button class="bottom-sheet-nav-item" data-target="coachSheet">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+                    </svg>
+                    <span>Coach</span>
                 </button>
                 <button class="bottom-sheet-nav-item" data-target="cassettesSheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
