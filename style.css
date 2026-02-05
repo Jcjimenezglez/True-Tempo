@@ -661,28 +661,17 @@ a.resource-item:hover,
 .coach-chat-gate {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 16px;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    border: none;
 }
 
-.coach-chat-example {
+.coach-chat-preview {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-}
-
-.coach-example-question {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
-}
-
-.coach-example-answer {
-    color: rgba(255, 255, 255, 0.7);
+    gap: 10px;
 }
 
 .coach-upgrade-btn,
