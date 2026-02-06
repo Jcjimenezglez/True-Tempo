@@ -2622,6 +2622,7 @@ class PomodoroTimer {
             // Hide timer header auth buttons when authenticated
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'none';
+
             
             // Show Report header when authenticated
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
@@ -2756,6 +2757,7 @@ class PomodoroTimer {
             // Show timer header auth buttons when not authenticated
             const timerHeaderAuth = document.getElementById('timerHeaderAuth');
             if (timerHeaderAuth) timerHeaderAuth.style.display = 'block';
+
             
             // Hide Report header when not authenticated
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
@@ -4903,8 +4905,8 @@ class PomodoroTimer {
         }
 
         // Streak button event listener
-        const streakInfo = document.getElementById('streakInfo');
-        if (streakInfo) {
+        const streakButtons = document.querySelectorAll('.streak-info');
+        streakButtons.forEach((streakInfo) => {
             streakInfo.addEventListener('click', () => {
                 this.trackEvent('Report Clicked', {
                     button_type: 'report',
@@ -4922,7 +4924,7 @@ class PomodoroTimer {
                     this.showStreakInfo();
                 }
             });
-        }
+        });
         
         // Timer Settings button event listeners (footer legacy)
         const timerSettingsBtn = document.getElementById('timerSettingsBtn');

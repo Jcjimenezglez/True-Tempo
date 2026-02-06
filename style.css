@@ -1490,6 +1490,7 @@ body.is-scrolling .streak-fire {
     gap: 12px;
 }
 
+
 .timer-header-center {
     position: absolute;
     top: 20px;
@@ -11445,6 +11446,7 @@ input:checked + .toggle-slider:before {
         top: 16px;
     }
 
+
     .timer-header-center {
         top: 20px;
     }
@@ -11452,15 +11454,6 @@ input:checked + .toggle-slider:before {
     .timer-technique-btn {
         padding: 0.4rem 1.1rem;
         font-size: 13px;
-    }
-    
-    /* Keep streak-info button visible on mobile/tablet */
-    #timerHeaderFocusReport {
-        display: flex !important;
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9997; /* Below overlays (9998) so it's hidden when panels open */
     }
     
     /* Hide Spotify widget on mobile/tablet - too big */
