@@ -2279,6 +2279,36 @@
             padding: 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
+        .chat-preview-mockup {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .chat-preview-bubble {
+            max-width: 85%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #ffffff;
+        }
+
+        .chat-preview-bubble.user {
+            align-self: flex-end;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .chat-preview-bubble.assistant {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+        }
         
         @media (max-width: 968px) {
             .premium-features-detailed-section {
@@ -2717,6 +2747,10 @@
                             <span class="feature-icon">✗</span>
                             <span class="feature-text">Advanced Analytics</span>
                         </div>
+                        <div class="feature-item disabled">
+                            <span class="feature-icon">✗</span>
+                            <span class="feature-text">Study chat with Cappuccino</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -2753,6 +2787,10 @@
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
                             <span class="feature-text">Advanced Analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Study chat with Cappuccino</span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
@@ -2797,6 +2835,10 @@
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
                             <span class="feature-text">Advanced Analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Study chat with Cappuccino</span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">✓</span>
@@ -2863,6 +2905,29 @@
                 </div>
                     </div>
                 </div>
+
+            <!-- Feature 3: Study Chat -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content">
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Study chat, on demand</h3>
+                        <p class="premium-feature-description">
+                            Get fast, focused help on any topic. Cappuccino guides you with questions, not answers.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Ask unlimited study questions</li>
+                            <li>Step by step guidance</li>
+                            <li>Perfect for exam prep</li>
+                        </ul>
+                    </div>
+                    <div class="premium-feature-visual">
+                        <div class="feature-mockup chat-preview-mockup">
+                            <div class="chat-preview-bubble user">hi, how do I study for calculus?</div>
+                            <div class="chat-preview-bubble assistant">Let's break it down. What's your current level in math, and are you preparing for an exam or a class?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         
             <!-- Feature 4: Create Cassettes -->
             <div class="premium-feature-block">
