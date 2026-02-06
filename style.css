@@ -11623,6 +11623,11 @@ input:checked + .toggle-slider:before {
         border-radius: 2px;
         z-index: 10;
     }
+
+    /* Hide side panel close button on mobile/tablet */
+    .task-side-panel .close-side-panel-btn {
+        display: none !important;
+    }
     
     /* Panel header adjustments */
     .task-side-panel .settings-section-header,
