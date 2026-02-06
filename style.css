@@ -11592,6 +11592,13 @@ input:checked + .toggle-slider:before {
         flex-direction: column !important;
         pointer-events: auto !important; /* Ensure clicks work */
     }
+
+    #coachSidePanel {
+        height: 90vh !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
     
     .task-side-panel.open {
         transform: translateY(0) !important;
