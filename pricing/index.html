@@ -3310,6 +3310,27 @@
     </footer>
     
     <script>
+        function isUserPremium() {
+            try {
+                const meta = window.Clerk?.user?.publicMetadata || {};
+                if (meta.isPremium === true || meta.isPro === true || meta.isLifetime === true || meta.paymentType === 'lifetime') {
+                    return true;
+                }
+            } catch (_) {}
+
+            try {
+                const forcedMode = localStorage.getItem('viewMode');
+                if (forcedMode === 'pro') return true;
+                if (forcedMode === 'free' || forcedMode === 'guest') return false;
+
+                const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
+                const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
+                return hasPremiumStorage || hasPaidSubscription;
+            } catch (_) {
+                return false;
+            }
+        }
+
         // Function to handle CTA button click
         function handleCTAClick(button, source = 'pricing_page', planType = 'lifetime') {
             return function(e) {
@@ -3323,7 +3344,7 @@
                 
                 // Check if user is authenticated
                 const isAuthenticated = window.Clerk && window.Clerk.user;
-                const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
+                const isPremium = isAuthenticated && isUserPremium();
                 
                 // Track asynchronously (don't block)
                 (async () => {
@@ -3519,7 +3540,7 @@
             const headerCTAButton = document.getElementById('headerCTA');
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
-            const isPremium = isAuthenticated && window.Clerk.user.publicMetadata?.isPremium === true;
+            const isPremium = isAuthenticated && isUserPremium();
             
             console.log('Updating button states:', { 
                 isAuthenticated, 
@@ -3575,6 +3596,13 @@
                 headerCTAButton.textContent = 'You have Premium';
                 headerCTAButton.disabled = true;
                 headerCTAButton.classList.add('disabled');
+            }
+
+            // Update CTA before FAQ (if present)
+            if (ctaBeforeFaqButton && isPremium) {
+                ctaBeforeFaqButton.textContent = 'You have Premium';
+                ctaBeforeFaqButton.disabled = true;
+                ctaBeforeFaqButton.classList.add('disabled');
             }
         }
 
