@@ -674,6 +674,35 @@ a.resource-item:hover,
     gap: 10px;
 }
 
+.coach-gate-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.coach-gate-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.coach-gate-title {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.coach-gate-subtitle {
+    color: #a3a3a3;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
 .coach-upgrade-btn,
 .coach-signup-btn {
     background: #ffffff;
@@ -690,6 +719,18 @@ a.resource-item:hover,
     background: rgba(255, 255, 255, 0.08);
     color: #ffffff;
     font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .coach-gate-card {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .coach-upgrade-btn,
+    .coach-signup-btn {
+        width: 100%;
+    }
 }
 
 .coach-chat-messages {
