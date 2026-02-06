@@ -22438,6 +22438,9 @@ class SidebarManager {
             if (this.isResourcesPanelOpen) {
                 this.closeResourcesPanel();
             }
+            if (this.isCoachPanelOpen) {
+                this.closeCoachPanel();
+            }
             
             // Close mobile sidebar if open
             if (this.isMobile && this.sidebar.classList.contains('open')) {
@@ -22537,6 +22540,9 @@ class SidebarManager {
             }
             if (this.isResourcesPanelOpen) {
                 this.closeResourcesPanel();
+            }
+            if (this.isCoachPanelOpen) {
+                this.closeCoachPanel();
             }
             
             this.immersiveThemeSidePanel.classList.add('open');

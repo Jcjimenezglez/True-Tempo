@@ -919,7 +919,7 @@ a.resource-item:hover,
 }
 
 .main-content.task-panel-open {
-    margin-left: var(--sidebar-collapsed-width) !important;
+    margin-left: calc(var(--sidebar-collapsed-width) + 400px) !important;
 }
 
 /* Mobile Menu Toggle Button */
