@@ -16,7 +16,6 @@ A beautiful, minimalist Pomodoro timer with glassmorphism design and ambient sou
 
 ### Pro Features
 - **Todoist Integration**: Sync your tasks and focus on them
-- **Google Calendar Integration**: Import calendar events as focus sessions
 - **Notion Integration**: Connect your Notion workspace
 - **Advanced Statistics**: Detailed insights into your productivity
 - **Cross-device Sync**: Your progress follows you everywhere
@@ -105,7 +104,6 @@ MIT License - Feel free to use and modify.
 Superfocus Pro includes powerful integrations with your favorite productivity tools:
 
 - **Todoist**: Sync tasks and mark them complete during focus sessions
-- **Google Calendar**: Import upcoming events to focus on
 - **Notion**: Connect your knowledge workspace pages
 
 For setup instructions, see [INTEGRATIONS_SETUP.md](./INTEGRATIONS_SETUP.md)

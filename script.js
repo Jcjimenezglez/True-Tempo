@@ -11035,35 +11035,6 @@ class PomodoroTimer {
         }
     }
     
-    showGoogleCalendarIntegration() {
-        // Check if user is Pro
-        if (this.isAuthenticated && this.user && this.isPro) {
-            // Pro users can access integrations
-        
-        // Check if already connected
-        fetch('/api/google-calendar-status')
-            .then(res => res.json())
-            .then(data => {
-                if (data.connected) {
-                    // Already connected
-                    alert('Google Calendar is already connected! Manage it in Settings.');
-                } else {
-                    // Not connected, initiate connection
-                    const userId = window.Clerk?.user?.id || '';
-                    const viewMode = localStorage.getItem('viewMode');
-                    const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-                    window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-                }
-            })
-            .catch(() => {
-                alert('Error checking Google Calendar connection. Please try again.');
-            });
-        } else {
-            // Guest and Free users go to pricing page
-            window.location.href = '/pricing';
-        }
-    }
-
     refreshTaskModalIfOpen() {
         // Check if task sidebar panel is open
         const taskSidePanel = document.getElementById('taskSidePanel');
@@ -15727,60 +15698,6 @@ class PomodoroTimer {
         })();
     }
 
-    setupGoogleCalendarIntegrationControls() {
-        const connectBtn = document.getElementById('connectGoogleCalendarBtn');
-        const disconnectBtn = document.getElementById('disconnectGoogleCalendarBtn');
-        const statusText = document.getElementById('googleCalendarStatusText');
-        
-        if (!connectBtn || !disconnectBtn || !statusText) return;
-        
-        connectBtn.addEventListener('click', () => {
-            // Add user ID to URL for server-side verification
-            const userId = window.Clerk?.user?.id || '';
-            console.log('Connecting Google Calendar:', { userId, clerkUser: window.Clerk?.user });
-            
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-            
-            // Let the server verify Pro status - it will redirect with error if not Pro
-            window.location.href = `/api/google-calendar-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-        });
-
-        disconnectBtn.addEventListener('click', async () => {
-            try {
-                await fetch('/api/google-calendar-disconnect', { method: 'POST' });
-            } catch (_) {}
-            statusText.textContent = 'Not connected';
-            disconnectBtn.style.display = 'none';
-            connectBtn.style.display = '';
-            this.googleCalendarEvents = [];
-        });
-
-        // Check connection status and update UI
-        (async () => {
-            try {
-                const resp = await fetch('/api/google-calendar-status');
-                const json = await resp.json();
-                const connected = !!json.connected;
-                if (connected) {
-                    statusText.textContent = 'Connected';
-                    connectBtn.style.display = 'none';
-                    disconnectBtn.style.display = '';
-                    this.fetchGoogleCalendarData();
-                } else {
-                    statusText.textContent = 'Not connected';
-                    connectBtn.style.display = '';
-                    disconnectBtn.style.display = 'none';
-                }
-            } catch (_) {
-                statusText.textContent = 'Not connected';
-                connectBtn.style.display = '';
-                disconnectBtn.style.display = 'none';
-            }
-        })();
-    }
-
     setupNotionIntegrationControls() {
         const connectBtn = document.getElementById('connectNotionBtn');
         const disconnectBtn = document.getElementById('disconnectNotionBtn');
@@ -15839,39 +15756,6 @@ class PomodoroTimer {
                 disconnectBtn.style.display = 'none';
             }
         })();
-    }
-
-    async fetchGoogleCalendarData() {
-        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
-            this.googleCalendarEvents = [];
-            return;
-        }
-        try {
-            // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
-            const userId = window.Clerk?.user?.id || '';
-            
-            // Build query params
-            const params = new URLSearchParams();
-            if (viewMode === 'pro') params.append('devMode', 'pro');
-            if (userId) params.append('uid', userId);
-            const queryString = params.toString() ? `?${params.toString()}` : '';
-            
-            console.log('Fetching Google Calendar data with params:', queryString);
-            
-            const resp = await fetch(`/api/google-calendar-events${queryString}`);
-            if (resp.ok) {
-                const events = await resp.json();
-                this.googleCalendarEvents = events;
-                console.log('Google Calendar events loaded:', events.length);
-            } else {
-                console.error('Failed to fetch calendar events:', resp.status, await resp.text());
-                this.googleCalendarEvents = [];
-            }
-        } catch (e) {
-            console.error('Error fetching Google Calendar data:', e);
-            this.googleCalendarEvents = [];
-        }
     }
 
     async fetchNotionData() {
