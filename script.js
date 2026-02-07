@@ -22885,6 +22885,15 @@ class SidebarManager {
                 this.mainContent.classList.add('task-panel-open');
             }
         }
+
+        if (window.pomodoroTimer) {
+            const analytics = window.studyTutorAnalytics || {};
+            window.pomodoroTimer.trackEvent('Study Tutor Opened', {
+                panel_type: 'coach',
+                conversation_id: analytics.conversationId || window.studyTutorConversationId || null,
+                has_active_conversation: !!analytics.lastAssistantReplyAt || !!analytics.lastUserMessageAt
+            });
+        }
     }
 
     closeCoachPanel() {
@@ -22905,6 +22914,20 @@ class SidebarManager {
             if (this.mainContent) {
                 this.mainContent.classList.remove('task-panel-open');
             }
+        }
+
+        if (window.pomodoroTimer) {
+            const analytics = window.studyTutorAnalytics || {};
+            const lastAssistantReplyAt = analytics.lastAssistantReplyAt;
+            const closedWithoutFollowup = !!lastAssistantReplyAt && !analytics.hasFollowedUpAfterLastAnswer;
+            window.pomodoroTimer.trackEvent('Study Tutor Closed', {
+                panel_type: 'coach',
+                conversation_id: analytics.conversationId || window.studyTutorConversationId || null,
+                closed_without_followup: closedWithoutFollowup,
+                time_since_last_answer_ms: lastAssistantReplyAt ? Date.now() - lastAssistantReplyAt : null,
+                last_answer_quality_score: analytics.lastAnswerQualityScore ?? null,
+                last_answer_latency_ms: analytics.lastAnswerLatencyMs ?? null
+            });
         }
     }
 }
@@ -22928,6 +22951,80 @@ function initStudyCoachChat() {
         messages: []
     };
 
+    const MAX_TRACKED_MESSAGE_LENGTH = 1000;
+    const MIN_HELPFUL_REPLY_LENGTH = 50;
+
+    function createConversationId() {
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    let conversationId = createConversationId();
+    let lastAssistantReplyAt = null;
+    let lastUserMessageAt = null;
+    let hasFollowedUpAfterLastAnswer = false;
+    let lastAnswerQualityScore = null;
+    let lastAnswerLatencyMs = null;
+
+    window.studyTutorConversationId = conversationId;
+    window.studyTutorAnalytics = {
+        conversationId,
+        lastAssistantReplyAt,
+        lastUserMessageAt,
+        hasFollowedUpAfterLastAnswer,
+        lastAnswerQualityScore,
+        lastAnswerLatencyMs
+    };
+
+    function getUserType() {
+        const timer = window.pomodoroTimer;
+        if (!timer?.isAuthenticated) return 'guest';
+        return timer.isPremiumUser?.() ? 'pro' : 'free';
+    }
+
+    function normalizeMessage(rawMessage) {
+        const trimmed = typeof rawMessage === 'string' ? rawMessage.trim() : '';
+        const truncated = trimmed.length > MAX_TRACKED_MESSAGE_LENGTH;
+        return {
+            text: truncated ? trimmed.slice(0, MAX_TRACKED_MESSAGE_LENGTH) : trimmed,
+            truncated
+        };
+    }
+
+    function computeAutoQualityScore(reply) {
+        if (typeof reply !== 'string') return 0;
+        const normalized = reply.toLowerCase();
+        if (
+            normalized.includes('sorry') ||
+            normalized.includes('went wrong') ||
+            normalized.includes('did not get a response')
+        ) {
+            return 10;
+        }
+        if (reply.length < 20) return 20;
+        if (reply.length < MIN_HELPFUL_REPLY_LENGTH) return 40;
+        if (reply.length > 800) return 70;
+        return 85;
+    }
+
+    function syncAnalyticsState() {
+        if (!window.studyTutorAnalytics) return;
+        window.studyTutorAnalytics.conversationId = conversationId;
+        window.studyTutorAnalytics.lastAssistantReplyAt = lastAssistantReplyAt;
+        window.studyTutorAnalytics.lastUserMessageAt = lastUserMessageAt;
+        window.studyTutorAnalytics.hasFollowedUpAfterLastAnswer = hasFollowedUpAfterLastAnswer;
+        window.studyTutorAnalytics.lastAnswerQualityScore = lastAnswerQualityScore;
+        window.studyTutorAnalytics.lastAnswerLatencyMs = lastAnswerLatencyMs;
+    }
+
+    function trackCoachEvent(eventName, properties = {}) {
+        if (!window.pomodoroTimer) return;
+        window.pomodoroTimer.trackEvent(eventName, {
+            conversation_id: conversationId,
+            user_type: getUserType(),
+            ...properties
+        });
+    }
+
     function scrollToBottom() {
         messagesEl.scrollTop = messagesEl.scrollHeight;
     }
@@ -22950,6 +23047,14 @@ function initStudyCoachChat() {
         inputEl.value = '';
         syncSendButtonState();
         resizeInput();
+        conversationId = createConversationId();
+        lastAssistantReplyAt = null;
+        lastUserMessageAt = null;
+        hasFollowedUpAfterLastAnswer = false;
+        lastAnswerQualityScore = null;
+        lastAnswerLatencyMs = null;
+        window.studyTutorConversationId = conversationId;
+        syncAnalyticsState();
     }
 
     function updateCoachAccess() {
@@ -22985,8 +23090,30 @@ function initStudyCoachChat() {
         addMessage('user', content);
         state.messages.push({ role: 'user', content });
 
+        const now = Date.now();
+        if (lastAssistantReplyAt && !hasFollowedUpAfterLastAnswer) {
+            hasFollowedUpAfterLastAnswer = true;
+            trackCoachEvent('Study Tutor Continued', {
+                time_since_last_answer_ms: now - lastAssistantReplyAt
+            });
+        }
+        lastUserMessageAt = now;
+        syncAnalyticsState();
+
+        const normalizedUserMessage = normalizeMessage(content);
+        trackCoachEvent('Study Tutor Question Sent', {
+            message: normalizedUserMessage.text,
+            message_length: content.length,
+            message_truncated: normalizedUserMessage.truncated,
+            followup_after_answer: !!lastAssistantReplyAt,
+            time_since_last_answer_ms: lastAssistantReplyAt ? now - lastAssistantReplyAt : null,
+            message_index: state.messages.length,
+            messages_in_conversation: state.messages.length
+        });
+
         const loadingEl = addMessage('assistant', 'Thinking...', { loading: true });
 
+        const requestStart = performance.now();
         try {
             const response = await fetch('/api/study-coach', {
                 method: 'POST',
@@ -23011,10 +23138,35 @@ function initStudyCoachChat() {
             loadingEl.classList.remove('loading');
             loadingEl.textContent = reply;
             state.messages.push({ role: 'assistant', content: reply });
+
+            const normalizedReply = normalizeMessage(reply);
+            lastAnswerQualityScore = computeAutoQualityScore(reply);
+            lastAnswerLatencyMs = Math.round(performance.now() - requestStart);
+            lastAssistantReplyAt = Date.now();
+            hasFollowedUpAfterLastAnswer = false;
+            syncAnalyticsState();
+            trackCoachEvent('Study Tutor Answer Received', {
+                message: normalizedReply.text,
+                message_length: reply.length,
+                message_truncated: normalizedReply.truncated,
+                response_latency_ms: lastAnswerLatencyMs,
+                auto_quality_score: lastAnswerQualityScore,
+                message_index: state.messages.length,
+                messages_in_conversation: state.messages.length
+            });
         } catch (error) {
             loadingEl.classList.remove('loading');
             loadingEl.textContent = 'Sorry, something went wrong. Try again in a moment.';
             console.error('Study coach error:', error);
+            lastAnswerLatencyMs = Math.round(performance.now() - requestStart);
+            syncAnalyticsState();
+            const errorMessage = typeof error?.message === 'string' ? error.message : 'Unknown error';
+            const normalizedError = normalizeMessage(errorMessage);
+            trackCoachEvent('Study Tutor Answer Error', {
+                error_message: normalizedError.text,
+                error_message_truncated: normalizedError.truncated,
+                response_latency_ms: lastAnswerLatencyMs
+            });
         } finally {
             state.isSending = false;
             sendBtn.disabled = false;
