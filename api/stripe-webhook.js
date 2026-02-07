@@ -13,7 +13,16 @@ const { createClerkClient } = require('@clerk/clerk-sdk-node');
 // 1. Send purchase event to GA4 via Measurement Protocol
 // 2. Configure Google Ads to import conversions from GA4
 // 3. This ensures conversions are tracked even if client-side fails
-async function trackConversionServerSide(conversionType, value = 1.0, transactionId = null, gclid = null, email = null, customConversionLabel = null) {
+async function trackConversionServerSide(
+  conversionType,
+  value = 1.0,
+  transactionId = null,
+  gclid = null,
+  gbraid = null,
+  wbraid = null,
+  email = null,
+  customConversionLabel = null
+) {
   try {
     // GA4 Measurement ID (for server-side tracking)
     const ga4MeasurementId = process.env.GA4_MEASUREMENT_ID || 'G-T3T0PES8C0';
@@ -46,15 +55,30 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       conversionLabel,
       conversionId,
       email: email ? email.substring(0, 5) + '***' : 'N/A',
+      gclid: gclid ? 'present' : 'N/A',
+      gbraid: gbraid ? 'present' : 'N/A',
+      wbraid: wbraid ? 'present' : 'N/A',
       hasGa4Secret: !!ga4ApiSecret
     });
     
     // Strategy 1: GA4 Measurement Protocol (if API secret is configured)
     // This sends a purchase event to GA4 which can be imported to Google Ads
     if (ga4ApiSecret) {
+      const userProperties = {};
+      if (gclid) {
+        userProperties.gclid = { value: gclid };
+      }
+      if (gbraid) {
+        userProperties.gbraid = { value: gbraid };
+      }
+      if (wbraid) {
+        userProperties.wbraid = { value: wbraid };
+      }
+
       const ga4Payload = {
         client_id: clientId,
         user_id: email ? email.toLowerCase() : undefined,
+        user_properties: Object.keys(userProperties).length ? userProperties : undefined,
         events: [{
           name: 'purchase',
           params: {
@@ -65,6 +89,9 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
             conversion_type: conversionType,
             conversion_label: conversionLabel,
             source: 'server_webhook',
+            gclid: gclid || undefined,
+            gbraid: gbraid || undefined,
+            wbraid: wbraid || undefined,
             items: [{
               item_id: 'premium_subscription',
               item_name: 'Premium Subscription',
@@ -129,6 +156,9 @@ async function trackConversionServerSide(conversionType, value = 1.0, transactio
       currency: 'USD',
       transactionId: eventTransactionId,
       email: email ? email.substring(0, 5) + '***' : 'N/A',
+      gclid: gclid ? 'present' : 'N/A',
+      gbraid: gbraid ? 'present' : 'N/A',
+      wbraid: wbraid ? 'present' : 'N/A',
       timestamp: new Date().toISOString()
     });
     
@@ -365,6 +395,9 @@ async function handleCheckoutCompleted(session, clerk) {
   const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
   const isSubscription = session.mode === 'subscription';
   const fallbackEmail = session.customer_details?.email || session.customer_email || null;
+  const gclid = session.metadata?.gclid || null;
+  const gbraid = session.metadata?.gbraid || null;
+  const wbraid = session.metadata?.wbraid || null;
 
   console.log('🔔 Checkout completed event received:', {
     customerId,
@@ -476,7 +509,16 @@ async function handleCheckoutCompleted(session, clerk) {
       
       // Track lifetime deal conversion server-side with correct label and value
       // Lifetime: $24.0 with label unsECLnWiewbENjym89B
-      await trackConversionServerSide('lifetime', 24.0, session.id, null, userEmail, 'unsECLnWiewbENjym89B');
+      await trackConversionServerSide(
+        'lifetime',
+        24.0,
+        session.id,
+        gclid,
+        gbraid,
+        wbraid,
+        userEmail,
+        'unsECLnWiewbENjym89B'
+      );
       console.log(`✅ Google Ads LIFETIME conversion tracked: ${targetUserId} - $24.0`);
       
       return; // Don't process as subscription
@@ -567,7 +609,16 @@ async function handleCheckoutCompleted(session, clerk) {
       
       // Track Google Ads conversion for Monthly subscription
       // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
-      await trackConversionServerSide('monthly', 3.99, session.id, null, userEmail, 'wlmKCI_fiuwbENjym89B');
+      await trackConversionServerSide(
+        'monthly',
+        3.99,
+        session.id,
+        gclid,
+        gbraid,
+        wbraid,
+        userEmail,
+        'wlmKCI_fiuwbENjym89B'
+      );
       console.log(`✅ Google Ads MONTHLY conversion tracked: ${targetUserId} - $3.99`);
     }
 
