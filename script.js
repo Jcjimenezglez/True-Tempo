@@ -497,8 +497,25 @@ class PomodoroTimer {
             return 0;
         }
     }
+
+    captureAdsClickIds() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const gclid = params.get('gclid');
+            const gbraid = params.get('gbraid');
+            const wbraid = params.get('wbraid');
+
+            if (gclid || gbraid || wbraid) {
+                const payload = { gclid, gbraid, wbraid, ts: Date.now() };
+                localStorage.setItem('ads_click_ids', JSON.stringify(payload));
+            }
+        } catch (error) {
+            // Best-effort capture only; no user impact on failure.
+        }
+    }
     
     init() {
+        this.captureAdsClickIds();
         this.layoutSegments();
         this.updateDisplay();
         this.updateProgress();
