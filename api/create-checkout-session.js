@@ -17,16 +17,25 @@ module.exports = async (req, res) => {
   let planType = 'premium'; // Default to premium
   let userEmail = '';
   let userId = '';
+  let adsClickIds = {};
   
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     planType = (body.planType || 'premium').toLowerCase();
     userEmail = body.userEmail || '';
     userId = body.userId || '';
+    adsClickIds = body.adsClickIds || {};
   } catch (e) {
     // If body parsing fails, default to premium
     planType = 'premium';
   }
+  
+  if (!adsClickIds || typeof adsClickIds !== 'object') {
+    adsClickIds = {};
+  }
+  const gclid = typeof adsClickIds.gclid === 'string' ? adsClickIds.gclid : '';
+  const gbraid = typeof adsClickIds.gbraid === 'string' ? adsClickIds.gbraid : '';
+  const wbraid = typeof adsClickIds.wbraid === 'string' ? adsClickIds.wbraid : '';
 
   // #region agent log
   if (process.env.NODE_ENV !== 'production') {
@@ -100,6 +109,25 @@ module.exports = async (req, res) => {
     // Create checkout session config
     // Monthly: $3.99/month subscription
     // Lifetime: $24 one-time payment
+    const metadata = {
+      clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
+      app_name: 'Superfocus',
+      app_version: '1.0',
+      business_name: 'Superfocus',
+      business_type: 'Pomodoro Timer & Focus App',
+      payment_type: planType, // monthly or lifetime
+    };
+    
+    if (gclid) {
+      metadata.gclid = gclid;
+    }
+    if (gbraid) {
+      metadata.gbraid = gbraid;
+    }
+    if (wbraid) {
+      metadata.wbraid = wbraid;
+    }
+    
     const sessionConfig = {
       mode: mode,
       line_items: [
@@ -109,14 +137,7 @@ module.exports = async (req, res) => {
         },
       ],
       // Pass Clerk user id and payment type in metadata
-      metadata: {
-        clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
-        app_name: 'Superfocus',
-        app_version: '1.0',
-        business_name: 'Superfocus',
-        business_type: 'Pomodoro Timer & Focus App',
-        payment_type: planType, // monthly or lifetime
-      },
+      metadata: metadata,
       // Pre-fill user email to prevent email mismatch
       customer_email: userEmail || undefined,
       allow_promotion_codes: false,

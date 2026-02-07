@@ -4113,6 +4113,13 @@ class PomodoroTimer {
             console.log('   User ID:', userId);
             console.log('   User Email:', userEmail);
             
+            let adsClickIds = null;
+            try {
+                adsClickIds = JSON.parse(localStorage.getItem('ads_click_ids') || 'null');
+            } catch (error) {
+                adsClickIds = null;
+            }
+            
             const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
                 headers: {
@@ -4122,7 +4129,8 @@ class PomodoroTimer {
                 body: JSON.stringify({
                     planType: planType,
                     userEmail: userEmail,
-                    userId: userId
+                    userId: userId,
+                    adsClickIds: adsClickIds
                 })
             });
             

@@ -3614,6 +3614,12 @@
                 // Get user info immediately
                 const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress || '';
                 const userId = window.Clerk?.user?.id || '';
+                let adsClickIds = null;
+                try {
+                    adsClickIds = JSON.parse(localStorage.getItem('ads_click_ids') || 'null');
+                } catch (error) {
+                    adsClickIds = null;
+                }
                 
                 // Start API call immediately (don't wait for tracking)
                 const checkoutPromise = fetch('/api/create-checkout-session', {
@@ -3625,7 +3631,8 @@
                     body: JSON.stringify({
                         planType: planType,
                         userEmail: userEmail,
-                        userId: userId
+                        userId: userId,
+                        adsClickIds: adsClickIds
                     })
                 });
                 
