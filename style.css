@@ -884,16 +884,16 @@ a.resource-item:hover,
 }
 
 .leaderboard-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 12px;
-}
-
-.leaderboard-header-text {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.leaderboard-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .leaderboard-refresh-btn {
@@ -929,6 +929,10 @@ a.resource-item:hover,
 
 .leaderboard-refresh-btn.loading svg {
     animation: spin 0.9s linear infinite;
+}
+
+.leaderboard-refresh-btn.loading {
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .task-side-panel .leaderboard-refresh-btn {
@@ -4983,16 +4987,9 @@ audio {
     gap: 4px;
 }
 
-.tasks-header.leaderboard-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 12px;
-}
-
 .tasks-header.leaderboard-header .tasks-subtitle {
     text-align: left;
-    margin: 0.25rem 0 0 0;
+    margin: 0;
     padding: 0;
 }
 
