@@ -900,15 +900,20 @@ a.resource-item:hover,
     display: none;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     border: none;
     background: transparent;
     color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
     justify-self: end;
+}
+
+.leaderboard-refresh-btn svg {
+    width: 18px;
+    height: 18px;
 }
 
 .leaderboard-refresh-btn:hover {
@@ -4966,6 +4971,19 @@ audio {
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+.tasks-header.leaderboard-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.tasks-header.leaderboard-header .tasks-subtitle {
+    text-align: left;
+    margin: 0.25rem 0 0 0;
+    padding: 0;
 }
 
 .tasks-header h5 {

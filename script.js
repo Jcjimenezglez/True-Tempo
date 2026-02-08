@@ -7133,6 +7133,7 @@ class PomodoroTimer {
 
         this.leaderboardRefreshBtn.classList.add('loading');
         this.leaderboardRefreshBtn.disabled = true;
+        this.leaderboardRefreshBtn.setAttribute('aria-busy', 'true');
 
         try {
             const userId = this.user?.id || window.Clerk?.user?.id || '';
@@ -7166,6 +7167,7 @@ class PomodoroTimer {
         } finally {
             this.leaderboardRefreshBtn.classList.remove('loading');
             this.leaderboardRefreshBtn.disabled = false;
+            this.leaderboardRefreshBtn.setAttribute('aria-busy', 'false');
         }
     }
 
