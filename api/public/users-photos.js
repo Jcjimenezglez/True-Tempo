@@ -7,6 +7,11 @@ module.exports = async (req, res) => {
     return;
   }
 
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=86400, stale-while-revalidate=3600'
+  );
+
   // Fixed list of 8 users manually selected
   // These are users authenticated with Google (they always have profile photos)
   const fixedUsers = [

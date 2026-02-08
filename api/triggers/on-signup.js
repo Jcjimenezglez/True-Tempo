@@ -47,32 +47,22 @@ module.exports = async (req, res) => {
       tags: ['signup_welcome'],
     });
 
-    // Schedule follow-up emails using Clerk metadata
-    // This is more reliable than setTimeout in serverless functions
+    // Follow-up emails disabled; welcome email only.
     if (userId) {
       try {
         const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
         const user = await clerk.users.getUser(userId);
         const metadata = user.publicMetadata || {};
-        
-        const now = Date.now();
-        const scheduledEmails = {
-          ...(metadata.scheduledEmails || {}),
-          signupFollowUp1: now + (24 * 60 * 60 * 1000), // 24 hours
-          signupFollowUp2: now + (3 * 24 * 60 * 60 * 1000), // 3 days
-        };
-        
+
         await clerk.users.updateUser(userId, {
           publicMetadata: {
             ...metadata,
-            scheduledEmails,
+            scheduledEmails: {},
           },
         });
-        
-        console.log('✅ Scheduled follow-up emails in Clerk metadata');
       } catch (error) {
-        console.error('Error scheduling follow-up emails:', error);
-        // Don't fail the request if scheduling fails
+        console.error('Error clearing scheduled emails:', error);
+        // Don't fail the request if cleanup fails
       }
     }
 
