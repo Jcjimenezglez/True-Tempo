@@ -914,6 +914,8 @@ a.resource-item:hover,
 .leaderboard-refresh-btn svg {
     width: 18px;
     height: 18px;
+    display: block;
+    transform-origin: 50% 50%;
 }
 
 .leaderboard-refresh-btn:hover {
@@ -926,7 +928,15 @@ a.resource-item:hover,
 }
 
 .leaderboard-refresh-btn.loading svg {
-    animation: spin 1s linear infinite;
+    animation: spin 0.9s linear infinite;
+}
+
+.task-side-panel .leaderboard-refresh-btn {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.task-side-panel .leaderboard-refresh-btn:disabled {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* Timer specific layout */

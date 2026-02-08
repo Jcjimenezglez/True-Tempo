@@ -7134,6 +7134,7 @@ class PomodoroTimer {
         this.leaderboardRefreshBtn.classList.add('loading');
         this.leaderboardRefreshBtn.disabled = true;
         this.leaderboardRefreshBtn.setAttribute('aria-busy', 'true');
+        const loadingStartedAt = Date.now();
 
         try {
             const userId = this.user?.id || window.Clerk?.user?.id || '';
@@ -7165,6 +7166,10 @@ class PomodoroTimer {
             console.error('Leaderboard refresh failed:', error);
             this.showResourceShareToast('Could not refresh leaderboard', true);
         } finally {
+            const elapsedMs = Date.now() - loadingStartedAt;
+            if (elapsedMs < 600) {
+                await new Promise(resolve => setTimeout(resolve, 600 - elapsedMs));
+            }
             this.leaderboardRefreshBtn.classList.remove('loading');
             this.leaderboardRefreshBtn.disabled = false;
             this.leaderboardRefreshBtn.setAttribute('aria-busy', 'false');
