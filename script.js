@@ -270,6 +270,7 @@ class PomodoroTimer {
         this.productivityResourcesBtn = document.getElementById('productivityResourcesBtn');
         this.productivityResourcesModalOverlay = document.getElementById('productivityResourcesModalOverlay');
         this.leaderboardModalOverlay = document.getElementById('leaderboardModalOverlay');
+        this.leaderboardRefreshBtn = document.getElementById('leaderboardRefreshBtn');
         this.settingsIntegrationsBtn = document.getElementById('settingsIntegrationsBtn');
         this.settingsFeedbackBtn = document.getElementById('settingsFeedbackBtn');
         this.settingsStatsDivider = document.getElementById('settingsStatsDivider');
@@ -4929,6 +4930,12 @@ class PomodoroTimer {
             });
         }
 
+        if (this.leaderboardRefreshBtn) {
+            this.leaderboardRefreshBtn.addEventListener('click', () => {
+                this.refreshLeaderboardSnapshot();
+            });
+        }
+
         // Streak button event listener
         const streakButtons = document.querySelectorAll('.streak-info');
         streakButtons.forEach((streakInfo) => {
@@ -7048,6 +7055,8 @@ class PomodoroTimer {
         const userProBadge = document.getElementById('userProBadge');
         const integrationsButton = document.getElementById('integrationsButton');
         const integrationsSection = document.getElementById('integrationsSection');
+        const leaderboardRefreshBtn = this.leaderboardRefreshBtn;
+        const hasPremiumAccess = this.isAuthenticated && this.isPremiumUser();
         
         if (this.isPremiumUser()) {
             const meta = window.Clerk?.user?.publicMetadata || {};
@@ -7059,6 +7068,10 @@ class PomodoroTimer {
             if (userProBadge) userProBadge.style.display = 'inline-block';
             if (integrationsButton) integrationsButton.style.display = 'flex';
             if (integrationsSection) integrationsSection.style.display = 'block';
+            if (leaderboardRefreshBtn) {
+                leaderboardRefreshBtn.style.display = hasPremiumAccess ? 'inline-flex' : 'none';
+                leaderboardRefreshBtn.disabled = !hasPremiumAccess;
+            }
             
             // Settings dropdown elements
             if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'none';
@@ -7073,6 +7086,10 @@ class PomodoroTimer {
             if (userProBadge) userProBadge.style.display = 'none';
             if (integrationsButton) integrationsButton.style.display = 'none';
             if (integrationsSection) integrationsSection.style.display = 'none';
+            if (leaderboardRefreshBtn) {
+                leaderboardRefreshBtn.style.display = 'none';
+                leaderboardRefreshBtn.disabled = true;
+            }
             
             // Settings dropdown elements
             if (this.settingsUpgradeToProBtn) this.settingsUpgradeToProBtn.style.display = 'flex';
@@ -7087,6 +7104,68 @@ class PomodoroTimer {
 
         if (window.updateCoachAccess) {
             window.updateCoachAccess();
+        }
+    }
+
+    clearLeaderboardCache() {
+        this.leaderboardCache = {};
+        this.leaderboardCachedAtHours = 0;
+        try {
+            localStorage.removeItem('leaderboardCache');
+            localStorage.removeItem('leaderboardCachedAtHours');
+        } catch (_) {}
+    }
+
+    async refreshLeaderboardSnapshot() {
+        if (!this.isAuthenticated) {
+            this.showResourceShareToast('Log in to refresh the leaderboard', true);
+            return;
+        }
+
+        if (!this.isPremiumUser()) {
+            this.showResourceShareToast('Premium only: refresh unavailable', true);
+            return;
+        }
+
+        if (!this.leaderboardRefreshBtn || this.leaderboardRefreshBtn.classList.contains('loading')) {
+            return;
+        }
+
+        this.leaderboardRefreshBtn.classList.add('loading');
+        this.leaderboardRefreshBtn.disabled = true;
+
+        try {
+            const userId = this.user?.id || window.Clerk?.user?.id || '';
+            if (!userId) {
+                throw new Error('Missing user session');
+            }
+
+            const response = await fetch('/api/leaderboard-refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': userId
+                }
+            });
+
+            if (!response.ok) {
+                const errorPayload = await response.json().catch(() => ({}));
+                throw new Error(errorPayload?.error || 'Failed to refresh leaderboard');
+            }
+
+            this.clearLeaderboardCache();
+            await this.loadLeaderboardForPanel(this.leaderboardCurrentPage || 1);
+            if (this.isLeaderboardModalOpen()) {
+                await this.loadLeaderboardForModal(this.leaderboardModalCurrentPage || 1);
+            }
+
+            this.showResourceShareToast('Leaderboard updated');
+        } catch (error) {
+            console.error('Leaderboard refresh failed:', error);
+            this.showResourceShareToast('Could not refresh leaderboard', true);
+        } finally {
+            this.leaderboardRefreshBtn.classList.remove('loading');
+            this.leaderboardRefreshBtn.disabled = false;
         }
     }
 

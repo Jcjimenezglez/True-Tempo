@@ -883,6 +883,47 @@ a.resource-item:hover,
     margin: 0.25rem 0 0 0;
 }
 
+.leaderboard-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.leaderboard-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.leaderboard-refresh-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    justify-self: end;
+}
+
+.leaderboard-refresh-btn:hover {
+    color: #ffffff;
+}
+
+.leaderboard-refresh-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.leaderboard-refresh-btn.loading svg {
+    animation: spin 1s linear infinite;
+}
+
 /* Timer specific layout */
 .timer-scrollable-content {
     flex: 1;
