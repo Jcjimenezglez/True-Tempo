@@ -918,6 +918,18 @@ a.resource-item:hover,
     transform-origin: 50% 50%;
 }
 
+.leaderboard-refresh-btn svg + svg {
+    display: none;
+}
+
+.leaderboard-refresh-btn.loading svg {
+    display: none;
+}
+
+.leaderboard-refresh-btn.loading svg + svg {
+    display: block;
+}
+
 .leaderboard-refresh-btn:hover {
     color: #ffffff;
 }
@@ -925,14 +937,6 @@ a.resource-item:hover,
 .leaderboard-refresh-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-}
-
-.leaderboard-refresh-btn.loading svg {
-    animation: spin 0.9s linear infinite;
-}
-
-.leaderboard-refresh-btn.loading {
-    background: rgba(255, 255, 255, 0.08);
 }
 
 .task-side-panel .leaderboard-refresh-btn {
