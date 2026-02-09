@@ -20091,26 +20091,24 @@ class PomodoroTimer {
             return;
         }
         
-        // Free users can create 1 cassette LIFETIME, Premium users unlimited
+        // Free users can keep 1 cassette active at a time, Premium users unlimited
         if (!this.isPremiumUser() && !cassetteId) {
-            // Check lifetime count of custom cassettes (permanent limit)
-            const lifetimeCassettesCreated = this.getLifetimeCassettesCreated();
-            
-            if (lifetimeCassettesCreated >= 1) {
-                // Free user has already created 1 cassette in their lifetime
+            const activeCassettesCount = this.getCustomCassettes().length;
+
+            if (activeCassettesCount >= 1) {
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_cassettes',
                     source: 'create_cassette_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    lifetime_cassettes_created: lifetimeCassettesCreated,
-                    reason: 'permanent_cassette_limit_reached'
+                    active_cassettes_count: activeCassettesCount,
+                    reason: 'active_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('Free users can only create 1 custom cassette permanently. If you delete it, you can recover it from deleted cassettes. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('Free users can keep 1 custom cassette active at a time. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
                 return;
             }
-            // Free user can create their first cassette - continue to form
+            // Free user has no active cassette - continue to form
         }
         
         // Pro users can create cassettes
