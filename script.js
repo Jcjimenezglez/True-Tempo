@@ -3663,7 +3663,7 @@ class PomodoroTimer {
                 : 'Upgrade to Premium to see your ranking.';
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your Rank</div>
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your rank would be</div>
                     ${rankLine}
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 8px; margin-bottom: 12px;">${ctaLine}</div>
                     <button id="leaderboardModalUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
@@ -14344,7 +14344,7 @@ class PomodoroTimer {
                 : 'Upgrade to Premium to see your ranking.';
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your Rank</div>
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your rank would be</div>
                     ${rankLine}
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 8px; margin-bottom: 12px;">${ctaLine}</div>
                     <button id="leaderboardPanelUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
