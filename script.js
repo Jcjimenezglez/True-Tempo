@@ -18297,6 +18297,7 @@ class PomodoroTimer {
     initializeMyCassettes() {
         const createCassetteSection = document.getElementById('createCassetteSection');
         const createCassetteBtn = document.getElementById('createCassetteBtn');
+        const recoverDeletedCassettesBtn = document.getElementById('recoverDeletedCassettesBtn');
         const cancelCassetteBtn = document.getElementById('cancelCassetteBtn');
         const saveCassetteBtn = document.getElementById('saveCassetteBtn');
         
@@ -18313,6 +18314,7 @@ class PomodoroTimer {
         
         // Load and render custom cassettes (show for all users, disabled if not authenticated)
         this.loadCustomCassettes();
+        this.refreshRecoverDeletedCassettesButton();
         
         // Load and render public cassettes (for all users, with restriction for Guest)
         // Moved to openImmersiveThemePanel to ensure refresh on open
@@ -18329,6 +18331,16 @@ class PomodoroTimer {
                 e.preventDefault();
                 e.stopPropagation();
                 this.showCassetteForm();
+            });
+        }
+
+        if (recoverDeletedCassettesBtn) {
+            const newRecoverBtn = recoverDeletedCassettesBtn.cloneNode(true);
+            recoverDeletedCassettesBtn.parentNode.replaceChild(newRecoverBtn, recoverDeletedCassettesBtn);
+            newRecoverBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showRecoverDeletedCassettesModal();
             });
         }
         
@@ -18439,12 +18451,14 @@ class PomodoroTimer {
         if (!customCassettesList) return;
         
         const customCassettes = this.getCustomCassettes();
+        this.refreshRecoverDeletedCassettesButton();
         
         // Filter out public vibes - only show private cassettes in "My Vibes"
         const privateCassettes = customCassettes.filter(c => !c.isPublic || c.isPublic === false);
         
         if (privateCassettes.length === 0) {
             customCassettesList.innerHTML = '';
+            this.refreshRecoverDeletedCassettesButton();
             return;
         }
         
@@ -18546,7 +18560,8 @@ class PomodoroTimer {
                 deleteOption.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
+                    this.deleteCustomCassette(cassette.id);
+                    this.showResourceShareToast('Cassette moved to deleted');
                 });
             }
         });
@@ -18571,6 +18586,151 @@ class PomodoroTimer {
         } catch {
             return [];
         }
+    }
+
+    getDeletedCassettesTrash() {
+        try {
+            const deleted = JSON.parse(localStorage.getItem('deletedCassettesTrash') || '[]');
+            return Array.isArray(deleted) ? deleted : [];
+        } catch {
+            return [];
+        }
+    }
+
+    saveDeletedCassettesTrash(deletedCassettes) {
+        try {
+            localStorage.setItem('deletedCassettesTrash', JSON.stringify(deletedCassettes));
+        } catch (error) {
+            console.error('Error saving deleted cassette trash:', error);
+        }
+    }
+
+    refreshRecoverDeletedCassettesButton() {
+        const recoverBtn = document.getElementById('recoverDeletedCassettesBtn');
+        if (!recoverBtn) return;
+        recoverBtn.style.display = this.getDeletedCassettesTrash().length > 0 ? 'block' : 'none';
+    }
+
+    showRecoverDeletedCassettesModal() {
+        const deletedCassettes = this.getDeletedCassettesTrash();
+        if (deletedCassettes.length === 0) {
+            this.showResourceShareToast('No deleted cassettes to recover', true);
+            this.refreshRecoverDeletedCassettesButton();
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 520px; padding: 32px; position: relative;';
+
+        const deletedRows = deletedCassettes.map((cassette) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.04);">
+                <div style="min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.title || 'Untitled cassette')}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.description || 'Custom focus environment')}</div>
+                </div>
+                <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="padding: 7px 12px; font-size: 12px;">
+                    Recover
+                </button>
+            </div>
+        `).join('');
+
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeRecoverCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #fff; text-align: left;">Recover deleted cassettes</h3>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 18px; text-align: left;">Pick one cassette to restore it to your list.</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+                ${deletedRows}
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+
+        modal.querySelector('#closeRecoverCassetteModal')?.addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        modal.querySelectorAll('.recover-cassette-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const cassetteId = btn.getAttribute('data-cassette-id');
+                await this.restoreDeletedCassette(cassetteId);
+                close();
+            });
+        });
+    }
+
+    async restoreDeletedCassette(cassetteId) {
+        const deletedCassettes = this.getDeletedCassettesTrash();
+        const cassetteToRestore = deletedCassettes.find((cassette) => cassette.id === cassetteId);
+        if (!cassetteToRestore) {
+            this.showResourceShareToast('Cassette not found in deleted list', true);
+            this.refreshRecoverDeletedCassettesButton();
+            return;
+        }
+
+        const activeCassettes = this.getCustomCassettes();
+        if (!this.isPremiumUser() && activeCassettes.length >= 1) {
+            this.showResourceShareToast('Free users can only keep 1 cassette active at a time', true);
+            return;
+        }
+
+        const updatedCassettes = [...activeCassettes, cassetteToRestore];
+        const updatedDeleted = deletedCassettes.filter((cassette) => cassette.id !== cassetteId);
+        localStorage.setItem('customCassettes', JSON.stringify(updatedCassettes));
+        this.saveDeletedCassettesTrash(updatedDeleted);
+
+        this.loadCustomCassettes();
+        this.refreshRecoverDeletedCassettesButton();
+        this.loadPublicCassettes(true).catch((err) => {
+            console.error('Error reloading public vibes after cassette restore:', err);
+        });
+
+        if (this.isAuthenticated && this.user?.id) {
+            const stats = this.getFocusStats();
+            fetch('/api/sync-cassettes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({ cassettes: updatedCassettes })
+            }).catch((err) => {
+                console.error('Error syncing cassettes after restore:', err);
+            });
+
+            fetch('/api/sync-stats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': this.user.id
+                },
+                body: JSON.stringify({
+                    totalHours: stats?.totalHours || 0,
+                    customCassettes: updatedCassettes
+                })
+            }).catch((err) => {
+                console.error('Error syncing cassette backup after restore:', err);
+            });
+        }
+
+        this.showResourceShareToast('Cassette recovered');
     }
 
     async loadPublicCassettesFromAPI(forceRefresh = false) {
@@ -19085,7 +19245,8 @@ class PomodoroTimer {
                     deleteOption.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (optionsDropdown) optionsDropdown.style.display = 'none';
-                        this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
+                        this.deleteCustomCassette(cassette.id);
+                        this.showResourceShareToast('Cassette moved to deleted');
                     });
                 }
             }
@@ -19383,9 +19544,9 @@ class PomodoroTimer {
         modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         
         // Warning message differs for free vs premium
-        const warningMessage = !isPremium 
-            ? 'This action CANNOT be undone. Free users can only create 1 custom cassette permanently.'
-            : 'This action cannot be undone.';
+        const warningMessage = !isPremium
+            ? 'You can recover this cassette later from "Recover deleted cassettes".'
+            : 'You can recover this cassette later from "Recover deleted cassettes".';
         
         modal.innerHTML = `
             <button class="close-modal-x" id="closeDeleteCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
@@ -19396,7 +19557,7 @@ class PomodoroTimer {
             </button>
             
             <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: white; line-height: 1.3; text-align: left;">
-                Delete Cassette Permanently?
+                Delete cassette?
             </h3>
             <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
                 ${warningMessage}
@@ -19430,6 +19591,14 @@ class PomodoroTimer {
     async deleteCustomCassette(cassetteId) {
         try {
             const cassettes = this.getCustomCassettes();
+            const cassetteToDelete = cassettes.find(c => c.id === cassetteId);
+            if (cassetteToDelete) {
+                const deletedCassettes = this.getDeletedCassettesTrash();
+                const dedupedDeleted = deletedCassettes.filter(c => c.id !== cassetteId);
+                const updatedDeleted = [cassetteToDelete, ...dedupedDeleted].slice(0, 20);
+                this.saveDeletedCassettesTrash(updatedDeleted);
+            }
+
             const filtered = cassettes.filter(c => c.id !== cassetteId);
             localStorage.setItem('customCassettes', JSON.stringify(filtered));
             
@@ -19496,6 +19665,7 @@ class PomodoroTimer {
             
             // Reload custom vibes (synchronous)
             this.loadCustomCassettes();
+            this.refreshRecoverDeletedCassettesButton();
             
             // Reload public vibes in background - the cassette is already removed from DOM and cache
             // so even if API still returns it, the cache update will handle it correctly
@@ -19937,7 +20107,7 @@ class PomodoroTimer {
                     reason: 'permanent_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('Free users can only create 1 custom cassette permanently. Once deleted, you cannot create another. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('Free users can only create 1 custom cassette permanently. If you delete it, you can recover it from deleted cassettes. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
                 return;
             }
             // Free user can create their first cassette - continue to form
@@ -20475,7 +20645,8 @@ class PomodoroTimer {
                                     deleteOption.addEventListener('click', (e) => {
                                         e.stopPropagation();
                                         if (optionsDropdown) optionsDropdown.style.display = 'none';
-                                        this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
+                                        this.deleteCustomCassette(cassette.id);
+                                        this.showResourceShareToast('Cassette moved to deleted');
                                     });
                                 }
                             }
