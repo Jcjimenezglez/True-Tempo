@@ -18605,6 +18605,18 @@ class PomodoroTimer {
         }
     }
 
+    getFreeCassetteOwnershipCount() {
+        try {
+            const ownedCassetteIds = new Set();
+            this.getCustomCassettes().forEach((cassette) => ownedCassetteIds.add(cassette.id));
+            this.getDeletedCassettesTrash().forEach((cassette) => ownedCassetteIds.add(cassette.id));
+            return ownedCassetteIds.size;
+        } catch (error) {
+            console.error('Error calculating free cassette ownership count:', error);
+            return 0;
+        }
+    }
+
     refreshRecoverDeletedCassettesButton() {
         const recoverBtn = document.getElementById('recoverDeletedCassettesBtn');
         if (!recoverBtn) return;
@@ -19468,12 +19480,12 @@ class PomodoroTimer {
                 currentCassettes: cassettes.map(c => ({ id: c.id, title: c.title }))
             });
             
-            // Free users can only have 1 cassette active at a time (unlimited for Premium)
+            // Free users can only own 1 cassette total (active or deleted)
             if (isNewCassette && !this.isPremiumUser()) {
-                const customCassettesCount = this.getCustomCassettes().length;
-                if (customCassettesCount >= 1) {
-                    alert('You can only have 1 custom cassette at a time. Delete your current cassette or upgrade to Premium to create unlimited cassettes.');
-                    throw new Error('Active cassette limit reached for free users');
+                const ownedCassettesCount = this.getFreeCassetteOwnershipCount();
+                if (ownedCassettesCount >= 1) {
+                    alert('Free users can create only 1 cassette. You can edit, delete, and recover that same cassette, or upgrade to Premium for unlimited cassettes.');
+                    throw new Error('Total cassette limit reached for free users');
                 }
             }
             
@@ -20101,24 +20113,24 @@ class PomodoroTimer {
             return;
         }
         
-        // Free users can keep 1 cassette active at a time, Premium users unlimited
+        // Free users can own only 1 cassette total (active or deleted), Premium users unlimited
         if (!this.isPremiumUser() && !cassetteId) {
-            const activeCassettesCount = this.getCustomCassettes().length;
+            const ownedCassetteCount = this.getFreeCassetteOwnershipCount();
 
-            if (activeCassettesCount >= 1) {
+            if (ownedCassetteCount >= 1) {
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_cassettes',
                     source: 'create_cassette_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    active_cassettes_count: activeCassettesCount,
-                    reason: 'active_cassette_limit_reached'
+                    owned_cassettes_count: ownedCassetteCount,
+                    reason: 'total_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('Free users can keep 1 custom cassette active at a time. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('Free users can create only 1 custom cassette. You can edit, delete, and recover that same cassette. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
                 return;
             }
-            // Free user has no active cassette - continue to form
+            // Free user has no owned cassette yet - continue to form
         }
         
         // Pro users can create cassettes
