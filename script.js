@@ -3643,7 +3643,7 @@ class PomodoroTimer {
         let html = '';
         const isPremiumUser = this.isPremiumUser ? this.isPremiumUser() : false;
 
-        // Header with user position
+        // Header with user position (Premium: full card; Free: rank + CTA to appear on list)
         if (isPremiumUser && currentUserPosition) {
             const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
             html += `
@@ -3655,10 +3655,17 @@ class PomodoroTimer {
                 </div>
             `;
         } else if (!isPremiumUser) {
+            const rankLine = currentUserPosition
+                ? `<div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div><div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString}</div>`
+                : '';
+            const ctaLine = currentUserPosition
+                ? 'Want to appear on the list? Upgrade to Premium.'
+                : 'Upgrade to Premium to see your ranking.';
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your Rank</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-bottom: 12px;">Upgrade to Premium to see your ranking.</div>
+                    ${rankLine}
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 8px; margin-bottom: 12px;">${ctaLine}</div>
                     <button id="leaderboardModalUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
                 </div>
             `;
@@ -14317,7 +14324,7 @@ class PomodoroTimer {
         let html = '';
         const isPremiumUser = this.isPremiumUser ? this.isPremiumUser() : false;
 
-        // Header with user position
+        // Header with user position (Premium: full card; Free: rank + CTA to appear on list)
         if (isPremiumUser && currentUserPosition) {
             const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
             html += `
@@ -14329,10 +14336,17 @@ class PomodoroTimer {
                 </div>
             `;
         } else if (!isPremiumUser) {
+            const rankLine = currentUserPosition
+                ? `<div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div><div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString}</div>`
+                : '';
+            const ctaLine = currentUserPosition
+                ? 'Want to appear on the list? Upgrade to Premium.'
+                : 'Upgrade to Premium to see your ranking.';
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your Rank</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-bottom: 12px;">Upgrade to Premium to see your ranking.</div>
+                    ${rankLine}
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 8px; margin-bottom: 12px;">${ctaLine}</div>
                     <button id="leaderboardPanelUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
                 </div>
             `;

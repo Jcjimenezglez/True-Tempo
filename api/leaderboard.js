@@ -1,8 +1,15 @@
 // API endpoint to get premium-only leaderboard snapshot
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const { buildPremiumLeaderboardSnapshot } = require('./leaderboard-premium-service');
 const { getSnapshot, setSnapshot } = require('./leaderboard-cache');
 const DEFAULT_PAGE_SIZE = 100;
 const MAX_PAGE_SIZE = 200;
+
+const toNumber = (value) => {
+  if (typeof value === 'number') return value;
+  const parsed = parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
@@ -53,10 +60,40 @@ module.exports = async (req, res) => {
     let nextRankTargetRank = null;
 
     if (clerkUserId) {
-      const index = allLeaderboardUsers.findIndex(
+      let index = allLeaderboardUsers.findIndex(
         (user) => user.userId === clerkUserId
       );
-      if (index !== -1) {
+
+      // If user is not in premium list, compute their rank anyway (free users can see their rank)
+      if (index === -1 && process.env.CLERK_SECRET_KEY) {
+        try {
+          const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+          const currentClerkUser = await clerk.users.getUser(clerkUserId);
+          const currentUserHours = toNumber(currentClerkUser?.publicMetadata?.totalFocusHours);
+
+          // Build combined list: premium users + current user, sort by totalFocusHours desc
+          const combined = [
+            ...allLeaderboardUsers.map((u) => ({ userId: u.userId, totalFocusHours: u.totalFocusHours })),
+            { userId: clerkUserId, totalFocusHours: currentUserHours },
+          ].sort((a, b) => b.totalFocusHours - a.totalFocusHours);
+
+          const combinedIndex = combined.findIndex((u) => u.userId === clerkUserId);
+          if (combinedIndex !== -1) {
+            currentUserPosition = combinedIndex + 1;
+            if (combinedIndex > 0) {
+              const nextUser = combined[combinedIndex - 1];
+              const gapHours = nextUser.totalFocusHours - currentUserHours;
+              const gapMinutes = Math.ceil(gapHours * 60);
+              if (gapMinutes > 0) {
+                nextRankGapMinutes = gapMinutes;
+                nextRankTargetRank = combinedIndex;
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Leaderboard: could not get current user rank for free user', err.message);
+        }
+      } else if (index !== -1) {
         currentUserPosition = index + 1;
 
         if (index > 0) {
