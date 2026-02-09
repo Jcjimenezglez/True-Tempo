@@ -18630,6 +18630,7 @@ class PomodoroTimer {
             this.refreshRecoverDeletedCassettesButton();
             return;
         }
+        const isPremium = this.isPremiumUser();
 
         const overlay = document.createElement('div');
         overlay.className = 'focus-stats-overlay';
@@ -18654,9 +18655,16 @@ class PomodoroTimer {
                         <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.title || 'Untitled cassette')}</div>
                         <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.description || 'Custom focus environment')}</div>
                     </div>
-                    <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px;">
-                        Recover
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                        <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px;">
+                            Recover
+                        </button>
+                        ${isPremium ? `
+                            <button class="logout-modal-btn delete-forever-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; padding: 7px 12px; font-size: 13px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35);">
+                                Delete forever
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
             `;
         }).join('');
@@ -18696,6 +18704,24 @@ class PomodoroTimer {
                 close();
             });
         });
+
+        modal.querySelectorAll('.delete-forever-cassette-btn').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const cassetteId = btn.getAttribute('data-cassette-id');
+                this.permanentlyDeleteDeletedCassette(cassetteId);
+                close();
+            });
+        });
+    }
+
+    permanentlyDeleteDeletedCassette(cassetteId) {
+        const deletedCassettes = this.getDeletedCassettesTrash();
+        const updatedDeleted = deletedCassettes.filter((cassette) => cassette.id !== cassetteId);
+        this.saveDeletedCassettesTrash(updatedDeleted);
+        this.refreshRecoverDeletedCassettesButton();
+        this.showResourceShareToast('Cassette deleted forever');
     }
 
     async restoreDeletedCassette(cassetteId) {
