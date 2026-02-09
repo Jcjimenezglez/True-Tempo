@@ -18627,17 +18627,27 @@ class PomodoroTimer {
         modal.className = 'logout-modal';
         modal.style.cssText = 'max-width: 520px; padding: 32px; position: relative;';
 
-        const deletedRows = deletedCassettes.map((cassette) => `
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.04);">
-                <div style="min-width: 0;">
-                    <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.title || 'Untitled cassette')}</div>
-                    <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.description || 'Custom focus environment')}</div>
+        const deletedRows = deletedCassettes.map((cassette) => {
+            const escapedImageUrl = cassette.imageUrl
+                ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"')
+                : '';
+            const previewStyle = cassette.imageUrl
+                ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
+                : 'background: #0a0a0a;';
+
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.04);">
+                    <div style="width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0; ${previewStyle}"></div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.title || 'Untitled cassette')}</div>
+                        <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.description || 'Custom focus environment')}</div>
+                    </div>
+                    <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px;">
+                        Recover
+                    </button>
                 </div>
-                <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="padding: 7px 12px; font-size: 12px;">
-                    Recover
-                </button>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         modal.innerHTML = `
             <button class="close-modal-x" id="closeRecoverCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
