@@ -23126,6 +23126,9 @@ function initStudyCoachChat() {
     const gateEl = document.getElementById('coachChatGate');
     const upgradeBtn = document.getElementById('coachUpgradeBtn');
     const signupBtn = document.getElementById('coachSignupBtn');
+    const gateTitleEl = document.getElementById('coachGateTitle');
+    const gateSubtitleEl = document.getElementById('coachGateSubtitle');
+    const dailyLimitNoticeEl = document.getElementById('coachDailyLimitInlineNotice');
 
     if (!messagesEl || !inputEl || !sendBtn) {
         return;
@@ -23138,6 +23141,8 @@ function initStudyCoachChat() {
 
     const MAX_TRACKED_MESSAGE_LENGTH = 1000;
     const MIN_HELPFUL_REPLY_LENGTH = 50;
+    const FREE_DAILY_QUESTION_LIMIT = 1;
+    const FREE_DAILY_USAGE_KEY = 'studyTutorFreeDailyUsage';
 
     function createConversationId() {
         return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -23164,6 +23169,56 @@ function initStudyCoachChat() {
         const timer = window.pomodoroTimer;
         if (!timer?.isAuthenticated) return 'guest';
         return timer.isPremiumUser?.() ? 'pro' : 'free';
+    }
+
+    function getLocalDateKey() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function getFreeDailyUsage() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(FREE_DAILY_USAGE_KEY) || '{}');
+            return {
+                date: parsed.date || '',
+                count: Number(parsed.count) || 0
+            };
+        } catch (_) {
+            return { date: '', count: 0 };
+        }
+    }
+
+    function getFreeQuestionsUsedToday() {
+        const usage = getFreeDailyUsage();
+        const todayKey = getLocalDateKey();
+        return usage.date === todayKey ? usage.count : 0;
+    }
+
+    function hasReachedFreeDailyQuestionLimit() {
+        return getFreeQuestionsUsedToday() >= FREE_DAILY_QUESTION_LIMIT;
+    }
+
+    function consumeFreeDailyQuestionUse() {
+        const todayKey = getLocalDateKey();
+        const currentCount = getFreeQuestionsUsedToday();
+        const nextCount = currentCount + 1;
+        localStorage.setItem(FREE_DAILY_USAGE_KEY, JSON.stringify({
+            date: todayKey,
+            count: nextCount
+        }));
+    }
+
+    function updateCoachDailyLimitNotice() {
+        if (!dailyLimitNoticeEl) return;
+        const timer = window.pomodoroTimer;
+        const isAuthenticated = !!timer?.isAuthenticated;
+        const isPremium = !!timer?.isPremiumUser?.();
+        const isFreeUser = isAuthenticated && !isPremium;
+        const showNotice = isFreeUser && hasReachedFreeDailyQuestionLimit();
+        dailyLimitNoticeEl.style.display = showNotice ? 'block' : 'none';
     }
 
     function normalizeMessage(rawMessage) {
@@ -23247,26 +23302,60 @@ function initStudyCoachChat() {
         const isAuthenticated = !!timer?.isAuthenticated;
         const isPremium = !!timer?.isPremiumUser?.();
 
-        if (isPremium) {
-            if (gateEl) gateEl.style.display = 'none';
-            if (messagesEl) messagesEl.style.display = '';
-            if (inputRow) inputRow.style.display = '';
-            if (newChatBtn) newChatBtn.style.display = '';
+        if (!isAuthenticated) {
+            if (messagesEl) messagesEl.style.display = 'none';
+            if (inputRow) inputRow.style.display = 'none';
+            if (newChatBtn) newChatBtn.style.display = 'none';
+            if (dailyLimitNoticeEl) dailyLimitNoticeEl.style.display = 'none';
+            if (gateEl) gateEl.style.display = 'flex';
+            if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Study Tutor';
+            if (gateSubtitleEl) {
+                gateSubtitleEl.textContent = 'Create a free account to ask 1 AI question per day. Upgrade to Premium for unlimited study questions.';
+            }
+            if (upgradeBtn) upgradeBtn.style.display = 'none';
+            if (signupBtn) signupBtn.style.display = 'inline-flex';
             return;
         }
 
-        if (messagesEl) messagesEl.style.display = 'none';
-        if (inputRow) inputRow.style.display = 'none';
-        if (newChatBtn) newChatBtn.style.display = 'none';
-        if (gateEl) gateEl.style.display = 'flex';
-
-        if (upgradeBtn) upgradeBtn.style.display = isAuthenticated ? 'inline-flex' : 'none';
-        if (signupBtn) signupBtn.style.display = isAuthenticated ? 'none' : 'inline-flex';
+        if (gateEl) gateEl.style.display = 'none';
+        if (messagesEl) messagesEl.style.display = '';
+        if (inputRow) inputRow.style.display = '';
+        if (newChatBtn) newChatBtn.style.display = '';
+        updateCoachDailyLimitNotice();
     }
 
     async function sendMessage() {
         const content = inputEl.value.trim();
         if (!content || state.isSending) return;
+
+        const timer = window.pomodoroTimer;
+        const isAuthenticated = !!timer?.isAuthenticated;
+        const isPremium = !!timer?.isPremiumUser?.();
+
+        if (!isAuthenticated) {
+            if (timer?.handleSignup) {
+                timer.handleSignup();
+            }
+            return;
+        }
+
+        if (!isPremium && hasReachedFreeDailyQuestionLimit()) {
+            updateCoachDailyLimitNotice();
+            trackCoachEvent('Study Tutor Daily Limit Reached', {
+                limit_type: 'daily_question_limit',
+                free_questions_used_today: getFreeQuestionsUsedToday()
+            });
+            if (timer) {
+                timer.trackEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source: 'coach_panel',
+                    location: 'coach_daily_limit',
+                    user_type: 'free'
+                });
+                timer.showPricingPlansModal();
+            }
+            return;
+        }
 
         state.isSending = true;
         sendBtn.disabled = true;
@@ -23329,6 +23418,12 @@ function initStudyCoachChat() {
             lastAnswerLatencyMs = Math.round(performance.now() - requestStart);
             lastAssistantReplyAt = Date.now();
             hasFollowedUpAfterLastAnswer = false;
+
+            if (!isPremium) {
+                consumeFreeDailyQuestionUse();
+                updateCoachDailyLimitNotice();
+            }
+
             syncAnalyticsState();
             trackCoachEvent('Study Tutor Answer Received', {
                 message: normalizedReply.text,
