@@ -7,6 +7,7 @@ const { getSnapshot, setSnapshot } = require('./leaderboard-cache');
 const DEFAULT_PAGE_SIZE = 100;
 const MAX_PAGE_SIZE = 200;
 const DEFAULT_ACTIVE_DAYS = 7;
+const LEADERBOARD_RANK_BASELINE_VERSION = '2026-02-10-reset';
 
 const toNumber = (value) => {
   if (typeof value === 'number') return value;
@@ -33,10 +34,15 @@ module.exports = async (req, res) => {
   try {
     let snapshot = await getSnapshot();
 
-    if (!snapshot) {
+    const needsBaselineReset =
+      !snapshot ||
+      snapshot.rankBaselineVersion !== LEADERBOARD_RANK_BASELINE_VERSION;
+
+    if (needsBaselineReset) {
       snapshot = await buildPremiumLeaderboardSnapshot({
         previousRanks: {},
         clerkSecretKey: process.env.CLERK_SECRET_KEY,
+        rankBaselineVersion: LEADERBOARD_RANK_BASELINE_VERSION,
       });
 
       await setSnapshot(snapshot);

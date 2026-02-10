@@ -73,7 +73,7 @@ class PomodoroTimer {
             this.focusSecondsToday = 0;
 
         // Leaderboard cache to avoid unnecessary API calls (multi-page support)
-        this.LEADERBOARD_CACHE_VERSION = 'premium-v2';
+        this.LEADERBOARD_CACHE_VERSION = 'premium-v3-reset-2026-02-10';
         this.LEADERBOARD_CACHE_TTL_MS = 10 * 60 * 1000;
         this.LEADERBOARD_AUTO_REFRESH_MS = 30 * 1000;
         this.leaderboardAutoRefreshId = null;

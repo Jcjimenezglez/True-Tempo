@@ -45,7 +45,11 @@ const buildPreviousRanks = (leaderboard = []) =>
     return acc;
   }, {});
 
-const buildPremiumLeaderboardSnapshot = async ({ previousRanks = {}, clerkSecretKey }) => {
+const buildPremiumLeaderboardSnapshot = async ({
+  previousRanks = {},
+  clerkSecretKey,
+  rankBaselineVersion = null,
+}) => {
   if (!clerkSecretKey) {
     throw new Error('CLERK_SECRET_KEY not configured');
   }
@@ -101,6 +105,7 @@ const buildPremiumLeaderboardSnapshot = async ({ previousRanks = {}, clerkSecret
     updatedAt: new Date().toISOString(),
     totalUsers: sortedLeaderboard.length,
     activityWindowDays,
+    rankBaselineVersion,
     leaderboard: sortedLeaderboard,
   };
 };

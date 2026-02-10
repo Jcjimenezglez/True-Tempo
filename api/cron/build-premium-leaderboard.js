@@ -7,6 +7,7 @@ const {
   setSnapshot,
   isCacheConfigured,
 } = require('../leaderboard-cache');
+const LEADERBOARD_RANK_BASELINE_VERSION = '2026-02-10-reset';
 
 module.exports = async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -23,11 +24,17 @@ module.exports = async (req, res) => {
     }
 
     const previousSnapshot = await getSnapshot();
-    const previousRanks = buildPreviousRanks(previousSnapshot?.leaderboard || []);
+    const shouldResetBaseline =
+      !previousSnapshot ||
+      previousSnapshot.rankBaselineVersion !== LEADERBOARD_RANK_BASELINE_VERSION;
+    const previousRanks = shouldResetBaseline
+      ? {}
+      : buildPreviousRanks(previousSnapshot?.leaderboard || []);
 
     const snapshot = await buildPremiumLeaderboardSnapshot({
       previousRanks,
       clerkSecretKey: process.env.CLERK_SECRET_KEY,
+      rankBaselineVersion: LEADERBOARD_RANK_BASELINE_VERSION,
     });
 
     await setSnapshot(snapshot);
