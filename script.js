@@ -2072,6 +2072,7 @@ class PomodoroTimer {
             if (this.editingTechnique) {
                 // Update existing technique
                 this.editingTechnique.name = name;
+                this.editingTechnique.emoji = emoji;
                 this.editingTechnique.workMinutes = workMinutes;
                 this.editingTechnique.shortBreakMinutes = shortBreakMinutes;
                 this.editingTechnique.longBreakMinutes = longBreakMinutes;
@@ -2083,6 +2084,8 @@ class PomodoroTimer {
                 
                 // Update card in UI
                 this.updateCustomTechniqueCard(this.editingTechnique);
+                // Re-select edited timer so it is applied immediately
+                this.selectCustomTechnique(this.editingTechnique);
                 
                 console.log('✅ Custom technique updated:', this.editingTechnique.name);
                 
@@ -2199,12 +2202,14 @@ class PomodoroTimer {
         try {
             const card = document.querySelector(`.custom-card[data-technique-id="${technique.id}"]`);
             if (card) {
+                const iconElement = card.querySelector('.custom-card-icon');
                 const nameElement = card.querySelector('.custom-card-name');
                 const durationElement = card.querySelector('.custom-card-duration');
                 const breakElement = card.querySelector('.custom-card-break');
                 const longBreakElement = card.querySelector('.custom-card-long-break');
                 const sessionsElement = card.querySelector('.custom-card-sessions');
                 
+                if (iconElement) iconElement.textContent = technique.emoji || '🎯';
                 if (nameElement) nameElement.textContent = technique.name;
                 if (durationElement) durationElement.textContent = `${technique.workMinutes}min focus`;
                 if (breakElement) breakElement.textContent = `${technique.shortBreakMinutes}min short break`;
