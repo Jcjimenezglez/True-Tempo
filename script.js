@@ -1439,7 +1439,6 @@ class PomodoroTimer {
             
             // Load existing custom techniques from localStorage
             this.loadCustomTechniques();
-            this.refreshRecoverArchivedTimersButton();
             
             // Set up event listeners
             this.setupCustomSectionListeners();
@@ -1459,7 +1458,6 @@ class PomodoroTimer {
         console.log('🔧 Setting up basic custom listeners');
         // Create Custom button - works for all users
         const createBtn = document.getElementById('createCustomBtn');
-        const recoverArchivedTimersBtn = document.getElementById('recoverArchivedTimersBtn');
         console.log('🔧 Create button found:', !!createBtn);
         console.log('🔧 Button already has listener:', createBtn?.hasAttribute('data-listener-added'));
         
@@ -1483,33 +1481,15 @@ class PomodoroTimer {
             console.log('⚠️ Could not add listener - button not found or already has listener');
         }
 
-        if (recoverArchivedTimersBtn && !recoverArchivedTimersBtn.hasAttribute('data-listener-added')) {
-            recoverArchivedTimersBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.showRecoverArchivedTimersModal();
-            });
-            recoverArchivedTimersBtn.setAttribute('data-listener-added', 'true');
-        }
     }
     
     // Set up event listeners for Custom section
     setupCustomSectionListeners() {
         // Create Custom button
         const createBtn = document.getElementById('createCustomBtn');
-        const recoverArchivedTimersBtn = document.getElementById('recoverArchivedTimersBtn');
         if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
             createBtn.addEventListener('click', () => this.showCustomForm());
             createBtn.setAttribute('data-listener-added', 'true');
-        }
-
-        if (recoverArchivedTimersBtn && !recoverArchivedTimersBtn.hasAttribute('data-listener-added')) {
-            recoverArchivedTimersBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.showRecoverArchivedTimersModal();
-            });
-            recoverArchivedTimersBtn.setAttribute('data-listener-added', 'true');
         }
         
         // Cancel button
@@ -1599,155 +1579,13 @@ class PomodoroTimer {
         }
     }
 
-    getArchivedCustomTechniquesTrash() {
-        try {
-            const archived = JSON.parse(localStorage.getItem('archivedCustomTechniques') || '[]');
-            return Array.isArray(archived) ? archived : [];
-        } catch {
-            return [];
-        }
-    }
-
-    saveArchivedCustomTechniquesTrash(archivedTechniques) {
-        try {
-            localStorage.setItem('archivedCustomTechniques', JSON.stringify(archivedTechniques));
-        } catch (error) {
-            console.error('Error saving archived timers:', error);
-        }
-    }
-
     getFreeTimerOwnershipCount() {
         try {
-            const ownedTimerIds = new Set();
-            const activeTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
-            activeTechniques.forEach((technique) => ownedTimerIds.add(technique.id));
-            this.getArchivedCustomTechniquesTrash().forEach((technique) => ownedTimerIds.add(technique.id));
-            return ownedTimerIds.size;
+            return this.getCustomTimersCount();
         } catch (error) {
             console.error('Error calculating free timer ownership count:', error);
             return 0;
         }
-    }
-
-    refreshRecoverArchivedTimersButton() {
-        const recoverBtn = document.getElementById('recoverArchivedTimersBtn');
-        if (!recoverBtn) return;
-        recoverBtn.style.display = this.getArchivedCustomTechniquesTrash().length > 0 ? 'block' : 'none';
-    }
-
-    showRecoverArchivedTimersModal() {
-        const archivedTechniques = this.getArchivedCustomTechniquesTrash();
-        if (archivedTechniques.length === 0) {
-            this.showResourceShareToast('No archived timers to recover', true);
-            this.refreshRecoverArchivedTimersButton();
-            return;
-        }
-
-        const isPremium = this.isPremiumUser();
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
-
-        const modal = document.createElement('div');
-        modal.className = 'logout-modal';
-        modal.style.cssText = 'max-width: 520px; padding: 32px; position: relative;';
-
-        const archivedRows = archivedTechniques.map((technique) => `
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.04);">
-                <div style="width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0; background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: 22px;">${this.escapeHtml(technique.emoji || '🎯')}</div>
-                <div style="min-width: 0; flex: 1;">
-                    <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(technique.name || 'Untitled timer')}</div>
-                    <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${technique.workMinutes || 25}m focus • ${technique.shortBreakMinutes || 5}m short • ${technique.longBreakMinutes || 15}m long • ${technique.sessions || 4} sessions</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                    <button class="logout-modal-btn logout-modal-btn-secondary recover-archived-timer-btn" data-technique-id="${technique.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
-                        <span>Recover</span>
-                    </button>
-                    ${isPremium ? `
-                        <button class="logout-modal-btn delete-forever-archived-timer-btn" data-technique-id="${technique.id}" aria-label="Delete forever" title="Delete forever" style="width: auto; min-width: auto; padding: 7px 9px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; justify-content: center;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/><path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
-
-        modal.innerHTML = `
-            <button class="close-modal-x" id="closeRecoverArchivedTimerModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #fff; text-align: left;">Recover archive timers</h3>
-            <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 18px; text-align: left;">Pick one timer to restore it to your list.</p>
-            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
-                ${archivedRows}
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            try { document.body.removeChild(overlay); } catch (_) {}
-        };
-        modal.querySelector('#closeRecoverArchivedTimerModal')?.addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
-        modal.querySelectorAll('.recover-archived-timer-btn').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const techniqueId = btn.getAttribute('data-technique-id');
-                this.restoreArchivedCustomTechnique(techniqueId);
-                close();
-            });
-        });
-
-        modal.querySelectorAll('.delete-forever-archived-timer-btn').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const techniqueId = btn.getAttribute('data-technique-id');
-                this.permanentlyDeleteArchivedCustomTechnique(techniqueId);
-                close();
-            });
-        });
-    }
-
-    restoreArchivedCustomTechnique(techniqueId) {
-        const archivedTechniques = this.getArchivedCustomTechniquesTrash();
-        const techniqueToRestore = archivedTechniques.find((technique) => technique.id === techniqueId);
-        if (!techniqueToRestore) {
-            this.showResourceShareToast('Timer not found in archive list', true);
-            this.refreshRecoverArchivedTimersButton();
-            return;
-        }
-
-        const activeTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
-        if (!this.isPremiumUser() && activeTechniques.length >= 1) {
-            this.showResourceShareToast('Free users can only keep 1 timer active at a time', true);
-            return;
-        }
-
-        const updatedActive = [...activeTechniques, techniqueToRestore];
-        const updatedArchived = archivedTechniques.filter((technique) => technique.id !== techniqueId);
-        localStorage.setItem('customTechniques', JSON.stringify(updatedActive));
-        this.saveArchivedCustomTechniquesTrash(updatedArchived);
-
-        this.loadCustomTechniques();
-        this.refreshRecoverArchivedTimersButton();
-        this.syncTechniquesToServer();
-        this.showResourceShareToast('Timer recovered');
-    }
-
-    permanentlyDeleteArchivedCustomTechnique(techniqueId) {
-        const archivedTechniques = this.getArchivedCustomTechniquesTrash();
-        const updatedArchived = archivedTechniques.filter((technique) => technique.id !== techniqueId);
-        this.saveArchivedCustomTechniquesTrash(updatedArchived);
-        this.refreshRecoverArchivedTimersButton();
-        this.showResourceShareToast('Timer deleted forever');
     }
     
     // Get lifetime count of timers created (persists even after deletion)
@@ -1832,7 +1670,7 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else if (this.isAuthenticated && this.user) {
-            // Free users can own only 1 custom timer total (active or archived)
+            // Free users can have 1 custom timer and only edit it
             const ownedTimersCount = this.getFreeTimerOwnershipCount();
 
             if (ownedTimersCount >= 1) {
@@ -1843,10 +1681,10 @@ class PomodoroTimer {
                     modal_type: 'upgrade_prompt',
                     owned_timers_count: ownedTimersCount,
                     limit_reached: true,
-                    reason: 'total_timer_limit_reached'
+                    reason: 'single_timer_limit_reached'
                 });
                 
-                this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit, archive, and recover that same timer. Upgrade to Premium for unlimited timers.', ownedTimersCount);
+                this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit it, but deleting is a Premium feature. Upgrade to Premium for unlimited timers.', ownedTimersCount);
             } else {
                 // Free user can create their first timer
                 const form = document.getElementById('customForm');
@@ -2252,7 +2090,7 @@ class PomodoroTimer {
                 this.editingTechnique = null;
             } else {
                 if (!this.isPremiumUser() && this.getFreeTimerOwnershipCount() >= 1) {
-                    this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit, archive, and recover that same timer. Upgrade to Premium for unlimited timers.', 1);
+                    this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit it, but deleting is a Premium feature. Upgrade to Premium for unlimited timers.', 1);
                     return;
                 }
 
@@ -2386,7 +2224,6 @@ class PomodoroTimer {
             if (container) {
                 container.innerHTML = '';
             }
-            this.refreshRecoverArchivedTimersButton();
             
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
             const selectedTechnique = localStorage.getItem('selectedTechnique');
@@ -2461,14 +2298,17 @@ class PomodoroTimer {
                                 </svg>
                                 Edit
                             </button>
-                            <button class="cassette-option-item archive-timer-option" data-timer-id="${technique.id}">
+                            ${this.isPremiumUser() ? `
+                            <button class="cassette-option-item delete-timer-option" data-timer-id="${technique.id}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect width="20" height="5" x="2" y="3" rx="1"/>
-                                    <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
-                                    <path d="M10 12h4"/>
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <line x1="10" y1="11" x2="10" y2="17"/>
+                                    <line x1="14" y1="11" x2="14" y2="17"/>
                                 </svg>
-                                Archive
+                                Delete
                             </button>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -2508,12 +2348,12 @@ class PomodoroTimer {
                 });
             }
 
-            const archiveOption = card.querySelector(`.archive-timer-option[data-timer-id="${technique.id}"]`);
-            if (archiveOption) {
-                archiveOption.addEventListener('click', (e) => {
+            const deleteOption = card.querySelector(`.delete-timer-option[data-timer-id="${technique.id}"]`);
+            if (deleteOption) {
+                deleteOption.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    this.archiveCustomTechnique(technique.id);
+                    this.showDeleteTimerConfirmation(technique.id, technique.name);
                 });
             }
         }
@@ -2705,8 +2545,8 @@ class PomodoroTimer {
         modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         
         // Warning message differs for free vs premium
-        const warningMessage = !isPremium 
-            ? 'This action CANNOT be undone. Free users can only create 1 custom timer permanently.'
+        const warningMessage = !isPremium
+            ? 'Free users cannot delete timers. Upgrade to Premium to permanently delete.'
             : 'This action cannot be undone.';
         
         modal.innerHTML = `
@@ -2718,7 +2558,7 @@ class PomodoroTimer {
             </button>
             
             <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: white; line-height: 1.3; text-align: left;">
-                Delete Timer Permanently?
+                Delete timer?
             </h3>
             <p style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.5; text-align: left;">
                 ${warningMessage}
@@ -2751,20 +2591,13 @@ class PomodoroTimer {
     
     // Delete custom technique
     deleteCustomTechnique(techniqueId) {
-        this.archiveCustomTechnique(techniqueId);
-    }
-
-    archiveCustomTechnique(techniqueId) {
         try {
+            if (!this.isPremiumUser()) {
+                this.showResourceShareToast('Deleting timers is a Premium feature', true);
+                return;
+            }
+
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
-            const techniqueToArchive = techniques.find((technique) => technique.id === techniqueId);
-            if (!techniqueToArchive) return;
-
-            const archivedTechniques = this.getArchivedCustomTechniquesTrash();
-            const dedupedArchived = archivedTechniques.filter((technique) => technique.id !== techniqueId);
-            const updatedArchived = [techniqueToArchive, ...dedupedArchived].slice(0, 20);
-            this.saveArchivedCustomTechniquesTrash(updatedArchived);
-
             const filtered = techniques.filter((technique) => technique.id !== techniqueId);
             localStorage.setItem('customTechniques', JSON.stringify(filtered));
 
@@ -2773,12 +2606,11 @@ class PomodoroTimer {
                 card.remove();
             }
 
-            this.refreshRecoverArchivedTimersButton();
             this.syncTechniquesToServer();
-            this.showResourceShareToast('Timer moved to archive');
-            console.log('✅ Custom technique archived:', techniqueId);
+            this.showResourceShareToast('Timer deleted');
+            console.log('✅ Custom technique deleted:', techniqueId);
         } catch (error) {
-            console.error('Error archiving custom technique:', error);
+            console.error('Error deleting custom technique:', error);
         }
     }
     
@@ -18564,7 +18396,6 @@ class PomodoroTimer {
     initializeMyCassettes() {
         const createCassetteSection = document.getElementById('createCassetteSection');
         const createCassetteBtn = document.getElementById('createCassetteBtn');
-        const recoverDeletedCassettesBtn = document.getElementById('recoverDeletedCassettesBtn');
         const cancelCassetteBtn = document.getElementById('cancelCassetteBtn');
         const saveCassetteBtn = document.getElementById('saveCassetteBtn');
         
@@ -18581,7 +18412,6 @@ class PomodoroTimer {
         
         // Load and render custom cassettes (show for all users, disabled if not authenticated)
         this.loadCustomCassettes();
-        this.refreshRecoverDeletedCassettesButton();
         
         // Load and render public cassettes (for all users, with restriction for Guest)
         // Moved to openImmersiveThemePanel to ensure refresh on open
@@ -18601,16 +18431,6 @@ class PomodoroTimer {
             });
         }
 
-        if (recoverDeletedCassettesBtn) {
-            const newRecoverBtn = recoverDeletedCassettesBtn.cloneNode(true);
-            recoverDeletedCassettesBtn.parentNode.replaceChild(newRecoverBtn, recoverDeletedCassettesBtn);
-            newRecoverBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.showRecoverDeletedCassettesModal();
-            });
-        }
-        
         // Cancel button (only for Pro users who can see the form)
         if (cancelCassetteBtn) {
             cancelCassetteBtn.addEventListener('click', () => {
@@ -18718,14 +18538,12 @@ class PomodoroTimer {
         if (!customCassettesList) return;
         
         const customCassettes = this.getCustomCassettes();
-        this.refreshRecoverDeletedCassettesButton();
         
         // Filter out public vibes - only show private cassettes in "My Vibes"
         const privateCassettes = customCassettes.filter(c => !c.isPublic || c.isPublic === false);
         
         if (privateCassettes.length === 0) {
             customCassettesList.innerHTML = '';
-            this.refreshRecoverDeletedCassettesButton();
             return;
         }
         
@@ -18765,14 +18583,17 @@ class PomodoroTimer {
                                     </svg>
                                     Edit
                                 </button>
+                                ${this.isPremiumUser() ? `
                                 <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-icon lucide-archive">
-                                        <rect width="20" height="5" x="2" y="3" rx="1"/>
-                                        <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
-                                        <path d="M10 12h4"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
                                     </svg>
-                                    Archive
+                                    Delete
                                 </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -18826,8 +18647,7 @@ class PomodoroTimer {
                 deleteOption.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    this.deleteCustomCassette(cassette.id);
-                    this.showResourceShareToast('Cassette moved to deleted');
+                    this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
                 });
             }
         });
@@ -18852,206 +18672,6 @@ class PomodoroTimer {
         } catch {
             return [];
         }
-    }
-
-    getDeletedCassettesTrash() {
-        try {
-            const deleted = JSON.parse(localStorage.getItem('deletedCassettesTrash') || '[]');
-            return Array.isArray(deleted) ? deleted : [];
-        } catch {
-            return [];
-        }
-    }
-
-    saveDeletedCassettesTrash(deletedCassettes) {
-        try {
-            localStorage.setItem('deletedCassettesTrash', JSON.stringify(deletedCassettes));
-        } catch (error) {
-            console.error('Error saving deleted cassette trash:', error);
-        }
-    }
-
-    getFreeCassetteOwnershipCount() {
-        try {
-            const ownedCassetteIds = new Set();
-            this.getCustomCassettes().forEach((cassette) => ownedCassetteIds.add(cassette.id));
-            this.getDeletedCassettesTrash().forEach((cassette) => ownedCassetteIds.add(cassette.id));
-            return ownedCassetteIds.size;
-        } catch (error) {
-            console.error('Error calculating free cassette ownership count:', error);
-            return 0;
-        }
-    }
-
-    refreshRecoverDeletedCassettesButton() {
-        const recoverBtn = document.getElementById('recoverDeletedCassettesBtn');
-        if (!recoverBtn) return;
-        recoverBtn.style.display = this.getDeletedCassettesTrash().length > 0 ? 'block' : 'none';
-    }
-
-    showRecoverDeletedCassettesModal() {
-        const deletedCassettes = this.getDeletedCassettesTrash();
-        if (deletedCassettes.length === 0) {
-            this.showResourceShareToast('No deleted cassettes to recover', true);
-            this.refreshRecoverDeletedCassettesButton();
-            return;
-        }
-        const isPremium = this.isPremiumUser();
-
-        const overlay = document.createElement('div');
-        overlay.className = 'focus-stats-overlay';
-        overlay.style.display = 'flex';
-
-        const modal = document.createElement('div');
-        modal.className = 'logout-modal';
-        modal.style.cssText = 'max-width: 520px; padding: 32px; position: relative;';
-
-        const deletedRows = deletedCassettes.map((cassette) => {
-            const escapedImageUrl = cassette.imageUrl
-                ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"')
-                : '';
-            const previewStyle = cassette.imageUrl
-                ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
-                : 'background: #0a0a0a;';
-
-            return `
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.04);">
-                    <div style="width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0; ${previewStyle}"></div>
-                    <div style="min-width: 0; flex: 1;">
-                        <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.title || 'Untitled cassette')}</div>
-                        <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.description || 'Custom focus environment')}</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                        <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
-                            <span>Recover</span>
-                        </button>
-                        ${isPremium ? `
-                            <button class="logout-modal-btn delete-forever-cassette-btn" data-cassette-id="${cassette.id}" aria-label="Delete forever" title="Delete forever" style="width: auto; min-width: auto; padding: 7px 9px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; justify-content: center;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18"/>
-                                    <path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/>
-                                    <path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/>
-                                    <path d="M10 11v6"/>
-                                    <path d="M14 11v6"/>
-                                </svg>
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        modal.innerHTML = `
-            <button class="close-modal-x" id="closeRecoverCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #fff; text-align: left;">Recover archive cassettes</h3>
-            <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 18px; text-align: left;">Pick one cassette to restore it to your list.</p>
-            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
-                ${deletedRows}
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => {
-            try { document.body.removeChild(overlay); } catch (_) {}
-        };
-
-        modal.querySelector('#closeRecoverCassetteModal')?.addEventListener('click', close);
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) close();
-        });
-
-        modal.querySelectorAll('.recover-cassette-btn').forEach((btn) => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const cassetteId = btn.getAttribute('data-cassette-id');
-                await this.restoreDeletedCassette(cassetteId);
-                close();
-            });
-        });
-
-        modal.querySelectorAll('.delete-forever-cassette-btn').forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const cassetteId = btn.getAttribute('data-cassette-id');
-                this.permanentlyDeleteDeletedCassette(cassetteId);
-                close();
-            });
-        });
-    }
-
-    permanentlyDeleteDeletedCassette(cassetteId) {
-        const deletedCassettes = this.getDeletedCassettesTrash();
-        const updatedDeleted = deletedCassettes.filter((cassette) => cassette.id !== cassetteId);
-        this.saveDeletedCassettesTrash(updatedDeleted);
-        this.refreshRecoverDeletedCassettesButton();
-        this.showResourceShareToast('Cassette deleted forever');
-    }
-
-    async restoreDeletedCassette(cassetteId) {
-        const deletedCassettes = this.getDeletedCassettesTrash();
-        const cassetteToRestore = deletedCassettes.find((cassette) => cassette.id === cassetteId);
-        if (!cassetteToRestore) {
-            this.showResourceShareToast('Cassette not found in deleted list', true);
-            this.refreshRecoverDeletedCassettesButton();
-            return;
-        }
-
-        const activeCassettes = this.getCustomCassettes();
-        if (!this.isPremiumUser() && activeCassettes.length >= 1) {
-            this.showResourceShareToast('Free users can only keep 1 cassette active at a time', true);
-            return;
-        }
-
-        const updatedCassettes = [...activeCassettes, cassetteToRestore];
-        const updatedDeleted = deletedCassettes.filter((cassette) => cassette.id !== cassetteId);
-        localStorage.setItem('customCassettes', JSON.stringify(updatedCassettes));
-        this.saveDeletedCassettesTrash(updatedDeleted);
-
-        this.loadCustomCassettes();
-        this.refreshRecoverDeletedCassettesButton();
-        this.loadPublicCassettes(true).catch((err) => {
-            console.error('Error reloading public vibes after cassette restore:', err);
-        });
-
-        if (this.isAuthenticated && this.user?.id) {
-            const stats = this.getFocusStats();
-            fetch('/api/sync-cassettes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-clerk-userid': this.user.id
-                },
-                body: JSON.stringify({ cassettes: updatedCassettes })
-            }).catch((err) => {
-                console.error('Error syncing cassettes after restore:', err);
-            });
-
-            fetch('/api/sync-stats', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-clerk-userid': this.user.id
-                },
-                body: JSON.stringify({
-                    totalHours: stats?.totalHours || 0,
-                    customCassettes: updatedCassettes
-                })
-            }).catch((err) => {
-                console.error('Error syncing cassette backup after restore:', err);
-            });
-        }
-
-        this.showResourceShareToast('Cassette recovered');
     }
 
     async loadPublicCassettesFromAPI(forceRefresh = false) {
@@ -19497,14 +19117,17 @@ class PomodoroTimer {
                                     </svg>
                                     Edit
                                 </button>
+                                ${this.isPremiumUser() ? `
                                 <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-icon lucide-archive">
-                                        <rect width="20" height="5" x="2" y="3" rx="1"/>
-                                        <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
-                                        <path d="M10 12h4"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                        <line x1="14" y1="11" x2="14" y2="17"/>
                                     </svg>
-                                    Archive
+                                    Delete
                                 </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -19565,8 +19188,7 @@ class PomodoroTimer {
                     deleteOption.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (optionsDropdown) optionsDropdown.style.display = 'none';
-                        this.deleteCustomCassette(cassette.id);
-                        this.showResourceShareToast('Cassette moved to deleted');
+                        this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
                     });
                 }
             }
@@ -19778,12 +19400,12 @@ class PomodoroTimer {
                 currentCassettes: cassettes.map(c => ({ id: c.id, title: c.title }))
             });
             
-            // Free users can only own 1 cassette total (active or deleted)
+            // Free users can only keep 1 cassette and edit it
             if (isNewCassette && !this.isPremiumUser()) {
-                const ownedCassettesCount = this.getFreeCassetteOwnershipCount();
-                if (ownedCassettesCount >= 1) {
-                    alert('Free users can create only 1 cassette. You can edit, delete, and recover that same cassette, or upgrade to Premium for unlimited cassettes.');
-                    throw new Error('Total cassette limit reached for free users');
+                const activeCassettesCount = this.getCustomCassettes().length;
+                if (activeCassettesCount >= 1) {
+                    alert('Free users can only have 1 cassette. You can edit it, but deleting is a Premium feature.');
+                    throw new Error('Single cassette limit reached for free users');
                 }
             }
             
@@ -19865,8 +19487,8 @@ class PomodoroTimer {
         
         // Warning message differs for free vs premium
         const warningMessage = !isPremium
-            ? 'You can recover this cassette later from "Recover deleted cassettes".'
-            : 'You can recover this cassette later from "Recover deleted cassettes".';
+            ? 'Free users cannot delete cassettes. Upgrade to Premium to permanently delete.'
+            : 'This action cannot be undone.';
         
         modal.innerHTML = `
             <button class="close-modal-x" id="closeDeleteCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
@@ -19910,15 +19532,12 @@ class PomodoroTimer {
 
     async deleteCustomCassette(cassetteId) {
         try {
-            const cassettes = this.getCustomCassettes();
-            const cassetteToDelete = cassettes.find(c => c.id === cassetteId);
-            if (cassetteToDelete) {
-                const deletedCassettes = this.getDeletedCassettesTrash();
-                const dedupedDeleted = deletedCassettes.filter(c => c.id !== cassetteId);
-                const updatedDeleted = [cassetteToDelete, ...dedupedDeleted].slice(0, 20);
-                this.saveDeletedCassettesTrash(updatedDeleted);
+            if (!this.isPremiumUser()) {
+                this.showResourceShareToast('Deleting cassettes is a Premium feature', true);
+                return;
             }
 
+            const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
             localStorage.setItem('customCassettes', JSON.stringify(filtered));
             
@@ -19985,7 +19604,6 @@ class PomodoroTimer {
             
             // Reload custom vibes (synchronous)
             this.loadCustomCassettes();
-            this.refreshRecoverDeletedCassettesButton();
             
             // Reload public vibes in background - the cassette is already removed from DOM and cache
             // so even if API still returns it, the cache update will handle it correctly
@@ -20411,24 +20029,24 @@ class PomodoroTimer {
             return;
         }
         
-        // Free users can own only 1 cassette total (active or deleted), Premium users unlimited
+        // Free users can keep 1 cassette and edit it, Premium users unlimited
         if (!this.isPremiumUser() && !cassetteId) {
-            const ownedCassetteCount = this.getFreeCassetteOwnershipCount();
+            const activeCassetteCount = this.getCustomCassettes().length;
 
-            if (ownedCassetteCount >= 1) {
+            if (activeCassetteCount >= 1) {
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_cassettes',
                     source: 'create_cassette_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    owned_cassettes_count: ownedCassetteCount,
-                    reason: 'total_cassette_limit_reached'
+                    active_cassettes_count: activeCassetteCount,
+                    reason: 'single_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('Free users can create only 1 custom cassette. You can edit, delete, and recover that same cassette. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('Free users can create only 1 custom cassette. You can edit it, but deleting is a Premium feature. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
                 return;
             }
-            // Free user has no owned cassette yet - continue to form
+            // Free user has no active cassette yet - continue to form
         }
         
         // Pro users can create cassettes
@@ -20903,14 +20521,17 @@ class PomodoroTimer {
                                                     </svg>
                                                     Edit
                                                 </button>
+                                                ${this.isPremiumUser() ? `
                                                 <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-icon lucide-archive">
-                                                        <rect width="20" height="5" x="2" y="3" rx="1"/>
-                                                        <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
-                                                        <path d="M10 12h4"/>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"/>
+                                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                        <line x1="10" y1="11" x2="10" y2="17"/>
+                                                        <line x1="14" y1="11" x2="14" y2="17"/>
                                                     </svg>
-                                                    Archive
+                                                    Delete
                                                 </button>
+                                                ` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -20962,8 +20583,7 @@ class PomodoroTimer {
                                     deleteOption.addEventListener('click', (e) => {
                                         e.stopPropagation();
                                         if (optionsDropdown) optionsDropdown.style.display = 'none';
-                                        this.deleteCustomCassette(cassette.id);
-                                        this.showResourceShareToast('Cassette moved to deleted');
+                                        this.showDeleteCassetteConfirmation(cassette.id, cassette.title);
                                     });
                                 }
                             }
