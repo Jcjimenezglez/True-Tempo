@@ -1,9 +1,12 @@
-// API endpoint to get premium-only leaderboard snapshot
+// API endpoint to get leaderboard snapshot:
+// - Free users active in last N days
+// - Premium users always included
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const { buildPremiumLeaderboardSnapshot } = require('./leaderboard-premium-service');
 const { getSnapshot, setSnapshot } = require('./leaderboard-cache');
 const DEFAULT_PAGE_SIZE = 100;
 const MAX_PAGE_SIZE = 200;
+const DEFAULT_ACTIVE_DAYS = 7;
 
 const toNumber = (value) => {
   if (typeof value === 'number') return value;
@@ -39,10 +42,9 @@ module.exports = async (req, res) => {
       await setSnapshot(snapshot);
     }
 
-    const allLeaderboardUsers = (snapshot.leaderboard || []).filter(
-      (user) => user.isPremium === true
-    );
-    const totalUsers = allLeaderboardUsers.length;
+    const allLeaderboardUsers = snapshot.leaderboard || [];
+    const totalUsers = snapshot.totalUsers ?? allLeaderboardUsers.length;
+    const activityWindowDays = snapshot.activityWindowDays || DEFAULT_ACTIVE_DAYS;
     const totalPages = totalUsers > 0 ? Math.ceil(totalUsers / itemsPerPage) : 1;
     const safePage = totalPages > 0 ? Math.max(1, Math.min(page, totalPages)) : 1;
     const startIndex = (safePage - 1) * itemsPerPage;
@@ -64,14 +66,14 @@ module.exports = async (req, res) => {
         (user) => user.userId === clerkUserId
       );
 
-      // If user is not in premium list, compute their rank anyway (free users can see their rank)
+      // If user is not in the filtered list, compute their projected rank anyway.
       if (index === -1 && process.env.CLERK_SECRET_KEY) {
         try {
           const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
           const currentClerkUser = await clerk.users.getUser(clerkUserId);
           const currentUserHours = toNumber(currentClerkUser?.publicMetadata?.totalFocusHours);
 
-          // Build combined list: premium users + current user, sort by totalFocusHours desc
+          // Build combined list: displayed users + current user, sort by totalFocusHours desc
           const combined = [
             ...allLeaderboardUsers.map((u) => ({ userId: u.userId, totalFocusHours: u.totalFocusHours })),
             { userId: clerkUserId, totalFocusHours: currentUserHours },
@@ -121,6 +123,7 @@ module.exports = async (req, res) => {
       totalPages,
       hasMore: safePage < totalPages,
       pageSize: itemsPerPage,
+      activityWindowDays,
       updatedAt: snapshot.updatedAt || null,
     });
   } catch (error) {

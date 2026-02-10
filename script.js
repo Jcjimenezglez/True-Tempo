@@ -3738,7 +3738,8 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore
+                        hasMore: data.hasMore,
+                        activityWindowDays: data.activityWindowDays || 7
                     },
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -3769,7 +3770,8 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore
+                        hasMore: data.hasMore,
+                        activityWindowDays: data.activityWindowDays || 7
                     },
                     {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -3817,38 +3819,32 @@ class PomodoroTimer {
         }
 
         let html = '';
-        const isPremiumUser = this.isPremiumUser ? this.isPremiumUser() : false;
+        const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
+        const activityWindowDays = pagination?.activityWindowDays || 7;
+        const scopeLine = `${totalUsersText} users active in the last ${activityWindowDays} days`;
 
-        // Header with user position (Premium: full card; Free: rank + CTA to appear on list)
-        if (isPremiumUser && currentUserPosition) {
-            const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
+        if (currentUserPosition) {
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} premium users</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
                 </div>
             `;
-        } else if (!isPremiumUser) {
-            const rankLine = currentUserPosition
-                ? `<div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div><div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString}</div>`
-                : '';
-            const ctaLine = currentUserPosition
-                ? 'Want to appear on the list? Upgrade to Premium.'
-                : 'Upgrade to Premium to see your ranking.';
+        } else {
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your rank would be</div>
-                    ${rankLine}
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 8px; margin-bottom: 12px;">${ctaLine}</div>
-                    <button id="leaderboardModalUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Leaderboard Scope</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                 </div>
             `;
         }
 
         // Leaderboard list
-        const topUsers = leaderboard.filter((user) => user.isPremium === true);
+        const topUsers = leaderboard;
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
         const pageSize = pagination?.pageSize || 100;
@@ -3857,7 +3853,7 @@ class PomodoroTimer {
         if (topUsers.length === 0) {
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    No Premium users yet. Be the first!
+                    No users in the leaderboard yet.
                 </div>
             `;
         } else {
@@ -3990,18 +3986,6 @@ class PomodoroTimer {
         }
 
         containerElement.innerHTML = html;
-
-        const upgradeBtn = containerElement.querySelector('#leaderboardModalUpgradeBtn');
-        if (upgradeBtn) {
-            upgradeBtn.addEventListener('click', () => {
-                this.trackEvent('Subscribe Clicked', {
-                    source: 'leaderboard_modal',
-                    location: 'leaderboard_modal',
-                    button_text: 'Unlock Unlimited'
-                });
-                this.showPricingPlansModal();
-            });
-        }
 
         // Add event listeners for pagination buttons
         if (pagination && totalPages > 1) {
@@ -14422,7 +14406,8 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore
+                        hasMore: data.hasMore,
+                        activityWindowDays: data.activityWindowDays || 7
                     },
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -14453,7 +14438,8 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore
+                        hasMore: data.hasMore,
+                        activityWindowDays: data.activityWindowDays || 7
                     },
                     {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -14501,38 +14487,32 @@ class PomodoroTimer {
         }
 
         let html = '';
-        const isPremiumUser = this.isPremiumUser ? this.isPremiumUser() : false;
+        const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
+        const activityWindowDays = pagination?.activityWindowDays || 7;
+        const scopeLine = `${totalUsersText} users active in the last ${activityWindowDays} days`;
 
-        // Header with user position (Premium: full card; Free: rank + CTA to appear on list)
-        if (isPremiumUser && currentUserPosition) {
-            const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
+        if (currentUserPosition) {
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${totalUsersText} premium users</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
                 </div>
             `;
-        } else if (!isPremiumUser) {
-            const rankLine = currentUserPosition
-                ? `<div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div><div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString}</div>`
-                : '';
-            const ctaLine = currentUserPosition
-                ? 'Want to appear on the list? Upgrade to Premium.'
-                : 'Upgrade to Premium to see your ranking.';
+        } else {
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Your rank would be</div>
-                    ${rankLine}
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 8px; margin-bottom: 12px;">${ctaLine}</div>
-                    <button id="leaderboardPanelUpgradeBtn" style="background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;">Unlock Unlimited</button>
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Leaderboard Scope</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                 </div>
             `;
         }
 
         // Leaderboard list
-        const topUsers = leaderboard.filter((user) => user.isPremium === true);
+        const topUsers = leaderboard;
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
         const pageSize = pagination?.pageSize || 100;
@@ -14541,7 +14521,7 @@ class PomodoroTimer {
         if (topUsers.length === 0) {
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    No Premium users yet. Be the first!
+                    No users in the leaderboard yet.
                 </div>
             `;
         } else {
@@ -14674,18 +14654,6 @@ class PomodoroTimer {
         }
 
         containerElement.innerHTML = html;
-
-        const upgradeBtn = containerElement.querySelector('#leaderboardPanelUpgradeBtn');
-        if (upgradeBtn) {
-            upgradeBtn.addEventListener('click', () => {
-                this.trackEvent('Subscribe Clicked', {
-                    source: 'leaderboard_panel',
-                    location: 'leaderboard_panel',
-                    button_text: 'Unlock Unlimited'
-                });
-                this.showPricingPlansModal();
-            });
-        }
 
         // Add event listeners for pagination buttons
         if (pagination && totalPages > 1) {

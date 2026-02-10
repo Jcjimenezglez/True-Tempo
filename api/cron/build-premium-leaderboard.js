@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
       updatedAt: snapshot.updatedAt,
     });
   } catch (error) {
-    console.error('Error building premium leaderboard snapshot:', error);
+    console.error('Error building leaderboard snapshot:', error);
     return res.status(500).json({ error: error.message });
   }
 };
