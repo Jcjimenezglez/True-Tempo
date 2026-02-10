@@ -7294,6 +7294,7 @@ class PomodoroTimer {
 
         this.leaderboardRefreshBtn.disabled = true;
         this.leaderboardRefreshBtn.setAttribute('aria-busy', 'true');
+        let unlockDelayMs = 0;
 
         try {
             const userId = this.user?.id || window.Clerk?.user?.id || '';
@@ -7321,10 +7322,14 @@ class PomodoroTimer {
             }
 
             this.showResourceShareToast('Leaderboard updated');
+            unlockDelayMs = 800;
         } catch (error) {
             console.error('Leaderboard refresh failed:', error);
             this.showResourceShareToast('Could not refresh leaderboard', true);
         } finally {
+            if (unlockDelayMs > 0) {
+                await new Promise(resolve => setTimeout(resolve, unlockDelayMs));
+            }
             this.leaderboardRefreshBtn.disabled = false;
             this.leaderboardRefreshBtn.setAttribute('aria-busy', 'false');
         }
