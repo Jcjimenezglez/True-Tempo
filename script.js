@@ -79,6 +79,7 @@ class PomodoroTimer {
         this.leaderboardAutoRefreshId = null;
         this.leaderboardCurrentPage = 1;
         this.leaderboardModalCurrentPage = 1;
+        this.isLeaderboardRefreshInProgress = false;
 
         // Load from localStorage if exists
         try {
@@ -7236,7 +7237,7 @@ class PomodoroTimer {
             if (integrationsSection) integrationsSection.style.display = 'block';
             if (leaderboardRefreshBtn) {
                 leaderboardRefreshBtn.style.display = hasRefreshAccess ? 'inline-flex' : 'none';
-                leaderboardRefreshBtn.disabled = !hasRefreshAccess;
+                leaderboardRefreshBtn.disabled = !hasRefreshAccess || this.isLeaderboardRefreshInProgress;
             }
             
             // Settings dropdown elements
@@ -7254,7 +7255,7 @@ class PomodoroTimer {
             if (integrationsSection) integrationsSection.style.display = 'none';
             if (leaderboardRefreshBtn) {
                 leaderboardRefreshBtn.style.display = hasRefreshAccess ? 'inline-flex' : 'none';
-                leaderboardRefreshBtn.disabled = !hasRefreshAccess;
+                leaderboardRefreshBtn.disabled = !hasRefreshAccess || this.isLeaderboardRefreshInProgress;
             }
             
             // Settings dropdown elements
@@ -7292,6 +7293,7 @@ class PomodoroTimer {
             return;
         }
 
+        this.isLeaderboardRefreshInProgress = true;
         this.leaderboardRefreshBtn.disabled = true;
         this.leaderboardRefreshBtn.setAttribute('aria-busy', 'true');
         let unlockDelayMs = 0;
@@ -7330,6 +7332,7 @@ class PomodoroTimer {
             if (unlockDelayMs > 0) {
                 await new Promise(resolve => setTimeout(resolve, unlockDelayMs));
             }
+            this.isLeaderboardRefreshInProgress = false;
             this.leaderboardRefreshBtn.disabled = false;
             this.leaderboardRefreshBtn.setAttribute('aria-busy', 'false');
         }
