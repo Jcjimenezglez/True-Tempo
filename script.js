@@ -18660,8 +18660,14 @@ class PomodoroTimer {
                             Recover
                         </button>
                         ${isPremium ? `
-                            <button class="logout-modal-btn delete-forever-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; padding: 7px 12px; font-size: 13px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35);">
-                                Delete forever
+                            <button class="logout-modal-btn delete-forever-cassette-btn" data-cassette-id="${cassette.id}" aria-label="Delete forever" title="Delete forever" style="width: auto; min-width: auto; padding: 7px 9px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; justify-content: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"/>
+                                    <path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/>
+                                    <path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/>
+                                    <path d="M10 11v6"/>
+                                    <path d="M14 11v6"/>
+                                </svg>
                             </button>
                         ` : ''}
                     </div>
