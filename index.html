@@ -482,7 +482,7 @@
                         <circle cx="16" cy="15" r="2"/>
                     </svg>
                 </div>
-                <div class="nav-item" data-section="coach" data-tooltip="Study Buddy">
+                <div class="nav-item" data-section="coach" data-tooltip="Focus Chat">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
                     </svg>
@@ -667,7 +667,7 @@
         <div class="task-side-panel-content">
             <div class="tasks-header">
                 <h3>Tasks</h3>
-                <p class="tasks-subtitle">Never miss an assignment</p>
+                <p class="tasks-subtitle">Track your tasks and get things done</p>
             </div>
             
             <!-- Task Tabs -->
@@ -766,7 +766,7 @@
         <div class="task-side-panel-content">
             <div class="tasks-header">
                 <h3>Timers</h3>
-                <p class="tasks-subtitle">Build momentum, not burnout</p>
+                <p class="tasks-subtitle">Focus sessions and breaks</p>
             </div>
             
             <!-- Scrollable Content Panel -->
@@ -998,7 +998,7 @@
         <div class="task-side-panel-content">
             <div class="tasks-header">
                 <h3>Cassettes</h3>
-                <p class="tasks-subtitle">Find your study vibe</p>
+                <p class="tasks-subtitle">Ambient sounds and focus environments</p>
             </div>
             
             <!-- Search Box -->
@@ -1128,7 +1128,7 @@
                         </svg>
                     </button>
                 </div>
-                <p class="tasks-subtitle">Join the students who turn focus into results</p>
+                <p class="tasks-subtitle">See how you rank and stay motivated</p>
             </div>
             
             <div class="leaderboard-content" id="leaderboardContent">
@@ -1184,13 +1184,13 @@
         <div class="task-side-panel-content">
             <div class="tasks-header">
                 <h3>Productivity Resources</h3>
-                <p class="tasks-subtitle">Free content to level up your focus & study game</p>
+                <p class="tasks-subtitle">Free content to level up your focus</p>
             </div>
             
             <div class="resources-list">
                 <!-- YouTube Videos Category -->
                 <div class="resource-category">
-                    <div class="resource-category-title">📺 Study & Focus Videos</div>
+                    <div class="resource-category-title">📺 Focus & Productivity Videos</div>
                 </div>
                 
                 <a href="https://youtu.be/dsS2wg2Y39c?si=cSsZlO9jhcWd3QSk" target="_blank" rel="noopener noreferrer" class="resource-item">
@@ -1586,7 +1586,7 @@
         <div class="task-side-panel-content">
             <div class="tasks-header">
                 <h3>Report</h3>
-                <p class="tasks-subtitle">Proof you showed up</p>
+                <p class="tasks-subtitle">Your focus stats and progress</p>
             </div>
             
             <div class="report-content" id="reportContent">
@@ -1601,8 +1601,8 @@
     <div class="task-panel-overlay" id="reportPanelOverlay"></div>
 
     <!-- Study Coach Side Panel -->
-    <div class="task-side-panel" id="coachSidePanel" aria-label="Study Buddy">
-        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Study Buddy Panel" title="Close Study Buddy">
+    <div class="task-side-panel" id="coachSidePanel" aria-label="Focus Chat">
+        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Focus Chat Panel" title="Close Focus Chat">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="m15 18-6-6 6-6"/>
             </svg>
@@ -1611,10 +1611,10 @@
             <div class="tasks-header coach-header">
                 <div class="coach-header-text">
                     <div class="coach-title-row">
-                        <h3>Study Buddy</h3>
+                        <h3>Focus Chat</h3>
                         <span class="coach-beta-badge" aria-label="Beta feature">Beta</span>
                     </div>
-                    <p class="tasks-subtitle">What are you studying?</p>
+                    <p class="tasks-subtitle">Ask questions and get focus tips</p>
                 </div>
                 <button class="coach-new-chat-btn" id="coachNewChatBtn" type="button" aria-label="Start a new chat" title="New chat">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1632,14 +1632,14 @@
                     </div>
                     <div class="coach-gate-card">
                         <div class="coach-gate-text">
-                            <div class="coach-gate-title" id="coachGateTitle">Sign up to try Study Buddy</div>
-                            <div class="coach-gate-subtitle" id="coachGateSubtitle">Create a free account to ask 3 AI questions per day. Upgrade to Premium for unlimited study questions.</div>
+                            <div class="coach-gate-title" id="coachGateTitle">Sign up to try Focus Chat</div>
+                            <div class="coach-gate-subtitle" id="coachGateSubtitle">Create a free account to ask 3 chat questions per day. Upgrade to Premium for unlimited questions.</div>
                         </div>
                         <button class="coach-upgrade-btn" id="coachUpgradeBtn" type="button">Unlock Unlimited</button>
                         <button class="coach-signup-btn" id="coachSignupBtn" type="button">Sign up for free</button>
                     </div>
                 </div>
-                <p id="coachDailyLimitInlineNotice" style="display: none; margin: 0 2px 10px; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your daily limit of 3 AI questions. Upgrade to Premium for unlimited study questions.</p>
+                <p id="coachDailyLimitInlineNotice" style="display: none; margin: 0 2px 10px; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your daily limit of 3 chat questions. Upgrade to Premium for unlimited questions.</p>
                 <div class="coach-chat-input" id="coachChatInputRow">
                     <textarea id="coachChatInput" rows="1" placeholder="Ask a study question..." aria-label="Chat message"></textarea>
                     <button class="coach-chat-send" id="coachChatSend" type="button" aria-label="Send message">
@@ -2114,13 +2114,13 @@
             <div style="padding: 24px;">
                 <div class="tasks-header" style="margin-bottom: 24px;">
                     <h3>Productivity Resources</h3>
-                    <p class="tasks-subtitle" style="text-align: left;">Free content to level up your focus & study game</p>
+                    <p class="tasks-subtitle" style="text-align: left;">Free content to level up your focus</p>
                 </div>
                 
                 <div class="resources-list">
                     <!-- YouTube Videos Category -->
                     <div class="resource-category">
-                        <div class="resource-category-title">📺 Study & Focus Videos</div>
+                        <div class="resource-category-title">📺 Focus & Productivity Videos</div>
                     </div>
                     
                     <a href="https://youtu.be/dsS2wg2Y39c?si=cSsZlO9jhcWd3QSk" target="_blank" rel="noopener noreferrer" class="resource-item">
@@ -2518,7 +2518,7 @@
             <div style="padding: 24px;">
                 <div class="tasks-header" style="margin-bottom: 24px;">
                     <h3>Leaderboard</h3>
-                    <p class="tasks-subtitle" style="text-align: left;">Join the students who turn focus into results</p>
+                    <p class="tasks-subtitle" style="text-align: left;">See how you rank and stay motivated</p>
                 </div>
                 
                 <div class="leaderboard-content" id="leaderboardModalContent">
@@ -2691,141 +2691,32 @@
     <!-- Content Section - Educational Content -->
     <section class="content-section">
         <div class="content-container">
-            <!-- HERO SECTION -->
-            <h1 style="text-align: center;">Pomodoro timer and focus timer app for students who procrastinate.</h1>
-            <p style="font-size: 1.3rem; color: rgba(255,255,255,0.8); margin-bottom: 0.5rem; text-align: center;">
-                A study timer built for real time management.
-            </p>
-            <p style="font-size: 1.3rem; color: rgba(255,255,255,0.8); margin-bottom: 2rem; text-align: center;">
-                Start a 25-minute focus session and build momentum today.
-            </p>
-
-            <div class="cta-row">
-                <a href="https://accounts.superfocus.live/sign-in" class="btn-secondary" style="text-decoration: none; border-radius: 100px; padding: 8px 16px;">Log In</a>
-                <a href="https://accounts.superfocus.live/sign-up" class="btn-primary" style="text-decoration: none; border-radius: 100px; padding: 8px 16px;">Start Focus Timer Now</a>
-            </div>
+            <h1>Pomodoro Timer App<br class="desktop-break">for Focus and Time Management</h1>
             
             <div class="content-hero-image">
-                <img src="images/Gemini_Generated_Image_3wquiw3wquiw3wqu.png" alt="Student using a pomodoro timer and focus timer app to start studying" loading="lazy">
-            </div>
-
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                Superfocus is a pomodoro timer, study timer, and focus timer app designed for time management and exam prep.
-                It helps students start fast, stay focused, and finish what they plan.
-            </p>
-
-            <div style="margin: 2rem 0;">
-                <div style="font-weight: 600; margin-bottom: 0.75rem;">What you get with this pomodoro timer</div>
-                <div style="display: grid; gap: 0.5rem;">
-                    <div>• Study timer with 25-minute focus sessions</div>
-                    <div>• Focus timer app that blocks procrastination</div>
-                    <div>• Time management rhythm you can repeat daily</div>
-                </div>
-            </div>
-
-            <p style="margin: 1.5rem 0; color: rgba(255,255,255,0.8); font-size: 1rem;">
-                Join students who use a pomodoro app to stay consistent and finish exams with confidence.
-            </p>
-            
-            <!-- SECTION 1: THE SETUP -->
-            <h2>What we know about students who struggle with time management</h2>
-            <p>They procrastinate. They know what to study. They don't start. A study timer and pomodoro timer make the first step small.</p>
-
-            <!-- SECTION 2: THE MECHANISM -->
-            <h2>Here's what happens without the pomodoro technique</h2>
-            <p>Your brain makes up stories: "I have time." "I'll start tomorrow." "I work better under pressure."</p>
-            <p>These are lies. Starting is the hard part.</p>
-
-            <!-- SECTION 3: THE CONSEQUENCE -->
-            <h2>The cost of being right</h2>
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                The grade isn't the cost.
-                <br>
-                The identity you choose is.
-                <br>
-                <br>
-                "I'm someone who fails exams."
-                <br>
-                That belief is expensive.
-            </p>
-
-            <!-- SECTION 4: THE ALTERNATIVE -->
-            <h2>What students who pass do instead</h2>
-            <p>They start early. They start small. They do 25 minutes.</p>
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                25 minutes of real focus beats 3 hours of fake studying.
-            </p>
-            <p>Why? A focus timer app makes it feel doable. Your brain will do it. Momentum takes over.</p>
-
-            <!-- SECTION 5: THE PATTERN -->
-            <h2>Here's what actually happens with a focus timer</h2>
-            <p>
-                Day 1: You start. It doesn't hurt.
-                <br>
-                Day 3: You're not thinking about it anymore.
-                <br>
-                Day 7: You have momentum.
-            </p>
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                Day 14: You walk in knowing you prepared.
-                <br>
-                That feeling is earned.
-                <br>
-                The grade reflects that.
-            </p>
-
-            <!-- SECTION 6: THE FRICTION -->
-            <h2>Why you probably won't do this</h2>
-            <p>It sounds too simple. No magic. Just showing up.</p>
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                You'll wait for better motivation.
-                <br>
-                The exam will come.
-                <br>
-                You'll panic and cram.
-                <br>
-                You'll get what you get.
-            </p>
-
-            <!-- SECTION 7: THE REAL QUESTION -->
-            <h2>You already know this</h2>
-            <p>You know you should study. You know 25 minutes is doable with a pomodoro app.</p>
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                So the question is:
-                <br>
-                Are you the kind of person who does the obvious thing?
-                <br>
-                Or waits for permission?
-            </p>
-
-            <!-- SECTION 8: THE CALL -->
-            <h2>Not tomorrow. Today.</h2>
-            <p>25 minutes on a focus timer. Your next exam. Your next chance.</p>
-            <p style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.08); border-left: 4px solid #fff; border-radius: 4px;">
-                Do it.
-            </p>
-
-            <!-- SECTION 9: THE FOLLOW UP -->
-            <div class="content-hero-image" style="margin-top: 3rem;">
-                <img src="images/Gemini_Generated_Image_pe57dhpe57dhpe57.png" alt="Student comparison showing results after using a study timer and pomodoro technique" loading="lazy">
+                <img src="images/ChatGPT Image Oct 8, 2025, 08_08_24 AM.png" alt="Pomodoro Timer Illustration" loading="lazy">
             </div>
             
-            <h2 style="text-align: center; margin-top: 2rem; margin-bottom: 0.5rem;">The students who pass aren't special.</h2>
-            <p style="text-align: center; font-size: 1.1rem; color: rgba(255,255,255,0.8); margin-bottom: 2rem;">They just showed up.</p>
+            <h2>What is Superfocus?</h2>
+            <p>Superfocus is a pomodoro timer app that helps you focus and get more done. Simple time management—just press start and focus.</p>
             
-            <div class="cta-row" style="margin-top: 2rem;">
-                <a href="https://accounts.superfocus.live/sign-in" class="btn-secondary" style="text-decoration: none; border-radius: 100px; padding: 8px 16px; margin-right: 1rem;">Log In</a>
-                <a href="https://accounts.superfocus.live/sign-up" class="btn-primary" style="text-decoration: none; border-radius: 100px; padding: 8px 16px;">Start Focus Timer Now</a>
-            </div>
-
-            <div style="display: flex; justify-content: center; margin-top: 2.5rem;">
-                <a href="https://www.producthunt.com/products/superfocus?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-superfocus-2" target="_blank" rel="noopener noreferrer">
-                    <img alt="Superfocus - Pomodoro timer and focus app for students | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1075299&amp;theme=light&amp;t=1770418064015">
-                </a>
-            </div>
-            <p style="text-align: center; font-size: 1rem; color: rgba(255,255,255,0.85); margin-top: 0.75rem; margin-bottom: 0;">
-                Get the coupon on Product Hunt and receive 50% off your first month on the monthly plan.
-            </p>
+            <h2>What is the Pomodoro Technique?</h2>
+            <p>The Pomodoro Technique is a time management method: focus for 25 minutes, take a 5-minute break, repeat. After 4 sessions, take a 15-minute break. <a href="https://www.youtube.com/watch?v=IlU-zDU6aQ0" target="_blank" rel="noopener noreferrer" class="inline-text-link">Learn more →</a></p>
+            
+            <h2>Benefits</h2>
+            <ul>
+                <li>Stay focused - 25-minute sessions keep you in deep work mode</li>
+                <li>Avoid burnout - Regular breaks keep your energy high</li>
+                <li>Track progress - See exactly how much you accomplish</li>
+            </ul>
+            
+            <h2>How to Use</h2>
+            <ol>
+                <li>Pick your task</li>
+                <li>Start the timer and focus for 25 minutes</li>
+                <li>Take a 5-minute break</li>
+                <li>Repeat 4 times, then take a longer break</li>
+            </ol>
         </div>
     </section>
     
@@ -2924,7 +2815,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
                     </svg>
-                    <span>Study Buddy</span>
+                    <span>Focus Chat</span>
                 </button>
                 <button class="bottom-sheet-nav-item" data-target="reportSheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

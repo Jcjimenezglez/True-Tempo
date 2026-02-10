@@ -23325,8 +23325,8 @@ function initStudyCoachChat() {
         if (showNotice) {
             const returnTimeLabel = formatCoachLimitReturnTime(limitState.unlockAtMs);
             dailyLimitNoticeEl.textContent = returnTimeLabel
-                ? `You've reached your daily limit of 3 AI questions. Come back ${returnTimeLabel} (23h cooldown), or upgrade to Premium for unlimited study questions.`
-                : `You've reached your daily limit of 3 AI questions. Upgrade to Premium for unlimited study questions.`;
+                ? `You've reached your daily limit of 3 chat questions. Come back ${returnTimeLabel} (23h cooldown), or upgrade to Premium for unlimited questions.`
+                : `You've reached your daily limit of 3 chat questions. Upgrade to Premium for unlimited questions.`;
         }
         dailyLimitNoticeEl.style.display = showNotice ? 'block' : 'none';
     }
@@ -23418,9 +23418,9 @@ function initStudyCoachChat() {
             if (newChatBtn) newChatBtn.style.display = 'none';
             if (dailyLimitNoticeEl) dailyLimitNoticeEl.style.display = 'none';
             if (gateEl) gateEl.style.display = 'flex';
-            if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Study Buddy';
+            if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Focus Chat';
             if (gateSubtitleEl) {
-                gateSubtitleEl.textContent = 'Create a free account to ask 3 AI questions per day. Upgrade to Premium for unlimited study questions.';
+                gateSubtitleEl.textContent = 'Create a free account to ask 3 chat questions per day. Upgrade to Premium for unlimited questions.';
             }
             if (upgradeBtn) upgradeBtn.style.display = 'none';
             if (signupBtn) signupBtn.style.display = 'inline-flex';
