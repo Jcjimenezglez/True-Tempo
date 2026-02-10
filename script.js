@@ -1794,6 +1794,21 @@ class PomodoroTimer {
 
     // Show custom form
     showCustomForm() {
+        // Editing an existing timer should always be allowed for authenticated users
+        if (this.editingTechnique && this.isAuthenticated && this.user) {
+            const form = document.getElementById('customForm');
+            const createBtn = document.getElementById('createCustomBtn');
+
+            if (form && createBtn) {
+                form.style.display = 'block';
+                createBtn.style.display = 'none';
+
+                // Setup editable duration inputs
+                this.setupEditableDurationInputs(form);
+                return;
+            }
+        }
+
         // Check if user is Pro
         if (this.isPremiumUser()) {
             // Pro users can create unlimited custom timers
