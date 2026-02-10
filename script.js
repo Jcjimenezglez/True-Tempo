@@ -23141,7 +23141,7 @@ function initStudyCoachChat() {
 
     const MAX_TRACKED_MESSAGE_LENGTH = 1000;
     const MIN_HELPFUL_REPLY_LENGTH = 50;
-    const FREE_DAILY_QUESTION_LIMIT = 1;
+    const FREE_DAILY_QUESTION_LIMIT = 3;
     const FREE_DAILY_USAGE_KEY = 'studyTutorFreeDailyUsage';
 
     function createConversationId() {
@@ -23310,7 +23310,7 @@ function initStudyCoachChat() {
             if (gateEl) gateEl.style.display = 'flex';
             if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Study Tutor';
             if (gateSubtitleEl) {
-                gateSubtitleEl.textContent = 'Create a free account to ask 1 AI question per day. Upgrade to Premium for unlimited study questions.';
+                gateSubtitleEl.textContent = 'Create a free account to ask 3 AI questions per day. Upgrade to Premium for unlimited study questions.';
             }
             if (upgradeBtn) upgradeBtn.style.display = 'none';
             if (signupBtn) signupBtn.style.display = 'inline-flex';
