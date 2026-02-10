@@ -18499,13 +18499,12 @@ class PomodoroTimer {
                                     Edit
                                 </button>
                                 <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"/>
-                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                        <line x1="10" y1="11" x2="10" y2="17"/>
-                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-icon lucide-archive">
+                                        <rect width="20" height="5" x="2" y="3" rx="1"/>
+                                        <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+                                        <path d="M10 12h4"/>
                                     </svg>
-                                    Delete
+                                    Archive
                                 </button>
                             </div>
                         </div>
@@ -18682,7 +18681,7 @@ class PomodoroTimer {
                     <path d="m6 6 12 12"/>
                 </svg>
             </button>
-            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #fff; text-align: left;">Recover deleted cassettes</h3>
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #fff; text-align: left;">Recover archive cassettes</h3>
             <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 18px; text-align: left;">Pick one cassette to restore it to your list.</p>
             <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
                 ${deletedRows}
@@ -19231,13 +19230,12 @@ class PomodoroTimer {
                                     Edit
                                 </button>
                                 <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"/>
-                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                        <line x1="10" y1="11" x2="10" y2="17"/>
-                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-icon lucide-archive">
+                                        <rect width="20" height="5" x="2" y="3" rx="1"/>
+                                        <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+                                        <path d="M10 12h4"/>
                                     </svg>
-                                    Delete
+                                    Archive
                                 </button>
                             </div>
                         </div>
@@ -20638,13 +20636,12 @@ class PomodoroTimer {
                                                     Edit
                                                 </button>
                                                 <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="3 6 5 6 21 6"/>
-                                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                                        <line x1="10" y1="11" x2="10" y2="17"/>
-                                                        <line x1="14" y1="11" x2="14" y2="17"/>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-archive-icon lucide-archive">
+                                                        <rect width="20" height="5" x="2" y="3" rx="1"/>
+                                                        <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+                                                        <path d="M10 12h4"/>
                                                     </svg>
-                                                    Delete
+                                                    Archive
                                                 </button>
                                             </div>
                                         </div>
