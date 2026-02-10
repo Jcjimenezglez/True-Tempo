@@ -1439,6 +1439,7 @@ class PomodoroTimer {
             
             // Load existing custom techniques from localStorage
             this.loadCustomTechniques();
+            this.refreshRecoverArchivedTimersButton();
             
             // Set up event listeners
             this.setupCustomSectionListeners();
@@ -1458,6 +1459,7 @@ class PomodoroTimer {
         console.log('🔧 Setting up basic custom listeners');
         // Create Custom button - works for all users
         const createBtn = document.getElementById('createCustomBtn');
+        const recoverArchivedTimersBtn = document.getElementById('recoverArchivedTimersBtn');
         console.log('🔧 Create button found:', !!createBtn);
         console.log('🔧 Button already has listener:', createBtn?.hasAttribute('data-listener-added'));
         
@@ -1480,15 +1482,34 @@ class PomodoroTimer {
         } else {
             console.log('⚠️ Could not add listener - button not found or already has listener');
         }
+
+        if (recoverArchivedTimersBtn && !recoverArchivedTimersBtn.hasAttribute('data-listener-added')) {
+            recoverArchivedTimersBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showRecoverArchivedTimersModal();
+            });
+            recoverArchivedTimersBtn.setAttribute('data-listener-added', 'true');
+        }
     }
     
     // Set up event listeners for Custom section
     setupCustomSectionListeners() {
         // Create Custom button
         const createBtn = document.getElementById('createCustomBtn');
+        const recoverArchivedTimersBtn = document.getElementById('recoverArchivedTimersBtn');
         if (createBtn && !createBtn.hasAttribute('data-listener-added')) {
             createBtn.addEventListener('click', () => this.showCustomForm());
             createBtn.setAttribute('data-listener-added', 'true');
+        }
+
+        if (recoverArchivedTimersBtn && !recoverArchivedTimersBtn.hasAttribute('data-listener-added')) {
+            recoverArchivedTimersBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showRecoverArchivedTimersModal();
+            });
+            recoverArchivedTimersBtn.setAttribute('data-listener-added', 'true');
         }
         
         // Cancel button
@@ -1577,6 +1598,157 @@ class PomodoroTimer {
             return 0;
         }
     }
+
+    getArchivedCustomTechniquesTrash() {
+        try {
+            const archived = JSON.parse(localStorage.getItem('archivedCustomTechniques') || '[]');
+            return Array.isArray(archived) ? archived : [];
+        } catch {
+            return [];
+        }
+    }
+
+    saveArchivedCustomTechniquesTrash(archivedTechniques) {
+        try {
+            localStorage.setItem('archivedCustomTechniques', JSON.stringify(archivedTechniques));
+        } catch (error) {
+            console.error('Error saving archived timers:', error);
+        }
+    }
+
+    getFreeTimerOwnershipCount() {
+        try {
+            const ownedTimerIds = new Set();
+            const activeTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            activeTechniques.forEach((technique) => ownedTimerIds.add(technique.id));
+            this.getArchivedCustomTechniquesTrash().forEach((technique) => ownedTimerIds.add(technique.id));
+            return ownedTimerIds.size;
+        } catch (error) {
+            console.error('Error calculating free timer ownership count:', error);
+            return 0;
+        }
+    }
+
+    refreshRecoverArchivedTimersButton() {
+        const recoverBtn = document.getElementById('recoverArchivedTimersBtn');
+        if (!recoverBtn) return;
+        recoverBtn.style.display = this.getArchivedCustomTechniquesTrash().length > 0 ? 'block' : 'none';
+    }
+
+    showRecoverArchivedTimersModal() {
+        const archivedTechniques = this.getArchivedCustomTechniquesTrash();
+        if (archivedTechniques.length === 0) {
+            this.showResourceShareToast('No archived timers to recover', true);
+            this.refreshRecoverArchivedTimersButton();
+            return;
+        }
+
+        const isPremium = this.isPremiumUser();
+        const overlay = document.createElement('div');
+        overlay.className = 'focus-stats-overlay';
+        overlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.style.cssText = 'max-width: 520px; padding: 32px; position: relative;';
+
+        const archivedRows = archivedTechniques.map((technique) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.04);">
+                <div style="width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0; background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-size: 22px;">${this.escapeHtml(technique.emoji || '🎯')}</div>
+                <div style="min-width: 0; flex: 1;">
+                    <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(technique.name || 'Untitled timer')}</div>
+                    <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${technique.workMinutes || 25}m focus • ${technique.shortBreakMinutes || 5}m short • ${technique.longBreakMinutes || 15}m long • ${technique.sessions || 4} sessions</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                    <button class="logout-modal-btn logout-modal-btn-secondary recover-archived-timer-btn" data-technique-id="${technique.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                        <span>Recover</span>
+                    </button>
+                    ${isPremium ? `
+                        <button class="logout-modal-btn delete-forever-archived-timer-btn" data-technique-id="${technique.id}" aria-label="Delete forever" title="Delete forever" style="width: auto; min-width: auto; padding: 7px 9px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/><path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
+
+        modal.innerHTML = `
+            <button class="close-modal-x" id="closeRecoverArchivedTimerModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #fff; text-align: left;">Recover archive timers</h3>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 18px; text-align: left;">Pick one timer to restore it to your list.</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+                ${archivedRows}
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        const close = () => {
+            try { document.body.removeChild(overlay); } catch (_) {}
+        };
+        modal.querySelector('#closeRecoverArchivedTimerModal')?.addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) close();
+        });
+
+        modal.querySelectorAll('.recover-archived-timer-btn').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const techniqueId = btn.getAttribute('data-technique-id');
+                this.restoreArchivedCustomTechnique(techniqueId);
+                close();
+            });
+        });
+
+        modal.querySelectorAll('.delete-forever-archived-timer-btn').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const techniqueId = btn.getAttribute('data-technique-id');
+                this.permanentlyDeleteArchivedCustomTechnique(techniqueId);
+                close();
+            });
+        });
+    }
+
+    restoreArchivedCustomTechnique(techniqueId) {
+        const archivedTechniques = this.getArchivedCustomTechniquesTrash();
+        const techniqueToRestore = archivedTechniques.find((technique) => technique.id === techniqueId);
+        if (!techniqueToRestore) {
+            this.showResourceShareToast('Timer not found in archive list', true);
+            this.refreshRecoverArchivedTimersButton();
+            return;
+        }
+
+        const activeTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+        if (!this.isPremiumUser() && activeTechniques.length >= 1) {
+            this.showResourceShareToast('Free users can only keep 1 timer active at a time', true);
+            return;
+        }
+
+        const updatedActive = [...activeTechniques, techniqueToRestore];
+        const updatedArchived = archivedTechniques.filter((technique) => technique.id !== techniqueId);
+        localStorage.setItem('customTechniques', JSON.stringify(updatedActive));
+        this.saveArchivedCustomTechniquesTrash(updatedArchived);
+
+        this.loadCustomTechniques();
+        this.refreshRecoverArchivedTimersButton();
+        this.syncTechniquesToServer();
+        this.showResourceShareToast('Timer recovered');
+    }
+
+    permanentlyDeleteArchivedCustomTechnique(techniqueId) {
+        const archivedTechniques = this.getArchivedCustomTechniquesTrash();
+        const updatedArchived = archivedTechniques.filter((technique) => technique.id !== techniqueId);
+        this.saveArchivedCustomTechniquesTrash(updatedArchived);
+        this.refreshRecoverArchivedTimersButton();
+        this.showResourceShareToast('Timer deleted forever');
+    }
     
     // Get lifetime count of timers created (persists even after deletion)
     getLifetimeTimersCreated() {
@@ -1645,22 +1817,21 @@ class PomodoroTimer {
                 this.resetCustomForm();
             }
         } else if (this.isAuthenticated && this.user) {
-            // Free users - check lifetime count of custom timers (permanent limit)
-            const lifetimeTimersCreated = this.getLifetimeTimersCreated();
-            
-            if (lifetimeTimersCreated >= 1) {
-                // Free user has already created 1 custom timer in their lifetime
+            // Free users can own only 1 custom timer total (active or archived)
+            const ownedTimersCount = this.getFreeTimerOwnershipCount();
+
+            if (ownedTimersCount >= 1) {
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_techniques',
                     source: 'create_custom_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
-                    lifetime_timers_created: lifetimeTimersCreated,
+                    owned_timers_count: ownedTimersCount,
                     limit_reached: true,
-                    reason: 'permanent_timer_limit_reached'
+                    reason: 'total_timer_limit_reached'
                 });
                 
-                this.showCustomTechniqueProModal('Free users can only create 1 custom timer permanently. Once deleted, you cannot create another. Upgrade to Premium for unlimited timers.', lifetimeTimersCreated);
+                this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit, archive, and recover that same timer. Upgrade to Premium for unlimited timers.', ownedTimersCount);
             } else {
                 // Free user can create their first timer
                 const form = document.getElementById('customForm');
@@ -2065,6 +2236,11 @@ class PomodoroTimer {
                 // Clear editing state
                 this.editingTechnique = null;
             } else {
+                if (!this.isPremiumUser() && this.getFreeTimerOwnershipCount() >= 1) {
+                    this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit, archive, and recover that same timer. Upgrade to Premium for unlimited timers.', 1);
+                    return;
+                }
+
                 // Create new custom technique object
                 const customTechnique = {
                     id: `custom_${Date.now()}`,
@@ -2079,11 +2255,6 @@ class PomodoroTimer {
                 
                 // Save to localStorage
                 this.saveCustomTechniqueToStorage(customTechnique);
-                
-                // Increment lifetime creation counter (for free user limits)
-                if (!this.isPremiumUser()) {
-                    this.incrementLifetimeTimersCreated();
-                }
                 
                 // Add to UI
                 this.addCustomTechniqueCard(customTechnique);
@@ -2120,9 +2291,6 @@ class PomodoroTimer {
             const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
             existing.push(technique);
             localStorage.setItem('customTechniques', JSON.stringify(existing));
-            
-            // Increment lifetime counter (permanent tracking)
-            this.incrementLifetimeTimersCreated();
             
             // Sync to server in background (don't wait)
             this.syncTechniquesToServer();
@@ -2203,6 +2371,7 @@ class PomodoroTimer {
             if (container) {
                 container.innerHTML = '';
             }
+            this.refreshRecoverArchivedTimersButton();
             
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
             const selectedTechnique = localStorage.getItem('selectedTechnique');
@@ -2259,7 +2428,7 @@ class PomodoroTimer {
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
             <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
             <div class="custom-card-sessions">${technique.sessions} sessions</div>
-            ${!isDisabled ? `<button class="custom-card-delete" onclick="window.pomodoroTimer.showDeleteTimerConfirmation('${technique.id}', '${technique.name.replace(/'/g, "\\'").replace(/"/g, "&quot;")}')">×</button>` : ''}
+            ${!isDisabled ? `<button class="custom-card-delete" title="Archive timer" onclick="event.stopPropagation(); window.pomodoroTimer.archiveCustomTechnique('${technique.id}')">×</button>` : ''}
         `;
         
         // Add click handler to select technique (only if authenticated)
@@ -2493,25 +2662,34 @@ class PomodoroTimer {
     
     // Delete custom technique
     deleteCustomTechnique(techniqueId) {
+        this.archiveCustomTechnique(techniqueId);
+    }
+
+    archiveCustomTechnique(techniqueId) {
         try {
-            // Remove from localStorage
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
-            const filtered = techniques.filter(t => t.id !== techniqueId);
+            const techniqueToArchive = techniques.find((technique) => technique.id === techniqueId);
+            if (!techniqueToArchive) return;
+
+            const archivedTechniques = this.getArchivedCustomTechniquesTrash();
+            const dedupedArchived = archivedTechniques.filter((technique) => technique.id !== techniqueId);
+            const updatedArchived = [techniqueToArchive, ...dedupedArchived].slice(0, 20);
+            this.saveArchivedCustomTechniquesTrash(updatedArchived);
+
+            const filtered = techniques.filter((technique) => technique.id !== techniqueId);
             localStorage.setItem('customTechniques', JSON.stringify(filtered));
-            
-            // Remove from UI
+
             const card = document.querySelector(`[data-technique-id="${techniqueId}"]`);
             if (card) {
                 card.remove();
             }
-            
-            // Sync deletion to server
+
+            this.refreshRecoverArchivedTimersButton();
             this.syncTechniquesToServer();
-            
-            console.log('✅ Custom technique deleted:', techniqueId);
-            
+            this.showResourceShareToast('Timer moved to archive');
+            console.log('✅ Custom technique archived:', techniqueId);
         } catch (error) {
-            console.error('Error deleting custom technique:', error);
+            console.error('Error archiving custom technique:', error);
         }
     }
     
