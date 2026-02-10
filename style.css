@@ -675,10 +675,10 @@ a.resource-item:hover,
 }
 
 .coach-gate-card {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
     padding: 16px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.05);
@@ -723,7 +723,6 @@ a.resource-item:hover,
 
 @media (max-width: 768px) {
     .coach-gate-card {
-        grid-template-columns: 1fr;
         align-items: stretch;
     }
 

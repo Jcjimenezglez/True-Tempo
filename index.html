@@ -457,7 +457,7 @@
         
         <nav class="sidebar-nav">
             <div class="nav-section">
-                <div class="nav-item" data-section="settings" data-tooltip="Timer">
+                <div class="nav-item" data-section="settings" data-tooltip="Timers">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="13" r="8"/>
                         <path d="M12 9v4l2 2"/>
@@ -482,7 +482,7 @@
                         <circle cx="16" cy="15" r="2"/>
                     </svg>
                 </div>
-                <div class="nav-item" data-section="coach" data-tooltip="Study Tutor">
+                <div class="nav-item" data-section="coach" data-tooltip="Study Buddy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
                     </svg>
@@ -758,14 +758,14 @@
 
     <!-- Settings Side Panel -->
     <div class="task-side-panel" id="settingsSidePanel">
-        <button class="close-side-panel-btn" id="closeSettingsPanel" aria-label="Close Timer Panel" title="Close Timer">
+        <button class="close-side-panel-btn" id="closeSettingsPanel" aria-label="Close Timers Panel" title="Close Timers">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="m15 18-6-6 6-6"/>
             </svg>
         </button>
         <div class="task-side-panel-content">
             <div class="tasks-header">
-                <h3>Timer</h3>
+                <h3>Timers</h3>
                 <p class="tasks-subtitle">Build momentum, not burnout</p>
             </div>
             
@@ -1601,8 +1601,8 @@
     <div class="task-panel-overlay" id="reportPanelOverlay"></div>
 
     <!-- Study Coach Side Panel -->
-    <div class="task-side-panel" id="coachSidePanel" aria-label="Study Tutor">
-        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Study Tutor Panel" title="Close Study Tutor">
+    <div class="task-side-panel" id="coachSidePanel" aria-label="Study Buddy">
+        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Study Buddy Panel" title="Close Study Buddy">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="m15 18-6-6 6-6"/>
             </svg>
@@ -1611,7 +1611,7 @@
             <div class="tasks-header coach-header">
                 <div class="coach-header-text">
                     <div class="coach-title-row">
-                        <h3>Study Tutor</h3>
+                        <h3>Study Buddy</h3>
                         <span class="coach-beta-badge" aria-label="Beta feature">Beta</span>
                     </div>
                     <p class="tasks-subtitle">What are you studying?</p>
@@ -1632,7 +1632,7 @@
                     </div>
                     <div class="coach-gate-card">
                         <div class="coach-gate-text">
-                            <div class="coach-gate-title" id="coachGateTitle">Sign up to try Study Tutor</div>
+                            <div class="coach-gate-title" id="coachGateTitle">Sign up to try Study Buddy</div>
                             <div class="coach-gate-subtitle" id="coachGateSubtitle">Create a free account to ask 3 AI questions per day. Upgrade to Premium for unlimited study questions.</div>
                         </div>
                         <button class="coach-upgrade-btn" id="coachUpgradeBtn" type="button">Unlock Unlimited</button>
@@ -2011,6 +2011,12 @@
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <span style="color: #fff; flex-shrink: 0; display: flex;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+                            </span>
+                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Unlimited chat questions</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span style="color: #fff; flex-shrink: 0; display: flex;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M8 8v1"/><path d="M12 8v1"/><path d="M16 8v1"/><rect width="20" height="12" x="2" y="9" rx="2"/><circle cx="8" cy="15" r="2"/><circle cx="16" cy="15" r="2"/></svg>
                             </span>
                             <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Unlimited cassettes</span>
@@ -2038,12 +2044,6 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                             </span>
                             <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Leaderboard access</span>
-                        </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <span style="color: #fff; flex-shrink: 0; display: flex;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
-                            </span>
-                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Study Tutor</span>
                         </div>
                     </div>
                 </div>
@@ -2924,7 +2924,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
                     </svg>
-                    <span>Study Tutor</span>
+                    <span>Study Buddy</span>
                 </button>
                 <button class="bottom-sheet-nav-item" data-target="reportSheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
