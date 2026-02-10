@@ -1422,6 +1422,7 @@ class PomodoroTimer {
             } else {
                 console.log('❌ Custom section not found');
             }
+            this.refreshCreationLimitNotices();
             
         } catch (error) {
             console.error('Error enabling Custom section:', error);
@@ -1587,6 +1588,47 @@ class PomodoroTimer {
             return 0;
         }
     }
+
+    getFreeTaskLimit() {
+        return 2;
+    }
+
+    refreshCreationLimitNotices() {
+        this.refreshTimerLimitNotice();
+        this.refreshCassetteLimitNotice();
+        this.refreshTaskLimitNotices();
+    }
+
+    refreshTimerLimitNotice() {
+        const timerNotice = document.getElementById('timerLimitInlineNotice');
+        if (!timerNotice) return;
+
+        const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
+        const reachedLimit = isFreeUser && this.getFreeTimerOwnershipCount() >= 1;
+        timerNotice.style.display = reachedLimit ? 'block' : 'none';
+    }
+
+    refreshCassetteLimitNotice() {
+        const cassetteNotice = document.getElementById('cassetteLimitInlineNotice');
+        if (!cassetteNotice) return;
+
+        const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
+        const reachedLimit = isFreeUser && this.getCustomCassettes().length >= 1;
+        cassetteNotice.style.display = reachedLimit ? 'block' : 'none';
+    }
+
+    refreshTaskLimitNotices() {
+        const taskNotices = document.querySelectorAll('[data-limit-notice="tasks"]');
+        if (!taskNotices || taskNotices.length === 0) return;
+
+        const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
+        const activeTasksCount = this.getLocalTasks().filter((task) => !task.completed).length;
+        const reachedLimit = isFreeUser && activeTasksCount >= this.getFreeTaskLimit();
+
+        taskNotices.forEach((taskNotice) => {
+            taskNotice.style.display = reachedLimit ? 'block' : 'none';
+        });
+    }
     
     // Get lifetime count of timers created (persists even after deletion)
     getLifetimeTimersCreated() {
@@ -1684,7 +1726,7 @@ class PomodoroTimer {
                     reason: 'single_timer_limit_reached'
                 });
                 
-                this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit it, but deleting is a Premium feature. Upgrade to Premium for unlimited timers.', ownedTimersCount);
+                this.showCustomTechniqueProModal('Free users can create only 1 custom timer. To unlock unlimited timers, upgrade to Premium.', ownedTimersCount);
             } else {
                 // Free user can create their first timer
                 const form = document.getElementById('customForm');
@@ -2093,7 +2135,7 @@ class PomodoroTimer {
                 this.editingTechnique = null;
             } else {
                 if (!this.isPremiumUser() && this.getFreeTimerOwnershipCount() >= 1) {
-                    this.showCustomTechniqueProModal('Free users can create only 1 custom timer. You can edit it, but deleting is a Premium feature. Upgrade to Premium for unlimited timers.', 1);
+                    this.showCustomTechniqueProModal('Free users can create only 1 custom timer. To unlock unlimited timers, upgrade to Premium.', 1);
                     return;
                 }
 
@@ -2135,6 +2177,7 @@ class PomodoroTimer {
             
             // Hide form
             this.hideCustomForm();
+            this.refreshCreationLimitNotices();
             
         } catch (error) {
             console.error('Error saving custom technique:', error);
@@ -2247,6 +2290,7 @@ class PomodoroTimer {
                     }
                 }
             });
+            this.refreshCreationLimitNotices();
         } catch (error) {
             console.error('Error loading custom techniques:', error);
         }
@@ -2303,7 +2347,6 @@ class PomodoroTimer {
                                 </svg>
                                 Edit
                             </button>
-                            ${this.isPremiumUser() ? `
                             <button class="cassette-option-item delete-timer-option" data-timer-id="${technique.id}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="3 6 5 6 21 6"/>
@@ -2313,7 +2356,6 @@ class PomodoroTimer {
                                 </svg>
                                 Delete
                             </button>
-                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -2549,8 +2591,6 @@ class PomodoroTimer {
     
     // Show delete timer confirmation modal
     showDeleteTimerConfirmation(techniqueId, techniqueName) {
-        const isPremium = this.isPremiumUser();
-        
         // Escape the technique name to prevent XSS
         const escapedName = this.escapeHtml(techniqueName);
         
@@ -2564,10 +2604,7 @@ class PomodoroTimer {
         modal.className = 'logout-modal';
         modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         
-        // Warning message differs for free vs premium
-        const warningMessage = !isPremium
-            ? 'Free users cannot delete timers. Upgrade to Premium to permanently delete.'
-            : 'This action cannot be undone.';
+        const warningMessage = 'This action cannot be undone.';
         
         modal.innerHTML = `
             <button class="close-modal-x" id="closeDeleteTimerModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
@@ -2612,11 +2649,6 @@ class PomodoroTimer {
     // Delete custom technique
     deleteCustomTechnique(techniqueId) {
         try {
-            if (!this.isPremiumUser()) {
-                this.showResourceShareToast('Deleting timers is a Premium feature', true);
-                return;
-            }
-
             const selectedTechnique = localStorage.getItem('selectedTechnique');
             const deletedWasSelected = selectedTechnique === `custom_${techniqueId}`;
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
@@ -2651,6 +2683,7 @@ class PomodoroTimer {
             }
 
             this.syncTechniquesToServer();
+            this.refreshCreationLimitNotices();
             this.showResourceShareToast('Timer deleted');
             console.log('✅ Custom technique deleted:', techniqueId);
         } catch (error) {
@@ -9466,11 +9499,13 @@ class PomodoroTimer {
                     </svg>
                     Add Task
                 </button>
+                <p data-limit-notice="tasks" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited tasks, upgrade to Premium.</p>
             </div>
         `;
 
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
+        this.refreshCreationLimitNotices();
 
         const close = () => {
             try { document.body.removeChild(overlay); } catch (_) {}
@@ -12439,6 +12474,7 @@ class PomodoroTimer {
         // Todoist integration disabled - no longer in use
         this.todoistTasks = [];
         this.todoistProjectsById = {};
+        this.refreshCreationLimitNotices();
     }
 
     showTaskMenu(modal) {
@@ -18504,6 +18540,8 @@ class PomodoroTimer {
                 await this.saveCassetteFromForm(cassetteId);
             });
         }
+
+        this.refreshCreationLimitNotices();
     }
     
     initializeCassetteSearch() {
@@ -18582,6 +18620,7 @@ class PomodoroTimer {
         if (!customCassettesList) return;
         
         const customCassettes = this.getCustomCassettes();
+        this.refreshCreationLimitNotices();
         
         // Filter out public vibes - only show private cassettes in "My Vibes"
         const privateCassettes = customCassettes.filter(c => !c.isPublic || c.isPublic === false);
@@ -18627,7 +18666,6 @@ class PomodoroTimer {
                                     </svg>
                                     Edit
                                 </button>
-                                ${this.isPremiumUser() ? `
                                 <button class="cassette-option-item delete-cassette-option" data-cassette-id="${cassette.id}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"/>
@@ -18637,7 +18675,6 @@ class PomodoroTimer {
                                     </svg>
                                     Delete
                                 </button>
-                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -19161,7 +19198,6 @@ class PomodoroTimer {
                                     </svg>
                                     Edit
                                 </button>
-                                ${this.isPremiumUser() ? `
                                 <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"/>
@@ -19171,7 +19207,6 @@ class PomodoroTimer {
                                     </svg>
                                     Delete
                                 </button>
-                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -19448,7 +19483,7 @@ class PomodoroTimer {
             if (isNewCassette && !this.isPremiumUser()) {
                 const activeCassettesCount = this.getCustomCassettes().length;
                 if (activeCassettesCount >= 1) {
-                    alert('Free users can only have 1 cassette. You can edit it, but deleting is a Premium feature.');
+                    alert('Free users can only have 1 cassette. To unlock unlimited cassettes, upgrade to Premium.');
                     throw new Error('Single cassette limit reached for free users');
                 }
             }
@@ -19514,8 +19549,6 @@ class PomodoroTimer {
 
     // Show delete cassette confirmation modal
     showDeleteCassetteConfirmation(cassetteId, cassetteName) {
-        const isPremium = this.isPremiumUser();
-        
         // Escape the cassette name to prevent XSS
         const escapedName = this.escapeHtml(cassetteName);
         
@@ -19529,10 +19562,7 @@ class PomodoroTimer {
         modal.className = 'logout-modal';
         modal.style.cssText = 'max-width: 440px; padding: 32px; position: relative;';
         
-        // Warning message differs for free vs premium
-        const warningMessage = !isPremium
-            ? 'Free users cannot delete cassettes. Upgrade to Premium to permanently delete.'
-            : 'This action cannot be undone.';
+        const warningMessage = 'This action cannot be undone.';
         
         modal.innerHTML = `
             <button class="close-modal-x" id="closeDeleteCassetteModal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
@@ -19576,11 +19606,6 @@ class PomodoroTimer {
 
     async deleteCustomCassette(cassetteId) {
         try {
-            if (!this.isPremiumUser()) {
-                this.showResourceShareToast('Deleting cassettes is a Premium feature', true);
-                return;
-            }
-
             const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
             localStorage.setItem('customCassettes', JSON.stringify(filtered));
@@ -19648,6 +19673,7 @@ class PomodoroTimer {
             
             // Reload custom vibes (synchronous)
             this.loadCustomCassettes();
+            this.refreshCreationLimitNotices();
             
             // Reload public vibes in background - the cassette is already removed from DOM and cache
             // so even if API still returns it, the cache update will handle it correctly
@@ -20087,7 +20113,7 @@ class PomodoroTimer {
                     reason: 'single_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('Free users can create only 1 custom cassette. You can edit it, but deleting is a Premium feature. Upgrade to Premium for unlimited cassettes and personalize your focus environment.');
+                this.showCassetteProModal('Free users can create only 1 custom cassette. To unlock unlimited cassettes and personalize your focus environment, upgrade to Premium.');
                 return;
             }
             // Free user has no active cassette yet - continue to form
@@ -20565,7 +20591,6 @@ class PomodoroTimer {
                                                     </svg>
                                                     Edit
                                                 </button>
-                                                ${this.isPremiumUser() ? `
                                                 <button class="cassette-option-item delete-public-cassette-option" data-cassette-id="${cassette.id}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <polyline points="3 6 5 6 21 6"/>
@@ -20575,7 +20600,6 @@ class PomodoroTimer {
                                                     </svg>
                                                     Delete
                                                 </button>
-                                                ` : ''}
                                             </div>
                                         </div>
                                     </div>
