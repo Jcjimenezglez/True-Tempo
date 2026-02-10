@@ -23418,7 +23418,7 @@ function initStudyCoachChat() {
             if (newChatBtn) newChatBtn.style.display = 'none';
             if (dailyLimitNoticeEl) dailyLimitNoticeEl.style.display = 'none';
             if (gateEl) gateEl.style.display = 'flex';
-            if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Ask AI';
+            if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Chat';
             if (gateSubtitleEl) {
                 gateSubtitleEl.textContent = 'Create a free account to ask 3 chat questions per day. Upgrade to Premium for unlimited questions.';
             }
