@@ -18655,8 +18655,9 @@ class PomodoroTimer {
                         <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(cassette.description || 'Custom focus environment')}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                        <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px;">
-                            Recover
+                        <button class="logout-modal-btn logout-modal-btn-secondary recover-cassette-btn" data-cassette-id="${cassette.id}" style="width: auto; min-width: 118px; flex-shrink: 0; padding: 7px 12px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                            <span>Recover</span>
                         </button>
                         ${isPremium ? `
                             <button class="logout-modal-btn delete-forever-cassette-btn" data-cassette-id="${cassette.id}" aria-label="Delete forever" title="Delete forever" style="width: auto; min-width: auto; padding: 7px 9px; background: rgba(239, 68, 68, 0.18); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.35); display: inline-flex; align-items: center; justify-content: center;">
