@@ -9499,7 +9499,7 @@ class PomodoroTimer {
                     </svg>
                     Add Task
                 </button>
-                <p data-limit-notice="tasks" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited tasks, upgrade to Premium.</p>
+                <p data-limit-notice="tasks" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited tasks, upgrade to Premium, or delete 1 or more tasks.</p>
             </div>
         `;
 
