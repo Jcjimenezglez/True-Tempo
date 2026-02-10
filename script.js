@@ -14758,13 +14758,11 @@ class PomodoroTimer {
         // Get stats
         const stats = this.getFocusStats();
         
-        // Display report based on premium status
+        // Display report with free-user activity range limits
         try {
-            if (isPremium) {
-                this.displayAdvancedReport(reportContent, stats);
-            } else {
-                this.displayBasicReport(reportContent, stats);
-            }
+            this.displayAdvancedReport(reportContent, stats, {
+                activityLimitToWeek: !isPremium
+            });
         } catch (error) {
             console.error('Error displaying report:', error);
             reportContent.innerHTML = `
@@ -14953,8 +14951,9 @@ class PomodoroTimer {
         }
     }
 
-    displayAdvancedReport(containerElement, stats) {
+    displayAdvancedReport(containerElement, stats, options = {}) {
         try {
+            const activityLimitToWeek = options.activityLimitToWeek === true;
             // For level calculation, use all-time totals
             const totalHours = stats.totalHours || 0;
         
@@ -14992,11 +14991,12 @@ class PomodoroTimer {
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
                     <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
-                            <button class="activity-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
-                            <button class="activity-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
+                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Premium"' : ''}>M</button>
+                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Premium"' : ''}>Y</button>
                         </div>
                     </div>
                     <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                    ${activityLimitToWeek ? '<div style="font-size: 11px; color: #a3a3a3; margin-bottom: 10px;">Month and Year views are available on Premium.</div>' : ''}
                     <div id="activityChartBars" style="height: 140px; display: flex; align-items: flex-end; gap: 6px;">
                         ${(() => {
                             const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
@@ -15137,15 +15137,31 @@ class PomodoroTimer {
             };
             rangeButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    const selectedRange = btn.dataset.range;
+
+                    if (activityLimitToWeek && selectedRange !== 'W') {
+                        if (window.pomodoroTimer) {
+                            window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                                button_type: 'subscribe',
+                                source: 'report_panel',
+                                location: `activity_${selectedRange.toLowerCase()}_locked`,
+                                user_type: 'free',
+                                modal_type: 'report_upgrade_prompt'
+                            });
+                            window.pomodoroTimer.showPricingPlansModal();
+                        }
+                        return;
+                    }
+
                     rangeButtons.forEach(b => {
                         b.classList.remove('active');
                         b.style.background = 'transparent';
-                        b.style.color = '#a3a3a3';
+                        b.style.color = b.classList.contains('activity-range-locked') ? '#7a7a7a' : '#a3a3a3';
                     });
                     btn.classList.add('active');
                     btn.style.background = '#2a2a2a';
                     btn.style.color = '#fff';
-                    setRange(btn.dataset.range);
+                    setRange(selectedRange);
                 });
             });
             // Initialize with W
