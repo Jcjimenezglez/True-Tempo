@@ -2396,6 +2396,7 @@ class PomodoroTimer {
             const longBreakValue = document.getElementById('customLongBreakValue');
             const sessionsSlider = document.getElementById('customSessionsSlider');
             const sessionsValue = document.getElementById('customSessionsValue');
+            const emojiOptions = document.querySelectorAll('.emoji-option');
             
             if (nameInput) nameInput.value = technique.name;
             if (workSlider && workValue) {
@@ -2413,6 +2414,18 @@ class PomodoroTimer {
             if (sessionsSlider && sessionsValue) {
                 sessionsSlider.value = technique.sessions;
                 sessionsValue.value = technique.sessions;
+            }
+
+            if (emojiOptions && emojiOptions.length > 0) {
+                emojiOptions.forEach(option => option.classList.remove('active'));
+                const matchedEmojiOption = Array.from(emojiOptions).find(
+                    (option) => option.dataset.emoji === technique.emoji
+                );
+                if (matchedEmojiOption) {
+                    matchedEmojiOption.classList.add('active');
+                } else {
+                    emojiOptions[0].classList.add('active');
+                }
             }
             
             // Update word count
@@ -2624,6 +2637,7 @@ class PomodoroTimer {
 
                 if (pomodoroDropdownItem) {
                     this.selectTechnique(pomodoroDropdownItem);
+                    this.playUiSound('click');
                 } else {
                     localStorage.setItem('selectedTechnique', 'pomodoro');
                     this.updateTimerTechniqueButton('pomodoro');
@@ -2632,6 +2646,7 @@ class PomodoroTimer {
                     document.querySelectorAll('.custom-card').forEach((customCard) => {
                         customCard.classList.remove('active');
                     });
+                    this.playUiSound('click');
                 }
             }
 
