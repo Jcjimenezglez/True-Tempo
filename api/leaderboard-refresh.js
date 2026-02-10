@@ -26,12 +26,7 @@ module.exports = async (req, res) => {
 
   try {
     const clerk = createClerkClient({ secretKey: clerkKey });
-    const user = await clerk.users.getUser(userId);
-    const isPremium = user?.publicMetadata?.isPremium === true;
-
-    if (!isPremium) {
-      return res.status(403).json({ error: 'Premium access required' });
-    }
+    await clerk.users.getUser(userId);
 
     if (!isCacheConfigured()) {
       return res.status(500).json({

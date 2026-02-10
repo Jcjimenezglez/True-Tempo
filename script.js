@@ -3829,7 +3829,6 @@ class PomodoroTimer {
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
                 </div>
             `;
@@ -3838,7 +3837,6 @@ class PomodoroTimer {
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Leaderboard Scope</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                 </div>
             `;
         }
@@ -7224,6 +7222,7 @@ class PomodoroTimer {
         const integrationsSection = document.getElementById('integrationsSection');
         const leaderboardRefreshBtn = this.leaderboardRefreshBtn;
         const hasPremiumAccess = this.isAuthenticated && this.isPremiumUser();
+        const hasRefreshAccess = this.isAuthenticated;
         
         if (this.isPremiumUser()) {
             const meta = window.Clerk?.user?.publicMetadata || {};
@@ -7236,8 +7235,8 @@ class PomodoroTimer {
             if (integrationsButton) integrationsButton.style.display = 'flex';
             if (integrationsSection) integrationsSection.style.display = 'block';
             if (leaderboardRefreshBtn) {
-                leaderboardRefreshBtn.style.display = hasPremiumAccess ? 'inline-flex' : 'none';
-                leaderboardRefreshBtn.disabled = !hasPremiumAccess;
+                leaderboardRefreshBtn.style.display = hasRefreshAccess ? 'inline-flex' : 'none';
+                leaderboardRefreshBtn.disabled = !hasRefreshAccess;
             }
             
             // Settings dropdown elements
@@ -7254,8 +7253,8 @@ class PomodoroTimer {
             if (integrationsButton) integrationsButton.style.display = 'none';
             if (integrationsSection) integrationsSection.style.display = 'none';
             if (leaderboardRefreshBtn) {
-                leaderboardRefreshBtn.style.display = 'none';
-                leaderboardRefreshBtn.disabled = true;
+                leaderboardRefreshBtn.style.display = hasRefreshAccess ? 'inline-flex' : 'none';
+                leaderboardRefreshBtn.disabled = !hasRefreshAccess;
             }
             
             // Settings dropdown elements
@@ -7286,11 +7285,6 @@ class PomodoroTimer {
     async refreshLeaderboardSnapshot() {
         if (!this.isAuthenticated) {
             this.showResourceShareToast('Log in to refresh the leaderboard', true);
-            return;
-        }
-
-        if (!this.isPremiumUser()) {
-            this.showResourceShareToast('Premium only: refresh unavailable', true);
             return;
         }
 
@@ -14497,7 +14491,6 @@ class PomodoroTimer {
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
                 </div>
             `;
@@ -14506,7 +14499,6 @@ class PomodoroTimer {
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Leaderboard Scope</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">Premium users are always shown.</div>
                 </div>
             `;
         }
