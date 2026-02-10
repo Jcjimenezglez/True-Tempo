@@ -2344,7 +2344,7 @@ class PomodoroTimer {
     // Update custom technique card in UI
     updateCustomTechniqueCard(technique) {
         try {
-            const card = document.querySelector(`[data-technique-id="${technique.id}"]`);
+            const card = document.querySelector(`.custom-card[data-technique-id="${technique.id}"]`);
             if (card) {
                 const nameElement = card.querySelector('.custom-card-name');
                 const durationElement = card.querySelector('.custom-card-duration');
@@ -2383,7 +2383,7 @@ class PomodoroTimer {
                 
                 // Mark as active if this is the selected technique
                 if (selectedTechnique === `custom_${technique.id}`) {
-                    const card = document.querySelector(`[data-technique-id="${technique.id}"]`);
+                    const card = document.querySelector(`.custom-card[data-technique-id="${technique.id}"]`);
                     if (card) {
                         card.classList.add('active');
                         console.log(`✅ Custom technique '${technique.name}' marked as active`);
@@ -2401,7 +2401,7 @@ class PomodoroTimer {
         if (!container) return;
         
         // Check if card already exists to prevent duplicates
-        const existingCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
+        const existingCard = document.querySelector(`.custom-card[data-technique-id="${technique.id}"]`);
         if (existingCard) {
             console.log(`⚠️ Custom technique '${technique.name}' already exists, skipping...`);
             return;
@@ -2428,19 +2428,93 @@ class PomodoroTimer {
             <div class="custom-card-break">${technique.shortBreakMinutes}min short break</div>
             <div class="custom-card-long-break">${technique.longBreakMinutes}min long break</div>
             <div class="custom-card-sessions">${technique.sessions} sessions</div>
-            ${!isDisabled ? `<button class="custom-card-delete" title="Archive timer" onclick="event.stopPropagation(); window.pomodoroTimer.archiveCustomTechnique('${technique.id}')">×</button>` : ''}
+            ${!isDisabled ? `
+                <div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+                    <button class="timer-options-btn" data-timer-id="${technique.id}" title="Timer options" onclick="event.stopPropagation();" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="19" cy="12" r="1"/>
+                            <circle cx="5" cy="12" r="1"/>
+                        </svg>
+                    </button>
+                    <div class="timer-options-dropdown cassette-options-dropdown" id="timerOptionsDropdown${technique.id}" style="display: none; right: 0; top: 36px; position: absolute;">
+                        <div class="cassette-options-menu">
+                            <button class="cassette-option-item edit-timer-option" data-timer-id="${technique.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="cassette-option-item archive-timer-option" data-timer-id="${technique.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="20" height="5" x="2" y="3" rx="1"/>
+                                    <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+                                    <path d="M10 12h4"/>
+                                </svg>
+                                Archive
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
         `;
         
         // Add click handler to select technique (only if authenticated)
         if (!isDisabled) {
             card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('custom-card-delete')) {
-                    this.selectCustomTechnique(technique);
-                }
+                if (e.target.closest('.timer-options-btn') || e.target.closest('.timer-options-dropdown')) return;
+                this.selectCustomTechnique(technique);
             });
+
+            const optionsBtn = card.querySelector(`.timer-options-btn[data-timer-id="${technique.id}"]`);
+            const optionsDropdown = card.querySelector(`#timerOptionsDropdown${technique.id}`);
+            if (optionsBtn && optionsDropdown) {
+                optionsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = optionsDropdown.style.display === 'block';
+                    document.querySelectorAll('.timer-options-dropdown').forEach((dropdown) => {
+                        dropdown.style.display = 'none';
+                    });
+                    optionsDropdown.style.display = isVisible ? 'none' : 'block';
+                });
+            }
+
+            const editOption = card.querySelector(`.edit-timer-option[data-timer-id="${technique.id}"]`);
+            if (editOption) {
+                editOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (optionsDropdown) optionsDropdown.style.display = 'none';
+                    const allTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                    const currentTechnique = allTechniques.find((t) => t.id === technique.id);
+                    if (currentTechnique) {
+                        this.editCustomTechnique(currentTechnique);
+                    }
+                });
+            }
+
+            const archiveOption = card.querySelector(`.archive-timer-option[data-timer-id="${technique.id}"]`);
+            if (archiveOption) {
+                archiveOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (optionsDropdown) optionsDropdown.style.display = 'none';
+                    this.archiveCustomTechnique(technique.id);
+                });
+            }
         }
         
         container.appendChild(card);
+
+        if (!this.timerOptionsDropdownListenerAdded) {
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.timer-options-btn') && !e.target.closest('.timer-options-dropdown')) {
+                    document.querySelectorAll('.timer-options-dropdown').forEach((dropdown) => {
+                        dropdown.style.display = 'none';
+                    });
+                }
+            });
+            this.timerOptionsDropdownListenerAdded = true;
+        }
     }
     
     // Edit custom technique
@@ -2583,7 +2657,7 @@ class PomodoroTimer {
             allTechniquePresets.forEach(preset => preset.classList.remove('active'));
             
             // Add active class to selected custom card
-            const selectedCard = document.querySelector(`[data-technique-id="${technique.id}"]`);
+            const selectedCard = document.querySelector(`.custom-card[data-technique-id="${technique.id}"]`);
             if (selectedCard) {
                 selectedCard.classList.add('active');
             }
@@ -2679,7 +2753,7 @@ class PomodoroTimer {
             const filtered = techniques.filter((technique) => technique.id !== techniqueId);
             localStorage.setItem('customTechniques', JSON.stringify(filtered));
 
-            const card = document.querySelector(`[data-technique-id="${techniqueId}"]`);
+            const card = document.querySelector(`.custom-card[data-technique-id="${techniqueId}"]`);
             if (card) {
                 card.remove();
             }
