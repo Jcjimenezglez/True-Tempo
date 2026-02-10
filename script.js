@@ -2524,6 +2524,8 @@ class PomodoroTimer {
             
             // Apply immediately for all users
             this.applyTechniqueImmediately(technique);
+            // Mark as custom so selecting a preset later always reapplies its config
+            this.currentTechniqueKey = 'custom';
             
             console.log('✅ Custom technique selected:', technique);
             
@@ -2614,6 +2616,8 @@ class PomodoroTimer {
             }
 
             if (deletedWasSelected) {
+                // Force preset re-application even if key was stale
+                this.currentTechniqueKey = null;
                 const pomodoroDropdownItem = Array.from(this.dropdownItems || []).find(
                     (item) => item.dataset?.technique === 'pomodoro'
                 );
