@@ -13544,6 +13544,52 @@ class PomodoroTimer {
         return months;
     }
 
+    getThisWeekAndLastWeekTotals(stats) {
+        const weeks = this.getLastNWeeksData(stats, 2);
+        return {
+            thisWeekHours: (weeks[0] && weeks[0].hours) || 0,
+            lastWeekHours: (weeks[1] && weeks[1].hours) || 0
+        };
+    }
+
+    getWeeklyGoalHours() {
+        try {
+            const key = `superfocus_weeklyGoal_${this.user?.id || 'guest'}`;
+            const stored = localStorage.getItem(key);
+            const num = stored != null ? parseFloat(stored) : NaN;
+            return Number.isFinite(num) && num > 0 ? num : 10;
+        } catch (_) {
+            return 10;
+        }
+    }
+
+    setWeeklyGoalHours(hours) {
+        try {
+            const key = `superfocus_weeklyGoal_${this.user?.id || 'guest'}`;
+            const val = Number.isFinite(hours) && hours > 0 ? hours : 10;
+            localStorage.setItem(key, String(val));
+            return val;
+        } catch (_) {
+            return 10;
+        }
+    }
+
+    getTaskBreakdownForReport() {
+        const tasks = this.getLocalTasks();
+        const out = [];
+        for (const task of tasks) {
+            const cfg = this.getTaskConfig(task.id);
+            const sec = cfg?.completedFocusTime || 0;
+            if (sec <= 0) continue;
+            out.push({
+                content: task.content || 'Untitled',
+                hours: sec / 3600
+            });
+        }
+        out.sort((a, b) => b.hours - a.hours);
+        return out;
+    }
+
     generateHeatmapData(stats, days) {
         const heatmapData = [];
         const today = new Date();
@@ -14975,6 +15021,76 @@ class PomodoroTimer {
                         })()}
                     </div>
                 </div>
+                ${(() => {
+                    if (activityLimitToWeek) return '';
+                    const { thisWeekHours, lastWeekHours } = this.getThisWeekAndLastWeekTotals(stats);
+                    const diffHours = thisWeekHours - lastWeekHours;
+                    const pct = lastWeekHours > 0 ? Math.round((diffHours / lastWeekHours) * 100) : (thisWeekHours > 0 ? 100 : 0);
+                    const maxCompare = Math.max(thisWeekHours, lastWeekHours, 1);
+                    const goalHours = this.getWeeklyGoalHours();
+                    const goalProgress = Math.min(100, (weekTotalHours / goalHours) * 100);
+                    const goalToGo = Math.max(0, goalHours - weekTotalHours);
+                    const taskBreakdown = this.getTaskBreakdownForReport();
+                    const maxTaskHours = Math.max(...taskBreakdown.map(t => t.hours), 1);
+                    return `
+                <!-- Comparison (Premium) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">THIS WEEK VS LAST WEEK</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; color: #fff; min-width: 72px;">This week</span>
+                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #a3a3a3;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; color: #fff; min-width: 72px;">Last week</span>
+                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${(lastWeekHours / maxCompare) * 100}%; height: 100%; background: rgba(255,255,255,0.5); border-radius: 4px;"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #a3a3a3;">${lastWeekHours < 0.1 ? lastWeekHours.toFixed(2) : lastWeekHours.toFixed(1)}h</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
+                </div>
+                <!-- Weekly goal (Premium) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
+                        <button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>
+                    </div>
+                    <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
+                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="width: ${goalProgress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h (${Math.round(goalProgress)}%)${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
+                </div>
+                <!-- Time by task (Premium) -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">TIME BY TASK</div>
+                    ${taskBreakdown.length === 0 ? `
+                    <div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>
+                    ` : `
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${taskBreakdown.map(t => {
+                            const pctBar = (t.hours / maxTaskHours) * 100;
+                            const label = t.hours < 0.1 ? t.hours.toFixed(2) : t.hours.toFixed(1);
+                            return `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
+                            <div style="flex: 1; min-width: 60px; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden;">
+                                <div style="width: ${pctBar}%; height: 100%; background: #ffffff; border-radius: 3px;"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #a3a3a3; flex-shrink: 0;">${label}h</span>
+                        </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    `}
+                </div>
+                    `;
+                })()}
 
                 <!-- Level -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
@@ -15038,6 +15154,18 @@ class PomodoroTimer {
         `;
 
             containerElement.innerHTML = html;
+            const changeGoalBtn = document.getElementById('reportChangeWeeklyGoal');
+            if (changeGoalBtn && !activityLimitToWeek) {
+                changeGoalBtn.addEventListener('click', () => {
+                    const current = this.getWeeklyGoalHours();
+                    const raw = window.prompt('Weekly focus goal (hours)', String(current));
+                    if (raw == null) return;
+                    const num = parseFloat(raw);
+                    if (!Number.isFinite(num) || num <= 0) return;
+                    this.setWeeklyGoalHours(num);
+                    this.loadReportForPanel();
+                });
+            }
             const openDoneHistoryBtn = document.getElementById('openDoneHistory');
             if (openDoneHistoryBtn && window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
                 openDoneHistoryBtn.addEventListener('click', () => {
