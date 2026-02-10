@@ -906,7 +906,6 @@ a.resource-item:hover,
     background: transparent;
     color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
     justify-self: end;
 }
 
@@ -919,14 +918,6 @@ a.resource-item:hover,
 
 .leaderboard-refresh-btn svg + svg {
     display: none;
-}
-
-.leaderboard-refresh-btn.loading svg {
-    display: none;
-}
-
-.leaderboard-refresh-btn.loading svg + svg {
-    display: block;
 }
 
 .leaderboard-refresh-btn:hover {
