@@ -2602,6 +2602,8 @@ class PomodoroTimer {
                 return;
             }
 
+            const selectedTechnique = localStorage.getItem('selectedTechnique');
+            const deletedWasSelected = selectedTechnique === `custom_${techniqueId}`;
             const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
             const filtered = techniques.filter((technique) => technique.id !== techniqueId);
             localStorage.setItem('customTechniques', JSON.stringify(filtered));
@@ -2609,6 +2611,24 @@ class PomodoroTimer {
             const card = document.querySelector(`.custom-card[data-technique-id="${techniqueId}"]`);
             if (card) {
                 card.remove();
+            }
+
+            if (deletedWasSelected) {
+                const pomodoroDropdownItem = Array.from(this.dropdownItems || []).find(
+                    (item) => item.dataset?.technique === 'pomodoro'
+                );
+
+                if (pomodoroDropdownItem) {
+                    this.selectTechnique(pomodoroDropdownItem);
+                } else {
+                    localStorage.setItem('selectedTechnique', 'pomodoro');
+                    this.updateTimerTechniqueButton('pomodoro');
+                    this.loadTechnique('pomodoro');
+                    this.syncSettingsPanelTechnique('pomodoro');
+                    document.querySelectorAll('.custom-card').forEach((customCard) => {
+                        customCard.classList.remove('active');
+                    });
+                }
             }
 
             this.syncTechniquesToServer();
