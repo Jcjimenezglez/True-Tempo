@@ -23142,6 +23142,7 @@ function initStudyCoachChat() {
     const MAX_TRACKED_MESSAGE_LENGTH = 1000;
     const MIN_HELPFUL_REPLY_LENGTH = 50;
     const FREE_DAILY_QUESTION_LIMIT = 3;
+    const FREE_LIMIT_COOLDOWN_MS = 23 * 60 * 60 * 1000;
     const FREE_DAILY_USAGE_KEY = 'studyTutorFreeDailyUsage';
 
     function createConversationId() {
@@ -23184,31 +23185,117 @@ function initStudyCoachChat() {
             const parsed = JSON.parse(localStorage.getItem(FREE_DAILY_USAGE_KEY) || '{}');
             return {
                 date: parsed.date || '',
-                count: Number(parsed.count) || 0
+                count: Number(parsed.count) || 0,
+                limitReachedAtMs: Number(parsed.limitReachedAtMs) || null
             };
         } catch (_) {
-            return { date: '', count: 0 };
+            return { date: '', count: 0, limitReachedAtMs: null };
         }
     }
 
-    function getFreeQuestionsUsedToday() {
+    function saveFreeDailyUsage(usage) {
+        localStorage.setItem(FREE_DAILY_USAGE_KEY, JSON.stringify({
+            date: usage.date || '',
+            count: Number(usage.count) || 0,
+            limitReachedAtMs: usage.limitReachedAtMs || null
+        }));
+    }
+
+    function resetFreeDailyUsage() {
+        const reset = { date: getLocalDateKey(), count: 0, limitReachedAtMs: null };
+        saveFreeDailyUsage(reset);
+        return reset;
+    }
+
+    function getFreshFreeDailyUsage() {
         const usage = getFreeDailyUsage();
+        if (usage.limitReachedAtMs) {
+            const unlockAtMs = usage.limitReachedAtMs + FREE_LIMIT_COOLDOWN_MS;
+            if (Date.now() >= unlockAtMs) {
+                return resetFreeDailyUsage();
+            }
+        }
+        return usage;
+    }
+
+    function getFreeQuestionsUsedToday() {
+        const usage = getFreshFreeDailyUsage();
         const todayKey = getLocalDateKey();
         return usage.date === todayKey ? usage.count : 0;
     }
 
+    function getFreeQuestionLimitState() {
+        const usage = getFreshFreeDailyUsage();
+        const todayKey = getLocalDateKey();
+        const usedToday = usage.date === todayKey ? usage.count : 0;
+
+        if (usage.limitReachedAtMs) {
+            return {
+                reached: true,
+                usedToday,
+                unlockAtMs: usage.limitReachedAtMs + FREE_LIMIT_COOLDOWN_MS
+            };
+        }
+
+        if (usedToday >= FREE_DAILY_QUESTION_LIMIT) {
+            const reachedAtMs = Date.now();
+            const updatedUsage = {
+                date: todayKey,
+                count: usedToday,
+                limitReachedAtMs: reachedAtMs
+            };
+            saveFreeDailyUsage(updatedUsage);
+            return {
+                reached: true,
+                usedToday,
+                unlockAtMs: reachedAtMs + FREE_LIMIT_COOLDOWN_MS
+            };
+        }
+
+        return {
+            reached: false,
+            usedToday,
+            unlockAtMs: null
+        };
+    }
+
     function hasReachedFreeDailyQuestionLimit() {
-        return getFreeQuestionsUsedToday() >= FREE_DAILY_QUESTION_LIMIT;
+        return getFreeQuestionLimitState().reached;
     }
 
     function consumeFreeDailyQuestionUse() {
         const todayKey = getLocalDateKey();
-        const currentCount = getFreeQuestionsUsedToday();
-        const nextCount = currentCount + 1;
-        localStorage.setItem(FREE_DAILY_USAGE_KEY, JSON.stringify({
+        const usage = getFreshFreeDailyUsage();
+        const baseCount = usage.date === todayKey ? usage.count : 0;
+        const nextCount = baseCount + 1;
+        const reachedLimitNow = nextCount >= FREE_DAILY_QUESTION_LIMIT;
+
+        saveFreeDailyUsage({
             date: todayKey,
-            count: nextCount
-        }));
+            count: nextCount,
+            limitReachedAtMs: reachedLimitNow ? (usage.limitReachedAtMs || Date.now()) : null
+        });
+    }
+
+    function formatCoachLimitReturnTime(unlockAtMs) {
+        if (!unlockAtMs) return '';
+        const now = new Date();
+        const unlockDate = new Date(unlockAtMs);
+        const sameDay =
+            now.getFullYear() === unlockDate.getFullYear() &&
+            now.getMonth() === unlockDate.getMonth() &&
+            now.getDate() === unlockDate.getDate();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        const isTomorrow =
+            tomorrow.getFullYear() === unlockDate.getFullYear() &&
+            tomorrow.getMonth() === unlockDate.getMonth() &&
+            tomorrow.getDate() === unlockDate.getDate();
+        const timeLabel = unlockDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+        if (sameDay) return `today at ${timeLabel}`;
+        if (isTomorrow) return `tomorrow at ${timeLabel}`;
+        return `${unlockDate.toLocaleDateString([], { month: 'short', day: 'numeric' })} at ${timeLabel}`;
     }
 
     function updateCoachDailyLimitNotice() {
@@ -23217,7 +23304,14 @@ function initStudyCoachChat() {
         const isAuthenticated = !!timer?.isAuthenticated;
         const isPremium = !!timer?.isPremiumUser?.();
         const isFreeUser = isAuthenticated && !isPremium;
-        const showNotice = isFreeUser && hasReachedFreeDailyQuestionLimit();
+        const limitState = getFreeQuestionLimitState();
+        const showNotice = isFreeUser && limitState.reached;
+        if (showNotice) {
+            const returnTimeLabel = formatCoachLimitReturnTime(limitState.unlockAtMs);
+            dailyLimitNoticeEl.textContent = returnTimeLabel
+                ? `You've reached your daily limit of 3 AI questions. Come back ${returnTimeLabel} (23h cooldown), or upgrade to Premium for unlimited study questions.`
+                : `You've reached your daily limit of 3 AI questions. Upgrade to Premium for unlimited study questions.`;
+        }
         dailyLimitNoticeEl.style.display = showNotice ? 'block' : 'none';
     }
 
@@ -23339,11 +23433,12 @@ function initStudyCoachChat() {
             return;
         }
 
-        if (!isPremium && hasReachedFreeDailyQuestionLimit()) {
+        const limitState = !isPremium ? getFreeQuestionLimitState() : { reached: false, usedToday: 0 };
+        if (!isPremium && limitState.reached) {
             updateCoachDailyLimitNotice();
             trackCoachEvent('Study Tutor Daily Limit Reached', {
                 limit_type: 'daily_question_limit',
-                free_questions_used_today: getFreeQuestionsUsedToday()
+                free_questions_used_today: limitState.usedToday
             });
             if (timer) {
                 timer.trackEvent('Subscribe Clicked', {
