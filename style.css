@@ -836,6 +836,13 @@ a.resource-item:hover,
 .coach-title-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.coach-title-left {
+    display: flex;
+    align-items: center;
     gap: 8px;
 }
 
@@ -864,7 +871,6 @@ a.resource-item:hover,
     color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
-    justify-self: end;
 }
 
 .coach-new-chat-btn:hover {

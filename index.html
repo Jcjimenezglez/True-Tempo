@@ -1611,17 +1611,19 @@
             <div class="tasks-header coach-header">
                 <div class="coach-header-text">
                     <div class="coach-title-row">
-                        <h3>Chat</h3>
-                        <span class="coach-beta-badge" aria-label="Beta feature">Beta</span>
+                        <div class="coach-title-left">
+                            <h3>Chat</h3>
+                            <span class="coach-beta-badge" aria-label="Beta feature">Beta</span>
+                        </div>
+                        <button class="coach-new-chat-btn" id="coachNewChatBtn" type="button" aria-label="Start a new chat" title="New chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 5v14"/>
+                                <path d="M5 12h14"/>
+                            </svg>
+                        </button>
                     </div>
                     <p class="tasks-subtitle">Ask questions and get tips</p>
                 </div>
-                <button class="coach-new-chat-btn" id="coachNewChatBtn" type="button" aria-label="Start a new chat" title="New chat">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 5v14"/>
-                        <path d="M5 12h14"/>
-                    </svg>
-                </button>
             </div>
             <div class="coach-chat">
                 <div class="coach-chat-messages" id="coachChatMessages" aria-live="polite"></div>
