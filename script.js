@@ -15080,10 +15080,31 @@ class PomodoroTimer {
                     const taskBreakdownTotal = taskBreakdown.reduce((s, t) => s + t.hours, 0);
                     return `
                 <!-- THIS WEEK VS LAST WEEK (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">THIS WEEK VS LAST WEEK</div>
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        ${isLocked ? '<div style="font-size: 16px;">📊</div>' : ''}
+                        <div style="font-size: 12px; color: #a3a3a3;">THIS WEEK VS LAST WEEK</div>
+                        ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
+                    </div>
                     ${isLocked ? `
-                    <div style="font-size: 13px; color: #a3a3a3;">Compare your focus time this week vs. last week.</div>
+                    <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; color: #666; min-width: 72px;">This week</span>
+                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                                <div style="width: 20%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 4px;"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #666;">0.0h</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 12px; color: #666; min-width: 72px;">Last week</span>
+                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                                <div style="width: 35%; height: 100%; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                            </div>
+                            <span style="font-size: 12px; color: #666;">0.0h</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #666;">+0.0h (↑ 0%) vs last week</div>
                     ` : `
                     <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -15105,9 +15126,13 @@ class PomodoroTimer {
                     `}
                 </div>
                 <!-- TIME BY TASK (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <div style="font-size: 12px; color: #a3a3a3;">TIME BY TASK</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${isLocked ? '<div style="font-size: 16px;">📋</div>' : ''}
+                            <div style="font-size: 12px; color: #a3a3a3;">TIME BY TASK</div>
+                            ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
+                        </div>
                         ${!isLocked ? `<div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="task-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
                             <button class="task-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
@@ -15115,7 +15140,18 @@ class PomodoroTimer {
                         </div>` : ''}
                     </div>
                     ${isLocked ? `
-                    <div style="font-size: 13px; color: #a3a3a3;">See how much time you've spent on each task.</div>
+                    <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
+                    <div style="font-size: 11px; color: #555; margin-bottom: 8px;">Last 7 days · 0.0h</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 14px;">
+                            <span style="font-size: 12px; color: #555;">Task example</span>
+                            <span style="font-size: 11px; color: #555; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;">0.5h</span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 14px;">
+                            <span style="font-size: 12px; color: #555;">Another task</span>
+                            <span style="font-size: 11px; color: #555; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;">0.2h</span>
+                        </div>
+                    </div>
                     ` : `
                     <div id="reportTaskBreakdownLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days · ${taskBreakdownTotal < 0.1 ? taskBreakdownTotal.toFixed(2) : taskBreakdownTotal.toFixed(1)}h</div>
                     <div id="reportTaskBreakdownList">
@@ -15138,13 +15174,22 @@ class PomodoroTimer {
                     `}
                 </div>
                 <!-- WEEKLY GOAL (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${isLocked ? '<div style="font-size: 16px;">🎯</div>' : ''}
+                            <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
+                            ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
+                        </div>
                         ${!isLocked && goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
                     </div>
                     ${isLocked ? `
-                    <div style="font-size: 13px; color: #a3a3a3;">Set and track a weekly focus goal.</div>
+                    <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
+                    <div style="font-size: 14px; color: #666; font-weight: 600; margin-bottom: 8px;">10h this week</div>
+                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="width: 25%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 4px;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #666;">2.5h / 10h (25%) · 7.5h to go</div>
                     ` : goalHours == null ? `
                     <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 10px;">Set a goal to track your progress.</div>
                     <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer;">Set weekly goal</button>
