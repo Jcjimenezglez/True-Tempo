@@ -7662,6 +7662,7 @@ class PomodoroTimer {
                     const cfg = this.getTaskConfig(this.currentTask.id);
                     const prev = cfg?.completedFocusTime || 0;
                     this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + 1 });
+                    this.addTaskFocusDaily(this.currentTask.id, 1);
                 }
                 // If user crosses the 120-minute threshold now, start cooldown
                 if (!this.isPremiumUser() && (this.focusSecondsToday || 0) >= this.DAILY_FOCUS_LIMIT_SECONDS && !this.focusLimitCooldownUntil) {
@@ -11616,6 +11617,26 @@ class PomodoroTimer {
         localStorage.setItem('taskConfigs', JSON.stringify(configs));
     }
 
+    getTaskFocusDaily() {
+        try {
+            const key = `superfocus_taskFocusDaily_${this.user?.id || 'guest'}`;
+            return JSON.parse(localStorage.getItem(key) || '{}');
+        } catch (_) {
+            return {};
+        }
+    }
+
+    addTaskFocusDaily(taskId, seconds) {
+        try {
+            const key = `superfocus_taskFocusDaily_${this.user?.id || 'guest'}`;
+            const data = this.getTaskFocusDaily();
+            const today = new Date().toDateString();
+            if (!data[taskId]) data[taskId] = {};
+            data[taskId][today] = (data[taskId][today] || 0) + seconds;
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (_) {}
+    }
+
     incrementTaskCompletedSessions(taskId) {
         const config = this.getTaskConfig(taskId);
         const currentCompleted = config.completedSessions || 0;
@@ -13576,12 +13597,35 @@ class PomodoroTimer {
         }
     }
 
-    getTaskBreakdownForReport() {
+    getTaskBreakdownForReport(range = 'W') {
         const tasks = this.getLocalTasks();
+        const daily = this.getTaskFocusDaily();
+        const today = new Date();
         const out = [];
+        const getSecondsInRange = (taskId) => {
+            const byDate = daily[taskId];
+            if (!byDate) return 0;
+            let start;
+            if (range === 'W') {
+                start = new Date(today);
+                start.setDate(start.getDate() - 6);
+            } else if (range === 'M') {
+                start = new Date(today);
+                start.setDate(start.getDate() - 27);
+            } else if (range === 'Y') {
+                start = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+            } else {
+                return 0;
+            }
+            let sum = 0;
+            for (const [dateStr, sec] of Object.entries(byDate)) {
+                const d = new Date(dateStr);
+                if (d >= start && d <= today) sum += sec;
+            }
+            return sum;
+        };
         for (const task of tasks) {
-            const cfg = this.getTaskConfig(task.id);
-            const sec = cfg?.completedFocusTime || 0;
+            const sec = getSecondsInRange(task.id);
             if (sec <= 0) continue;
             out.push({
                 content: task.content || 'Untitled',
@@ -15032,8 +15076,8 @@ class PomodoroTimer {
                     const goalHours = this.getWeeklyGoalHours();
                     const goalProgress = goalHours != null ? Math.min(100, (weekTotalHours / goalHours) * 100) : 0;
                     const goalToGo = goalHours != null ? Math.max(0, goalHours - weekTotalHours) : 0;
-                    const taskBreakdown = this.getTaskBreakdownForReport();
-                    const maxTaskHours = Math.max(...taskBreakdown.map(t => t.hours), 1);
+                    const taskBreakdown = this.getTaskBreakdownForReport('W');
+                    const taskBreakdownTotal = taskBreakdown.reduce((s, t) => s + t.hours, 0);
                     return `
                 <!-- Comparison (Premium) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
@@ -15056,9 +15100,18 @@ class PomodoroTimer {
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
                 </div>
-                <!-- Time by task (Premium) - chips/badges, no progress bars -->
+                <!-- Time by task (Premium) - chips/badges, W/M/Y filter -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">TIME BY TASK</div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <div style="font-size: 12px; color: #a3a3a3;">TIME BY TASK</div>
+                        <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
+                            <button class="task-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
+                            <button class="task-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
+                            <button class="task-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
+                        </div>
+                    </div>
+                    <div id="reportTaskBreakdownLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days · ${taskBreakdownTotal < 0.1 ? taskBreakdownTotal.toFixed(2) : taskBreakdownTotal.toFixed(1)}h</div>
+                    <div id="reportTaskBreakdownList">
                     ${taskBreakdown.length === 0 ? `
                     <div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>
                     ` : `
@@ -15074,6 +15127,7 @@ class PomodoroTimer {
                         }).join('')}
                     </div>
                     `}
+                    </div>
                 </div>
                 <!-- Weekly goal (Premium) - only real user data, no default -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
@@ -15261,6 +15315,45 @@ class PomodoroTimer {
             });
             // Initialize with W
             setRange('W');
+
+            // Task breakdown range buttons (W/M/Y)
+            const taskRangeButtons = containerElement.querySelectorAll('.task-range-btn');
+            const taskBreakdownLabel = document.getElementById('reportTaskBreakdownLabel');
+            const taskBreakdownList = document.getElementById('reportTaskBreakdownList');
+            const renderTaskBreakdown = (range) => {
+                const taskBreakdown = this.getTaskBreakdownForReport(range);
+                const total = taskBreakdown.reduce((s, t) => s + t.hours, 0);
+                const labelText = range === 'W' ? `Last 7 days · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h` :
+                    range === 'M' ? `Last 4 weeks · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h` :
+                    `Last 12 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
+                if (taskBreakdownLabel) taskBreakdownLabel.textContent = labelText;
+                if (!taskBreakdownList) return;
+                if (taskBreakdown.length === 0) {
+                    taskBreakdownList.innerHTML = '<div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>';
+                } else {
+                    taskBreakdownList.innerHTML = '<div style="display: flex; flex-direction: column; gap: 8px;">' + taskBreakdown.map(t => {
+                        const label = t.hours < 0.1 ? t.hours.toFixed(2) : t.hours.toFixed(1);
+                        return `<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px;">
+                            <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
+                            <span style="font-size: 11px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
+                        </div>`;
+                    }).join('') + '</div>';
+                }
+            };
+            taskRangeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const range = btn.dataset.range;
+                    taskRangeButtons.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#a3a3a3';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = '#2a2a2a';
+                    btn.style.color = '#fff';
+                    renderTaskBreakdown(range);
+                });
+            });
 
             // View all levels modal
             const viewAllLevelsBtn = document.getElementById('viewAllLevels');
