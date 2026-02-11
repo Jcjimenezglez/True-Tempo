@@ -15082,7 +15082,6 @@ class PomodoroTimer {
                 <!-- THIS WEEK VS LAST WEEK (Premium) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        ${isLocked ? '<div style="font-size: 16px;">📊</div>' : ''}
                         <div style="font-size: 12px; color: #a3a3a3;">THIS WEEK VS LAST WEEK</div>
                         ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
                     </div>
@@ -15129,7 +15128,6 @@ class PomodoroTimer {
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            ${isLocked ? '<div style="font-size: 16px;">📋</div>' : ''}
                             <div style="font-size: 12px; color: #a3a3a3;">TIME BY TASK</div>
                             ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
                         </div>
@@ -15177,7 +15175,6 @@ class PomodoroTimer {
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            ${isLocked ? '<div style="font-size: 16px;">🎯</div>' : ''}
                             <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
                             ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
                         </div>
