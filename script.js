@@ -15216,7 +15216,7 @@ class PomodoroTimer {
                         <div style="width: ${level.progress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
                     </div>
                         <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
-                    <div style="margin-top: 12px; text-align: center;">
+                    <div style="margin-top: 12px; text-align: left;">
                         <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View All Levels</button>
                     </div>
                 </div>
@@ -15257,7 +15257,7 @@ class PomodoroTimer {
                             }).join('');
                         })()}
                     </div>
-                    <div style="margin-top: 12px; text-align: center;">
+                    <div style="margin-top: 12px; text-align: left;">
                         <button id="openDoneHistory" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View Done History</button>
                     </div>
                 </div>
