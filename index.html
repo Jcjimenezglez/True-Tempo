@@ -1972,9 +1972,9 @@
                 
                 <!-- Plans Grid -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-                    <!-- Monthly Plan -->
-                    <div id="monthlyPlanCard" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px 10px 5px 10px; cursor: pointer; position: relative; transition: all 0.3s ease; text-align: center;">
-                        <div id="monthlyCheckIcon" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: none; align-items: center; justify-content: center;">
+                    <!-- Monthly Plan (default selected) -->
+                    <div id="monthlyPlanCard" style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1)); border: 2px solid rgba(6, 78, 59, 0.8); border-radius: 12px; padding: 15px 10px 5px 10px; cursor: pointer; position: relative; transition: all 0.3s ease; text-align: center;">
+                        <div id="monthlyCheckIcon" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
@@ -1987,8 +1987,8 @@
                     </div>
                     
                     <!-- Lifetime Plan -->
-                    <div id="lifetimePlanCard" style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1)); border: 2px solid rgba(6, 78, 59, 0.8); border-radius: 12px; padding: 15px 10px 5px 10px; cursor: pointer; position: relative; transition: all 0.3s ease; text-align: center;">
-                        <div id="lifetimeCheckIcon" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <div id="lifetimePlanCard" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px 10px 5px 10px; cursor: pointer; position: relative; transition: all 0.3s ease; text-align: center;">
+                        <div id="lifetimeCheckIcon" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: none; align-items: center; justify-content: center;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
@@ -2046,12 +2046,12 @@
                 
                 <!-- CTA Button -->
                 <button class="logout-modal-btn logout-modal-btn-primary" id="selectedPlanCTA" style="width: 100%; margin-bottom: 8px;">
-                    Get Lifetime Access
+                    Subscribe Monthly
                 </button>
                 
                 <!-- Plan Details Text -->
                 <div id="planDetailsText" style="text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 13px; margin-bottom: 16px;">
-                    No subscription • One-time payment
+                    Cancel anytime
                 </div>
                 
                 <!-- Learn More Link -->
