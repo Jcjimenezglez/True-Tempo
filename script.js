@@ -13589,7 +13589,7 @@ class PomodoroTimer {
             });
         }
         out.sort((a, b) => b.hours - a.hours);
-        return out;
+        return out.slice(0, 10);
     }
 
     generateHeatmapData(stats, days) {
@@ -15062,12 +15062,12 @@ class PomodoroTimer {
                     ${taskBreakdown.length === 0 ? `
                     <div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>
                     ` : `
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
                         ${taskBreakdown.map(t => {
                             const label = t.hours < 0.1 ? t.hours.toFixed(2) : t.hours.toFixed(1);
                             return `
-                        <div style="display: flex; align-items: center; gap: 8px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 12px;">
-                            <span style="font-size: 12px; color: #fff; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px;">
+                            <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
                             <span style="font-size: 11px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
                         </div>
                             `;
