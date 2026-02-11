@@ -7548,19 +7548,6 @@ class PomodoroTimer {
             this.pauseTimer();
         }
         
-        // Save partial focus time to current task before abandoning session
-        if (this.isWorkSession && this.currentTask?.id) {
-            const section = this.cycleSections[this.currentSection - 1];
-            if (section?.type === 'work') {
-                const timeCompleted = section.duration - this.timeLeft;
-                if (timeCompleted > 0) {
-                    const cfg = this.getTaskConfig(this.currentTask.id);
-                    const prev = cfg?.completedFocusTime || 0;
-                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
-                }
-            }
-        }
-        
         // Reset to first section
         this.currentSection = 1;
         
@@ -7670,6 +7657,12 @@ class PomodoroTimer {
             // Realtime tracking: focus-only for total focus time
             if (this.currentSection % 2 === 1) {
                 this.addFocusTime(1);
+                // Cumulative task focus time: add each second to current task (no need to finish session or reset)
+                if (this.currentTask?.id) {
+                    const cfg = this.getTaskConfig(this.currentTask.id);
+                    const prev = cfg?.completedFocusTime || 0;
+                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + 1 });
+                }
                 // If user crosses the 120-minute threshold now, start cooldown
                 if (!this.isPremiumUser() && (this.focusSecondsToday || 0) >= this.DAILY_FOCUS_LIMIT_SECONDS && !this.focusLimitCooldownUntil) {
                     this.focusLimitCooldownUntil = Date.now() + this.FOCUS_LIMIT_COOLDOWN_MS;
@@ -7808,11 +7801,6 @@ class PomodoroTimer {
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
                 this.actualFocusTimeCompleted += timeCompleted;
-                if (this.currentTask?.id && timeCompleted > 0) {
-                    const cfg = this.getTaskConfig(this.currentTask.id);
-                    const prev = cfg?.completedFocusTime || 0;
-                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
-                }
             }
             this.currentSection--;
             this.loadCurrentSection();
@@ -7838,11 +7826,6 @@ class PomodoroTimer {
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
                 this.actualFocusTimeCompleted += timeCompleted;
-                if (this.currentTask?.id && timeCompleted > 0) {
-                    const cfg = this.getTaskConfig(this.currentTask.id);
-                    const prev = cfg?.completedFocusTime || 0;
-                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
-                }
             }
             this.currentSection++;
             this.loadCurrentSection();
@@ -7993,12 +7976,6 @@ class PomodoroTimer {
                 const lastIdx = this.cycleSections.length - 1;
                 const timeCompleted = this.cycleSections[lastIdx]?.duration ?? 0;
                 this.actualFocusTimeCompleted += timeCompleted;
-                // Track focus time to current task
-                if (this.currentTask?.id && timeCompleted > 0) {
-                    const cfg = this.getTaskConfig(this.currentTask.id);
-                    const prev = cfg?.completedFocusTime || 0;
-                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
-                }
             }
             
             // Check if enough focus time was actually completed
@@ -8035,13 +8012,7 @@ class PomodoroTimer {
         if (finishedWasFocus) {
             const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
             this.actualFocusTimeCompleted += timeCompleted;
-            // Track focus time to current task (dedicated time, not waiting for task completion)
-            if (this.currentTask?.id) {
-                const cfg = this.getTaskConfig(this.currentTask.id);
-                const prev = cfg?.completedFocusTime || 0;
-                this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
-            }
-            // Advance queue BEFORE loading next section so the label updates immediately
+            // Task focus time already accumulated per-tick; advance queue
             this.advanceTaskQueueAfterFocus();
             
             // Refresh task panel if it's open to show real-time updates
