@@ -888,6 +888,33 @@ a.resource-item:hover,
     margin: 0.25rem 0 0 0;
 }
 
+.analytics-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.analytics-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.analytics-reset-data-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 0;
+}
+
+.analytics-reset-data-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 .leaderboard-header {
     display: flex;
     flex-direction: column;
