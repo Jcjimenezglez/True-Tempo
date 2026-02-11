@@ -13556,21 +13556,23 @@ class PomodoroTimer {
         try {
             const key = `superfocus_weeklyGoal_${this.user?.id || 'guest'}`;
             const stored = localStorage.getItem(key);
-            const num = stored != null ? parseFloat(stored) : NaN;
-            return Number.isFinite(num) && num > 0 ? num : 10;
+            if (stored == null || stored === '') return null;
+            const num = parseFloat(stored);
+            return Number.isFinite(num) && num > 0 ? num : null;
         } catch (_) {
-            return 10;
+            return null;
         }
     }
 
     setWeeklyGoalHours(hours) {
         try {
             const key = `superfocus_weeklyGoal_${this.user?.id || 'guest'}`;
-            const val = Number.isFinite(hours) && hours > 0 ? hours : 10;
-            localStorage.setItem(key, String(val));
+            const val = Number.isFinite(hours) && hours > 0 ? hours : null;
+            if (val != null) localStorage.setItem(key, String(val));
+            else localStorage.removeItem(key);
             return val;
         } catch (_) {
-            return 10;
+            return null;
         }
     }
 
@@ -15028,8 +15030,8 @@ class PomodoroTimer {
                     const pct = lastWeekHours > 0 ? Math.round((diffHours / lastWeekHours) * 100) : (thisWeekHours > 0 ? 100 : 0);
                     const maxCompare = Math.max(thisWeekHours, lastWeekHours, 1);
                     const goalHours = this.getWeeklyGoalHours();
-                    const goalProgress = Math.min(100, (weekTotalHours / goalHours) * 100);
-                    const goalToGo = Math.max(0, goalHours - weekTotalHours);
+                    const goalProgress = goalHours != null ? Math.min(100, (weekTotalHours / goalHours) * 100) : 0;
+                    const goalToGo = goalHours != null ? Math.max(0, goalHours - weekTotalHours) : 0;
                     const taskBreakdown = this.getTaskBreakdownForReport();
                     const maxTaskHours = Math.max(...taskBreakdown.map(t => t.hours), 1);
                     return `
@@ -15054,17 +15056,22 @@ class PomodoroTimer {
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
                 </div>
-                <!-- Weekly goal (Premium) -->
+                <!-- Weekly goal (Premium) - only real user data, no default -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                         <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
-                        <button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>
+                        ${goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
                     </div>
+                    ${goalHours == null ? `
+                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 10px;">Set a goal to track your progress.</div>
+                    <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer;">Set weekly goal</button>
+                    ` : `
                     <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
                     <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
                         <div style="width: ${goalProgress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h (${Math.round(goalProgress)}%)${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
+                    `}
                 </div>
                 <!-- Time by task (Premium) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
@@ -15155,16 +15162,19 @@ class PomodoroTimer {
 
             containerElement.innerHTML = html;
             const changeGoalBtn = document.getElementById('reportChangeWeeklyGoal');
-            if (changeGoalBtn && !activityLimitToWeek) {
-                changeGoalBtn.addEventListener('click', () => {
+            const setGoalBtn = document.getElementById('reportSetWeeklyGoal');
+            if (!activityLimitToWeek) {
+                const applyGoal = () => {
                     const current = this.getWeeklyGoalHours();
-                    const raw = window.prompt('Weekly focus goal (hours)', String(current));
+                    const raw = window.prompt('Weekly focus goal (hours)', current != null ? String(current) : '');
                     if (raw == null) return;
                     const num = parseFloat(raw);
                     if (!Number.isFinite(num) || num <= 0) return;
                     this.setWeeklyGoalHours(num);
                     this.loadReportForPanel();
-                });
+                };
+                if (changeGoalBtn) changeGoalBtn.addEventListener('click', applyGoal);
+                if (setGoalBtn) setGoalBtn.addEventListener('click', applyGoal);
             }
             const openDoneHistoryBtn = document.getElementById('openDoneHistory');
             if (openDoneHistoryBtn && window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
