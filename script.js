@@ -7548,6 +7548,19 @@ class PomodoroTimer {
             this.pauseTimer();
         }
         
+        // Save partial focus time to current task before abandoning session
+        if (this.isWorkSession && this.currentTask?.id) {
+            const section = this.cycleSections[this.currentSection - 1];
+            if (section?.type === 'work') {
+                const timeCompleted = section.duration - this.timeLeft;
+                if (timeCompleted > 0) {
+                    const cfg = this.getTaskConfig(this.currentTask.id);
+                    const prev = cfg?.completedFocusTime || 0;
+                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
+                }
+            }
+        }
+        
         // Reset to first section
         this.currentSection = 1;
         
