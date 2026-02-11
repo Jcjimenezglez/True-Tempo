@@ -5106,8 +5106,8 @@ class PomodoroTimer {
         const streakButtons = document.querySelectorAll('.streak-info');
         streakButtons.forEach((streakInfo) => {
             streakInfo.addEventListener('click', () => {
-                this.trackEvent('Report Clicked', {
-                    button_type: 'report',
+                this.trackEvent('Analytics Clicked', {
+                    button_type: 'analytics',
                     source: 'timer_header'
                 });
                 
@@ -14062,7 +14062,7 @@ class PomodoroTimer {
                 </svg>
             </button>
             <div class="upgrade-content">
-                <h3>Report</h3>
+                <h3>Analytics</h3>
                 <p>Your productivity summary</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
@@ -14784,7 +14784,7 @@ class PomodoroTimer {
             if (isDemo) {
                 reportContent.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                        Loading report...
+                        Loading analytics...
                     </div>
                 `;
                 const demo = this.getDemoReportData();
@@ -14803,7 +14803,7 @@ class PomodoroTimer {
         if (!this.isAuthenticated || !this.user?.id) {
             reportContent.innerHTML = `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    Please log in to view your report.
+                    Please log in to view your analytics.
                 </div>
             `;
             return;
@@ -14815,7 +14815,7 @@ class PomodoroTimer {
         // Show loading state
         reportContent.innerHTML = `
             <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                Loading report...
+                Loading analytics...
             </div>
         `;
 
@@ -14831,7 +14831,7 @@ class PomodoroTimer {
             console.error('Error displaying report:', error);
             reportContent.innerHTML = `
                 <div style="padding: 24px; text-align: center; color: #ff6b6b;">
-                    <div style="margin-bottom: 8px;">Error loading report</div>
+                    <div style="margin-bottom: 8px;">Error loading analytics</div>
                     <div style="font-size: 12px; color: #a3a3a3;">${error.message}</div>
                 </div>
             `;
@@ -14995,10 +14995,10 @@ class PomodoroTimer {
                 if (window.pomodoroTimer) {
                     window.pomodoroTimer.trackEvent('Subscribe Clicked', {
                         button_type: 'subscribe',
-                        source: 'report_panel',
+                        source: 'analytics_panel',
                         location: 'free_report',
                         user_type: 'free',
-                        modal_type: 'report_upgrade_prompt'
+                        modal_type: 'analytics_upgrade_prompt'
                     });
                     window.pomodoroTimer.showPricingPlansModal();
                 }
@@ -15008,7 +15008,7 @@ class PomodoroTimer {
             console.error('Error in displayBasicReport:', error);
             containerElement.innerHTML = `
                 <div style="padding: 24px; text-align: center; color: #ff6b6b;">
-                    <div style="margin-bottom: 8px;">Error loading report</div>
+                    <div style="margin-bottom: 8px;">Error loading analytics</div>
                     <div style="font-size: 12px; color: #a3a3a3;">${error.message}</div>
                 </div>
             `;
@@ -15355,10 +15355,10 @@ class PomodoroTimer {
                         if (window.pomodoroTimer) {
                             window.pomodoroTimer.trackEvent('Subscribe Clicked', {
                                 button_type: 'subscribe',
-                                source: 'report_panel',
+                                source: 'analytics_panel',
                                 location: `activity_${selectedRange.toLowerCase()}_locked`,
                                 user_type: 'free',
-                                modal_type: 'report_upgrade_prompt'
+                                modal_type: 'analytics_upgrade_prompt'
                             });
                             window.pomodoroTimer.showPricingPlansModal();
                         }
@@ -15488,7 +15488,7 @@ class PomodoroTimer {
             console.error('Error in displayAdvancedReport:', error);
             containerElement.innerHTML = `
                 <div style="padding: 24px; text-align: center; color: #ff6b6b;">
-                    <div style="margin-bottom: 8px;">Error loading report</div>
+                    <div style="margin-bottom: 8px;">Error loading analytics</div>
                     <div style="font-size: 12px; color: #a3a3a3;">${error.message}</div>
                 </div>
             `;
@@ -22436,7 +22436,7 @@ class SidebarManager {
                     else if (section === 'settings') panelName = 'Timer Panel';
                     else if (section === 'cassettes') panelName = 'Cassettes Panel';
                     else if (section === 'leaderboard') panelName = 'Leaderboard Panel';
-                    else if (section === 'report') panelName = 'Report Panel';
+                    else if (section === 'report') panelName = 'Analytics Panel';
                     else if (section === 'resources') panelName = 'Resources Panel';
                     else if (section === 'coach') panelName = 'Coach Panel';
                     
@@ -23156,8 +23156,8 @@ class SidebarManager {
 
         // 🎯 Track Report Panel Opened event to Mixpanel
         if (window.mixpanelTracker) {
-            window.mixpanelTracker.trackSidebarPanelOpened('report');
-            console.log('📊 Report panel opened event tracked to Mixpanel');
+            window.mixpanelTracker.trackSidebarPanelOpened('analytics');
+            console.log('📊 Analytics panel opened event tracked to Mixpanel');
         }
 
         if (this.reportSidePanel) {
@@ -24518,7 +24518,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     else if (panelKey === 'settings') panelName = 'Timer Panel';
                     else if (panelKey === 'cassettes') panelName = 'Cassettes Panel';
                     else if (panelKey === 'leaderboard') panelName = 'Leaderboard Panel';
-                    else if (panelKey === 'report') panelName = 'Report Panel';
+                    else if (panelKey === 'report') panelName = 'Analytics Panel';
                     else if (panelKey === 'resources') panelName = 'Resources Panel';
                     else if (panelKey === 'coach') panelName = 'Coach Panel';
 
