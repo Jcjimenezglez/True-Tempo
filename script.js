@@ -15068,18 +15068,26 @@ class PomodoroTimer {
                     </div>
                 </div>
                 ${(() => {
-                    if (activityLimitToWeek) return '';
-                    const { thisWeekHours, lastWeekHours } = this.getThisWeekAndLastWeekTotals(stats);
+                    const isLocked = activityLimitToWeek;
+                    const { thisWeekHours, lastWeekHours } = isLocked ? { thisWeekHours: 0, lastWeekHours: 0 } : this.getThisWeekAndLastWeekTotals(stats);
                     const diffHours = thisWeekHours - lastWeekHours;
                     const pct = lastWeekHours > 0 ? Math.round((diffHours / lastWeekHours) * 100) : (thisWeekHours > 0 ? 100 : 0);
                     const maxCompare = Math.max(thisWeekHours, lastWeekHours, 1);
-                    const goalHours = this.getWeeklyGoalHours();
+                    const goalHours = isLocked ? null : this.getWeeklyGoalHours();
                     const goalProgress = goalHours != null ? Math.min(100, (weekTotalHours / goalHours) * 100) : 0;
                     const goalToGo = goalHours != null ? Math.max(0, goalHours - weekTotalHours) : 0;
-                    const taskBreakdown = this.getTaskBreakdownForReport('W');
+                    const taskBreakdown = isLocked ? [] : this.getTaskBreakdownForReport('W');
                     const taskBreakdownTotal = taskBreakdown.reduce((s, t) => s + t.hours, 0);
+                    const lockOverlay = isLocked ? `
+                        <div class="report-premium-lock" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+                            <div style="font-size: 13px; color: #fff;">Upgrade to Premium to unlock</div>
+                            <button type="button" class="report-upgrade-btn" style="background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Upgrade to Premium</button>
+                        </div>
+                    ` : '';
+                    const lockWrap = (content) => isLocked ? `<div style="position: relative; opacity: 0.7;">${content}${lockOverlay}</div>` : content;
                     return `
-                <!-- Comparison (Premium) -->
+                <!-- THIS WEEK VS LAST WEEK (Premium, locked for free) -->
+                ${lockWrap(`
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">THIS WEEK VS LAST WEEK</div>
                     <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
@@ -15100,15 +15108,17 @@ class PomodoroTimer {
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
                 </div>
-                <!-- Time by task (Premium) - chips/badges, W/M/Y filter -->
+                `)}
+                <!-- TIME BY TASK (Premium, locked for free) -->
+                ${lockWrap(`
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                         <div style="font-size: 12px; color: #a3a3a3;">TIME BY TASK</div>
-                        <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
+                        ${!isLocked ? `<div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="task-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
                             <button class="task-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
                             <button class="task-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
-                        </div>
+                        </div>` : ''}
                     </div>
                     <div id="reportTaskBreakdownLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days · ${taskBreakdownTotal < 0.1 ? taskBreakdownTotal.toFixed(2) : taskBreakdownTotal.toFixed(1)}h</div>
                     <div id="reportTaskBreakdownList">
@@ -15129,7 +15139,9 @@ class PomodoroTimer {
                     `}
                     </div>
                 </div>
-                <!-- Weekly goal (Premium) - only real user data, no default -->
+                `)}
+                <!-- WEEKLY GOAL (Premium, locked for free) -->
+                ${lockWrap(`
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                         <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
@@ -15146,6 +15158,7 @@ class PomodoroTimer {
                     <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h (${Math.round(goalProgress)}%)${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
                     `}
                 </div>
+                `)}
                     `;
                 })()}
 
@@ -15211,6 +15224,22 @@ class PomodoroTimer {
         `;
 
             containerElement.innerHTML = html;
+            // Premium lock overlays: click to open upgrade modal
+            containerElement.querySelectorAll('.report-premium-lock, .report-upgrade-btn').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.pomodoroTimer) {
+                        window.pomodoroTimer.trackEvent('Subscribe Clicked', {
+                            button_type: 'subscribe',
+                            source: 'report_panel',
+                            location: 'premium_section_lock',
+                            user_type: 'free',
+                            modal_type: 'report_upgrade_prompt'
+                        });
+                        window.pomodoroTimer.showPricingPlansModal();
+                    }
+                });
+            });
             const changeGoalBtn = document.getElementById('reportChangeWeeklyGoal');
             const setGoalBtn = document.getElementById('reportSetWeeklyGoal');
             if (!activityLimitToWeek) {
