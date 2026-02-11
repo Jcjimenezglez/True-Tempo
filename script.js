@@ -7795,6 +7795,11 @@ class PomodoroTimer {
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
                 this.actualFocusTimeCompleted += timeCompleted;
+                if (this.currentTask?.id && timeCompleted > 0) {
+                    const cfg = this.getTaskConfig(this.currentTask.id);
+                    const prev = cfg?.completedFocusTime || 0;
+                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
+                }
             }
             this.currentSection--;
             this.loadCurrentSection();
@@ -7820,6 +7825,11 @@ class PomodoroTimer {
             if (this.currentSection % 2 === 1 && this.isWorkSession) { // if currently in a focus session
                 const timeCompleted = this.cycleSections[this.currentSection - 1].duration - this.timeLeft;
                 this.actualFocusTimeCompleted += timeCompleted;
+                if (this.currentTask?.id && timeCompleted > 0) {
+                    const cfg = this.getTaskConfig(this.currentTask.id);
+                    const prev = cfg?.completedFocusTime || 0;
+                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
+                }
             }
             this.currentSection++;
             this.loadCurrentSection();
@@ -7967,8 +7977,15 @@ class PomodoroTimer {
             
             // Add time from the last completed focus session
             if (finishedWasFocus) {
-                const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
+                const lastIdx = this.cycleSections.length - 1;
+                const timeCompleted = this.cycleSections[lastIdx]?.duration ?? 0;
                 this.actualFocusTimeCompleted += timeCompleted;
+                // Track focus time to current task
+                if (this.currentTask?.id && timeCompleted > 0) {
+                    const cfg = this.getTaskConfig(this.currentTask.id);
+                    const prev = cfg?.completedFocusTime || 0;
+                    this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
+                }
             }
             
             // Check if enough focus time was actually completed
@@ -8005,6 +8022,12 @@ class PomodoroTimer {
         if (finishedWasFocus) {
             const timeCompleted = this.cycleSections[this.currentSection - 2].duration; // Previous section (just finished)
             this.actualFocusTimeCompleted += timeCompleted;
+            // Track focus time to current task (dedicated time, not waiting for task completion)
+            if (this.currentTask?.id) {
+                const cfg = this.getTaskConfig(this.currentTask.id);
+                const prev = cfg?.completedFocusTime || 0;
+                this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + timeCompleted });
+            }
             // Advance queue BEFORE loading next section so the label updates immediately
             this.advanceTaskQueueAfterFocus();
             
@@ -8349,16 +8372,8 @@ class PomodoroTimer {
             tasks[idx].completed = true;
             tasks[idx].completedAt = new Date().toISOString();
             
-            // Track actual focus time completed for this task
-            // Get current session's actual focus time from actualFocusTimeCompleted
-            const taskConfig = this.getTaskConfig(taskId);
-            const completedFocusTime = taskConfig.completedFocusTime || 0;
-            const newFocusTime = completedFocusTime + this.actualFocusTimeCompleted;
-            
-            this.setTaskConfig(taskId, { 
-                completedFocusTime: newFocusTime,
-                selected: false 
-            });
+            // Focus time is tracked per session in advanceToNextSection, not on task completion
+            this.setTaskConfig(taskId, { selected: false });
             
             this.setLocalTasks(tasks);
             
@@ -13546,9 +13561,10 @@ class PomodoroTimer {
 
     getThisWeekAndLastWeekTotals(stats) {
         const weeks = this.getLastNWeeksData(stats, 2);
+        // weeks[0]=last week, weeks[1]=this week (most recent)
         return {
-            thisWeekHours: (weeks[0] && weeks[0].hours) || 0,
-            lastWeekHours: (weeks[1] && weeks[1].hours) || 0
+            thisWeekHours: (weeks[1] && weeks[1].hours) || 0,
+            lastWeekHours: (weeks[0] && weeks[0].hours) || 0
         };
     }
 
@@ -15056,23 +15072,6 @@ class PomodoroTimer {
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
                 </div>
-                <!-- Weekly goal (Premium) - only real user data, no default -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
-                        ${goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
-                    </div>
-                    ${goalHours == null ? `
-                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 10px;">Set a goal to track your progress.</div>
-                    <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer;">Set weekly goal</button>
-                    ` : `
-                    <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
-                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: ${goalProgress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
-                    </div>
-                    <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h (${Math.round(goalProgress)}%)${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
-                    `}
-                </div>
                 <!-- Time by task (Premium) -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">TIME BY TASK</div>
@@ -15094,6 +15093,23 @@ class PomodoroTimer {
                             `;
                         }).join('')}
                     </div>
+                    `}
+                </div>
+                <!-- Weekly goal (Premium) - only real user data, no default -->
+                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
+                        ${goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
+                    </div>
+                    ${goalHours == null ? `
+                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 10px;">Set a goal to track your progress.</div>
+                    <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer;">Set weekly goal</button>
+                    ` : `
+                    <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
+                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="width: ${goalProgress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h (${Math.round(goalProgress)}%)${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
                     `}
                 </div>
                     `;
