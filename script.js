@@ -7298,6 +7298,17 @@ class PomodoroTimer {
         this.leaderboardRefreshBtn.setAttribute('aria-busy', 'true');
         let unlockDelayMs = 0;
 
+        // Show loading state in list area for visual feedback
+        const leaderboardContent = document.getElementById('leaderboardContent');
+        const leaderboardModalContent = document.getElementById('leaderboardModalContent');
+        const loadingHtml = `
+            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                Loading leaderboard...
+            </div>
+        `;
+        if (leaderboardContent) leaderboardContent.innerHTML = loadingHtml;
+        if (leaderboardModalContent) leaderboardModalContent.innerHTML = loadingHtml;
+
         try {
             const userId = this.user?.id || window.Clerk?.user?.id || '';
             if (!userId) {
