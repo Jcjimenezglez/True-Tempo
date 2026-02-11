@@ -15056,23 +15056,19 @@ class PomodoroTimer {
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
                 </div>
-                <!-- Time by task (Premium) -->
+                <!-- Time by task (Premium) - chips/badges, no progress bars -->
                 <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                     <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">TIME BY TASK</div>
                     ${taskBreakdown.length === 0 ? `
                     <div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>
                     ` : `
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         ${taskBreakdown.map(t => {
-                            const pctBar = (t.hours / maxTaskHours) * 100;
                             const label = t.hours < 0.1 ? t.hours.toFixed(2) : t.hours.toFixed(1);
                             return `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
-                            <div style="flex: 1; min-width: 60px; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden;">
-                                <div style="width: ${pctBar}%; height: 100%; background: #ffffff; border-radius: 3px;"></div>
-                            </div>
-                            <span style="font-size: 12px; color: #a3a3a3; flex-shrink: 0;">${label}h</span>
+                        <div style="display: flex; align-items: center; gap: 8px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 12px;">
+                            <span style="font-size: 12px; color: #fff; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
+                            <span style="font-size: 11px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
                         </div>
                             `;
                         }).join('')}
