@@ -15664,8 +15664,8 @@ class PomodoroTimer {
         return div.innerHTML;
     }
     
-    async resetAllData(skipConfirmation = false) {
-        if (!skipConfirmation && !confirm('⚠️ Are you sure you want to PERMANENTLY reset ALL your focus data?\n\nThis will:\n- Clear all local focus hours\n- Reset your server stats to 0\n- Clear your streak data\n\nThis action CANNOT be undone!')) {
+    async resetAllData() {
+        if (!confirm('⚠️ Are you sure you want to PERMANENTLY reset ALL your focus data?\n\nThis will:\n- Clear all local focus hours\n- Reset your server stats to 0\n- Clear your streak data\n\nThis action CANNOT be undone!')) {
             return;
         }
         
@@ -17543,57 +17543,6 @@ class PomodoroTimer {
     // Clear timer state from sessionStorage
     clearTimerState() {
         sessionStorage.removeItem('timerState');
-    }
-
-    // Show reset data confirmation modal (Analytics panel)
-    showResetDataConfirmationModal() {
-        const overlay = document.createElement('div');
-        overlay.className = 'upgrade-modal-overlay';
-        overlay.style.display = 'flex';
-
-        const modal = document.createElement('div');
-        modal.className = 'upgrade-modal reset-confirmation-modal';
-        modal.innerHTML = `
-            <button class="close-upgrade-x" aria-label="Close">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
-            <div class="upgrade-content">
-                <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 3v18h18"/>
-                        <path d="m19 9-5 5-4-4-3 3"/>
-                    </svg>
-                </div>
-                <h3>Reset All Data?</h3>
-                <p>Are you sure? This will permanently delete all your focus hours, stats, and streak data. This cannot be recovered.</p>
-                <div class="upgrade-buttons">
-                    <button class="upgrade-btn" id="confirmResetDataBtn">Yes, Reset</button>
-                    <button class="cancel-btn" id="cancelResetDataBtn">Cancel</button>
-                </div>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        const close = () => overlay.remove();
-        const confirmReset = async () => {
-            close();
-            await this.resetAllData(true);
-            if (window.sidebarManager?.isReportPanelOpen) {
-                window.pomodoroTimer.loadReportForPanel();
-            }
-        };
-
-        setTimeout(() => {
-            modal.querySelector('.close-upgrade-x')?.addEventListener('click', close);
-            modal.querySelector('#cancelResetDataBtn')?.addEventListener('click', close);
-            modal.querySelector('#confirmResetDataBtn')?.addEventListener('click', confirmReset);
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-        }, 100);
     }
 
     // Show reset confirmation modal
@@ -22624,14 +22573,6 @@ class SidebarManager {
         if (closeReportPanelBtn) {
             closeReportPanelBtn.addEventListener('click', () => {
                 this.closeReportPanel();
-            });
-        }
-
-        // Analytics panel: Reset the data button
-        const analyticsResetDataBtn = document.getElementById('analyticsResetDataBtn');
-        if (analyticsResetDataBtn) {
-            analyticsResetDataBtn.addEventListener('click', () => {
-                this.showResetDataConfirmationModal();
             });
         }
         
