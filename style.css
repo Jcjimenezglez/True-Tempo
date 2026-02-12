@@ -1582,7 +1582,7 @@ body.is-scrolling .streak-fire {
 }
 
 .timer-technique-btn {
-    display: flex;
+    display: none !important;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -1731,6 +1731,7 @@ body.is-scrolling .streak-fire {
 }
 
 .task-name-display {
+    display: none !important;
     font-size: 0.9rem;
     font-weight: 500;
     color: #ffffff;
