@@ -144,8 +144,6 @@ module.exports = async (req, res) => {
       billing_address_collection: 'auto',
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
-      // Use the Superfocus payment configuration (includes all payment methods)
-      payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     };
     
     // Ensure Checkout creates a Stripe Customer for one-time payments

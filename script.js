@@ -4214,6 +4214,13 @@ class PomodoroTimer {
     }
     
     async proceedToCheckout() {
+        if (this._checkoutInProgress) return;
+        this._checkoutInProgress = true;
+
+        const cta = this.selectedPlanCTA;
+        const originalText = cta?.textContent;
+        if (cta) { cta.disabled = true; cta.textContent = 'Loading...'; }
+
         const planType = this.selectedPlan;
         
         try {
@@ -4372,6 +4379,9 @@ class PomodoroTimer {
                 isAuthenticated: this.isAuthenticated
             });
             alert(`There was an error starting the checkout: ${error.message}\n\nPlease try again or contact support.`);
+        } finally {
+            this._checkoutInProgress = false;
+            if (cta) { cta.disabled = false; cta.textContent = originalText; }
         }
     }
 

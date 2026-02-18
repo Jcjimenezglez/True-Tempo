@@ -70,8 +70,6 @@ module.exports = async (req, res) => {
           optional: true,
         },
       ],
-      // Use the Superfocus payment configuration (includes all payment methods)
-      payment_method_configuration: 'pmc_1SD9HJIMJUHQfsp7OLiiVSXL',
     });
 
     res.status(200).json({ url: session.url });
