@@ -9287,7 +9287,7 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
 }
 
-/* Desktop Required Screen */
+/* Desktop Required Screen - hidden on wide viewports, shown below 1200px */
 .desktop-required-screen {
     position: fixed;
     top: 0;
@@ -9295,13 +9295,19 @@ input:checked + .toggle-slider:before {
     width: 100%;
     min-height: 100vh;
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     z-index: 10000;
     padding: 40px 20px;
     overflow-y: auto;
+}
+
+@media (max-width: 1199px) {
+    .desktop-required-screen {
+        display: flex !important;
+    }
 }
 
 .desktop-required-content {
@@ -10536,11 +10542,6 @@ input:checked + .toggle-slider:before {
 
 /* Mobile (480px and below) */
 @media (max-width: 480px) {
-    /* Mobile now uses bottom sheet system - no blocking screen needed */
-    .desktop-required-screen {
-        display: none !important;
-    }
-    
     /* Main content visible with timer */
     .main-content {
         display: block !important;
@@ -11612,11 +11613,6 @@ input:checked + .toggle-slider:before {
         /* Keep base styles - consistent with other buttons */
     }
     
-    /* Remove desktop-required screen */
-    .desktop-required-screen {
-        display: none !important;
-    }
-    
     /* =============================================
        SIDE PANELS AS BOTTOM SHEETS (Mobile/Tablet)
        ============================================= */
@@ -11784,10 +11780,6 @@ input:checked + .toggle-slider:before {
 
 /* Very small mobile devices (< 480px) */
 @media (max-width: 480px) {
-    .desktop-required-screen {
-        display: none !important;
-    }
-    
     .mobile-menu-toggle {
         display: flex !important;
         top: 20px;
