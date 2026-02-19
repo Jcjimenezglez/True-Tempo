@@ -4618,7 +4618,7 @@ class PomodoroTimer {
                     localStorage.removeItem(`focusSecondsToday_${userId}`);
                     localStorage.removeItem(`focusSecondsTodayDate_${userId}`);
                 }
-                localStorage.removeItem('focusStats');
+                lsRemove('focusStats');
                 localStorage.removeItem('focusSecondsToday');
                 localStorage.removeItem('focusSecondsTodayDate');
                 localStorage.removeItem('focusLimitCooldownUntil');
@@ -6043,7 +6043,7 @@ class PomodoroTimer {
                 : 'focusStats';
             localStorage.removeItem(key);
             // Also remove generic key for cleanup
-            localStorage.removeItem('focusStats');
+            lsRemove('focusStats');
         } catch (_) {}
         // Update UI immediately
         if (this.achievementCounter) {
@@ -13387,11 +13387,11 @@ class PomodoroTimer {
             
             // Migrate old data if user is authenticated and has old stats
             if (this.isAuthenticated && this.user?.id && key !== 'focusStats') {
-                const oldStats = localStorage.getItem('focusStats');
+                const oldStats = lsGet('focusStats');
                 if (oldStats && !localStorage.getItem(key)) {
                     console.log('📦 Migrating focus stats to user-specific storage');
-                    localStorage.setItem(key, oldStats);
-                    localStorage.removeItem('focusStats');
+                    localStorage.setItem(key, JSON.stringify(oldStats));
+                    lsRemove('focusStats');
                 }
             }
             
@@ -14178,7 +14178,7 @@ class PomodoroTimer {
                 
                 // Get custom cassettes (including private ones)
                 try {
-                    const customCassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+                    const customCassettes = lsGet('customCassettes') || [];
                     if (customCassettes.length > 0) {
                         payload.customCassettes = customCassettes;
                     }
@@ -14258,9 +14258,9 @@ class PomodoroTimer {
             const serverStreakData = this.user.publicMetadata?.streakData;
             
             // Check if there's any old generic data that shouldn't be migrated
-            const oldGenericStats = localStorage.getItem('focusStats');
+            const oldGenericStats = lsGet('focusStats');
             if (oldGenericStats) {
-                console.warn('⚠️ Found old generic focusStats in localStorage:', oldGenericStats.substring(0, 100));
+                console.warn('⚠️ Found old generic focusStats in localStorage:', JSON.stringify(oldGenericStats).substring(0, 100));
             }
             
             console.log('📊 Data comparison:', {
@@ -14348,7 +14348,7 @@ class PomodoroTimer {
             }
             
             // Restore cassettes if server has them and local is empty
-            const localCassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+            const localCassettes = lsGet('customCassettes') || [];
             if (localCassettes.length === 0) {
                 const cassettesToRestore = [];
                 
@@ -14364,7 +14364,7 @@ class PomodoroTimer {
                 
                 if (cassettesToRestore.length > 0) {
                     console.log('📦 Restoring cassettes from server...');
-                    localStorage.setItem('customCassettes', JSON.stringify(cassettesToRestore));
+                    lsSet('customCassettes', cassettesToRestore);
                     console.log(`✅ Restored ${cassettesToRestore.length} cassettes`);
                     restoredAnything = true;
                     
@@ -15703,7 +15703,7 @@ class PomodoroTimer {
             ? `focusStats_${this.user.id}` 
             : 'focusStats';
         localStorage.removeItem(key);
-        localStorage.removeItem('focusStats');
+        lsRemove('focusStats');
         
         // Reset focus seconds today
         if (this.isAuthenticated && this.user?.id) {
@@ -19034,7 +19034,7 @@ class PomodoroTimer {
 
     getCustomCassettes() {
         try {
-            const cassettes = JSON.parse(localStorage.getItem('customCassettes') || '[]');
+            const cassettes = lsGet('customCassettes') || [];
             return cassettes;
         } catch {
             return [];
@@ -19682,7 +19682,7 @@ class PomodoroTimer {
                     if (localCassetteIndex >= 0) {
                         localCassettes[localCassetteIndex].views = data.views;
                         localCassettes[localCassetteIndex].viewedBy = data.viewedBy || localCassettes[localCassetteIndex].viewedBy || [];
-                        localStorage.setItem('customCassettes', JSON.stringify(localCassettes));
+                        lsSet('customCassettes', localCassettes);
                     }
                 }
             }
@@ -19783,7 +19783,7 @@ class PomodoroTimer {
             }
             
             console.log('💾 Saving cassettes to localStorage:', cassettes.map(c => ({ id: c.id, title: c.title })));
-            localStorage.setItem('customCassettes', JSON.stringify(cassettes));
+            lsSet('customCassettes', cassettes);
             
             // Sync all cassettes to Clerk when authenticated
             if (this.isAuthenticated && this.user?.id) {
@@ -19891,7 +19891,7 @@ class PomodoroTimer {
         try {
             const cassettes = this.getCustomCassettes();
             const filtered = cassettes.filter(c => c.id !== cassetteId);
-            localStorage.setItem('customCassettes', JSON.stringify(filtered));
+            lsSet('customCassettes', filtered);
             
             // Immediately remove the cassette from the DOM for instant UI feedback
             const customCassetteElement = document.querySelector(`.custom-cassette[data-cassette-id="${cassetteId}"]`);
