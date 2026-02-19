@@ -800,57 +800,22 @@ class PomodoroTimer {
             // Poll briefly to ensure user is hydrated after redirect
             await this.waitForUserHydration(3000);
             
-            // Listen for auth state changes where supported
+            // Single Clerk listener (avoids 3 duplicate updateAuthState calls)
             try {
                 window.Clerk.addListener('user', (user) => {
                     console.log('Auth state changed:', user);
                     this.isAuthenticated = !!user;
                     this.user = user;
-                    this.updateAuthState();
+                    this.scheduleAuthUpdate();
                 });
             } catch (_) {}
             
-            // Also listen for session changes
-            try {
-                window.Clerk.addListener('session', (session) => {
-                    console.log('Session changed:', session);
-                    this.isAuthenticated = !!session;
-                    this.user = window.Clerk.user;
-                    this.updateAuthState();
-                });
-            } catch (_) {}
-            
-            // Listen for auth state changes after redirect
-            try {
-                window.Clerk.addListener('auth', (auth) => {
-                    console.log('Auth state changed:', auth);
-                    this.isAuthenticated = !!auth.user;
-                    this.user = auth.user;
-                    this.updateAuthState();
-                });
-            } catch (_) {}
-            
-            // Wait a bit more for Clerk to fully hydrate before updating UI
+            // Delayed hydration check (single, replaces 3 separate setTimeout calls)
             setTimeout(() => {
-                this.checkAuthState(); // Check first
-                this.updateAuthState(); // Then update UI
-                // Auth may have hydrated; attempt to apply saved technique now
+                this.checkAuthState();
+                this.scheduleAuthUpdate();
                 this.applySavedTechniqueOnce();
-            }, 500);
-            
-            // Force check auth state after a short delay to catch post-redirect state
-            // This is especially important after signup/login redirects
-            setTimeout(() => {
-                this.checkAuthState();
-                this.updateAuthState();
-            }, 1000);
-            
-            // Additional check after longer delay to ensure UI updates
-            // This catches cases where Clerk takes longer to hydrate
-            setTimeout(() => {
-                this.checkAuthState();
-                this.updateAuthState();
-            }, 3000);
+            }, 800);
 
             // Mark auth system as ready and re-run UI gates that depend on it
             this.authReady = true;
@@ -923,7 +888,7 @@ class PomodoroTimer {
                         if (!this.isAuthenticated) {
                             this.isAuthenticated = true;
                             this.user = window.Clerk.user;
-                            this.updateAuthState();
+                            this.scheduleAuthUpdate();
                         }
                     } else if (this.isAuthenticated) {
                         // We thought user was logged in but they're not
@@ -957,7 +922,7 @@ class PomodoroTimer {
         this.isPro = false;
         
         // Update UI
-        this.updateAuthState();
+        this.scheduleAuthUpdate();
     }
     
     // Show notification when session expires
@@ -1086,7 +1051,7 @@ class PomodoroTimer {
                     // Always update UI if state changed or if we just signed up
                     if (!wasAuthenticated || !this.user) {
                         console.log('Auth state verified - user authenticated:', { user: currentUser, session: currentSession });
-                        this.updateAuthState();
+                        this.scheduleAuthUpdate();
                     }
                 } else {
                     // Only update to unauthenticated if we're sure there's no user
@@ -1098,7 +1063,7 @@ class PomodoroTimer {
                             if (window.Clerk && !window.Clerk.user && !window.Clerk.session) {
                                 this.isAuthenticated = false;
                                 this.user = null;
-                                this.updateAuthState();
+                                this.scheduleAuthUpdate();
                                 console.log('No authenticated user found after double-check');
                             }
                         }, 500);
@@ -1252,7 +1217,7 @@ class PomodoroTimer {
             // Local tasks only - no integration cleanup needed
             
             // Update UI
-            this.updateAuthState();
+            this.scheduleAuthUpdate();
             
             console.log('✅ Auth state cleared successfully');
             
@@ -1294,7 +1259,7 @@ class PomodoroTimer {
             }
             
             // Force update auth state
-            this.updateAuthState();
+            this.scheduleAuthUpdate();
             
             console.log('✅ Panels reinitialized successfully');
             
@@ -2698,7 +2663,20 @@ class PomodoroTimer {
         }
     }
     
+    // Debounced wrapper: coalesces rapid-fire calls into a single execution
+    scheduleAuthUpdate() {
+        if (this._authUpdateTimer) clearTimeout(this._authUpdateTimer);
+        this._authUpdateTimer = setTimeout(() => {
+            this._authUpdateTimer = null;
+            this.updateAuthState();
+        }, 300);
+    }
+
     async updateAuthState() {
+        // Prevent re-entrant calls
+        if (this._authUpdateRunning) return;
+        this._authUpdateRunning = true;
+
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
         
         // Debug multiple account issues
@@ -2773,9 +2751,12 @@ class PomodoroTimer {
             this.updatePremiumUI();
             // Update technique presets visibility
             this.updateTechniquePresetsVisibility();
-            // Reconciliar premium desde backend
-            this.refreshPremiumFromServer().catch(() => {});
-            this.handleStripeCheckoutReturn();
+            // Reconcile premium + sync stats ONCE per session (not on every updateAuthState)
+            if (!this._serverSyncDone) {
+                this._serverSyncDone = true;
+                this.refreshPremiumFromServer().catch(() => {});
+                this.handleStripeCheckoutReturn();
+            }
             
             // Ensure cassette auth gating and saved Tron theme are applied post-hydration
             try { this.updateThemeAuthState(); } catch (_) {}
@@ -2841,14 +2822,14 @@ class PomodoroTimer {
                 }
             }
 
-            // Restore stats from Clerk if needed (server → localStorage)
-            // This ensures users don't lose data when switching between accounts
-            await this.restoreStatsFromClerk();
-            
-            // Sync stats to Clerk on authentication (localStorage → server)
-            const stats = this.getFocusStats();
-            if (stats.totalHours) {
-                await this.syncStatsToClerk(stats.totalHours);
+            // Restore/sync stats ONCE per session (not on every updateAuthState)
+            if (!this._statsSyncDone) {
+                this._statsSyncDone = true;
+                this.restoreStatsFromClerk().catch(() => {});
+                const stats = this.getFocusStats();
+                if (stats.totalHours) {
+                    this.syncStatsToClerk(stats.totalHours);
+                }
             }
             
             // Load user-specific focus seconds today
@@ -2900,8 +2881,8 @@ class PomodoroTimer {
                 console.log('Clerk user found, updating auth state');
                 this.isAuthenticated = true;
                 this.user = window.Clerk.user;
-                // Recursively call updateAuthState to handle authenticated case
-                this.updateAuthState();
+                this._authUpdateRunning = false;
+                this.scheduleAuthUpdate();
                 return;
             }
             
@@ -3009,6 +2990,8 @@ class PomodoroTimer {
         this.updateTechniquePresetsVisibility();
 
         this.updateBottomSheetAccountUI();
+
+        this._authUpdateRunning = false;
     }
 
     // Close all open modals to focus on timer
@@ -4562,6 +4545,9 @@ class PomodoroTimer {
             
             // Mark that user just logged out to prevent re-hydration and welcome modal
             try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
+            // Reset per-session sync flags so next login re-syncs
+            this._serverSyncDone = false;
+            this._statsSyncDone = false;
             // Force clear any forced view mode and premium hints
             try {
                 lsRemove('viewMode');
@@ -7414,7 +7400,7 @@ class PomodoroTimer {
                             console.log('✅ Clerk session restored');
                             this.isAuthenticated = true;
                             this.user = window.Clerk.user;
-                            this.updateAuthState();
+                            this.scheduleAuthUpdate();
                         } else if (retryCount < 10) {
                             console.log(`Retrying... (${retryCount + 1}/10)`);
                             setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 800);
@@ -15990,7 +15976,7 @@ class PomodoroTimer {
                 // Wait a bit more and check again to ensure state is updated
                 setTimeout(() => {
                     this.checkAuthState();
-                    this.updateAuthState();
+                    this.scheduleAuthUpdate();
                 }, 1000);
             };
             
