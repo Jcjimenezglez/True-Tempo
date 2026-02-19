@@ -34,6 +34,45 @@ async function hashEmail(email) {
 // Make hashEmail available globally for Enhanced Conversions
 window.hashEmail = hashEmail;
 
+// Hoisted RegExp constants (avoid re-creation in hot paths)
+const RE_NON_NUMERIC = /[^0-9]/g;
+const RE_IMAGE_EXT = /\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i;
+const RE_TRAILING_ZERO_K = /\.0K$/;
+const RE_TRAILING_ZERO_M = /\.0M$/;
+const RE_SPOTIFY_URL = /open\.spotify\.com\/(track|playlist|album)\/([a-zA-Z0-9]+)/;
+const RE_URL_PARAM = /url=([^&]+)/;
+const RE_SINGLE_QUOTE = /'/g;
+const RE_DOUBLE_QUOTE = /"/g;
+
+// Lightweight localStorage cache to avoid repeated reads + JSON.parse
+const _lsCache = Object.create(null);
+const _lsJsonKeys = new Set([
+    'customTechniques', 'customTimer', 'taskConfigs', 'customCassettes', 'focusStats'
+]);
+
+function lsGet(key) {
+    if (key in _lsCache) return _lsCache[key];
+    const raw = localStorage.getItem(key);
+    const val = _lsJsonKeys.has(key) && raw ? JSON.parse(raw) : raw;
+    _lsCache[key] = val;
+    return val;
+}
+
+function lsSet(key, value) {
+    const raw = _lsJsonKeys.has(key) ? JSON.stringify(value) : value;
+    localStorage.setItem(key, raw);
+    _lsCache[key] = value;
+}
+
+function lsRemove(key) {
+    localStorage.removeItem(key);
+    delete _lsCache[key];
+}
+
+function lsInvalidate(key) {
+    if (key) { delete _lsCache[key]; } else { for (const k in _lsCache) delete _lsCache[k]; }
+}
+
 class PomodoroTimer {
     constructor() {
         // Initialize Mixpanel tracking removed - Page Loaded event no longer needed
@@ -535,7 +574,7 @@ class PomodoroTimer {
         // Apply saved background and overlay on init
         // Initialize new theme system (default to lofi)
         // Load last selected theme from localStorage (works for both authenticated and guest users)
-        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        const lastSelectedTheme = lsGet('lastSelectedTheme');
         // Track if we must defer Tron application until auth hydrates
         this.pendingThemeApply = null;
         if (lastSelectedTheme) {
@@ -1196,7 +1235,7 @@ class PomodoroTimer {
             // Clear localStorage
             localStorage.removeItem('hasAccount');
             localStorage.removeItem('selectedImmersiveTheme');
-            localStorage.removeItem('lastSelectedTheme');
+            lsRemove('lastSelectedTheme');
             
             // Clear sessionStorage
             sessionStorage.removeItem('just_logged_out');
@@ -1286,23 +1325,15 @@ class PomodoroTimer {
                 }
             });
             
-            // Fix low opacity elements
-            const lowOpacityElements = document.querySelectorAll('[style*="opacity: 0.5"]');
-            lowOpacityElements.forEach(element => {
+            // Fix disabled elements (both legacy inline styles and class-based)
+            const disabledElements = document.querySelectorAll('.ui-disabled, .ui-disabled-no-click, [style*="opacity: 0.5"], [style*="pointer-events: none"]');
+            disabledElements.forEach(element => {
                 if (this.isAuthenticated) {
-                    console.log('Fixing low opacity element:', element);
-                    element.style.opacity = '1';
-                    element.style.pointerEvents = 'auto';
-                    element.style.cursor = 'auto';
-                }
-            });
-            
-            // Fix pointer-events: none elements
-            const noPointerElements = document.querySelectorAll('[style*="pointer-events: none"]');
-            noPointerElements.forEach(element => {
-                if (this.isAuthenticated) {
-                    console.log('Fixing no pointer events element:', element);
-                    element.style.pointerEvents = 'auto';
+                    console.log('Fixing disabled element:', element);
+                    element.classList.remove('ui-disabled', 'ui-disabled-no-click');
+                    element.style.opacity = '';
+                    element.style.pointerEvents = '';
+                    element.style.cursor = '';
                 }
             });
             
@@ -1324,9 +1355,7 @@ class PomodoroTimer {
             const sessionsCard = sessionsSlider?.closest('.duration-item');
             
             if (sessionsSlider && sessionsValue && sessionsCard) {
-                sessionsCard.style.opacity = '1';
-                sessionsCard.style.pointerEvents = 'auto';
-                sessionsCard.style.cursor = 'auto';
+                sessionsCard.classList.remove('ui-disabled', 'ui-disabled-no-click');
                 sessionsValue.value = this.sessionsPerCycle;
             }
             
@@ -1335,9 +1364,7 @@ class PomodoroTimer {
             const longBreakCard = longBreakSlider?.closest('.duration-item');
             
             if (longBreakSlider && longBreakCard) {
-                longBreakCard.style.opacity = '1';
-                longBreakCard.style.pointerEvents = 'auto';
-                longBreakCard.style.cursor = 'auto';
+                longBreakCard.classList.remove('ui-disabled', 'ui-disabled-no-click');
             }
             
             // Enable advanced techniques
@@ -1345,9 +1372,7 @@ class PomodoroTimer {
             techniquePresets.forEach(preset => {
                 const technique = preset.dataset.technique;
                 if (technique !== 'pomodoro') {
-                    preset.style.opacity = '1';
-                    preset.style.cursor = 'pointer';
-                    preset.style.pointerEvents = 'auto';
+                    preset.classList.remove('ui-disabled', 'ui-disabled-no-click');
                     
                     // Hide "(Sign up required)" text
                     const signupText = preset.querySelector('.signup-required-text');
@@ -1573,7 +1598,7 @@ class PomodoroTimer {
     // Helper function to count custom timers
     getCustomTimersCount() {
         try {
-            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const techniques = lsGet('customTechniques') || [];
             return techniques.length;
         } catch (error) {
             console.error('Error counting custom timers:', error);
@@ -2188,9 +2213,9 @@ class PomodoroTimer {
     // Save custom technique to localStorage and sync to server
     saveCustomTechniqueToStorage(technique) {
         try {
-            const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const existing = lsGet('customTechniques') || [];
             existing.push(technique);
-            localStorage.setItem('customTechniques', JSON.stringify(existing));
+            lsSet('customTechniques', existing);
             
             // Sync to server in background (don't wait)
             this.syncTechniquesToServer();
@@ -2202,11 +2227,11 @@ class PomodoroTimer {
     // Update custom technique in localStorage and sync to server
     updateCustomTechniqueInStorage(technique) {
         try {
-            const existing = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const existing = lsGet('customTechniques') || [];
             const index = existing.findIndex(t => t.id === technique.id);
             if (index !== -1) {
                 existing[index] = technique;
-                localStorage.setItem('customTechniques', JSON.stringify(existing));
+                lsSet('customTechniques', existing);
                 
                 // Sync to server in background (don't wait)
                 this.syncTechniquesToServer();
@@ -2221,7 +2246,7 @@ class PomodoroTimer {
         if (!this.isAuthenticated || !this.user?.id) return;
         
         try {
-            const customTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const customTechniques = lsGet('customTechniques') || [];
             const stats = this.getFocusStats();
             
             await fetch('/api/sync-stats', {
@@ -2274,8 +2299,8 @@ class PomodoroTimer {
                 container.innerHTML = '';
             }
             
-            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
-            const selectedTechnique = localStorage.getItem('selectedTechnique');
+            const techniques = lsGet('customTechniques') || [];
+            const selectedTechnique = lsGet('selectedTechnique');
             
             console.log(`📋 Loading ${techniques.length} custom techniques`);
             
@@ -2388,7 +2413,7 @@ class PomodoroTimer {
                 editOption.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (optionsDropdown) optionsDropdown.style.display = 'none';
-                    const allTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                    const allTechniques = lsGet('customTechniques') || [];
                     const currentTechnique = allTechniques.find((t) => t.id === technique.id);
                     if (currentTechnique) {
                         this.editCustomTechnique(currentTechnique);
@@ -2548,11 +2573,11 @@ class PomodoroTimer {
                 // Save technique identifier properly
                 if (technique.id) {
                     // Custom technique
-                    localStorage.setItem('selectedTechnique', `custom_${technique.id}`);
+                    lsSet('selectedTechnique', `custom_${technique.id}`);
                     console.log(`✅ Custom technique '${technique.name}' (ID: ${technique.id}) saved to localStorage`);
                 } else {
                     // Regular technique
-                    localStorage.setItem('selectedTechnique', technique.name || 'custom');
+                    lsSet('selectedTechnique', technique.name || 'custom');
                     console.log(`✅ Regular technique '${technique.name}' saved to localStorage`);
                 }
             }
@@ -2650,11 +2675,11 @@ class PomodoroTimer {
     // Delete custom technique
     deleteCustomTechnique(techniqueId) {
         try {
-            const selectedTechnique = localStorage.getItem('selectedTechnique');
+            const selectedTechnique = lsGet('selectedTechnique');
             const deletedWasSelected = selectedTechnique === `custom_${techniqueId}`;
-            const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const techniques = lsGet('customTechniques') || [];
             const filtered = techniques.filter((technique) => technique.id !== techniqueId);
-            localStorage.setItem('customTechniques', JSON.stringify(filtered));
+            lsSet('customTechniques', filtered);
 
             const card = document.querySelector(`.custom-card[data-technique-id="${techniqueId}"]`);
             if (card) {
@@ -2672,7 +2697,7 @@ class PomodoroTimer {
                     this.selectTechnique(pomodoroDropdownItem);
                     this.playUiSound('click');
                 } else {
-                    localStorage.setItem('selectedTechnique', 'pomodoro');
+                    lsSet('selectedTechnique', 'pomodoro');
                     this.updateTimerTechniqueButton('pomodoro');
                     this.loadTechnique('pomodoro');
                     this.syncSettingsPanelTechnique('pomodoro');
@@ -2774,7 +2799,7 @@ class PomodoroTimer {
             // Ensure cassette auth gating and saved Tron theme are applied post-hydration
             try { this.updateThemeAuthState(); } catch (_) {}
             try {
-                const savedTheme = localStorage.getItem('lastSelectedTheme');
+                const savedTheme = lsGet('lastSelectedTheme');
                 // If we deferred Tron application, and user is authenticated now, apply it
                 if (this.pendingThemeApply === 'tron' && this.isAuthenticated) {
                     console.log('🎨 Auth hydrated: applying deferred Tron theme');
@@ -3047,7 +3072,7 @@ class PomodoroTimer {
 
     // Reset to default technique if current technique requires authentication
     resetToDefaultTechniqueIfNeeded() {
-        const savedTechnique = localStorage.getItem('selectedTechnique');
+        const savedTechnique = lsGet('selectedTechnique');
         if (!savedTechnique) return;
         
         // Check if the saved technique requires Pro
@@ -3055,7 +3080,7 @@ class PomodoroTimer {
         if (proTechniques.includes(savedTechnique)) {
             // Reset to default Pomodoro technique if user is not Pro
             if (!this.isPremiumUser()) {
-                localStorage.setItem('selectedTechnique', 'pomodoro');
+                lsSet('selectedTechnique', 'pomodoro');
                 
                 // Update UI to show Pomodoro
                 if (this.techniqueTitle) {
@@ -3211,7 +3236,7 @@ class PomodoroTimer {
                 let value = e.target.value;
                 
                 // Remove non-numeric characters
-                value = value.replace(/[^0-9]/g, '');
+                value = value.replace(RE_NON_NUMERIC, '');
                 
                 // Limit to 3 digits
                 if (value.length > 3) {
@@ -3265,8 +3290,8 @@ class PomodoroTimer {
     // Apply saved technique once, after auth/user state is hydrated
     applySavedTechniqueOnce() {
         if (this.hasAppliedSavedTechnique) return;
-        const saved = localStorage.getItem('selectedTechnique');
-        const savedCustom = localStorage.getItem('customTimer');
+        const saved = lsGet('selectedTechnique');
+        const savedCustom = lsGet('customTimer');
 
         // Nothing saved → keep default until user picks one
         if (!saved) {
@@ -3308,12 +3333,11 @@ class PomodoroTimer {
             // Check for saved custom timer config
             if (savedCustom) {
                 try {
-                    const config = JSON.parse(savedCustom);
-                    this.loadCustomTechnique(config);
+                    this.loadCustomTechnique(savedCustom);
                     this.hasAppliedSavedTechnique = true;
                     return;
                 } catch (_) {
-                    localStorage.removeItem('customTimer');
+                    lsRemove('customTimer');
                     // No valid custom → mark applied and keep default
                     this.hasAppliedSavedTechnique = true;
                     return;
@@ -4559,7 +4583,7 @@ class PomodoroTimer {
             try { sessionStorage.setItem('just_logged_out', 'true'); } catch (_) {}
             // Force clear any forced view mode and premium hints
             try {
-                localStorage.removeItem('viewMode');
+                lsRemove('viewMode');
                 localStorage.removeItem('hasAccount');
                 localStorage.setItem('isPremium', 'false');
                 localStorage.setItem('hasPaidSubscription', 'false');
@@ -4726,7 +4750,7 @@ class PomodoroTimer {
 
 
     updateTechniqueTitle() {
-        const saved = localStorage.getItem('selectedTechnique');
+        const saved = lsGet('selectedTechnique');
         let label = 'Pomodoro';
         
         if (saved) {
@@ -4734,7 +4758,7 @@ class PomodoroTimer {
             if (saved.startsWith('custom_')) {
                 const customId = saved.replace('custom_', '');
                 try {
-                    const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                    const techniques = lsGet('customTechniques') || [];
                     const customTechnique = techniques.find(t => t.id === customId);
                     if (customTechnique) {
                         label = customTechnique.name;
@@ -4814,7 +4838,7 @@ class PomodoroTimer {
         if (item.classList) item.classList.add('selected');
         
         // Save selected technique to localStorage
-        localStorage.setItem('selectedTechnique', technique);
+        lsSet('selectedTechnique', technique);
         
         // Close dropdown
         this.closeDropdown();
@@ -4917,15 +4941,14 @@ class PomodoroTimer {
             case 'custom':
                 // Load and apply saved custom configuration
                 try {
-                    const savedCustomTimer = localStorage.getItem('customTimer');
-                    if (savedCustomTimer) {
-                        const customConfig = JSON.parse(savedCustomTimer);
+                    const customConfig = lsGet('customTimer');
+                    if (customConfig) {
                         this.loadCustomTechnique(customConfig);
                         this.currentTechniqueKey = technique; // UI/state handled by loadCustomTechnique
                         return;
                     }
                 } catch (_) {
-                    try { localStorage.removeItem('customTimer'); } catch (_) {}
+                    try { lsRemove('customTimer'); } catch (_) {}
                 }
                 // No valid config; keep current technique until user configures
                 return;
@@ -6247,7 +6270,7 @@ class PomodoroTimer {
         } catch (_) {}
 
         // 2) Then check if a forced view mode exists (legacy/dev only)
-        const forcedMode = localStorage.getItem('viewMode');
+        const forcedMode = lsGet('viewMode');
         if (forcedMode === 'pro') {
             console.log('Pro status from forced viewMode');
             return true;
@@ -6260,7 +6283,7 @@ class PomodoroTimer {
         const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
         if (hasPremiumParam) {
             // Clear any forced mode to avoid overriding real Pro
-            try { localStorage.removeItem('viewMode'); } catch (_) {}
+            try { lsRemove('viewMode'); } catch (_) {}
             localStorage.setItem('isPremium', 'true');
             localStorage.setItem('hasPaidSubscription', 'true');
             return true;
@@ -7544,7 +7567,7 @@ class PomodoroTimer {
 
     handleCustomTechniqueClick(item) {
         // Check if user has a saved custom timer
-        const savedCustomTimer = localStorage.getItem('customTimer');
+        const savedCustomTimer = lsGet('customTimer');
         
         if (savedCustomTimer) {
             // User has a custom timer - select it normally
@@ -9066,16 +9089,12 @@ class PomodoroTimer {
             if (subscribeText) subscribeText.classList.remove('hidden');
             
             // Reset preset state
-            preset.style.opacity = '1';
-            preset.style.pointerEvents = 'auto';
-            preset.style.cursor = 'pointer';
+            preset.classList.remove('ui-disabled', 'ui-disabled-no-click');
             
             // Guest users: disable all except Pomodoro
             if (!this.isAuthenticated) {
                 if (technique !== 'pomodoro') {
-                    preset.style.opacity = '0.5';
-                    preset.style.pointerEvents = 'none';
-                    preset.style.cursor = 'not-allowed';
+                    preset.classList.add('ui-disabled-no-click');
                     if (signupText) signupText.classList.remove('hidden');
                     if (subscribeText) subscribeText.classList.add('hidden');
                 }
@@ -9085,9 +9104,7 @@ class PomodoroTimer {
                 // Flow, Marathon, Deep Work are now available for free users
                 if (proTechniques.includes(technique)) {
                     // Enable preset for free users
-                    preset.style.opacity = '1';
-                    preset.style.pointerEvents = 'auto';
-                    preset.style.cursor = 'pointer';
+                    preset.classList.remove('ui-disabled', 'ui-disabled-no-click');
                     if (subscribeText) subscribeText.classList.add('hidden');
                 } else {
                     if (subscribeText) subscribeText.classList.add('hidden');
@@ -9292,7 +9309,7 @@ class PomodoroTimer {
                 completeBtn.addEventListener('click', async () => {
                     try {
                         // Check if Developer Mode is active
-                        const viewMode = localStorage.getItem('viewMode');
+                        const viewMode = lsGet('viewMode');
                         const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
                         
                         await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}${devModeParam}`, { method: 'POST' });
@@ -9893,9 +9910,9 @@ class PomodoroTimer {
                 const tasks = this.getLocalTasks().filter(t => t.id !== this.editingTaskId);
                 this.setLocalTasks(tasks);
                 // Remove any config for the task
-                const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+                const configs = lsGet('taskConfigs') || {};
                 delete configs[this.editingTaskId];
-                localStorage.setItem('taskConfigs', JSON.stringify(configs));
+                lsSet('taskConfigs', configs);
                 // Reset state and UI
                 this.editingTaskId = null;
                 taskInput.value = '';
@@ -10092,9 +10109,9 @@ class PomodoroTimer {
                 if (!this.editingTaskId) return;
                 const tasks = this.getLocalTasks().filter(t => t.id !== this.editingTaskId);
                 this.setLocalTasks(tasks);
-                const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+                const configs = lsGet('taskConfigs') || {};
                 delete configs[this.editingTaskId];
-                localStorage.setItem('taskConfigs', JSON.stringify(configs));
+                lsSet('taskConfigs', configs);
                 this.editingTaskId = null;
                 if (taskInput) taskInput.value = '';
                 if (pomodorosInput) pomodorosInput.value = '1';
@@ -10297,7 +10314,7 @@ class PomodoroTimer {
                     const tasks = this.getLocalTasks().filter(t => false); // This removes ALL tasks
                     this.setLocalTasks(tasks);
                     // Remove any config for ALL tasks - EXACT COPY from Delete Task but clear all
-                    localStorage.removeItem('taskConfigs');
+                    lsRemove('taskConfigs');
                     // Reset state and UI - EXACT COPY from Delete Task
                     this.editingTaskId = null;
                     // Restore list and add-section - EXACT COPY from Delete Task
@@ -10465,7 +10482,7 @@ class PomodoroTimer {
         
         try {
             // Build query params (Developer Mode + uid) just like other flows
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             const userId = window.Clerk?.user?.id || '';
             const params = new URLSearchParams();
             if (viewMode === 'pro') {
@@ -10892,7 +10909,7 @@ class PomodoroTimer {
                 } else {
                     // Not connected, initiate connection
                     const userId = window.Clerk?.user?.id || '';
-                    const viewMode = localStorage.getItem('viewMode');
+                    const viewMode = lsGet('viewMode');
                     const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
                     window.location.href = `/api/notion-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
                 }
@@ -11003,7 +11020,7 @@ class PomodoroTimer {
         
         try {
             // Build query params (Developer Mode + uid) - define qs at the beginning
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             const userId = window.Clerk?.user?.id || '';
             const params = new URLSearchParams();
             if (viewMode === 'pro') {
@@ -11299,7 +11316,7 @@ class PomodoroTimer {
     async completeNotionTask(task, isCompleted) {
         try {
             // Build query params for Pro check
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             const userId = window.Clerk?.user?.id || '';
             const params = new URLSearchParams();
             if (viewMode === 'pro') {
@@ -11628,14 +11645,14 @@ class PomodoroTimer {
 
     // Task configuration management
     getTaskConfig(taskId) {
-        const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+        const configs = lsGet('taskConfigs') || {};
         return configs[taskId] || { sessions: 1, selected: false };
     }
 
     setTaskConfig(taskId, config) {
-        const configs = JSON.parse(localStorage.getItem('taskConfigs') || '{}');
+        const configs = lsGet('taskConfigs') || {};
         configs[taskId] = { ...configs[taskId], ...config };
-        localStorage.setItem('taskConfigs', JSON.stringify(configs));
+        lsSet('taskConfigs', configs);
     }
 
     getTaskFocusDaily() {
@@ -12881,7 +12898,7 @@ class PomodoroTimer {
         
         try {
             // Build query params (Developer Mode + uid) just like other flows
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             const userId = window.Clerk?.user?.id || '';
             const params = new URLSearchParams();
             if (viewMode === 'pro') {
@@ -13107,7 +13124,7 @@ class PomodoroTimer {
         modal.querySelector('#confirmClearAll').addEventListener('click', () => {
             this.setLocalTasks([]);
             // Explicit clear is OK here since the user is clearing everything
-            localStorage.removeItem('taskConfigs');
+            lsRemove('taskConfigs');
             
             // Update UI immediately
             this.updateCurrentTaskBanner();
@@ -14153,7 +14170,7 @@ class PomodoroTimer {
                 
                 // Get custom techniques
                 try {
-                    const customTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                    const customTechniques = lsGet('customTechniques') || [];
                     if (customTechniques.length > 0) {
                         payload.customTechniques = customTechniques;
                     }
@@ -14319,10 +14336,10 @@ class PomodoroTimer {
             }
             
             // Restore custom techniques if server has them and local is empty
-            const localTechniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+            const localTechniques = lsGet('customTechniques') || [];
             if (serverCustomTechniques && serverCustomTechniques.length > 0 && localTechniques.length === 0) {
                 console.log('📦 Restoring custom techniques from server...');
-                localStorage.setItem('customTechniques', JSON.stringify(serverCustomTechniques));
+                lsSet('customTechniques', serverCustomTechniques);
                 console.log(`✅ Restored ${serverCustomTechniques.length} custom techniques`);
                 restoredAnything = true;
                 
@@ -16227,7 +16244,7 @@ class PomodoroTimer {
             });
             // Add user ID to URL for server-side verification
             const userId = window.Clerk?.user?.id || '';
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             
             console.log('🔗 Connecting Todoist:', { 
                 userId, 
@@ -16298,7 +16315,7 @@ class PomodoroTimer {
             console.log('Connecting Notion:', { userId, clerkUser: window.Clerk?.user });
             
             // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
             
             // Let the server verify Pro status - it will redirect with error if not Pro
@@ -16346,7 +16363,7 @@ class PomodoroTimer {
         }
         try {
             // Check if Developer Mode is active
-            const viewMode = localStorage.getItem('viewMode');
+            const viewMode = lsGet('viewMode');
             const userId = window.Clerk?.user?.id || '';
             
             // Build query params
@@ -16428,7 +16445,7 @@ class PomodoroTimer {
         const applyViewModeBtn = document.getElementById('applyViewModeBtn');
         
         // Store selected mode (not applied yet)
-        this.selectedViewMode = localStorage.getItem('viewMode') || 'guest';
+        this.selectedViewMode = lsGet('viewMode') || 'guest';
         
         if (guestModeBtn) {
             guestModeBtn.addEventListener('click', () => {
@@ -16466,7 +16483,7 @@ class PomodoroTimer {
 
     applyViewMode() {
         const mode = this.selectedViewMode;
-        localStorage.setItem('viewMode', mode);
+        lsSet('viewMode', mode);
         
         // Close settings modal
         this.hideSettingsModal();
@@ -16507,7 +16524,7 @@ class PomodoroTimer {
     }
 
     updateViewModeButtons() {
-        const currentMode = this.selectedViewMode || localStorage.getItem('viewMode') || 'guest';
+        const currentMode = this.selectedViewMode || lsGet('viewMode') || 'guest';
         const guestModeBtn = document.getElementById('guestModeBtn');
         const freeModeBtn = document.getElementById('freeModeBtn');
         const proModeBtn = document.getElementById('proModeBtn');
@@ -16561,13 +16578,13 @@ class PomodoroTimer {
     }
 
     getCurrentTechniqueName() {
-        const selectedTechnique = localStorage.getItem('selectedTechnique');
+        const selectedTechnique = lsGet('selectedTechnique');
         
         // Handle custom techniques
         if (selectedTechnique && selectedTechnique.startsWith('custom_')) {
             const customId = selectedTechnique.replace('custom_', '');
             try {
-                const techniques = JSON.parse(localStorage.getItem('customTechniques') || '[]');
+                const techniques = lsGet('customTechniques') || [];
                 const customTechnique = techniques.find(t => t.id === customId);
                 return customTechnique ? customTechnique.name : 'Custom Technique';
             } catch (_) {
@@ -16576,10 +16593,9 @@ class PomodoroTimer {
         }
         
         if (selectedTechnique === 'custom') {
-            const savedCustomTimer = localStorage.getItem('customTimer');
-            if (savedCustomTimer) {
+            const customConfig = lsGet('customTimer');
+            if (customConfig) {
                 try {
-                    const customConfig = JSON.parse(savedCustomTimer);
                     return customConfig.name || 'Custom Timer';
                 } catch (_) {
                     return 'Custom Timer';
@@ -16954,10 +16970,9 @@ class PomodoroTimer {
         }
         
         // Load saved custom timer data if it exists
-        const savedCustomTimer = localStorage.getItem('customTimer');
-        if (savedCustomTimer) {
+        const customConfig = lsGet('customTimer');
+        if (customConfig) {
             try {
-                const customConfig = JSON.parse(savedCustomTimer);
                 console.log('Loading custom timer for editing:', customConfig);
                 
                 // Populate form fields with saved values (check if elements exist)
@@ -17183,7 +17198,7 @@ class PomodoroTimer {
             cycles: cycles
         };
 
-        localStorage.setItem('customTimer', JSON.stringify(customConfig));
+        lsSet('customTimer', customConfig);
 
         // Load the custom timer
         this.loadCustomTechnique(customConfig);
@@ -17236,7 +17251,7 @@ class PomodoroTimer {
         this.markTechniqueAsSelected('custom');
         
         // Save custom technique as selected
-        localStorage.setItem('selectedTechnique', 'custom');
+        lsSet('selectedTechnique', 'custom');
         
         // Reset to first section
         this.currentSection = 1;
@@ -17268,10 +17283,9 @@ class PomodoroTimer {
     }
 
     loadSavedCustomTimer() {
-        const savedCustomTimer = localStorage.getItem('customTimer');
-        if (!savedCustomTimer) return;
+        const customConfig = lsGet('customTimer');
+        if (!customConfig) return;
         try {
-            const customConfig = JSON.parse(savedCustomTimer);
             // Only update the dropdown item's text so the user sees their custom config
             const customItem = document.querySelector('[data-technique="custom"]');
             if (customItem) {
@@ -17283,24 +17297,23 @@ class PomodoroTimer {
             // Do NOT auto-select here. Selection is handled by loadLastSelectedTechnique()
         } catch (error) {
             console.error('Error reading custom timer:', error);
-            localStorage.removeItem('customTimer');
+            lsRemove('customTimer');
         }
     }
 
     loadLastSelectedTechnique() {
-        const lastSelectedTechnique = localStorage.getItem('selectedTechnique');
-        const savedCustomTimer = localStorage.getItem('customTimer');
+        const lastSelectedTechnique = lsGet('selectedTechnique');
+        const savedCustomTimer = lsGet('customTimer');
         
         // If the last selected was custom and we have a saved config, load it
         if (lastSelectedTechnique === 'custom') {
             if (savedCustomTimer) {
                 try {
-                    const customConfig = JSON.parse(savedCustomTimer);
-                    this.loadCustomTechnique(customConfig);
+                    this.loadCustomTechnique(savedCustomTimer);
                     return;
                 } catch (e) {
                     console.error('Invalid custom timer config, defaulting to Pomodoro');
-                    localStorage.removeItem('customTimer');
+                    lsRemove('customTimer');
                 }
             }
             // If no valid custom config, fall back to default
@@ -18168,7 +18181,7 @@ class PomodoroTimer {
         console.log('⚙️ Initializing settings side panel');
         
         // Sync panel with current technique when opening
-        const currentTechnique = localStorage.getItem('selectedTechnique');
+        const currentTechnique = lsGet('selectedTechnique');
         if (currentTechnique && currentTechnique !== 'custom' && !currentTechnique.startsWith('custom_')) {
             this.syncSettingsPanelTechnique(currentTechnique);
         } else if (currentTechnique && currentTechnique.startsWith('custom_')) {
@@ -18297,9 +18310,7 @@ class PomodoroTimer {
             
             // Disable Long Break card for guest users
             if (!this.isAuthenticated && longBreakCard) {
-                longBreakCard.style.opacity = '0.5';
-                longBreakCard.style.pointerEvents = 'none';
-                longBreakCard.style.cursor = 'not-allowed';
+                longBreakCard.classList.add('ui-disabled-no-click');
                 
                 // Show "(Sign up required)" in the label
                 const signupText = longBreakCard.querySelector('.signup-required-text');
@@ -18340,9 +18351,7 @@ class PomodoroTimer {
             
             // Disable entire sessions card for guest users
             if (!this.isAuthenticated) {
-                sessionsCard.style.opacity = '0.5';
-                sessionsCard.style.pointerEvents = 'none';
-                sessionsCard.style.cursor = 'not-allowed';
+                sessionsCard.classList.add('ui-disabled-no-click');
                 
                 // Show "(Sign up required)" in the label
                 const signupText = sessionsCard.querySelector('.signup-required-text');
@@ -18525,7 +18534,7 @@ class PomodoroTimer {
         
         // Get current theme from localStorage or default to 'lofi'
         // Load last selected theme for both authenticated and guest users
-        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        const lastSelectedTheme = lsGet('lastSelectedTheme');
         const savedTheme = lastSelectedTheme || 'lofi';
         
         this.currentTheme = savedTheme;
@@ -18589,7 +18598,7 @@ class PomodoroTimer {
                 this.applyTheme(themeName);
                 
                 // Save to localStorage (for both authenticated and guest users)
-                localStorage.setItem('lastSelectedTheme', themeName);
+                lsSet('lastSelectedTheme', themeName);
                 this.currentTheme = themeName;
             });
         });
@@ -18624,7 +18633,7 @@ class PomodoroTimer {
             // 2. If input IS image input, fetch if it doesn't look like a direct image file
             const isImageInput = inputElement === imageUrlInput;
             const shouldFetch = isImageInput 
-                ? !url.match(/\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i) && !url.includes('images.unsplash.com') && !url.includes('i.imgur.com')
+                ? !RE_IMAGE_EXT.test(url) && !url.includes('images.unsplash.com') && !url.includes('i.imgur.com')
                 : (!imageUrlInput.value || imageUrlInput.value.trim() === '');
 
             if (!shouldFetch) return;
@@ -18914,7 +18923,7 @@ class PomodoroTimer {
         
         customCassettesList.innerHTML = privateCassettes.map(cassette => {
             // Escape URL for CSS: escape single quotes and wrap in quotes
-            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
+            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(RE_SINGLE_QUOTE, "\\'").replace(RE_DOUBLE_QUOTE, '\\"') : '';
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
@@ -19385,7 +19394,7 @@ class PomodoroTimer {
             const thousands = views / 1000;
             if (thousands < 10) {
                 // Show one decimal for numbers < 10K (e.g., 1.9K)
-                return `${thousands.toFixed(1)}K`.replace(/\.0K$/, 'K');
+                return `${thousands.toFixed(1)}K`.replace(RE_TRAILING_ZERO_K, 'K');
             }
             // Show whole numbers for >= 10K (e.g., 10K, 99K)
             return `${Math.floor(thousands)}K`;
@@ -19393,7 +19402,7 @@ class PomodoroTimer {
         // Millions
         const millions = views / 1000000;
         if (millions < 10) {
-            return `${millions.toFixed(1)}M`.replace(/\.0M$/, 'M');
+            return `${millions.toFixed(1)}M`.replace(RE_TRAILING_ZERO_M, 'M');
         }
         return `${Math.floor(millions)}M`;
     }
@@ -19424,7 +19433,7 @@ class PomodoroTimer {
             // Check if this cassette belongs to the current user
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
             // Escape URL for CSS: escape single quotes and wrap in quotes
-            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
+            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(RE_SINGLE_QUOTE, "\\'").replace(RE_DOUBLE_QUOTE, '\\"') : '';
             const previewStyle = cassette.imageUrl 
                 ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
@@ -19580,7 +19589,7 @@ class PomodoroTimer {
                     
                     // Save to localStorage
                     const themeName = `custom_${cassette.id}`;
-                    localStorage.setItem('lastSelectedTheme', themeName);
+                    lsSet('lastSelectedTheme', themeName);
                     this.currentTheme = themeName;
                     
                     // Increment views count when cassette is clicked
@@ -19603,10 +19612,7 @@ class PomodoroTimer {
             if (cassetteOption) {
                 const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
                 if (requiresAuth) {
-                    // Disable for guest users
-                    cassetteOption.style.opacity = '0.5';
-                    cassetteOption.style.cursor = 'not-allowed';
-                    cassetteOption.style.pointerEvents = 'none';
+                    cassetteOption.classList.add('ui-disabled-no-click');
                 }
             }
         });
@@ -19689,7 +19695,7 @@ class PomodoroTimer {
     
     applyActiveStateToPublicCassettes() {
         // Check if current theme is a public cassette and mark it as active
-        const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+        const currentTheme = lsGet('lastSelectedTheme') || this.currentTheme;
         if (currentTheme && currentTheme.startsWith('custom_')) {
             const cassetteId = currentTheme.replace('custom_', '');
             
@@ -19999,7 +20005,7 @@ class PomodoroTimer {
         
         // Save to localStorage
         const themeName = `custom_${cassetteId}`;
-        localStorage.setItem('lastSelectedTheme', themeName);
+        lsSet('lastSelectedTheme', themeName);
         this.currentTheme = themeName;
         
         // Track event
@@ -20083,7 +20089,7 @@ class PomodoroTimer {
             console.log('🎨 Setting custom vibe background image:', cassette.imageUrl);
             
             // Escape URL for CSS: escape single quotes
-            const escapedImageUrl = cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const escapedImageUrl = cassette.imageUrl.replace(RE_SINGLE_QUOTE, "\\'").replace(RE_DOUBLE_QUOTE, '\\"');
             
             // Apply background image directly - CSS handles loading gracefully
             // No need for CORS image test which causes errors with many image hosts (Pinterest, etc.)
@@ -20123,7 +20129,7 @@ class PomodoroTimer {
         
         // Save as current theme
         const themeName = `custom_${cassette.id}`;
-        localStorage.setItem('lastSelectedTheme', themeName);
+        lsSet('lastSelectedTheme', themeName);
         this.currentTheme = themeName;
         
         // Update visual active state
@@ -20352,7 +20358,7 @@ class PomodoroTimer {
     extractSpotifyId(url) {
         // Extract type and ID from Spotify URL
         // Format: https://open.spotify.com/track/... or /playlist/... or /album/...
-        const match = url.match(/open\.spotify\.com\/(track|playlist|album)\/([a-zA-Z0-9]+)/);
+        const match = url.match(RE_SPOTIFY_URL);
         if (match) {
             return {
                 type: match[1],
@@ -20560,7 +20566,7 @@ class PomodoroTimer {
             } catch (e) {
                 console.error('Error extracting URL from Google Images link:', e);
                 // Try manual parsing as fallback
-                const match = url.match(/url=([^&]+)/);
+                const match = url.match(RE_URL_PARAM);
                 if (match) {
                     try {
                         const decodedUrl = decodeURIComponent(match[1]);
@@ -20835,7 +20841,7 @@ class PomodoroTimer {
                             
                             // Create the cassette card HTML
                             const creatorName = this.user?.username || this.user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'You';
-                            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
+                            const escapedImageUrl = cassette.imageUrl ? cassette.imageUrl.replace(RE_SINGLE_QUOTE, "\\'").replace(RE_DOUBLE_QUOTE, '\\"') : '';
                             const previewStyle = cassette.imageUrl 
                                 ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
                                 : 'background: #0a0a0a;';
@@ -20946,7 +20952,7 @@ class PomodoroTimer {
                 
                 // If editing an existing cassette, check if it's currently selected
                 if (cassetteId) {
-                    const currentTheme = localStorage.getItem('lastSelectedTheme') || this.currentTheme;
+                    const currentTheme = lsGet('lastSelectedTheme') || this.currentTheme;
                     const isCurrentlySelected = currentTheme === `custom_${cassetteId}`;
                     
                     if (isCurrentlySelected) {
@@ -21207,7 +21213,7 @@ class PomodoroTimer {
         }
         
         // Save theme preference (for both authenticated and guest users)
-        localStorage.setItem('lastSelectedTheme', themeName);
+        lsSet('lastSelectedTheme', themeName);
         this.currentTheme = themeName;
         
         // Update visual active state
@@ -21624,7 +21630,7 @@ class PomodoroTimer {
 
     loadLastSelectedTheme() {
         // Load last selected theme from localStorage (works for both authenticated and guest users)
-        const lastSelectedTheme = localStorage.getItem('lastSelectedTheme');
+        const lastSelectedTheme = lsGet('lastSelectedTheme');
         if (lastSelectedTheme && lastSelectedTheme !== 'lofi') {
             // Check if Tron theme requires authentication
             if (lastSelectedTheme === 'tron' && !this.isAuthenticated) {

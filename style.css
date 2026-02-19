@@ -11825,3 +11825,16 @@ input:checked + .toggle-slider:before {
         font-size: 0.875rem;
     }
 }
+
+/* Utility classes for JS state toggling (avoids multiple .style assignments) */
+.ui-disabled {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+.ui-disabled-no-click {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
