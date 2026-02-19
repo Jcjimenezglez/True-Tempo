@@ -2244,26 +2244,7 @@ class PomodoroTimer {
     // Sync custom techniques to server
     async syncTechniquesToServer() {
         if (!this.isAuthenticated || !this.user?.id) return;
-        
-        try {
-            const customTechniques = lsGet('customTechniques') || [];
-            const stats = this.getFocusStats();
-            
-            await fetch('/api/sync-stats', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-clerk-userid': this.user.id
-                },
-                body: JSON.stringify({ 
-                    totalHours: stats?.totalHours || 0,
-                    customTechniques: customTechniques
-                })
-            });
-            console.log('📤 Custom techniques synced to server');
-        } catch (error) {
-            console.error('Error syncing techniques to server:', error);
-        }
+        await this.syncStatsToClerk(this.getFocusStats()?.totalHours || 0, true);
     }
     
     // Update custom technique card in UI
@@ -14154,6 +14135,19 @@ class PomodoroTimer {
             return;
         }
 
+        // Throttle: skip if called within the last 10 seconds (unless fullSync)
+        const now = Date.now();
+        if (!fullSync && this._lastSyncTime && (now - this._lastSyncTime) < 10000) {
+            return;
+        }
+
+        // Prevent concurrent calls
+        if (this._syncInProgress) {
+            return;
+        }
+        this._syncInProgress = true;
+        this._lastSyncTime = now;
+
         try {
             // Build sync payload
             const payload = { totalHours };
@@ -14200,13 +14194,20 @@ class PomodoroTimer {
             });
 
             if (!response.ok) {
-                console.error('Failed to sync stats to Clerk');
+                if (response.status === 429) {
+                    console.warn('Clerk rate-limited, backing off sync for 60s');
+                    this._lastSyncTime = Date.now() + 50000;
+                } else {
+                    console.error('Failed to sync stats to Clerk:', response.status);
+                }
             } else if (fullSync) {
                 const result = await response.json();
                 console.log('✅ Full sync completed:', result);
             }
         } catch (error) {
             console.error('Error syncing stats to Clerk:', error);
+        } finally {
+            this._syncInProgress = false;
         }
     }
     
@@ -19805,19 +19806,7 @@ class PomodoroTimer {
                     }
                     
                     // Also backup ALL cassettes (including private) via sync-stats
-                    const stats = this.getFocusStats();
-                    await fetch('/api/sync-stats', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-clerk-userid': this.user.id
-                        },
-                        body: JSON.stringify({ 
-                            totalHours: stats?.totalHours || 0,
-                            customCassettes: allCassettes
-                        })
-                    });
-                    console.log('✅ All cassettes (including private) backed up to Clerk');
+                    this.syncStatsToClerk(this.getFocusStats()?.totalHours || 0, true);
                 } catch (err) {
                     console.error('❌ Error syncing cassettes to Clerk:', err);
                 }
@@ -19929,22 +19918,7 @@ class PomodoroTimer {
                 });
                 
                 // Also sync ALL cassettes (including private) to backup via sync-stats
-                const stats = this.getFocusStats();
-                fetch('/api/sync-stats', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-clerk-userid': this.user.id
-                    },
-                    body: JSON.stringify({ 
-                        totalHours: stats?.totalHours || 0,
-                        customCassettes: allCassettes
-                    })
-                }).then(response => {
-                    if (response.ok) {
-                        console.log('✅ All cassettes (including private) backed up to Clerk after deletion');
-                    }
-                }).catch(err => {
+                this.syncStatsToClerk(this.getFocusStats()?.totalHours || 0, true).catch(err => {
                     console.error('❌ Error backing up cassettes:', err);
                 });
             }

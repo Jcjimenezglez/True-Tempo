@@ -123,6 +123,11 @@ module.exports = async (req, res) => {
       hasCassettes: !!(customCassettes && customCassettes.length > 0)
     });
   } catch (error) {
+    if (error.status === 429 || error.code === 'api_response_error' && error.message?.includes('Too Many')) {
+      console.warn('Clerk rate limit hit in sync-stats');
+      res.status(429).json({ error: 'Rate limited', retryAfter: 60 });
+      return;
+    }
     console.error('Error syncing stats:', error);
     res.status(500).json({ error: 'Failed to sync stats', details: error.message });
   }
