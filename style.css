@@ -790,6 +790,7 @@ a.resource-item:hover,
     padding: 10px 4px 6px 4px;
     color: #ffffff;
     font-size: 0.85rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .coach-chat-input textarea:focus {
