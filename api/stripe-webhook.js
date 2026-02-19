@@ -478,13 +478,14 @@ async function handleCheckoutCompleted(session, clerk) {
 
     // For lifetime deals, mark as premium permanently
     if (isLifetime) {
-      // Get user email for tracking
+      // Single Clerk fetch for user data (email + name for tracking/notifications)
+      let currentUser = null;
       let userEmail = null;
       try {
-        const user = await clerk.users.getUser(targetUserId);
-        userEmail = user.emailAddresses?.[0]?.emailAddress || null;
+        currentUser = await clerk.users.getUser(targetUserId);
+        userEmail = currentUser.emailAddresses?.[0]?.emailAddress || null;
       } catch (e) {
-        console.log('Could not get user email for tracking');
+        console.log('Could not get user data for tracking');
       }
 
       const lifetimeMetadata = {
@@ -506,70 +507,35 @@ async function handleCheckoutCompleted(session, clerk) {
 
       console.log(`✅ Updated Clerk user ${targetUserId} with LIFETIME premium status`);
       
-      // Send push notification via ntfy.sh for new lifetime purchase
-      try {
-        let currentUser;
-        try {
-          currentUser = await clerk.users.getUser(targetUserId);
-        } catch (e) {
-          console.error('❌ Error getting current user for notification:', e);
-        }
-        
-        const userName = currentUser?.firstName || currentUser?.username || 'Usuario';
-        const userEmailDisplay = userEmail || 'N/A';
-        const notificationTitle = 'Nueva Suscripcion Lifetime!';
-        const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmailDisplay}\nPlan: Lifetime ($24.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
-        
-        const ntfyResult = await sendNtfyNotification(notificationTitle, notificationMessage);
-        
-        if (ntfyResult.success) {
-          console.log(`✅ Push notification sent for new lifetime purchase: ${targetUserId}`);
-        } else {
-          console.warn(`⚠️ Failed to send push notification: ${ntfyResult.error}`);
-        }
-      } catch (ntfyError) {
-        console.error('❌ Error sending push notification:', ntfyError);
-        // Don't fail the webhook if notification fails
-      }
-      
-      // Track lifetime deal conversion server-side with correct label and value
-      // Lifetime: $24.0 with label unsECLnWiewbENjym89B
-      await trackConversionServerSide(
-        'lifetime',
-        24.0,
-        session.id,
-        gclid,
-        gbraid,
-        wbraid,
-        userEmail,
-        'unsECLnWiewbENjym89B'
+      // Fire-and-forget: notification + tracking (don't block webhook response)
+      const userName = currentUser?.firstName || currentUser?.username || 'Usuario';
+      const notificationTitle = 'Nueva Suscripcion Lifetime!';
+      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Lifetime ($24.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
+
+      sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+        console.error('❌ Error sending push notification:', e)
       );
-      console.log(`✅ Google Ads LIFETIME conversion tracked: ${targetUserId} - $24.0`);
+
+      trackConversionServerSide(
+        'lifetime', 24.0, session.id, gclid, gbraid, wbraid, userEmail, 'unsECLnWiewbENjym89B'
+      ).catch(e => console.error('❌ Error tracking lifetime conversion:', e));
       
       return; // Don't process as subscription
     }
 
     // For monthly subscriptions ($3.99/month)
     if (isSubscription) {
-      // Get user email for tracking
+      // Single Clerk fetch for user data (email + metadata + name)
+      let currentUser;
       let userEmail = null;
       try {
-        const user = await clerk.users.getUser(targetUserId);
-        userEmail = user.emailAddresses?.[0]?.emailAddress || null;
-      } catch (e) {
-        console.log('Could not get user email for tracking');
-      }
-
-      // Get current user metadata to preserve existing data
-      let currentUser;
-      try {
         currentUser = await clerk.users.getUser(targetUserId);
+        userEmail = currentUser.emailAddresses?.[0]?.emailAddress || null;
       } catch (e) {
         console.error('❌ Error getting current user:', e);
         throw e;
       }
 
-      // Update Clerk user with Stripe customer ID and premium status
       const updatedMetadata = {
         ...(currentUser.publicMetadata || {}),
         stripeCustomerId: customerId,
@@ -584,67 +550,43 @@ async function handleCheckoutCompleted(session, clerk) {
       });
 
       console.log(`✅ Updated Clerk user ${targetUserId} with MONTHLY premium status`);
-      console.log('📋 Updated metadata:', JSON.stringify(updatedMetadata, null, 2));
-      
-      // Send push notification via ntfy.sh for new monthly subscription
-      try {
-        const userName = currentUser.firstName || currentUser.username || 'Usuario';
-        const userEmailDisplay = userEmail || 'N/A';
-        const notificationTitle = 'Nueva Suscripcion Monthly!';
-        const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmailDisplay}\nPlan: Monthly ($3.99/mes)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\nPago completado`;
-        
-        const ntfyResult = await sendNtfyNotification(notificationTitle, notificationMessage);
-        
-        if (ntfyResult.success) {
-          console.log(`✅ Push notification sent for new monthly subscription: ${targetUserId}`);
-        } else {
-          console.warn(`⚠️ Failed to send push notification: ${ntfyResult.error}`);
-        }
-      } catch (ntfyError) {
-        console.error('❌ Error sending push notification:', ntfyError);
-        // Don't fail the webhook if notification fails
-      }
-      
-      // Send welcome email for new subscriptions
+
+      // Fire-and-forget: notification, email, tracking (don't block webhook response)
+      const userName = currentUser.firstName || currentUser.username || 'Usuario';
+      const notificationTitle = 'Nueva Suscripcion Monthly!';
+      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Monthly ($3.99/mes)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\nPago completado`;
+
+      sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+        console.error('❌ Error sending push notification:', e)
+      );
+
       if (userEmail) {
         try {
           const { sendEmail } = require('../email/send-email');
           const templates = require('../email/templates');
           const firstName = currentUser.firstName || currentUser.username || 'there';
-          
           const welcomeTemplate = templates.getSubscriptionWelcomeEmail({ firstName });
-          const emailResult = await sendEmail({
+          sendEmail({
             to: userEmail,
             subject: welcomeTemplate.subject,
             html: welcomeTemplate.html,
             text: welcomeTemplate.text,
             tags: ['subscription_welcome'],
-          });
-          
-          if (emailResult.success) {
-            console.log('✅ Subscription welcome email sent to:', userEmail);
-          } else {
-            console.warn('⚠️ Failed to send subscription welcome email:', emailResult.error);
-          }
+          }).then(result => {
+            if (result.success) {
+              console.log('✅ Subscription welcome email sent to:', userEmail);
+            } else {
+              console.warn('⚠️ Failed to send subscription welcome email:', result.error);
+            }
+          }).catch(e => console.error('❌ Error sending subscription welcome email:', e));
         } catch (emailError) {
-          console.error('❌ Error sending subscription welcome email:', emailError);
-          // Don't fail the webhook if email fails
+          console.error('❌ Error loading email module:', emailError);
         }
       }
-      
-      // Track Google Ads conversion for Monthly subscription
-      // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
-      await trackConversionServerSide(
-        'monthly',
-        3.99,
-        session.id,
-        gclid,
-        gbraid,
-        wbraid,
-        userEmail,
-        'wlmKCI_fiuwbENjym89B'
-      );
-      console.log(`✅ Google Ads MONTHLY conversion tracked: ${targetUserId} - $3.99`);
+
+      trackConversionServerSide(
+        'monthly', 3.99, session.id, gclid, gbraid, wbraid, userEmail, 'wlmKCI_fiuwbENjym89B'
+      ).catch(e => console.error('❌ Error tracking monthly conversion:', e));
     }
 
   } catch (error) {
@@ -797,20 +739,18 @@ async function handleInvoicePaymentFailed(invoice, clerk) {
       console.log(`⚠️ Payment failing for user ${user.id}, attempt ${attemptCount}. Next retry scheduled.`);
     }
 
-    // Notify about failed payment
-    try {
-      let userEmail = user.emailAddresses?.[0]?.emailAddress || 'N/A';
-      const userName = user.firstName || user.username || 'Usuario';
-      const isFinal = !invoice.next_payment_attempt;
-      const notificationTitle = isFinal
-        ? 'Pago Fallido Final - Premium Revocado'
-        : `Pago Fallido (intento ${attemptCount})`;
-      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail}\nMonto: $${(invoice.amount_due / 100).toFixed(2)}\nIntento: ${attemptCount}\nEstado: ${isFinal ? 'PREMIUM REVOCADO' : 'Reintento programado'}\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}`;
+    // Fire-and-forget: notify about failed payment
+    const userEmail = user.emailAddresses?.[0]?.emailAddress || 'N/A';
+    const userName = user.firstName || user.username || 'Usuario';
+    const isFinal = !invoice.next_payment_attempt;
+    const notificationTitle = isFinal
+      ? 'Pago Fallido Final - Premium Revocado'
+      : `Pago Fallido (intento ${attemptCount})`;
+    const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail}\nMonto: $${(invoice.amount_due / 100).toFixed(2)}\nIntento: ${attemptCount}\nEstado: ${isFinal ? 'PREMIUM REVOCADO' : 'Reintento programado'}\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}`;
 
-      await sendNtfyNotification(notificationTitle, notificationMessage);
-    } catch (ntfyError) {
-      // Don't fail the webhook if notification fails
-    }
+    sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+      console.error('❌ Error sending payment failure notification:', e)
+    );
   } catch (error) {
     console.error('❌ Error handling invoice payment failure:', error);
   }

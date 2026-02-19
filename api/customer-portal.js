@@ -27,17 +27,31 @@ module.exports = async (req, res) => {
 
     const clerkUserId = (req.headers['x-clerk-userid'] || '').toString().trim();
     let customerEmail = (req.headers['x-clerk-user-email'] || '').toString().trim();
+    let customerId;
 
-    // If Clerk user id is provided, fetch email from Clerk (more reliable)
-    if (!customerEmail && clerk && clerkUserId) {
+    // 0) If client sent a Stripe customer id explicitly, use it immediately
+    const headerCustomerId = (req.headers['x-stripe-customer-id'] || '').toString().trim();
+    if (headerCustomerId) {
+      customerId = headerCustomerId;
+    }
+
+    // 1) Single Clerk fetch: get email + stripeCustomerId in one call
+    if (clerk && clerkUserId) {
       try {
         const user = await clerk.users.getUser(clerkUserId);
-        customerEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
+        if (!customerEmail) {
+          customerEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
+        }
+        if (!customerId) {
+          const storedId = user?.publicMetadata?.stripeCustomerId;
+          if (storedId) customerId = storedId;
+        }
       } catch (e) {
         console.log('Could not fetch user from Clerk:', e?.message);
       }
     }
 
+    // Try body for email as fallback
     try {
       if (!customerEmail && req.body) {
         const raw = typeof req.body === 'string' ? req.body : undefined;
@@ -47,29 +61,7 @@ module.exports = async (req, res) => {
     } catch (_) {}
     if (!customerEmail) customerEmail = null;
 
-    let customerId;
-
-    // 0) If client sent a Stripe customer id explicitly, use it immediately
-    const headerCustomerId = (req.headers['x-stripe-customer-id'] || '').toString().trim();
-    if (headerCustomerId) {
-      customerId = headerCustomerId;
-    }
-
-    // 1) Prefer Clerk-stored stripeCustomerId for exact match (reuse single clerk instance)
-    if (!customerId && clerk && clerkUserId) {
-      try {
-        const user = await clerk.users.getUser(clerkUserId);
-        const storedId = user?.publicMetadata?.stripeCustomerId;
-
-        if (storedId) {
-          customerId = storedId;
-        }
-      } catch (e) {
-        console.log('No stripeCustomerId in Clerk:', e?.message);
-      }
-    }
-
-    // 2) If still no customerId, try to find by email in Stripe
+    // 2) If still no customerId, find by email in Stripe with parallel subscription lookups
     if (!customerId && customerEmail) {
       try {
         const customers = await stripe.customers.list({
@@ -77,19 +69,22 @@ module.exports = async (req, res) => {
           limit: 10,
         });
 
-        for (const customer of customers.data) {
-          const subscriptions = await stripe.subscriptions.list({
-            customer: customer.id,
-            limit: 10,
-          });
-
-          const hasSubscription = subscriptions.data.some((sub) =>
-            ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
+        if (customers.data.length > 0) {
+          const results = await Promise.all(
+            customers.data.map(customer =>
+              stripe.subscriptions.list({ customer: customer.id, limit: 10 })
+                .then(subs => ({ customer, subscriptions: subs.data }))
+            )
           );
 
-          if (hasSubscription) {
-            customerId = customer.id;
-            break;
+          for (const { customer, subscriptions } of results) {
+            const hasSubscription = subscriptions.some((sub) =>
+              ['active', 'past_due', 'trialing', 'incomplete'].includes(sub.status)
+            );
+            if (hasSubscription) {
+              customerId = customer.id;
+              break;
+            }
           }
         }
       } catch (e) {
@@ -97,7 +92,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 3) Last resort: find any Stripe customer with that email (no subscription required for portal)
+    // 3) Last resort: find any Stripe customer with that email
     if (!customerId && customerEmail) {
       try {
         const listed = await stripe.customers.list({ email: customerEmail, limit: 1 });

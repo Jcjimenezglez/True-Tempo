@@ -205,7 +205,9 @@ module.exports = async (req, res) => {
         results.fixed > 0 ? `Fixed users: ${results.invalidUsers.map(u => u.email).join(', ')}` : '',
       ].filter(Boolean).join('\n');
 
-      await sendNtfyNotification(notificationTitle, notificationMessage);
+      sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+        console.error('❌ Sync notification error:', e)
+      );
     }
 
     console.log('✅ Premium sync completed:', results);
@@ -227,7 +229,7 @@ module.exports = async (req, res) => {
     console.error('Premium sync error:', error);
     
     // Send error notification
-    await sendNtfyNotification('Premium Sync Error', `Error: ${error.message}`);
+    sendNtfyNotification('Premium Sync Error', `Error: ${error.message}`).catch(() => {});
 
     return res.status(500).json({
       success: false,
