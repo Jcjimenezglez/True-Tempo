@@ -512,7 +512,7 @@ async function handleCheckoutCompleted(session, clerk) {
       const notificationTitle = 'Nueva Suscripcion Lifetime!';
       const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Lifetime ($24.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
 
-      sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+      await sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
         console.error('❌ Error sending push notification:', e)
       );
 
@@ -556,7 +556,7 @@ async function handleCheckoutCompleted(session, clerk) {
       const notificationTitle = 'Nueva Suscripcion Monthly!';
       const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Monthly ($3.99/mes)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\nPago completado`;
 
-      sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+      await sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
         console.error('❌ Error sending push notification:', e)
       );
 
@@ -748,7 +748,7 @@ async function handleInvoicePaymentFailed(invoice, clerk) {
       : `Pago Fallido (intento ${attemptCount})`;
     const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail}\nMonto: $${(invoice.amount_due / 100).toFixed(2)}\nIntento: ${attemptCount}\nEstado: ${isFinal ? 'PREMIUM REVOCADO' : 'Reintento programado'}\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}`;
 
-    sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
+    await sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
       console.error('❌ Error sending payment failure notification:', e)
     );
   } catch (error) {

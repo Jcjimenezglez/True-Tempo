@@ -21,12 +21,12 @@ Agregar las siguientes variables de entorno en **Vercel Dashboard** → **Projec
 
 ### Producción (Production):
 ```
-NTFY_TOPIC=superfocus-trials
+NTFY_TOPIC=superfocus-sales
 NTFY_PASSWORD=tu_password_opcional
 ```
 
 **⚠️ IMPORTANTE**: 
-- `NTFY_TOPIC`: Elige un nombre único para tu canal (ej: `superfocus-trials`, `julio-trials`, etc.)
+- `NTFY_TOPIC`: Elige un nombre único para tu canal (ej: `superfocus-sales`, `superfocus-trials`, etc.) — **debe coincidir exactamente con el topic al que estás suscrito en la app móvil**
 - `NTFY_PASSWORD`: (Opcional) Contraseña para proteger tu canal. Si no la pones, cualquiera puede ver tus notificaciones
 - Después de agregar las variables, haz **redeploy** del proyecto en Vercel
 
@@ -36,29 +36,29 @@ NTFY_PASSWORD=tu_password_opcional
 
 ### Paso 1: Elegir un Topic (Canal)
 
-1. Elige un nombre único para tu canal (ej: `superfocus-trials`)
+1. Elige un nombre único para tu canal (ej: `superfocus-sales`)
    - Debe ser único en todo ntfy.sh
    - Solo letras, números y guiones
-   - Recomendación: usa algo como `tu-nombre-trials` o `superfocus-trials-2024`
+   - Recomendación: usa algo como `superfocus-sales` o `tu-nombre-sales`
 
 ### Paso 2: Instalar la App Móvil de Ntfy
 
 **Para iOS:**
 1. Ve a [App Store](https://apps.apple.com/app/ntfy/id1625396347)
 2. Instala la app "ntfy"
-3. Abre la app y suscríbete a tu topic: `superfocus-trials` (o el que elegiste)
+3. Abre la app y suscríbete a tu topic: `superfocus-sales` (o el que configuraste en Vercel)
 
 **Para Android:**
 1. Ve a [Google Play](https://play.google.com/store/apps/details?id=io.heckel.ntfy)
 2. Instala la app "ntfy"
-3. Abre la app y suscríbete a tu topic: `superfocus-trials` (o el que elegiste)
+3. Abre la app y suscríbete a tu topic: `superfocus-sales` (o el que configuraste en Vercel)
 
 ### Paso 3: (Opcional) Proteger tu Canal con Contraseña
 
 Si quieres que solo tú puedas ver las notificaciones:
 
 1. Ve a [ntfy.sh](https://ntfy.sh)
-2. En la sección "Subscribe to topic", escribe tu topic: `superfocus-trials`
+2. En la sección "Subscribe to topic", escribe tu topic: `superfocus-sales`
 3. Click en "🔒 Set password"
 4. Elige una contraseña segura
 5. Copia la contraseña y úsala como `NTFY_PASSWORD` en Vercel
@@ -70,7 +70,7 @@ Si quieres que solo tú puedas ver las notificaciones:
 1. Ve a **Vercel Dashboard** → Tu Proyecto → **Settings** → **Environment Variables**
 2. Agrega estas variables en **Production**:
    ```
-   NTFY_TOPIC=superfocus-trials
+   NTFY_TOPIC=superfocus-sales
    NTFY_PASSWORD=tu_password_aqui  # Opcional pero recomendado
    ```
 3. **IMPORTANTE**: Haz **redeploy** del proyecto después de agregar las variables
@@ -104,7 +104,7 @@ Cuando un usuario se suscribe al trial, recibirás una notificación push con:
    curl -d "Mensaje de prueba" \
         -H "Title: 🎉 Test" \
         -H "Priority: high" \
-        https://ntfy.sh/superfocus-trials
+        https://ntfy.sh/superfocus-sales
    ```
    Deberías recibir una notificación en tu móvil inmediatamente.
 
@@ -131,11 +131,22 @@ Cuando un usuario se suscribe al trial, recibirás una notificación push con:
 
 ## 🔍 Troubleshooting
 
+### ❌ No recibo notificaciones (pero los tests sí funcionan)
+
+**Causa: Topic diferente entre Vercel y la app móvil**
+
+Si los tests (desde `node scripts/test-ntfy.js` o curl) te llegan pero las compras reales no, casi seguro es porque `NTFY_TOPIC` en Vercel no coincide con el topic al que estás suscrito en la app.
+
+- Verifica qué topic tienes en la app móvil (ej: `superfocus-sales`)
+- En Vercel → Environment Variables, pon exactamente el mismo: `NTFY_TOPIC=superfocus-sales`
+- Haz **redeploy** del proyecto
+- Prueba con una compra de prueba
+
 ### ❌ No recibo notificaciones
 
 **Causa 1: No estás suscrito al topic en la app móvil**
 - Abre la app de ntfy en tu móvil
-- Asegúrate de estar suscrito al topic correcto (ej: `superfocus-trials`)
+- Asegúrate de estar suscrito al topic correcto (ej: `superfocus-sales`)
 - Verifica que el nombre del topic coincida exactamente con `NTFY_TOPIC`
 
 **Causa 2: Variables de entorno no configuradas**
@@ -159,7 +170,7 @@ Cuando un usuario se suscribe al trial, recibirás una notificación push con:
 ### 🔒 Notificaciones públicas (sin contraseña)
 
 Si no configuraste `NTFY_PASSWORD`, cualquiera puede ver tus notificaciones si conoce el nombre del topic. Para privacidad:
-1. Elige un topic único y difícil de adivinar (ej: `superfocus-trials-xyz123`)
+1. Elige un topic único y difícil de adivinar (ej: `superfocus-sales-xyz123`)
 2. O mejor aún, configura `NTFY_PASSWORD`
 
 ---
@@ -175,7 +186,7 @@ api/
 
 ## ✅ Checklist de Configuración
 
-- [ ] Elegido un nombre único para el topic (ej: `superfocus-trials`)
+- [ ] Elegido un nombre único para el topic (ej: `superfocus-sales`)
 - [ ] Instalada la app de ntfy en tu móvil (iOS o Android)
 - [ ] Suscrito al topic en la app móvil
 - [ ] (Opcional) Configurada contraseña en ntfy.sh
@@ -189,7 +200,7 @@ api/
 
 ## 🚀 Próximos Pasos
 
-1. **Elige un topic único** (ej: `superfocus-trials` o `julio-trials-2024`)
+1. **Elige un topic único** (ej: `superfocus-sales` o `julio-sales-2024`)
 2. **Instala la app de ntfy** en tu móvil
 3. **Suscríbete al topic** en la app
 4. **Agrega las variables en Vercel**:

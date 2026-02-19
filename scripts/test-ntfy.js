@@ -1,7 +1,7 @@
 // Script para probar notificaciones de ntfy.sh
 // Uso: node scripts/test-ntfy.js
 
-const topic = process.env.NTFY_TOPIC || 'superfocus-trials';
+const topic = process.env.NTFY_TOPIC || 'superfocus-sales';
 const password = process.env.NTFY_PASSWORD;
 
 async function testNtfy() {

@@ -25,7 +25,7 @@ Configurar notificaciones push en tu móvil para que te llegue un mensaje cada v
 ## 📋 PASO 2: Elegir un Nombre para tu Canal
 
 Piensa en un nombre único para tu canal. Ejemplos:
-- `superfocus-trials`
+- `superfocus-sales`
 - `julio-trials`
 - `superfocus-2024`
 
@@ -34,7 +34,7 @@ Piensa en un nombre único para tu canal. Ejemplos:
 - Sin espacios
 - Debe ser único (nadie más lo use)
 
-✅ **Listo cuando**: Tienes un nombre elegido (ej: `superfocus-trials`)
+✅ **Listo cuando**: Tienes un nombre elegido (ej: `superfocus-sales`)
 
 ---
 
@@ -42,7 +42,7 @@ Piensa en un nombre único para tu canal. Ejemplos:
 
 1. Abre la app "ntfy" en tu móvil
 2. Verás un campo que dice "Subscribe to topic" o "Suscribirse a tema"
-3. Escribe el nombre que elegiste (ej: `superfocus-trials`)
+3. Escribe el nombre que elegiste (ej: `superfocus-sales`)
 4. Presiona "Subscribe" o "Suscribirse"
 
 ✅ **Listo cuando**: Ves el canal en la app y dice "Subscribed" o "Suscrito"
@@ -72,7 +72,7 @@ Piensa en un nombre único para tu canal. Ejemplos:
 
 ### Agregar primera variable:
 - **Name**: `NTFY_TOPIC`
-- **Value**: El nombre que elegiste (ej: `superfocus-trials`)
+- **Value**: El nombre que elegiste (ej: `superfocus-sales`)
 - Selecciona **Production** (y Preview/Development si quieres)
 - Click **Save**
 
@@ -107,10 +107,10 @@ Abre la terminal y ejecuta:
 curl -d "Mensaje de prueba desde Superfocus" \
      -H "Title: 🎉 Test" \
      -H "Priority: high" \
-     https://ntfy.sh/superfocus-trials
+     https://ntfy.sh/superfocus-sales
 ```
 
-(Reemplaza `superfocus-trials` con el nombre que elegiste)
+(Reemplaza `superfocus-sales` con el nombre que elegiste)
 
 **Deberías ver**: Una notificación en tu móvil inmediatamente
 
@@ -128,7 +128,7 @@ curl -d "Mensaje de prueba desde Superfocus" \
 ## ✅ Checklist Final
 
 - [ ] App "ntfy" instalada en mi móvil
-- [ ] Elegí un nombre para el canal (ej: `superfocus-trials`)
+- [ ] Elegí un nombre para el canal (ej: `superfocus-sales`)
 - [ ] Me suscribí al canal en la app
 - [ ] (Opcional) Configuré contraseña
 - [ ] Agregué `NTFY_TOPIC` en Vercel
@@ -160,9 +160,9 @@ curl -d "Mensaje de prueba desde Superfocus" \
 ## 📞 Resumen Ultra Rápido
 
 1. **Instala app "ntfy"** en tu móvil
-2. **Elige nombre** (ej: `superfocus-trials`)
+2. **Elige nombre** (ej: `superfocus-sales`)
 3. **Suscríbete** al canal en la app
-4. **Agrega** `NTFY_TOPIC=superfocus-trials` en Vercel
+4. **Agrega** `NTFY_TOPIC=superfocus-sales` en Vercel
 5. **Redeploy** en Vercel
 6. **Prueba** con curl o suscripción real
 
