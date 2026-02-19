@@ -46,7 +46,7 @@ if (!STRIPE_SECRET_KEY.startsWith('sk_')) {
   process.exit(1);
 }
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2025-12-18.acacia' });
+const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 async function verifyPremiumPrice() {
   try {

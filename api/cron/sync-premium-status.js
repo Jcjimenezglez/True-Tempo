@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' });
+  const stripe = new Stripe(stripeKey);
   const clerk = createClerkClient({ secretKey: clerkKey });
 
   const results = {

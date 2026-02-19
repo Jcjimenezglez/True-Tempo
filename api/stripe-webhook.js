@@ -352,7 +352,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const stripe = new Stripe(secretKey, { apiVersion: '2025-12-18.acacia' });
+  const stripe = new Stripe(secretKey);
   const clerk = createClerkClient({ secretKey: clerkSecret });
 
   const sig = req.headers['stripe-signature'];
@@ -449,7 +449,7 @@ async function handleCheckoutCompleted(session, clerk) {
       let emailToLookup = fallbackEmail;
       
       if (!emailToLookup && customerId) {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-12-18.acacia' });
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
         const customer = await stripe.customers.retrieve(customerId);
         emailToLookup = customer.email || null;
       }

@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stripe = new Stripe(secretKey, { apiVersion: '2025-12-18.acacia' });
+    const stripe = new Stripe(secretKey);
     const clerk = clerkSecret ? createClerkClient({ secretKey: clerkSecret }) : null;
 
     const clerkUserId = (req.headers['x-clerk-userid'] || '').toString().trim();

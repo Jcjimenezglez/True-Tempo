@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
 
   try {
     const clerk = createClerkClient({ secretKey: clerkSecret });
-    const stripe = new Stripe(stripeSecret, { apiVersion: '2025-12-18.acacia' });
+    const stripe = new Stripe(stripeSecret);
 
     // Find user in Clerk by email
     const users = await clerk.users.getUserList({ limit: 100 });

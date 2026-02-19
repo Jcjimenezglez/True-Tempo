@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
 
   let stripe, clerk;
   try {
-    stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' });
+    stripe = new Stripe(stripeKey);
   } catch (e) {
     console.error('Stripe init error:', e);
     return res.status(500).json({ error: 'Init failed', details: 'stripe', message: e?.message || 'unknown' });

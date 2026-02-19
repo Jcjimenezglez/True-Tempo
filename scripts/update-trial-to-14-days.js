@@ -25,7 +25,7 @@ async function main() {
     process.exit(1);
   }
   
-  const stripe = new Stripe(secretKey, { apiVersion: '2025-12-18.acacia' });
+  const stripe = new Stripe(secretKey);
   
   console.log('🔍 Searching for Premium product...\n');
   
