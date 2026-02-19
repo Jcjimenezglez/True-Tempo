@@ -23602,8 +23602,8 @@ function initStudyCoachChat() {
         if (showNotice) {
             const returnTimeLabel = formatCoachLimitReturnTime(limitState.unlockAtMs);
             dailyLimitNoticeEl.textContent = returnTimeLabel
-                ? `You've reached your daily limit of 3 chat questions. Come back ${returnTimeLabel} (23h cooldown), or upgrade to Premium for unlimited questions.`
-                : `You've reached your daily limit of 3 chat questions. Upgrade to Premium for unlimited questions.`;
+                ? `You've reached your daily limit of 3 chats. Come back ${returnTimeLabel} (23h cooldown), or upgrade to Premium for unlimited.`
+                : `You've reached your daily limit of 3 chats. Upgrade to Premium for unlimited.`;
         }
         dailyLimitNoticeEl.style.display = showNotice ? 'block' : 'none';
     }
@@ -23697,7 +23697,7 @@ function initStudyCoachChat() {
             if (gateEl) gateEl.style.display = 'flex';
             if (gateTitleEl) gateTitleEl.textContent = 'Sign up to try Chat';
             if (gateSubtitleEl) {
-                gateSubtitleEl.textContent = 'Create a free account to ask 3 chat questions per day. Upgrade to Premium for unlimited questions.';
+                gateSubtitleEl.textContent = 'Create a free account to use Chat 3 times per day. Upgrade to Premium for unlimited.';
             }
             if (upgradeBtn) upgradeBtn.style.display = 'none';
             if (signupBtn) signupBtn.style.display = 'inline-flex';
