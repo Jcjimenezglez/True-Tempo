@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
+  const stripe = new Stripe(secretKey, { apiVersion: '2025-12-18.acacia' });
   const clerk = createClerkClient({ secretKey: clerkSecret });
 
   try {

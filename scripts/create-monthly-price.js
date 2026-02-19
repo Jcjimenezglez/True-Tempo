@@ -39,7 +39,7 @@ async function createMonthlyProductAndPrice() {
     process.exit(1);
   }
 
-  const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+  const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2025-12-18.acacia' });
 
   try {
     console.log('🚀 Creando Product y Price en Stripe...\n');

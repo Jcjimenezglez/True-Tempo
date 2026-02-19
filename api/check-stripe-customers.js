@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Stripe secret not configured' });
     }
 
-    const stripe = Stripe(stripeSecret, { apiVersion: '2022-11-15' });
+    const stripe = new Stripe(stripeSecret, { apiVersion: '2025-12-18.acacia' });
     const targetEmail = (req.query.email || req.query.user || 'omrvieito@gmail.com').toLowerCase();
     const targetCustomerId = (req.query.customerId || req.query.customer || req.query.id || '').trim();
 

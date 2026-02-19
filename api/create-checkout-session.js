@@ -101,7 +101,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
+    const stripe = new Stripe(secretKey, { apiVersion: '2025-12-18.acacia' });
 
     // Determine mode based on planType
     const mode = planType === 'lifetime' ? 'payment' : 'subscription';

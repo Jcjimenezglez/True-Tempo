@@ -49,7 +49,7 @@ if (!STRIPE_SECRET_KEY.startsWith('sk_')) {
   process.exit(1);
 }
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2025-12-18.acacia' });
 
 // Current price ID (from your Vercel environment)
 const CURRENT_PRICE_ID = process.env.STRIPE_PRICE_ID_PREMIUM || 'price_1SQr4sIMJUHQfsp7sx96CCxe';

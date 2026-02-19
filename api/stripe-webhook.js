@@ -1,6 +1,7 @@
 // Stripe webhook handler to sync premium status with Clerk
 const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const { setCustomerMapping, getClerkUserIdByCustomer } = require('./lib/stripe-customer-map');
 
 // Function to send conversion tracking to Google Ads (server-side)
 // Tracks real conversions when checkout is completed (not just intent)
@@ -188,6 +189,21 @@ async function findClerkUserByStripeCustomerId(clerk, stripeCustomerId) {
     return null;
   }
 
+  // Fast path: check KV cache first (O(1) instead of O(n))
+  const cachedUserId = await getClerkUserIdByCustomer(stripeCustomerId);
+  if (cachedUserId) {
+    try {
+      const user = await clerk.users.getUser(cachedUserId);
+      if (user) {
+        console.log(`🔎 Found Clerk user ${user.id} for Stripe customer ${stripeCustomerId} via KV cache`);
+        return user;
+      }
+    } catch (e) {
+      console.warn(`⚠️ KV cached user ${cachedUserId} not found in Clerk, falling back to scan`);
+    }
+  }
+
+  // Slow path: scan all Clerk users (fallback)
   const pageSize = 100;
   let offset = 0;
   let scanned = 0;
@@ -207,6 +223,8 @@ async function findClerkUserByStripeCustomerId(clerk, stripeCustomerId) {
     const match = data.find((user) => user.publicMetadata?.stripeCustomerId === stripeCustomerId);
     if (match) {
       console.log(`🔎 Found Clerk user ${match.id} for Stripe customer ${stripeCustomerId} after scanning ${scanned} users`);
+      // Populate KV cache so next lookup is O(1)
+      await setCustomerMapping(stripeCustomerId, match.id);
       return match;
     }
 
@@ -334,7 +352,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const stripe = new Stripe(secretKey, { apiVersion: '2022-11-15' });
+  const stripe = new Stripe(secretKey, { apiVersion: '2025-12-18.acacia' });
   const clerk = createClerkClient({ secretKey: clerkSecret });
 
   const sig = req.headers['stripe-signature'];
@@ -374,8 +392,10 @@ module.exports = async (req, res) => {
         await handleSubscriptionDeleted(event.data.object, clerk);
         break;
       
-      // Note: trial_will_end and invoice.payment_succeeded handlers removed
-      // since we no longer use trial-based plans
+      case 'invoice.payment_failed':
+        console.log('💳 Processing invoice.payment_failed...');
+        await handleInvoicePaymentFailed(event.data.object, clerk);
+        break;
       
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
@@ -429,7 +449,7 @@ async function handleCheckoutCompleted(session, clerk) {
       let emailToLookup = fallbackEmail;
       
       if (!emailToLookup && customerId) {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-12-18.acacia' });
         const customer = await stripe.customers.retrieve(customerId);
         emailToLookup = customer.email || null;
       }
@@ -449,6 +469,11 @@ async function handleCheckoutCompleted(session, clerk) {
     if (!targetUserId) {
       console.log('Could not find Clerk user for customer:', customerId);
       return;
+    }
+
+    // Cache the stripeCustomerId -> clerkUserId mapping for fast future lookups
+    if (customerId && targetUserId) {
+      await setCustomerMapping(customerId, targetUserId);
     }
 
     // For lifetime deals, mark as premium permanently
@@ -719,4 +744,74 @@ async function handleSubscriptionDeleted(subscription, clerk) {
   }
 }
 
-// Note: handleInvoicePaymentSucceeded function removed - no longer tracking first payment after trial
+async function handleInvoicePaymentFailed(invoice, clerk) {
+  const customerId = invoice.customer;
+  const subscriptionId = invoice.subscription;
+  const attemptCount = invoice.attempt_count || 1;
+
+  console.log('💳 Invoice payment failed:', {
+    customerId,
+    subscriptionId,
+    attemptCount,
+    amountDue: invoice.amount_due,
+    nextAttempt: invoice.next_payment_attempt
+      ? new Date(invoice.next_payment_attempt * 1000).toISOString()
+      : 'none',
+  });
+
+  try {
+    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
+
+    if (!user) {
+      console.warn(`⚠️ No Clerk user found for failed payment customer: ${customerId}`);
+      return;
+    }
+
+    if (user.publicMetadata?.isLifetime) {
+      console.log(`⚠️ Ignoring payment failure for Lifetime user ${user.id}`);
+      return;
+    }
+
+    // On final attempt (no next retry scheduled), revoke premium
+    if (!invoice.next_payment_attempt) {
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          isPremium: false,
+          paymentFailed: true,
+          paymentFailedAt: new Date().toISOString(),
+          lastUpdated: new Date().toISOString(),
+        },
+      });
+      console.log(`❌ Premium revoked for user ${user.id} after final payment failure`);
+    } else {
+      // Mark that payment is having issues but keep premium active during retries
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          paymentFailed: true,
+          paymentFailedAt: new Date().toISOString(),
+          lastUpdated: new Date().toISOString(),
+        },
+      });
+      console.log(`⚠️ Payment failing for user ${user.id}, attempt ${attemptCount}. Next retry scheduled.`);
+    }
+
+    // Notify about failed payment
+    try {
+      let userEmail = user.emailAddresses?.[0]?.emailAddress || 'N/A';
+      const userName = user.firstName || user.username || 'Usuario';
+      const isFinal = !invoice.next_payment_attempt;
+      const notificationTitle = isFinal
+        ? 'Pago Fallido Final - Premium Revocado'
+        : `Pago Fallido (intento ${attemptCount})`;
+      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail}\nMonto: $${(invoice.amount_due / 100).toFixed(2)}\nIntento: ${attemptCount}\nEstado: ${isFinal ? 'PREMIUM REVOCADO' : 'Reintento programado'}\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}`;
+
+      await sendNtfyNotification(notificationTitle, notificationMessage);
+    } catch (ntfyError) {
+      // Don't fail the webhook if notification fails
+    }
+  } catch (error) {
+    console.error('❌ Error handling invoice payment failure:', error);
+  }
+}

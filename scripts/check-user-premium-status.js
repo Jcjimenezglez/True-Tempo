@@ -69,7 +69,7 @@ if (!STRIPE_SECRET_KEY) {
 }
 
 const clerk = createClerkClient({ secretKey: CLERK_SECRET_KEY });
-const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2025-12-18.acacia' });
 
 async function checkUserPremiumStatus(email) {
   try {

@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stripe = new Stripe(stripeSecret, { apiVersion: '2022-11-15' });
+    const stripe = new Stripe(stripeSecret, { apiVersion: '2025-12-18.acacia' });
     
     // Get recent payment intents
     const paymentIntents = await stripe.paymentIntents.list({
