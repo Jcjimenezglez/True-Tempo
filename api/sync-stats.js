@@ -1,6 +1,10 @@
 // API endpoint to sync user statistics to Clerk
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
+// Server-side rate limit cooldown (persists in warm function instances)
+const _userCooldowns = new Map();
+const COOLDOWN_MS = 15000; // 15 seconds between calls per user
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -17,6 +21,22 @@ module.exports = async (req, res) => {
   if (!clerkUserId) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
+  }
+
+  // Server-side per-user throttle
+  const now = Date.now();
+  const lastCall = _userCooldowns.get(clerkUserId) || 0;
+  if (now - lastCall < COOLDOWN_MS) {
+    res.status(429).json({ error: 'Too frequent', retryAfter: Math.ceil((COOLDOWN_MS - (now - lastCall)) / 1000) });
+    return;
+  }
+  _userCooldowns.set(clerkUserId, now);
+
+  // Clean up old entries to prevent memory leaks
+  if (_userCooldowns.size > 1000) {
+    for (const [uid, ts] of _userCooldowns) {
+      if (now - ts > 60000) _userCooldowns.delete(uid);
+    }
   }
 
   try {
