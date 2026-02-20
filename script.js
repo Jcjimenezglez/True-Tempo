@@ -660,6 +660,10 @@ class PomodoroTimer {
             });
         }
         
+        // Migrate legacy single custom timer storage to customTechniques array.
+        // This avoids old "ghost" timers that cannot be deleted from current UI.
+        this.migrateLegacyCustomTimer();
+
         // Load custom timer labels if it exists (do not auto-select here)
         this.loadSavedCustomTimer();
 
@@ -7583,14 +7587,11 @@ class PomodoroTimer {
     }
 
     handleCustomTechniqueClick(item) {
-        // Check if user has a saved custom timer
-        const savedCustomTimer = lsGet('customTimer');
-        
-        if (savedCustomTimer) {
-            // User has a custom timer - select it normally
+        // Legacy key `customTimer` is deprecated; current source of truth is `customTechniques`.
+        const techniques = lsGet('customTechniques') || [];
+        if (techniques.length > 0) {
             this.selectTechnique(item);
         } else {
-            // User doesn't have a custom timer - show the modal to create one
             this.showCustomTimerModal();
         }
     }
@@ -17336,6 +17337,61 @@ class PomodoroTimer {
         } catch (error) {
             console.error('Error reading custom timer:', error);
             lsRemove('customTimer');
+        }
+    }
+
+    migrateLegacyCustomTimer() {
+        const legacy = lsGet('customTimer');
+        if (!legacy || typeof legacy !== 'object') return;
+
+        try {
+            const techniques = lsGet('customTechniques') || [];
+            const workMinutes = Math.max(1, Math.round((legacy.focusTime || 1500) / 60));
+            const shortBreakMinutes = Math.max(1, Math.round((legacy.breakTime || 300) / 60));
+            const longBreakMinutes = Math.max(0, Math.round((legacy.longBreakTime || 900) / 60));
+            const sessions = Math.max(1, parseInt(legacy.cycles || 4, 10));
+            const legacyName = (legacy.name || 'Custom Timer').toString().trim();
+
+            const existing = techniques.find((t) =>
+                (t.name || '').trim() === legacyName &&
+                Number(t.workMinutes) === workMinutes &&
+                Number(t.shortBreakMinutes) === shortBreakMinutes &&
+                Number(t.longBreakMinutes) === longBreakMinutes &&
+                Number(t.sessions) === sessions
+            );
+
+            let targetId = existing?.id;
+
+            if (!existing) {
+                const migrated = {
+                    id: `legacy_${Date.now()}`,
+                    name: legacyName,
+                    emoji: legacy.emoji || '🎯',
+                    workMinutes,
+                    shortBreakMinutes,
+                    longBreakMinutes,
+                    sessions,
+                    createdAt: legacy.createdAt || new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    migratedFrom: 'customTimer'
+                };
+                techniques.push(migrated);
+                lsSet('customTechniques', techniques);
+                targetId = migrated.id;
+                console.log('✅ Migrated legacy customTimer into customTechniques');
+            }
+
+            // If old selected key was "custom", map it to a concrete custom_<id> key.
+            if (lsGet('selectedTechnique') === 'custom' && targetId) {
+                lsSet('selectedTechnique', `custom_${targetId}`);
+            }
+
+            // Remove deprecated storage key so deleted timers do not reappear.
+            lsRemove('customTimer');
+        } catch (error) {
+            console.error('Error migrating legacy custom timer:', error);
+            // Fail-safe: remove broken legacy config to avoid ghost timer loops.
+            try { lsRemove('customTimer'); } catch (_) {}
         }
     }
 
