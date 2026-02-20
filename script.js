@@ -14198,13 +14198,14 @@ class PomodoroTimer {
                     payload.focusStats = focusStats;
                 }
                 
-                // Get custom techniques
+                // Always include custom techniques in full sync, even when empty.
+                // This prevents deleted timers from being resurrected from server metadata.
                 try {
-                    const customTechniques = lsGet('customTechniques') || [];
-                    if (customTechniques.length > 0) {
-                        payload.customTechniques = customTechniques;
-                    }
-                } catch (_) {}
+                    const customTechniques = lsGet('customTechniques');
+                    payload.customTechniques = Array.isArray(customTechniques) ? customTechniques : [];
+                } catch (_) {
+                    payload.customTechniques = [];
+                }
                 
                 // Get custom cassettes (including private ones)
                 try {
