@@ -5559,7 +5559,7 @@ class PomodoroTimer {
                     button_type: 'logo',
                     destination: 'homepage'
                 });
-                window.location.href = 'https://superfocus.live';
+                window.location.href = 'https://www.superfocus.live';
             });
         }
 
@@ -6124,7 +6124,7 @@ class PomodoroTimer {
             }
             
             // Create X share URL
-            const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent('https://superfocus.live')}`;
+            const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent('https://www.superfocus.live')}`;
             
             // Open X share dialog
             window.open(shareUrl, '_blank', 'width=550,height=420,noopener,noreferrer');
