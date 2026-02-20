@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Inter font for chat input -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Preconnect to Spotify to reduce TLS and DNS latency for embedded widget -->
     <link rel="preconnect" href="https://open.spotify.com">
     <link rel="dns-prefetch" href="https://open.spotify.com">
@@ -500,11 +496,6 @@
                         <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
                         <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
                         <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-                    </svg>
-                </div>
-                <div class="nav-item nav-item-hidden" data-section="coach" data-tooltip="Chat" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
                     </svg>
                 </div>
             </div>
@@ -1175,9 +1166,6 @@
     <!-- Resources Panel Overlay -->
     <div class="task-panel-overlay" id="resourcesPanelOverlay"></div>
 
-    <!-- Coach Panel Overlay -->
-    <div class="task-panel-overlay" id="coachPanelOverlay"></div>
-
     <!-- Resources Side Panel -->
     <div class="task-side-panel" id="resourcesSidePanel">
         <button class="close-side-panel-btn" id="closeResourcesPanel" aria-label="Close Resources Panel" title="Close Resources">
@@ -1603,61 +1591,6 @@
 
     <!-- Report Panel Overlay -->
     <div class="task-panel-overlay" id="reportPanelOverlay"></div>
-
-    <!-- Study Coach Side Panel -->
-    <div class="task-side-panel" id="coachSidePanel" aria-label="Chat">
-        <button class="close-side-panel-btn" id="closeCoachPanel" aria-label="Close Chat Panel" title="Close Chat">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m15 18-6-6 6-6"/>
-            </svg>
-        </button>
-        <div class="task-side-panel-content coach-panel-content">
-            <div class="tasks-header coach-header">
-                <div class="coach-header-text">
-                    <div class="coach-title-row">
-                        <div class="coach-title-left">
-                            <h3>Chat</h3>
-                            <span class="coach-beta-badge" aria-label="Beta feature">Beta</span>
-                        </div>
-                        <button class="coach-new-chat-btn" id="coachNewChatBtn" type="button" aria-label="Start a new chat" title="New chat">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 5v14"/>
-                                <path d="M5 12h14"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <p class="tasks-subtitle">Tell me what you want to focus on</p>
-                </div>
-            </div>
-            <div class="coach-chat">
-                <div class="coach-chat-messages" id="coachChatMessages" aria-live="polite"></div>
-                <div class="coach-chat-gate" id="coachChatGate" style="display: none;">
-                    <div class="coach-chat-preview">
-                        <div class="coach-chat-message user">I need to finish my history essay by Friday</div>
-                        <div class="coach-chat-message assistant">Here's a plan that works well:<br><br>Timer: 25 min focus / 5 min break (classic Pomodoro)<br><br>Tasks:<br>- Research and gather sources (2–3 pomodoros)<br>- Draft outline with main arguments<br>- Write intro and thesis<br>- Draft body paragraphs<br>- Conclusion and bibliography<br>- Proofread and edit</div>
-                    </div>
-                    <div class="coach-gate-card">
-                        <div class="coach-gate-text">
-                            <div class="coach-gate-title" id="coachGateTitle">Sign up to try Chat</div>
-                            <div class="coach-gate-subtitle" id="coachGateSubtitle">Create a free account to use Chat 3 times per day. Upgrade to Premium for unlimited.</div>
-                        </div>
-                        <button class="coach-upgrade-btn" id="coachUpgradeBtn" type="button">Unlock Unlimited</button>
-                        <button class="coach-signup-btn" id="coachSignupBtn" type="button">Sign up for free</button>
-                    </div>
-                </div>
-                <p id="coachDailyLimitInlineNotice" style="display: none; margin: 0 2px 10px; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your daily limit of 3 chats. Upgrade to Premium for unlimited.</p>
-                <div class="coach-chat-input" id="coachChatInputRow">
-                    <textarea id="coachChatInput" rows="1" placeholder="I want to focus on..." aria-label="Chat message"></textarea>
-                    <button class="coach-chat-send" id="coachChatSend" type="button" aria-label="Send message">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="22" y1="2" x2="11" y2="13"/>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -2804,12 +2737,6 @@
                         <circle cx="16" cy="15" r="2"/>
                     </svg>
                     <span>Cassettes</span>
-                </button>
-                <button class="bottom-sheet-nav-item" data-target="coachSheet" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
-                    </svg>
-                    <span>Chat</span>
                 </button>
                 <button class="bottom-sheet-nav-item" data-target="reportSheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
