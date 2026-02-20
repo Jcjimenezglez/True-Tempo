@@ -7,9 +7,6 @@ Sitemap: https://www.superfocus.live/sitemap.xml
 # Disallow access to API endpoints and sensitive files
 Disallow: /api/
 Disallow: /node_modules/
-Disallow: /*.json$
-Disallow: /*.js$
-Disallow: /*.css$
 Disallow: /update_*.py
 Disallow: /script_*.js
 
