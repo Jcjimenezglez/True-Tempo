@@ -15224,9 +15224,9 @@ class PomodoroTimer {
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
                     <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
-                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Monthly Activity View"' : ''}>Monthly</button>
-                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Yearly</button>
+                            <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
+                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Monthly Activity View"' : ''}>Month</button>
+                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Year</button>
                         </div>
                     </div>
                     <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
