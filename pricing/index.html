@@ -85,7 +85,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Primary Meta Tags -->
-    <title>Pomodoro Timer Pricing - Superfocus</title>
+    <title>The ultimate home for focus. - Superfocus</title>
     <meta name="title" content="Pomodoro Timer Pricing - Superfocus">
     <meta name="description" content="Pomodoro timer pricing for the Superfocus study timer and focus timer app. Choose monthly or lifetime access for better time management.">
     
@@ -2354,7 +2354,7 @@
     <!-- Main Content -->
     <main class="pricing-page-container">
         <div class="pricing-page-header-section">
-            <h1>Pomodoro timer for focus and time management</h1>
+            <h1>The ultimate home for focus.</h1>
             <p class="pricing-hero-subtitle">
                 Superfocus helps you stay focused, avoid burnout, and track progress with timers, tasks, cassettes, and analytics.
             </p>
@@ -3532,6 +3532,9 @@
 
             // Premium users: disable purchase CTAs
             if (isPremium) {
+                lifetimeCtaButtons.forEach((ctaButton) => {
+                    ctaButton.style.display = '';
+                });
                 allCtaButtons.forEach((ctaButton) => {
                     ctaButton.textContent = 'You have Premium';
                     ctaButton.disabled = true;
@@ -3544,9 +3547,11 @@
             if (!isAuthenticated) {
                 monthlyCtaButtons.forEach((ctaButton) => {
                     ctaButton.textContent = 'Sign up for free';
+                    ctaButton.style.display = '';
                 });
                 lifetimeCtaButtons.forEach((ctaButton) => {
                     ctaButton.textContent = 'Sign up for free';
+                    ctaButton.style.display = 'none';
                 });
                 if (headerCTAButton) {
                     headerCTAButton.textContent = 'Sign up for free';
@@ -3562,11 +3567,13 @@
                 ctaButton.textContent = 'Unlock Unlimited';
                 ctaButton.disabled = false;
                 ctaButton.classList.remove('disabled');
+                ctaButton.style.display = '';
             });
             lifetimeCtaButtons.forEach((ctaButton) => {
                 ctaButton.textContent = 'Get Lifetime Access';
                 ctaButton.disabled = false;
                 ctaButton.classList.remove('disabled');
+                ctaButton.style.display = '';
             });
             if (headerCTAButton) {
                 headerCTAButton.textContent = 'Unlock Unlimited';
