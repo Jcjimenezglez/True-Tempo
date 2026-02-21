@@ -2374,7 +2374,7 @@
             </p>
             
             <div class="pricing-cta-buttons-container">
-                <button class="pricing-btn-monthly" id="pricingPageMonthly">Unlock Unlimited</button>
+                <button class="pricing-btn-monthly" id="pricingPageMonthly">View plans</button>
                 <button class="pricing-btn-lifetime" id="pricingPageUpgrade">Get Lifetime Access</button>
             </div>
             
@@ -2713,7 +2713,7 @@
         </div>
                 
         <!-- Comparison Table Section -->
-        <div class="comparison-table-section">
+        <div class="comparison-table-section" id="plansComparisonSection">
             <div class="comparison-table-intro">
                 <h2 class="comparison-table-title">Why upgrade to Premium?</h2>
                 <p class="comparison-table-description">See what you unlock</p>
@@ -2845,7 +2845,7 @@
             <!-- CTA after comparison table -->
             <div style="text-align: center; margin-top: 3rem;">
                 <div class="pricing-cta-buttons-container centered">
-                    <button class="pricing-btn-monthly" id="comparisonTableCTAMonthly">Unlock Unlimited</button>
+                    <button class="pricing-btn-monthly" id="comparisonTableCTAMonthly">Subscribe Monthly</button>
                     <button class="pricing-btn-lifetime" id="comparisonTableCTA">Get Lifetime Access</button>
                 </div>
                 <div class="pricing-offer-explanation" style="margin: 0.5rem auto 0 auto;">
@@ -3264,7 +3264,7 @@
             <h2 class="cta-title">Block distractions.</h2>
             <p class="cta-subtitle">Join thousands who use Superfocus to maintain 2-3 hours of uninterrupted deep work every day and complete their most important tasks.</p>
             <div class="pricing-cta-buttons-container centered">
-                <button class="pricing-btn-monthly" id="finalCTAMonthly">Unlock Unlimited</button>
+                <button class="pricing-btn-monthly" id="finalCTAMonthly">View plans</button>
                 <button class="pricing-btn-lifetime" id="finalCTA">Get Lifetime Access</button>
             </div>
             <div class="pricing-offer-explanation">
@@ -3352,10 +3352,21 @@
             window.location.href = url;
         }
 
+        function scrollToPlansComparison() {
+            const plansSection = document.getElementById('plansComparisonSection');
+            if (!plansSection) return;
+            plansSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         // Function to handle CTA button click
         function handleCTAClick(button, source = 'pricing_page', planType = 'lifetime') {
             return function(e) {
                 e.preventDefault();
+                const ctaMode = button?.dataset?.ctaMode || 'checkout';
+                if (ctaMode === 'view_plans') {
+                    scrollToPlansComparison();
+                    return;
+                }
                 console.log('CTA button clicked from', source, 'with plan type:', planType);
                 
                 // Disable button immediately to prevent double clicks
@@ -3549,6 +3560,12 @@
                 finalCTAMonthlyButton.addEventListener('click', handleCTAClick(finalCTAMonthlyButton, 'final_cta', 'monthly'));
                 console.log('✅ Final monthly CTA button event listener added successfully');
             }
+
+            if (headerCTAButton) {
+                console.log('Header CTA button found, adding event listener...');
+                headerCTAButton.addEventListener('click', handleCTAClick(headerCTAButton, 'header_cta', 'monthly'));
+                console.log('✅ Header CTA button event listener added successfully');
+            }
             
             // Update button states after Clerk loads
             updateButtonStates();
@@ -3619,15 +3636,18 @@
                     ctaButton.disabled = false;
                     ctaButton.classList.remove('disabled');
                     ctaButton.style.display = '';
+                    ctaButton.dataset.ctaMode = 'checkout';
                 });
                 lifetimeCtaButtons.forEach((ctaButton) => {
                     ctaButton.style.display = 'none';
+                    ctaButton.dataset.ctaMode = 'checkout';
                 });
                 if (headerCTAButton) {
                     headerCTAButton.textContent = 'Manage Subscription';
                     headerCTAButton.disabled = false;
                     headerCTAButton.classList.remove('disabled');
                     headerCTAButton.style.display = '';
+                    headerCTAButton.dataset.ctaMode = 'checkout';
                 }
                 document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
                     el.textContent = 'Manage your current Premium plan and billing settings.';
@@ -3641,37 +3661,66 @@
                 monthlyCtaButtons.forEach((ctaButton) => {
                     ctaButton.textContent = 'Sign up for free';
                     ctaButton.style.display = '';
+                    ctaButton.dataset.ctaMode = 'checkout';
                 });
                 lifetimeCtaButtons.forEach((ctaButton) => {
                     ctaButton.textContent = 'Sign up for free';
                     ctaButton.style.display = 'none';
+                    ctaButton.dataset.ctaMode = 'checkout';
                 });
                 if (headerCTAButton) {
                     headerCTAButton.textContent = 'Sign up for free';
+                    headerCTAButton.dataset.ctaMode = 'checkout';
                 }
                 document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
                     el.textContent = 'Create a free account to unlock unlimited focus sessions and choose Monthly or Lifetime when you are ready.';
                 });
                 return;
             }
-            // Free users: keep premium upgrade language
-            monthlyCtaButtons.forEach((ctaButton) => {
-                ctaButton.textContent = 'Unlock Unlimited';
-                ctaButton.disabled = false;
-                ctaButton.classList.remove('disabled');
-                ctaButton.style.display = '';
-            });
-            lifetimeCtaButtons.forEach((ctaButton) => {
-                ctaButton.textContent = 'Get Lifetime Access';
-                ctaButton.disabled = false;
-                ctaButton.classList.remove('disabled');
-                ctaButton.style.display = '';
-            });
+            // Free users: hero/final show "View plans", comparison keeps purchase choices
+            if (monthlyButton) {
+                monthlyButton.textContent = 'View plans';
+                monthlyButton.disabled = false;
+                monthlyButton.classList.remove('disabled');
+                monthlyButton.style.display = '';
+                monthlyButton.dataset.ctaMode = 'view_plans';
+            }
+            if (finalCTAMonthlyButton) {
+                finalCTAMonthlyButton.textContent = 'View plans';
+                finalCTAMonthlyButton.disabled = false;
+                finalCTAMonthlyButton.classList.remove('disabled');
+                finalCTAMonthlyButton.style.display = '';
+                finalCTAMonthlyButton.dataset.ctaMode = 'view_plans';
+            }
+            if (comparisonTableCTAMonthlyButton) {
+                comparisonTableCTAMonthlyButton.textContent = 'Subscribe Monthly';
+                comparisonTableCTAMonthlyButton.disabled = false;
+                comparisonTableCTAMonthlyButton.classList.remove('disabled');
+                comparisonTableCTAMonthlyButton.style.display = '';
+                comparisonTableCTAMonthlyButton.dataset.ctaMode = 'checkout';
+            }
+
+            if (lifetimeButton) {
+                lifetimeButton.style.display = 'none';
+                lifetimeButton.dataset.ctaMode = 'checkout';
+            }
+            if (finalCTAButton) {
+                finalCTAButton.style.display = 'none';
+                finalCTAButton.dataset.ctaMode = 'checkout';
+            }
+            if (comparisonTableCTAButton) {
+                comparisonTableCTAButton.textContent = 'Get Lifetime Access';
+                comparisonTableCTAButton.disabled = false;
+                comparisonTableCTAButton.classList.remove('disabled');
+                comparisonTableCTAButton.style.display = '';
+                comparisonTableCTAButton.dataset.ctaMode = 'checkout';
+            }
             if (headerCTAButton) {
-                headerCTAButton.textContent = 'Unlock Unlimited';
+                headerCTAButton.textContent = 'View plans';
                 headerCTAButton.disabled = false;
                 headerCTAButton.classList.remove('disabled');
                 headerCTAButton.style.display = '';
+                headerCTAButton.dataset.ctaMode = 'view_plans';
             }
         }
 
