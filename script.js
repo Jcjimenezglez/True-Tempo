@@ -4327,15 +4327,9 @@ class PomodoroTimer {
             }
         }
         
-        // Update CTA button text and plan details
-        if (this.selectedPlanCTA && this.planDetailsText) {
-            if (plan === 'monthly') {
-                this.selectedPlanCTA.textContent = 'Subscribe Monthly';
-                this.planDetailsText.textContent = 'Cancel anytime';
-            } else {
-                this.selectedPlanCTA.textContent = 'Get Lifetime Access';
-                this.planDetailsText.textContent = 'No subscription • One-time payment';
-            }
+        // Keep CTA copy consistent across plans
+        if (this.selectedPlanCTA) {
+            this.selectedPlanCTA.textContent = 'Upgrade Now';
         }
     }
     
@@ -5816,7 +5810,6 @@ class PomodoroTimer {
         this.monthlyCheckIcon = document.getElementById('monthlyCheckIcon');
         this.lifetimeCheckIcon = document.getElementById('lifetimeCheckIcon');
         this.selectedPlanCTA = document.getElementById('selectedPlanCTA');
-        this.planDetailsText = document.getElementById('planDetailsText');
         this.selectedPlan = 'monthly'; // Default to monthly (most used)
         
         if (this.closePricingPlansModalX && !this.closePricingPlansModalX.hasAttribute('data-bound')) {
