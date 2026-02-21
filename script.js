@@ -4329,7 +4329,7 @@ class PomodoroTimer {
         
         // Keep CTA copy consistent across plans
         if (this.selectedPlanCTA) {
-            this.selectedPlanCTA.textContent = 'Upgrade Now';
+            this.selectedPlanCTA.textContent = 'Upgrade to Premium';
         }
     }
     
