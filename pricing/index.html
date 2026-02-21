@@ -2341,7 +2341,7 @@
                 <img src="/superfocus-logo-white.png" alt="Superfocus Logo">
                 <span>Superfocus</span>
             </a>
-            <button class="pricing-page-header-cta" id="headerCTA">Unlock Focus Timer</button>
+            <button class="pricing-page-header-cta" id="headerCTA">Unlock Unlimited</button>
         </div>
         <a href="/" class="close-btn" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2354,18 +2354,18 @@
     <!-- Main Content -->
     <main class="pricing-page-container">
         <div class="pricing-page-header-section">
-            <h1>Pomodoro timer for students</h1>
+            <h1>Pomodoro timer for focus and time management</h1>
             <p class="pricing-hero-subtitle">
-                Upgrade your study timer and focus timer app for better time management and longer focus sessions.
+                Superfocus helps you stay focused, avoid burnout, and track progress with timers, tasks, cassettes, and analytics.
             </p>
             
             <div class="pricing-cta-buttons-container">
-                <button class="pricing-btn-monthly" id="pricingPageMonthly">Subscribe Monthly</button>
+                <button class="pricing-btn-monthly" id="pricingPageMonthly">Unlock Unlimited</button>
                 <button class="pricing-btn-lifetime" id="pricingPageUpgrade">Get Lifetime Access</button>
             </div>
             
             <div class="pricing-offer-explanation">
-                Choose monthly subscription or lifetime access for the pomodoro app.
+                Choose your plan and start focusing today.
             </div>
         </div>
                 
@@ -2831,7 +2831,7 @@
             <!-- CTA after comparison table -->
             <div style="text-align: center; margin-top: 3rem;">
                 <div class="pricing-cta-buttons-container centered">
-                    <button class="pricing-btn-monthly" id="comparisonTableCTAMonthly">Subscribe Monthly</button>
+                    <button class="pricing-btn-monthly" id="comparisonTableCTAMonthly">Unlock Unlimited</button>
                     <button class="pricing-btn-lifetime" id="comparisonTableCTA">Get Lifetime Access</button>
                 </div>
                 <div class="pricing-offer-explanation" style="margin: 0.5rem auto 0 auto;">
@@ -3250,7 +3250,7 @@
             <h2 class="cta-title">Block distractions +++</h2>
             <p class="cta-subtitle">Join thousands who use Superfocus to maintain 2-3 hours of uninterrupted deep work every day and complete their most important tasks.</p>
             <div class="pricing-cta-buttons-container centered">
-                <button class="pricing-btn-monthly" id="finalCTAMonthly">Subscribe Monthly</button>
+                <button class="pricing-btn-monthly" id="finalCTAMonthly">Unlock Unlimited</button>
                 <button class="pricing-btn-lifetime" id="finalCTA">Get Lifetime Access</button>
             </div>
             <div class="pricing-offer-explanation">
@@ -3316,8 +3316,9 @@
                 (async () => {
                     // 🎯 TRACKING: Subscribe Clicked from Pricing Page
                     if (window.mixpanel && window.mixpanel.track) {
+                        const ctaAction = isAuthenticated ? 'subscribe' : 'signup';
                         window.mixpanel.track('Subscribe Clicked', {
-                            button_type: 'subscribe',
+                            button_type: ctaAction,
                             source: source,
                             location: source,
                             plan_type: planType,
@@ -3515,60 +3516,62 @@
                 hasUser: !!window.Clerk?.user
             });
             
-            // Update Lifetime button
-            if (lifetimeButton && isPremium) {
-                lifetimeButton.textContent = 'You have Premium';
-                lifetimeButton.disabled = true;
-                lifetimeButton.classList.add('disabled');
-            }
-            
-            // Update Monthly button
-            if (monthlyButton && isPremium) {
-                monthlyButton.textContent = 'You have Premium';
-                monthlyButton.disabled = true;
-                monthlyButton.classList.add('disabled');
-            }
-            
-            // Update Comparison Table Lifetime CTA button
-            if (comparisonTableCTAButton && isPremium) {
-                comparisonTableCTAButton.textContent = 'You have Premium';
-                comparisonTableCTAButton.disabled = true;
-                comparisonTableCTAButton.classList.add('disabled');
-            }
-            
-            // Update Comparison Table Monthly CTA button
-            if (comparisonTableCTAMonthlyButton && isPremium) {
-                comparisonTableCTAMonthlyButton.textContent = 'You have Premium';
-                comparisonTableCTAMonthlyButton.disabled = true;
-                comparisonTableCTAMonthlyButton.classList.add('disabled');
-            }
-            
-            // Update Final Lifetime CTA button
-            if (finalCTAButton && isPremium) {
-                finalCTAButton.textContent = 'You have Premium';
-                finalCTAButton.disabled = true;
-                finalCTAButton.classList.add('disabled');
-            }
-            
-            // Update Final Monthly CTA button
-            if (finalCTAMonthlyButton && isPremium) {
-                finalCTAMonthlyButton.textContent = 'You have Premium';
-                finalCTAMonthlyButton.disabled = true;
-                finalCTAMonthlyButton.classList.add('disabled');
-            }
-            
-            // Update Header CTA button
-            if (headerCTAButton && isPremium) {
-                headerCTAButton.textContent = 'You have Premium';
-                headerCTAButton.disabled = true;
-                headerCTAButton.classList.add('disabled');
+            const allCtaButtons = [
+                lifetimeButton,
+                monthlyButton,
+                comparisonTableCTAButton,
+                comparisonTableCTAMonthlyButton,
+                finalCTAButton,
+                finalCTAMonthlyButton,
+                ctaBeforeFaqButton,
+                headerCTAButton
+            ].filter(Boolean);
+
+            const monthlyCtaButtons = [monthlyButton, comparisonTableCTAMonthlyButton, finalCTAMonthlyButton].filter(Boolean);
+            const lifetimeCtaButtons = [lifetimeButton, comparisonTableCTAButton, finalCTAButton].filter(Boolean);
+
+            // Premium users: disable purchase CTAs
+            if (isPremium) {
+                allCtaButtons.forEach((ctaButton) => {
+                    ctaButton.textContent = 'You have Premium';
+                    ctaButton.disabled = true;
+                    ctaButton.classList.add('disabled');
+                });
+                return;
             }
 
-            // Update CTA before FAQ (if present)
-            if (ctaBeforeFaqButton && isPremium) {
-                ctaBeforeFaqButton.textContent = 'You have Premium';
-                ctaBeforeFaqButton.disabled = true;
-                ctaBeforeFaqButton.classList.add('disabled');
+            // Guests: force signup-first language on all pricing CTAs
+            if (!isAuthenticated) {
+                monthlyCtaButtons.forEach((ctaButton) => {
+                    ctaButton.textContent = 'Sign up for free';
+                });
+                lifetimeCtaButtons.forEach((ctaButton) => {
+                    ctaButton.textContent = 'Sign up for free';
+                });
+                if (headerCTAButton) {
+                    headerCTAButton.textContent = 'Sign up for free';
+                }
+                document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
+                    el.textContent = 'Create a free account first, then choose Monthly or Lifetime.';
+                });
+                return;
+            }
+
+            // Free users: keep premium upgrade language
+            monthlyCtaButtons.forEach((ctaButton) => {
+                ctaButton.textContent = 'Unlock Unlimited';
+                ctaButton.disabled = false;
+                ctaButton.classList.remove('disabled');
+            });
+            lifetimeCtaButtons.forEach((ctaButton) => {
+                ctaButton.textContent = 'Get Lifetime Access';
+                ctaButton.disabled = false;
+                ctaButton.classList.remove('disabled');
+            });
+            if (headerCTAButton) {
+                headerCTAButton.textContent = 'Unlock Unlimited';
+                headerCTAButton.disabled = false;
+                headerCTAButton.classList.remove('disabled');
             }
         }
 
