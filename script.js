@@ -5386,7 +5386,9 @@ class PomodoroTimer {
                     source: 'account_menu'
                 });
                 this.settingsDropdown.style.display = 'none';
-                this.showSettingsModal();
+                if (window.Clerk && window.Clerk.user && typeof window.Clerk.openUserProfile === 'function') {
+                    window.Clerk.openUserProfile();
+                }
             });
         }
         
@@ -24769,8 +24771,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (accountSettingsBtn) {
         accountSettingsBtn.addEventListener('click', () => {
             closeAccountMenu();
-            if (window.pomodoroTimer?.showSettingsModal) {
-                window.pomodoroTimer.showSettingsModal();
+            if (window.Clerk && window.Clerk.user && typeof window.Clerk.openUserProfile === 'function') {
+                window.Clerk.openUserProfile();
             }
         });
     }
