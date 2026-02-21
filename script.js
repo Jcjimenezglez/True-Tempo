@@ -142,8 +142,9 @@ class PomodoroTimer {
             this.leaderboardCachedAtHours = 0;
         }
 
-        // Daily focus cap for non‑Pro users (in seconds) and cooldown
-        this.DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
+        // Daily focus caps by user type (in seconds) and cooldown
+        this.GUEST_DAILY_FOCUS_LIMIT_SECONDS = 30 * 60; // 30 minutes
+        this.FREE_DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
         this.FOCUS_LIMIT_COOLDOWN_MS = 23 * 60 * 60 * 1000; // 23 hours
         
         // Load cooldown timestamp (if any) and prune if expired
@@ -4135,6 +4136,11 @@ class PomodoroTimer {
     }
     
     // Daily focus limit helpers
+    getDailyFocusLimitSeconds() {
+        if (this.isPremiumUser()) return Infinity;
+        return this.isAuthenticated ? this.FREE_DAILY_FOCUS_LIMIT_SECONDS : this.GUEST_DAILY_FOCUS_LIMIT_SECONDS;
+    }
+
     hasReachedDailyFocusLimit() {
         // Pro users are unlimited; guests and free users are limited
         const isLimitedUser = !this.isPremiumUser();
@@ -4161,6 +4167,9 @@ class PomodoroTimer {
             } else {
                 dailyLimitFocusedTime.textContent = `${focusMinutesUsed} min`;
             }
+        }
+        if (this.dailyLimitSubscribeBtn) {
+            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Unlock Unlimited' : 'Sign up for free';
         }
         
         // Title is now static in HTML: "You've maxed out today's focus!"
@@ -5678,13 +5687,18 @@ class PomodoroTimer {
                     console.log('📊 Daily limit subscribe clicked event tracked to Mixpanel');
                 }
                 try {
+                    const isGuestUser = !this.isAuthenticated;
                     const eventProperties = {
-                        button_type: 'subscribe',
+                        button_type: isGuestUser ? 'signup' : 'subscribe',
                         source: 'daily_limit_modal',
                         user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest'
                     };
                     this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
                 } catch (_) {}
+                if (!this.isAuthenticated) {
+                    this.handleSignup();
+                    return;
+                }
                 this.showPricingPlansModal();
             });
         }
@@ -7726,12 +7740,14 @@ class PomodoroTimer {
                     this.setTaskConfig(this.currentTask.id, { completedFocusTime: prev + 1 });
                     this.addTaskFocusDaily(this.currentTask.id, 1);
                 }
-                // If user crosses the 120-minute threshold now, start cooldown
-                if (!this.isPremiumUser() && (this.focusSecondsToday || 0) >= this.DAILY_FOCUS_LIMIT_SECONDS && !this.focusLimitCooldownUntil) {
+                // If user crosses their daily focus threshold now, start cooldown
+                const dailyFocusLimitSeconds = this.getDailyFocusLimitSeconds();
+                if (Number.isFinite(dailyFocusLimitSeconds) && (this.focusSecondsToday || 0) >= dailyFocusLimitSeconds && !this.focusLimitCooldownUntil) {
                     this.focusLimitCooldownUntil = Date.now() + this.FOCUS_LIMIT_COOLDOWN_MS;
                     const cooldownExpiresAt = new Date(this.focusLimitCooldownUntil);
                     console.log('🚫 Daily focus limit reached! Cooldown activated:', {
                         focusSecondsToday: this.focusSecondsToday,
+                        dailyFocusLimitSeconds,
                         cooldownDurationHours: this.FOCUS_LIMIT_COOLDOWN_MS / (60 * 60 * 1000),
                         cooldownExpiresAt: cooldownExpiresAt.toLocaleString(),
                         cooldownTimestamp: this.focusLimitCooldownUntil
