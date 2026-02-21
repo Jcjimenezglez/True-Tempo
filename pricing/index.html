@@ -3290,25 +3290,66 @@
     </footer>
     
     <script>
-        function isUserPremium() {
+        function getUserPlanType() {
             try {
                 const meta = window.Clerk?.user?.publicMetadata || {};
-                if (meta.isPremium === true || meta.isPro === true || meta.isLifetime === true || meta.paymentType === 'lifetime') {
-                    return true;
+                if (meta.isLifetime === true || meta.paymentType === 'lifetime') {
+                    return 'lifetime';
+                }
+                if (meta.isPremium === true || meta.isPro === true) {
+                    return 'premium';
                 }
             } catch (_) {}
 
             try {
                 const forcedMode = localStorage.getItem('viewMode');
-                if (forcedMode === 'pro') return true;
-                if (forcedMode === 'free' || forcedMode === 'guest') return false;
+                if (forcedMode === 'pro') return 'premium';
+                if (forcedMode === 'free') return 'free';
+                if (forcedMode === 'guest') return 'guest';
 
                 const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
                 const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
-                return hasPremiumStorage || hasPaidSubscription;
+                if (hasPremiumStorage || hasPaidSubscription) return 'premium';
             } catch (_) {
-                return false;
+                return 'guest';
             }
+
+            const isAuthenticated = !!(window.Clerk && window.Clerk.user);
+            return isAuthenticated ? 'free' : 'guest';
+        }
+
+        function isUserPremium() {
+            const planType = getUserPlanType();
+            return planType === 'premium' || planType === 'lifetime';
+        }
+
+        async function openCustomerPortal() {
+            let userEmail = '';
+            try {
+                if (window.Clerk && window.Clerk.user) {
+                    userEmail = (window.Clerk.user.primaryEmailAddress?.emailAddress || window.Clerk.user.emailAddresses?.[0]?.emailAddress || '') + '';
+                }
+            } catch (_) {}
+
+            const response = await fetch('/api/customer-portal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-clerk-userid': (window.Clerk && window.Clerk.user ? window.Clerk.user.id : ''),
+                    'x-clerk-user-email': userEmail,
+                    'x-stripe-customer-id': (window.Clerk && window.Clerk.user && window.Clerk.user.publicMetadata ? (window.Clerk.user.publicMetadata.stripeCustomerId || '') : ''),
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create customer portal session');
+            }
+
+            const { url } = await response.json();
+            if (!url) {
+                throw new Error('No customer portal URL received');
+            }
+            window.location.href = url;
         }
 
         // Function to handle CTA button click
@@ -3322,9 +3363,28 @@
                 button.disabled = true;
                 button.textContent = 'Loading...';
                 
-                // Check if user is authenticated
+                // Check if user state
                 const isAuthenticated = window.Clerk && window.Clerk.user;
-                const isPremium = isAuthenticated && isUserPremium();
+                const userPlanType = isAuthenticated ? getUserPlanType() : 'guest';
+                const isPremium = userPlanType === 'premium' || userPlanType === 'lifetime';
+
+                // Premium monthly users should manage their subscription
+                if (userPlanType === 'premium') {
+                    openCustomerPortal().catch((error) => {
+                        console.error('Error creating customer portal session:', error);
+                        alert('Error accessing subscription management. Please try again.');
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    });
+                    return;
+                }
+
+                // Lifetime users should not see CTA actions here
+                if (userPlanType === 'lifetime') {
+                    button.disabled = true;
+                    button.style.display = 'none';
+                    return;
+                }
                 
                 // Track asynchronously (don't block)
                 (async () => {
@@ -3377,14 +3437,6 @@
                         console.log('📊 Google Ads Subscribe Clicked tracked:', source, planType);
                     }
                 })();
-                
-                if (isPremium) {
-                    // Already premium
-                    console.log('User already has Premium');
-                    button.textContent = 'You have Premium';
-                    button.classList.add('disabled');
-                    return;
-                }
                 
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
@@ -3521,7 +3573,10 @@
             const headerCTAButton = document.getElementById('headerCTA');
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
-            const isPremium = isAuthenticated && isUserPremium();
+            const userPlanType = isAuthenticated ? getUserPlanType() : 'guest';
+            const isPremium = userPlanType === 'premium' || userPlanType === 'lifetime';
+            const isLifetime = userPlanType === 'lifetime';
+            const isMonthlyPremium = userPlanType === 'premium';
             
             console.log('Updating button states:', { 
                 isAuthenticated, 
@@ -3546,15 +3601,36 @@
             const monthlyCtaButtons = [monthlyButton, comparisonTableCTAMonthlyButton, finalCTAMonthlyButton].filter(Boolean);
             const lifetimeCtaButtons = [lifetimeButton, comparisonTableCTAButton, finalCTAButton].filter(Boolean);
 
-            // Premium users: disable purchase CTAs
-            if (isPremium) {
-                lifetimeCtaButtons.forEach((ctaButton) => {
+            // Lifetime users: hide all pricing CTA buttons
+            if (isLifetime) {
+                allCtaButtons.forEach((ctaButton) => {
+                    ctaButton.style.display = 'none';
+                });
+                document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
+                    el.textContent = 'You already have Lifetime access.';
+                });
+                return;
+            }
+
+            // Monthly premium users: keep a single Manage Subscription CTA
+            if (isMonthlyPremium) {
+                monthlyCtaButtons.forEach((ctaButton) => {
+                    ctaButton.textContent = 'Manage Subscription';
+                    ctaButton.disabled = false;
+                    ctaButton.classList.remove('disabled');
                     ctaButton.style.display = '';
                 });
-                allCtaButtons.forEach((ctaButton) => {
-                    ctaButton.textContent = 'You have Premium';
-                    ctaButton.disabled = true;
-                    ctaButton.classList.add('disabled');
+                lifetimeCtaButtons.forEach((ctaButton) => {
+                    ctaButton.style.display = 'none';
+                });
+                if (headerCTAButton) {
+                    headerCTAButton.textContent = 'Manage Subscription';
+                    headerCTAButton.disabled = false;
+                    headerCTAButton.classList.remove('disabled');
+                    headerCTAButton.style.display = '';
+                }
+                document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
+                    el.textContent = 'Manage your current Premium plan and billing settings.';
                 });
                 return;
             }
@@ -3595,6 +3671,7 @@
                 headerCTAButton.textContent = 'Unlock Unlimited';
                 headerCTAButton.disabled = false;
                 headerCTAButton.classList.remove('disabled');
+                headerCTAButton.style.display = '';
             }
         }
 
