@@ -1863,6 +1863,7 @@ class PomodoroTimer {
             this.showFreeUpgradeNowModal({
                 source: 'timers_limit_gate',
                 location: 'create_timer_limit',
+                gateType: 'timers',
                 title: 'Timer limit reached',
                 message: customMessage || 'Free users can create 1 custom timer. Upgrade to Premium to unlock unlimited timers.'
             });
@@ -2021,6 +2022,7 @@ class PomodoroTimer {
             this.showFreeUpgradeNowModal({
                 source: 'cassettes_limit_gate',
                 location: 'create_cassette_limit',
+                gateType: 'cassettes',
                 title: 'Cassette limit reached',
                 message: customMessage || 'Upgrade to Premium to unlock unlimited cassettes and build your perfect focus environments.'
             });
@@ -4132,13 +4134,14 @@ class PomodoroTimer {
             this.showFreeUpgradeNowModal({
                 source: 'tasks_limit_gate',
                 location: 'tasks_limit',
+                gateType: 'tasks',
                 title: 'Task limit reached',
-                message: "You've reached your task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going."
+                message: "Free users can keep up to 2 active tasks. Upgrade Now to unlock unlimited tasks and keep your momentum going."
             });
         }
     }
 
-    showFreeUpgradeNowModal({ source = 'upgrade_gate', location = 'unknown', title = 'Upgrade to Premium', message = 'Unlock everything with Premium.' } = {}) {
+    showFreeUpgradeNowModal({ source = 'upgrade_gate', location = 'unknown', gateType = 'generic', title = 'Upgrade Now', message = 'Unlock everything with an upgrade.' } = {}) {
         if (!this.isAuthenticated || this.isPremiumUser()) {
             return;
         }
@@ -4149,6 +4152,13 @@ class PomodoroTimer {
 
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
+        const modalIconMap = {
+            timers: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="m6.3 2.3 1.4 1.4"/><path d="m16.3 2.3-1.4 1.4"/></svg>',
+            tasks: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>',
+            cassettes: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M8 8v1"/><path d="M12 8v1"/><path d="M16 8v1"/><rect width="20" height="12" x="2" y="9" rx="2"/><circle cx="8" cy="15" r="2"/><circle cx="16" cy="15" r="2"/></svg>',
+            analytics: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>'
+        };
+        const modalIcon = modalIconMap[gateType] || '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77 5.82 21l1.18-6.86-5-4.87 6.91-1.01L12 2z"/></svg>';
         modal.innerHTML = `
             <button class="close-logout-modal-x" id="closeFreeUpgradeNowModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -4158,12 +4168,10 @@ class PomodoroTimer {
             </button>
             <div class="upgrade-content">
                 <div class="upgrade-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77 5.82 21l1.18-6.86-5-4.87 6.91-1.01L12 2z"/>
-                    </svg>
+                    ${modalIcon}
                 </div>
                 <h3 class="logout-modal-title">${this.escapeHtml(title)}</h3>
-                <p class="logout-modal-message">${this.escapeHtml(message)}</p>
+                <p class="logout-modal-message" style="color: rgba(255, 255, 255, 0.82);">${this.escapeHtml(message)}</p>
                 <div class="logout-modal-buttons">
                     <button class="logout-modal-btn logout-modal-btn-primary" id="freeUpgradeNowBtn">Upgrade Now</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="freeUpgradeLaterBtn">Maybe later</button>
@@ -5952,7 +5960,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial' || text === 'Unlock Unlimited') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial' || text === 'Unlock Unlimited' || text === 'Upgrade Now') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -9631,7 +9639,6 @@ class PomodoroTimer {
                     </svg>
                     Add Task
                 </button>
-                <p data-limit-notice="tasks" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited tasks, upgrade to Premium, or delete 1 or more tasks.</p>
             </div>
         `;
 
@@ -15140,7 +15147,7 @@ class PomodoroTimer {
                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-radius: 12px;">
                     <div style="text-align: center;">
                         <div style="font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 12px; max-width: 240px; margin-left: auto; margin-right: auto;">Unlock analytics to see if you're improving every day.</div>
-                        <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Unlock Unlimited</button>
+                        <button id="upgradeFromFreeReport" style="background: #fff; color: #000; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">Upgrade Now</button>
                     </div>
                 </div>
                 </div>
@@ -15218,8 +15225,8 @@ class PomodoroTimer {
                         <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
                     <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
-                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Premium"' : ''}>M</button>
-                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Premium"' : ''}>Y</button>
+                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Monthly Activity View"' : ''}>Monthly</button>
+                            <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Yearly</button>
                         </div>
                     </div>
                     <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
@@ -15516,11 +15523,15 @@ class PomodoroTimer {
 
                     if (activityLimitToWeek && selectedRange !== 'W') {
                         if (window.pomodoroTimer) {
+                            const isMonthlyRange = selectedRange === 'M';
                             window.pomodoroTimer.showFreeUpgradeNowModal({
                                 source: 'analytics_panel',
                                 location: `activity_${selectedRange.toLowerCase()}_locked`,
-                                title: `${selectedRange} activity view requires Premium`,
-                                message: 'Upgrade to Premium to unlock Month and Year activity views in Analytics.'
+                                gateType: 'analytics',
+                                title: isMonthlyRange ? 'Monthly Activity View' : 'Year Activity View',
+                                message: isMonthlyRange
+                                    ? 'Unlock this view to see your monthly trend in Analytics.'
+                                    : 'Unlock this view to see your year-long trend in Analytics.'
                             });
                         }
                         return;

@@ -559,7 +559,7 @@
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
-                                <span>Unlock Unlimited</span>
+                                <span>Upgrade Now</span>
                             </div>
                             <div class="settings-dropdown-item" id="settingsManageSubscriptionBtn" style="display: none;">
                                 <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -753,7 +753,6 @@
                     </svg>
                     Add Task
                 </button>
-                <p id="taskLimitInlineNotice" data-limit-notice="tasks" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited tasks, upgrade to Premium, or delete 1 or more tasks.</p>
             </div>
             
         </div>
@@ -784,7 +783,6 @@
                             </svg>
                             Create timer
                         </button>
-                        <p id="timerLimitInlineNotice" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited timers, upgrade to Premium, or delete the timer.</p>
                         
                         <!-- Custom Form (Hidden by default) -->
                         <div class="custom-form" id="customForm" style="display: none;">
@@ -1024,7 +1022,6 @@
                     </svg>
                     Create cassette
                 </button>
-                <p id="cassetteLimitInlineNotice" style="display: none; margin: 8px 2px 0; font-size: 13px; color: rgba(255, 255, 255, 0.65); line-height: 1.4;">You've reached your limit. To unlock unlimited cassettes, upgrade to Premium, or delete the cassette.</p>
                 
                 <!-- Cassette Form (Hidden by default) -->
                 <div class="custom-form" id="cassetteForm" style="display: none;">
@@ -1657,8 +1654,8 @@
     <!-- Timer Header with Analytics (Logged In Only) -->
     <div class="timer-header" id="timerHeaderFocusReport" style="display: none;">
         <div class="timer-auth-buttons">
-            <button class="subscribe-btn" id="subscribeBtn" title="Unlock Unlimited">
-                Unlock Unlimited
+            <button class="subscribe-btn" id="subscribeBtn" title="Upgrade Now">
+                Upgrade Now
             </button>
             <button class="streak-info" id="streakInfo" title="Analytics">
                 <svg class="streak-fire" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame">
@@ -1850,7 +1847,7 @@
                 <h3 class="logout-modal-title">Task limit reached</h3>
                 <p class="logout-modal-message">You've hit your task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going.</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">Unlock Unlimited</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="guestTaskLimitSignupBtn">Sign up for free</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="guestTaskLimitCancelBtn">Cancel</button>
                 </div>
             </div>
@@ -1895,7 +1892,7 @@
                 <p class="logout-modal-message" id="dailyLimitMessage">Don't let the momentum stop. Unlock unlimited focus time and keep crushing your goals for 2026.</p>
                 
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Unlock Unlimited</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="dailyLimitSubscribeBtn">Upgrade Now</button>
                     <button class="logout-modal-btn logout-modal-btn-secondary" id="dailyLimitLaterBtn">Maybe later</button>
                 </div>
             </div>
@@ -1988,22 +1985,6 @@
                     Subscribe Monthly
                 </button>
                 
-                <!-- Plan Details Text -->
-                <div id="planDetailsText" style="text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 13px; margin-bottom: 16px;">
-                    Cancel anytime
-                </div>
-                
-                <!-- Learn More Link -->
-                <div style="text-align: center;">
-                    <a href="/pricing" target="_blank" style="color: rgba(255, 255, 255, 0.6); font-size: 14px; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">
-                        Learn more
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M15 3h6v6"/>
-                            <path d="M10 14 21 3"/>
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                        </svg>
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -2569,7 +2550,7 @@
                                     <span class="settings-label">Plan</span>
                                     <span class="settings-description" id="settingsUserPlan">Free</span>
                                 </div>
-                                <button id="upgradeToProModalBtn" class="settings-action-btn">Unlock Unlimited</button>
+                                <button id="upgradeToProModalBtn" class="settings-action-btn">Upgrade Now</button>
                                 <button id="manageSubscriptionModalBtn" class="settings-action-btn" style="display: none;">Manage Subscription</button>
                             </div>
                         </div>
@@ -2824,7 +2805,7 @@
                     Sign up for free
                 </button>
                 <button class="bottom-sheet-nav-item" id="accountMenuUnlock">
-                    Unlock Unlimited
+                    Upgrade Now
                 </button>
                 <button class="bottom-sheet-nav-item" id="accountMenuManageSubscription">
                     Manage subscription
