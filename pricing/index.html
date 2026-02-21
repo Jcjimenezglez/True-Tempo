@@ -3346,6 +3346,15 @@
             plansSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        function shouldTrackPricingConversion({ userPlanType, source, planType, ctaMode }) {
+            return (
+                userPlanType === 'free' &&
+                source === 'comparison_table_cta' &&
+                ctaMode === 'checkout' &&
+                (planType === 'monthly' || planType === 'lifetime')
+            );
+        }
+
         // Function to handle CTA button click
         function handleCTAClick(button, source = 'pricing_page', planType = 'lifetime') {
             return function(e) {
@@ -3366,6 +3375,12 @@
                 const isAuthenticated = window.Clerk && window.Clerk.user;
                 const userPlanType = isAuthenticated ? getUserPlanType() : 'guest';
                 const isPremium = userPlanType === 'premium' || userPlanType === 'lifetime';
+                const shouldTrackConversion = shouldTrackPricingConversion({
+                    userPlanType,
+                    source,
+                    planType,
+                    ctaMode
+                });
 
                 // Premium monthly users should manage their subscription
                 if (userPlanType === 'premium') {
@@ -3385,62 +3400,64 @@
                     return;
                 }
                 
-                // Track asynchronously (don't block)
-                (async () => {
-                    // 🎯 TRACKING: Subscribe Clicked from Pricing Page
-                    if (window.mixpanel && window.mixpanel.track) {
-                        const ctaAction = isAuthenticated ? 'subscribe' : 'signup';
-                        window.mixpanel.track('Subscribe Clicked', {
-                            button_type: ctaAction,
-                            source: source,
-                            location: source,
-                            plan_type: planType,
-                            user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
-                            modal_type: source
-                        });
-                    }
-                    
-                    // Track Subscribe Clicked to Google Ads as CONVERSION
-                    if (typeof window.gtag === 'function') {
-                        // GA4 engagement event
-                        window.gtag('event', 'subscribe_clicked', {
-                            event_category: 'engagement',
-                            event_label: source,
-                            source: source,
-                            plan_type: planType,
-                            user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest'
-                        });
-                        
-                        // Set Enhanced Conversions user data BEFORE the conversion event
-                        const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress;
-                        if (userEmail && typeof window.hashEmail === 'function') {
-                            try {
-                                const hashedEmail = await window.hashEmail(userEmail);
-                                if (hashedEmail) {
-                                    window.gtag('set', 'user_data', {
-                                        'sha256_email_address': hashedEmail
-                                    });
-                                    console.log('✅ Enhanced Conversions: User data set (Subscribe Clicked)');
-                                }
-                            } catch (error) {
-                                console.log('⚠️ Enhanced Conversions: Email hashing failed');
-                            }
+                if (shouldTrackConversion) {
+                    // Track asynchronously (don't block)
+                    (async () => {
+                        // 🎯 TRACKING: Subscribe Clicked from Pricing Page
+                        if (window.mixpanel && window.mixpanel.track) {
+                            const ctaAction = isAuthenticated ? 'subscribe' : 'signup';
+                            window.mixpanel.track('Subscribe Clicked', {
+                                button_type: ctaAction,
+                                source: source,
+                                location: source,
+                                plan_type: planType,
+                                user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest',
+                                modal_type: source
+                            });
                         }
                         
-                        // Google Ads Subscribe Clicked CONVERSION
-                        window.gtag('event', 'conversion', {
-                            'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
-                            'value': 1.0,
-                            'currency': 'USD'
-                        });
-                        console.log('📊 Google Ads Subscribe Clicked tracked:', source, planType);
-                    }
-                })();
+                        // Track Subscribe Clicked to Google Ads as CONVERSION
+                        if (typeof window.gtag === 'function') {
+                            // GA4 engagement event
+                            window.gtag('event', 'subscribe_clicked', {
+                                event_category: 'engagement',
+                                event_label: source,
+                                source: source,
+                                plan_type: planType,
+                                user_type: isAuthenticated ? (isPremium ? 'premium' : 'free') : 'guest'
+                            });
+                            
+                            // Set Enhanced Conversions user data BEFORE the conversion event
+                            const userEmail = window.Clerk?.user?.primaryEmailAddress?.emailAddress;
+                            if (userEmail && typeof window.hashEmail === 'function') {
+                                try {
+                                    const hashedEmail = await window.hashEmail(userEmail);
+                                    if (hashedEmail) {
+                                        window.gtag('set', 'user_data', {
+                                            'sha256_email_address': hashedEmail
+                                        });
+                                        console.log('✅ Enhanced Conversions: User data set (Subscribe Clicked)');
+                                    }
+                                } catch (error) {
+                                    console.log('⚠️ Enhanced Conversions: Email hashing failed');
+                                }
+                            }
+                            
+                            // Google Ads Subscribe Clicked CONVERSION
+                            window.gtag('event', 'conversion', {
+                                'send_to': 'AW-17614436696/zsizCNqYgbgbENjym89B',
+                                'value': 1.0,
+                                'currency': 'USD'
+                            });
+                            console.log('📊 Google Ads Subscribe Clicked tracked:', source, planType);
+                        }
+                    })();
+                }
                 
                 if (isAuthenticated) {
                     // Authenticated user - create checkout session
                     console.log('Creating checkout session with plan type:', planType);
-                    createCheckoutSession(planType).catch(() => {
+                    createCheckoutSession(planType, { shouldTrack: shouldTrackConversion, source: source }).catch(() => {
                         // Re-enable button on error
                         button.disabled = false;
                         button.textContent = originalText;
@@ -3712,8 +3729,10 @@
             }
         }
 
-        async function createCheckoutSession(planType = 'premium') {
+        async function createCheckoutSession(planType = 'premium', options = {}) {
             try {
+                const shouldTrack = options.shouldTrack === true;
+                const trackingSource = options.source || 'pricing_page';
                 console.log('🚀 Creating checkout session...');
                 
                 // Get user info immediately
@@ -3741,41 +3760,43 @@
                     })
                 });
                 
-                // Track asynchronously (don't block)
-                (async () => {
-                    if (window.mixpanel && window.mixpanel.track) {
-                        window.mixpanel.track('Stripe Checkout Session Created', {
-                            source: 'pricing_page',
-                            plan_type: planType,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                    
-                    // Track Stripe Checkout Session Created to Google Ads
-                    if (typeof window.gtag === 'function') {
-                        // Set Enhanced Conversions user data BEFORE the conversion event
-                        if (userEmail && typeof window.hashEmail === 'function') {
-                            try {
-                                const hashedEmail = await window.hashEmail(userEmail);
-                                if (hashedEmail) {
-                                    window.gtag('set', 'user_data', {
-                                        'sha256_email_address': hashedEmail
-                                    });
-                                    console.log('✅ Enhanced Conversions: User data set (Checkout Created)');
-                                }
-                            } catch (error) {
-                                console.error('Error hashing email for Enhanced Conversions:', error);
-                            }
+                if (shouldTrack) {
+                    // Track asynchronously (don't block)
+                    (async () => {
+                        if (window.mixpanel && window.mixpanel.track) {
+                            window.mixpanel.track('Stripe Checkout Session Created', {
+                                source: trackingSource,
+                                plan_type: planType,
+                                timestamp: new Date().toISOString()
+                            });
                         }
                         
-                        window.gtag('event', 'conversion', {
-                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
-                            'value': 1.0,
-                            'currency': 'USD'
-                        });
-                        console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
-                    }
-                })();
+                        // Track Stripe Checkout Session Created to Google Ads
+                        if (typeof window.gtag === 'function') {
+                            // Set Enhanced Conversions user data BEFORE the conversion event
+                            if (userEmail && typeof window.hashEmail === 'function') {
+                                try {
+                                    const hashedEmail = await window.hashEmail(userEmail);
+                                    if (hashedEmail) {
+                                        window.gtag('set', 'user_data', {
+                                            'sha256_email_address': hashedEmail
+                                        });
+                                        console.log('✅ Enhanced Conversions: User data set (Checkout Created)');
+                                    }
+                                } catch (error) {
+                                    console.error('Error hashing email for Enhanced Conversions:', error);
+                                }
+                            }
+                            
+                            window.gtag('event', 'conversion', {
+                                'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                                'value': 1.0,
+                                'currency': 'USD'
+                            });
+                            console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
+                        }
+                    })();
+                }
 
                 const response = await checkoutPromise;
 
@@ -3839,7 +3860,7 @@
                 // Wait for page to be fully updated
                 setTimeout(() => {
                     console.log('Opening Stripe checkout for plan:', selectedPlan);
-                    createCheckoutSession(selectedPlan);
+                    createCheckoutSession(selectedPlan, { shouldTrack: false, source: 'post_signup_intent' });
                 }, 2000);
             }
         }
