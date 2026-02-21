@@ -1859,8 +1859,13 @@ class PomodoroTimer {
                 });
             }
         } else {
-            // Free/authenticated user - open pricing modal
-            this.showPricingPlansModal();
+            // Free/authenticated user - show contextual upgrade gate first
+            this.showFreeUpgradeNowModal({
+                source: 'timers_limit_gate',
+                location: 'create_timer_limit',
+                title: 'Timer limit reached',
+                message: customMessage || 'Free users can create 1 custom timer. Upgrade to Premium to unlock unlimited timers.'
+            });
         }
     }
 
@@ -2012,8 +2017,13 @@ class PomodoroTimer {
                 });
             }
         } else {
-            // Free/authenticated user - open pricing modal
-            this.showPricingPlansModal();
+            // Free/authenticated user - show contextual upgrade gate first
+            this.showFreeUpgradeNowModal({
+                source: 'cassettes_limit_gate',
+                location: 'create_cassette_limit',
+                title: 'Cassette limit reached',
+                message: customMessage || 'Upgrade to Premium to unlock unlimited cassettes and build your perfect focus environments.'
+            });
         }
     }
 
@@ -4118,8 +4128,79 @@ class PomodoroTimer {
                 this.guestTaskLimitModalOverlay.style.display = 'flex';
             }
         } else {
-            // Free/authenticated user - open pricing modal
-            this.showPricingPlansModal();
+            // Free/authenticated user - show contextual upgrade gate first
+            this.showFreeUpgradeNowModal({
+                source: 'tasks_limit_gate',
+                location: 'tasks_limit',
+                title: 'Task limit reached',
+                message: "You've reached your task limit. Upgrade to Premium to add unlimited tasks and keep your momentum going."
+            });
+        }
+    }
+
+    showFreeUpgradeNowModal({ source = 'upgrade_gate', location = 'unknown', title = 'Upgrade to Premium', message = 'Unlock everything with Premium.' } = {}) {
+        if (!this.isAuthenticated || this.isPremiumUser()) {
+            return;
+        }
+
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.style.display = 'flex';
+
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.innerHTML = `
+            <button class="close-logout-modal-x" id="closeFreeUpgradeNowModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77 5.82 21l1.18-6.86-5-4.87 6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h3 class="logout-modal-title">${this.escapeHtml(title)}</h3>
+                <p class="logout-modal-message">${this.escapeHtml(message)}</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="freeUpgradeNowBtn">Upgrade Now</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="freeUpgradeLaterBtn">Maybe later</button>
+                </div>
+            </div>
+        `;
+
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+
+        const closeBtn = modal.querySelector('#closeFreeUpgradeNowModal');
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        const laterBtn = modal.querySelector('#freeUpgradeLaterBtn');
+        if (laterBtn) laterBtn.addEventListener('click', closeModal);
+
+        const upgradeNowBtn = modal.querySelector('#freeUpgradeNowBtn');
+        if (upgradeNowBtn) {
+            upgradeNowBtn.addEventListener('click', () => {
+                this.trackEvent('Subscribe Clicked', {
+                    button_type: 'subscribe',
+                    source,
+                    location,
+                    user_type: 'free_user',
+                    modal_type: 'free_upgrade_gate'
+                });
+                closeModal();
+                this.showPricingPlansModal();
+            });
         }
     }
     
@@ -4169,7 +4250,7 @@ class PomodoroTimer {
             }
         }
         if (this.dailyLimitSubscribeBtn) {
-            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Unlock Unlimited' : 'Sign up for free';
+            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Upgrade Now' : 'Sign up for free';
         }
         
         // Title is now static in HTML: "You've maxed out today's focus!"
@@ -15435,14 +15516,12 @@ class PomodoroTimer {
 
                     if (activityLimitToWeek && selectedRange !== 'W') {
                         if (window.pomodoroTimer) {
-                            window.pomodoroTimer.trackEvent('Subscribe Clicked', {
-                                button_type: 'subscribe',
+                            window.pomodoroTimer.showFreeUpgradeNowModal({
                                 source: 'analytics_panel',
                                 location: `activity_${selectedRange.toLowerCase()}_locked`,
-                                user_type: 'free',
-                                modal_type: 'analytics_upgrade_prompt'
+                                title: `${selectedRange} activity view requires Premium`,
+                                message: 'Upgrade to Premium to unlock Month and Year activity views in Analytics.'
                             });
-                            window.pomodoroTimer.showPricingPlansModal();
                         }
                         return;
                     }
