@@ -15622,12 +15622,12 @@ class PomodoroTimer {
                             ${(() => {
                                 const levels = [
                                     { name: 'JUST STARTING', range: '0–5h', emoji: '🌱' },
-                                    { name: 'GETTING SERIOUS', range: '5–15h', emoji: '📘' },
-                                    { name: 'CONSISTENT STUDENT', range: '15–30h', emoji: '🧠' },
-                                    { name: 'EXAM READY', range: '30–50h', emoji: '🎓' },
-                                    { name: 'EXAM CRUSHER', range: '50–100h', emoji: '🏆' },
-                                    { name: 'TOP OF CLASS', range: '100–200h', emoji: '🥇' },
-                                    { name: 'LEGENDARY STUDENT', range: '200h+', emoji: '👑' }
+                                    { name: 'BUILDING MOMENTUM', range: '5–15h', emoji: '📈' },
+                                    { name: 'IN THE FLOW', range: '15–30h', emoji: '🧠' },
+                                    { name: 'DEEP WORK MODE', range: '30–50h', emoji: '🎯' },
+                                    { name: 'FOCUS MACHINE', range: '50–100h', emoji: '🏆' },
+                                    { name: 'PRODUCTIVITY PRO', range: '100–200h', emoji: '⚡' },
+                                    { name: 'LEGENDARY FOCUS', range: '200h+', emoji: '👑' }
                                 ];
                                 return levels.map(l => `
                                     <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 2px;">
@@ -15666,12 +15666,12 @@ class PomodoroTimer {
         try {
             const levels = [
                 { level: 1, name: 'JUST STARTING', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
-                { level: 2, name: 'GETTING SERIOUS', emoji: '📘', min: 5, max: 15, color: '#3b82f6' },
-                { level: 3, name: 'CONSISTENT STUDENT', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
-                { level: 4, name: 'EXAM READY', emoji: '🎓', min: 30, max: 50, color: '#ec4899' },
-                { level: 5, name: 'EXAM CRUSHER', emoji: '🏆', min: 50, max: 100, color: '#f59e0b' },
-                { level: 6, name: 'TOP OF CLASS', emoji: '🥇', min: 100, max: 200, color: '#ef4444' },
-                { level: 7, name: 'LEGENDARY STUDENT', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
+                { level: 2, name: 'BUILDING MOMENTUM', emoji: '📈', min: 5, max: 15, color: '#3b82f6' },
+                { level: 3, name: 'IN THE FLOW', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
+                { level: 4, name: 'DEEP WORK MODE', emoji: '🎯', min: 30, max: 50, color: '#ec4899' },
+                { level: 5, name: 'FOCUS MACHINE', emoji: '🏆', min: 50, max: 100, color: '#f59e0b' },
+                { level: 6, name: 'PRODUCTIVITY PRO', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
+                { level: 7, name: 'LEGENDARY FOCUS', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
             ];
 
             let currentLevel = levels[0];
