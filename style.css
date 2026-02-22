@@ -381,6 +381,13 @@ a.resource-item:hover,
     stroke-width: 2px;
 }
 
+.resource-icon-placeholder {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
+}
+
 .resource-content {
     flex: 1;
     min-width: 0;
