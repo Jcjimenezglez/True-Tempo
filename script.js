@@ -432,6 +432,15 @@ class PomodoroTimer {
         console.log('🔍 Attempting to track event:', eventName);
         console.log('🔍 Mixpanel available:', typeof window.mixpanel);
         console.log('🔍 Mixpanel track function:', typeof window.mixpanel?.track);
+        const resolvedUserType = properties.user_type || (this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest');
+
+        // Guests should never be counted as "Subscribe Clicked";
+        // their CTA is a signup intent, not a subscription intent.
+        if (eventName === 'Subscribe Clicked' && resolvedUserType === 'guest') {
+            console.log('⏭️ Skipping guest Subscribe Clicked tracking');
+            return;
+        }
+
         let enrichedProperties = properties;
         
         if (typeof window.mixpanel !== 'undefined' && window.mixpanel.track) {
@@ -5230,13 +5239,14 @@ class PomodoroTimer {
         const subscribeBtn = document.getElementById('subscribeBtn');
         if (subscribeBtn) {
             subscribeBtn.addEventListener('click', () => {
+                const isGuestUser = !this.isAuthenticated;
                 const eventProperties = {
-                    button_type: 'subscribe',
+                    button_type: isGuestUser ? 'signup' : 'subscribe',
                     source: 'timer_header',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     location: 'timer_header'
                 };
-                this.trackEvent('Subscribe Clicked', eventProperties);
+                this.trackEvent(isGuestUser ? 'Signup Clicked' : 'Subscribe Clicked', eventProperties);
                 
                 this.showPricingPlansModal();
             });
@@ -5352,16 +5362,17 @@ class PomodoroTimer {
         if (this.settingsUpgradeToProBtn) {
             this.settingsUpgradeToProBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                const isGuestUser = !this.isAuthenticated;
                 
                 // Track Profile menu Upgrade to Pro click
                 const eventProperties = {
-                    button_type: 'subscribe',
+                    button_type: isGuestUser ? 'signup' : 'subscribe',
                     source: 'profile_dropdown',
                     location: 'settings_dropdown',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     modal_type: 'profile_menu'
                 };
-                this.trackEvent('Subscribe Clicked', eventProperties);
+                this.trackEvent(isGuestUser ? 'Signup Clicked' : 'Subscribe Clicked', eventProperties);
                 
                 this.settingsDropdown.style.display = 'none';
                 this.showPricingPlansModal();
@@ -5760,25 +5771,25 @@ class PomodoroTimer {
             this.dailyLimitSubscribeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideDailyLimitModal();
+                const isGuestUser = !this.isAuthenticated;
                 // 🎯 Track Daily Limit Subscribe Click event to Mixpanel
                 if (window.mixpanelTracker) {
                     const focusMinutesUsed = Math.floor((this.focusSecondsToday || 0) / 60);
-                    window.mixpanelTracker.trackCustomEvent('Daily Limit Subscribe Clicked', {
+                    window.mixpanelTracker.trackCustomEvent(isGuestUser ? 'Daily Limit Signup Clicked' : 'Daily Limit Subscribe Clicked', {
                         focus_minutes_used: focusMinutesUsed,
                         user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest',
                         cooldown_remaining_ms: this.focusLimitCooldownUntil ? Math.max(0, this.focusLimitCooldownUntil - Date.now()) : 0,
                         source: 'daily_limit_modal'
                     });
-                    console.log('📊 Daily limit subscribe clicked event tracked to Mixpanel');
+                    console.log(`📊 Daily limit ${isGuestUser ? 'signup' : 'subscribe'} clicked event tracked to Mixpanel`);
                 }
                 try {
-                    const isGuestUser = !this.isAuthenticated;
                     const eventProperties = {
                         button_type: isGuestUser ? 'signup' : 'subscribe',
                         source: 'daily_limit_modal',
                         user_type: this.isAuthenticated ? (this.isPremiumUser() ? 'pro' : 'free_user') : 'guest'
                     };
-                    this.trackEvent && this.trackEvent('Subscribe Clicked', eventProperties);
+                    this.trackEvent && this.trackEvent(isGuestUser ? 'Signup Clicked' : 'Subscribe Clicked', eventProperties);
                 } catch (_) {}
                 if (!this.isAuthenticated) {
                     this.handleSignup();
@@ -5872,16 +5883,17 @@ class PomodoroTimer {
         if (upgradeToProModalBtn) {
             upgradeToProModalBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                const isGuestUser = !this.isAuthenticated;
                 
                 // Track Settings modal Upgrade to Pro click
                 const eventProperties = {
-                    button_type: 'subscribe',
+                    button_type: isGuestUser ? 'signup' : 'subscribe',
                     source: 'settings_modal',
                     location: 'settings_modal',
                     user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                     modal_type: 'settings_modal'
                 };
-                this.trackEvent('Subscribe Clicked', eventProperties);
+                this.trackEvent(isGuestUser ? 'Signup Clicked' : 'Subscribe Clicked', eventProperties);
                 
                 this.hideSettingsModal();
                 this.showPricingPlansModal();
@@ -10953,15 +10965,16 @@ class PomodoroTimer {
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
             // Track which integration modal was clicked
+            const isSignupIntent = isGuest;
             const eventProperties = {
-                button_type: 'subscribe',
+                button_type: isSignupIntent ? 'signup' : 'subscribe',
                 source: 'integration_modal',
                 location: `${integrationType}_integration_modal`,
                 user_type: isGuest ? 'guest' : 'free',
                 modal_type: `${integrationType}_integration`,
                 integration_type: integrationType
             };
-            this.trackEvent('Subscribe Clicked', eventProperties);
+            this.trackEvent(isSignupIntent ? 'Signup Clicked' : 'Subscribe Clicked', eventProperties);
             
             if (isGuest) {
                 // Guest user - show signup
