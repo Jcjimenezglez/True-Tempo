@@ -994,7 +994,7 @@ a.resource-item:hover,
 /* Main content pushes when panel opens */
 .main-content {
     margin-left: var(--sidebar-collapsed-width);
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none;
     min-height: 100vh;
 }
 
@@ -7202,21 +7202,21 @@ input:checked + .toggle-slider:before {
 
 .technique-desc {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.92);
     margin: 0;
     line-height: 1.2;
 }
 
 .technique-break {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
     line-height: 1.2;
 }
 
 .technique-long-break {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
     line-height: 1.2;
 }
@@ -7231,8 +7231,31 @@ input:checked + .toggle-slider:before {
 
 .signup-required-text {
     font-size: 10px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.9);
     font-weight: normal;
+}
+
+/* Keep disabled preset text AA-compliant without fading all content */
+.technique-preset.ui-disabled,
+.technique-preset.ui-disabled-no-click {
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.technique-preset.ui-disabled .technique-name,
+.technique-preset.ui-disabled-no-click .technique-name,
+.technique-preset.ui-disabled .technique-desc,
+.technique-preset.ui-disabled-no-click .technique-desc,
+.technique-preset.ui-disabled .technique-break,
+.technique-preset.ui-disabled-no-click .technique-break,
+.technique-preset.ui-disabled .technique-long-break,
+.technique-preset.ui-disabled-no-click .technique-long-break,
+.technique-preset.ui-disabled .technique-sessions,
+.technique-preset.ui-disabled-no-click .technique-sessions,
+.technique-preset.ui-disabled .signup-required-text,
+.technique-preset.ui-disabled-no-click .signup-required-text {
+    color: rgba(255, 255, 255, 0.86);
 }
 
 .hidden {

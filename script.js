@@ -22800,19 +22800,19 @@ class SidebarManager {
             // Mobile: sidebar hidden by default, hamburger menu
             this.sidebar.classList.add('hidden');
             this.sidebar.classList.remove('collapsed', 'expanded');
-            this.mainContent.style.marginLeft = '0';
+            this.mainContent.style.marginLeft = '';
         } else if (this.isTablet) {
             // Tablet: sidebar collapsed but visible
             this.sidebar.classList.remove('hidden', 'open');
             this.sidebar.classList.add('collapsed');
             this.sidebar.classList.remove('expanded');
-            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
+            this.mainContent.style.marginLeft = '';
         } else {
             // Desktop: sidebar collapsed
             this.sidebar.classList.remove('hidden', 'open');
             this.sidebar.classList.add('collapsed');
             this.sidebar.classList.remove('expanded');
-            this.mainContent.style.marginLeft = 'var(--sidebar-collapsed-width)';
+            this.mainContent.style.marginLeft = '';
         }
     }
     
