@@ -96,28 +96,50 @@
         const originalConsoleError = console.error;
         const originalConsoleWarn = console.warn;
         
+        function normalizeConsoleMessage(args) {
+            try {
+                return args
+                    .map((arg) => (typeof arg === 'string' ? arg : (arg?.toString?.() || '')))
+                    .join(' ')
+                    .toLowerCase();
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function isClerkRadixDialogWarning(message) {
+            return (
+                message.includes('dialogcontent') &&
+                (
+                    message.includes('dialogtitle') ||
+                    message.includes('requires a `dialogtitle`') ||
+                    message.includes('visuallyhidden')
+                )
+            );
+        }
+
         console.error = function(...args) {
-            const errorMsg = args[0]?.toString() || '';
+            const errorMsg = normalizeConsoleMessage(args);
             // Suppress Mixpanel mutex lock errors
-            if (errorMsg.includes('Mixpanel error') && errorMsg.includes('[lock]')) {
+            if (errorMsg.includes('mixpanel error') && errorMsg.includes('[lock]')) {
                 return; // Silently ignore mutex lock errors
             }
-            if (errorMsg.includes('Timeout waiting for mutex')) {
+            if (errorMsg.includes('timeout waiting for mutex')) {
                 return; // Silently ignore timeout errors
+            }
+            if (isClerkRadixDialogWarning(errorMsg)) {
+                return; // Silently ignore Clerk/Radix dialog accessibility warning
             }
             originalConsoleError.apply(console, args);
         };
         
         console.warn = function(...args) {
-            const warnMsg = args[0]?.toString() || '';
+            const warnMsg = normalizeConsoleMessage(args);
             // Suppress Clerk/Radix DialogContent warnings
-            if (warnMsg.includes('DialogContent') && warnMsg.includes('DialogTitle')) {
+            if (isClerkRadixDialogWarning(warnMsg)) {
                 return; // Silently ignore Clerk internal warnings
             }
-            if (warnMsg.includes('VisuallyHidden') && warnMsg.includes('DialogContent')) {
-                return; // Silently ignore Clerk accessibility warnings
-            }
-            if (warnMsg.includes('Public vibes pre-loaded')) {
+            if (warnMsg.includes('public vibes pre-loaded')) {
                 return; // Silently ignore Clerk preload messages
             }
             originalConsoleWarn.apply(console, args);
