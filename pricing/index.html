@@ -3463,10 +3463,8 @@
                         button.textContent = originalText;
                     });
                 } else {
-                    // Guest user - redirect to signup with upgrade intent
-                    console.log('Redirecting guest to signup with upgrade intent...');
-                    localStorage.setItem('upgradeAfterLogin', 'true');
-                    localStorage.setItem('selectedPlan', planType);
+                    // Guest user - redirect to signup only (no auto-checkout after signup)
+                    console.log('Redirecting guest to signup...');
                     window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
                 }
             };
@@ -3847,22 +3845,10 @@
             }
         }
 
-        // Check if user came from login with upgrade intent
+        // Clean up any stale upgrade intent flags from previous versions
         function checkUpgradeIntent() {
-            const upgradeAfterLogin = localStorage.getItem('upgradeAfterLogin');
-            const selectedPlan = localStorage.getItem('selectedPlan') || 'lifetime';
-            
-            if (upgradeAfterLogin === 'true' && window.Clerk && window.Clerk.user) {
-                console.log('User returned after login with upgrade intent for plan:', selectedPlan);
-                localStorage.removeItem('upgradeAfterLogin');
-                localStorage.removeItem('selectedPlan');
-                
-                // Wait for page to be fully updated
-                setTimeout(() => {
-                    console.log('Opening Stripe checkout for plan:', selectedPlan);
-                    createCheckoutSession(selectedPlan, { shouldTrack: false, source: 'post_signup_intent' });
-                }, 2000);
-            }
+            localStorage.removeItem('upgradeAfterLogin');
+            localStorage.removeItem('selectedPlan');
         }
         
         // Load social proof and testimonial data (cached for 24h)
