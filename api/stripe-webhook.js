@@ -171,7 +171,7 @@ async function trackConversionServerSide(
 }
 
 // Helper to read raw body for Stripe signature verification on Vercel Node functions
-async function readRawBody(req) {
+async function readRawBodyFromStream(req) {
   return new Promise((resolve, reject) => {
     try {
       const chunks = [];
@@ -182,6 +182,75 @@ async function readRawBody(req) {
       reject(e);
     }
   });
+}
+
+function getStripeSignatureHeader(req) {
+  const signature = req.headers['stripe-signature'];
+  if (Array.isArray(signature)) {
+    return signature[0];
+  }
+  return signature;
+}
+
+function getWebhookSecrets() {
+  // Allow secret rotation and multi-env setups using comma-separated values.
+  const secretCandidates = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_WEBHOOK_SECRET_FALLBACK,
+  ];
+
+  return secretCandidates
+    .filter(Boolean)
+    .flatMap((rawSecret) => String(rawSecret).split(','))
+    .map((secret) => secret.trim())
+    .filter(Boolean);
+}
+
+async function getRawBodyBuffer(req) {
+  // Some runtimes expose pre-read raw body as Buffer/string.
+  if (Buffer.isBuffer(req.rawBody)) {
+    return req.rawBody;
+  }
+  if (typeof req.rawBody === 'string') {
+    return Buffer.from(req.rawBody, 'utf8');
+  }
+
+  // Fallback to reading the stream directly.
+  const streamedBody = await readRawBodyFromStream(req);
+  if (streamedBody.length > 0) {
+    return streamedBody;
+  }
+
+  // Last resort for runtimes that pre-parse req.body.
+  if (Buffer.isBuffer(req.body)) {
+    return req.body;
+  }
+  if (typeof req.body === 'string') {
+    return Buffer.from(req.body, 'utf8');
+  }
+  if (req.body && typeof req.body === 'object') {
+    return Buffer.from(JSON.stringify(req.body), 'utf8');
+  }
+
+  return Buffer.from('', 'utf8');
+}
+
+function constructStripeEvent(stripe, rawBody, signature, webhookSecrets) {
+  let lastError = null;
+
+  for (const secret of webhookSecrets) {
+    try {
+      return stripe.webhooks.constructEvent(rawBody, signature, secret);
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
+
+  throw new Error('No valid Stripe webhook secret configured');
 }
 
 async function findClerkUserByStripeCustomerId(clerk, stripeCustomerId) {
@@ -343,10 +412,10 @@ module.exports = async (req, res) => {
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecrets = getWebhookSecrets();
   const clerkSecret = process.env.CLERK_SECRET_KEY;
 
-  if (!secretKey || !webhookSecret || !clerkSecret) {
+  if (!secretKey || webhookSecrets.length === 0 || !clerkSecret) {
     console.error('Missing required environment variables');
     res.status(500).json({ error: 'Server configuration error' });
     return;
@@ -355,13 +424,17 @@ module.exports = async (req, res) => {
   const stripe = new Stripe(secretKey);
   const clerk = createClerkClient({ secretKey: clerkSecret });
 
-  const sig = req.headers['stripe-signature'];
+  const sig = getStripeSignatureHeader(req);
   let event;
 
   try {
-    // Read raw body buffer to verify signature
-    const rawBody = await readRawBody(req);
-    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+    if (!sig) {
+      throw new Error('Missing Stripe-Signature header');
+    }
+
+    // Read raw body buffer to verify signature.
+    const rawBody = await getRawBodyBuffer(req);
+    event = constructStripeEvent(stripe, rawBody, sig, webhookSecrets);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     res.status(400).json({ error: 'Invalid signature' });
