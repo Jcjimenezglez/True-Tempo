@@ -4298,8 +4298,8 @@ class PomodoroTimer {
     showPricingPlansModal() {
         if (!this.pricingPlansModalOverlay) return;
         this.pricingPlansModalOverlay.style.display = 'flex';
-        // Default to monthly (most used plan)
-        this.selectPlan('monthly');
+        // Default to lifetime (anchoring), user can still switch to monthly
+        this.selectPlan('lifetime');
     }
     
     hidePricingPlansModal() {
@@ -5823,7 +5823,7 @@ class PomodoroTimer {
         this.monthlyCheckIcon = document.getElementById('monthlyCheckIcon');
         this.lifetimeCheckIcon = document.getElementById('lifetimeCheckIcon');
         this.selectedPlanCTA = document.getElementById('selectedPlanCTA');
-        this.selectedPlan = 'monthly'; // Default to monthly (most used)
+        this.selectedPlan = 'lifetime'; // Default to lifetime (user can switch)
         
         if (this.closePricingPlansModalX && !this.closePricingPlansModalX.hasAttribute('data-bound')) {
             this.closePricingPlansModalX.setAttribute('data-bound', 'true');
