@@ -64,6 +64,10 @@
     {
       "path": "/api/cron/build-premium-leaderboard",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-cassette-metadata",
+      "schedule": "0 5 * * 1"
     }
   ]
 }
