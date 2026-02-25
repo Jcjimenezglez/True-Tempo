@@ -4342,6 +4342,12 @@ class PomodoroTimer {
                 ? 'Subscribe Monthly'
                 : 'Get Lifetime Access';
         }
+        // Subtitle below CTA: monthly shows both, lifetime only Stripe
+        if (this.pricingModalSubtitle) {
+            this.pricingModalSubtitle.textContent = plan === 'monthly'
+                ? 'Cancel anytime · Secure checkout with Stripe'
+                : 'Secure checkout with Stripe';
+        }
     }
     
     async proceedToCheckout() {
@@ -5825,6 +5831,7 @@ class PomodoroTimer {
         this.monthlyCheckIcon = document.getElementById('monthlyCheckIcon');
         this.lifetimeCheckIcon = document.getElementById('lifetimeCheckIcon');
         this.selectedPlanCTA = document.getElementById('selectedPlanCTA');
+        this.pricingModalSubtitle = document.getElementById('pricingModalSubtitle');
         this.selectedPlan = 'lifetime'; // Default to lifetime (user can switch)
         
         if (this.closePricingPlansModalX && !this.closePricingPlansModalX.hasAttribute('data-bound')) {
