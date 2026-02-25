@@ -6,6 +6,12 @@
     <link rel="dns-prefetch" href="https://open.spotify.com">
     <link rel="preconnect" href="https://i.scdn.co">
     <link rel="dns-prefetch" href="https://i.scdn.co">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.mxpnl.com">
+    <link rel="dns-prefetch" href="https://cdn.mxpnl.com">
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -200,11 +206,11 @@
     <meta property="og:image:type" content="image/png">
     
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://www.superfocus.live/">
-    <meta property="twitter:title" content="Superfocus - Time Management & Pomodoro Timer">
-    <meta property="twitter:description" content="Advanced time management techniques with Pomodoro timer. Master time blocking and focus techniques.">
-    <meta property="twitter:image" content="https://www.superfocus.live/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.superfocus.live/">
+    <meta name="twitter:title" content="Superfocus - Time Management & Pomodoro Timer">
+    <meta name="twitter:description" content="Advanced time management techniques with Pomodoro timer. Master time blocking and focus techniques.">
+    <meta name="twitter:image" content="https://www.superfocus.live/og-image.png">
     
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -240,23 +246,27 @@
     }
     </script>
     
-    <!-- Structured Data - WebApplication -->
+    <!-- Structured Data - SoftwareApplication -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
+        "@type": "SoftwareApplication",
         "name": "Superfocus",
         "url": "https://www.superfocus.live",
+        "description": "A focus timer app with Pomodoro techniques, ambient cassettes, tasks, analytics, and leaderboard.",
         "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Web Browser",
+        "browserRequirements": "Requires JavaScript and a modern browser",
+        "featureList": [
+            "Pomodoro timer presets",
+            "Custom focus cassettes",
+            "Task and session tracking",
+            "Analytics and leaderboard"
+        ],
         "offers": {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "ratingCount": "1250"
         }
     }
     </script>
@@ -346,12 +356,6 @@
     </script>
     
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Mixpanel -->
-    <script type="text/javascript">
-        (function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;d=function(a,b){return(m=a.match(RegExp(b+"=([^&]*)")))?m[1]:null};f&&d(f,"state")&&(j=JSON.parse(decodeURIComponent(d(f,"state"))),"mpeditor"===j.action&&(b.sessionStorage.setItem("_mpcehash",f),history.replaceState(j.desiredHash||"",c.title,k.pathname+k.search)))}catch(n){}var l,h;window.mixpanel=a;a._i=[];a.init=function(b,d,g){function c(b,i){var a=i.split(".");2==a.length&&(b=b[a[0]],i=a[1]);b[i]=function(){b.push([i].concat(Array.prototype.slice.call(arguments,0)))}}var e=a;"undefined"!==typeof g?e=a[g]=[]:g="mixpanel";e.people=e.people||[];e.toString=function(b){var a="mixpanel";"mixpanel"!==g&&(a+="."+g);b||(a+=" (stub)");return a};e.people.toString=function(){return e.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");for(h=0;h<l.length;h++)c(e,l[h]);var f=a._i;function d(b){var a=b.split(".");2==a.length&&(b=b[a[0]],a=a[1]);return b}function g(b){var a=b.split(".");2==a.length&&(b=b[a[0]],a=a[1]);return a}var j="init identify track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove add_group set_group remove_group".split(" ");for(h=0;h<j.length;h++)c(e,j[h]);a._i.push([b,d,g])};a.__SV=1.2;b=c.createElement("script");b.type="text/javascript";b.async=!0;b.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===c.location.protocol&&"//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn4.mxpnl.com/libs/mixpanel-2-latest.min.js";d=c.getElementsByTagName("script")[0];d.parentNode.insertBefore(b,d)}})(document,window.mixpanel||[]);
-        
-    </script>
     
     <!-- Clerk -->
     <script
@@ -2633,7 +2637,7 @@
             <h1>Pomodoro Timer App<br class="desktop-break">for Focus and Time Management</h1>
             
             <div class="content-hero-image">
-                <img src="images/ChatGPT Image Oct 8, 2025, 08_08_24 AM.png" alt="Pomodoro Timer Illustration" loading="lazy">
+                <img src="images/ChatGPT Image Oct 8, 2025, 08_08_24 AM.png" alt="Pomodoro Timer Illustration" loading="eager" fetchpriority="high">
             </div>
             
             <h2>What is Superfocus?</h2>
@@ -2728,7 +2732,7 @@
     </div>
     
     <!-- Cache-bust to ensure latest script loads in production -->
-    <script src="script.js?v=a558fc9"></script>
+    <script src="script.js?v=a558fc9" defer></script>
     
     <!-- Hide Notion and Todoist integration items -->
     <script>

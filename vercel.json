@@ -11,6 +11,15 @@
       ]
     },
     {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -44,13 +53,23 @@
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "truetempo.app" }],
-      "destination": "https://superfocus.live/$1",
+      "destination": "https://www.superfocus.live/$1",
       "permanent": true
     },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "www.truetempo.app" }],
-      "destination": "https://superfocus.live/$1",
+      "destination": "https://www.superfocus.live/$1",
+      "permanent": true
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/terms.html",
+      "destination": "/terms",
       "permanent": true
     }
   ],

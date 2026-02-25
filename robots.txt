@@ -9,13 +9,3 @@ Disallow: /api/
 Disallow: /node_modules/
 Disallow: /update_*.py
 Disallow: /script_*.js
-
-# Allow access to main content
-Allow: /index.html
-Allow: /style.css
-Allow: /audio/
-Allow: /favicon.ico
-Allow: /favicon.svg
-Allow: /favicon-*.png
-Allow: /apple-touch-icon.png
-Allow: /site.webmanifest
