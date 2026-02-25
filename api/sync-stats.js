@@ -1,5 +1,11 @@
 // API endpoint to sync user statistics to Clerk
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const {
+  getMetadataSizeBytes,
+  isMetadataLimitError,
+  pruneMetadataToBudget,
+  sanitizeCassetteArray,
+} = require('./lib/clerk-metadata-utils');
 
 // Server-side rate limit cooldown (persists in warm function instances)
 const _userCooldowns = new Map();
@@ -58,20 +64,29 @@ module.exports = async (req, res) => {
     // Get current user metadata
     const user = await clerk.users.getUser(clerkUserId);
     const currentMeta = user.publicMetadata || {};
+    const baseMeta = { ...currentMeta };
+
+    // Always sanitize cassette arrays from existing metadata to remove legacy viewedBy payload.
+    if (Array.isArray(baseMeta.publicCassettes)) {
+      baseMeta.publicCassettes = sanitizeCassetteArray(baseMeta.publicCassettes, { maxCount: 200 });
+    }
+    if (Array.isArray(baseMeta.privateCassettes)) {
+      baseMeta.privateCassettes = sanitizeCassetteArray(baseMeta.privateCassettes, { maxCount: 50 });
+    }
 
     // Build new metadata - preserve existing data and update with new
     const newMeta = {
-      ...currentMeta,
+      ...baseMeta,
       totalFocusHours: totalHours,
-      statsLastUpdated: new Date().toISOString()
+      statsLastUpdated: new Date().toISOString(),
     };
 
     // Store extended stats if provided (for full data backup)
     if (focusStats && typeof focusStats === 'object') {
       // Only store essential daily data to avoid hitting Clerk metadata limits
-      // Keep last 90 days of daily data
-      const now = Date.now();
-      const ninetyDaysAgo = now - (90 * 24 * 60 * 60 * 1000);
+      // Keep last 45 days of daily data for better safety margin under Clerk metadata limits.
+      const backupNow = Date.now();
+      const fortyFiveDaysAgo = backupNow - (45 * 24 * 60 * 60 * 1000);
       
       const trimmedDaily = {};
       const trimmedDailySessions = {};
@@ -80,7 +95,7 @@ module.exports = async (req, res) => {
       if (focusStats.daily) {
         Object.entries(focusStats.daily).forEach(([date, hours]) => {
           const dateTime = new Date(date).getTime();
-          if (dateTime > ninetyDaysAgo) {
+          if (dateTime > fortyFiveDaysAgo) {
             trimmedDaily[date] = hours;
           }
         });
@@ -89,7 +104,7 @@ module.exports = async (req, res) => {
       if (focusStats.dailySessions) {
         Object.entries(focusStats.dailySessions).forEach(([date, sessions]) => {
           const dateTime = new Date(date).getTime();
-          if (dateTime > ninetyDaysAgo) {
+          if (dateTime > fortyFiveDaysAgo) {
             trimmedDailySessions[date] = sessions;
           }
         });
@@ -98,7 +113,7 @@ module.exports = async (req, res) => {
       if (focusStats.dailyBreaks) {
         Object.entries(focusStats.dailyBreaks).forEach(([date, breaks]) => {
           const dateTime = new Date(date).getTime();
-          if (dateTime > ninetyDaysAgo) {
+          if (dateTime > fortyFiveDaysAgo) {
             trimmedDailyBreaks[date] = breaks;
           }
         });
@@ -116,14 +131,14 @@ module.exports = async (req, res) => {
 
     // Store custom techniques if provided
     if (customTechniques && Array.isArray(customTechniques)) {
-      newMeta.customTechniques = customTechniques;
+      newMeta.customTechniques = customTechniques.slice(-50);
     }
 
     // Store private cassettes if provided (public cassettes handled by sync-cassettes)
     if (customCassettes && Array.isArray(customCassettes)) {
       // Filter to only private cassettes (public ones are handled separately)
-      const privateCassettes = customCassettes.filter(c => !c.isPublic);
-      newMeta.privateCassettes = privateCassettes;
+      const privateCassettes = customCassettes.filter((c) => c && !c.isPublic);
+      newMeta.privateCassettes = sanitizeCassetteArray(privateCassettes, { maxCount: 50 });
     }
 
     // Store streak data if provided
@@ -131,21 +146,54 @@ module.exports = async (req, res) => {
       newMeta.streakData = streakData;
     }
 
-    await clerk.users.updateUser(clerkUserId, {
-      publicMetadata: newMeta
-    });
+    let metadataToPersist = pruneMetadataToBudget(newMeta);
+    let degraded = false;
+
+    try {
+      await clerk.users.updateUser(clerkUserId, {
+        publicMetadata: metadataToPersist,
+      });
+    } catch (error) {
+      if (!isMetadataLimitError(error)) {
+        throw error;
+      }
+
+      // Fallback: persist only critical fields while preserving premium/payment state.
+      degraded = true;
+      metadataToPersist = pruneMetadataToBudget(
+        {
+          ...baseMeta,
+          totalFocusHours: totalHours,
+          statsLastUpdated: new Date().toISOString(),
+        },
+        5000
+      );
+
+      await clerk.users.updateUser(clerkUserId, {
+        publicMetadata: metadataToPersist,
+      });
+    }
 
     res.status(200).json({
       success: true,
       totalFocusHours: totalHours,
       hasBackup: !!focusStats,
       hasTechniques: !!(customTechniques && customTechniques.length > 0),
-      hasCassettes: !!(customCassettes && customCassettes.length > 0)
+      hasCassettes: !!(customCassettes && customCassettes.length > 0),
+      degraded: degraded,
+      metadataBytes: getMetadataSizeBytes(metadataToPersist),
     });
   } catch (error) {
     if (error.status === 429 || error.code === 'api_response_error' && error.message?.includes('Too Many')) {
       console.warn('Clerk rate limit hit in sync-stats');
       res.status(429).json({ error: 'Rate limited', retryAfter: 60 });
+      return;
+    }
+    if (isMetadataLimitError(error)) {
+      res.status(422).json({
+        error: 'Metadata too large for Clerk',
+        details: 'public_metadata exceeds the maximum allowed size of 8192 bytes',
+      });
       return;
     }
     console.error('Error syncing stats:', error);

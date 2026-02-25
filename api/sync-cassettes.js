@@ -1,5 +1,10 @@
 // API endpoint to sync vibes to Clerk
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const {
+  isMetadataLimitError,
+  pruneMetadataToBudget,
+  sanitizeCassetteArray,
+} = require('./lib/clerk-metadata-utils');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -31,24 +36,34 @@ module.exports = async (req, res) => {
     // Get current user metadata
     const user = await clerk.users.getUser(clerkUserId);
     const currentMeta = user.publicMetadata || {};
-    const existingPublicCassettes = currentMeta.publicCassettes || [];
+    const existingPublicCassettes = sanitizeCassetteArray(currentMeta.publicCassettes || []);
 
     // Filter only public vibes
-    const publicCassettes = cassettes.filter(c => c.isPublic === true);
+    const publicCassettes = sanitizeCassetteArray(
+      cassettes.filter((c) => c && c.isPublic === true),
+      { maxCount: 200 }
+    );
 
-    // Preserve historical data (views, viewedBy) from existing cassettes
-    const publicCassettesWithHistory = publicCassettes.map(cassette => {
+    // De-duplicate by ID while keeping the latest incoming object
+    const uniqueIncomingById = new Map();
+    for (const cassette of publicCassettes) {
+      uniqueIncomingById.set(cassette.id, cassette);
+    }
+    const uniquePublicCassettes = Array.from(uniqueIncomingById.values());
+
+    // Preserve historical data (views) from existing cassettes.
+    // We intentionally do NOT persist viewedBy in Clerk metadata to avoid 8KB overflows.
+    const publicCassettesWithHistory = uniquePublicCassettes.map(cassette => {
       // Find existing cassette in Clerk by ID
-      const existingCassette = existingPublicCassettes.find(ec => ec.id === cassette.id);
+      const existingCassette = existingPublicCassettes.find((ec) => ec.id === cassette.id);
       
       if (existingCassette) {
-        // Preserve historical data from Clerk (source of truth for views)
+        // Preserve historical view counter from Clerk (source of truth for count)
         return {
           ...cassette,
           views: existingCassette.views !== undefined && existingCassette.views !== null 
             ? existingCassette.views 
             : (cassette.views || 0),
-          viewedBy: existingCassette.viewedBy || cassette.viewedBy || []
         };
       }
       
@@ -56,23 +71,45 @@ module.exports = async (req, res) => {
       return {
         ...cassette,
         views: cassette.views || 0,
-        viewedBy: cassette.viewedBy || []
       };
     });
 
     // Update metadata with public vibes (preserving historical data)
-    const newMeta = {
+    const candidateMeta = {
       ...currentMeta,
-      publicCassettes: publicCassettesWithHistory
+      publicCassettes: sanitizeCassetteArray(publicCassettesWithHistory, { maxCount: 200 }),
     };
+    const newMeta = pruneMetadataToBudget(candidateMeta);
 
-    await clerk.users.updateUser(clerkUserId, {
-      publicMetadata: newMeta
-    });
+    try {
+      await clerk.users.updateUser(clerkUserId, {
+        publicMetadata: newMeta,
+      });
+    } catch (error) {
+      if (!isMetadataLimitError(error)) {
+        throw error;
+      }
+
+      // Last-resort reduced payload to recover users that already exceeded Clerk limits.
+      const emergencyMeta = pruneMetadataToBudget(
+        {
+          ...currentMeta,
+          publicCassettes: sanitizeCassetteArray(publicCassettesWithHistory, {
+            minimal: true,
+            maxCount: 40,
+          }),
+        },
+        6000
+      );
+
+      await clerk.users.updateUser(clerkUserId, {
+        publicMetadata: emergencyMeta,
+      });
+    }
 
     res.status(200).json({
       success: true,
-      publicCassettesCount: publicCassettes.length
+      publicCassettesCount: publicCassettesWithHistory.length,
     });
   } catch (error) {
     console.error('Error syncing cassettes:', error);

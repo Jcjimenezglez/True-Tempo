@@ -1,5 +1,6 @@
 // API endpoint to get all public cassettes from all users
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const { sanitizeCassette } = require('./lib/clerk-metadata-utils');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
@@ -96,9 +97,10 @@ module.exports = async (req, res) => {
           // AND it has a valid image URL
           if (cassette.isPublic === true && cassette.id && !seenIds.has(cassette.id) && isImageUrlValid(cassette.imageUrl)) {
             seenIds.add(cassette.id);
+            const sanitizedCassette = sanitizeCassette(cassette) || cassette;
             // Add creator information to cassette
             allPublicCassettes.push({
-              ...cassette,
+              ...sanitizedCassette,
               creatorName: creatorName,
               creatorId: user.id
             });

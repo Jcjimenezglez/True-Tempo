@@ -1,5 +1,11 @@
 // API endpoint to increment views for a public cassette (unique views per user)
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const { markUniqueView } = require('./lib/cassette-view-tracker');
+const {
+  isMetadataLimitError,
+  pruneMetadataToBudget,
+  sanitizeCassetteArray,
+} = require('./lib/clerk-metadata-utils');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -65,48 +71,68 @@ module.exports = async (req, res) => {
           cassetteFound = true;
           
           const cassette = publicCassettes[cassetteIndex];
-          
-          // Get array of user IDs who have viewed this cassette
-          const viewedBy = cassette.viewedBy || [];
-          
-          // Check if this user has already viewed this cassette
-          if (viewedBy.includes(viewerUserId)) {
-            // User has already viewed, don't increment
+
+          // Use KV/Redis-backed uniqueness tracking to avoid storing huge viewedBy arrays in Clerk metadata.
+          const isNewUniqueView = await markUniqueView(cassetteId, viewerUserId);
+          const currentViews = Number(cassette.views) || 0;
+
+          if (!isNewUniqueView) {
             res.status(200).json({
               success: true,
-              views: cassette.views || 0,
-              viewedBy: cassette.viewedBy || [],
+              views: currentViews,
+              viewedBy: [],
               cassetteId: cassetteId,
-              alreadyViewed: true
+              alreadyViewed: true,
             });
             return;
           }
-          
-          // User hasn't viewed yet, add to viewedBy and increment views
-          const currentViews = cassette.views || 0;
+
+          // User hasn't viewed yet, increment view counter only.
+          const { viewedBy: _legacyViewedBy, ...cassetteWithoutViewedBy } = cassette;
           publicCassettes[cassetteIndex] = {
-            ...cassette,
+            ...cassetteWithoutViewedBy,
             views: currentViews + 1,
-            viewedBy: [...viewedBy, viewerUserId] // Add viewer to the list
           };
 
-          // Update user metadata
+          // Update user metadata (drop legacy viewedBy arrays + keep under Clerk's metadata limit).
           const currentMeta = user.publicMetadata || {};
-          const newMeta = {
+          const candidateMeta = {
             ...currentMeta,
-            publicCassettes: publicCassettes
+            publicCassettes: sanitizeCassetteArray(publicCassettes, { maxCount: 200 }),
           };
+          const newMeta = pruneMetadataToBudget(candidateMeta);
 
-          await clerk.users.updateUser(user.id, {
-            publicMetadata: newMeta
-          });
+          try {
+            await clerk.users.updateUser(user.id, {
+              publicMetadata: newMeta,
+            });
+          } catch (error) {
+            if (!isMetadataLimitError(error)) {
+              throw error;
+            }
+
+            const emergencyMeta = pruneMetadataToBudget(
+              {
+                ...currentMeta,
+                publicCassettes: sanitizeCassetteArray(publicCassettes, {
+                  minimal: true,
+                  maxCount: 40,
+                }),
+              },
+              6000
+            );
+
+            await clerk.users.updateUser(user.id, {
+              publicMetadata: emergencyMeta,
+            });
+          }
 
           res.status(200).json({
             success: true,
             views: publicCassettes[cassetteIndex].views,
-            viewedBy: publicCassettes[cassetteIndex].viewedBy || [],
+            viewedBy: [],
             cassetteId: cassetteId,
-            alreadyViewed: false
+            alreadyViewed: false,
           });
           return;
         }
