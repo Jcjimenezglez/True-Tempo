@@ -4338,7 +4338,9 @@ class PomodoroTimer {
         
         // Keep CTA copy consistent across plans
         if (this.selectedPlanCTA) {
-            this.selectedPlanCTA.textContent = 'Upgrade to Premium';
+            this.selectedPlanCTA.textContent = plan === 'monthly'
+                ? 'Subscribe Monthly'
+                : 'Get Lifetime Access';
         }
     }
     
@@ -7623,7 +7625,7 @@ class PomodoroTimer {
             if (window.mixpanelTracker) {
                 window.mixpanelTracker.trackCustomEvent('Premium Success', {
                     plan_type: paymentType,
-                    value: paymentType === 'lifetime' ? 24.0 : 3.99,
+                    value: paymentType === 'lifetime' ? 12.0 : 3.99,
                     source: 'stripe_checkout',
                     timestamp: new Date().toISOString()
                 });
@@ -7637,9 +7639,9 @@ class PomodoroTimer {
                     let conversionLabel, conversionValue;
                     
                     if (paymentType === 'lifetime') {
-                        // Lifetime: $24.0 with label unsECLnWiewbENjym89B
+                        // Lifetime: $12.0 with label unsECLnWiewbENjym89B
                         conversionLabel = 'AW-17614436696/unsECLnWiewbENjym89B';
-                        conversionValue = 24.0;
+                        conversionValue = 12.0;
                     } else {
                         // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
                         conversionLabel = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
@@ -16053,14 +16055,14 @@ class PomodoroTimer {
                         value = 3.99; // Ensure value is set correctly
                         break;
                     case 'lifetime':
-                        // Lifetime purchase: $24.00 one-time
+                        // Lifetime purchase: $12.00 one-time
                         conversionId = 'AW-17614436696/unsECLnWiewbENjym89B';
                         eventName = 'purchase';
                         eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
                         eventData.event_label = 'lifetime_purchase';
-                        eventData.value = 24.0;
-                        value = 24.0; // Ensure value is set correctly
+                        eventData.value = 12.0;
+                        value = 12.0; // Ensure value is set correctly
                         break;
                     case 'subscription':
                         // Legacy/fallback - treat as monthly
@@ -16195,7 +16197,7 @@ class PomodoroTimer {
             // Get the plan type from URL (monthly or lifetime)
             const planType = urlParams.get('plan') || 'monthly'; // Default to monthly for backwards compatibility
             const isLifetime = planType === 'lifetime';
-            const conversionValue = isLifetime ? 24.0 : 3.99;
+            const conversionValue = isLifetime ? 12.0 : 3.99;
             
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
@@ -16213,7 +16215,7 @@ class PomodoroTimer {
             
             // Track conversion with correct plan type and value
             // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
-            // Lifetime: $24.0 with label unsECLnWiewbENjym89B
+            // Lifetime: $12.0 with label unsECLnWiewbENjym89B
             console.log(`🎯 Tracking ${planType} conversion with value $${conversionValue}`);
             this.trackConversion(planType, conversionValue);
             

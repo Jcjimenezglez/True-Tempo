@@ -82,15 +82,15 @@ async function createLifetimeProductAndPrice() {
     console.log(`✅ Product creado: ${product.id}`);
     console.log(`   Name: ${product.name}\n`);
 
-    // 2. Crear el Price (one-time, $24.00 USD)
-    console.log('💰 Creando Price: $24.00 USD (one-time)...');
+    // 2. Crear el Price (one-time, $12.00 USD)
+    console.log('💰 Creando Price: $12.00 USD (one-time)...');
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: 2400, // $24.00 en centavos
+      unit_amount: 1200, // $12.00 en centavos
       currency: 'usd',
       metadata: {
         type: 'lifetime_deal',
-        price: '24.00',
+        price: '12.00',
       },
     });
 

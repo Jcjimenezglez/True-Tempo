@@ -31,7 +31,7 @@ async function trackConversionServerSide(
     
     // Google Ads Conversion ID and Labels
     // Monthly: wlmKCI_fiuwbENjym89B ($3.99)
-    // Lifetime: unsECLnWiewbENjym89B ($24.0)
+    // Lifetime: unsECLnWiewbENjym89B ($12.0)
     const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
     let conversionLabel;
     if (customConversionLabel) {
@@ -583,14 +583,14 @@ async function handleCheckoutCompleted(session, clerk) {
       // Fire-and-forget: notification + tracking (don't block webhook response)
       const userName = currentUser?.firstName || currentUser?.username || 'Usuario';
       const notificationTitle = 'Nueva Suscripcion Lifetime!';
-      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Lifetime ($24.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
+      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Lifetime ($12.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
 
       await sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
         console.error('❌ Error sending push notification:', e)
       );
 
       trackConversionServerSide(
-        'lifetime', 24.0, session.id, gclid, gbraid, wbraid, userEmail, 'unsECLnWiewbENjym89B'
+        'lifetime', 12.0, session.id, gclid, gbraid, wbraid, userEmail, 'unsECLnWiewbENjym89B'
       ).catch(e => console.error('❌ Error tracking lifetime conversion:', e));
       
       return; // Don't process as subscription

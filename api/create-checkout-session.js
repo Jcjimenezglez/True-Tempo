@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
   }
   // #endregion
   
-  // Validate planType - only monthly ($3.99/month) and lifetime ($24 one-time) are supported
+  // Validate planType - only monthly ($3.99/month) and lifetime ($12 one-time) are supported
   // Note: 'premium' is deprecated but treated as 'monthly' for backwards compatibility
   if (!['monthly', 'lifetime', 'premium'].includes(planType)) {
     res.status(400).json({ error: 'Invalid planType. Must be monthly or lifetime' });
@@ -108,7 +108,7 @@ module.exports = async (req, res) => {
 
     // Create checkout session config
     // Monthly: $3.99/month subscription
-    // Lifetime: $24 one-time payment
+    // Lifetime: $12 one-time payment
     const metadata = {
       clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
       app_name: 'Superfocus',
@@ -193,14 +193,14 @@ module.exports = async (req, res) => {
             name: 'begin_checkout',
             params: {
               transaction_id: session.id,
-              value: planType === 'lifetime' ? 24.0 : 3.99,
+              value: planType === 'lifetime' ? 12.0 : 3.99,
               currency: 'USD',
               plan_type: planType,
               source: 'server_checkout_created',
               items: [{
                 item_id: `premium_${planType}`,
                 item_name: `Premium ${planType.charAt(0).toUpperCase() + planType.slice(1)}`,
-                price: planType === 'lifetime' ? 24.0 : 3.99,
+                price: planType === 'lifetime' ? 12.0 : 3.99,
                 quantity: 1
               }]
             }
