@@ -1244,6 +1244,16 @@ body.is-scrolling .streak-fire {
     text-decoration-thickness: 2px;
 }
 
+/* Ensure mobile/touch links meet minimum tap target height */
+@media (pointer: coarse) {
+    .inline-text-link {
+        display: inline-block;
+        min-height: 24px;
+        line-height: 24px;
+        padding: 0 1px;
+    }
+}
+
 /* FAQ in content section */
 .content-section .faq-list {
     margin-top: 1rem;
