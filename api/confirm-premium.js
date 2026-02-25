@@ -1,5 +1,19 @@
 const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
+const STRIPE_API_VERSION = '2026-01-28.clover';
+
+function sanitizeEnvValue(value) {
+  return (value || '')
+    .toString()
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .replace(/\\[nr]/g, '')
+    .replace(/[\r\n]+/g, '');
+}
+
+function sanitizeSessionId(value) {
+  return sanitizeEnvValue(value).replace(/\s+/g, '');
+}
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -7,7 +21,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const stripeSecret = process.env.STRIPE_SECRET_KEY;
+  const stripeSecret = sanitizeEnvValue(process.env.STRIPE_SECRET_KEY);
   const clerkSecret = process.env.CLERK_SECRET_KEY;
 
   if (!stripeSecret || !clerkSecret) {
@@ -18,7 +32,7 @@ module.exports = async (req, res) => {
   let sessionId;
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    sessionId = (body.sessionId || body.session_id || '').trim();
+    sessionId = sanitizeSessionId(body.sessionId || body.session_id || '');
   } catch (error) {
     res.status(400).json({ error: 'Invalid JSON body' });
     return;
@@ -29,7 +43,12 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const stripe = new Stripe(stripeSecret);
+  if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
+    res.status(400).json({ error: 'Invalid sessionId format' });
+    return;
+  }
+
+  const stripe = new Stripe(stripeSecret, { apiVersion: STRIPE_API_VERSION });
   const clerk = createClerkClient({ secretKey: clerkSecret });
 
   try {

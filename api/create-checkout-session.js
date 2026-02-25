@@ -3,6 +3,20 @@
 //   STRIPE_SECRET_KEY, STRIPE_PRICE_ID_MONTHLY, STRIPE_PRICE_ID_YEARLY, STRIPE_PRICE_ID_LIFETIME
 
 const Stripe = require('stripe');
+const STRIPE_API_VERSION = '2026-01-28.clover';
+
+function sanitizeEnvValue(value) {
+  return (value || '')
+    .toString()
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .replace(/\\[nr]/g, '')
+    .replace(/[\r\n]+/g, '');
+}
+
+function sanitizeStripePriceId(value) {
+  return sanitizeEnvValue(value).replace(/\s+/g, '');
+}
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -11,7 +25,7 @@ module.exports = async (req, res) => {
   }
 
   // Read and sanitize env vars
-  const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
+  const secretKey = sanitizeEnvValue(process.env.STRIPE_SECRET_KEY);
   
   // Get planType from request body (premium, monthly, yearly, lifetime)
   let planType = 'premium'; // Default to premium
@@ -58,9 +72,9 @@ module.exports = async (req, res) => {
   // Get price ID from environment variables based on planType
   let priceId;
   if (planType === 'monthly') {
-    priceId = (process.env.STRIPE_PRICE_ID_MONTHLY || '').trim();
+    priceId = sanitizeStripePriceId(process.env.STRIPE_PRICE_ID_MONTHLY);
   } else if (planType === 'lifetime') {
-    priceId = (process.env.STRIPE_PRICE_ID_LIFETIME || '').trim();
+    priceId = sanitizeStripePriceId(process.env.STRIPE_PRICE_ID_LIFETIME);
   }
 
   // Use hardcoded URLs to avoid environment variable issues
@@ -78,7 +92,8 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'Invalid STRIPE_SECRET_KEY' });
     return;
   }
-  if (!priceId || !/^price_/.test(priceId)) {
+  const hasUnsafePriceChars = /[\\\s'"]/.test(priceId);
+  if (!priceId || !/^price_/.test(priceId) || hasUnsafePriceChars) {
     // #region agent log
     if (process.env.NODE_ENV !== 'production') {
       fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'C',location:'api/create-checkout-session.js:invalidPriceId',message:'Invalid STRIPE_PRICE_ID for plan',data:{planType,priceIdLooksValid:false},timestamp:Date.now()})}).catch(()=>{});
@@ -101,7 +116,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stripe = new Stripe(secretKey);
+    const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
 
     // Determine mode based on planType
     const mode = planType === 'lifetime' ? 'payment' : 'subscription';

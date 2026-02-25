@@ -2,6 +2,20 @@
 // This version uses localhost URLs for testing
 
 const Stripe = require('stripe');
+const STRIPE_API_VERSION = '2026-01-28.clover';
+
+function sanitizeEnvValue(value) {
+  return (value || '')
+    .toString()
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .replace(/\\[nr]/g, '')
+    .replace(/[\r\n]+/g, '');
+}
+
+function sanitizeStripePriceId(value) {
+  return sanitizeEnvValue(value).replace(/\s+/g, '');
+}
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -10,8 +24,8 @@ module.exports = async (req, res) => {
   }
 
   // Read and sanitize env vars
-  const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
-  const priceId = (process.env.STRIPE_PRICE_ID || '').trim();
+  const secretKey = sanitizeEnvValue(process.env.STRIPE_SECRET_KEY);
+  const priceId = sanitizeStripePriceId(process.env.STRIPE_PRICE_ID);
   
   // Use localhost URLs for development
   const finalSuccessUrl = 'http://localhost:3000?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}';
@@ -22,7 +36,8 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'Invalid STRIPE_SECRET_KEY' });
     return;
   }
-  if (!priceId || !/^price_/.test(priceId)) {
+  const hasUnsafePriceChars = /[\\\s'"]/.test(priceId);
+  if (!priceId || !/^price_/.test(priceId) || hasUnsafePriceChars) {
     res.status(500).json({ error: 'Invalid STRIPE_PRICE_ID' });
     return;
   }
@@ -37,7 +52,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stripe = new Stripe(secretKey);
+    const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
