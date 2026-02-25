@@ -2953,6 +2953,7 @@ class PomodoroTimer {
             
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
+            this.setDefaultTechniqueForGuest();
 
             // Local tasks only - no integration cleanup needed
             
@@ -2990,6 +2991,7 @@ class PomodoroTimer {
             // Reload custom techniques and cassettes to show them disabled
             try { this.loadCustomTechniques(); } catch (_) {}
             try { this.loadCustomCassettes(); } catch (_) {}
+            try { this.renderGuestPublicCassettesMessage(); } catch (_) {}
             if (this.settingsLogoutDivider) this.settingsLogoutDivider.style.display = 'none';
             
             // Hide auth status indicator when not authenticated
@@ -3134,6 +3136,24 @@ class PomodoroTimer {
 
     // Sync the settings panel technique selection with the main timer
     syncSettingsPanelTechnique(technique) {
+        if (!this.isAuthenticated) {
+            setTimeout(() => {
+                const settingsPanel = document.getElementById('settingsSidePanel');
+                if (!settingsPanel) return;
+
+                const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+                techniquePresets.forEach(preset => {
+                    preset.classList.remove('active');
+                });
+
+                const pomodoroPreset = settingsPanel.querySelector('.technique-preset[data-technique="pomodoro"]');
+                if (pomodoroPreset) {
+                    pomodoroPreset.classList.add('active');
+                }
+            }, 100);
+            return;
+        }
+
         // Don't sync if technique is 'custom'
         if (technique === 'custom') {
             this.deselectTechniqueInPanel();
@@ -9225,14 +9245,17 @@ class PomodoroTimer {
             
             // Hide both texts initially
             if (signupText) signupText.classList.add('hidden');
-            if (subscribeText) subscribeText.classList.remove('hidden');
+            if (subscribeText) subscribeText.classList.add('hidden');
             
             // Reset preset state
             preset.classList.remove('ui-disabled', 'ui-disabled-no-click');
             
             // Guest users: disable all except Pomodoro
             if (!this.isAuthenticated) {
-                if (technique !== 'pomodoro') {
+                if (technique === 'pomodoro') {
+                    preset.classList.add('active');
+                } else {
+                    preset.classList.remove('active');
                     preset.classList.add('ui-disabled-no-click');
                     if (signupText) signupText.classList.remove('hidden');
                     if (subscribeText) subscribeText.classList.add('hidden');
@@ -17559,10 +17582,11 @@ class PomodoroTimer {
     }
     
     setDefaultTechniqueForGuest() {
-        // Set Pomodoro as selected in the main technique dropdown for guest users
-        if (this.techniqueTitle) {
-            this.techniqueTitle.innerHTML = `Pomodoro<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
+        if (this.currentTechniqueKey !== 'pomodoro') {
+            this.loadTechnique('pomodoro');
         }
+
+        this.updateTimerTechniqueButton('pomodoro');
         
         // Mark Pomodoro as selected in dropdown items
         if (this.dropdownItems) {
@@ -17576,9 +17600,16 @@ class PomodoroTimer {
         
         // Set current technique key
         this.currentTechniqueKey = 'pomodoro';
+
+        const settingsPanel = document.getElementById('settingsSidePanel');
+        if (settingsPanel) {
+            const techniquePresets = settingsPanel.querySelectorAll('.technique-preset');
+            techniquePresets.forEach(preset => {
+                const isPomodoroPreset = preset.dataset.technique === 'pomodoro';
+                preset.classList.toggle('active', isPomodoroPreset);
+            });
+        }
         
-        // For guest users, ensure Pomodoro stays active in settings panel
-        // Don't remove the active class that's already in the HTML
         console.log('✅ Pomodoro set as default technique for guest user');
     }
     
@@ -19094,15 +19125,20 @@ class PomodoroTimer {
         // Count visible results
         const visiblePresets = Array.from(presetOptions).filter(opt => opt.style.display !== 'none');
         const visiblePublicCassettes = Array.from(publicCassettes).filter(c => c.style.display !== 'none');
+        const isGuest = !this.isAuthenticated;
         
         // Handle section visibility based on search results
         const publicCassettesSection = document.getElementById('publicCassettesSection');
         const cassettePresetsSection = document.getElementById('cassettePresetsSection');
         
+        if (isGuest) {
+            this.renderGuestPublicCassettesMessage();
+        }
+        
         if (searchQuery) {
             // During search: show only the section with results, hide the other
             if (publicCassettesSection) {
-                publicCassettesSection.style.display = visiblePublicCassettes.length > 0 ? 'block' : 'none';
+                publicCassettesSection.style.display = isGuest ? 'block' : (visiblePublicCassettes.length > 0 ? 'block' : 'none');
             }
             if (cassettePresetsSection) {
                 cassettePresetsSection.style.display = visiblePresets.length > 0 ? 'block' : 'none';
@@ -19110,7 +19146,7 @@ class PomodoroTimer {
         } else {
             // No search: show sections normally based on their content
             if (publicCassettesSection) {
-                publicCassettesSection.style.display = visiblePublicCassettes.length > 0 ? 'block' : 'none';
+                publicCassettesSection.style.display = isGuest ? 'block' : (visiblePublicCassettes.length > 0 ? 'block' : 'none');
             }
             if (cassettePresetsSection) {
                 cassettePresetsSection.style.display = 'block';
@@ -19384,6 +19420,19 @@ class PomodoroTimer {
         return mergedCassettes;
     }
 
+    renderGuestPublicCassettesMessage() {
+        const publicCassettesList = document.getElementById('publicCassettesList');
+        const publicCassettesSection = document.getElementById('publicCassettesSection');
+        if (!publicCassettesList || !publicCassettesSection) return;
+
+        publicCassettesSection.style.display = 'block';
+        publicCassettesList.innerHTML = `
+            <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                Please log in to view public cassettes.
+            </div>
+        `;
+    }
+
     async loadPublicCassettes(forceRefresh = false) {
         // Prevent duplicate concurrent calls
         if (this.isLoadingPublicCassettes) {
@@ -19403,6 +19452,12 @@ class PomodoroTimer {
         this.isLoadingPublicCassettes = true;
         
         const isGuest = !this.isAuthenticated;
+
+        if (isGuest) {
+            this.renderGuestPublicCassettesMessage();
+            this.isLoadingPublicCassettes = false;
+            return;
+        }
         
         // Get user's own public vibes from localStorage immediately
         const userPublicCassettes = this.getCustomCassettes().filter(c => c.isPublic === true);
@@ -19629,6 +19684,11 @@ class PomodoroTimer {
         const publicCassettesSection = document.getElementById('publicCassettesSection');
         
         if (!publicCassettesList || !publicCassettesSection) return;
+
+        if (isGuest) {
+            this.renderGuestPublicCassettesMessage();
+            return;
+        }
         
         if (filteredPublicCassettes.length === 0) {
             publicCassettesSection.style.display = 'none';

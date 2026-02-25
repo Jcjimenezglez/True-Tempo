@@ -7242,14 +7242,16 @@ input:checked + .toggle-slider:before {
     font-weight: normal;
 }
 
-/* Keep disabled preset text AA-compliant without fading all content */
+/* Keep disabled presets readable but clearly unavailable */
 .technique-preset.ui-disabled,
 .technique-preset.ui-disabled-no-click {
-    opacity: 1 !important;
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.58 !important;
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
+.technique-preset.ui-disabled .technique-icon,
+.technique-preset.ui-disabled-no-click .technique-icon,
 .technique-preset.ui-disabled .technique-name,
 .technique-preset.ui-disabled-no-click .technique-name,
 .technique-preset.ui-disabled .technique-desc,
@@ -7262,7 +7264,7 @@ input:checked + .toggle-slider:before {
 .technique-preset.ui-disabled-no-click .technique-sessions,
 .technique-preset.ui-disabled .signup-required-text,
 .technique-preset.ui-disabled-no-click .signup-required-text {
-    color: rgba(255, 255, 255, 0.86);
+    color: rgba(255, 255, 255, 0.76);
 }
 
 .hidden {
