@@ -305,9 +305,11 @@ class PomodoroTimer {
         this.settingsSettingsSection = document.getElementById('settingsSettingsSection');
         this.settingsLoginBtn = document.getElementById('settingsLoginBtn');
         this.settingsSignupBtn = document.getElementById('settingsSignupBtn');
+        this.settingsPricingGuestBtn = document.getElementById('settingsPricingGuestBtn');
         this.settingsUpgradeToProBtn = document.getElementById('settingsUpgradeToProBtn');
         this.settingsManageSubscriptionBtn = document.getElementById('settingsManageSubscriptionBtn');
         this.settingsAccountBtn = document.getElementById('settingsAccountBtn');
+        this.settingsPricingBtn = document.getElementById('settingsPricingBtn');
         this.productivityResourcesBtn = document.getElementById('productivityResourcesBtn');
         this.productivityResourcesModalOverlay = document.getElementById('productivityResourcesModalOverlay');
         this.leaderboardModalOverlay = document.getElementById('leaderboardModalOverlay');
@@ -333,6 +335,7 @@ class PomodoroTimer {
         this.accountMenuUnlock = document.getElementById('accountMenuUnlock');
         this.accountMenuManageSubscription = document.getElementById('accountMenuManageSubscription');
         this.accountMenuSettings = document.getElementById('accountMenuSettings');
+        this.accountMenuPricing = document.getElementById('accountMenuPricing');
         this.accountMenuLogout = document.getElementById('accountMenuLogout');
         
         // Logo and achievement elements
@@ -3535,6 +3538,7 @@ class PomodoroTimer {
         if (this.accountMenuUnlock) this.accountMenuUnlock.style.display = isFreeUser ? 'flex' : 'none';
         if (this.accountMenuManageSubscription) this.accountMenuManageSubscription.style.display = isPremium ? 'flex' : 'none';
         if (this.accountMenuSettings) this.accountMenuSettings.style.display = this.isAuthenticated ? 'flex' : 'none';
+        if (this.accountMenuPricing) this.accountMenuPricing.style.display = this.isAuthenticated ? 'flex' : 'none';
         if (this.accountMenuLogout) this.accountMenuLogout.style.display = this.isAuthenticated ? 'flex' : 'none';
     }
 
@@ -5371,6 +5375,18 @@ class PomodoroTimer {
                 this.handleSignup();
             });
         }
+
+        if (this.settingsPricingGuestBtn) {
+            this.settingsPricingGuestBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Pricing Clicked', {
+                    button_type: 'pricing',
+                    source: 'account_menu_guest'
+                });
+                this.settingsDropdown.style.display = 'none';
+                window.location.href = '/pricing';
+            });
+        }
         
         // Settings dropdown - Shortcuts
         if (this.shortcutsItem) {
@@ -5428,6 +5444,18 @@ class PomodoroTimer {
                 if (window.Clerk && window.Clerk.user && typeof window.Clerk.openUserProfile === 'function') {
                     window.Clerk.openUserProfile();
                 }
+            });
+        }
+
+        if (this.settingsPricingBtn) {
+            this.settingsPricingBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.trackEvent('Account Menu Pricing Clicked', {
+                    button_type: 'pricing',
+                    source: 'account_menu'
+                });
+                this.settingsDropdown.style.display = 'none';
+                window.location.href = '/pricing';
             });
         }
         
@@ -24806,6 +24834,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const accountUnlockBtn = document.getElementById('accountMenuUnlock');
     const accountManageBtn = document.getElementById('accountMenuManageSubscription');
     const accountSettingsBtn = document.getElementById('accountMenuSettings');
+    const accountPricingBtn = document.getElementById('accountMenuPricing');
     const accountLogoutBtn = document.getElementById('accountMenuLogout');
 
     if (accountLoginBtn) {
@@ -24856,6 +24885,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.Clerk && window.Clerk.user && typeof window.Clerk.openUserProfile === 'function') {
                 window.Clerk.openUserProfile();
             }
+        });
+    }
+
+    if (accountPricingBtn) {
+        accountPricingBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.trackEvent) {
+                window.pomodoroTimer.trackEvent('Account Menu Pricing Clicked', {
+                    button_type: 'pricing',
+                    source: 'account_menu_bottom_sheet'
+                });
+            }
+            window.location.href = '/pricing';
         });
     }
 
