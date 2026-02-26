@@ -378,6 +378,17 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 3rem 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-section-eyebrow {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.58);
+            margin: 0 0 0.8rem 0;
         }
         
         .pricing-page-header-section {
@@ -525,6 +536,86 @@
             margin-right: 0;
         }
 
+        /* CRO narrative flow order */
+        .pricing-page-header-section { order: 1; }
+        .problem-awareness-section { order: 2; }
+        .founder-story-section { order: 3; }
+        .how-it-works-section { order: 4; }
+        .premium-features-detailed-section { order: 5; }
+        .comparison-table-section { order: 6; }
+        .user-photos-section { order: 7; }
+        .testimonial-section { order: 8; }
+        .additional-testimonials-section { order: 9; }
+        .faq-section { order: 10; }
+        .final-cta-section { order: 11; }
+
+        /* Hide first duplicated testimonials block */
+        .how-it-works-section + .additional-testimonials-section {
+            display: none;
+        }
+
+        .problem-awareness-section {
+            margin-top: 8rem;
+            margin-bottom: 12.5rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .problem-awareness-intro {
+            max-width: 820px;
+            margin-bottom: 2rem;
+        }
+
+        .problem-awareness-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+        }
+
+        .problem-awareness-subtitle {
+            font-size: 1.15rem;
+            line-height: 1.75;
+            color: rgba(255, 255, 255, 0.74);
+            margin: 0;
+            max-width: 760px;
+        }
+
+        .problem-awareness-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+
+        .problem-awareness-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+
+        .problem-awareness-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 0.75rem 0;
+            line-height: 1.35;
+        }
+
+        .problem-awareness-card p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.72);
+            margin: 0;
+        }
+
+        .problem-awareness-card a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: underline;
+        }
+
         .pricing-offer-explanation a {
             color: rgba(255, 255, 255, 0.8);
             text-decoration: underline;
@@ -544,6 +635,22 @@
         .user-photos-container {
             max-width: 600px;
             text-align: left;
+        }
+
+        .social-proof-heading {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 1rem 0;
+            line-height: 1.2;
+        }
+
+        .social-proof-subtitle {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.72);
+            margin: 0 0 1.5rem 0;
+            max-width: 560px;
         }
         
         .user-photos-grid {
@@ -1400,6 +1507,10 @@
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
+
+            .problem-awareness-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         /* Comparison Table Section */
@@ -1624,6 +1735,15 @@
         }
         
         @media (max-width: 768px) {
+            .problem-awareness-section {
+                margin-top: 6rem;
+                margin-bottom: 6rem;
+            }
+
+            .problem-awareness-title {
+                font-size: 2.2rem;
+            }
+
             .comparison-plans-wrapper {
                 grid-template-columns: 1fr;
             }
@@ -1636,6 +1756,10 @@
                 margin-top: 6rem;
                 margin-bottom: 6rem;
                 padding: 0 1rem;
+            }
+
+            .social-proof-heading {
+                font-size: 1.7rem;
             }
             
             .comparison-table-container {
@@ -1679,11 +1803,23 @@
             color: #ffffff;
             margin: 0;
         }
+
+        .faq-subtitle {
+            margin: 1rem 0 0 0;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.68);
+        }
         
         .faq-list {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+        }
+
+        /* Keep FAQ concise and remove repeated items */
+        .faq-list .faq-item:nth-child(n+9) {
+            display: none;
         }
         
         .faq-item {
@@ -2387,9 +2523,9 @@
     <!-- Main Content -->
     <main class="pricing-page-container">
         <div class="pricing-page-header-section">
-            <h1>The ultimate home for focus.</h1>
+            <h1>Pomodoro timer pricing for real deep work.</h1>
             <p class="pricing-hero-subtitle">
-                Superfocus helps you stay focused, avoid burnout, and track progress with timers, tasks, cassettes, and analytics.
+                Superfocus gives you a focus timer, tasks, cassettes, and productivity analytics in one workflow so you can finish meaningful work without burnout.
             </p>
             
             <div class="pricing-cta-buttons-container">
@@ -2398,13 +2534,41 @@
             </div>
             
             <div class="pricing-offer-explanation">
-                Choose your plan and start focusing today.
+                Start free, then upgrade when you want unlimited focus tools.
             </div>
         </div>
+
+        <!-- Problem Awareness Section -->
+        <section class="problem-awareness-section">
+            <div class="problem-awareness-intro">
+                <p class="pricing-section-eyebrow">2. Problem awareness</p>
+                <h2 class="problem-awareness-title">Most people do not need more motivation. They need a better focus system.</h2>
+                <p class="problem-awareness-subtitle">
+                    Constant context switching, unclear priorities, and reactive work habits make deep work feel impossible. Superfocus combines timeboxing, task clarity, and momentum tracking so your attention has structure.
+                </p>
+            </div>
+            <div class="problem-awareness-grid">
+                <article class="problem-awareness-card">
+                    <h3>Context switching kills momentum</h3>
+                    <p>When everything feels urgent, your day gets fragmented and important work stays half-finished.</p>
+                </article>
+                <article class="problem-awareness-card">
+                    <h3>Willpower is not a reliable system</h3>
+                    <p>Motivation fluctuates. A repeatable routine keeps you consistent even on low-energy days.</p>
+                </article>
+                <article class="problem-awareness-card">
+                    <h3>Timeboxing works when you use it daily</h3>
+                    <p>Pomodoro is a practical way to protect attention. <a href="https://francescocirillo.com/pages/pomodoro-technique" target="_blank" rel="noopener noreferrer">Read the original method</a>.</p>
+                </article>
+            </div>
+        </section>
                 
         <!-- User Photos Social Proof Section -->
         <div class="user-photos-section">
             <div class="user-photos-container">
+                <p class="pricing-section-eyebrow">7. Social proof</p>
+                <h2 class="social-proof-heading">Trusted by people who need focused execution</h2>
+                <p class="social-proof-subtitle">Creators, freelancers, and operators use Superfocus to protect deep work blocks and end their day with clear progress.</p>
                 <div class="user-photos-grid" id="userPhotosGrid">
                     <!-- User photos will be loaded here -->
                 </div>
@@ -2559,6 +2723,7 @@
                 </div>
                 
                 <div class="founder-story-text">
+                    <p class="pricing-section-eyebrow">3. Story</p>
                     <h2 class="founder-story-title">Why I built Superfocus</h2>
                     <div class="founder-story-content" id="founderStoryContent">
                         <p>
@@ -2583,8 +2748,9 @@
         
         <div class="how-it-works-section">
             <div class="how-it-works-intro">
-                <h2 class="how-it-works-title">How it works</h2>
-                <p class="how-it-works-subtitle">Get started in three simple steps</p>
+                <p class="pricing-section-eyebrow">4. Solution</p>
+                <h2 class="how-it-works-title">How Superfocus works</h2>
+                <p class="how-it-works-subtitle">Build a repeatable deep-work routine in three simple steps</p>
             </div>
             
             <div class="how-it-works-steps">
@@ -2734,8 +2900,9 @@
         <!-- Comparison Table Section -->
         <div class="comparison-table-section" id="plansComparisonSection">
             <div class="comparison-table-intro">
-                <h2 class="comparison-table-title">Why upgrade to Premium?</h2>
-                <p class="comparison-table-description">See what you unlock</p>
+                <p class="pricing-section-eyebrow">6. What's included</p>
+                <h2 class="comparison-table-title">What you unlock with Premium</h2>
+                <p class="comparison-table-description">Compare Free vs Monthly vs Lifetime and pick the plan that fits your workflow.</p>
             </div>
             
             <div class="comparison-plans-wrapper">
@@ -2877,8 +3044,9 @@
         <!-- Premium Features Section - Con ejemplos visuales -->
         <div class="premium-features-detailed-section">
             <div class="use-cases-intro">
-                <h2 class="use-cases-title">Everything you need to focus better</h2>
-                <p class="use-cases-subtitle">Premium features designed to help you stay focused, organized, and productive.</p>
+                <p class="pricing-section-eyebrow">5. Benefits</p>
+                <h2 class="use-cases-title">Benefits you feel in your first week</h2>
+                <p class="use-cases-subtitle">Premium helps you protect focus, finish priority work, and keep a sustainable productivity rhythm.</p>
                     </div>
             
             <!-- Feature 1: Create Custom Timer -->
@@ -3094,7 +3262,9 @@
         <!-- FAQ Section -->
         <div class="faq-section">
             <div class="faq-intro">
-                <h2 class="faq-title">Frequently asked questions</h2>
+                <p class="pricing-section-eyebrow">8. FAQ</p>
+                <h2 class="faq-title">Questions before you upgrade</h2>
+                <p class="faq-subtitle">Everything you need to choose between Free, Monthly, and Lifetime.</p>
             </div>
             
             <div class="faq-list">
@@ -3281,14 +3451,15 @@
         </div>
         <!-- Final CTA after FAQ -->
         <div class="final-cta-section">
-            <h2 class="cta-title">Block distractions.</h2>
-            <p class="cta-subtitle">Join thousands who use Superfocus to maintain 2-3 hours of uninterrupted deep work every day and complete their most important tasks.</p>
+            <p class="pricing-section-eyebrow">9. CTA</p>
+            <h2 class="cta-title">Start free. Upgrade when focus becomes your advantage.</h2>
+            <p class="cta-subtitle">Choose Monthly for flexibility or Lifetime for long-term value, and build a deep-work system you can actually maintain.</p>
             <div class="pricing-cta-buttons-container centered">
                 <button class="pricing-btn-monthly" id="finalCTAMonthly">View plans</button>
                 <button class="pricing-btn-lifetime" id="finalCTA" style="display: none;">Get Lifetime Access</button>
             </div>
             <div class="pricing-offer-explanation">
-                Choose your perfect plan and start focusing today.
+                Secure Stripe checkout. Monthly plan can be canceled anytime.
             </div>
         </div>
     
