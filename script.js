@@ -4318,12 +4318,9 @@ class PomodoroTimer {
         this.stopDailyLimitCountdown();
     }
     
-    // Pricing Plans Modal
+    // Redirect to pricing page (replaces former pricing plans modal)
     showPricingPlansModal() {
-        if (!this.pricingPlansModalOverlay) return;
-        this.pricingPlansModalOverlay.style.display = 'flex';
-        // Monthly trial offer
-        this.selectPlan('monthly');
+        window.location.href = '/pricing';
     }
     
     hidePricingPlansModal() {
@@ -16215,6 +16212,7 @@ class PomodoroTimer {
             // Get the plan type from URL
             const planType = urlParams.get('plan') || 'monthly';
             const conversionValue = 3.99;
+            const hasSessionId = Boolean(urlParams.get('session_id'));
             
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
@@ -16231,8 +16229,14 @@ class PomodoroTimer {
             });
             
             // Track conversion with the Subscribe (2) label and monthly value
-            console.log(`🎯 Tracking ${planType} conversion with value $${conversionValue}`);
-            this.trackConversion(planType, conversionValue);
+            // New checkout flow tracks conversion after /api/confirm-premium using session_id.
+            // Skip legacy URL-based conversion in that case to avoid duplicate conversions.
+            if (!hasSessionId) {
+                console.log(`🎯 Tracking ${planType} conversion with value $${conversionValue}`);
+                this.trackConversion(planType, conversionValue);
+            } else {
+                console.log('⏭️ Skipping legacy URL conversion tracking; session_id flow already handles Subscribe (2)');
+            }
             
             // 🎯 Track Subscription Upgrade event to Mixpanel
             if (window.mixpanelTracker) {
