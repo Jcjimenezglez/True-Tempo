@@ -15215,8 +15215,11 @@ class PomodoroTimer {
                             <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div>
                         </div>
                         <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
-                            <div style="font-size: 18px; font-weight: 700; color: #fff;">${currentStreak}</div>
-                            <div style="font-size: 12px; color: #7a7a7a;">Record: ${longestStreak} days</div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="font-size: 18px;">${currentStreak > 0 ? '🔥' : '▶️'}</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #fff;">${currentStreak}</div>
+                            </div>
+                            <div style="font-size: 12px; color: #a3a3a3;">Record: ${longestStreak} days</div>
                         </div>
                     </div>
                 </div>
