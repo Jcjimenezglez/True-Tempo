@@ -6,7 +6,7 @@ const { buildPremiumLeaderboardSnapshot } = require('./leaderboard-premium-servi
 const { getSnapshot, setSnapshot } = require('./leaderboard-cache');
 const DEFAULT_PAGE_SIZE = 100;
 const MAX_PAGE_SIZE = 200;
-const DEFAULT_ACTIVE_DAYS = 7;
+const DEFAULT_ACTIVE_DAYS = 30;
 const LEADERBOARD_RANK_BASELINE_VERSION = '2026-02-10-reset';
 
 const toNumber = (value) => {

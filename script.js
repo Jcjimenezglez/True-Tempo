@@ -3814,7 +3814,7 @@ class PomodoroTimer {
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
                         hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 7
+                        activityWindowDays: data.activityWindowDays || 30
                     },
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -3846,7 +3846,7 @@ class PomodoroTimer {
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
                         hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 7
+                        activityWindowDays: data.activityWindowDays || 30
                     },
                     {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -3895,7 +3895,7 @@ class PomodoroTimer {
 
         let html = '';
         const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
-        const activityWindowDays = pagination?.activityWindowDays || 7;
+        const activityWindowDays = pagination?.activityWindowDays || 30;
         const scopeLine = `${totalUsersText} users active in the last ${activityWindowDays} days`;
 
         if (currentUserPosition) {
@@ -3966,7 +3966,7 @@ class PomodoroTimer {
                         border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
                         position: relative;
                     ">
-                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; min-width: 60px;">
                                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
                                 ${rankChangeIcon}
@@ -14686,7 +14686,7 @@ class PomodoroTimer {
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
                         hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 7
+                        activityWindowDays: data.activityWindowDays || 30
                     },
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -14718,7 +14718,7 @@ class PomodoroTimer {
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
                         hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 7
+                        activityWindowDays: data.activityWindowDays || 30
                     },
                     {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -14767,7 +14767,7 @@ class PomodoroTimer {
 
         let html = '';
         const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
-        const activityWindowDays = pagination?.activityWindowDays || 7;
+        const activityWindowDays = pagination?.activityWindowDays || 30;
         const scopeLine = `${totalUsersText} users active in the last ${activityWindowDays} days`;
 
         if (currentUserPosition) {
@@ -14838,7 +14838,7 @@ class PomodoroTimer {
                         border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
                         position: relative;
                     ">
-                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; min-width: 60px;">
                                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
                                 ${rankChangeIcon}
@@ -15782,7 +15782,7 @@ class PomodoroTimer {
                         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                         ${isCurrentUser ? 'background: rgba(34, 197, 94, 0.1); border-left: 3px solid #22c55e;' : ''}
                     ">
-                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
                             <span style="color: #a3a3a3; font-size: 14px; font-weight: 600; min-width: 40px;">${rankDisplay}</span>
                             <span style="color: ${isCurrentUser ? '#22c55e' : '#fff'}; font-size: 14px; font-weight: ${isCurrentUser ? '600' : '500'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 ${this.escapeHtml(user.username)}

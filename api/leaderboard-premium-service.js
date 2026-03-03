@@ -1,7 +1,7 @@
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
 const CLERK_BATCH_LIMIT = 100;
-const ACTIVE_DAYS_DEFAULT = 7;
+const ACTIVE_DAYS_DEFAULT = 30;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MS_24_HOURS = 24 * 60 * 60 * 1000;
 const MIN_FOCUS_FOR_DISPLAY = 1 / 60; // 1 minute - below this shows as 0h 0m
