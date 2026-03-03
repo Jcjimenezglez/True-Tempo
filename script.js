@@ -381,6 +381,8 @@ class PomodoroTimer {
         this.isAuthenticated = false;
         this.user = null;
         this.isPro = false;
+        this.todoistIntegrationEnabled =
+            !window.SUPERFOCUS_FEATURES || window.SUPERFOCUS_FEATURES.todoistIntegration !== false;
         // Signals when Clerk auth has fully hydrated for this session
         this.authReady = false;
         this.confirmedCheckoutSessionId = null;
@@ -9313,8 +9315,6 @@ class PomodoroTimer {
         overlay.className = 'focus-stats-overlay';
         overlay.style.display = 'flex';
 
-        const tokenValue = this.todoistToken || '';
-
         const modal = document.createElement('div');
         modal.className = 'focus-stats-modal';
         modal.innerHTML = `
@@ -9378,7 +9378,6 @@ class PomodoroTimer {
 
         const connectBtn = modal.querySelector('#connectTodoistBtn');
         const disconnectBtn = modal.querySelector('#disconnectTodoistBtn');
-        const fetchBtn = modal.querySelector('#fetchTodoistTasksBtn');
         const listEl = modal.querySelector('#todoistTasksList');
         const statusText = modal.querySelector('#todoistStatusText');
 
@@ -9398,7 +9397,7 @@ class PomodoroTimer {
                         </svg>
                     </div>
                     <div class="empty-text">No tasks loaded yet</div>
-                    <div class="empty-subtext">Click "Fetch Tasks" to load your Todoist tasks</div>
+                    <div class="empty-subtext">Connect Todoist to load your tasks</div>
                 `;
                 listEl.appendChild(empty);
                 return;
@@ -9441,11 +9440,16 @@ class PomodoroTimer {
                 completeBtn.title = 'Mark as completed';
                 completeBtn.addEventListener('click', async () => {
                     try {
-                        // Check if Developer Mode is active
+                        const userId = window.Clerk?.user?.id || '';
                         const viewMode = lsGet('viewMode');
-                        const devModeParam = viewMode === 'pro' ? '&devMode=pro' : '';
-                        
-                        await fetch(`/api/todoist-complete?id=${encodeURIComponent(task.id)}${devModeParam}`, { method: 'POST' });
+                        const params = new URLSearchParams();
+                        params.set('id', String(task.id));
+                        if (userId) params.set('uid', userId);
+                        if (viewMode === 'pro') {
+                            params.set('devMode', 'pro');
+                            params.set('bypass', 'true');
+                        }
+                        await fetch(`/api/todoist-complete?${params.toString()}`, { method: 'POST' });
                     } catch (_) {}
                     await this.fetchTodoistData();
                     renderTasks();
@@ -9467,15 +9471,32 @@ class PomodoroTimer {
                 user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
                 conversion_funnel: 'integration_interest'
             });
-            window.location.href = '/api/todoist-auth-start';
+            const userId = window.Clerk?.user?.id || '';
+            const viewMode = lsGet('viewMode');
+            const params = new URLSearchParams();
+            if (userId) params.set('uid', userId);
+            if (viewMode === 'pro') {
+                params.set('devMode', 'pro');
+                params.set('bypass', 'true');
+            }
+            const qs = params.toString() ? `?${params.toString()}` : '';
+            window.location.href = `/api/todoist-auth-start${qs}`;
         });
 
         disconnectBtn.addEventListener('click', async () => {
             try {
-                await fetch('/api/todoist-disconnect', { method: 'POST' });
+                const userId = window.Clerk?.user?.id || '';
+                const viewMode = lsGet('viewMode');
+                const params = new URLSearchParams();
+                if (userId) params.set('uid', userId);
+                if (viewMode === 'pro') {
+                    params.set('devMode', 'pro');
+                    params.set('bypass', 'true');
+                }
+                const qs = params.toString() ? `?${params.toString()}` : '';
+                await fetch(`/api/todoist-disconnect${qs}`, { method: 'POST' });
             } catch (_) {}
             statusText.textContent = 'Disconnected';
-            fetchBtn.style.display = 'none';
             disconnectBtn.style.display = 'none';
             connectBtn.style.display = '';
             this.todoistTasks = [];
@@ -9483,35 +9504,30 @@ class PomodoroTimer {
             renderTasks();
         });
 
-        fetchBtn.addEventListener('click', async () => {
-            await this.fetchTodoistData();
-            renderTasks();
-        });
-
         // Check connection status and update UI
         (async () => {
             try {
-                const resp = await fetch('/api/todoist-status');
+                const userId = window.Clerk?.user?.id || '';
+                const params = new URLSearchParams();
+                if (userId) params.set('uid', userId);
+                const resp = await fetch(`/api/todoist-status?${params.toString()}`);
                 const json = await resp.json();
                 const connected = !!json.connected;
                 if (connected) {
                     statusText.textContent = 'Connected to Todoist';
                     connectBtn.style.display = 'none';
                     disconnectBtn.style.display = '';
-                    fetchBtn.style.display = '';
                     this.fetchTodoistData().then(renderTasks).catch(() => renderTasks());
                 } else {
                     statusText.textContent = 'Not connected';
                     connectBtn.style.display = '';
                     disconnectBtn.style.display = 'none';
-                    fetchBtn.style.display = 'none';
                     renderTasks();
                 }
             } catch (_) {
                 statusText.textContent = 'Not connected';
                 connectBtn.style.display = '';
                 disconnectBtn.style.display = 'none';
-                fetchBtn.style.display = 'none';
                 renderTasks();
             }
         })();
@@ -9539,7 +9555,7 @@ class PomodoroTimer {
                 <h3>Tasks</h3>
                 <p class="tasks-subtitle">Manage your focus tasks</p>
             </div>
-            ${this.isAuthenticated && this.user && this.isPremiumUser() ? `
+            ${this.todoistIntegrationEnabled && this.isAuthenticated && this.user && this.isPremiumUser() ? `
             <div class="add-task-section" style="margin-bottom: 12px;">
                 <button class="import-task-btn" id="importTodoistMainBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -10508,7 +10524,11 @@ class PomodoroTimer {
 
     async checkTodoistConnection() {
         try {
-            const resp = await fetch('/api/todoist-status');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (userId) params.set('uid', userId);
+            const qs = params.toString() ? `?${params.toString()}` : '';
+            const resp = await fetch(`/api/todoist-status${qs}`);
             const json = await resp.json();
             return !!json.connected;
         } catch (error) {
@@ -10586,8 +10606,8 @@ class PomodoroTimer {
         } catch (error) {
             console.error('Error loading Todoist tasks:', error);
             // Show error state
-            const tasksList = modal.querySelector('#todoistTasksList');
-            const loadingState = modal.querySelector('#todoistLoadingState');
+            const tasksList = modal.querySelector('#todoistImportTasksList');
+            const loadingState = modal.querySelector('#todoistImportLoadingState');
             if (loadingState) loadingState.style.display = 'none';
             if (tasksList) {
                 tasksList.innerHTML = `
@@ -10991,6 +11011,10 @@ class PomodoroTimer {
 
     // Wrapper functions for integration buttons
     async showTodoistProjects() {
+        if (!this.todoistIntegrationEnabled) {
+            alert('Todoist integration is temporarily disabled.');
+            return;
+        }
         console.log('🔍 Todoist click - Auth state:', {
             isAuthenticated: this.isAuthenticated,
             hasUser: !!this.user,
@@ -11011,7 +11035,16 @@ class PomodoroTimer {
                 if (!isConnected) {
                     // Pro user not connected → redirect to auth (same as Settings Connect button)
                     console.log('🔗 Redirecting to Todoist auth...');
-                    window.location.href = '/api/todoist-auth-start';
+                    const userId = window.Clerk?.user?.id || '';
+                    const viewMode = lsGet('viewMode');
+                    const params = new URLSearchParams();
+                    if (userId) params.set('uid', userId);
+                    if (viewMode === 'pro') {
+                        params.set('devMode', 'pro');
+                        params.set('bypass', 'true');
+                    }
+                    const qs = params.toString() ? `?${params.toString()}` : '';
+                    window.location.href = `/api/todoist-auth-start${qs}`;
                     return;
                 }
                 // Pro user connected → show projects modal
@@ -12640,10 +12673,9 @@ class PomodoroTimer {
     loadAllTasks() {
         // Load local tasks
         this.localTasks = this.getLocalTasks();
-        
-        // Todoist integration disabled - no longer in use
-        this.todoistTasks = [];
-        this.todoistProjectsById = {};
+
+        this.todoistTasks = this.todoistTasks || [];
+        this.todoistProjectsById = this.todoistProjectsById || {};
         this.refreshCreationLimitNotices();
     }
 
@@ -12666,11 +12698,19 @@ class PomodoroTimer {
         const menuItems = [
             { text: 'Clear finished tasks', icon: 'trash', action: () => this.clearFinishedTasks() },
             { text: 'Use Template', icon: 'template', action: () => this.showTemplatesModal() },
-            { text: 'Import from Todoist', icon: 'download', action: () => this.showImportModal(), locked: !this.isAuthenticated },
             { text: 'Clear act pomodoros', icon: 'check', action: () => this.clearActPomodoros() },
             { text: 'Hide tasks', icon: 'eye', action: () => this.hideTasks(), locked: !this.isAuthenticated },
             { text: 'Clear all tasks', icon: 'trash', action: () => this.clearAllTasks() }
         ];
+
+        if (this.todoistIntegrationEnabled) {
+            menuItems.splice(2, 0, {
+                text: 'Import from Todoist',
+                icon: 'download',
+                action: () => this.showImportModal(),
+                locked: !this.isAuthenticated
+            });
+        }
 
         menuItems.forEach(item => {
             const menuItem = document.createElement('div');
@@ -13048,6 +13088,11 @@ class PomodoroTimer {
             // Load tasks
             const tasksRes = await fetch(`/api/todoist-tasks${qs}`);
             const tasks = tasksRes.ok ? await tasksRes.json() : [];
+            this.todoistTasks = Array.isArray(tasks) ? tasks : [];
+            this.todoistProjectsById = {};
+            (Array.isArray(projects) ? projects : []).forEach(project => {
+                this.todoistProjectsById[project.id] = project;
+            });
             
             // Group tasks by project
             const tasksByProject = {};
@@ -13118,7 +13163,7 @@ class PomodoroTimer {
             selected.forEach(checkbox => {
                 const taskId = checkbox.closest('.import-task-item').dataset.taskId;
                 // Add to local tasks
-                const task = this.todoistTasks.find(t => t.id === taskId);
+                const task = this.todoistTasks.find(t => String(t.id) === String(taskId));
                 if (task) {
                     this.addLocalTask(task.content, 1);
                 }
@@ -13298,11 +13343,48 @@ class PomodoroTimer {
 
 
     async fetchTodoistData() {
-        // Todoist integration disabled - no longer in use
-        // This function is kept for compatibility but does nothing
-        this.todoistTasks = [];
-        this.todoistProjectsById = {};
-        return;
+        if (!this.isAuthenticated || !this.user || !this.isPremiumUser()) {
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+            return;
+        }
+
+        try {
+            const viewMode = lsGet('viewMode');
+            const userId = window.Clerk?.user?.id || '';
+            const params = new URLSearchParams();
+            if (userId) params.append('uid', userId);
+            if (viewMode === 'pro') {
+                params.append('devMode', 'pro');
+                params.append('bypass', 'true');
+            }
+            const qs = params.toString() ? `?${params.toString()}` : '';
+
+            const [tasksResponse, projectsResponse] = await Promise.all([
+                fetch(`/api/todoist-tasks${qs}`),
+                fetch(`/api/todoist-projects${qs}`)
+            ]);
+
+            if (!tasksResponse.ok || !projectsResponse.ok) {
+                this.todoistTasks = [];
+                this.todoistProjectsById = {};
+                return;
+            }
+
+            const tasks = await tasksResponse.json();
+            const projects = await projectsResponse.json();
+            const projectMap = {};
+            (Array.isArray(projects) ? projects : []).forEach(project => {
+                projectMap[project.id] = project;
+            });
+
+            this.todoistTasks = Array.isArray(tasks) ? tasks : [];
+            this.todoistProjectsById = projectMap;
+        } catch (error) {
+            console.error('Error fetching Todoist data:', error);
+            this.todoistTasks = [];
+            this.todoistProjectsById = {};
+        }
     }
 
     updateCurrentTaskBanner() {
@@ -16271,7 +16353,16 @@ class PomodoroTimer {
 
         disconnectBtn.addEventListener('click', async () => {
             try {
-                await fetch('/api/todoist-disconnect', { method: 'POST' });
+                const userId = window.Clerk?.user?.id || '';
+                const viewMode = lsGet('viewMode');
+                const params = new URLSearchParams();
+                if (userId) params.set('uid', userId);
+                if (viewMode === 'pro') {
+                    params.set('devMode', 'pro');
+                    params.set('bypass', 'true');
+                }
+                const qs = params.toString() ? `?${params.toString()}` : '';
+                await fetch(`/api/todoist-disconnect${qs}`, { method: 'POST' });
             } catch (_) {}
             statusText.textContent = 'Not connected';
             disconnectBtn.style.display = 'none';
@@ -16285,7 +16376,11 @@ class PomodoroTimer {
         // Check connection status and update UI
         (async () => {
             try {
-                const resp = await fetch('/api/todoist-status');
+                const userId = window.Clerk?.user?.id || '';
+                const params = new URLSearchParams();
+                if (userId) params.set('uid', userId);
+                const qs = params.toString() ? `?${params.toString()}` : '';
+                const resp = await fetch(`/api/todoist-status${qs}`);
                 const json = await resp.json();
                 const connected = !!json.connected;
                 if (connected) {
@@ -17732,7 +17827,12 @@ class PomodoroTimer {
         const importSection = document.getElementById('importTodoistSection');
         
         if (importSection) {
-            importSection.style.display = (this.isAuthenticated && this.user && this.isPremiumUser()) ? 'block' : 'none';
+            importSection.style.display = (
+                this.todoistIntegrationEnabled &&
+                this.isAuthenticated &&
+                this.user &&
+                this.isPremiumUser()
+            ) ? 'block' : 'none';
         }
         
         const listEl = panel.querySelector('#todoistTasksList');
@@ -18181,7 +18281,47 @@ class PomodoroTimer {
         const todoistBtn = panel.querySelector('#importTodoistMainBtn');
         console.log('🔵 Todoist button found:', todoistBtn);
         console.log('🔵 Panel element:', panel);
-        // Integration buttons removed - using local tasks only
+        if (todoistBtn) {
+            todoistBtn.replaceWith(todoistBtn.cloneNode(true));
+            const newTodoistBtn = panel.querySelector('#importTodoistMainBtn');
+            if (newTodoistBtn) {
+                newTodoistBtn.addEventListener('click', async () => {
+                    this.trackEvent('Todoist Import Clicked', {
+                        button_type: 'todoist_import',
+                        source: 'task_panel',
+                        user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                        conversion_funnel: 'integration_usage'
+                    });
+
+                    if (!this.todoistIntegrationEnabled) {
+                        alert('Todoist integration is temporarily disabled.');
+                        return;
+                    }
+
+                    try {
+                        const isConnected = await this.checkTodoistConnection();
+                        if (!isConnected) {
+                            const userId = window.Clerk?.user?.id || '';
+                            const viewMode = lsGet('viewMode');
+                            const params = new URLSearchParams();
+                            if (userId) params.set('uid', userId);
+                            if (viewMode === 'pro') {
+                                params.set('devMode', 'pro');
+                                params.set('bypass', 'true');
+                            }
+                            const qs = params.toString() ? `?${params.toString()}` : '';
+                            window.location.href = `/api/todoist-auth-start${qs}`;
+                            return;
+                        }
+
+                        await this.showTodoistProjectsModal();
+                    } catch (error) {
+                        console.error('Error opening Todoist projects modal from panel:', error);
+                        alert('Error loading Todoist projects. Please try again.');
+                    }
+                });
+            }
+        }
         
         
         // Initial render

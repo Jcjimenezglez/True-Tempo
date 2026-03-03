@@ -39,6 +39,8 @@ STRIPE_PORTAL_CONFIGURATION_ID=pmc_your_test_portal_config_id_here
 # Todoist (optional for development)
 TODOIST_CLIENT_ID=your_todoist_client_id_here
 TODOIST_CLIENT_SECRET=your_todoist_client_secret_here
+TODOIST_OAUTH_REDIRECT_URI=http://localhost:3000/api/todoist-auth-callback
+TODOIST_STATE_SECRET=replace_with_random_long_string
 `;
 
 fs.writeFileSync(envPath, envTemplate);
@@ -47,8 +49,9 @@ console.log('✅ Created .env.local template');
 console.log('\n📋 Next steps:');
 console.log('1. Get your Stripe test keys from: https://dashboard.stripe.com/test/apikeys');
 console.log('2. Get your Clerk dev keys from: https://dashboard.clerk.com/');
-console.log('3. Update the values in .env.local');
-console.log('4. Run: npm run dev');
+console.log('3. (Optional) Set Todoist OAuth keys and redirect URI');
+console.log('4. Update the values in .env.local');
+console.log('5. Run: npm run dev');
 console.log('\n💳 Test cards:');
 console.log('• 4242 4242 4242 4242 (Visa - Success)');
 console.log('• 4000 0000 0000 0002 (Visa - Declined)');

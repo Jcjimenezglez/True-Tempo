@@ -45,6 +45,13 @@ STRIPE_WEBHOOK_SECRET=whsec_ABC123...
 CLERK_PUBLISHABLE_KEY=pk_test_ABC123...
 CLERK_SECRET_KEY=sk_test_ABC123...
 
+# Todoist OAuth (optional)
+TODOIST_CLIENT_ID=your_todoist_client_id_here
+TODOIST_CLIENT_SECRET=your_todoist_client_secret_here
+TODOIST_OAUTH_REDIRECT_URI=http://localhost:3000/api/todoist-auth-callback
+# Optional but recommended (fallback is CLERK_SECRET_KEY)
+TODOIST_STATE_SECRET=replace_with_random_long_string
+
 # Development URLs
 STRIPE_SUCCESS_URL=http://localhost:3000?premium=1&payment=success&session_id={CHECKOUT_SESSION_ID}
 STRIPE_CANCEL_URL=http://localhost:3000
@@ -62,6 +69,15 @@ npm run dev
 # o
 vercel dev
 ```
+
+### **Todoist OAuth callback configuration**
+
+1. Ve a la app de Todoist Developers.
+2. Configura Redirect URI:
+   - Desarrollo: `http://localhost:3000/api/todoist-auth-callback`
+   - Producción: `https://www.superfocus.live/api/todoist-auth-callback`
+3. Asegúrate de que `TODOIST_OAUTH_REDIRECT_URI` coincide exactamente con la URI configurada.
+4. Si no defines `TODOIST_OAUTH_REDIRECT_URI`, el backend usará la URL del request automáticamente.
 
 ### **5. Tarjetas de Test de Stripe**
 

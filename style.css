@@ -6196,6 +6196,29 @@ input:checked + .toggle-slider:before {
     color: #ffffff;
 }
 
+/* Todoist import button in Tasks panel */
+.import-task-btn {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.import-task-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
 /* Inline Add Task Form */
 .add-task-form {
     background: rgba(255, 255, 255, 0.03);
@@ -10103,25 +10126,6 @@ input:checked + .toggle-slider:before {
     width: 14px;
     height: 14px;
 }
-
-/* Notion and Todoist integration buttons are now visible */
-
-/* Hide Notion and Todoist integration items in settings */
-.settings-item.integration-item:has(#connectTodoistBtn),
-.settings-item.integration-item:has(#disconnectTodoistBtn),
-.settings-item.integration-item:has(#connectNotionBtn),
-.settings-item.integration-item:has(#disconnectNotionBtn) {
-    display: none !important;
-}
-
-/* Hide Todoist and Notion buttons directly */
-#connectTodoistBtn,
-#disconnectTodoistBtn,
-#connectNotionBtn,
-#disconnectNotionBtn {
-    display: none !important;
-}
-
 
 /* First Time User Welcome Modal */
 .welcome-modal-overlay {
