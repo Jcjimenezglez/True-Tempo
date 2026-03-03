@@ -15193,20 +15193,24 @@ class PomodoroTimer {
         
         const html = `
             <div style="padding: 0;">
-                <!-- Streak + Total focus hours row -->
+                <!-- Total focus hours + Day streak row -->
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                    <!-- Streak -->
+                    <!-- Total focus hours (left) -->
+                    <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">TOTAL FOCUS HOURS</div>
+                        <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: #fff;">${(() => {
+                                const h = Math.floor(totalHours);
+                                const m = Math.round((totalHours - h) * 60);
+                                return h > 0 ? `${h}h ${m}m` : (m > 0 ? `${m}m` : '0h 0m');
+                            })()}</div>
+                        </div>
+                    </div>
+                    <!-- Day streak (right) -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
                         <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div>
                         <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
                             <div style="font-size: 32px; font-weight: 700; color: #fff;">${currentStreak}</div>
-                        </div>
-                    </div>
-                    <!-- Total focus hours -->
-                    <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">TOTAL FOCUS HOURS</div>
-                        <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
-                            <div style="font-size: 24px; font-weight: 700; color: #fff;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h</div>
                         </div>
                     </div>
                 </div>
@@ -15216,7 +15220,7 @@ class PomodoroTimer {
                     <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
                         <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">ACTIVITY</div>
                         <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
+                            <button class="activity-range-btn active" data-range="W" style="background: #15803d; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Monthly Activity View"' : ''}>Month</button>
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Year</button>
                         </div>
@@ -15230,7 +15234,7 @@ class PomodoroTimer {
                                 return last7Days.map(day => {
                                     const height = (day.hours / maxHours) * 100;
                                     const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
-                                    const barColor = day.hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
+                                    const barColor = day.hours > 0 ? '#15803d' : 'rgba(255,255,255,0.2)';
                                     return `
                                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                                             <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
@@ -15283,7 +15287,7 @@ class PomodoroTimer {
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; color: #fff; min-width: 72px;">This week</span>
                             <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 4px;"></div>
+                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: #15803d; border-radius: 4px;"></div>
                             </div>
                             <span style="font-size: 12px; font-weight: 600; color: #fff;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
                         </div>
@@ -15320,7 +15324,7 @@ class PomodoroTimer {
                     ` : `
                     <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
                     <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: ${goalProgress}%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 4px;"></div>
+                        <div style="width: ${goalProgress}%; height: 100%; background: #15803d; border-radius: 4px;"></div>
                     </div>
                     <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
                     `}
@@ -15339,7 +15343,7 @@ class PomodoroTimer {
                         </div>
                         <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 8px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
                         <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                            <div style="width: ${level.progress}%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 4px;"></div>
+                            <div style="width: ${level.progress}%; height: 100%; background: #15803d; border-radius: 4px;"></div>
                         </div>
                         <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 12px;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
                         <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">View All Levels</button>
@@ -15376,7 +15380,7 @@ class PomodoroTimer {
                     const hours = item.hours || 0;
                     const height = (hours / maxHours) * 100;
                     const valueLabel = hours ? (hours < 0.1 ? hours.toFixed(2) : hours.toFixed(1)) + 'h' : '—';
-                    const barColor = hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
+                    const barColor = hours > 0 ? '#15803d' : 'rgba(255,255,255,0.2)';
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                             <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
@@ -15439,7 +15443,7 @@ class PomodoroTimer {
                         b.style.color = b.classList.contains('activity-range-locked') ? '#7a7a7a' : '#a3a3a3';
                     });
                     btn.classList.add('active');
-                    btn.style.background = '#2a2a2a';
+                    btn.style.background = selectedRange === 'W' ? '#15803d' : '#2a2a2a';
                     btn.style.color = '#fff';
                     setRange(selectedRange);
                 });
