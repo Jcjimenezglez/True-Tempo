@@ -15193,20 +15193,25 @@ class PomodoroTimer {
         
         const html = `
             <div style="padding: 0;">
-                <!-- Streak Hero -->
-                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden;">
-                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">STREAK</div>
-                    <div style="padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- Streak + Total focus hours row -->
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <!-- Streak -->
+                    <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">STREAK</div>
+                        <div style="padding: 20px; display: flex; align-items: center; gap: 12px;">
                             <div style="font-size: 28px;">🔥</div>
                             <div>
-                                <div style="font-size: 20px; font-weight: 700; color: #fff;">${streakTitle}</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #fff;">${streakTitle}</div>
                                 <div style="font-size: 12px; color: #a3a3a3;">${streakSubtitle}</div>
+                                <div style="font-size: 11px; color: #a3a3a3; margin-top: 4px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
                             </div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 11px; color: #a3a3a3;">Last 7 days</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #fff;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                    </div>
+                    <!-- Total focus hours -->
+                    <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">TOTAL FOCUS HOURS</div>
+                        <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: #fff;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h</div>
                         </div>
                     </div>
                 </div>
@@ -15221,7 +15226,7 @@ class PomodoroTimer {
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Year</button>
                         </div>
                     </div>
-                    <div style="padding: 0 16px 16px 16px;">
+                    <div style="padding: 16px;">
                         <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
                         ${activityLimitToWeek ? '<div style="font-size: 11px; color: #a3a3a3; margin-bottom: 10px;">Month and Year views are available on Premium.</div>' : ''}
                         <div id="activityChartBars" style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
