@@ -15197,14 +15197,9 @@ class PomodoroTimer {
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                     <!-- Streak -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">STREAK</div>
-                        <div style="padding: 20px; display: flex; align-items: center; gap: 12px;">
-                            <div style="font-size: 28px;">🔥</div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700; color: #fff;">${streakTitle}</div>
-                                <div style="font-size: 12px; color: #a3a3a3;">${streakSubtitle}</div>
-                                <div style="font-size: 11px; color: #a3a3a3; margin-top: 4px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
-                            </div>
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div>
+                        <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
+                            <div style="font-size: 32px; font-weight: 700; color: #fff;">${currentStreak}</div>
                         </div>
                     </div>
                     <!-- Total focus hours -->
