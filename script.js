@@ -15211,7 +15211,7 @@ class PomodoroTimer {
                     </div>
                     <!-- Day streak (right) -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div>
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;"><div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div></div>
                         <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
                             <div style="font-size: 32px; font-weight: 700; color: #fff;">${currentStreak}</div>
                         </div>
@@ -15274,7 +15274,7 @@ class PomodoroTimer {
                     <div id="heatmapRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days</div>
                     ${activityLimitToWeek ? '<div style="font-size: 11px; color: #a3a3a3; margin-bottom: 10px;">Month and Year views are available on Premium.</div>' : ''}
                     <div id="heatmapGrid" style="display: flex; flex-wrap: wrap; gap: 4px;">
-                        ${heatmapDaysW.map(d => {
+                        ${heatmapDaysW.slice().reverse().map(d => {
                             const maxH = Math.max(...heatmapDaysW.map(x => x.hours || 0), 1);
                             const intensity = Math.min(1, (d.hours || 0) / maxH);
                             const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
@@ -15384,7 +15384,8 @@ class PomodoroTimer {
                 let cells = [];
                 let labelText = '';
                 if (range === 'W') {
-                    const items = this.getLastNDaysData(stats, 7);
+                    const rawItems = this.getLastNDaysData(stats, 7);
+                    const items = rawItems.slice().reverse();
                     const maxH = Math.max(...items.map(x => x.hours || 0), 1);
                     labelText = 'Last 7 days';
                     cells = items.map(d => {
@@ -15395,7 +15396,8 @@ class PomodoroTimer {
                         return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 7 };
                     });
                 } else if (range === 'M') {
-                    const items = this.getLastNDaysData(stats, 28);
+                    const rawItems = this.getLastNDaysData(stats, 28);
+                    const items = rawItems.slice().reverse();
                     const maxH = Math.max(...items.map(x => x.hours || 0), 1);
                     labelText = 'Last 28 days';
                     cells = items.map(d => {
