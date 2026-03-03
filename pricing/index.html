@@ -2925,27 +2925,23 @@
                 </div>
             </div>
             
-            <div class="pricing-cta-buttons-container centered" style="margin-top: 3rem;">
-                <button class="pricing-btn-lifetime" id="benefitsSectionCTA">Try 1 month for $0</button>
-            </div>
-        </div>
-        
-        <!-- Feature 7: Leaderboard -->
-        <div class="premium-feature-block">
-            <div class="premium-feature-content">
-                <div class="premium-feature-text">
-                    <h3 class="premium-feature-title">Stay accountable</h3>
-                    <p class="premium-feature-description">
-                        We all focus better when someone's watching. See where you rank, compete with others, and build momentum with a community that gets it.
-                    </p>
-                    <ul class="premium-feature-benefits">
-                        <li>Global leaderboards</li>
-                        <li>Compare with other users</li>
-                        <li>Build accountability</li>
-                    </ul>
-                </div>
-                <div class="premium-feature-visual">
-                    <img src="/images/Leaderboard.png" alt="Social Leaderboard" style="width: 100%; height: auto; border-radius: 12px;">
+            <!-- Feature 5: Stay accountable -->
+            <div class="premium-feature-block">
+                <div class="premium-feature-content">
+                    <div class="premium-feature-text">
+                        <h3 class="premium-feature-title">Stay accountable</h3>
+                        <p class="premium-feature-description">
+                            We all focus better when someone's watching. See where you rank, compete with others, and build momentum with a community that gets it.
+                        </p>
+                        <ul class="premium-feature-benefits">
+                            <li>Global leaderboards</li>
+                            <li>Compare with other users</li>
+                            <li>Build accountability</li>
+                        </ul>
+                    </div>
+                    <div class="premium-feature-visual">
+                        <img src="/images/Leaderboard.png" alt="Social Leaderboard" style="width: 100%; height: auto; border-radius: 12px;">
+                    </div>
                 </div>
             </div>
         </div>
@@ -3514,7 +3510,6 @@
             const lifetimeButton = document.getElementById('pricingPageUpgrade');
             const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
             const finalCTAButton = document.getElementById('finalCTA');
-            const benefitsSectionCTAButton = document.getElementById('benefitsSectionCTA');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
             
@@ -3536,10 +3531,6 @@
                 console.log('Final lifetime CTA button found, adding event listener...');
                 finalCTAButton.addEventListener('click', handleCTAClick(finalCTAButton, 'final_cta', 'monthly'));
                 console.log('✅ Final lifetime CTA button event listener added successfully');
-            }
-            
-            if (benefitsSectionCTAButton) {
-                benefitsSectionCTAButton.addEventListener('click', handleCTAClick(benefitsSectionCTAButton, 'benefits_section_cta', 'monthly'));
             }
             
             if (headerCTAButton) {
@@ -3564,7 +3555,6 @@
             const lifetimeButton = document.getElementById('pricingPageUpgrade');
             const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
             const finalCTAButton = document.getElementById('finalCTA');
-            const benefitsSectionCTAButton = document.getElementById('benefitsSectionCTA');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
             
@@ -3587,12 +3577,11 @@
                 lifetimeButton,
                 comparisonTableCTAButton,
                 finalCTAButton,
-                benefitsSectionCTAButton,
                 ctaBeforeFaqButton,
                 headerCTAButton
             ].filter(Boolean);
 
-            const lifetimeCtaButtons = [lifetimeButton, comparisonTableCTAButton, finalCTAButton, benefitsSectionCTAButton, ctaBeforeFaqButton, headerCTAButton].filter(Boolean);
+            const lifetimeCtaButtons = [lifetimeButton, comparisonTableCTAButton, finalCTAButton, ctaBeforeFaqButton, headerCTAButton].filter(Boolean);
 
             // Lifetime users: hide all pricing CTA buttons
             if (isLifetime) {
@@ -4071,11 +4060,11 @@
 
             const desiredOrder = [
                 '.pricing-page-header-section',
+                '.user-photos-section',
                 '.problem-awareness-section',
                 '.comparison-table-section',
                 '.how-it-works-section',
                 '.premium-features-detailed-section',
-                '.user-photos-section',
                 '.testimonial-section',
                 '.faq-section',
                 '.final-cta-section'
