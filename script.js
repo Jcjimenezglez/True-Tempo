@@ -15211,9 +15211,13 @@ class PomodoroTimer {
                     </div>
                     <!-- Day streak (right) -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;"><div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div></div>
-                        <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; min-height: 40px;">
+                            <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div>
+                            <span style="opacity: 0; pointer-events: none; font-size: 10px; padding: 4px 10px; line-height: 1;">View all</span>
+                        </div>
+                        <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
                             <div style="font-size: 32px; font-weight: 700; color: #fff;">${currentStreak}</div>
+                            <div style="font-size: 11px; color: #7a7a7a;">Best: ${longestStreak} days</div>
                         </div>
                     </div>
                 </div>
