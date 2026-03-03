@@ -15211,12 +15211,13 @@ class PomodoroTimer {
                     </div>
                     <!-- Day streak (right) -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: flex-start; min-height: 40px;">
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; min-height: 40px;">
                             <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">DAY STREAK</div>
+                            <span style="width: 52px; min-width: 52px;"></span>
                         </div>
                         <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="font-size: 18px;">${currentStreak > 0 ? '🔥' : '▶️'}</div>
+                                <div style="font-size: 20px;">${currentStreak > 0 ? '🔥' : '▶️'}</div>
                                 <div style="font-size: 18px; font-weight: 700; color: #fff;">${currentStreak}</div>
                             </div>
                             <div style="font-size: 12px; color: #a3a3a3;">Record: ${longestStreak} days</div>
