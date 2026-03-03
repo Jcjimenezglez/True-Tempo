@@ -15193,17 +15193,22 @@ class PomodoroTimer {
         
         const html = `
             <div style="padding: 0;">
-                <!-- Total focus hours + Day streak row -->
+                <!-- Level + Day streak row -->
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                    <!-- Total focus hours (left) -->
+                    <!-- Level (left) -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">TOTAL FOCUS HOURS</div>
-                        <div style="padding: 20px; display: flex; align-items: center; justify-content: center;">
-                            <div style="font-size: 24px; font-weight: 700; color: #fff;">${(() => {
-                                const h = Math.floor(totalHours);
-                                const m = Math.round((totalHours - h) * 60);
-                                return h > 0 ? `${h}h ${m}m` : (m > 0 ? `${m}m` : '0h 0m');
-                            })()}</div>
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">LEVEL</div>
+                        <div style="padding: 16px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <div style="font-size: 20px;">${level.emoji}</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #fff;">${level.name}</div>
+                            </div>
+                            <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 8px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
+                            <div style="width: 100%; height: 4px; background: #1a1a1a; border-radius: 2px; overflow: hidden; margin-bottom: 6px;">
+                                <div style="width: ${level.progress}%; height: 100%; background: #15803d; border-radius: 2px;"></div>
+                            </div>
+                            <div style="font-size: 10px; color: #7a7a7a;">${level.hoursToNext > 0 ? level.hoursToNext.toFixed(1) + 'h to ' + level.nextLevel : 'Max level'}</div>
+                            <button id="viewAllLevels" style="margin-top: 8px; background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">View all</button>
                         </div>
                     </div>
                     <!-- Day streak (right) -->
@@ -15220,7 +15225,7 @@ class PomodoroTimer {
                     <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
                         <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">ACTIVITY</div>
                         <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button class="activity-range-btn active" data-range="W" style="background: #15803d; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
+                            <button class="activity-range-btn active" data-range="W" style="background: #525252; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Monthly Activity View"' : ''}>Month</button>
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Year</button>
                         </div>
@@ -15234,7 +15239,7 @@ class PomodoroTimer {
                                 return last7Days.map(day => {
                                     const height = (day.hours / maxHours) * 100;
                                     const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
-                                    const barColor = day.hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
+                                    const barColor = day.hours > 0 ? 'rgba(21, 128, 61, 0.9)' : 'rgba(255,255,255,0.2)';
                                     return `
                                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                                             <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
@@ -15249,9 +15254,6 @@ class PomodoroTimer {
                 </div>
                 ${(() => {
                     const isLocked = activityLimitToWeek;
-                    const goalHours = isLocked ? null : this.getWeeklyGoalHours();
-                    const goalProgress = goalHours != null ? Math.min(100, (weekTotalHours / goalHours) * 100) : 0;
-                    const goalToGo = goalHours != null ? Math.max(0, goalHours - weekTotalHours) : 0;
                     const heatmapDaysW = this.getLastNDaysData(stats, 7);
                     const heatmapDaysM = this.getLastNDaysData(stats, 28);
                     const heatmapMonthsY = this.getLastNMonthsData(stats, 12);
@@ -15262,7 +15264,7 @@ class PomodoroTimer {
                         <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">HEATMAP</div>
                         ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
                         ${!isLocked ? `<div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button class="heatmap-range-btn active" data-range="W" style="background: #15803d; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
+                            <button class="heatmap-range-btn active" data-range="W" style="background: #525252; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
                             <button class="heatmap-range-btn ${activityLimitToWeek ? 'heatmap-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Month view"' : ''}>Month</button>
                             <button class="heatmap-range-btn ${activityLimitToWeek ? 'heatmap-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year view"' : ''}>Year</button>
                         </div>` : ''}
@@ -15286,73 +15288,14 @@ class PomodoroTimer {
                     `}
                     </div>
                 </div>
-                <!-- WEEKLY GOAL (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
-                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
-                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">WEEKLY GOAL</div>
-                        ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
-                        ${!isLocked && goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: #a3a3a3; font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
-                    </div>
-                    <div style="padding: 16px;">
-                    ${isLocked ? `
-                    <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
-                    <div style="font-size: 14px; color: #666; font-weight: 600; margin-bottom: 8px;">10h this week</div>
-                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: 25%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 4px;"></div>
-                    </div>
-                    <div style="font-size: 12px; color: #666;">2.5h / 10h (25%) · 7.5h to go</div>
-                    ` : goalHours == null ? `
-                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Set a goal to track your progress.</div>
-                    <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Set weekly goal</button>
-                    ` : `
-                    <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
-                    <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: ${goalProgress}%; height: 100%; background: #15803d; border-radius: 4px;"></div>
-                    </div>
-                    <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
-                    `}
-                    </div>
-                </div>
                     `;
                 })()}
-
-                <!-- Level -->
-                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden;">
-                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">LEVEL</div>
-                    <div style="padding: 16px;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                            <div style="font-size: 22px;">${level.emoji}</div>
-                            <div style="font-size: 14px; color: #fff; font-weight: 600;">${level.name}</div>
-                        </div>
-                        <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 8px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
-                        <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                            <div style="width: ${level.progress}%; height: 100%; background: #15803d; border-radius: 4px;"></div>
-                        </div>
-                        <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 12px;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
-                        <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">View All Levels</button>
-                    </div>
-                </div>
 
             </div>
         `;
 
             containerElement.innerHTML = html;
-            const changeGoalBtn = document.getElementById('reportChangeWeeklyGoal');
-            const setGoalBtn = document.getElementById('reportSetWeeklyGoal');
-            if (!activityLimitToWeek) {
-                const applyGoal = () => {
-                    const current = this.getWeeklyGoalHours();
-                    const raw = window.prompt('Weekly focus goal (hours)', current != null ? String(current) : '');
-                    if (raw == null) return;
-                    const num = parseFloat(raw);
-                    if (!Number.isFinite(num) || num <= 0) return;
-                    this.setWeeklyGoalHours(num);
-                    this.loadReportForPanel();
-                };
-                if (changeGoalBtn) changeGoalBtn.addEventListener('click', applyGoal);
-                if (setGoalBtn) setGoalBtn.addEventListener('click', applyGoal);
-            }
-            // Activity range buttons (D/W/M/Y)
+            // Activity range buttons (W/M/Y)
             const rangeButtons = containerElement.querySelectorAll('.activity-range-btn');
             const rangeLabel = containerElement.querySelector('#activityRangeLabel');
             const barsEl = containerElement.querySelector('#activityChartBars');
@@ -15363,7 +15306,7 @@ class PomodoroTimer {
                     const hours = item.hours || 0;
                     const height = (hours / maxHours) * 100;
                     const valueLabel = hours ? (hours < 0.1 ? hours.toFixed(2) : hours.toFixed(1)) + 'h' : '—';
-                    const barColor = hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
+                    const barColor = hours > 0 ? 'rgba(21, 128, 61, 0.9)' : 'rgba(255,255,255,0.2)';
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                             <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
@@ -15426,7 +15369,7 @@ class PomodoroTimer {
                         b.style.color = b.classList.contains('activity-range-locked') ? '#7a7a7a' : '#a3a3a3';
                     });
                     btn.classList.add('active');
-                    btn.style.background = '#15803d';
+                    btn.style.background = '#525252';
                     btn.style.color = '#fff';
                     setRange(selectedRange);
                 });
@@ -15502,7 +15445,7 @@ class PomodoroTimer {
                         b.style.color = b.classList.contains('heatmap-range-locked') ? '#7a7a7a' : '#a3a3a3';
                     });
                     btn.classList.add('active');
-                    btn.style.background = '#15803d';
+                    btn.style.background = '#525252';
                     btn.style.color = '#fff';
                     renderHeatmap(selectedRange);
                 });
@@ -15544,13 +15487,13 @@ class PomodoroTimer {
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             ${(() => {
                                 const levels = [
-                                    { name: 'JUST STARTING', range: '0–5h', emoji: '🌱' },
-                                    { name: 'BUILDING MOMENTUM', range: '5–15h', emoji: '📈' },
-                                    { name: 'IN THE FLOW', range: '15–30h', emoji: '🧠' },
-                                    { name: 'DEEP WORK MODE', range: '30–50h', emoji: '🎯' },
-                                    { name: 'FOCUS MACHINE', range: '50–100h', emoji: '🏆' },
-                                    { name: 'PRODUCTIVITY PRO', range: '100–200h', emoji: '⚡' },
-                                    { name: 'LEGENDARY FOCUS', range: '200h+', emoji: '👑' }
+                                    { name: 'SEED', range: '0–5h', emoji: '🌱' },
+                                    { name: 'RISING', range: '5–15h', emoji: '📈' },
+                                    { name: 'FLOW', range: '15–30h', emoji: '🧠' },
+                                    { name: 'DEEP', range: '30–50h', emoji: '🎯' },
+                                    { name: 'ELITE', range: '50–100h', emoji: '🏆' },
+                                    { name: 'MASTER', range: '100–200h', emoji: '⚡' },
+                                    { name: 'LEGEND', range: '200h+', emoji: '👑' }
                                 ];
                                 return levels.map(l => `
                                     <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 2px;">
@@ -15588,13 +15531,13 @@ class PomodoroTimer {
     calculateUserLevel(totalHours) {
         try {
             const levels = [
-                { level: 1, name: 'JUST STARTING', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
-                { level: 2, name: 'BUILDING MOMENTUM', emoji: '📈', min: 5, max: 15, color: '#3b82f6' },
-                { level: 3, name: 'IN THE FLOW', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
-                { level: 4, name: 'DEEP WORK MODE', emoji: '🎯', min: 30, max: 50, color: '#ec4899' },
-                { level: 5, name: 'FOCUS MACHINE', emoji: '🏆', min: 50, max: 100, color: '#f59e0b' },
-                { level: 6, name: 'PRODUCTIVITY PRO', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
-                { level: 7, name: 'LEGENDARY FOCUS', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
+                { level: 1, name: 'SEED', emoji: '🌱', min: 0, max: 5, color: '#10b981' },
+                { level: 2, name: 'RISING', emoji: '📈', min: 5, max: 15, color: '#3b82f6' },
+                { level: 3, name: 'FLOW', emoji: '🧠', min: 15, max: 30, color: '#8b5cf6' },
+                { level: 4, name: 'DEEP', emoji: '🎯', min: 30, max: 50, color: '#ec4899' },
+                { level: 5, name: 'ELITE', emoji: '🏆', min: 50, max: 100, color: '#f59e0b' },
+                { level: 6, name: 'MASTER', emoji: '⚡', min: 100, max: 200, color: '#ef4444' },
+                { level: 7, name: 'LEGEND', emoji: '👑', min: 200, max: 999999, color: '#fbbf24' }
             ];
 
             let currentLevel = levels[0];
@@ -15627,19 +15570,19 @@ class PomodoroTimer {
                 color: currentLevel.color,
                 progress: Math.min(progress, 100),
                 hoursToNext: isFinite(hoursToNext) ? Math.max(hoursToNext, 0) : 0,
-                nextLevel: currentLevel.level >= 7 ? 'MAX LEVEL' : nextLevel.name,
+                nextLevel: currentLevel.level >= 7 ? 'MAX' : nextLevel.name,
                 usersCount: usersCount
             };
         } catch (error) {
             console.error('Error calculating user level:', error);
             return {
                 level: 1,
-                name: 'BEGINNER',
+                name: 'SEED',
                 emoji: '🌱',
                 color: '#10b981',
                 progress: 0,
                 hoursToNext: 5,
-                nextLevel: 'FOCUSED',
+                nextLevel: 'RISING',
                 usersCount: 100
             };
         }
