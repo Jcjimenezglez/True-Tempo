@@ -468,6 +468,11 @@ module.exports = async (req, res) => {
         console.log('💳 Processing invoice.payment_failed...');
         await handleInvoicePaymentFailed(event.data.object, clerk);
         break;
+
+      case 'invoice.payment_succeeded':
+        console.log('💰 Processing invoice.payment_succeeded...');
+        await handleInvoicePaymentSucceeded(event.data.object, clerk);
+        break;
       
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
@@ -773,5 +778,85 @@ async function handleInvoicePaymentFailed(invoice, clerk) {
     );
   } catch (error) {
     console.error('❌ Error handling invoice payment failure:', error);
+  }
+}
+
+async function handleInvoicePaymentSucceeded(invoice, clerk) {
+  const customerId = invoice.customer;
+  const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : null;
+  const billingReason = invoice.billing_reason;
+  const amountPaid = (invoice.amount_paid || 0) / 100;
+
+  // We only want the first paid cycle after trial ends.
+  if (!customerId || !subscriptionId) {
+    return;
+  }
+  if (billingReason !== 'subscription_cycle' || amountPaid <= 0) {
+    return;
+  }
+
+  try {
+    const user = await findClerkUserByStripeCustomerId(clerk, customerId);
+    if (!user) {
+      console.warn(`⚠️ No Clerk user found for payment succeeded customer: ${customerId}`);
+      return;
+    }
+
+    // Prevent duplicate conversion tracking for recurring renewals.
+    if (user.publicMetadata?.afterTrialTracked === true) {
+      return;
+    }
+
+    // Verify this invoice is close to trial end (first paid invoice), not a later renewal.
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const trialEnd = subscription?.trial_end;
+    if (!trialEnd) {
+      return;
+    }
+
+    const invoiceCreated = Number(invoice.created || 0);
+    const maxAfterTrialWindowSeconds = 7 * 24 * 60 * 60; // 7 days
+    const isAfterTrialWindow =
+      invoiceCreated >= trialEnd &&
+      (invoiceCreated - trialEnd) <= maxAfterTrialWindowSeconds;
+
+    if (!isAfterTrialWindow) {
+      return;
+    }
+
+    const userEmail = user.emailAddresses?.[0]?.emailAddress || null;
+    const afterTrialConversionLabel =
+      process.env.GOOGLE_ADS_AFTER_TRIAL_CONVERSION_LABEL || 'wek8COjD-IEcENjym89B';
+    const configuredAfterTrialValue = Number(process.env.GOOGLE_ADS_AFTER_TRIAL_CONVERSION_VALUE);
+    const afterTrialConversionValue = Number.isFinite(configuredAfterTrialValue)
+      ? configuredAfterTrialValue
+      : 16.0;
+
+    trackConversionServerSide(
+      'after_trial',
+      afterTrialConversionValue,
+      invoice.id,
+      null,
+      null,
+      null,
+      userEmail,
+      afterTrialConversionLabel
+    ).catch((e) => console.error('❌ Error tracking after-trial conversion:', e));
+
+    await clerk.users.updateUser(user.id, {
+      publicMetadata: {
+        ...(user.publicMetadata || {}),
+        afterTrialTracked: true,
+        afterTrialTrackedAt: new Date().toISOString(),
+        afterTrialInvoiceId: invoice.id,
+        afterTrialAmount: amountPaid,
+        lastUpdated: new Date().toISOString(),
+      },
+    });
+
+    console.log(`✅ After-trial conversion tracked for user ${user.id}: $${amountPaid.toFixed(2)}`);
+  } catch (error) {
+    console.error('❌ Error handling invoice payment succeeded:', error);
   }
 }
