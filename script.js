@@ -15194,47 +15194,53 @@ class PomodoroTimer {
         const html = `
             <div style="padding: 0;">
                 <!-- Streak Hero -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="font-size: 28px;">🔥</div>
-                        <div>
-                            <div style="font-size: 22px; font-weight: 700; color: #fff;">${streakTitle}</div>
-                            <div style="font-size: 12px; color: #a3a3a3;">${streakSubtitle}</div>
+                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden;">
+                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">STREAK</div>
+                    <div style="padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 28px;">🔥</div>
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700; color: #fff;">${streakTitle}</div>
+                                <div style="font-size: 12px; color: #a3a3a3;">${streakSubtitle}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 12px; color: #a3a3a3;">Last 7 days</div>
-                        <div style="font-size: 16px; color: #fff; font-weight: 600;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h total</div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 11px; color: #a3a3a3;">Last 7 days</div>
+                            <div style="font-size: 18px; font-weight: 700; color: ${weekTotalHours > 0 ? '#22c55e' : '#fff'};">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Activity Chart -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                        <div style="font-size: 16px; color: #fff; font-weight: 600;">Activity</div>
-                    <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
+                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden;">
+                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">ACTIVITY</div>
+                        <div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="activity-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Monthly Activity View"' : ''}>Month</button>
                             <button class="activity-range-btn ${activityLimitToWeek ? 'activity-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year Activity View"' : ''}>Year</button>
                         </div>
                     </div>
-                    <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 12px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
-                    ${activityLimitToWeek ? '<div style="font-size: 11px; color: #a3a3a3; margin-bottom: 10px;">Month and Year views are available on Premium.</div>' : ''}
-                    <div id="activityChartBars" style="height: 140px; display: flex; align-items: flex-end; gap: 6px;">
-                        ${(() => {
-                            const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
-                            return last7Days.map(day => {
-                                const height = (day.hours / maxHours) * 100;
-                                const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
-                                return `
-                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
-                                        <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
-                                        <div style="width: 100%; height: ${height}%; background: #ffffff; border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'}; opacity: ${day.hours > 0 ? '0.9' : '0.2'};"></div>
-                                        <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
-                                    </div>
-                                `;
-                            }).join('');
-                        })()}
+                    <div style="padding: 0 16px 16px 16px;">
+                        <div id="activityRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days · ${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                        ${activityLimitToWeek ? '<div style="font-size: 11px; color: #a3a3a3; margin-bottom: 10px;">Month and Year views are available on Premium.</div>' : ''}
+                        <div id="activityChartBars" style="height: 120px; display: flex; align-items: flex-end; gap: 6px;">
+                            ${(() => {
+                                const maxHours = Math.max(...last7Days.map(d => d.hours), 1);
+                                return last7Days.map(day => {
+                                    const height = (day.hours / maxHours) * 100;
+                                    const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
+                                    const barColor = day.hours > 0 ? '#22c55e' : 'rgba(255,255,255,0.2)';
+                                    return `
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
+                                            <div style="font-size: 10px; color: ${day.hours > 0 ? '#22c55e' : '#a3a3a3'};">${valueLabel}</div>
+                                            <div style="width: 100%; height: ${height}%; background: ${barColor}; border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
+                                            <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
+                                        </div>
+                                    `;
+                                }).join('');
+                            })()}
+                        </div>
                     </div>
                 </div>
                 ${(() => {
@@ -15250,63 +15256,63 @@ class PomodoroTimer {
                     const taskBreakdownTotal = taskBreakdown.reduce((s, t) => s + t.hours, 0);
                     return `
                 <!-- THIS WEEK VS LAST WEEK (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <div style="font-size: 12px; color: #a3a3a3;">THIS WEEK VS LAST WEEK</div>
-                        ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
+                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
+                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">THIS WEEK VS LAST WEEK</div>
+                        ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
                     </div>
+                    <div style="padding: 16px;">
                     ${isLocked ? `
                     <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; color: #666; min-width: 72px;">This week</span>
-                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
                                 <div style="width: 20%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 4px;"></div>
                             </div>
                             <span style="font-size: 12px; color: #666;">0.0h</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; color: #666; min-width: 72px;">Last week</span>
-                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
                                 <div style="width: 35%; height: 100%; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
                             </div>
                             <span style="font-size: 12px; color: #666;">0.0h</span>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: #666;">+0.0h (↑ 0%) vs last week</div>
                     ` : `
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; color: #fff; min-width: 72px;">This week</span>
-                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
+                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: #22c55e; border-radius: 4px;"></div>
                             </div>
-                            <span style="font-size: 12px; color: #a3a3a3;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
+                            <span style="font-size: 12px; font-weight: 600; color: #22c55e;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12px; color: #fff; min-width: 72px;">Last week</span>
-                            <div style="flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${(lastWeekHours / maxCompare) * 100}%; height: 100%; background: rgba(255,255,255,0.5); border-radius: 4px;"></div>
+                            <span style="font-size: 12px; color: #a3a3a3; min-width: 72px;">Last week</span>
+                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${(lastWeekHours / maxCompare) * 100}%; height: 100%; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
                             </div>
                             <span style="font-size: 12px; color: #a3a3a3;">${lastWeekHours < 0.1 ? lastWeekHours.toFixed(2) : lastWeekHours.toFixed(1)}h</span>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h (${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%) vs last week</div>
+                    <div style="font-size: 12px; color: ${diffHours >= 0 ? '#22c55e' : '#ef4444'};">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h this week${diffHours !== 0 ? (pct > 999 ? ' (way up!)' : pct > 0 ? ` (↑${Math.min(pct, 99)}%)` : pct < -999 ? ' (way down)' : ` (↓${Math.min(Math.abs(pct), 99)}%)`) : ''}</div>
                     `}
+                    </div>
                 </div>
                 <!-- TIME BY TASK (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="font-size: 12px; color: #a3a3a3;">TIME BY TASK</div>
-                            ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
-                        </div>
+                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
+                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">TIME BY TASK</div>
+                        ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
                         ${!isLocked ? `<div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
                             <button class="task-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
                             <button class="task-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
                             <button class="task-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
                         </div>` : ''}
                     </div>
+                    <div style="padding: 16px;">
                     ${isLocked ? `
                     <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
                     <div style="font-size: 11px; color: #555; margin-bottom: 8px;">Last 7 days · 0.0h</div>
@@ -15332,7 +15338,7 @@ class PomodoroTimer {
                             return `
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px;">
                             <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
-                            <span style="font-size: 11px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
+                            <span style="font-size: 11px; color: #22c55e; background: rgba(34, 197, 94, 0.15); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
                         </div>
                             `;
                         }).join('')}
@@ -15340,16 +15346,16 @@ class PomodoroTimer {
                     `}
                     </div>
                     `}
+                    </div>
                 </div>
                 <!-- WEEKLY GOAL (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px; ${isLocked ? 'opacity: 0.9;' : ''}">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="font-size: 12px; color: #a3a3a3;">WEEKLY GOAL</div>
-                            ${isLocked ? '<span style="font-size: 11px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
-                        </div>
-                        ${!isLocked && goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
+                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
+                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">WEEKLY GOAL</div>
+                        ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
+                        ${!isLocked && goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: #22c55e; font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
                     </div>
+                    <div style="padding: 16px;">
                     ${isLocked ? `
                     <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
                     <div style="font-size: 14px; color: #666; font-weight: 600; margin-bottom: 8px;">10h this week</div>
@@ -15358,74 +15364,34 @@ class PomodoroTimer {
                     </div>
                     <div style="font-size: 12px; color: #666;">2.5h / 10h (25%) · 7.5h to go</div>
                     ` : goalHours == null ? `
-                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 10px;">Set a goal to track your progress.</div>
-                    <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer;">Set weekly goal</button>
+                    <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Set a goal to track your progress.</div>
+                    <button type="button" id="reportSetWeeklyGoal" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Set weekly goal</button>
                     ` : `
                     <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
-                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: ${goalProgress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
+                    <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                        <div style="width: ${goalProgress}%; height: 100%; background: ${goalProgress >= 100 ? '#22c55e' : '#22c55e'}; border-radius: 4px; opacity: ${goalProgress >= 100 ? '1' : '0.8'};"></div>
                     </div>
-                    <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h (${Math.round(goalProgress)}%)${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
+                    <div style="font-size: 12px; color: ${goalProgress >= 100 ? '#22c55e' : '#a3a3a3'};">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
                     `}
+                    </div>
                 </div>
                     `;
                 })()}
 
                 <!-- Level -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                        <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 8px;">LEVEL</div>
+                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden;">
+                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">LEVEL</div>
+                    <div style="padding: 16px;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                             <div style="font-size: 22px;">${level.emoji}</div>
                             <div style="font-size: 14px; color: #fff; font-weight: 600;">${level.name}</div>
                         </div>
-                    <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 6px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
-                    <div style="width: 100%; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: ${level.progress}%; height: 100%; background: #ffffff; border-radius: 4px;"></div>
-                    </div>
-                        <div style="font-size: 11px; color: #a3a3a3;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
-                    <div style="margin-top: 12px; text-align: left;">
-                        <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View All Levels</button>
-                    </div>
-                </div>
-
-                <!-- Recent Activity (Done Tasks) -->
-                <div style="background: #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">RECENT ACTIVITY</div>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        ${(() => {
-                            const allTasks = this.getLocalTasks();
-                            const completedTasks = allTasks
-                                .filter(task => task.completed && task.completedAt)
-                                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-                                .slice(0, 5);
-                            
-                            if (completedTasks.length === 0) {
-                                return `
-                                    <div style="text-align: center; padding: 16px; color: #d0d0d0;">
-                                        <div style="font-size: 12px;">No completed tasks yet</div>
-                                    </div>
-                                `;
-                            }
-                            
-                            return completedTasks.map(task => {
-                                const completedDate = new Date(task.completedAt);
-                                const dateStr = completedDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
-                                const timeStr = completedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-                                const taskConfig = this.getTaskConfig(task.id);
-                                const sessions = taskConfig.completedSessions || 0;
-                                const focusHours = (taskConfig.completedFocusTime || 0) / 3600;
-                                
-                                return `
-                                    <div style="background: #1a1a1a; border-radius: 12px; padding: 12px;">
-                                        <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">${dateStr} • ${task.content}</div>
-                                        <div style="color: #a3a3a3; font-size: 12px;">${focusHours.toFixed(1)}h • ${sessions} session${sessions !== 1 ? 's' : ''} • Completed at ${timeStr}</div>
-                                    </div>
-                                `;
-                            }).join('');
-                        })()}
-                    </div>
-                    <div style="margin-top: 12px; text-align: left;">
-                        <button id="openDoneHistory" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer;">View Done History</button>
+                        <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 8px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
+                        <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                            <div style="width: ${level.progress}%; height: 100%; background: #22c55e; border-radius: 4px;"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 12px;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
+                        <button id="viewAllLevels" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">View All Levels</button>
                     </div>
                 </div>
 
@@ -15448,18 +15414,6 @@ class PomodoroTimer {
                 if (changeGoalBtn) changeGoalBtn.addEventListener('click', applyGoal);
                 if (setGoalBtn) setGoalBtn.addEventListener('click', applyGoal);
             }
-            const openDoneHistoryBtn = document.getElementById('openDoneHistory');
-            if (openDoneHistoryBtn && window.sidebarManager && typeof window.sidebarManager.openTaskPanel === 'function') {
-                openDoneHistoryBtn.addEventListener('click', () => {
-                    window.sidebarManager.openTaskPanel();
-                    setTimeout(() => {
-                        const panel = document.getElementById('taskSidePanel');
-                        const doneTab = panel?.querySelector('.task-tab[data-tab="done"]');
-                        if (doneTab) doneTab.click();
-                    }, 50);
-                });
-            }
-
             // Activity range buttons (D/W/M/Y)
             const rangeButtons = containerElement.querySelectorAll('.activity-range-btn');
             const rangeLabel = containerElement.querySelector('#activityRangeLabel');
@@ -15468,12 +15422,14 @@ class PomodoroTimer {
                 if (!barsEl) return;
                 const maxHours = Math.max(...items.map(d => d.hours || 0), 1);
                 barsEl.innerHTML = items.map(item => {
-                    const height = ((item.hours || 0) / maxHours) * 100;
-                    const valueLabel = item.hours ? (item.hours < 0.1 ? item.hours.toFixed(2) : item.hours.toFixed(1)) + 'h' : '—';
+                    const hours = item.hours || 0;
+                    const height = (hours / maxHours) * 100;
+                    const valueLabel = hours ? (hours < 0.1 ? hours.toFixed(2) : hours.toFixed(1)) + 'h' : '—';
+                    const barColor = hours > 0 ? '#22c55e' : 'rgba(255,255,255,0.2)';
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
-                            <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
-                            <div style="width: 100%; height: ${height}%; background: #ffffff; border-radius: 4px; min-height: ${(item.hours || 0) > 0 ? '4px' : '0'}; opacity: ${(item.hours || 0) > 0 ? '0.9' : '0.2'};"></div>
+                            <div style="font-size: 10px; color: ${hours > 0 ? '#22c55e' : '#a3a3a3'};">${valueLabel}</div>
+                            <div style="width: 100%; height: ${height}%; background: ${barColor}; border-radius: 4px; min-height: ${hours > 0 ? '4px' : '0'};"></div>
                             <div style="font-size: 10px; color: #a3a3a3;">${item.label}</div>
                         </div>
                     `;
