@@ -138,6 +138,11 @@ module.exports = async (req, res) => {
           quantity: 1,
         },
       ],
+      // Force trial at Checkout session level to avoid ambiguous behavior
+      // when customers come from Link/reused identities.
+      subscription_data: {
+        trial_period_days: 30,
+      },
       // Pass Clerk user id and payment type in metadata
       metadata: metadata,
       // Do not prefill customer_email so Checkout does not bias users into Link OTP flow.

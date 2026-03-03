@@ -82,15 +82,15 @@ async function createLifetimeProductAndPrice() {
     console.log(`✅ Product creado: ${product.id}`);
     console.log(`   Name: ${product.name}\n`);
 
-    // 2. Crear el Price (one-time, $12.00 USD)
-    console.log('💰 Creando Price: $12.00 USD (one-time)...');
+    // 2. Crear el Price (one-time, $4.99 USD)
+    console.log('💰 Creando Price: $4.99 USD (one-time)...');
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: 1200, // $12.00 en centavos
+      unit_amount: 499, // $4.99 en centavos
       currency: 'usd',
       metadata: {
         type: 'lifetime_deal',
-        price: '12.00',
+        price: '4.99',
       },
     });
 
@@ -106,12 +106,12 @@ async function createLifetimeProductAndPrice() {
     console.log(`   Product ID: ${product.id}`);
     console.log(`   Price ID:   ${price.id}`);
     console.log(`\n🔧 Siguiente paso:`);
-    console.log(`   Actualiza la variable de entorno STRIPE_PRICE_ID en Vercel:`);
-    console.log(`   STRIPE_PRICE_ID=${price.id}`);
+    console.log(`   Actualiza la variable de entorno STRIPE_PRICE_ID_LIFETIME en Vercel:`);
+    console.log(`   STRIPE_PRICE_ID_LIFETIME=${price.id}`);
     console.log(`\n🌐 Vercel Dashboard:`);
     console.log(`   https://vercel.com/[tu-proyecto]/settings/environment-variables`);
     console.log(`\n📝 También puedes agregarlo a .env.local para desarrollo:`);
-    console.log(`   STRIPE_PRICE_ID=${price.id}`);
+    console.log(`   STRIPE_PRICE_ID_LIFETIME=${price.id}`);
     console.log('\n');
 
   } catch (error) {

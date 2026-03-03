@@ -45,23 +45,27 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
             </div>
             <div class="content">
               <p>Hi ${firstName},</p>
-              <p>Thanks for signing up. Superfocus helps you stay focused and get more done with simple time management.</p>
-              
-              <p><strong>What you can do now:</strong></p>
-              <ul>
-                <li>Start focus sessions with the Pomodoro timer</li>
-                <li>Create 1 custom timer</li>
-                <li>Use 1 hour of focus time per day</li>
-                <li>Listen to focus music</li>
-              </ul>
-              
-              <p><strong>Want more?</strong></p>
-              <p>Premium gives you unlimited timers, unlimited focus time, custom vibes, and advanced analytics.</p>
-              
-              <p>Try it free for 14 days. Cancel anytime.</p>
+              <p>Thanks for signing up. Superfocus helps you protect your focus blocks and finish meaningful work every day.</p>
+
+              <div class="highlight">
+                <p><strong>Free plan</strong></p>
+                <ul>
+                  <li>1 timer</li>
+                  <li>1 hour of focus time per day</li>
+                  <li>1 task and 1 cassette</li>
+                </ul>
+
+                <p><strong>Premium Lifetime ($4.99 one-time)</strong></p>
+                <ul>
+                  <li>Unlimited timers, tasks, and cassettes</li>
+                  <li>Unlimited focus time</li>
+                  <li>Advanced analytics and reports</li>
+                  <li>Future premium updates included</li>
+                </ul>
+              </div>
               
               <div class="button-container">
-                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+                <a href="${PRICING_URL}" class="button">Upgrade to Premium Lifetime</a>
               </div>
               
               <p>Ready to focus? <a href="${APP_URL}">Open Superfocus</a></p>
@@ -82,15 +86,20 @@ Welcome to Superfocus
 
 Hi ${firstName},
 
-Thanks for signing up. Superfocus helps you stay focused and get more done.
+Thanks for signing up. Superfocus helps you protect your focus blocks and get more done.
 
-What you can do now:
-- Start focus sessions with the Pomodoro timer
-- Create 1 custom timer
-- Use 1 hour of focus time per day
-- Listen to focus music
+Free plan:
+- 1 timer
+- 1 hour of focus time per day
+- 1 task and 1 cassette
 
-Want more? Try Premium free for 14 days: ${PRICING_URL}
+Premium Lifetime ($4.99 one-time):
+- Unlimited timers, tasks, and cassettes
+- Unlimited focus time
+- Advanced analytics and reports
+- Future premium updates included
+
+Upgrade now: ${PRICING_URL}
 
 Ready to focus? ${APP_URL}
 

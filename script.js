@@ -15234,7 +15234,7 @@ class PomodoroTimer {
                                 return last7Days.map(day => {
                                     const height = (day.hours / maxHours) * 100;
                                     const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
-                                    const barColor = day.hours > 0 ? '#15803d' : 'rgba(255,255,255,0.2)';
+                                    const barColor = day.hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
                                     return `
                                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                                             <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
@@ -15249,57 +15249,40 @@ class PomodoroTimer {
                 </div>
                 ${(() => {
                     const isLocked = activityLimitToWeek;
-                    const { thisWeekHours, lastWeekHours } = isLocked ? { thisWeekHours: 0, lastWeekHours: 0 } : this.getThisWeekAndLastWeekTotals(stats);
-                    const diffHours = thisWeekHours - lastWeekHours;
-                    const pct = lastWeekHours > 0 ? Math.round((diffHours / lastWeekHours) * 100) : (thisWeekHours > 0 ? 100 : 0);
-                    const maxCompare = Math.max(thisWeekHours, lastWeekHours, 1);
                     const goalHours = isLocked ? null : this.getWeeklyGoalHours();
                     const goalProgress = goalHours != null ? Math.min(100, (weekTotalHours / goalHours) * 100) : 0;
                     const goalToGo = goalHours != null ? Math.max(0, goalHours - weekTotalHours) : 0;
+                    const heatmapDaysW = this.getLastNDaysData(stats, 7);
+                    const heatmapDaysM = this.getLastNDaysData(stats, 28);
+                    const heatmapMonthsY = this.getLastNMonthsData(stats, 12);
                     return `
-                <!-- THIS WEEK VS LAST WEEK (Premium) -->
+                <!-- HEATMAP -->
                 <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
                     <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
-                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">THIS WEEK VS LAST WEEK</div>
+                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">HEATMAP</div>
                         ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
+                        ${!isLocked ? `<div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
+                            <button class="heatmap-range-btn active" data-range="W" style="background: #15803d; color: #fff; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;">Week</button>
+                            <button class="heatmap-range-btn ${activityLimitToWeek ? 'heatmap-range-locked' : ''}" data-range="M" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Month view"' : ''}>Month</button>
+                            <button class="heatmap-range-btn ${activityLimitToWeek ? 'heatmap-range-locked' : ''}" data-range="Y" style="background: transparent; color: ${activityLimitToWeek ? '#7a7a7a' : '#a3a3a3'}; border: none; padding: 4px 10px; font-size: 10px; border-radius: 6px;" ${activityLimitToWeek ? 'title="Year view"' : ''}>Year</button>
+                        </div>` : ''}
                     </div>
                     <div style="padding: 16px;">
                     ${isLocked ? `
-                    <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12px; color: #666; min-width: 72px;">This week</span>
-                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: 20%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 4px;"></div>
-                            </div>
-                            <span style="font-size: 12px; color: #666;">0.0h</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12px; color: #666; min-width: 72px;">Last week</span>
-                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: 35%; height: 100%; background: rgba(255,255,255,0.1); border-radius: 4px;"></div>
-                            </div>
-                            <span style="font-size: 12px; color: #666;">0.0h</span>
-                        </div>
-                    </div>
+                    <div style="font-size: 12px; color: #7a7a7a;">Unlock Premium to see heatmap</div>
                     ` : `
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12px; color: #fff; min-width: 72px;">This week</span>
-                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: #15803d; border-radius: 4px;"></div>
-                            </div>
-                            <span style="font-size: 12px; font-weight: 600; color: #fff;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 12px; color: #a3a3a3; min-width: 72px;">Last week</span>
-                            <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${(lastWeekHours / maxCompare) * 100}%; height: 100%; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
-                            </div>
-                            <span style="font-size: 12px; color: #a3a3a3;">${lastWeekHours < 0.1 ? lastWeekHours.toFixed(2) : lastWeekHours.toFixed(1)}h</span>
-                        </div>
+                    <div id="heatmapRangeLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days</div>
+                    ${activityLimitToWeek ? '<div style="font-size: 11px; color: #a3a3a3; margin-bottom: 10px;">Month and Year views are available on Premium.</div>' : ''}
+                    <div id="heatmapGrid" style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        ${heatmapDaysW.map(d => {
+                            const maxH = Math.max(...heatmapDaysW.map(x => x.hours || 0), 1);
+                            const intensity = Math.min(1, (d.hours || 0) / maxH);
+                            const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
+                            const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                            const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
+                            return '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>';
+                        }).join('')}
                     </div>
-                    <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h this week${diffHours !== 0 ? (pct > 999 ? ' (way up!)' : pct > 0 ? ` (↑${Math.min(pct, 99)}%)` : pct < -999 ? ' (way down)' : ` (↓${Math.min(Math.abs(pct), 99)}%)`) : ''}</div>
                     `}
                     </div>
                 </div>
@@ -15380,7 +15363,7 @@ class PomodoroTimer {
                     const hours = item.hours || 0;
                     const height = (hours / maxHours) * 100;
                     const valueLabel = hours ? (hours < 0.1 ? hours.toFixed(2) : hours.toFixed(1)) + 'h' : '—';
-                    const barColor = hours > 0 ? '#15803d' : 'rgba(255,255,255,0.2)';
+                    const barColor = hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
                             <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
@@ -15443,13 +15426,87 @@ class PomodoroTimer {
                         b.style.color = b.classList.contains('activity-range-locked') ? '#7a7a7a' : '#a3a3a3';
                     });
                     btn.classList.add('active');
-                    btn.style.background = selectedRange === 'W' ? '#15803d' : '#2a2a2a';
+                    btn.style.background = '#15803d';
                     btn.style.color = '#fff';
                     setRange(selectedRange);
                 });
             });
             // Initialize with W
             setRange('W');
+
+            // Heatmap range buttons (W/M/Y)
+            const heatmapRangeBtns = containerElement.querySelectorAll('.heatmap-range-btn');
+            const heatmapGridEl = containerElement.querySelector('#heatmapGrid');
+            const heatmapLabelEl = containerElement.querySelector('#heatmapRangeLabel');
+            const renderHeatmap = (range) => {
+                if (!heatmapGridEl || !heatmapLabelEl) return;
+                let cells = [];
+                let labelText = '';
+                if (range === 'W') {
+                    const items = this.getLastNDaysData(stats, 7);
+                    const maxH = Math.max(...items.map(x => x.hours || 0), 1);
+                    labelText = 'Last 7 days';
+                    cells = items.map(d => {
+                        const intensity = Math.min(1, (d.hours || 0) / maxH);
+                        const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
+                        const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                        const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>', w: 7 };
+                    });
+                } else if (range === 'M') {
+                    const items = this.getLastNDaysData(stats, 28);
+                    const maxH = Math.max(...items.map(x => x.hours || 0), 1);
+                    labelText = 'Last 28 days';
+                    cells = items.map(d => {
+                        const intensity = Math.min(1, (d.hours || 0) / maxH);
+                        const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
+                        const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                        const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>', w: 7 };
+                    });
+                } else {
+                    const items = this.getLastNMonthsData(stats, 12);
+                    const maxH = Math.max(...items.map(x => x.hours || 0), 1);
+                    labelText = 'Last 12 months';
+                    cells = items.map(m => {
+                        const intensity = Math.min(1, (m.hours || 0) / maxH);
+                        const bg = m.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
+                        const dateFormatted = new Date(m.start).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                        const valStr = m.hours ? (m.hours < 0.1 ? m.hours.toFixed(2) : m.hours.toFixed(1)) + 'h' : '0h';
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 60px) / 12); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>', w: 12 };
+                    });
+                }
+                heatmapLabelEl.textContent = labelText;
+                heatmapGridEl.innerHTML = cells.map(c => c.html).join('');
+            };
+            heatmapRangeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const selectedRange = btn.dataset.range;
+                    if (activityLimitToWeek && selectedRange !== 'W') {
+                        if (window.pomodoroTimer) {
+                            window.pomodoroTimer.showFreeUpgradeNowModal({
+                                source: 'analytics_panel',
+                                location: 'heatmap_' + selectedRange.toLowerCase() + '_locked',
+                                gateType: 'analytics',
+                                title: selectedRange === 'M' ? 'Monthly Heatmap' : 'Yearly Heatmap',
+                                message: selectedRange === 'M'
+                                    ? 'Unlock to see your monthly activity heatmap.'
+                                    : 'Unlock to see your year-long activity heatmap.'
+                            });
+                        }
+                        return;
+                    }
+                    heatmapRangeBtns.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = b.classList.contains('heatmap-range-locked') ? '#7a7a7a' : '#a3a3a3';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = '#15803d';
+                    btn.style.color = '#fff';
+                    renderHeatmap(selectedRange);
+                });
+            });
 
             // View all levels modal
             const viewAllLevelsBtn = document.getElementById('viewAllLevels');
