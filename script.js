@@ -15203,10 +15203,7 @@ class PomodoroTimer {
                                 <div style="font-size: 20px;">${level.emoji}</div>
                                 <div style="font-size: 18px; font-weight: 700; color: #fff;">${level.name}</div>
                             </div>
-                            <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 8px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
-                            <div style="width: 100%; height: 4px; background: #1a1a1a; border-radius: 2px; overflow: hidden; margin-bottom: 6px;">
-                                <div style="width: ${level.progress}%; height: 100%; background: #15803d; border-radius: 2px;"></div>
-                            </div>
+                            <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 4px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
                             <div style="font-size: 10px; color: #7a7a7a;">${level.hoursToNext > 0 ? level.hoursToNext.toFixed(1) + 'h to ' + level.nextLevel : 'Max level'}</div>
                             <button id="viewAllLevels" style="margin-top: 8px; background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">View all</button>
                         </div>
@@ -15282,7 +15279,7 @@ class PomodoroTimer {
                             const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
                             const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                             const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
-                            return '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>';
+                            return '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>';
                         }).join('')}
                     </div>
                     `}
@@ -15394,7 +15391,7 @@ class PomodoroTimer {
                         const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
                         const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                         const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
-                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>', w: 7 };
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 7 };
                     });
                 } else if (range === 'M') {
                     const items = this.getLastNDaysData(stats, 28);
@@ -15405,18 +15402,18 @@ class PomodoroTimer {
                         const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
                         const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                         const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
-                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>', w: 7 };
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 7 };
                     });
                 } else {
-                    const items = this.getLastNMonthsData(stats, 12);
+                    const items = this.getLastNDaysData(stats, 365);
                     const maxH = Math.max(...items.map(x => x.hours || 0), 1);
-                    labelText = 'Last 12 months';
-                    cells = items.map(m => {
-                        const intensity = Math.min(1, (m.hours || 0) / maxH);
-                        const bg = m.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
-                        const dateFormatted = new Date(m.start).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-                        const valStr = m.hours ? (m.hours < 0.1 ? m.hours.toFixed(2) : m.hours.toFixed(1)) + 'h' : '0h';
-                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 60px) / 12); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px; cursor: help;"></div>', w: 12 };
+                    labelText = 'Last 365 days';
+                    cells = items.map(d => {
+                        const intensity = Math.min(1, (d.hours || 0) / maxH);
+                        const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
+                        const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                        const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 7 };
                     });
                 }
                 heatmapLabelEl.textContent = labelText;
