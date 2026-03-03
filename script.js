@@ -15206,7 +15206,7 @@ class PomodoroTimer {
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 11px; color: #a3a3a3;">Last 7 days</div>
-                            <div style="font-size: 18px; font-weight: 700; color: ${weekTotalHours > 0 ? '#22c55e' : '#fff'};">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #fff;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h</div>
                         </div>
                     </div>
                 </div>
@@ -15230,10 +15230,10 @@ class PomodoroTimer {
                                 return last7Days.map(day => {
                                     const height = (day.hours / maxHours) * 100;
                                     const valueLabel = day.hours ? (day.hours < 0.1 ? day.hours.toFixed(2) : day.hours.toFixed(1)) + 'h' : '—';
-                                    const barColor = day.hours > 0 ? '#22c55e' : 'rgba(255,255,255,0.2)';
+                                    const barColor = day.hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
                                     return `
                                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
-                                            <div style="font-size: 10px; color: ${day.hours > 0 ? '#22c55e' : '#a3a3a3'};">${valueLabel}</div>
+                                            <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
                                             <div style="width: 100%; height: ${height}%; background: ${barColor}; border-radius: 4px; min-height: ${day.hours > 0 ? '4px' : '0'};"></div>
                                             <div style="font-size: 10px; color: #a3a3a3;">${day.label}</div>
                                         </div>
@@ -15252,8 +15252,6 @@ class PomodoroTimer {
                     const goalHours = isLocked ? null : this.getWeeklyGoalHours();
                     const goalProgress = goalHours != null ? Math.min(100, (weekTotalHours / goalHours) * 100) : 0;
                     const goalToGo = goalHours != null ? Math.max(0, goalHours - weekTotalHours) : 0;
-                    const taskBreakdown = isLocked ? [] : this.getTaskBreakdownForReport('W');
-                    const taskBreakdownTotal = taskBreakdown.reduce((s, t) => s + t.hours, 0);
                     return `
                 <!-- THIS WEEK VS LAST WEEK (Premium) -->
                 <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
@@ -15285,9 +15283,9 @@ class PomodoroTimer {
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; color: #fff; min-width: 72px;">This week</span>
                             <div style="flex: 1; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: #22c55e; border-radius: 4px;"></div>
+                                <div style="width: ${(thisWeekHours / maxCompare) * 100}%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 4px;"></div>
                             </div>
-                            <span style="font-size: 12px; font-weight: 600; color: #22c55e;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
+                            <span style="font-size: 12px; font-weight: 600; color: #fff;">${thisWeekHours < 0.1 ? thisWeekHours.toFixed(2) : thisWeekHours.toFixed(1)}h</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 12px; color: #a3a3a3; min-width: 72px;">Last week</span>
@@ -15297,54 +15295,7 @@ class PomodoroTimer {
                             <span style="font-size: 12px; color: #a3a3a3;">${lastWeekHours < 0.1 ? lastWeekHours.toFixed(2) : lastWeekHours.toFixed(1)}h</span>
                         </div>
                     </div>
-                    <div style="font-size: 12px; color: ${diffHours >= 0 ? '#22c55e' : '#ef4444'};">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h this week${diffHours !== 0 ? (pct > 999 ? ' (way up!)' : pct > 0 ? ` (↑${Math.min(pct, 99)}%)` : pct < -999 ? ' (way down)' : ` (↓${Math.min(Math.abs(pct), 99)}%)`) : ''}</div>
-                    `}
-                    </div>
-                </div>
-                <!-- TIME BY TASK (Premium) -->
-                <div style="background: #2a2a2a; border-radius: 12px; margin-bottom: 16px; overflow: hidden; ${isLocked ? 'opacity: 0.9;' : ''}">
-                    <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
-                        <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">TIME BY TASK</div>
-                        ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
-                        ${!isLocked ? `<div style="display: inline-flex; background: #1a1a1a; border-radius: 8px; padding: 2px;">
-                            <button class="task-range-btn active" data-range="W" style="background: #2a2a2a; color: #fff; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">W</button>
-                            <button class="task-range-btn" data-range="M" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">M</button>
-                            <button class="task-range-btn" data-range="Y" style="background: transparent; color: #a3a3a3; border: none; padding: 4px 8px; font-size: 11px; border-radius: 6px;">Y</button>
-                        </div>` : ''}
-                    </div>
-                    <div style="padding: 16px;">
-                    ${isLocked ? `
-                    <div style="font-size: 12px; color: #7a7a7a; margin-bottom: 12px;">Unlock Premium to see this data</div>
-                    <div style="font-size: 11px; color: #555; margin-bottom: 8px;">Last 7 days · 0.0h</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 14px;">
-                            <span style="font-size: 12px; color: #555;">Task example</span>
-                            <span style="font-size: 11px; color: #555; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;">0.5h</span>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 14px;">
-                            <span style="font-size: 12px; color: #555;">Another task</span>
-                            <span style="font-size: 11px; color: #555; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;">0.2h</span>
-                        </div>
-                    </div>
-                    ` : `
-                    <div id="reportTaskBreakdownLabel" style="font-size: 12px; color: #a3a3a3; margin-bottom: 10px;">Last 7 days · ${taskBreakdownTotal < 0.1 ? taskBreakdownTotal.toFixed(2) : taskBreakdownTotal.toFixed(1)}h</div>
-                    <div id="reportTaskBreakdownList">
-                    ${taskBreakdown.length === 0 ? `
-                    <div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>
-                    ` : `
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        ${taskBreakdown.map(t => {
-                            const label = t.hours < 0.1 ? t.hours.toFixed(2) : t.hours.toFixed(1);
-                            return `
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px;">
-                            <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
-                            <span style="font-size: 11px; color: #22c55e; background: rgba(34, 197, 94, 0.15); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
-                        </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    `}
-                    </div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${diffHours >= 0 ? '+' : ''}${diffHours.toFixed(1)}h this week${diffHours !== 0 ? (pct > 999 ? ' (way up!)' : pct > 0 ? ` (↑${Math.min(pct, 99)}%)` : pct < -999 ? ' (way down)' : ` (↓${Math.min(Math.abs(pct), 99)}%)`) : ''}</div>
                     `}
                     </div>
                 </div>
@@ -15353,7 +15304,7 @@ class PomodoroTimer {
                     <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
                         <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">WEEKLY GOAL</div>
                         ${isLocked ? '<span style="font-size: 10px; color: #7a7a7a;">(Unlock Premium)</span>' : ''}
-                        ${!isLocked && goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: #22c55e; font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
+                        ${!isLocked && goalHours != null ? '<button type="button" id="reportChangeWeeklyGoal" style="background: none; border: none; color: #a3a3a3; font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>' : ''}
                     </div>
                     <div style="padding: 16px;">
                     ${isLocked ? `
@@ -15365,13 +15316,13 @@ class PomodoroTimer {
                     <div style="font-size: 12px; color: #666;">2.5h / 10h (25%) · 7.5h to go</div>
                     ` : goalHours == null ? `
                     <div style="font-size: 13px; color: #a3a3a3; margin-bottom: 12px;">Set a goal to track your progress.</div>
-                    <button type="button" id="reportSetWeeklyGoal" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Set weekly goal</button>
+                    <button type="button" id="reportSetWeeklyGoal" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Set weekly goal</button>
                     ` : `
                     <div style="font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 8px;">${goalHours}h this week</div>
                     <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                        <div style="width: ${goalProgress}%; height: 100%; background: ${goalProgress >= 100 ? '#22c55e' : '#22c55e'}; border-radius: 4px; opacity: ${goalProgress >= 100 ? '1' : '0.8'};"></div>
+                        <div style="width: ${goalProgress}%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 4px;"></div>
                     </div>
-                    <div style="font-size: 12px; color: ${goalProgress >= 100 ? '#22c55e' : '#a3a3a3'};">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
+                    <div style="font-size: 12px; color: #a3a3a3;">${weekTotalHours < 0.1 ? weekTotalHours.toFixed(2) : weekTotalHours.toFixed(1)}h / ${goalHours}h${goalToGo > 0 ? ` · ${goalToGo.toFixed(1)}h to go` : ' · Goal reached!'}</div>
                     `}
                     </div>
                 </div>
@@ -15388,10 +15339,10 @@ class PomodoroTimer {
                         </div>
                         <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 8px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
                         <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
-                            <div style="width: ${level.progress}%; height: 100%; background: #22c55e; border-radius: 4px;"></div>
+                            <div style="width: ${level.progress}%; height: 100%; background: rgba(255,255,255,0.9); border-radius: 4px;"></div>
                         </div>
                         <div style="font-size: 11px; color: #a3a3a3; margin-bottom: 12px;">${level.hoursToNext.toFixed(1)}h to ${level.nextLevel}</div>
-                        <button id="viewAllLevels" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">View All Levels</button>
+                        <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">View All Levels</button>
                     </div>
                 </div>
 
@@ -15425,10 +15376,10 @@ class PomodoroTimer {
                     const hours = item.hours || 0;
                     const height = (hours / maxHours) * 100;
                     const valueLabel = hours ? (hours < 0.1 ? hours.toFixed(2) : hours.toFixed(1)) + 'h' : '—';
-                    const barColor = hours > 0 ? '#22c55e' : 'rgba(255,255,255,0.2)';
+                    const barColor = hours > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)';
                     return `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%;">
-                            <div style="font-size: 10px; color: ${hours > 0 ? '#22c55e' : '#a3a3a3'};">${valueLabel}</div>
+                            <div style="font-size: 10px; color: #a3a3a3;">${valueLabel}</div>
                             <div style="width: 100%; height: ${height}%; background: ${barColor}; border-radius: 4px; min-height: ${hours > 0 ? '4px' : '0'};"></div>
                             <div style="font-size: 10px; color: #a3a3a3;">${item.label}</div>
                         </div>
@@ -15495,45 +15446,6 @@ class PomodoroTimer {
             });
             // Initialize with W
             setRange('W');
-
-            // Task breakdown range buttons (W/M/Y)
-            const taskRangeButtons = containerElement.querySelectorAll('.task-range-btn');
-            const taskBreakdownLabel = document.getElementById('reportTaskBreakdownLabel');
-            const taskBreakdownList = document.getElementById('reportTaskBreakdownList');
-            const renderTaskBreakdown = (range) => {
-                const taskBreakdown = this.getTaskBreakdownForReport(range);
-                const total = taskBreakdown.reduce((s, t) => s + t.hours, 0);
-                const labelText = range === 'W' ? `Last 7 days · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h` :
-                    range === 'M' ? `Last 4 weeks · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h` :
-                    `Last 12 months · ${total < 0.1 ? total.toFixed(2) : total.toFixed(1)}h`;
-                if (taskBreakdownLabel) taskBreakdownLabel.textContent = labelText;
-                if (!taskBreakdownList) return;
-                if (taskBreakdown.length === 0) {
-                    taskBreakdownList.innerHTML = '<div style="text-align: center; padding: 12px; color: #a3a3a3; font-size: 12px;">No task focus time yet</div>';
-                } else {
-                    taskBreakdownList.innerHTML = '<div style="display: flex; flex-direction: column; gap: 8px;">' + taskBreakdown.map(t => {
-                        const label = t.hours < 0.1 ? t.hours.toFixed(2) : t.hours.toFixed(1);
-                        return `<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px;">
-                            <span style="font-size: 12px; color: #fff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(t.content)}</span>
-                            <span style="font-size: 11px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; flex-shrink: 0;">${label}h</span>
-                        </div>`;
-                    }).join('') + '</div>';
-                }
-            };
-            taskRangeButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const range = btn.dataset.range;
-                    taskRangeButtons.forEach(b => {
-                        b.classList.remove('active');
-                        b.style.background = 'transparent';
-                        b.style.color = '#a3a3a3';
-                    });
-                    btn.classList.add('active');
-                    btn.style.background = '#2a2a2a';
-                    btn.style.color = '#fff';
-                    renderTaskBreakdown(range);
-                });
-            });
 
             // View all levels modal
             const viewAllLevelsBtn = document.getElementById('viewAllLevels');
