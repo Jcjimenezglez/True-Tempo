@@ -87,13 +87,13 @@
     <!-- Primary Meta Tags -->
     <title>Pomodoro Timer Pricing - Superfocus</title>
     <meta name="title" content="Pomodoro Timer Pricing - Superfocus">
-    <meta name="description" content="Pomodoro timer pricing for Superfocus. Choose monthly or lifetime access for better focus and time management.">
+    <meta name="description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $3.99/month.">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.superfocus.live/pricing">
     <meta property="og:title" content="Pomodoro Timer Pricing - Superfocus">
-    <meta property="og:description" content="Pomodoro timer pricing for Superfocus. Choose monthly or lifetime access for better focus and time management.">
+    <meta property="og:description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $3.99/month.">
     <meta property="og:image" content="https://www.superfocus.live/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -103,7 +103,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://www.superfocus.live/pricing">
     <meta name="twitter:title" content="Pomodoro Timer Pricing - Superfocus">
-    <meta name="twitter:description" content="Pomodoro timer pricing for Superfocus. Choose monthly or lifetime access for better focus and time management.">
+    <meta name="twitter:description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $3.99/month.">
     <meta name="twitter:image" content="https://www.superfocus.live/og-image.png">
     
     <!-- Favicons -->
@@ -133,25 +133,15 @@
         "url": "https://www.superfocus.live",
         "applicationCategory": "ProductivityApplication",
         "operatingSystem": "Web Browser",
-        "description": "Focus timer app with Pomodoro techniques, tasks, analytics, and premium plans.",
-        "offers": [
-            {
-                "@type": "Offer",
-                "name": "Premium Monthly",
-                "url": "https://www.superfocus.live/pricing",
-                "priceCurrency": "USD",
-                "price": "3.99",
-                "availability": "https://schema.org/InStock"
-            },
-            {
-                "@type": "Offer",
-                "name": "Lifetime Access",
-                "url": "https://www.superfocus.live/pricing",
-                "priceCurrency": "USD",
-                "price": "12",
-                "availability": "https://schema.org/InStock"
-            }
-        ]
+        "description": "Focus timer app with Pomodoro techniques, tasks, analytics, and a 1-month free trial on Premium.",
+        "offers": {
+            "@type": "Offer",
+            "name": "Premium Monthly",
+            "url": "https://www.superfocus.live/pricing",
+            "priceCurrency": "USD",
+            "price": "3.99",
+            "availability": "https://schema.org/InStock"
+        }
     }
     </script>
     
@@ -460,22 +450,22 @@
         }
         
         .pricing-btn-lifetime {
-            background: #064e3b;
+            background: #ffffff;
             border: none;
             border-radius: 500px;
             padding: 1.25rem 2.5rem;
-            color: #ffffff;
+            color: #000000;
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(6, 78, 59, 0.3);
+            box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
         }
         
         .pricing-btn-lifetime:hover {
-            background: #047857;
+            background: #f0f0f0;
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(6, 78, 59, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
         }
         
         .pricing-btn-monthly {
@@ -499,7 +489,7 @@
         
         .pricing-btn-lifetime:disabled,
         .pricing-btn-lifetime.disabled {
-            background: #064e3b;
+            background: #ffffff;
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
@@ -1554,13 +1544,11 @@
         
         .comparison-plans-wrapper {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, minmax(280px, 1fr));
             gap: 1.5rem;
-            max-width: 980px;
-            margin-left: auto;
-            margin-right: auto;
-            margin-left: 0;
-            margin-right: 0;
+            max-width: 760px;
+            margin: 0 auto;
+            justify-content: center;
         }
         
         .comparison-plan-card {
@@ -1643,9 +1631,9 @@
         
         .free-price {
             display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            align-items: flex-start;
+            flex-direction: row;
+            gap: 0.35rem;
+            align-items: baseline;
         }
         
         .price-limited {
@@ -1657,6 +1645,7 @@
         .pricing-row {
             display: flex;
             align-items: center;
+            justify-content: flex-start;
             gap: 0.4rem;
             width: 100%;
         }
@@ -1705,7 +1694,8 @@
         
         .feature-item {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: flex-start;
             gap: 0.6rem;
             background: transparent;
             padding: 0;
@@ -2517,7 +2507,7 @@
                 <img src="/superfocus-logo-white.png" alt="Superfocus Logo">
                 <span>Superfocus</span>
             </a>
-            <button class="pricing-page-header-cta" id="headerCTA">Unlock Unlimited</button>
+            <button class="pricing-page-header-cta" id="headerCTA">Try 1 month for $0</button>
         </div>
         <a href="/" class="close-btn" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2536,12 +2526,11 @@
             </p>
             
             <div class="pricing-cta-buttons-container">
-                <button class="pricing-btn-monthly" id="pricingPageMonthly">View plans</button>
-                <button class="pricing-btn-lifetime" id="pricingPageUpgrade" style="display: none;">Get Lifetime Access</button>
+                <button class="pricing-btn-lifetime" id="pricingPageUpgrade">Try 1 month for $0</button>
             </div>
             
             <div class="pricing-offer-explanation">
-                Start free, then upgrade when you want unlimited focus tools.
+                Free for 1 month, then $3.99 per month after. Offer only available if you haven't tried Premium before.
             </div>
         </div>
 
@@ -2877,145 +2866,60 @@
         <!-- Comparison Table Section -->
         <div class="comparison-table-section" id="plansComparisonSection">
             <div class="comparison-table-intro">
-                <h2 class="comparison-table-title">What you unlock with Premium</h2>
-                <p class="comparison-table-description">Compare Free vs Monthly vs Lifetime and pick the plan that fits your workflow.</p>
+                <h2 class="comparison-table-title">Free vs Premium</h2>
+                <p class="comparison-table-description">Start free for 30 days, then keep all premium features for $3.99/month.</p>
             </div>
             
             <div class="comparison-plans-wrapper">
-                <!-- Starter Plan Card -->
                 <div class="comparison-plan-card starter-plan">
                     <div class="plan-header">
-                        <h3 class="plan-label">STARTER</h3>
-                        <p class="plan-description">for users testing the tool</p>
+                        <h3 class="plan-label">FREE</h3>
+                        <p class="plan-description">for trying the app</p>
                         <div class="plan-pricing">
                             <div class="free-price">
-                                <span class="price">Free</span>
-                                <span class="price-limited">Limited</span>
+                                <span class="price">Free - Limited</span>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="plan-features">
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">1 Timer</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">1 hour/day focus</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">1 task</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">1 Cassette</span>
-                        </div>
-                        <div class="feature-item disabled">
-                            <span class="feature-icon">✗</span>
-                            <span class="feature-text">Advanced Analytics</span>
-                        </div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">1 timer</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">1 hour/day focus time</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">1 task</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">1 cassette</span></div>
+                        <div class="feature-item disabled"><span class="feature-icon">✗</span><span class="feature-text">Advanced analytics</span></div>
                     </div>
                 </div>
                 
-                <!-- Premium Plan Card -->
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
-                        <h3 class="plan-label">MONTHLY</h3>
-                        <p class="plan-description">Pay as you go</p>
+                        <h3 class="plan-label">PREMIUM</h3>
+                        <p class="plan-description">1 month free trial, then monthly</p>
                         <div class="plan-pricing">
                             <div class="pricing-row">
                                 <span class="price">$3.99</span>
-                                <span class="period-text">/month</span>
+                                <span class="period-text">/month after trial</span>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="plan-features">
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited timers</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited focus sessions</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited tasks & projects</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited focus soundtracks</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Advanced Analytics</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Cancel anytime</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Lifetime Plan Card -->
-                <div class="comparison-plan-card premium-plan">
-                    <div class="plan-header">
-                        <h3 class="plan-label">LIFETIME</h3>
-                        <p class="plan-description">One-time payment, forever access</p>
-                        <div class="plan-pricing">
-                            <div class="pricing-row">
-                                <div class="price-with-discount">
-                                    <span class="price" style="font-size: 1.05rem; font-weight: 600; color: rgba(255, 255, 255, 0.5); text-decoration: line-through;">$24</span>
-                                    <span class="price">$12</span>
-                                </div>
-                                <span class="period-text">one-time</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="plan-features">
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited timers</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited focus sessions</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited tasks & projects</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Unlimited focus soundtracks</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">Advanced Analytics</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-icon">✓</span>
-                            <span class="feature-text">No subscription • One-time payment</span>
-                        </div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited timers</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited focus sessions</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited tasks & projects</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited cassettes & soundtracks</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Advanced analytics</span></div>
                     </div>
                 </div>
             </div>
             
-            <!-- CTA after comparison table -->
             <div style="text-align: center; margin-top: 3rem;">
                 <div class="pricing-cta-buttons-container centered">
-                    <button class="pricing-btn-monthly" id="comparisonTableCTAMonthly">Subscribe Monthly</button>
-                    <button class="pricing-btn-lifetime" id="comparisonTableCTA">Get Lifetime Access</button>
+                    <button class="pricing-btn-lifetime" id="comparisonTableCTA">Try 1 month for $0</button>
                 </div>
                 <div class="pricing-offer-explanation" style="margin: 0.5rem auto 0 auto;">
-                    Choose your plan and start focusing today.
+                    Free for 1 month, then $3.99 per month after. Offer only available if you haven't tried Premium before.
                 </div>
             </div>
-                    </div>
+        </div>
                 
         <!-- Premium Features Section - Con ejemplos visuales -->
         <div class="premium-features-detailed-section">
@@ -3238,7 +3142,7 @@
         <div class="faq-section">
             <div class="faq-intro">
                 <h2 class="faq-title">Questions before you upgrade</h2>
-                <p class="faq-subtitle">Everything you need to choose between Free, Monthly, and Lifetime.</p>
+                <p class="faq-subtitle">Everything you need to choose between Free and Premium.</p>
             </div>
             
             <div class="faq-list">
@@ -3425,14 +3329,13 @@
         </div>
         <!-- Final CTA after FAQ -->
         <div class="final-cta-section">
-            <h2 class="cta-title">Start free. Upgrade when focus becomes your advantage.</h2>
-            <p class="cta-subtitle">Choose Monthly for flexibility or Lifetime for long-term value, and build a deep-work system you can actually maintain.</p>
+            <h2 class="cta-title">Try Premium free for 1 month.</h2>
+            <p class="cta-subtitle">Unlock unlimited focus tools, reports, integrations, and analytics. Cancel anytime.</p>
             <div class="pricing-cta-buttons-container centered">
-                <button class="pricing-btn-monthly" id="finalCTAMonthly">View plans</button>
-                <button class="pricing-btn-lifetime" id="finalCTA" style="display: none;">Get Lifetime Access</button>
+                <button class="pricing-btn-lifetime" id="finalCTA">Try 1 month for $0</button>
             </div>
             <div class="pricing-offer-explanation">
-                Secure Stripe checkout. Monthly plan can be canceled anytime.
+                Free for 1 month, then $3.99 per month after. Offer only available if you haven't tried Premium before.
             </div>
         </div>
     
@@ -3527,19 +3430,15 @@
                 userPlanType === 'free' &&
                 source === 'comparison_table_cta' &&
                 ctaMode === 'checkout' &&
-                (planType === 'monthly' || planType === 'lifetime')
+                planType === 'monthly'
             );
         }
 
         // Function to handle CTA button click
-        function handleCTAClick(button, source = 'pricing_page', planType = 'lifetime') {
+        function handleCTAClick(button, source = 'pricing_page', planType = 'monthly') {
             return function(e) {
                 e.preventDefault();
                 const ctaMode = button?.dataset?.ctaMode || 'checkout';
-                if (ctaMode === 'view_plans') {
-                    scrollToPlansComparison();
-                    return;
-                }
                 console.log('CTA button clicked from', source, 'with plan type:', planType);
                 
                 // Disable button immediately to prevent double clicks
@@ -3692,54 +3591,31 @@
             console.log('Clerk ready, initializing pricing buttons...');
             
             const lifetimeButton = document.getElementById('pricingPageUpgrade');
-            const monthlyButton = document.getElementById('pricingPageMonthly');
             const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
-            const comparisonTableCTAMonthlyButton = document.getElementById('comparisonTableCTAMonthly');
             const finalCTAButton = document.getElementById('finalCTA');
-            const finalCTAMonthlyButton = document.getElementById('finalCTAMonthly');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
             
             if (lifetimeButton) {
                 console.log('Lifetime button found, adding event listener...');
-                lifetimeButton.addEventListener('click', handleCTAClick(lifetimeButton, 'pricing_page', 'lifetime'));
+                lifetimeButton.addEventListener('click', handleCTAClick(lifetimeButton, 'pricing_page', 'monthly'));
                 console.log('✅ Lifetime button event listener added successfully');
             } else {
                 console.error('Could not find lifetime button');
             }
             
-            if (monthlyButton) {
-                console.log('Monthly button found, adding event listener...');
-                monthlyButton.addEventListener('click', handleCTAClick(monthlyButton, 'pricing_page', 'monthly'));
-                console.log('✅ Monthly button event listener added successfully');
-            } else {
-                console.error('Could not find monthly button');
-            }
-            
             if (comparisonTableCTAButton) {
                 console.log('Comparison table lifetime CTA button found, adding event listener...');
-                comparisonTableCTAButton.addEventListener('click', handleCTAClick(comparisonTableCTAButton, 'comparison_table_cta', 'lifetime'));
+                comparisonTableCTAButton.addEventListener('click', handleCTAClick(comparisonTableCTAButton, 'comparison_table_cta', 'monthly'));
                 console.log('✅ Comparison table lifetime CTA button event listener added successfully');
-            }
-            
-            if (comparisonTableCTAMonthlyButton) {
-                console.log('Comparison table monthly CTA button found, adding event listener...');
-                comparisonTableCTAMonthlyButton.addEventListener('click', handleCTAClick(comparisonTableCTAMonthlyButton, 'comparison_table_cta', 'monthly'));
-                console.log('✅ Comparison table monthly CTA button event listener added successfully');
             }
             
             if (finalCTAButton) {
                 console.log('Final lifetime CTA button found, adding event listener...');
-                finalCTAButton.addEventListener('click', handleCTAClick(finalCTAButton, 'final_cta', 'lifetime'));
+                finalCTAButton.addEventListener('click', handleCTAClick(finalCTAButton, 'final_cta', 'monthly'));
                 console.log('✅ Final lifetime CTA button event listener added successfully');
             }
             
-            if (finalCTAMonthlyButton) {
-                console.log('Final monthly CTA button found, adding event listener...');
-                finalCTAMonthlyButton.addEventListener('click', handleCTAClick(finalCTAMonthlyButton, 'final_cta', 'monthly'));
-                console.log('✅ Final monthly CTA button event listener added successfully');
-            }
-
             if (headerCTAButton) {
                 console.log('Header CTA button found, adding event listener...');
                 headerCTAButton.addEventListener('click', handleCTAClick(headerCTAButton, 'header_cta', 'monthly'));
@@ -3760,11 +3636,8 @@
             }
             
             const lifetimeButton = document.getElementById('pricingPageUpgrade');
-            const monthlyButton = document.getElementById('pricingPageMonthly');
             const comparisonTableCTAButton = document.getElementById('comparisonTableCTA');
-            const comparisonTableCTAMonthlyButton = document.getElementById('comparisonTableCTAMonthly');
             const finalCTAButton = document.getElementById('finalCTA');
-            const finalCTAMonthlyButton = document.getElementById('finalCTAMonthly');
             const ctaBeforeFaqButton = document.getElementById('ctaBeforeFaq');
             const headerCTAButton = document.getElementById('headerCTA');
             
@@ -3785,17 +3658,13 @@
             
             const allCtaButtons = [
                 lifetimeButton,
-                monthlyButton,
                 comparisonTableCTAButton,
-                comparisonTableCTAMonthlyButton,
                 finalCTAButton,
-                finalCTAMonthlyButton,
                 ctaBeforeFaqButton,
                 headerCTAButton
             ].filter(Boolean);
 
-            const monthlyCtaButtons = [monthlyButton, comparisonTableCTAMonthlyButton, finalCTAMonthlyButton].filter(Boolean);
-            const lifetimeCtaButtons = [lifetimeButton, comparisonTableCTAButton, finalCTAButton].filter(Boolean);
+            const lifetimeCtaButtons = [lifetimeButton, comparisonTableCTAButton, finalCTAButton, ctaBeforeFaqButton, headerCTAButton].filter(Boolean);
 
             // Lifetime users: hide all pricing CTA buttons
             if (isLifetime) {
@@ -3803,31 +3672,20 @@
                     ctaButton.style.display = 'none';
                 });
                 document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
-                    el.textContent = 'You already have Lifetime access.';
+                    el.textContent = 'You already have Premium access.';
                 });
                 return;
             }
 
             // Monthly premium users: keep a single Manage Subscription CTA
             if (isMonthlyPremium) {
-                monthlyCtaButtons.forEach((ctaButton) => {
+                lifetimeCtaButtons.forEach((ctaButton) => {
                     ctaButton.textContent = 'Manage Subscription';
                     ctaButton.disabled = false;
                     ctaButton.classList.remove('disabled');
                     ctaButton.style.display = '';
                     ctaButton.dataset.ctaMode = 'checkout';
                 });
-                lifetimeCtaButtons.forEach((ctaButton) => {
-                    ctaButton.style.display = 'none';
-                    ctaButton.dataset.ctaMode = 'checkout';
-                });
-                if (headerCTAButton) {
-                    headerCTAButton.textContent = 'Manage Subscription';
-                    headerCTAButton.disabled = false;
-                    headerCTAButton.classList.remove('disabled');
-                    headerCTAButton.style.display = '';
-                    headerCTAButton.dataset.ctaMode = 'checkout';
-                }
                 document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
                     el.textContent = 'Manage your current Premium plan and billing settings.';
                 });
@@ -3837,73 +3695,30 @@
             // Guests: force signup-first language on all pricing CTAs
             if (!isAuthenticated) {
                 document.body.classList.add('guest-view');
-                monthlyCtaButtons.forEach((ctaButton) => {
-                    ctaButton.textContent = 'Sign up for free';
+                lifetimeCtaButtons.forEach((ctaButton) => {
+                    ctaButton.textContent = 'Try 1 month for $0';
                     ctaButton.style.display = '';
                     ctaButton.dataset.ctaMode = 'checkout';
                 });
-                lifetimeCtaButtons.forEach((ctaButton) => {
-                    ctaButton.textContent = 'Sign up for free';
-                    ctaButton.style.display = 'none';
-                    ctaButton.dataset.ctaMode = 'checkout';
-                });
-                if (headerCTAButton) {
-                    headerCTAButton.textContent = 'Sign up for free';
-                    headerCTAButton.dataset.ctaMode = 'checkout';
-                }
                 document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
-                    el.textContent = 'Create a free account to unlock unlimited focus sessions and choose Monthly or Lifetime when you are ready.';
+                    el.textContent = 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
                 });
                 return;
             }
-            // Free users: hero/final show "View plans", comparison keeps purchase choices
-            if (monthlyButton) {
-                monthlyButton.textContent = 'View plans';
-                monthlyButton.disabled = false;
-                monthlyButton.classList.remove('disabled');
-                monthlyButton.style.display = '';
-                monthlyButton.dataset.ctaMode = 'view_plans';
-            }
-            if (finalCTAMonthlyButton) {
-                finalCTAMonthlyButton.textContent = 'View plans';
-                finalCTAMonthlyButton.disabled = false;
-                finalCTAMonthlyButton.classList.remove('disabled');
-                finalCTAMonthlyButton.style.display = '';
-                finalCTAMonthlyButton.dataset.ctaMode = 'view_plans';
-            }
-            if (comparisonTableCTAMonthlyButton) {
-                comparisonTableCTAMonthlyButton.textContent = 'Subscribe Monthly';
-                comparisonTableCTAMonthlyButton.disabled = false;
-                comparisonTableCTAMonthlyButton.classList.remove('disabled');
-                comparisonTableCTAMonthlyButton.style.display = '';
-                comparisonTableCTAMonthlyButton.dataset.ctaMode = 'checkout';
-            }
-
-            if (lifetimeButton) {
-                lifetimeButton.style.display = 'none';
-                lifetimeButton.dataset.ctaMode = 'checkout';
-            }
-            if (finalCTAButton) {
-                finalCTAButton.style.display = 'none';
-                finalCTAButton.dataset.ctaMode = 'checkout';
-            }
-            if (comparisonTableCTAButton) {
-                comparisonTableCTAButton.textContent = 'Get Lifetime Access';
-                comparisonTableCTAButton.disabled = false;
-                comparisonTableCTAButton.classList.remove('disabled');
-                comparisonTableCTAButton.style.display = '';
-                comparisonTableCTAButton.dataset.ctaMode = 'checkout';
-            }
-            if (headerCTAButton) {
-                headerCTAButton.textContent = 'View plans';
-                headerCTAButton.disabled = false;
-                headerCTAButton.classList.remove('disabled');
-                headerCTAButton.style.display = '';
-                headerCTAButton.dataset.ctaMode = 'view_plans';
-            }
+            // Free authenticated users: show direct premium upgrade CTA
+            lifetimeCtaButtons.forEach((ctaButton) => {
+                ctaButton.textContent = 'Try 1 month for $0';
+                ctaButton.disabled = false;
+                ctaButton.classList.remove('disabled');
+                ctaButton.style.display = '';
+                ctaButton.dataset.ctaMode = 'checkout';
+            });
+            document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
+                el.textContent = 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
+            });
         }
 
-        async function createCheckoutSession(planType = 'premium', options = {}) {
+        async function createCheckoutSession(planType = 'monthly', options = {}) {
             try {
                 const shouldTrack = options.shouldTrack === true;
                 const trackingSource = options.source || 'pricing_page';

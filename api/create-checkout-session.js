@@ -1,6 +1,6 @@
 // Clean, validated Stripe Checkout session creator
 // Env vars required (Vercel -> Project Settings -> Environment Variables):
-//   STRIPE_SECRET_KEY, STRIPE_PRICE_ID_MONTHLY, STRIPE_PRICE_ID_YEARLY, STRIPE_PRICE_ID_LIFETIME
+//   STRIPE_SECRET_KEY, STRIPE_PRICE_ID_PREMIUM
 
 const Stripe = require('stripe');
 const STRIPE_API_VERSION = '2026-01-28.clover';
@@ -27,21 +27,21 @@ module.exports = async (req, res) => {
   // Read and sanitize env vars
   const secretKey = sanitizeEnvValue(process.env.STRIPE_SECRET_KEY);
   
-  // Get planType from request body (premium, monthly, yearly, lifetime)
-  let planType = 'premium'; // Default to premium
+  // Get planType from request body (monthly only with legacy fallback support)
+  let planType = 'monthly';
   let userEmail = '';
   let userId = '';
   let adsClickIds = {};
   
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    planType = (body.planType || 'premium').toLowerCase();
+    planType = (body.planType || 'monthly').toLowerCase();
     userEmail = body.userEmail || '';
     userId = body.userId || '';
     adsClickIds = body.adsClickIds || {};
   } catch (e) {
-    // If body parsing fails, default to premium
-    planType = 'premium';
+    // If body parsing fails, default to monthly
+    planType = 'monthly';
   }
   
   if (!adsClickIds || typeof adsClickIds !== 'object') {
@@ -57,25 +57,13 @@ module.exports = async (req, res) => {
   }
   // #endregion
   
-  // Validate planType - only monthly ($3.99/month) and lifetime ($12 one-time) are supported
-  // Note: 'premium' is deprecated but treated as 'monthly' for backwards compatibility
-  if (!['monthly', 'lifetime', 'premium'].includes(planType)) {
-    res.status(400).json({ error: 'Invalid planType. Must be monthly or lifetime' });
-    return;
-  }
-  
-  // Treat 'premium' as 'monthly' for backwards compatibility
-  if (planType === 'premium') {
+  // Monthly-only checkout: normalize any incoming planType to monthly.
+  if (planType !== 'monthly') {
     planType = 'monthly';
   }
-  
-  // Get price ID from environment variables based on planType
-  let priceId;
-  if (planType === 'monthly') {
-    priceId = sanitizeStripePriceId(process.env.STRIPE_PRICE_ID_MONTHLY);
-  } else if (planType === 'lifetime') {
-    priceId = sanitizeStripePriceId(process.env.STRIPE_PRICE_ID_LIFETIME);
-  }
+
+  // Use only the monthly price ID on the website checkout flow.
+  const priceId = sanitizeStripePriceId(process.env.STRIPE_PRICE_ID_PREMIUM);
 
   // Use hardcoded URLs to avoid environment variable issues
   // Include plan type in success URL for accurate conversion tracking
@@ -118,19 +106,18 @@ module.exports = async (req, res) => {
   try {
     const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
 
-    // Determine mode based on planType
-    const mode = planType === 'lifetime' ? 'payment' : 'subscription';
+    // Monthly checkout uses subscription mode.
+    const mode = 'subscription';
 
     // Create checkout session config
-    // Monthly: $3.99/month subscription
-    // Lifetime: $12 one-time payment
+    // Monthly: $3.99/month with 30-day trial configured in Stripe Price
     const metadata = {
       clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
       app_name: 'Superfocus',
       app_version: '1.0',
       business_name: 'Superfocus',
       business_type: 'Pomodoro Timer & Focus App',
-      payment_type: planType, // monthly or lifetime
+      payment_type: planType, // monthly
     };
     
     if (gclid) {
@@ -153,20 +140,14 @@ module.exports = async (req, res) => {
       ],
       // Pass Clerk user id and payment type in metadata
       metadata: metadata,
-      // Pre-fill user email to prevent email mismatch
-      customer_email: userEmail || undefined,
+      // Do not prefill customer_email so Checkout does not bias users into Link OTP flow.
+      // Users can still choose Link manually if they prefer it.
       allow_promotion_codes: false,
       billing_address_collection: 'auto',
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
     };
     
-    // Ensure Checkout creates a Stripe Customer for one-time payments
-    // so webhook handling can always link to a customer.
-    if (mode === 'payment') {
-      sessionConfig.customer_creation = 'always';
-    }
-
     // #region agent log
     if (process.env.NODE_ENV !== 'production') {
       fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'D',location:'api/create-checkout-session.js:beforeStripeCreate',message:'Creating Stripe checkout session',data:{planType,mode,hasCustomerEmail:!!sessionConfig.customer_email,hasClerkUserId:!!sessionConfig.metadata?.clerk_user_id},timestamp:Date.now()})}).catch(()=>{});
@@ -208,14 +189,14 @@ module.exports = async (req, res) => {
             name: 'begin_checkout',
             params: {
               transaction_id: session.id,
-              value: planType === 'lifetime' ? 12.0 : 3.99,
+              value: 3.99,
               currency: 'USD',
               plan_type: planType,
               source: 'server_checkout_created',
               items: [{
                 item_id: `premium_${planType}`,
                 item_name: `Premium ${planType.charAt(0).toUpperCase() + planType.slice(1)}`,
-                price: planType === 'lifetime' ? 12.0 : 3.99,
+                price: 3.99,
                 quantity: 1
               }]
             }

@@ -30,15 +30,14 @@ async function trackConversionServerSide(
     const ga4ApiSecret = process.env.GA4_API_SECRET; // Required for Measurement Protocol
     
     // Google Ads Conversion ID and Labels
-    // Monthly: wlmKCI_fiuwbENjym89B ($3.99)
-    // Lifetime: unsECLnWiewbENjym89B ($12.0)
+    // Subscribe (2): PHPkCOP1070bENjym89B ($3.99)
     const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
     let conversionLabel;
     if (customConversionLabel) {
       conversionLabel = customConversionLabel;
     } else {
-      // Default to Monthly label if not specified
-      conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'wlmKCI_fiuwbENjym89B';
+      // Default to Subscribe (2) label if not specified
+      conversionLabel = process.env.GOOGLE_ADS_CONVERSION_LABEL || 'PHPkCOP1070bENjym89B';
     }
     
     // Generate a consistent client ID from email (for user matching in GA4)
@@ -484,8 +483,7 @@ module.exports = async (req, res) => {
 async function handleCheckoutCompleted(session, clerk) {
   const customerId = session.customer;
   const clerkUserId = session.metadata?.clerk_user_id;
-  const paymentType = session.metadata?.payment_type; // premium, monthly, yearly, or lifetime
-  const isLifetime = session.mode === 'payment' && paymentType === 'lifetime';
+  const paymentType = session.metadata?.payment_type; // monthly
   const isSubscription = session.mode === 'subscription';
   const fallbackEmail = session.customer_details?.email || session.customer_email || null;
   const gclid = session.metadata?.gclid || null;
@@ -500,13 +498,9 @@ async function handleCheckoutCompleted(session, clerk) {
     subscriptionId: session.subscription
   });
 
-  if (!customerId && !isLifetime) {
+  if (!customerId) {
     console.log('❌ Missing customer ID in checkout session');
     return;
-  }
-  
-  if (!customerId && isLifetime) {
-    console.warn('⚠️ Missing customer ID for lifetime checkout; will proceed using email lookup if possible');
   }
 
   try {
@@ -547,53 +541,6 @@ async function handleCheckoutCompleted(session, clerk) {
     // Cache the stripeCustomerId -> clerkUserId mapping for fast future lookups
     if (customerId && targetUserId) {
       await setCustomerMapping(customerId, targetUserId);
-    }
-
-    // For lifetime deals, mark as premium permanently
-    if (isLifetime) {
-      // Single Clerk fetch for user data (email + name for tracking/notifications)
-      let currentUser = null;
-      let userEmail = null;
-      try {
-        currentUser = await clerk.users.getUser(targetUserId);
-        userEmail = currentUser.emailAddresses?.[0]?.emailAddress || null;
-      } catch (e) {
-        console.log('Could not get user data for tracking');
-      }
-
-      const lifetimeMetadata = {
-        isPremium: true,
-        premiumSince: new Date().toISOString(),
-        paymentType: 'lifetime',
-        isLifetime: true,
-      };
-      
-      if (customerId) {
-        lifetimeMetadata.stripeCustomerId = customerId;
-      }
-      
-      await clerk.users.updateUser(targetUserId, {
-        publicMetadata: {
-          ...lifetimeMetadata,
-        },
-      });
-
-      console.log(`✅ Updated Clerk user ${targetUserId} with LIFETIME premium status`);
-      
-      // Fire-and-forget: notification + tracking (don't block webhook response)
-      const userName = currentUser?.firstName || currentUser?.username || 'Usuario';
-      const notificationTitle = 'Nueva Suscripcion Lifetime!';
-      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Lifetime ($12.00 de una sola vez)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\n¡Pago completado! Acceso de por vida.`;
-
-      await sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
-        console.error('❌ Error sending push notification:', e)
-      );
-
-      trackConversionServerSide(
-        'lifetime', 12.0, session.id, gclid, gbraid, wbraid, userEmail, 'unsECLnWiewbENjym89B'
-      ).catch(e => console.error('❌ Error tracking lifetime conversion:', e));
-      
-      return; // Don't process as subscription
     }
 
     // For monthly subscriptions ($3.99/month)
@@ -658,7 +605,7 @@ async function handleCheckoutCompleted(session, clerk) {
       }
 
       trackConversionServerSide(
-        'monthly', 3.99, session.id, gclid, gbraid, wbraid, userEmail, 'wlmKCI_fiuwbENjym89B'
+        'monthly', 3.99, session.id, gclid, gbraid, wbraid, userEmail, 'PHPkCOP1070bENjym89B'
       ).catch(e => console.error('❌ Error tracking monthly conversion:', e));
     }
 

@@ -4322,8 +4322,8 @@ class PomodoroTimer {
     showPricingPlansModal() {
         if (!this.pricingPlansModalOverlay) return;
         this.pricingPlansModalOverlay.style.display = 'flex';
-        // Default to lifetime (anchoring), user can still switch to monthly
-        this.selectPlan('lifetime');
+        // Monthly trial offer
+        this.selectPlan('monthly');
     }
     
     hidePricingPlansModal() {
@@ -4332,45 +4332,15 @@ class PomodoroTimer {
     }
     
     selectPlan(plan) {
-        this.selectedPlan = plan;
-        
-        // Update check icons visibility
-        if (this.monthlyCheckIcon && this.lifetimeCheckIcon) {
-            if (plan === 'monthly') {
-                this.monthlyCheckIcon.style.display = 'flex';
-                this.lifetimeCheckIcon.style.display = 'none';
-            } else {
-                this.monthlyCheckIcon.style.display = 'none';
-                this.lifetimeCheckIcon.style.display = 'flex';
-            }
+        this.selectedPlan = 'monthly';
+        if (this.lifetimePlanCard) {
+            this.lifetimePlanCard.style.background = 'transparent';
+            this.lifetimePlanCard.style.border = 'none';
         }
-        
-        // Update card styles
-        if (this.monthlyPlanCard && this.lifetimePlanCard) {
-            if (plan === 'monthly') {
-                this.monthlyPlanCard.style.background = 'linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1))';
-                this.monthlyPlanCard.style.border = '2px solid rgba(6, 78, 59, 0.8)';
-                this.lifetimePlanCard.style.background = 'rgba(255, 255, 255, 0.05)';
-                this.lifetimePlanCard.style.border = '2px solid rgba(255, 255, 255, 0.1)';
-            } else {
-                this.lifetimePlanCard.style.background = 'linear-gradient(135deg, rgba(6, 78, 59, 0.3), rgba(6, 78, 59, 0.1))';
-                this.lifetimePlanCard.style.border = '2px solid rgba(6, 78, 59, 0.8)';
-                this.monthlyPlanCard.style.background = 'rgba(255, 255, 255, 0.05)';
-                this.monthlyPlanCard.style.border = '2px solid rgba(255, 255, 255, 0.1)';
-            }
-        }
-        
-        // Keep CTA copy consistent across plans
+
+        // Fixed CTA copy in monthly-trial modal
         if (this.selectedPlanCTA) {
-            this.selectedPlanCTA.textContent = plan === 'monthly'
-                ? 'Subscribe Monthly'
-                : 'Get Lifetime Access';
-        }
-        // Subtitle below CTA: monthly shows both, lifetime only Stripe
-        if (this.pricingModalSubtitle) {
-            this.pricingModalSubtitle.textContent = plan === 'monthly'
-                ? 'Cancel anytime · Secure checkout with Stripe'
-                : 'Secure checkout with Stripe';
+            this.selectedPlanCTA.textContent = 'Try 1 month for $0';
         }
     }
     
@@ -4382,7 +4352,7 @@ class PomodoroTimer {
         const originalText = cta?.textContent;
         if (cta) { cta.disabled = true; cta.textContent = 'Loading...'; }
 
-        const planType = this.selectedPlan;
+        const planType = 'monthly';
         
         try {
             // Verify user is authenticated
@@ -5874,13 +5844,10 @@ class PomodoroTimer {
         // Pricing Plans Modal
         this.pricingPlansModalOverlay = document.getElementById('pricingPlansModalOverlay');
         this.closePricingPlansModalX = document.getElementById('closePricingPlansModalX');
-        this.monthlyPlanCard = document.getElementById('monthlyPlanCard');
         this.lifetimePlanCard = document.getElementById('lifetimePlanCard');
-        this.monthlyCheckIcon = document.getElementById('monthlyCheckIcon');
-        this.lifetimeCheckIcon = document.getElementById('lifetimeCheckIcon');
         this.selectedPlanCTA = document.getElementById('selectedPlanCTA');
-        this.pricingModalSubtitle = document.getElementById('pricingModalSubtitle');
-        this.selectedPlan = 'lifetime'; // Default to lifetime (user can switch)
+        this.pricingPlanMaybeLater = document.getElementById('pricingPlanMaybeLater');
+        this.selectedPlan = 'monthly';
         
         if (this.closePricingPlansModalX && !this.closePricingPlansModalX.hasAttribute('data-bound')) {
             this.closePricingPlansModalX.setAttribute('data-bound', 'true');
@@ -5890,17 +5857,19 @@ class PomodoroTimer {
             });
         }
         
-        if (this.monthlyPlanCard && !this.monthlyPlanCard.hasAttribute('data-bound')) {
-            this.monthlyPlanCard.setAttribute('data-bound', 'true');
-            this.monthlyPlanCard.addEventListener('click', () => {
-                this.selectPlan('monthly');
+        if (this.pricingPlansModalOverlay && !this.pricingPlansModalOverlay.hasAttribute('data-bound')) {
+            this.pricingPlansModalOverlay.setAttribute('data-bound', 'true');
+            this.pricingPlansModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.pricingPlansModalOverlay) {
+                    this.hidePricingPlansModal();
+                }
             });
         }
         
         if (this.lifetimePlanCard && !this.lifetimePlanCard.hasAttribute('data-bound')) {
             this.lifetimePlanCard.setAttribute('data-bound', 'true');
             this.lifetimePlanCard.addEventListener('click', () => {
-                this.selectPlan('lifetime');
+                this.selectPlan('monthly');
             });
         }
         
@@ -5911,6 +5880,14 @@ class PomodoroTimer {
                 e.stopPropagation();
                 console.log('🔘 Pricing modal CTA button clicked');
                 await this.proceedToCheckout();
+            });
+        }
+        
+        if (this.pricingPlanMaybeLater && !this.pricingPlanMaybeLater.hasAttribute('data-bound')) {
+            this.pricingPlanMaybeLater.setAttribute('data-bound', 'true');
+            this.pricingPlanMaybeLater.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hidePricingPlansModal();
             });
         }
 
@@ -6024,7 +6001,7 @@ class PomodoroTimer {
                     e.preventDefault();
                     this.showLogoutModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
-                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial' || text === 'Unlock Unlimited' || text === 'Upgrade Now') {
+                } else if (text === 'Upgrade to Unlimited' || text === 'Unlock Premium' || text === 'Upgrade to Premium' || text === 'Try 1 month for $0' || text === 'Claim Lifetime Access' || text === 'Claim Lifetime Access Now' || text === 'Get Lifetime Access' || text === 'Get Unlimited Access' || text === 'Remove All Limits' || text === 'Unlock Unlimited Time' || text === 'Unlock Custom Timers' || text === 'Unlock Custom Sounds' || text === 'Unlock Analytics' || text === 'Start Free Trial' || text === 'Start FREE Trial' || text === 'Unlock Unlimited' || text === 'Upgrade Now') {
                     e.preventDefault();
                     this.showUpgradeModal();
                     if (this.userProfileDropdown) this.userProfileDropdown.style.display = 'none';
@@ -7680,28 +7657,19 @@ class PomodoroTimer {
             if (window.mixpanelTracker) {
                 window.mixpanelTracker.trackCustomEvent('Premium Success', {
                     plan_type: paymentType,
-                    value: paymentType === 'lifetime' ? 12.0 : 3.99,
+                    value: 3.99,
                     source: 'stripe_checkout',
                     timestamp: new Date().toISOString()
                 });
                 console.log('📊 Premium Success tracked to Mixpanel:', paymentType);
             }
             
-            // Track Google Ads conversion for Monthly or Lifetime
-            // This is the actual purchase conversion (different from Checkout Session Created)
+            // Track Google Ads conversion when trial starts (Subscribe (2))
+            // This is the conversion used for optimization in Google Ads.
             try {
                 if (typeof window.gtag === 'function') {
-                    let conversionLabel, conversionValue;
-                    
-                    if (paymentType === 'lifetime') {
-                        // Lifetime: $12.0 with label unsECLnWiewbENjym89B
-                        conversionLabel = 'AW-17614436696/unsECLnWiewbENjym89B';
-                        conversionValue = 12.0;
-                    } else {
-                        // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
-                        conversionLabel = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
-                        conversionValue = 3.99;
-                    }
+                    const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
+                    const conversionValue = 3.99;
                     
                     // Set Enhanced Conversions user data BEFORE the conversion event
                     if (userEmail && typeof window.hashEmail === 'function') {
@@ -7724,7 +7692,7 @@ class PomodoroTimer {
                         'currency': 'USD',
                         'transaction_id': sessionId
                     });
-                    console.log(`📊 Google Ads ${paymentType.toUpperCase()} conversion tracked: $${conversionValue}`);
+                    console.log(`📊 Google Ads Subscribe (2) conversion tracked for ${paymentType}: $${conversionValue}`);
                 }
             } catch (gtagError) {
                 console.error('⚠️ Google Ads conversion tracking failed:', gtagError);
@@ -16103,8 +16071,8 @@ class PomodoroTimer {
                         eventData.event_label = 'user_signup';
                         break;
                     case 'monthly':
-                        // Monthly subscription: $3.99/month
-                        conversionId = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
+                        // Subscribe (2): trial started for monthly subscription
+                        conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
                         eventName = 'purchase';
                         eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
@@ -16112,23 +16080,15 @@ class PomodoroTimer {
                         eventData.value = 3.99;
                         value = 3.99; // Ensure value is set correctly
                         break;
-                    case 'lifetime':
-                        // Lifetime purchase: $12.00 one-time
-                        conversionId = 'AW-17614436696/unsECLnWiewbENjym89B';
-                        eventName = 'purchase';
-                        eventData.transaction_id = transactionId;
-                        eventData.event_category = 'ecommerce';
-                        eventData.event_label = 'lifetime_purchase';
-                        eventData.value = 12.0;
-                        value = 12.0; // Ensure value is set correctly
-                        break;
                     case 'subscription':
-                        // Legacy/fallback - treat as monthly
-                        conversionId = 'AW-17614436696/wlmKCI_fiuwbENjym89B';
+                        // Legacy/fallback - treat as monthly Subscribe (2)
+                        conversionId = 'AW-17614436696/PHPkCOP1070bENjym89B';
                         eventName = 'purchase';
                         eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
                         eventData.event_label = 'pro_subscription';
+                        eventData.value = 3.99;
+                        value = 3.99;
                         break;
                     default:
                         console.error('❌ Unknown conversion type:', type);
@@ -16252,10 +16212,9 @@ class PomodoroTimer {
         }
         
         if (paymentSuccess === 'success' || premiumStatus === '1') {
-            // Get the plan type from URL (monthly or lifetime)
-            const planType = urlParams.get('plan') || 'monthly'; // Default to monthly for backwards compatibility
-            const isLifetime = planType === 'lifetime';
-            const conversionValue = isLifetime ? 12.0 : 3.99;
+            // Get the plan type from URL
+            const planType = urlParams.get('plan') || 'monthly';
+            const conversionValue = 3.99;
             
             // Remove the parameters from URL without page reload
             const newUrl = window.location.pathname;
@@ -16263,7 +16222,7 @@ class PomodoroTimer {
             
             // Track successful subscription conversion
             this.trackEvent('Subscribe Success', {
-                conversion_type: isLifetime ? 'lifetime_purchase' : 'monthly_subscription',
+                conversion_type: 'monthly_subscription',
                 plan_type: planType,
                 user_journey: 'signup → premium',
                 source: 'stripe_payment',
@@ -16271,9 +16230,7 @@ class PomodoroTimer {
                 timestamp: new Date().toISOString()
             });
             
-            // Track conversion with correct plan type and value
-            // Monthly: $3.99 with label wlmKCI_fiuwbENjym89B
-            // Lifetime: $12.0 with label unsECLnWiewbENjym89B
+            // Track conversion with the Subscribe (2) label and monthly value
             console.log(`🎯 Tracking ${planType} conversion with value $${conversionValue}`);
             this.trackConversion(planType, conversionValue);
             
