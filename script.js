@@ -15197,15 +15197,16 @@ class PomodoroTimer {
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                     <!-- Level (left) -->
                     <div style="flex: 1; background: #2a2a2a; border-radius: 12px; overflow: hidden;">
-                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">LEVEL</div>
-                        <div style="padding: 16px;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <div style="background: rgba(0,0,0,0.25); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
+                            <div style="font-size: 11px; font-weight: 600; color: #a3a3a3; letter-spacing: 0.5px;">LEVEL</div>
+                            <button id="viewAllLevels" style="background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer;">View all</button>
+                        </div>
+                        <div style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
                                 <div style="font-size: 20px;">${level.emoji}</div>
                                 <div style="font-size: 18px; font-weight: 700; color: #fff;">${level.name}</div>
                             </div>
-                            <div style="font-size: 12px; color: #a3a3a3; margin-bottom: 4px;">${totalHours < 0.1 ? totalHours.toFixed(2) : totalHours.toFixed(1)}h total</div>
-                            <div style="font-size: 10px; color: #7a7a7a;">${level.hoursToNext > 0 ? level.hoursToNext.toFixed(1) + 'h to ' + level.nextLevel : 'Max level'}</div>
-                            <button id="viewAllLevels" style="margin-top: 8px; background: #1a1a1a; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">View all</button>
+                            <div style="font-size: 12px; color: #a3a3a3; margin-top: 6px;">${(() => { const h = Math.floor(totalHours); const m = Math.round((totalHours - h) * 60); return h > 0 ? h + 'h ' + m + 'm' : (m > 0 ? m + 'm' : '0h 0m'); })()} total</div>
                         </div>
                     </div>
                     <!-- Day streak (right) -->
@@ -15405,7 +15406,8 @@ class PomodoroTimer {
                         return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 7 };
                     });
                 } else {
-                    const items = this.getLastNDaysData(stats, 365);
+                    const rawItems = this.getLastNDaysData(stats, 365);
+                    const items = rawItems.slice().reverse();
                     const maxH = Math.max(...items.map(x => x.hours || 0), 1);
                     labelText = 'Last 365 days';
                     cells = items.map(d => {
