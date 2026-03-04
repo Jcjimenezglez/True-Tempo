@@ -10714,11 +10714,21 @@ class PomodoroTimer {
             tasks.forEach(task => {
                 task.project_name = projectMap[task.project_id] || 'Inbox';
             });
+
+            // Hide tasks already imported into local list to avoid duplicate imports.
+            // If a user deletes an imported task, it will naturally reappear here.
+            const importedTodoistIds = new Set(
+                (this.getLocalTasks() || [])
+                    .map((task) => String(task?.id || ''))
+                    .filter((id) => id.startsWith('todoist_'))
+                    .map((id) => id.slice('todoist_'.length))
+            );
+            const availableTasks = tasks.filter((task) => !importedTodoistIds.has(String(task.id)));
             
             // Hide loading state
             if (loadingState) loadingState.style.display = 'none';
             
-            if (tasks.length === 0) {
+            if (availableTasks.length === 0) {
                 // Show empty state
                 tasksList.innerHTML = `
                     <div class="empty-state">
@@ -10727,13 +10737,13 @@ class PomodoroTimer {
                                 <path d="M3 3h18v18H3zM9 9h6v6H9z"/>
                             </svg>
                         </div>
-                        <div class="empty-text">No tasks found</div>
-                        <div class="empty-subtext">Create some tasks in Todoist to import them</div>
+                        <div class="empty-text">No tasks available to import</div>
+                        <div class="empty-subtext">All your Todoist tasks are already in To-dos</div>
                     </div>
                 `;
             } else {
                 // Group tasks by project
-                const tasksByProject = this.groupTasksByProject(tasks);
+                const tasksByProject = this.groupTasksByProject(availableTasks);
                 
                 // Render tasks grouped by project
                     const projectEntries = Object.entries(tasksByProject);
@@ -17709,8 +17719,8 @@ class PomodoroTimer {
 
             if (currentTab === 'done') {
                 if (addTaskForm) addTaskForm.style.display = 'none';
-                if (addTaskSection) addTaskSection.style.display = 'none';
-                if (importSection) importSection.style.display = 'none';
+                if (addTaskSection) addTaskSection.style.display = 'block';
+                if (importSection) importSection.style.display = canShowImportInTodo ? 'block' : 'none';
             } else {
                 if (addTaskSection) addTaskSection.style.display = 'block';
                 if (importSection) importSection.style.display = canShowImportInTodo ? 'block' : 'none';
@@ -18004,10 +18014,10 @@ class PomodoroTimer {
                 const addTaskSection = panel.querySelector('#addTaskSection');
                 
                 if (currentTab === 'done') {
-                    // Hide add task elements in Done tab
+                    // Keep action buttons visible in Done tab
                     if (addTaskForm) addTaskForm.style.display = 'none';
-                    if (addTaskSection) addTaskSection.style.display = 'none';
-                    if (importSection) importSection.style.display = 'none';
+                    if (addTaskSection) addTaskSection.style.display = 'block';
+                    if (importSection) importSection.style.display = canShowImportInTodo ? 'block' : 'none';
                 } else {
                     // Show add task elements in To-do tab
                     if (addTaskSection) addTaskSection.style.display = 'block';
