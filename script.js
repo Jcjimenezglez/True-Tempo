@@ -6387,12 +6387,121 @@ class PomodoroTimer {
     }
 
     showIntegrationsModal() {
-        const settingsModal = document.getElementById('settingsModal');
-        if (settingsModal) {
-            this.switchToSettingsTab('integrations');
-            settingsModal.style.display = 'flex';
-            this.refreshIntegrationsTabStatus?.();
-        }
+        this.showTodoistConnectModal();
+    }
+
+    showTodoistConnectModal() {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.style.display = 'flex';
+
+        const todoistLogoHtml = '<img src="/images/todoist.svg" alt="Todoist" style="width:64px;height:64px;object-fit:contain">';
+        const modal = document.createElement('div');
+        modal.className = 'logout-modal';
+        modal.innerHTML = `
+            <button class="close-logout-modal-x" id="closeTodoistConnectModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                </svg>
+            </button>
+            <div class="upgrade-content">
+                <div class="upgrade-icon">${todoistLogoHtml}</div>
+                <h3 class="logout-modal-title" id="todoistConnectModalTitle">Connect Todoist</h3>
+                <p class="logout-modal-message" id="todoistConnectModalMessage" style="color: rgba(255, 255, 255, 0.82);">Import your Todoist tasks into Superfocus and keep them in sync.</p>
+                <div class="logout-modal-buttons">
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="todoistConnectModalPrimaryBtn">Connect Todoist</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="todoistConnectModalSecondaryBtn">Maybe later</button>
+                </div>
+            </div>
+        `;
+
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+
+        const closeModal = () => {
+            try { document.body.removeChild(modalOverlay); } catch (_) {}
+        };
+
+        const titleEl = modal.querySelector('#todoistConnectModalTitle');
+        const messageEl = modal.querySelector('#todoistConnectModalMessage');
+        const primaryBtn = modal.querySelector('#todoistConnectModalPrimaryBtn');
+        const secondaryBtn = modal.querySelector('#todoistConnectModalSecondaryBtn');
+
+        const updateModalForStatus = (connected) => {
+            if (connected) {
+                titleEl.textContent = 'Todoist connected';
+                messageEl.textContent = 'Your Todoist account is connected. You can import tasks from the Tasks panel.';
+                primaryBtn.textContent = 'Disconnect';
+                secondaryBtn.textContent = 'Close';
+            } else {
+                titleEl.textContent = 'Connect Todoist';
+                messageEl.textContent = 'Import your Todoist tasks into Superfocus and keep them in sync.';
+                primaryBtn.textContent = 'Connect Todoist';
+                secondaryBtn.textContent = 'Maybe later';
+            }
+        };
+
+        (async () => {
+            try {
+                const userId = window.Clerk?.user?.id || '';
+                const params = new URLSearchParams();
+                if (userId) params.set('uid', userId);
+                const viewMode = lsGet('viewMode');
+                if (viewMode === 'pro') { params.set('devMode', 'pro'); params.set('bypass', 'true'); }
+                const qs = params.toString() ? `?${params.toString()}` : '';
+                const resp = await fetch(`/api/todoist-status${qs}`);
+                const json = await resp.json();
+                const connected = !!json.connected;
+                updateModalForStatus(connected);
+            } catch (_) {
+                updateModalForStatus(false);
+            }
+        })();
+
+        modal.querySelector('#closeTodoistConnectModal').addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        secondaryBtn.addEventListener('click', closeModal);
+
+        primaryBtn.addEventListener('click', async () => {
+            const currentText = primaryBtn.textContent;
+            if (currentText === 'Connect Todoist') {
+                this.trackEvent('Todoist Connect Clicked', {
+                    button_type: 'todoist_connect',
+                    source: 'todoist_connect_modal',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                const userId = window.Clerk?.user?.id || '';
+                const viewMode = lsGet('viewMode');
+                const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+                return;
+            }
+            if (currentText === 'Disconnect') {
+                try {
+                    primaryBtn.disabled = true;
+                    primaryBtn.textContent = 'Disconnecting...';
+                    const userId = window.Clerk?.user?.id || '';
+                    const params = new URLSearchParams();
+                    if (userId) params.set('uid', userId);
+                    const viewMode = lsGet('viewMode');
+                    if (viewMode === 'pro') { params.set('devMode', 'pro'); params.set('bypass', 'true'); }
+                    const qs = params.toString() ? `?${params.toString()}` : '';
+                    await fetch(`/api/todoist-disconnect${qs}`, { method: 'POST', credentials: 'include' });
+                    this.todoistTasks = [];
+                    this.todoistProjectsById = {};
+                    updateModalForStatus(false);
+                    primaryBtn.disabled = false;
+                } catch (e) {
+                    console.error('Todoist disconnect error:', e);
+                    primaryBtn.textContent = 'Disconnect';
+                    primaryBtn.disabled = false;
+                }
+            }
+        });
     }
 
     refreshIntegrationsTabStatus() {
@@ -10577,11 +10686,13 @@ class PomodoroTimer {
                 <span>Add from Todoist</span>
             `;
             buttonEl.setAttribute('aria-label', 'Add from Todoist');
-            return;
+        } else {
+            buttonEl.innerHTML = `
+                <img src="/images/todoist.svg" alt="Todoist" class="todoist-btn-logo">
+                <span>Connect Todoist</span>
+            `;
+            buttonEl.setAttribute('aria-label', 'Connect Todoist');
         }
-
-        buttonEl.textContent = 'Connect Todoist';
-        buttonEl.setAttribute('aria-label', 'Connect Todoist');
     }
 
 

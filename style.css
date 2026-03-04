@@ -5980,12 +5980,12 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 /* Preserve selected accent on hover */
 .task-item.selected:hover {
-    border-left-color: transparent;
+    border-left-color: rgba(255, 255, 255, 0.8);
 }
 
 .task-item.completed {
@@ -6173,6 +6173,10 @@ input:checked + .toggle-slider:before {
     margin-bottom: 1rem;
 }
 
+#importTodoistSection.add-task-section {
+    margin-bottom: 0;
+}
+
 .add-task-btn {
     width: 100%;
     padding: 16px;
@@ -6225,8 +6229,8 @@ input:checked + .toggle-slider:before {
 }
 
 .todoist-btn-logo {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     display: inline-block;
 }
 
