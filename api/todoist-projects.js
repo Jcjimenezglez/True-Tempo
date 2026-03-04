@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const response = await fetch('https://api.todoist.com/rest/v2/projects', {
+    const response = await fetch('https://api.todoist.com/api/v1/projects', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -29,18 +29,14 @@ module.exports = async (req, res) => {
         res.status(401).json({ error: 'Todoist token is invalid or expired' });
         return;
       }
-      if (response.status === 410) {
-        console.error('todoist-projects: Todoist API endpoint deprecated');
-        res.status(502).json({ error: 'Todoist API temporarily unavailable' });
-        return;
-      }
       console.error('todoist-projects upstream:', response.status, errorPayload);
       res.status(502).json({ error: 'Failed to fetch Todoist projects' });
       return;
     }
 
-    const projects = await response.json();
-    res.status(200).json(Array.isArray(projects) ? projects : []);
+    const payload = await response.json();
+    const projects = Array.isArray(payload) ? payload : (Array.isArray(payload?.results) ? payload.results : []);
+    res.status(200).json(projects);
   } catch (error) {
     console.error('todoist-projects error:', error);
     res.status(500).json({ error: 'Failed to fetch Todoist projects' });
