@@ -9976,6 +9976,11 @@ class PomodoroTimer {
                     item.classList.add('selected');
                 }
                 
+                // First task in To-dos = active (shown in timer) - 4px white border-left
+                if (currentTab === 'todo' && index === 0 && !isCompleted) {
+                    item.classList.add('task-item-first');
+                }
+                
                 listEl.appendChild(item);
             });
             
@@ -12852,6 +12857,11 @@ class PomodoroTimer {
         
         // Update local storage with new order
         this.saveTaskOrder(newOrder);
+        
+        // Update visual: first task gets 4px white border (active indicator)
+        taskItems.forEach((item, i) => {
+            item.classList.toggle('task-item-first', i === 0 && !item.classList.contains('completed'));
+        });
         
         // Rebuild task queue with new order and update current task name
         // This ensures the browser tab title reflects the new first task
@@ -17978,6 +17988,11 @@ class PomodoroTimer {
                     // Only apply 'selected' class if task is NOT completed
                     if (taskConfig.selected && !isCompleted) {
                         item.classList.add('selected');
+                    }
+                    
+                    // First task in To-dos = active (shown in timer) - 4px white border-left
+                    if (currentTab === 'todo' && index === 0 && !isCompleted) {
+                        item.classList.add('task-item-first');
                     }
                     
                     listEl.appendChild(item);

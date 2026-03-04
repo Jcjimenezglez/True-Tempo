@@ -5983,9 +5983,18 @@ input:checked + .toggle-slider:before {
     border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* First task in To-dos = active (used in timer) - 4px white indicator */
+.task-item.task-item-first {
+    border-left: 4px solid #ffffff;
+}
+
 /* Preserve selected accent on hover */
 .task-item.selected:hover {
     border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+.task-item.task-item-first:hover {
+    border-left-color: #ffffff;
 }
 
 .task-item.completed {
