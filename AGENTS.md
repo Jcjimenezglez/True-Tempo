@@ -21,6 +21,11 @@ Copy `.env.local.backup` to `.env.local` and fill in real values for Stripe/Cler
 - `npm test` runs the Jest test suite (97 tests across 4 files in `__tests__/`).
 - No ESLint or TypeScript linting is configured.
 
+### Deploy (avoid duplicate deploys)
+
+- **Do not run both** `git push` **and** `vercel --prod`. Vercel auto-deploys on push when the repo is connected.
+- Use: `git add ... && git commit -m "..." && git push` (no `vercel --prod`).
+
 ### Key caveats
 
 - `vercel dev` requires Vercel CLI authentication (`vercel login` or `--token`). In environments without Vercel credentials, use a static file server (`npx serve`) for frontend-only development.
