@@ -3351,7 +3351,7 @@ class PomodoroTimer {
             return;
         }
 
-        // Custom selected
+        // Custom selected (legacy key)
         if (saved === 'custom') {
             // Check if we have custom durations saved (from manual changes)
             const savedPomodoroTime = localStorage.getItem('pomodoroTime');
@@ -3396,6 +3396,27 @@ class PomodoroTimer {
                 }
             }
             // No custom saved → mark applied and keep default
+            this.hasAppliedSavedTechnique = true;
+            return;
+        }
+
+        // Custom selected (current key format: custom_<id>)
+        if (typeof saved === 'string' && saved.startsWith('custom_')) {
+            try {
+                const customId = saved.slice('custom_'.length);
+                const techniques = lsGet('customTechniques') || [];
+                const selectedCustom = techniques.find((t) => String(t.id) === String(customId));
+                if (selectedCustom) {
+                    this.selectCustomTechnique(selectedCustom);
+                    this.hasAppliedSavedTechnique = true;
+                    return;
+                }
+            } catch (_) {}
+
+            // If the saved custom timer no longer exists, fallback gracefully.
+            lsSet('selectedTechnique', 'pomodoro');
+            const fallbackItem = document.querySelector('[data-technique="pomodoro"]');
+            if (fallbackItem) this.selectTechnique(fallbackItem);
             this.hasAppliedSavedTechnique = true;
             return;
         }
