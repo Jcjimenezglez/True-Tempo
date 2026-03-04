@@ -12002,14 +12002,7 @@ class PomodoroTimer {
                     this.setLocalTasks(localTasks);
                 }
             } else if (task.source === 'todoist') {
-                // Keep Todoist as source of truth when marking done.
-                if (isCompleted) {
-                    const synced = await this.completeTodoistTaskInTodoist(task);
-                    if (!synced) {
-                        return false;
-                    }
-                }
-
+                // Optimistic UI: move instantly in Superfocus, sync Todoist in background.
                 // For Todoist tasks imported to local storage, update them there
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
@@ -12025,6 +12018,36 @@ class PomodoroTimer {
                 
                 // Also track completion state for live Todoist tasks
                 this.updateTodoistTaskCompletionState(taskId, isCompleted);
+
+                if (isCompleted) {
+                    // Fire-and-forget sync to keep UI snappy.
+                    this.completeTodoistTaskInTodoist(task).then((synced) => {
+                        if (synced) return;
+
+                        // Rollback only if task is still completed.
+                        const latestLocalTasks = this.getLocalTasks();
+                        const latestIdx = latestLocalTasks.findIndex(t => t.id === taskId);
+                        if (latestIdx === -1 || latestLocalTasks[latestIdx].completed !== true) return;
+
+                        latestLocalTasks[latestIdx].completed = false;
+                        delete latestLocalTasks[latestIdx].completedAt;
+                        this.setLocalTasks(latestLocalTasks);
+                        this.updateTodoistTaskCompletionState(taskId, false);
+
+                        const rollbackConfig = this.getTaskConfig(taskId);
+                        this.setTaskConfig(taskId, {
+                            ...rollbackConfig,
+                            completedSessions: 0
+                        });
+
+                        this.updateCurrentTaskBanner();
+                        this.rebuildTaskQueue();
+                        this.updateCurrentTaskFromQueue();
+                        this.updateDisplay();
+                        this.rerenderTaskList();
+                        this.showNotification('Todoist sync failed. Task restored to To-dos.');
+                    }).catch(() => {});
+                }
                 
             } else if (task.source === 'notion') {
                 // For Notion tasks, update in local tasks
