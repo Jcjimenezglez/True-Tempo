@@ -9684,7 +9684,7 @@ class PomodoroTimer {
                 </div>
             </div>
             
-            <div class="add-task-section">
+            <div class="add-task-section" id="addTaskSectionModal">
                 <button class="add-task-btn" id="showAddTaskForm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 5v14"/>
@@ -9969,7 +9969,7 @@ class PomodoroTimer {
                     // Show/hide add task elements based on current tab
                     const addTaskForm = modal.querySelector('#addTaskForm');
                     const addTaskBtn = modal.querySelector('#showAddTaskForm');
-                    const addTaskSection = modal.querySelector('.add-task-section');
+                    const addTaskSection = modal.querySelector('#addTaskSectionModal');
                     
                     if (currentTab === 'done') {
                         // Hide add task elements in Done tab
@@ -10071,7 +10071,7 @@ class PomodoroTimer {
                 this.editingTaskId = null;
                 // Restore list and add-section
                 const listEl = modal.querySelector('#todoistTasksList');
-                const addSection = modal.querySelector('.add-task-section');
+                const addSection = modal.querySelector('#addTaskSectionModal');
                 if (listEl) listEl.style.display = '';
                 if (addSection) addSection.style.display = '';
             });
@@ -10096,7 +10096,7 @@ class PomodoroTimer {
                 addTaskBtn.disabled = false;
                 // Restore list and add-section
                 const listEl = modal.querySelector('#todoistTasksList');
-                const addSection = modal.querySelector('.add-task-section');
+                const addSection = modal.querySelector('#addTaskSectionModal');
                 if (listEl) listEl.style.display = '';
                 if (addSection) addSection.style.display = '';
                 // Refresh list/banner/queue
@@ -10177,7 +10177,7 @@ class PomodoroTimer {
                         this.editingTaskId = null;
                         // Restore list and add-section
                         const listEl = modal.querySelector('#todoistTasksList');
-                        const addSection = modal.querySelector('.add-task-section');
+                        const addSection = modal.querySelector('#addTaskSectionModal');
                         if (listEl) listEl.style.display = '';
                         if (addSection) addSection.style.display = '';
                     } else {
@@ -10271,7 +10271,7 @@ class PomodoroTimer {
                 if (pomodorosInput) pomodorosInput.value = '1';
                 this.editingTaskId = null;
                 const listEl = panel.querySelector('#todoistTasksList');
-                const addSection = panel.querySelector('.add-task-section');
+                const addSection = panel.querySelector('#addTaskSection');
                 if (listEl) listEl.style.display = '';
                 if (addSection) addSection.style.display = '';
             });
@@ -10293,7 +10293,7 @@ class PomodoroTimer {
                 addTaskForm.style.display = 'none';
                 addTaskBtn.disabled = false;
                 const listEl = panel.querySelector('#todoistTasksList');
-                const addSection = panel.querySelector('.add-task-section');
+                const addSection = panel.querySelector('#addTaskSection');
                 if (listEl) listEl.style.display = '';
                 if (addSection) addSection.style.display = '';
                 this.loadAllTasks();
@@ -10494,7 +10494,7 @@ class PomodoroTimer {
                     this.editingTaskId = null;
                     // Restore list and add-section - EXACT COPY from Delete Task
                     const listEl = modal.querySelector('#todoistTasksList');
-                    const addSection = modal.querySelector('.add-task-section');
+                    const addSection = modal.querySelector('#addTaskSectionModal');
                     if (listEl) listEl.style.display = '';
                     if (addSection) addSection.style.display = '';
                     // Refresh list/banner/queue - EXACT COPY from Delete Task
@@ -11542,7 +11542,272 @@ class PomodoroTimer {
     }
     
     refreshTaskModalIfOpen() {
-        this.rerenderTaskList();
+        // Check if task sidebar panel is open
+        const taskSidePanel = document.getElementById('taskSidePanel');
+        if (taskSidePanel && taskSidePanel.classList.contains('open')) {
+            console.log('🔄 Refreshing Task sidebar panel');
+            // Get the tasks list element
+            const listEl = taskSidePanel.querySelector('#todoistTasksList');
+            if (listEl) {
+                // Get current active tab
+                const activeTabEl = taskSidePanel.querySelector('.task-tab.active');
+                const currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo';
+                
+                // Clear only task items and headers, preserve the form
+                const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
+                taskItems.forEach(item => item.remove());
+                
+                const allTasks = this.getAllTasks();
+                
+                // Filter tasks based on current tab
+                let filteredTasks = allTasks;
+                if (currentTab === 'todo') {
+                    filteredTasks = allTasks.filter(task => !task.completed);
+                } else if (currentTab === 'done') {
+                    filteredTasks = allTasks.filter(task => task.completed);
+                }
+                
+                if (filteredTasks.length === 0) {
+                    if (currentTab === 'done') {
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'empty-state';
+                        emptyState.innerHTML = `
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                </svg>
+                            </div>
+                            <div class="empty-text">No completed tasks yet</div>
+                            <div class="empty-subtext">Complete some tasks to see them here</div>
+                        `;
+                        listEl.appendChild(emptyState);
+                    }
+                } else {
+                    // Group tasks by source
+                    const tasksBySource = {
+                        'local': [],
+                        'todoist': [],
+                        'notion': []
+                    };
+                    
+                    filteredTasks.forEach(task => {
+                        const source = task.source || 'local';
+                        if (tasksBySource[source]) {
+                            tasksBySource[source].push(task);
+                        } else {
+                            tasksBySource['local'].push(task);
+                        }
+                    });
+                    
+                    // Apply saved task order within each source
+                    const savedOrder = this.getTaskOrder();
+                    Object.keys(tasksBySource).forEach(source => {
+                        const tasks = tasksBySource[source];
+                        if (savedOrder.length > 0 && tasks.length > 0) {
+                            const taskMap = new Map(tasks.map(task => [task.id, task]));
+                            const orderedTasks = [];
+                            savedOrder.forEach(orderItem => {
+                                if (taskMap.has(orderItem.id)) {
+                                    orderedTasks.push(taskMap.get(orderItem.id));
+                                    taskMap.delete(orderItem.id);
+                                }
+                            });
+                            taskMap.forEach(task => orderedTasks.push(task));
+                            tasksBySource[source] = orderedTasks;
+                        }
+                    });
+                    
+                    // Get the form element to insert before it (if it exists)
+                    const addTaskFormEl = listEl.querySelector('#addTaskForm');
+                    
+                    // Source labels
+                    const sourceConfig = {
+                        'local': { label: 'My Tasks' },
+                        'todoist': { label: 'From Todoist' },
+                        'notion': { label: 'From Notion' }
+                    };
+                    
+                    // Check how many sources have tasks
+                    const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
+                    const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
+                    
+                    // Render tasks grouped by source
+                    let globalIndex = 0;
+                    ['local', 'todoist', 'notion'].forEach(source => {
+                        const tasks = tasksBySource[source];
+                        if (tasks.length === 0) return;
+                        
+                        // Create source header (only if needed)
+                        if (showHeaders) {
+                            const sourceHeader = document.createElement('div');
+                            sourceHeader.className = 'task-source-header';
+                            const config = sourceConfig[source];
+                            sourceHeader.innerHTML = `
+                                <span class="source-label">${config.label}</span>
+                                <span class="source-count">${tasks.length}</span>
+                            `;
+                            
+                            // Insert before the form if it exists, otherwise append
+                            if (addTaskFormEl) {
+                                listEl.insertBefore(sourceHeader, addTaskFormEl);
+                            } else {
+                                listEl.appendChild(sourceHeader);
+                            }
+                        }
+                        
+                        // Render tasks for this source
+                        tasks.forEach((task) => {
+                            const item = document.createElement('div');
+                            item.className = 'task-item';
+                            item.draggable = true;
+                            item.dataset.taskId = task.id;
+                            item.dataset.index = globalIndex++;
+                            item.dataset.source = source;
+                            
+                            const taskConfig = this.getTaskConfig(task.id);
+                            const completedSessions = taskConfig.completedSessions || 0;
+                            const totalSessions = taskConfig.sessions || 1;
+                            const isCompleted = task.completed || (completedSessions >= totalSessions);
+                            
+                            const itemContent = `
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''}>
+                                    <label for="task-${task.id}"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        ${task.content || '(untitled)'}
+                                    </div>
+                                </div>
+                                <div class="task-progress">
+                                    <span class="progress-text">${completedSessions}/${totalSessions}</span>
+                                </div>
+                                ${!isCompleted ? `
+                                <div class="task-menu" data-task-id="${task.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="1"/>
+                                        <circle cx="19" cy="12" r="1"/>
+                                        <circle cx="5" cy="12" r="1"/>
+                                    </svg>
+                                </div>
+                                ` : ''}
+                            `;
+                            
+                            item.innerHTML = itemContent;
+                            
+                            // Add completed class if task is completed
+                            if (isCompleted) {
+                                item.classList.add('completed');
+                            }
+                            
+                            // Only apply 'selected' class if task is NOT completed
+                            if (taskConfig.selected && !isCompleted) {
+                                item.classList.add('selected');
+                            }
+                            
+                            // Insert before the form if it exists, otherwise append
+                            if (addTaskFormEl) {
+                                listEl.insertBefore(item, addTaskFormEl);
+                            } else {
+                                listEl.appendChild(item);
+                            }
+                        });
+                    });
+                    
+                    // Re-setup event listeners after rendering
+                    this.setupTaskEventListeners(taskSidePanel);
+                    this.setupDragAndDrop(taskSidePanel);
+                }
+            }
+            return;
+        }
+        
+        // Check if task modal is currently open
+        const taskModal = document.querySelector('.focus-stats-overlay');
+        if (taskModal) {
+            // Find the tasks list element
+            const tasksList = taskModal.querySelector('#todoistTasksList');
+            if (tasksList) {
+                // Get current tab
+                const activeTab = taskModal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                
+                // Re-render tasks for the current tab
+                const allTasks = this.getAllTasks();
+                let filteredTasks = allTasks;
+                if (currentTab === 'todo') {
+                    filteredTasks = allTasks.filter(task => !task.completed);
+                } else if (currentTab === 'done') {
+                    filteredTasks = allTasks.filter(task => task.completed);
+                }
+                
+                if (filteredTasks.length === 0) {
+                    if (currentTab === 'done') {
+                        tasksList.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 12l2 2 4-4"/>
+                                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                    </svg>
+                                </div>
+                                <div class="empty-text">No completed tasks yet</div>
+                                <div class="empty-subtext">Complete some tasks to see them here</div>
+                            </div>
+                        `;
+                    } else {
+                        tasksList.innerHTML = '';
+                    }
+                } else {
+                    // Apply saved task order
+                    const savedOrder = this.getTaskOrder();
+                    let orderedTasks = filteredTasks;
+                    
+                    if (savedOrder.length > 0) {
+                        const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+                        orderedTasks = [];
+                        savedOrder.forEach(orderItem => {
+                            if (taskMap.has(orderItem.id)) {
+                                orderedTasks.push(taskMap.get(orderItem.id));
+                                taskMap.delete(orderItem.id);
+                            }
+                        });
+                        taskMap.forEach(task => orderedTasks.push(task));
+                    }
+                    
+                    // Render tasks
+                    tasksList.innerHTML = orderedTasks.map(task => {
+                        const config = this.getTaskConfig(task.id);
+                        const isSelected = config.selected;
+                        const sessions = config.sessions || 1;
+                        const completedSessions = config.completedSessions || 0;
+                        
+                        return `
+                            <div class="task-item ${isSelected ? 'selected' : ''}" data-task-id="${task.id}">
+                                <div class="task-content">
+                                    <div class="task-title">${task.content}</div>
+                                    ${task.source === 'todoist' ? '<div class="task-project">Todoist</div>' : ''}
+                                </div>
+                                <div class="task-actions">
+                                    <div class="task-sessions">
+                                        <span class="sessions-text">${completedSessions}/${sessions}</span>
+                                    </div>
+                                    <button class="task-toggle-btn ${isSelected ? 'active' : ''}" data-task-id="${task.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 12l2 2 4-4"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Re-setup event listeners for the new tasks
+                    this.setupTaskItemListeners(tasksList);
+                }
+            }
+        }
     }
 
     setupTaskItemListeners(container) {
@@ -11685,7 +11950,7 @@ class PomodoroTimer {
                 addTaskBtn.disabled = true;
                 // Hide list and add-section while editing
                 const listEl = modal.querySelector('#todoistTasksList');
-                const addSection = modal.querySelector('.add-task-section');
+                const addSection = modal.querySelector('#addTaskSectionModal');
                 if (listEl) listEl.style.display = 'none';
                 if (addSection) addSection.style.display = 'none';
                 const taskInput = addTaskForm.querySelector('#taskDescription');
@@ -11858,23 +12123,25 @@ class PomodoroTimer {
     }
 
     rerenderTaskList() {
-        const rerenderContainer = (container) => {
-            const listEl = container?.querySelector?.('#todoistTasksList');
-            if (!listEl) return;
-            const activeTab = container.querySelector('.task-tab.active');
-            const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
-            this.renderTasksInModal(container, currentTab);
-            this.setupDragAndDrop(container);
-        };
-
+        // Update the task sidebar panel if it's open
         const taskSidePanel = document.getElementById('taskSidePanel');
         if (taskSidePanel && taskSidePanel.classList.contains('open')) {
-            rerenderContainer(taskSidePanel);
+            this.refreshTaskModalIfOpen();
         }
-
+        
+        // Find the tasks modal and re-render the task list
+        // The modal uses the class 'focus-stats-overlay'/'focus-stats-modal' for the tasks UI
         const modal = document.querySelector('.focus-stats-modal');
         if (modal) {
-            rerenderContainer(modal);
+            const listEl = modal.querySelector('#todoistTasksList');
+            if (listEl) {
+                // Get current tab
+                const activeTab = modal.querySelector('.task-tab.active');
+                const currentTab = activeTab ? activeTab.dataset.tab : 'todo';
+                
+                // Re-render tasks with current tab filter
+                this.renderTasksInModal(modal, currentTab);
+            }
         }
     }
 
@@ -12464,9 +12731,22 @@ class PomodoroTimer {
 
     getAllTasks() {
         const localTasks = this.getLocalTasks();
-        // Task manager renders only persisted local tasks so all sources share
-        // the same UX (To-do/Done flow, drag-drop, edit, and selection behavior).
-        return localTasks.map(task => ({ ...task, source: task.source || 'local' }));
+        const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
+        
+        // Get local completion state for Todoist tasks
+        const todoistCompletionState = this.getTodoistTaskCompletionState();
+        
+        // Combine and mark source (preserve existing source if present)
+        const allTasks = [
+            ...localTasks.map(task => ({ ...task, source: task.source || 'local' })),
+            ...todoistTasks.map(task => ({ 
+                ...task, 
+                source: 'todoist',
+                completed: todoistCompletionState[task.id] || false
+            }))
+        ];
+        
+        return allTasks;
     }
 
     loadAllTasks() {
@@ -17657,7 +17937,197 @@ class PomodoroTimer {
         
         const renderTasks = () => {
             console.log('🔵 renderTasks called, currentTab:', currentTab);
-            this.renderTasksInModal(panel, currentTab);
+            
+            // Clear only task items and headers, preserve the form
+            const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
+            taskItems.forEach(item => item.remove());
+            
+            const allTasks = this.getAllTasks();
+            
+            // Filter tasks based on current tab
+            let filteredTasks = allTasks;
+            if (currentTab === 'todo') {
+                filteredTasks = allTasks.filter(task => !task.completed);
+            } else if (currentTab === 'done') {
+                filteredTasks = allTasks.filter(task => task.completed);
+            }
+            
+            if (filteredTasks.length === 0) {
+                if (currentTab === 'done') {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="empty-text">No completed tasks yet</div>
+                        <div class="empty-subtext">Complete some tasks to see them here</div>
+                    `;
+                    listEl.appendChild(emptyState);
+                }
+                return;
+            }
+            
+            // Group tasks by source
+            const tasksBySource = {
+                'local': [],
+                'todoist': [],
+                'notion': []
+            };
+            
+            filteredTasks.forEach(task => {
+                const source = task.source || 'local';
+                if (tasksBySource[source]) {
+                    tasksBySource[source].push(task);
+                } else {
+                    tasksBySource['local'].push(task);
+                }
+            });
+            
+            // Apply saved task order within each source
+            const savedOrder = this.getTaskOrder();
+            Object.keys(tasksBySource).forEach(source => {
+                const tasks = tasksBySource[source];
+                if (savedOrder.length > 0 && tasks.length > 0) {
+                    const taskMap = new Map(tasks.map(task => [task.id, task]));
+                    const orderedTasks = [];
+                    savedOrder.forEach(orderItem => {
+                        if (taskMap.has(orderItem.id)) {
+                            orderedTasks.push(taskMap.get(orderItem.id));
+                            taskMap.delete(orderItem.id);
+                        }
+                    });
+                    taskMap.forEach(task => orderedTasks.push(task));
+                    tasksBySource[source] = orderedTasks;
+                }
+            });
+            
+            // Get the form element to insert before it (if it exists)
+            const addTaskFormEl = listEl.querySelector('#addTaskForm');
+            
+            // Source labels
+            const sourceConfig = {
+                'local': { label: 'My Tasks' },
+                'todoist': { label: 'From Todoist' },
+                'notion': { label: 'From Notion' }
+            };
+            
+            // Check how many sources have tasks
+            const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
+            const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
+            
+            // Render tasks grouped by source
+            let globalIndex = 0;
+            ['local', 'todoist', 'notion'].forEach(source => {
+                const tasks = tasksBySource[source];
+                if (tasks.length === 0) return;
+                
+                // Create source header (only if needed)
+                if (showHeaders) {
+                    const sourceHeader = document.createElement('div');
+                    sourceHeader.className = 'task-source-header';
+                    const config = sourceConfig[source];
+                    sourceHeader.innerHTML = `
+                        <span class="source-label">${config.label}</span>
+                        <span class="source-count">${tasks.length}</span>
+                    `;
+                    
+                    // Insert before the form if it exists, otherwise append
+                    if (addTaskFormEl) {
+                        listEl.insertBefore(sourceHeader, addTaskFormEl);
+                    } else {
+                        listEl.appendChild(sourceHeader);
+                    }
+                }
+                
+                // Render tasks for this source
+                tasks.forEach((task) => {
+                    const item = document.createElement('div');
+                    item.className = 'task-item';
+                    // Disable drag & drop in Done tab (read-only)
+                    item.draggable = currentTab !== 'done';
+                    item.dataset.taskId = task.id;
+                    item.dataset.index = globalIndex++;
+                    item.dataset.source = source;
+                    
+                    const taskConfig = this.getTaskConfig(task.id);
+                    const sessions = taskConfig.sessions || 1;
+                    const completedSessions = taskConfig.completedSessions || 0;
+                    const totalSessions = taskConfig.sessions || 1;
+                    const isCompleted = task.completed || (completedSessions >= totalSessions);
+                    
+                    // Check if task should be disabled for Guest users
+                    const isGuest = !this.isAuthenticated || !this.user;
+                    const shouldDisableForGuest = isGuest && globalIndex > 1; // Disable tasks 2+ for guests
+                    
+                    // Format completed date if task is completed
+                    const completedDateHtml = isCompleted && task.completedAt ? 
+                        `<div class="task-completed-date">${new Date(task.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>` : '';
+                    
+                    // Disable checkbox in Done tab (read-only)
+                    const checkboxDisabled = (currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : '';
+                    
+                    const itemContent = `
+                        <div class="task-checkbox ${(currentTab === 'done' || shouldDisableForGuest) ? 'disabled' : ''}">
+                            <input type="checkbox" id="task-${task.id}" ${isCompleted ? 'checked' : ''} ${checkboxDisabled}>
+                            <label for="task-${task.id}"></label>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">
+                                ${task.content || '(untitled)'}
+                                ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
+                            </div>
+                            ${completedDateHtml}
+                        </div>
+                        <div class="task-progress">
+                            <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
+                        </div>
+                        ${!isCompleted && !shouldDisableForGuest ? `
+                        <div class="task-menu" data-task-id="${task.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="19" cy="12" r="1"/>
+                                <circle cx="5" cy="12" r="1"/>
+                            </svg>
+                        </div>
+                        ` : ''}
+                    `;
+                    
+                    item.innerHTML = itemContent;
+                    
+                    // Add disabled class for guest users
+                    if (shouldDisableForGuest) {
+                        item.classList.add('disabled-for-guest');
+                    }
+                    
+                    // Add completed class if task is completed
+                    if (isCompleted) {
+                        item.classList.add('completed');
+                    }
+                    
+                    // Add read-only class in Done tab
+                    if (currentTab === 'done') {
+                        item.classList.add('read-only');
+                    }
+                    
+                    // Only apply 'selected' class if task is NOT completed
+                    if (taskConfig.selected && !isCompleted) {
+                        item.classList.add('selected');
+                    }
+                    
+                    // Insert before the form if it exists, otherwise append
+                    if (addTaskFormEl) {
+                        listEl.insertBefore(item, addTaskFormEl);
+                    } else {
+                        listEl.appendChild(item);
+                    }
+                });
+            });
+            
+            this.setupTaskEventListeners(panel);
             this.setupDragAndDrop(panel);
             
             // Setup task menu (3 dots) click handlers for editing
@@ -17819,7 +18289,7 @@ class PomodoroTimer {
                 
                 const addTaskForm = panel.querySelector('#addTaskForm');
                 const addTaskBtn = panel.querySelector('#showAddTaskForm');
-                const addTaskSection = panel.querySelector('.add-task-section');
+                const addTaskSection = panel.querySelector('#addTaskSection');
                 
                 if (currentTab === 'done') {
                     // Hide add task elements in Done tab
