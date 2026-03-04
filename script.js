@@ -9598,7 +9598,7 @@ class PomodoroTimer {
             <!-- Task Tabs -->
             <div class="task-tabs">
                 <div class="task-tabs-left">
-                    <button class="task-tab active" data-tab="todo">To-do</button>
+                    <button class="task-tab active" data-tab="todo">To-dos</button>
                     <button class="task-tab" data-tab="done">Done</button>
                 </div>
                 <div class="task-tabs-right">
@@ -9923,26 +9923,13 @@ class PomodoroTimer {
             });
         }
 
-        // Initial UI state: if no tasks, show form and disable button
+        // Initial UI state: keep form hidden until user explicitly clicks Add Task
         if (addTaskBtn && addTaskForm) {
             try {
-                const initialTasks = this.getAllTasks();
-                if (Array.isArray(initialTasks) && initialTasks.length === 0) {
-                    addTaskForm.style.display = 'block';
-                    addTaskBtn.disabled = true;
-                    // First task: hide cancel, disable save until input
-                    const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
-                    const saveBtn0 = addTaskForm.querySelector('#saveTask');
-                    const taskInput0 = addTaskForm.querySelector('#taskDescription');
-                    if (cancelBtn0) cancelBtn0.style.display = 'none';
-                    if (saveBtn0) saveBtn0.disabled = true;
-                    if (taskInput0) taskInput0.focus();
-                } else {
-                    addTaskForm.style.display = 'none';
-                    addTaskBtn.disabled = false;
-                    const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
-                    if (cancelBtn0) cancelBtn0.style.display = '';
-                }
+                addTaskForm.style.display = 'none';
+                addTaskBtn.disabled = false;
+                const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
+                if (cancelBtn0) cancelBtn0.style.display = '';
             } catch (_) {}
         }
 
@@ -9979,19 +9966,9 @@ class PomodoroTimer {
                         // Show add task elements in To-do tab
                         if (addTaskSection) addTaskSection.style.display = 'block';
                         
-                        // Restore addTaskForm to its proper state based on whether there are tasks
-                        if (addTaskForm && addTaskBtn) {
-                            const tasks = this.getAllTasks();
-                            if (Array.isArray(tasks) && tasks.length === 0) {
-                                // No tasks: show form and disable button
-                                addTaskForm.style.display = 'block';
-                                addTaskBtn.disabled = true;
-                            } else {
-                                // Has tasks: hide form and enable button
-                                addTaskForm.style.display = 'none';
-                                addTaskBtn.disabled = false;
-                            }
-                        }
+                        // Keep form hidden in To-dos until user clicks Add Task
+                        if (addTaskForm) addTaskForm.style.display = 'none';
+                        if (addTaskBtn) addTaskBtn.disabled = false;
                     }
                     
                     // Re-render tasks
@@ -18258,22 +18235,10 @@ class PomodoroTimer {
             });
         }
         
-        // Initial UI state
+        // Initial UI state: keep form hidden until user explicitly clicks Add Task
         if (addTaskBtn && addTaskForm) {
-            const initialTasks = this.getAllTasks();
-            if (Array.isArray(initialTasks) && initialTasks.length === 0) {
-                addTaskForm.style.display = 'block';
-                addTaskBtn.disabled = true;
-                const cancelBtn0 = addTaskForm.querySelector('#cancelAddTask');
-                const saveBtn0 = addTaskForm.querySelector('#saveTask');
-                const taskInput0 = addTaskForm.querySelector('#taskDescription');
-                if (cancelBtn0) cancelBtn0.style.display = 'none';
-                if (saveBtn0) saveBtn0.disabled = true;
-                if (taskInput0) taskInput0.focus();
-            } else {
-                addTaskForm.style.display = 'none';
-                addTaskBtn.disabled = false;
-            }
+            addTaskForm.style.display = 'none';
+            addTaskBtn.disabled = false;
         }
         
         // Setup tabs FIRST - remove all old listeners
@@ -18312,16 +18277,8 @@ class PomodoroTimer {
                     // Show add task elements in To-do tab
                     if (addTaskSection) addTaskSection.style.display = 'block';
                     if (importSection) importSection.style.display = canShowImportInTodo ? 'block' : 'none';
-                    if (addTaskForm && addTaskBtn) {
-                        const tasks = this.getAllTasks();
-                        if (Array.isArray(tasks) && tasks.length === 0) {
-                            addTaskForm.style.display = 'block';
-                            addTaskBtn.disabled = true;
-                        } else {
-                            addTaskForm.style.display = 'none';
-                            addTaskBtn.disabled = false;
-                        }
-                    }
+                    if (addTaskForm) addTaskForm.style.display = 'none';
+                    if (addTaskBtn) addTaskBtn.disabled = false;
                 }
                 
                 // Re-render tasks for the selected tab
