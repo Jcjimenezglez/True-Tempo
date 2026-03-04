@@ -8582,9 +8582,8 @@ input:checked + .toggle-slider:before {
 }
 
 /* Drag and Drop Styles */
-.task-item {
+.task-item[draggable="true"] {
     cursor: move;
-    transition: all 0.2s ease;
 }
 
 .task-item.dragging {
@@ -8592,11 +8591,6 @@ input:checked + .toggle-slider:before {
     transform: rotate(5deg);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-}
-
-.task-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Footer Styles */
