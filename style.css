@@ -6253,6 +6253,12 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.35);
 }
 
+.todoist-btn-logo {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+
 /* Inline Add Task Form */
 .add-task-form {
     background: rgba(255, 255, 255, 0.03);

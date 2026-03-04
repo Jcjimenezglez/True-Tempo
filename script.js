@@ -9612,12 +9612,7 @@ class PomodoroTimer {
             ${this.todoistIntegrationEnabled && this.isAuthenticated && this.user && this.isPremiumUser() ? `
             <div class="add-task-section" style="margin-bottom: 12px;">
                 <button class="import-task-btn" id="importTodoistMainBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                        <line x1="12" y1="22.08" x2="12" y2="12"/>
-                    </svg>
-                    Import from Todoist
+                    Connect Todoist
                 </button>
             </div>
             ` : ''}
@@ -10015,6 +10010,10 @@ class PomodoroTimer {
         // Setup Import button (main button above tabs)
         const mainImportBtn = modal.querySelector('#importTodoistMainBtn');
         if (mainImportBtn) {
+            this.checkTodoistConnection()
+                .then((isConnected) => this.setTodoistImportCtaState(mainImportBtn, isConnected))
+                .catch(() => this.setTodoistImportCtaState(mainImportBtn, false));
+
             mainImportBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -10030,6 +10029,7 @@ class PomodoroTimer {
                 try {
                     // Check if Todoist is connected first
                     const isConnected = await this.checkTodoistConnection();
+                    this.setTodoistImportCtaState(mainImportBtn, isConnected);
                     if (!isConnected) {
                         // Show connection prompt and redirect to auth
                         this.showTodoistConnectionPrompt();
@@ -10566,6 +10566,22 @@ class PomodoroTimer {
             console.error('Error checking Todoist connection:', error);
             return false;
         }
+    }
+
+    setTodoistImportCtaState(buttonEl, isConnected) {
+        if (!buttonEl) return;
+
+        if (isConnected) {
+            buttonEl.innerHTML = `
+                <img src="/images/todoist.svg" alt="Todoist" class="todoist-btn-logo">
+                <span>Add from Todoist</span>
+            `;
+            buttonEl.setAttribute('aria-label', 'Add from Todoist');
+            return;
+        }
+
+        buttonEl.textContent = 'Connect Todoist';
+        buttonEl.setAttribute('aria-label', 'Connect Todoist');
     }
 
 
@@ -18408,6 +18424,10 @@ class PomodoroTimer {
             todoistBtn.replaceWith(todoistBtn.cloneNode(true));
             const newTodoistBtn = panel.querySelector('#importTodoistMainBtn');
             if (newTodoistBtn) {
+                this.checkTodoistConnection()
+                    .then((isConnected) => this.setTodoistImportCtaState(newTodoistBtn, isConnected))
+                    .catch(() => this.setTodoistImportCtaState(newTodoistBtn, false));
+
                 newTodoistBtn.addEventListener('click', async () => {
                     this.trackEvent('Todoist Import Clicked', {
                         button_type: 'todoist_import',
@@ -18423,6 +18443,7 @@ class PomodoroTimer {
 
                     try {
                         const isConnected = await this.checkTodoistConnection();
+                        this.setTodoistImportCtaState(newTodoistBtn, isConnected);
                         if (!isConnected) {
                             const userId = window.Clerk?.user?.id || '';
                             const viewMode = lsGet('viewMode');
