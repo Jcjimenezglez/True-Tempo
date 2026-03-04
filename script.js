@@ -6493,8 +6493,8 @@ class PomodoroTimer {
                     await fetch(`/api/todoist-disconnect${qs}`, { method: 'POST', credentials: 'include' });
                     this.todoistTasks = [];
                     this.todoistProjectsById = {};
-                    updateModalForStatus(false);
-                    primaryBtn.disabled = false;
+                    closeModal();
+                    if (typeof this.closeTaskPanel === 'function') this.closeTaskPanel();
                 } catch (e) {
                     console.error('Todoist disconnect error:', e);
                     primaryBtn.textContent = 'Disconnect';
