@@ -5980,12 +5980,12 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: 1px solid rgba(255, 255, 255, 0.6);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Preserve selected accent on hover */
 .task-item.selected:hover {
-    border-left-color: rgba(255, 255, 255, 0.8);
+    border-left-color: rgba(255, 255, 255, 0.1);
 }
 
 .task-item.completed {
