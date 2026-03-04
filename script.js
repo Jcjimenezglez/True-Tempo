@@ -2921,8 +2921,13 @@ class PomodoroTimer {
             }
 
 
-            // Apply saved technique now that auth is ready
-            this.applySavedTechniqueOnce();
+            // Re-apply saved technique once auth is truly resolved.
+            // This prevents temporary guest defaults from overriding user custom timers.
+            if (!this._savedTechniqueReappliedAfterAuth) {
+                this.hasAppliedSavedTechnique = false;
+                this.applySavedTechniqueOnce();
+                this._savedTechniqueReappliedAfterAuth = true;
+            }
             // Restore user's saved volume preference when authenticated
             try {
                 const savedVolume = localStorage.getItem('ambientVolume');
@@ -2956,6 +2961,7 @@ class PomodoroTimer {
             
             // Reset Pro status for unauthenticated users
             this.isPro = false;
+            this._savedTechniqueReappliedAfterAuth = false;
             
             // Reset technique ASAP for snappy UI when user is not authenticated
             this.resetToDefaultTechniqueIfNeeded();
@@ -17711,7 +17717,7 @@ class PomodoroTimer {
             isLongBreak: this.isLongBreak,
             currentTaskIndex: this.currentTaskIndex,
             currentTaskName: this.currentTaskName,
-            selectedTechnique: this.selectedTechnique?.name || 'Pomodoro',
+            selectedTechniqueKey: lsGet('selectedTechnique') || this.currentTechniqueKey || 'pomodoro',
             selectedTheme: this.currentTheme || 'lofi', // Save current theme
             timestamp: Date.now(),
             sectionDuration: sectionDuration,
@@ -17771,13 +17777,22 @@ class PomodoroTimer {
 
     // Restore timer state
     restoreTimerState(state) {
-        // Restore technique if different
-        if (state.selectedTechnique !== this.selectedTechnique?.name) {
-            const techniqueItem = Array.from(document.querySelectorAll('.technique-item'))
-                .find(item => item.dataset.technique === state.selectedTechnique);
-            if (techniqueItem) {
-                this.selectTechnique(techniqueItem);
-            }
+        // Restore technique using saved key (supports custom_<id>).
+        const savedKey = state.selectedTechniqueKey || lsGet('selectedTechnique') || 'pomodoro';
+        if (savedKey) {
+            try {
+                if (savedKey.startsWith('custom_')) {
+                    const customId = savedKey.slice('custom_'.length);
+                    const techniques = lsGet('customTechniques') || [];
+                    const selectedCustom = techniques.find((t) => String(t.id) === String(customId));
+                    if (selectedCustom) {
+                        this.selectCustomTechnique(selectedCustom);
+                    }
+                } else {
+                    const techniqueItem = document.querySelector(`[data-technique="${savedKey}"]`);
+                    if (techniqueItem) this.selectTechnique(techniqueItem);
+                }
+            } catch (_) {}
         }
         
         // Restore state
@@ -17816,7 +17831,7 @@ class PomodoroTimer {
         console.log('Timer state restored successfully:', {
             section: this.currentSection,
             timeLeft: this.timeLeft,
-            technique: state.selectedTechnique,
+            technique: savedKey,
             wasRunning: state.isRunning,
             restoredAsPaused: true
         });
