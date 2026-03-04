@@ -3569,7 +3569,7 @@ class PomodoroTimer {
         if (this.accountMenuManageSubscription) this.accountMenuManageSubscription.style.display = isPremium ? 'flex' : 'none';
         if (this.accountMenuSettings) this.accountMenuSettings.style.display = this.isAuthenticated ? 'flex' : 'none';
         if (this.accountMenuPricing) this.accountMenuPricing.style.display = this.isAuthenticated ? 'flex' : 'none';
-        if (this.accountMenuIntegrations) this.accountMenuIntegrations.style.display = this.isAuthenticated ? 'flex' : 'none';
+        if (this.accountMenuIntegrations) this.accountMenuIntegrations.style.display = 'flex';
         if (this.accountMenuLogout) this.accountMenuLogout.style.display = this.isAuthenticated ? 'flex' : 'none';
     }
 
@@ -6387,6 +6387,12 @@ class PomodoroTimer {
     }
 
     showIntegrationsModal() {
+        const isGuest = !this.isAuthenticated || !this.user;
+        const isPremium = this.isAuthenticated && this.user && this.isPremiumUser();
+        if (isGuest || !isPremium) {
+            this.showIntegrationUpgradeModal('todoist');
+            return;
+        }
         this.showTodoistConnectModal();
     }
 
@@ -9718,7 +9724,7 @@ class PomodoroTimer {
                 <h3>Tasks</h3>
                 <p class="tasks-subtitle">Manage your focus tasks</p>
             </div>
-            ${this.todoistIntegrationEnabled && this.isAuthenticated && this.user && this.isPremiumUser() ? `
+            ${this.todoistIntegrationEnabled ? `
             <div class="add-task-section" style="margin-bottom: 12px;">
                 <button class="import-task-btn" id="importTodoistMainBtn">
                     Connect Todoist
@@ -10135,16 +10141,20 @@ class PomodoroTimer {
                     conversion_funnel: 'integration_interest'
                 });
                 
+                const isGuest = !this.isAuthenticated || !this.user;
+                const isPremium = this.isAuthenticated && this.user && this.isPremiumUser();
+                if (isGuest || !isPremium) {
+                    this.showIntegrationUpgradeModal('todoist');
+                    return;
+                }
+                
                 try {
-                    // Check if Todoist is connected first
                     const isConnected = await this.checkTodoistConnection();
                     this.setTodoistImportCtaState(mainImportBtn, isConnected);
                     if (!isConnected) {
-                        // Show connection prompt and redirect to auth
-                        this.showTodoistConnectionPrompt();
+                        this.showTodoistConnectModal();
                         return;
                     }
-                    // Show Todoist projects selection modal
                     await this.showTodoistProjectsModal();
                 } catch (error) {
                     console.error('Error opening Todoist projects modal:', error);
@@ -11078,15 +11088,15 @@ class PomodoroTimer {
         
         // Determine user type and message
         const isGuest = !this.isAuthenticated || !this.user;
-        const isFree = this.isAuthenticated && this.user && !this.isPro;
+        const isFree = this.isAuthenticated && this.user && !this.isPremiumUser();
         
         let upgradeMessage, buttonText;
         if (isGuest) {
             upgradeMessage = 'Sign up to unlock integrations and sync your tasks seamlessly!';
-            buttonText = 'Sign up';
+            buttonText = 'Sign up for free';
         } else if (isFree) {
-            upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Connect them here and focus on what matters—not on managing tools.';
-            buttonText = 'Connect Your Tools';
+            upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Upgrade to Premium to connect them and focus on what matters—not on managing tools.';
+            buttonText = 'Upgrade Now';
         } else {
             upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Connect them here and focus on what matters—not on managing tools.';
             buttonText = 'Connect Your Tools';
@@ -11226,7 +11236,7 @@ class PomodoroTimer {
         } else {
             // Guest and Free users show integration modal
             console.log('💰 Showing integration modal for non-Pro user');
-            this.showIntegrationModal('todoist');
+            this.showIntegrationUpgradeModal('todoist');
         }
     }
     
@@ -11254,7 +11264,7 @@ class PomodoroTimer {
             });
         } else {
             // Guest and Free users show integration modal
-            this.showIntegrationModal('notion');
+            this.showIntegrationUpgradeModal('notion');
         }
     }
     
@@ -17810,12 +17820,7 @@ class PomodoroTimer {
         
         // Show/hide sections based on user status and active tab
         const importSection = document.getElementById('importTodoistSection');
-        const canShowImportInTodo = (
-            this.todoistIntegrationEnabled &&
-            this.isAuthenticated &&
-            this.user &&
-            this.isPremiumUser()
-        );
+        const canShowImportInTodo = this.todoistIntegrationEnabled;
         
         const listEl = panel.querySelector('#todoistTasksList');
         console.log('🔵 listEl:', listEl);
@@ -18222,20 +18227,18 @@ class PomodoroTimer {
                         return;
                     }
 
+                    const isGuest = !this.isAuthenticated || !this.user;
+                    const isPremium = this.isAuthenticated && this.user && this.isPremiumUser();
+                    if (isGuest || !isPremium) {
+                        this.showIntegrationUpgradeModal('todoist');
+                        return;
+                    }
+
                     try {
                         const isConnected = await this.checkTodoistConnection();
                         this.setTodoistImportCtaState(newTodoistBtn, isConnected);
                         if (!isConnected) {
-                            const userId = window.Clerk?.user?.id || '';
-                            const viewMode = lsGet('viewMode');
-                            const params = new URLSearchParams();
-                            if (userId) params.set('uid', userId);
-                            if (viewMode === 'pro') {
-                                params.set('devMode', 'pro');
-                                params.set('bypass', 'true');
-                            }
-                            const qs = params.toString() ? `?${params.toString()}` : '';
-                            window.location.href = `/api/todoist-auth-start${qs}`;
+                            this.showTodoistConnectModal();
                             return;
                         }
 
