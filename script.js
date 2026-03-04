@@ -336,6 +336,7 @@ class PomodoroTimer {
         this.accountMenuManageSubscription = document.getElementById('accountMenuManageSubscription');
         this.accountMenuSettings = document.getElementById('accountMenuSettings');
         this.accountMenuPricing = document.getElementById('accountMenuPricing');
+        this.accountMenuIntegrations = document.getElementById('accountMenuIntegrations');
         this.accountMenuLogout = document.getElementById('accountMenuLogout');
         
         // Logo and achievement elements
@@ -3541,6 +3542,7 @@ class PomodoroTimer {
         if (this.accountMenuManageSubscription) this.accountMenuManageSubscription.style.display = isPremium ? 'flex' : 'none';
         if (this.accountMenuSettings) this.accountMenuSettings.style.display = this.isAuthenticated ? 'flex' : 'none';
         if (this.accountMenuPricing) this.accountMenuPricing.style.display = this.isAuthenticated ? 'flex' : 'none';
+        if (this.accountMenuIntegrations) this.accountMenuIntegrations.style.display = this.isAuthenticated ? 'flex' : 'none';
         if (this.accountMenuLogout) this.accountMenuLogout.style.display = this.isAuthenticated ? 'flex' : 'none';
     }
 
@@ -5454,14 +5456,14 @@ class PomodoroTimer {
             });
         }
         
-        // Settings dropdown - Integrations (removed from menu, now only in Account)
-        // if (this.settingsIntegrationsBtn) {
-        //     this.settingsIntegrationsBtn.addEventListener('click', (e) => {
-        //         e.preventDefault();
-        //         this.settingsDropdown.style.display = 'none';
-        //         this.showIntegrationsModal();
-        //     });
-        // }
+        // Settings dropdown - Integrations
+        if (this.settingsIntegrationsBtn) {
+            this.settingsIntegrationsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.settingsDropdown.style.display = 'none';
+                this.showIntegrationsModal();
+            });
+        }
         
         // Settings dropdown - Report (Guest) - REMOVED
         // Guest users can now use the streak-info button directly
@@ -6360,32 +6362,57 @@ class PomodoroTimer {
     showIntegrationsModal() {
         const settingsModal = document.getElementById('settingsModal');
         if (settingsModal) {
-            // Switch to integrations tab and make it active
             this.switchToSettingsTab('integrations');
-            // Make integrations nav item active
-            const integrationsNav = document.querySelector('[data-tab="integrations"]');
-            if (integrationsNav) {
-                integrationsNav.classList.add('active');
-            }
             settingsModal.style.display = 'flex';
+            this.refreshIntegrationsTabStatus?.();
         }
+    }
+
+    refreshIntegrationsTabStatus() {
+        const statusEl = document.getElementById('integrationsTodoistStatus');
+        const connectBtn = document.getElementById('integrationsTodoistConnect');
+        const disconnectBtn = document.getElementById('integrationsTodoistDisconnect');
+        if (!statusEl || !connectBtn || !disconnectBtn) return;
+        const refresh = async () => {
+            try {
+                statusEl.textContent = 'Checking...';
+                const userId = window.Clerk?.user?.id || '';
+                const params = new URLSearchParams();
+                if (userId) params.set('uid', userId);
+                const viewMode = lsGet('viewMode');
+                if (viewMode === 'pro') { params.set('devMode', 'pro'); params.set('bypass', 'true'); }
+                const qs = params.toString() ? `?${params.toString()}` : '';
+                const resp = await fetch(`/api/todoist-status${qs}`);
+                const json = await resp.json();
+                const connected = !!json.connected;
+                if (connected) {
+                    statusEl.textContent = 'Connected';
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = '';
+                    this.fetchTodoistData().catch(() => {});
+                } else {
+                    statusEl.textContent = 'Not connected';
+                    connectBtn.style.display = '';
+                    disconnectBtn.style.display = 'none';
+                }
+            } catch (_) {
+                statusEl.textContent = 'Not connected';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+            }
+        };
+        refresh();
     }
 
 
     switchToSettingsTab(tabName) {
-        // Hide all tabs
         const tabs = document.querySelectorAll('.settings-tab');
-        tabs.forEach(tab => tab.style.display = 'none');
-        
-        // Remove active class from all nav items
         const navItems = document.querySelectorAll('.settings-nav-item');
+        tabs.forEach(tab => tab.classList.remove('active'));
         navItems.forEach(item => item.classList.remove('active'));
-        
-        // Show the requested tab
         const targetTab = document.getElementById(`${tabName}-tab`);
         const targetNavItem = document.querySelector(`[data-tab="${tabName}"]`);
-        
-        if (targetTab) targetTab.style.display = 'block';
+        if (targetTab) targetTab.classList.add('active');
         if (targetNavItem) targetNavItem.classList.add('active');
     }
 
@@ -16321,84 +16348,98 @@ class PomodoroTimer {
 
 
     setupTodoistIntegrationControls() {
-        const connectBtn = document.getElementById('connectTodoistBtn');
-        const disconnectBtn = document.getElementById('disconnectTodoistBtn');
-        const statusText = document.getElementById('todoistStatusText');
-        
-        if (!connectBtn || !disconnectBtn || !statusText) return;
-        
-        connectBtn.addEventListener('click', () => {
-            this.trackEvent('Todoist Connect Clicked', {
-                button_type: 'todoist_connect',
-                source: 'settings_modal',
-                user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
-                conversion_funnel: 'integration_interest'
-            });
-            // Add user ID to URL for server-side verification
-            const userId = window.Clerk?.user?.id || '';
-            const viewMode = lsGet('viewMode');
-            
-            console.log('🔗 Connecting Todoist:', { 
-                userId, 
-                viewMode,
-                clerkUser: window.Clerk?.user 
-            });
-            
-            // Check if Developer Mode is active
-            const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
-            
-            // Let the server verify Pro status - it will redirect with error if not Pro
-            window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
-        });
+        const bindTodoistControls = (connectBtn, disconnectBtn, statusEl) => {
+            if (!connectBtn || !disconnectBtn || !statusEl) return;
 
-        disconnectBtn.addEventListener('click', async () => {
-            try {
-                const userId = window.Clerk?.user?.id || '';
-                const viewMode = lsGet('viewMode');
-                const params = new URLSearchParams();
-                if (userId) params.set('uid', userId);
-                if (viewMode === 'pro') {
-                    params.set('devMode', 'pro');
-                    params.set('bypass', 'true');
-                }
-                const qs = params.toString() ? `?${params.toString()}` : '';
-                await fetch(`/api/todoist-disconnect${qs}`, { method: 'POST' });
-            } catch (_) {}
-            statusText.textContent = 'Not connected';
-            disconnectBtn.style.display = 'none';
-            connectBtn.style.display = '';
-            this.todoistTasks = [];
-            this.todoistProjectsById = {};
-        });
-
-        // Fetch Tasks button removed - tasks are fetched automatically when connected
-
-        // Check connection status and update UI
-        (async () => {
-            try {
-                const userId = window.Clerk?.user?.id || '';
-                const params = new URLSearchParams();
-                if (userId) params.set('uid', userId);
-                const qs = params.toString() ? `?${params.toString()}` : '';
-                const resp = await fetch(`/api/todoist-status${qs}`);
-                const json = await resp.json();
-                const connected = !!json.connected;
-                if (connected) {
-                    statusText.textContent = 'Connected';
-                    connectBtn.style.display = 'none';
-                    disconnectBtn.style.display = '';
-                    this.fetchTodoistData();
-                } else {
-                    statusText.textContent = 'Not connected';
+            const refreshStatus = async () => {
+                try {
+                    statusEl.textContent = 'Checking...';
+                    const userId = window.Clerk?.user?.id || '';
+                    const params = new URLSearchParams();
+                    if (userId) params.set('uid', userId);
+                    const viewMode = lsGet('viewMode');
+                    if (viewMode === 'pro') {
+                        params.set('devMode', 'pro');
+                        params.set('bypass', 'true');
+                    }
+                    const qs = params.toString() ? `?${params.toString()}` : '';
+                    const resp = await fetch(`/api/todoist-status${qs}`);
+                    const json = await resp.json();
+                    const connected = !!json.connected;
+                    if (connected) {
+                        statusEl.textContent = 'Connected';
+                        connectBtn.style.display = 'none';
+                        disconnectBtn.style.display = '';
+                        this.fetchTodoistData().catch(() => {});
+                    } else {
+                        statusEl.textContent = 'Not connected';
+                        connectBtn.style.display = '';
+                        disconnectBtn.style.display = 'none';
+                    }
+                } catch (_) {
+                    statusEl.textContent = 'Not connected';
                     connectBtn.style.display = '';
                     disconnectBtn.style.display = 'none';
                 }
-            } catch (_) {
-                statusText.textContent = 'Not connected';
-                connectBtn.style.display = '';
+            };
+
+            connectBtn.addEventListener('click', () => {
+                this.trackEvent('Todoist Connect Clicked', {
+                    button_type: 'todoist_connect',
+                    source: 'integrations_tab',
+                    user_type: this.isAuthenticated ? (this.isPro ? 'pro' : 'free') : 'guest',
+                    conversion_funnel: 'integration_interest'
+                });
+                const userId = window.Clerk?.user?.id || '';
+                const viewMode = lsGet('viewMode');
+                const devModeParam = viewMode === 'pro' ? '&devMode=pro&bypass=true' : '';
+                window.location.href = `/api/todoist-auth-start?uid=${encodeURIComponent(userId)}${devModeParam}`;
+            });
+
+            disconnectBtn.addEventListener('click', async () => {
+                try {
+                    statusEl.textContent = 'Disconnecting...';
+                    const userId = window.Clerk?.user?.id || '';
+                    const params = new URLSearchParams();
+                    if (userId) params.set('uid', userId);
+                    const viewMode = lsGet('viewMode');
+                    if (viewMode === 'pro') {
+                        params.set('devMode', 'pro');
+                        params.set('bypass', 'true');
+                    }
+                    const qs = params.toString() ? `?${params.toString()}` : '';
+                    const resp = await fetch(`/api/todoist-disconnect${qs}`, { method: 'POST', credentials: 'include' });
+                    if (!resp.ok) {
+                        const err = await resp.json().catch(() => ({}));
+                        throw new Error(err.error || 'Failed to disconnect');
+                    }
+                } catch (e) {
+                    console.error('Todoist disconnect error:', e);
+                    statusEl.textContent = 'Error: ' + (e.message || 'Try again');
+                    return;
+                }
+                statusEl.textContent = 'Not connected';
                 disconnectBtn.style.display = 'none';
-            }
-        })();
+                connectBtn.style.display = '';
+                this.todoistTasks = [];
+                this.todoistProjectsById = {};
+            });
+
+            refreshStatus();
+        };
+
+        bindTodoistControls(
+            document.getElementById('integrationsTodoistConnect'),
+            document.getElementById('integrationsTodoistDisconnect'),
+            document.getElementById('integrationsTodoistStatus')
+        );
+
+        const legacyConnect = document.getElementById('connectTodoistBtn');
+        const legacyDisconnect = document.getElementById('disconnectTodoistBtn');
+        const legacyStatus = document.getElementById('todoistStatusText');
+        if (legacyConnect && legacyDisconnect && legacyStatus) {
+            bindTodoistControls(legacyConnect, legacyDisconnect, legacyStatus);
+        }
     }
 
     setupNotionIntegrationControls() {
@@ -24835,6 +24876,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             window.location.href = '/pricing';
+        });
+    }
+
+    const accountIntegrationsBtn = document.getElementById('accountMenuIntegrations');
+    if (accountIntegrationsBtn) {
+        accountIntegrationsBtn.addEventListener('click', () => {
+            closeAccountMenu();
+            if (window.pomodoroTimer?.showIntegrationsModal) {
+                window.pomodoroTimer.showIntegrationsModal();
+            }
         });
     }
 

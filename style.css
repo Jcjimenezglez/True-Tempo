@@ -5565,6 +5565,29 @@ audio {
     font-size: 0.8rem;
 }
 
+.integration-status-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.integration-status {
+    color: #b8b8b8;
+    font-size: 0.85rem;
+    min-width: 100px;
+}
+
+.settings-action-btn-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.settings-action-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
 .settings-select {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
