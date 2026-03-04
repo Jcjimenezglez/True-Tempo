@@ -11092,10 +11092,10 @@ class PomodoroTimer {
         
         let upgradeMessage, buttonText;
         if (isGuest) {
-            upgradeMessage = 'Sign up to unlock integrations and sync your tasks seamlessly!';
+            upgradeMessage = '';
             buttonText = 'Sign up for free';
         } else if (isFree) {
-            upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Upgrade to Premium to connect them and focus on what matters—not on managing tools.';
+            upgradeMessage = '';
             buttonText = 'Upgrade Now';
         } else {
             upgradeMessage = 'Your tasks live in Todoist or Notion. Why keep switching between apps? Connect them here and focus on what matters—not on managing tools.';
@@ -11140,9 +11140,9 @@ class PomodoroTimer {
                 `).join('')}
             </div>
             
-            <div style="text-align: center; margin-bottom: 24px;">
+            ${upgradeMessage ? `<div style="text-align: center; margin-bottom: 24px;">
                 <p style="color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.5;">${upgradeMessage}</p>
-            </div>
+            </div>` : ''}
             
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <button class="btn-primary" id="integrationSignupBtn" style="width: 100%;">${buttonText}</button>
