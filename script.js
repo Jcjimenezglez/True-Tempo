@@ -11166,23 +11166,27 @@ class PomodoroTimer {
         // Button handlers
         modal.querySelector('#integrationCancelBtn').addEventListener('click', close);
         modal.querySelector('#integrationSignupBtn').addEventListener('click', () => {
-            // Track which integration modal was clicked
+            // Track to Mixpanel and Google Ads
             const isSignupIntent = isGuest;
             const eventProperties = {
-                button_type: isSignupIntent ? 'signup' : 'subscribe',
-                source: 'integration_modal',
+                button_type: isSignupIntent ? 'sign_up_for_free' : 'upgrade_now',
+                source: `${integrationType}_integration_modal`,
                 location: `${integrationType}_integration_modal`,
                 user_type: isGuest ? 'guest' : 'free',
                 modal_type: `${integrationType}_integration`,
                 integration_type: integrationType
             };
-            this.trackEvent(isSignupIntent ? 'Signup Clicked' : 'Subscribe Clicked', eventProperties);
+            if (isSignupIntent) {
+                // Sign up for free → Mixpanel only (no Google Ads)
+                this.trackEvent('Sign Up Clicked', eventProperties);
+            } else {
+                // Upgrade Now → Subscribe Clicked → Mixpanel + Google Ads
+                this.trackEvent('Subscribe Clicked', eventProperties);
+            }
             
             if (isGuest) {
-                // Guest user - show signup
                 this.handleSignup();
             } else {
-                // Free user - redirect to pricing page
                 window.location.href = '/pricing';
             }
         });
