@@ -11887,7 +11887,7 @@ class PomodoroTimer {
         // Task checkbox click listeners - manual completion toggle
         const taskCheckboxes = modal.querySelectorAll('.task-checkbox input[type="checkbox"]');
         taskCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
+            checkbox.addEventListener('change', async (e) => {
                 e.stopPropagation();
                 
                 // Prevent action if checkbox is disabled (Done tab - read-only)
@@ -11898,8 +11898,12 @@ class PomodoroTimer {
                 const taskId = checkbox.id.replace('task-', '');
                 const isChecked = checkbox.checked;
                 
-                // Update task completion status
-                this.toggleTaskCompletion(taskId, isChecked);
+                // Update task completion status (and sync integrations when needed)
+                const updated = await this.toggleTaskCompletion(taskId, isChecked);
+                if (!updated) {
+                    checkbox.checked = !isChecked;
+                    return;
+                }
                 
                 // Update visual state
                 this.updateTaskCompletionVisual(modal, taskId, isChecked);
@@ -11974,7 +11978,7 @@ class PomodoroTimer {
         }
     }
 
-    toggleTaskCompletion(taskId, isCompleted) {
+    async toggleTaskCompletion(taskId, isCompleted) {
         // Get all tasks to determine the source
         const allTasks = this.getAllTasks();
         const task = allTasks.find(t => t.id === taskId);
@@ -11994,6 +11998,14 @@ class PomodoroTimer {
                     this.setLocalTasks(localTasks);
                 }
             } else if (task.source === 'todoist') {
+                // Keep Todoist as source of truth when marking done.
+                if (isCompleted) {
+                    const synced = await this.completeTodoistTaskInTodoist(task);
+                    if (!synced) {
+                        return false;
+                    }
+                }
+
                 // For Todoist tasks imported to local storage, update them there
                 const localTasks = this.getLocalTasks();
                 const taskIndex = localTasks.findIndex(t => t.id === taskId);
@@ -12010,10 +12022,6 @@ class PomodoroTimer {
                 // Also track completion state for live Todoist tasks
                 this.updateTodoistTaskCompletionState(taskId, isCompleted);
                 
-                // If completing, also call the API
-                if (isCompleted) {
-                    this.completeTodoistTaskInTodoist(taskId);
-                }
             } else if (task.source === 'notion') {
                 // For Notion tasks, update in local tasks
                 const localTasks = this.getLocalTasks();
@@ -12057,6 +12065,50 @@ class PomodoroTimer {
         
         // Re-render tasks to move between tabs
         this.rerenderTaskList();
+        return true;
+    }
+
+    getTodoistExternalTaskId(taskOrId) {
+        const rawId = typeof taskOrId === 'string' ? taskOrId : String(taskOrId?.id || '');
+        if (!rawId) return '';
+        return rawId.startsWith('todoist_') ? rawId.slice('todoist_'.length) : rawId;
+    }
+
+    async completeTodoistTaskInTodoist(taskOrId) {
+        const todoistTaskId = this.getTodoistExternalTaskId(taskOrId);
+        if (!todoistTaskId) return false;
+
+        try {
+            const userId = window.Clerk?.user?.id || '';
+            const viewMode = lsGet('viewMode');
+            const params = new URLSearchParams();
+            params.set('id', todoistTaskId);
+            if (userId) params.set('uid', userId);
+            if (viewMode === 'pro') {
+                params.set('devMode', 'pro');
+                params.set('bypass', 'true');
+            }
+
+            const response = await fetch(`/api/todoist-complete?${params.toString()}`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                console.error('Todoist complete failed:', response.status, payload);
+                return false;
+            }
+
+            // Remove from live Todoist task cache so it disappears immediately from To-do list.
+            this.todoistTasks = (this.todoistTasks || []).filter(
+                task => String(task.id) !== String(todoistTaskId)
+            );
+            return true;
+        } catch (error) {
+            console.error('Error completing Todoist task:', error);
+            return false;
+        }
     }
 
     updateTaskCompletionVisual(modal, taskId, isCompleted) {
