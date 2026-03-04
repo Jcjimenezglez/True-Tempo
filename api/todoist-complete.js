@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const response = await fetch(`https://api.todoist.com/rest/v1/tasks/${encodeURIComponent(taskId)}/close`, {
+    const response = await fetch(`https://api.todoist.com/rest/v2/tasks/${encodeURIComponent(taskId)}/close`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}` },
     });
