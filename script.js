@@ -11061,7 +11061,7 @@ class PomodoroTimer {
         const integrationData = {
             todoist: {
                 title: 'Todoist Integration',
-                subtitle: 'Sync your tasks seamlessly',
+                subtitle: '',
                 icon: '/images/todoist.svg',
                 benefits: [
                     'Import tasks from Todoist projects',
@@ -11126,7 +11126,7 @@ class PomodoroTimer {
                     </div>
                 </div>
                 <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 8px; color: white;">${data.title}</h3>
-                <p style="color: rgba(255,255,255,0.7); font-size: 14px;">${data.subtitle}</p>
+                ${data.subtitle ? `<p style="color: rgba(255,255,255,0.7); font-size: 14px;">${data.subtitle}</p>` : ''}
             </div>
             
             <div style="margin-bottom: 24px;">
