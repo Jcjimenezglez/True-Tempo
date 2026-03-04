@@ -6009,12 +6009,12 @@ input:checked + .toggle-slider:before {
 }
 
 .task-item.selected {
-    border-left: 4px solid #ffffff;
+    border-left: none;
 }
 
 /* Preserve selected accent on hover */
 .task-item.selected:hover {
-    border-left-color: #ffffff;
+    border-left-color: transparent;
 }
 
 .task-item.completed {
@@ -6233,7 +6233,7 @@ input:checked + .toggle-slider:before {
 /* Todoist import button in Tasks panel */
 .import-task-btn {
     width: 100%;
-    padding: 12px 14px;
+    padding: 16px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.06);
     color: #ffffff;
@@ -6243,8 +6243,8 @@ input:checked + .toggle-slider:before {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 500;
     transition: all 0.2s ease;
 }
 

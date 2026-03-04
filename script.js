@@ -18035,86 +18035,62 @@ class PomodoroTimer {
                 return;
             }
             
-            // Group tasks by source
-            const tasksBySource = {
-                'local': [],
-                'todoist': [],
-                'notion': []
-            };
-            
-            filteredTasks.forEach(task => {
-                const source = task.source || 'local';
-                if (tasksBySource[source]) {
-                    tasksBySource[source].push(task);
-                } else {
-                    tasksBySource['local'].push(task);
-                }
-            });
-            
-            // Apply saved task order within each source
+            // Apply a single saved order across all sources so drag/drop can move
+            // tasks between "My Tasks" and "From Todoist".
             const savedOrder = this.getTaskOrder();
-            Object.keys(tasksBySource).forEach(source => {
-                const tasks = tasksBySource[source];
-                if (savedOrder.length > 0 && tasks.length > 0) {
-                    const taskMap = new Map(tasks.map(task => [task.id, task]));
-                    const orderedTasks = [];
-                    savedOrder.forEach(orderItem => {
-                        if (taskMap.has(orderItem.id)) {
-                            orderedTasks.push(taskMap.get(orderItem.id));
-                            taskMap.delete(orderItem.id);
-                        }
-                    });
-                    taskMap.forEach(task => orderedTasks.push(task));
-                    tasksBySource[source] = orderedTasks;
-                }
-            });
-            
-            // Get the form element to insert before it (if it exists)
-            const addTaskFormEl = listEl.querySelector('#addTaskForm');
-            
+            let orderedTasks = filteredTasks;
+            if (savedOrder.length > 0) {
+                const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+                orderedTasks = [];
+                savedOrder.forEach(orderItem => {
+                    if (taskMap.has(orderItem.id)) {
+                        orderedTasks.push(taskMap.get(orderItem.id));
+                        taskMap.delete(orderItem.id);
+                    }
+                });
+                taskMap.forEach(task => orderedTasks.push(task));
+            }
+
             // Source labels
             const sourceConfig = {
                 'local': { label: 'My Tasks' },
                 'todoist': { label: 'From Todoist' },
                 'notion': { label: 'From Notion' }
             };
-            
-            // Check how many sources have tasks
-            const sourcesWithTasks = Object.keys(tasksBySource).filter(source => tasksBySource[source].length > 0);
-            const showHeaders = sourcesWithTasks.length > 1 || (sourcesWithTasks.length === 1 && sourcesWithTasks[0] !== 'local');
-            
-            // Render tasks grouped by source
-            let globalIndex = 0;
-            ['local', 'todoist', 'notion'].forEach(source => {
-                const tasks = tasksBySource[source];
-                if (tasks.length === 0) return;
-                
-                // Create source header (only if needed)
-                if (showHeaders) {
-                    const sourceHeader = document.createElement('div');
-                    sourceHeader.className = 'task-source-header';
-                    const config = sourceConfig[source];
-                    sourceHeader.innerHTML = `
-                        <span class="source-label">${config.label}</span>
-                        <span class="source-count">${tasks.length}</span>
-                    `;
-                    
-                    // Insert before the form if it exists, otherwise append
-                    if (addTaskFormEl) {
-                        listEl.insertBefore(sourceHeader, addTaskFormEl);
-                    } else {
+
+            // Count tasks per source for header badges
+            const sourceCounts = {};
+            orderedTasks.forEach((task) => {
+                const source = sourceConfig[task.source || 'local'] ? (task.source || 'local') : 'local';
+                sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+            });
+            const presentSources = Object.keys(sourceCounts);
+            const showHeaders = presentSources.length > 1 || (presentSources.length === 1 && presentSources[0] !== 'local');
+
+            // Render tasks in global order. Reinsert a source header when the source
+            // changes so users can visually keep both lists while reordering across them.
+            let previousSource = null;
+            orderedTasks.forEach((task, index) => {
+                    const source = sourceConfig[task.source || 'local'] ? (task.source || 'local') : 'local';
+
+                    if (showHeaders && source !== previousSource) {
+                        const sourceHeader = document.createElement('div');
+                        sourceHeader.className = 'task-source-header';
+                        const config = sourceConfig[source];
+                        sourceHeader.innerHTML = `
+                            <span class="source-label">${config.label}</span>
+                            <span class="source-count">${sourceCounts[source] || 0}</span>
+                        `;
                         listEl.appendChild(sourceHeader);
+                        previousSource = source;
                     }
-                }
-                
-                // Render tasks for this source
-                tasks.forEach((task) => {
+
                     const item = document.createElement('div');
                     item.className = 'task-item';
                     // Disable drag & drop in Done tab (read-only)
                     item.draggable = currentTab !== 'done';
                     item.dataset.taskId = task.id;
-                    item.dataset.index = globalIndex++;
+                    item.dataset.index = index;
                     item.dataset.source = source;
                     
                     const taskConfig = this.getTaskConfig(task.id);
@@ -18125,7 +18101,7 @@ class PomodoroTimer {
                     
                     // Check if task should be disabled for Guest users
                     const isGuest = !this.isAuthenticated || !this.user;
-                    const shouldDisableForGuest = isGuest && globalIndex > 1; // Disable tasks 2+ for guests
+                    const shouldDisableForGuest = isGuest && index >= 1; // Disable tasks 2+ for guests
                     
                     // Format completed date if task is completed
                     const completedDateHtml = isCompleted && task.completedAt ? 
@@ -18182,14 +18158,8 @@ class PomodoroTimer {
                         item.classList.add('selected');
                     }
                     
-                    // Insert before the form if it exists, otherwise append
-                    if (addTaskFormEl) {
-                        listEl.insertBefore(item, addTaskFormEl);
-                    } else {
-                        listEl.appendChild(item);
-                    }
+                    listEl.appendChild(item);
                 });
-            });
             
             this.setupTaskEventListeners(panel);
             this.setupDragAndDrop(panel);
