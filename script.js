@@ -10895,7 +10895,8 @@ class PomodoroTimer {
                 id: `todoist_${task.id}`,
                 content: task.content,
                 completed: false,
-                source: 'todoist'
+                source: 'todoist',
+                created: new Date().toISOString()
             }));
             
             // Add new tasks to existing local tasks
@@ -12016,12 +12017,21 @@ class PomodoroTimer {
                         delete localTasks[taskIndex].completedAt;
                     }
                     this.setLocalTasks(localTasks);
+                } else {
+                    console.warn('Todoist task not found in local storage:', taskId);
+                    return false;
                 }
             } else if (task.source === 'todoist') {
                 // Optimistic UI: move instantly in Superfocus, sync Todoist in background.
                 // For Todoist tasks imported to local storage, update them there
                 const localTasks = this.getLocalTasks();
-                const taskIndex = localTasks.findIndex(t => t.id === taskId);
+                const taskIdStr = String(taskId);
+                const taskIndex = localTasks.findIndex((t) => {
+                    const localId = String(t.id || '');
+                    if (localId === taskIdStr) return true;
+                    if (localId.startsWith('todoist_') && localId.slice('todoist_'.length) === taskIdStr) return true;
+                    return false;
+                });
                 if (taskIndex !== -1) {
                     localTasks[taskIndex].completed = isCompleted;
                     if (isCompleted) {
@@ -12774,22 +12784,7 @@ class PomodoroTimer {
 
     getAllTasks() {
         const localTasks = this.getLocalTasks();
-        const todoistTasks = this.isAuthenticated && this.user && this.isPro ? (this.todoistTasks || []) : [];
-        
-        // Get local completion state for Todoist tasks
-        const todoistCompletionState = this.getTodoistTaskCompletionState();
-        
-        // Combine and mark source (preserve existing source if present)
-        const allTasks = [
-            ...localTasks.map(task => ({ ...task, source: task.source || 'local' })),
-            ...todoistTasks.map(task => ({ 
-                ...task, 
-                source: 'todoist',
-                completed: todoistCompletionState[task.id] || false
-            }))
-        ];
-        
-        return allTasks;
+        return localTasks.map(task => ({ ...task, source: task.source || 'local' }));
     }
 
     loadAllTasks() {
@@ -18035,12 +18030,19 @@ class PomodoroTimer {
                 return;
             }
             
-            // Apply a single saved order across all sources so drag/drop can move
-            // tasks between "My Tasks" and "From Todoist".
+            // Base order: creation date (older first).
+            const getCreatedTime = (task) => {
+                const raw = task?.created || task?.createdAt;
+                const value = raw ? Date.parse(raw) : 0;
+                return Number.isFinite(value) ? value : 0;
+            };
+            const baseOrderedTasks = [...filteredTasks].sort((a, b) => getCreatedTime(a) - getCreatedTime(b));
+
+            // If there is manual drag/drop order, honor it first.
             const savedOrder = this.getTaskOrder();
-            let orderedTasks = filteredTasks;
+            let orderedTasks = baseOrderedTasks;
             if (savedOrder.length > 0) {
-                const taskMap = new Map(filteredTasks.map(task => [task.id, task]));
+                const taskMap = new Map(baseOrderedTasks.map(task => [task.id, task]));
                 orderedTasks = [];
                 savedOrder.forEach(orderItem => {
                     if (taskMap.has(orderItem.id)) {
@@ -18050,48 +18052,14 @@ class PomodoroTimer {
                 });
                 taskMap.forEach(task => orderedTasks.push(task));
             }
-
-            // Source labels
-            const sourceConfig = {
-                'local': { label: 'My Tasks' },
-                'todoist': { label: 'From Todoist' },
-                'notion': { label: 'From Notion' }
-            };
-
-            // Count tasks per source for header badges
-            const sourceCounts = {};
-            orderedTasks.forEach((task) => {
-                const source = sourceConfig[task.source || 'local'] ? (task.source || 'local') : 'local';
-                sourceCounts[source] = (sourceCounts[source] || 0) + 1;
-            });
-            const presentSources = Object.keys(sourceCounts);
-            const showHeaders = presentSources.length > 1 || (presentSources.length === 1 && presentSources[0] !== 'local');
-
-            // Render tasks in global order. Reinsert a source header when the source
-            // changes so users can visually keep both lists while reordering across them.
-            let previousSource = null;
             orderedTasks.forEach((task, index) => {
-                    const source = sourceConfig[task.source || 'local'] ? (task.source || 'local') : 'local';
-
-                    if (showHeaders && source !== previousSource) {
-                        const sourceHeader = document.createElement('div');
-                        sourceHeader.className = 'task-source-header';
-                        const config = sourceConfig[source];
-                        sourceHeader.innerHTML = `
-                            <span class="source-label">${config.label}</span>
-                            <span class="source-count">${sourceCounts[source] || 0}</span>
-                        `;
-                        listEl.appendChild(sourceHeader);
-                        previousSource = source;
-                    }
-
                     const item = document.createElement('div');
                     item.className = 'task-item';
                     // Disable drag & drop in Done tab (read-only)
                     item.draggable = currentTab !== 'done';
                     item.dataset.taskId = task.id;
                     item.dataset.index = index;
-                    item.dataset.source = source;
+                    item.dataset.source = task.source || 'local';
                     
                     const taskConfig = this.getTaskConfig(task.id);
                     const sessions = taskConfig.sessions || 1;
@@ -18192,8 +18160,6 @@ class PomodoroTimer {
                     // Hide the task item being edited
                     if (taskItem) {
                         taskItem.style.display = 'none';
-                        // Move form right after the hidden task item
-                        taskItem.parentNode.insertBefore(addTaskForm, taskItem.nextSibling);
                     }
                     
                     addTaskForm.style.display = 'block';
