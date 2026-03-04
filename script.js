@@ -17916,17 +17916,14 @@ class PomodoroTimer {
         const isFreeUser = this.isAuthenticated && this.user && !this.isPremiumUser();
         const isGuest = !this.isAuthenticated || !this.user;
         
-        // Show/hide sections based on user status
+        // Show/hide sections based on user status and active tab
         const importSection = document.getElementById('importTodoistSection');
-        
-        if (importSection) {
-            importSection.style.display = (
-                this.todoistIntegrationEnabled &&
-                this.isAuthenticated &&
-                this.user &&
-                this.isPremiumUser()
-            ) ? 'block' : 'none';
-        }
+        const canShowImportInTodo = (
+            this.todoistIntegrationEnabled &&
+            this.isAuthenticated &&
+            this.user &&
+            this.isPremiumUser()
+        );
         
         const listEl = panel.querySelector('#todoistTasksList');
         console.log('🔵 listEl:', listEl);
@@ -17935,8 +17932,23 @@ class PomodoroTimer {
         const activeTabEl = panel.querySelector('.task-tab.active');
         let currentTab = activeTabEl ? activeTabEl.dataset.tab : 'todo'; // Default to todo tab
         
+        const applyTaskPanelTabVisibility = () => {
+            const addTaskForm = panel.querySelector('#addTaskForm');
+            const addTaskSection = panel.querySelector('#addTaskSection');
+
+            if (currentTab === 'done') {
+                if (addTaskForm) addTaskForm.style.display = 'none';
+                if (addTaskSection) addTaskSection.style.display = 'none';
+                if (importSection) importSection.style.display = 'none';
+            } else {
+                if (addTaskSection) addTaskSection.style.display = 'block';
+                if (importSection) importSection.style.display = canShowImportInTodo ? 'block' : 'none';
+            }
+        };
+
         const renderTasks = () => {
             console.log('🔵 renderTasks called, currentTab:', currentTab);
+            applyTaskPanelTabVisibility();
             
             // Clear only task items and headers, preserve the form
             const taskItems = listEl.querySelectorAll('.task-item, .empty-state, .task-source-header');
@@ -18295,9 +18307,11 @@ class PomodoroTimer {
                     // Hide add task elements in Done tab
                     if (addTaskForm) addTaskForm.style.display = 'none';
                     if (addTaskSection) addTaskSection.style.display = 'none';
+                    if (importSection) importSection.style.display = 'none';
                 } else {
                     // Show add task elements in To-do tab
                     if (addTaskSection) addTaskSection.style.display = 'block';
+                    if (importSection) importSection.style.display = canShowImportInTodo ? 'block' : 'none';
                     if (addTaskForm && addTaskBtn) {
                         const tasks = this.getAllTasks();
                         if (Array.isArray(tasks) && tasks.length === 0) {
