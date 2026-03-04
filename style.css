@@ -5983,9 +5983,9 @@ input:checked + .toggle-slider:before {
     border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* First task in To-dos = active (used in timer) - 4px white indicator */
+/* First task in To-dos = active (used in timer) - 2px white indicator */
 .task-item.task-item-first {
-    border-left: 4px solid #ffffff;
+    border-left: 2px solid #ffffff;
 }
 
 /* Preserve selected accent on hover */

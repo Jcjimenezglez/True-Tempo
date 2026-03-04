@@ -9827,7 +9827,7 @@ class PomodoroTimer {
                         <path d="M12 5v14"/>
                         <path d="M5 12h14"/>
                     </svg>
-                    Add Task
+                    Create Task
                 </button>
             </div>
         `;
@@ -15487,12 +15487,13 @@ class PomodoroTimer {
                     const items = rawItems.slice().reverse();
                     const maxH = Math.max(...items.map(x => x.hours || 0), 1);
                     labelText = 'Last 365 days';
+                    // 14 days per row (13 gaps * 4px)
                     cells = items.map(d => {
                         const intensity = Math.min(1, (d.hours || 0) / maxH);
                         const bg = d.hours > 0 ? 'rgba(21, 128, 61, ' + (0.3 + intensity * 0.7) + ')' : 'rgba(255,255,255,0.08)';
                         const dateFormatted = new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                         const valStr = d.hours ? (d.hours < 0.1 ? d.hours.toFixed(2) : d.hours.toFixed(1)) + 'h' : '0h';
-                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 24px) / 7); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 7 };
+                        return { html: '<div title="' + dateFormatted + ' · ' + valStr + '" style="width: calc((100% - 52px) / 14); aspect-ratio: 1; background: ' + bg + '; border-radius: 4px; min-width: 24px;"></div>', w: 14 };
                     });
                 }
                 heatmapLabelEl.textContent = labelText;
