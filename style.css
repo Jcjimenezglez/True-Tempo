@@ -9695,17 +9695,8 @@ input:checked + .toggle-slider:before {
     z-index: 10;
 }
 
-/* Space Add button (right-center, only for owned custom spaces) */
-.timer-section .container {
-    position: relative;
-}
-
+/* Space Add button (timer header top-right, only for owned custom spaces) */
 .space-add-btn {
-    position: absolute;
-    right: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 25;
     display: flex;
     align-items: center;
     gap: 6px;
