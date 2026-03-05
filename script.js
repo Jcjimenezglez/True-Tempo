@@ -876,6 +876,7 @@ class PomodoroTimer {
             const devModeActive = this.applyDevTestingModeState();
             if (devModeActive) {
                 console.log('🧪 Dev testing mode is active - preserving simulated auth state');
+                this.scheduleAuthUpdate();
             }
             
             // Wait for global Clerk initialization to complete
@@ -893,46 +894,35 @@ class PomodoroTimer {
                 justLoggedOutRecently = justLoggedOut && (loggedOutAt === 0 || (Date.now() - loggedOutAt) < (2 * 60 * 1000));
             } catch (_) {}
 
-            // Check if Clerk is already initialized globally
-            if (window.__clerkInitialized) {
-                console.log('✅ Clerk already initialized globally, using existing session');
-                // Just use the existing session
-                this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
-                this.user = this.isAuthenticated ? window.Clerk.user : null;
-                console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
-            } else if (window.Clerk.loaded) {
-                console.log('✅ Clerk already loaded with session, skipping re-initialization');
-                // Just use the existing session
-                this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
-                this.user = this.isAuthenticated ? window.Clerk.user : null;
-                console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
-                window.__clerkInitialized = true;
-            } else {
-                // Only load if not already loaded
-                const clerkKey = this.getClerkPublishableKey();
-                
-                console.log('Loading Clerk for the first time...');
-                window.__clerkInitializing = true;
-                
-                // Load Clerk with configuration to hide development banner
-                await window.Clerk.load({
-                    appearance: {
-                        elements: {
-                            '::before': { content: 'none' }
-                        }
-                    },
-                    publishableKey: clerkKey,
-                    isSatellite: false, // Ensure sessions persist across page navigations
-                    sessionTokenRefresh: true // Keep sessions active for longer periods
-                });
-                
-                window.__clerkInitialized = true;
-                window.__clerkInitializing = false;
-                
-                // Hydrate initial auth state
-                this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
-                this.user = this.isAuthenticated ? window.Clerk.user : null;
-                console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+            // Check if Clerk is already initialized globally (skip overwrite when dev mode active)
+            if (!devModeActive) {
+                if (window.__clerkInitialized) {
+                    console.log('✅ Clerk already initialized globally, using existing session');
+                    this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
+                    this.user = this.isAuthenticated ? window.Clerk.user : null;
+                    console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+                } else if (window.Clerk.loaded) {
+                    console.log('✅ Clerk already loaded with session, skipping re-initialization');
+                    this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
+                    this.user = this.isAuthenticated ? window.Clerk.user : null;
+                    console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+                    window.__clerkInitialized = true;
+                } else {
+                    const clerkKey = this.getClerkPublishableKey();
+                    console.log('Loading Clerk for the first time...');
+                    window.__clerkInitializing = true;
+                    await window.Clerk.load({
+                        appearance: { elements: { '::before': { content: 'none' } } },
+                        publishableKey: clerkKey,
+                        isSatellite: false,
+                        sessionTokenRefresh: true
+                    });
+                    window.__clerkInitialized = true;
+                    window.__clerkInitializing = false;
+                    this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
+                    this.user = this.isAuthenticated ? window.Clerk.user : null;
+                    console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+                }
             }
             
             // Local tasks only - no integration cleanup needed
@@ -945,9 +935,10 @@ class PomodoroTimer {
                 await this.waitForUserHydration(3000);
             }
             
-            // Single Clerk listener (avoids 3 duplicate updateAuthState calls)
+            // Single Clerk listener (skip when dev mode - preserve simulated auth)
             try {
                 window.Clerk.addListener('user', (user) => {
+                    if (this.getDevTestingMode()) return;
                     console.log('Auth state changed:', user);
                     this.isAuthenticated = !!user;
                     this.user = user;
@@ -22555,8 +22546,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         } else {
-            // Hide buttons when user is authenticated
             timerHeaderAuth.style.display = 'none';
+            const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
+            if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'block';
+            timer.updateSpaceAddButtonVisibility();
         }
     }
     
