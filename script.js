@@ -580,6 +580,7 @@ class PomodoroTimer {
         this.updateSessionInfo();
         this.updateStreakDisplay();
         this.bindEvents();
+        this.initializeSpaceAddButton();
         this.updateTechniqueTitle();
         this.loadAudio();
         this.loadCassetteSounds();
@@ -3002,6 +3003,7 @@ class PomodoroTimer {
             // Show Report header when authenticated
             const timerHeaderFocusReport = document.getElementById('timerHeaderFocusReport');
             if (timerHeaderFocusReport) timerHeaderFocusReport.style.display = 'block';
+            this.updateSpaceAddButtonVisibility();
             
             // Show/hide Subscribe button based on user type
             const subscribeBtn = document.getElementById('subscribeBtn');
@@ -18884,9 +18886,6 @@ class PomodoroTimer {
         // Initialize My Vibes section for Pro users
         this.initializeMyCassettes();
         
-        // Space Add button (customize background & music from timer)
-        this.initializeSpaceAddButton();
-        
         this.updateSpaceAddButtonVisibility();
         
         console.log('🎨 Theme panel initialized - no music reset');
@@ -21652,17 +21651,25 @@ class PomodoroTimer {
         const isCustom = this.currentTheme && this.currentTheme.startsWith('custom_');
         const cassetteId = isCustom ? this.currentTheme.replace('custom_', '') : null;
         const ownedCassette = cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId) : null;
-        btn.style.display = ownedCassette ? 'flex' : 'none';
+        const devMode = this.getDevTestingMode();
+        const devModeShowsAdd = devMode === 'free' || devMode === 'pro';
+        btn.style.display = (ownedCassette || devModeShowsAdd) ? 'flex' : 'none';
     }
 
     initializeSpaceAddButton() {
         const btn = document.getElementById('spaceAddBtn');
         if (!btn) return;
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            if (!this.currentTheme || !this.currentTheme.startsWith('custom_')) return;
-            const cassetteId = this.currentTheme.replace('custom_', '');
-            const cassette = this.getCustomCassettes().find(c => c.id === cassetteId);
+            let cassette = null;
+            if (this.currentTheme && this.currentTheme.startsWith('custom_')) {
+                const cassetteId = this.currentTheme.replace('custom_', '');
+                cassette = this.getCustomCassettes().find(c => c.id === cassetteId);
+            }
+            const devMode = this.getDevTestingMode();
+            if (!cassette && (devMode === 'free' || devMode === 'pro')) {
+                cassette = await this.createEmptySpace();
+            }
             if (!cassette) return;
             this.showSpaceAddPopover(btn, cassette);
         });
