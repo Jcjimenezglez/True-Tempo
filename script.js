@@ -20791,8 +20791,6 @@ class PomodoroTimer {
             if (cassette) {
                 document.getElementById('cassetteTitle').value = cassette.title || '';
                 document.getElementById('cassetteDescription').value = cassette.description || '';
-                document.getElementById('cassetteImageUrl').value = cassette.imageUrl || '';
-                document.getElementById('cassetteSpotifyUrl').value = cassette.spotifyUrl || '';
                 const isPublicCheckbox = document.getElementById('cassetteIsPublic');
                 if (isPublicCheckbox) {
                     isPublicCheckbox.checked = cassette.isPublic === true;
@@ -20812,8 +20810,6 @@ class PomodoroTimer {
             // Clear form for new cassette
             document.getElementById('cassetteTitle').value = '';
             document.getElementById('cassetteDescription').value = '';
-            document.getElementById('cassetteImageUrl').value = '';
-            document.getElementById('cassetteSpotifyUrl').value = '';
             const isPublicCheckbox = document.getElementById('cassetteIsPublic');
             if (isPublicCheckbox) {
                 isPublicCheckbox.checked = false;
@@ -20874,8 +20870,6 @@ class PomodoroTimer {
         // Clear form
         document.getElementById('cassetteTitle').value = '';
         document.getElementById('cassetteDescription').value = '';
-        document.getElementById('cassetteImageUrl').value = '';
-        document.getElementById('cassetteSpotifyUrl').value = '';
         const isPublicCheckbox = document.getElementById('cassetteIsPublic');
         if (isPublicCheckbox) {
             isPublicCheckbox.checked = false;
@@ -20954,27 +20948,20 @@ class PomodoroTimer {
         
         const titleEl = document.getElementById('cassetteTitle');
         const descriptionEl = document.getElementById('cassetteDescription');
-        const imageUrlEl = document.getElementById('cassetteImageUrl');
-        const spotifyUrlEl = document.getElementById('cassetteSpotifyUrl');
         const isPublicCheckbox = document.getElementById('cassetteIsPublic');
+        const previousCassette = cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId) : null;
         
-        if (!titleEl || !descriptionEl || !imageUrlEl || !spotifyUrlEl) {
-            console.error('Form elements not found', {
-                titleEl: !!titleEl,
-                descriptionEl: !!descriptionEl,
-                imageUrlEl: !!imageUrlEl,
-                spotifyUrlEl: !!spotifyUrlEl
-            });
+        if (!titleEl || !descriptionEl) {
+            console.error('Form elements not found');
             alert('Error: Form elements not found. Please try again.');
             return false;
         }
         
-        // Get values with debug logging
-        const title = titleEl ? (titleEl.value || titleEl.textContent || '').trim() : '';
-        const description = descriptionEl ? (descriptionEl.value || descriptionEl.textContent || '').trim() : '';
-        let imageUrl = imageUrlEl ? (imageUrlEl.value || imageUrlEl.textContent || '').trim() : '';
-        const spotifyUrl = spotifyUrlEl ? (spotifyUrlEl.value || spotifyUrlEl.textContent || '').trim() : '';
+        const title = (titleEl.value || '').trim();
+        const description = (descriptionEl.value || '').trim();
         const isPublic = isPublicCheckbox ? isPublicCheckbox.checked : false;
+        const imageUrl = previousCassette?.imageUrl || '';
+        const spotifyUrl = previousCassette?.spotifyUrl || '';
         
         console.log('💾 Saving cassette:', { 
             title: title, 
@@ -20989,63 +20976,6 @@ class PomodoroTimer {
             if (titleEl) titleEl.focus();
             return false;
         }
-        
-        // Extract actual image URL if it's a Google Images redirect
-        if (imageUrl) {
-            const originalUrl = imageUrl;
-            imageUrl = this.extractImageUrl(imageUrl);
-            console.log('🎨 Original URL:', originalUrl);
-            console.log('🎨 Final image URL:', imageUrl);
-            
-            const trimmedUrl = imageUrl.trim().toLowerCase();
-
-            // Check for Google Images redirect (these are invalid)
-            const isGoogleRedirect = trimmedUrl.includes('google.com/url') || trimmedUrl.includes('google.com/imgres');
-            if (isGoogleRedirect) {
-                alert('⚠️ Error: Google Search results are not direct images.\n\nPlease right-click the image and select "Copy Image Address".');
-                if (imageUrlEl) imageUrlEl.focus();
-                return false;
-            }
-
-            // Trusted image hosting services (these don't need extensions)
-            const trustedHosts = [
-                'i.imgur.com',
-                'images.unsplash.com',
-                'cdn.unsplash.com',
-                'images.pexels.com',
-                'cdn.pexels.com',
-                'imgur.com/a/',
-                'imgur.com/gallery/',
-                'unsplash.com/photos/',
-                'pexels.com/photo/',
-                'drive.google.com/uc', // Google Drive direct links
-                'pbs.twimg.com/media/' // Twitter images
-            ];
-            const isTrustedHost = trustedHosts.some(host => trimmedUrl.includes(host));
-            
-            if (!isTrustedHost) {
-                // Remove query parameters for extension check
-                const urlWithoutQuery = trimmedUrl.split('?')[0].split('#')[0];
-                
-                // List of valid image extensions
-                const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico', '.avif'];
-                const hasImageExtension = imageExtensions.some(ext => urlWithoutQuery.endsWith(ext));
-                
-                if (!hasImageExtension) {
-                    // Show warning but allow user to continue
-                    const proceed = confirm('⚠️ Warning: This might not be a direct image URL.\n\nThe image might not display correctly.\n\n💡 Tip: Right-click the image and select "Copy image address"\n\nDo you want to save anyway?');
-                    if (!proceed) {
-                        if (imageUrlEl) imageUrlEl.focus();
-                        return false;
-                    }
-                    // User chose to proceed - continue with save
-                    console.log('⚠️ User chose to save with potentially invalid image URL:', imageUrl);
-                }
-            }
-        }
-        
-        // Get previous cassette state if editing
-        const previousCassette = cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId) : null;
         const wasPublic = previousCassette?.isPublic === true;
         const isNowPublic = isPublic === true;
         const changedFromPublicToPrivate = wasPublic && !isNowPublic;
@@ -21652,6 +21582,15 @@ class PomodoroTimer {
         if (!btn) return;
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
+            const existing = document.getElementById('spaceAddPopover');
+            if (existing) {
+                existing.remove();
+                if (this._spaceAddOutsideClick) {
+                    document.removeEventListener('click', this._spaceAddOutsideClick);
+                    this._spaceAddOutsideClick = null;
+                }
+                return;
+            }
             let cassette = null;
             if (this.currentTheme && this.currentTheme.startsWith('custom_')) {
                 const cassetteId = this.currentTheme.replace('custom_', '');
@@ -21674,12 +21613,12 @@ class PomodoroTimer {
         const rect = anchorBtn.getBoundingClientRect();
         const popoverWidth = 320;
         const left = Math.max(16, rect.right - popoverWidth);
-        const top = rect.top - 8;
+        const top = rect.bottom + 8;
 
         const popover = document.createElement('div');
         popover.id = 'spaceAddPopover';
         popover.className = 'space-add-popover';
-        popover.style.cssText = `left: ${left}px; top: ${top}px; transform: translateY(-100%);`;
+        popover.style.cssText = `left: ${left}px; top: ${top}px;`;
 
         const bgNone = !cassette.imageUrl;
         const bgUrl = cassette.imageUrl || '';
@@ -21751,17 +21690,21 @@ class PomodoroTimer {
             });
         });
 
-        const close = () => {
-            try { popover.remove(); } catch (_) {}
-            document.removeEventListener('click', outsideClick);
-        };
-
         const outsideClick = (e) => {
             if (!popover.contains(e.target) && !anchorBtn.contains(e.target)) {
                 close();
             }
         };
 
+        const close = () => {
+            try { popover.remove(); } catch (_) {}
+            if (this._spaceAddOutsideClick) {
+                document.removeEventListener('click', this._spaceAddOutsideClick);
+                this._spaceAddOutsideClick = null;
+            }
+        };
+
+        this._spaceAddOutsideClick = outsideClick;
         setTimeout(() => document.addEventListener('click', outsideClick), 0);
 
         popover.querySelector('#spaceAddCancel').addEventListener('click', close);
