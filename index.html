@@ -361,7 +361,6 @@
     <script
         async
         crossorigin="anonymous"
-        data-clerk-publishable-key="pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA"
         onload="window.clerkLoaded = true;"
         src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
         type="text/javascript"
@@ -375,6 +374,16 @@
             // Global flag to prevent multiple initializations
             window.__clerkInitialized = false;
             window.__clerkInitializing = false;
+
+            function resolveClerkPublishableKey() {
+                const hostname = window.location.hostname;
+                const isProduction = hostname === 'www.superfocus.live' || hostname === 'superfocus.live';
+                const isPreview = hostname.includes('vercel.app') && !isProduction;
+                const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+                const productionKey = 'pk_live_Y2xlcmsuc3VwZXJmb2N1cy5saXZlJA';
+                const testKey = 'pk_test_c2V0LW1pbmstNi5jbGVyay5hY2NvdW50cy5kZXYk';
+                return (isPreview || isLocalhost) ? testKey : productionKey;
+            }
             
             async function initClerkWithSession() {
                 if (window.__clerkInitialized) {
@@ -413,6 +422,7 @@
                 try {
                     // Load Clerk - this will restore the session from cookies automatically
                     await window.Clerk.load({
+                        publishableKey: resolveClerkPublishableKey(),
                         // Ensure we persist sessions across page navigations
                         isSatellite: false,
                         // Keep sessions active for longer periods
@@ -505,7 +515,7 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
                     </svg>
                 </div>
-                <div class="nav-item" data-section="immersive-theme" data-tooltip="Cassettes">
+                <div class="nav-item" data-section="immersive-theme" data-tooltip="Spaces">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-boom-box-icon lucide-boom-box">
                         <path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
                         <path d="M8 8v1"/>
@@ -1052,14 +1062,14 @@
 
     <!-- Immersive Theme Side Panel -->
     <div class="task-side-panel" id="immersiveThemeSidePanel">
-        <button class="close-side-panel-btn" id="closeImmersiveThemePanel" aria-label="Close Cassettes Panel" title="Close Cassettes">
+        <button class="close-side-panel-btn" id="closeImmersiveThemePanel" aria-label="Close Spaces Panel" title="Close Spaces">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="m15 18-6-6 6-6"/>
             </svg>
         </button>
         <div class="task-side-panel-content">
             <div class="tasks-header">
-                <h3>Cassettes</h3>
+                <h3>Spaces</h3>
                 <p class="tasks-subtitle">Ambient sounds and focus environments</p>
             </div>
             
@@ -1070,7 +1080,7 @@
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input type="text" id="cassetteSearchInput" placeholder="Search cassettes by title or description...">
+                    <input type="text" id="cassetteSearchInput" placeholder="Search spaces by title or description...">
                 </div>
             </div>
             
@@ -1081,7 +1091,7 @@
                         <path d="M12 5v14"/>
                         <path d="M5 12h14"/>
                     </svg>
-                    Create cassette
+                    Create space
                 </button>
                 
                 <!-- Cassette Form (Hidden by default) -->
@@ -1136,7 +1146,7 @@
             
             <!-- Theme Options -->
             <div class="settings-section" id="cassettePresetsSection">
-                <h4 class="section-title">Cassette presets</h4>
+                <h4 class="section-title">Presets</h4>
                 <div class="theme-options">
                     <div class="theme-option" data-theme="simple">
                         <div class="theme-preview" style="background: #0a0a0a;"></div>
@@ -1156,9 +1166,9 @@
                 </div>
             </div>
             
-            <!-- Public Cassettes Section -->
+            <!-- Public Spaces Section -->
             <div class="settings-section" id="publicCassettesSection" style="display: none;">
-                <h4 class="section-title">Public Cassettes</h4>
+                <h4 class="section-title">Public</h4>
                 <div id="publicCassettesList" class="theme-options">
                     <!-- Public cassettes will be rendered here -->
                 </div>
@@ -2797,7 +2807,7 @@
                         <circle cx="8" cy="15" r="2"/>
                         <circle cx="16" cy="15" r="2"/>
                     </svg>
-                    <span>Cassettes</span>
+                    <span>Spaces</span>
                 </button>
                 <button class="bottom-sheet-nav-item" data-target="reportSheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

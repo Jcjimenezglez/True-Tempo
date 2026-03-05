@@ -15,13 +15,17 @@ describe('checkProStatus', () => {
     jest.clearAllMocks();
     mockGetUser.mockClear();
     process.env.CLERK_SECRET_KEY = 'test-secret-key';
+    process.env.DEV_BYPASS_SECRET = 'dev-secret';
   });
 
   describe('Developer Mode', () => {
-    it('should grant Pro access when devMode=pro', async () => {
+    it('should grant Pro access when devMode=pro in preview/local with valid secret', async () => {
       const req = {
-        url: 'https://example.com/api?devMode=pro',
-        headers: { host: 'example.com' },
+        url: 'https://preview.vercel.app/api?devMode=pro',
+        headers: {
+          host: 'preview.vercel.app',
+          'x-dev-bypass-secret': 'dev-secret'
+        },
         query: {}
       };
 
@@ -35,17 +39,17 @@ describe('checkProStatus', () => {
       });
     });
 
-    it('should grant Pro access when bypass=true in query params', async () => {
+    it('should reject bypass when secret is missing', async () => {
       const req = {
-        url: 'https://example.com/api',
-        headers: { host: 'example.com' },
+        url: 'https://preview.vercel.app/api',
+        headers: { host: 'preview.vercel.app' },
         query: { bypass: 'true' }
       };
 
       const result = await checkProStatus(req);
 
-      // When bypass is in req.query, it should be recognized
-      expect(result.isPro).toBe(true);
+      expect(result.isPro).toBe(false);
+      expect(result.error).toBe('Not authenticated');
     });
   });
 

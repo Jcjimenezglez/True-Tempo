@@ -32,15 +32,25 @@ async function checkProStatus(req) {
       console.log('🔍 devMode from req.query:', devMode);
     }
     
-    // Developer bypass mode (temporary for testing)
+    const host = String(req.headers.host || '').toLowerCase();
+    const isProdHost = host === 'superfocus.live' || host === 'www.superfocus.live';
+    const isPreviewOrLocalHost = host.includes('vercel.app') || host.includes('localhost') || host.includes('127.0.0.1');
+    const expectedDevSecret = String(process.env.DEV_BYPASS_SECRET || '').trim();
+    const providedDevSecret = String(req.headers['x-dev-bypass-secret'] || '').trim();
+    const hasValidDevSecret = !!expectedDevSecret && providedDevSecret === expectedDevSecret;
+
+    // Developer bypass mode (temporary for testing), locked to preview/local + shared secret.
     if (devModeBypass || devMode === 'pro') {
-      console.log('✅ ✅ ✅ Developer Mode: Pro access GRANTED (bypass active)');
-      return { 
-        isPro: true, 
-        userId: 'dev-mode-user',
-        email: 'developer@mode.local',
-        devMode: true
-      };
+      if (!isProdHost && isPreviewOrLocalHost && hasValidDevSecret) {
+        console.log('✅ Developer Mode: Pro access GRANTED (preview/local + secret)');
+        return {
+          isPro: true,
+          userId: 'dev-mode-user',
+          email: 'developer@mode.local',
+          devMode: true
+        };
+      }
+      console.log('❌ Dev bypass rejected: invalid host or missing/invalid x-dev-bypass-secret');
     } else {
       console.log('❌ devMode:', devMode, '- Not bypassing, checking Clerk...');
     }

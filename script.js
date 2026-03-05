@@ -573,6 +573,8 @@ class PomodoroTimer {
     
     init() {
         this.captureAdsClickIds();
+        this.initializeDevTestingModeFromUrl();
+        this.applyDevTestingModeState();
         this.layoutSegments();
         this.updateDisplay();
         this.updateProgress();
@@ -730,6 +732,116 @@ class PomodoroTimer {
     }
 
     // Clerk Authentication Methods
+    isProductionHost() {
+        const hostname = window.location.hostname;
+        return hostname === 'www.superfocus.live' || hostname === 'superfocus.live';
+    }
+
+    isPreviewOrLocalHost() {
+        const hostname = window.location.hostname;
+        return hostname.includes('vercel.app') || hostname === 'localhost' || hostname === '127.0.0.1';
+    }
+
+    setDevTestingMode(mode, ttlMs = 2 * 60 * 60 * 1000) {
+        if (this.isProductionHost() || !this.isPreviewOrLocalHost()) return;
+        const allowedModes = new Set(['guest', 'free', 'pro']);
+        if (!allowedModes.has(mode)) return;
+        try {
+            const expiresAt = Date.now() + ttlMs;
+            sessionStorage.setItem('devTestingMode', mode);
+            sessionStorage.setItem('devTestingModeExpiresAt', String(expiresAt));
+        } catch (_) {}
+    }
+
+    clearDevTestingMode() {
+        try {
+            sessionStorage.removeItem('devTestingMode');
+            sessionStorage.removeItem('devTestingModeExpiresAt');
+        } catch (_) {}
+    }
+
+    getDevTestingMode() {
+        if (this.isProductionHost() || !this.isPreviewOrLocalHost()) return null;
+        try {
+            const mode = sessionStorage.getItem('devTestingMode');
+            const expiresAtRaw = Number(sessionStorage.getItem('devTestingModeExpiresAt') || '0');
+            const expiresAt = Number.isFinite(expiresAtRaw) ? expiresAtRaw : 0;
+            if (!mode) return null;
+            if (expiresAt && Date.now() > expiresAt) {
+                this.clearDevTestingMode();
+                return null;
+            }
+            if (mode === 'guest' || mode === 'free' || mode === 'pro') {
+                return mode;
+            }
+            return null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    initializeDevTestingModeFromUrl() {
+        if (this.isProductionHost() || !this.isPreviewOrLocalHost()) return;
+
+        let didChange = false;
+        try {
+            const url = new URL(window.location.href);
+            const mode = (url.searchParams.get('dev_mode') || url.searchParams.get('devMode') || '').toLowerCase();
+            const ttlParam = Number(url.searchParams.get('dev_ttl_min') || url.searchParams.get('devTtlMin') || '120');
+            const ttlMinutes = Number.isFinite(ttlParam) && ttlParam > 0 ? Math.min(ttlParam, 24 * 60) : 120;
+
+            if (mode === 'guest' || mode === 'free' || mode === 'pro') {
+                this.setDevTestingMode(mode, ttlMinutes * 60 * 1000);
+                didChange = true;
+            }
+
+            if (url.searchParams.has('clear_dev_mode') || url.searchParams.has('clearDevMode')) {
+                this.clearDevTestingMode();
+                didChange = true;
+            }
+
+            if (didChange) {
+                url.searchParams.delete('dev_mode');
+                url.searchParams.delete('devMode');
+                url.searchParams.delete('dev_ttl_min');
+                url.searchParams.delete('devTtlMin');
+                url.searchParams.delete('clear_dev_mode');
+                url.searchParams.delete('clearDevMode');
+                const search = url.searchParams.toString();
+                const cleanUrl = `${url.pathname}${search ? `?${search}` : ''}${url.hash}`;
+                window.history.replaceState({}, '', cleanUrl);
+            }
+        } catch (_) {}
+    }
+
+    applyDevTestingModeState() {
+        const mode = this.getDevTestingMode();
+        if (!mode) return false;
+
+        if (mode === 'guest') {
+            this.isAuthenticated = false;
+            this.user = null;
+            this.isPro = false;
+            localStorage.setItem('hasAccount', 'false');
+            localStorage.setItem('isPremium', 'false');
+            localStorage.setItem('hasPaidSubscription', 'false');
+            return true;
+        }
+
+        this.isAuthenticated = true;
+        this.user = {
+            id: 'dev-mode-user',
+            firstName: mode === 'pro' ? 'Dev Pro' : 'Dev Free',
+            emailAddresses: [{ emailAddress: 'dev@example.local' }],
+            primaryEmailAddress: { emailAddress: 'dev@example.local' }
+        };
+        this.isPro = mode === 'pro';
+        localStorage.setItem('hasAccount', 'true');
+        localStorage.setItem('isPremium', this.isPro ? 'true' : 'false');
+        localStorage.setItem('hasPaidSubscription', this.isPro ? 'true' : 'false');
+        return true;
+    }
+
     getClerkPublishableKey() {
         // Detect if we're in a preview/staging environment
         const hostname = window.location.hostname;
@@ -761,6 +873,11 @@ class PomodoroTimer {
             console.log('Initializing Clerk...');
             await this.waitForClerk();
             console.log('Clerk SDK available, checking session...');
+
+            const devModeActive = this.applyDevTestingModeState();
+            if (devModeActive) {
+                console.log('🧪 Dev testing mode is active - preserving simulated auth state');
+            }
             
             // Wait for global Clerk initialization to complete
             let attempts = 0;
@@ -1067,6 +1184,9 @@ class PomodoroTimer {
     
     checkAuthState() {
         try {
+            if (this.applyDevTestingModeState()) {
+                return;
+            }
             if (window.Clerk) {
                 const currentUser = window.Clerk.user;
                 let justLoggedOutRecently = false;
@@ -1241,6 +1361,7 @@ class PomodoroTimer {
             console.log('🧹 Force clearing all auth state...');
             
             // Clear app state
+            this.clearDevTestingMode();
             this.isAuthenticated = false;
             this.user = null;
             this.isPro = false;
@@ -1910,7 +2031,7 @@ class PomodoroTimer {
                         <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                     </svg>
                 </div>
-                <h3>Create your focus cassette</h3>
+                <h3>Create your focus space</h3>
                 <p>Create a free account to start building your own custom focus environments. Upload your own images, set the perfect atmosphere, and personalize your workspace.</p>
                 <div class="upgrade-required-buttons">
                     <button class="upgrade-btn" id="cassetteLoginSignupBtn">Sign up for free</button>
@@ -1987,7 +2108,7 @@ class PomodoroTimer {
                             <path d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"/>
                         </svg>
                     </div>
-                    <h3>Create your focus cassette</h3>
+                    <h3>Create your focus space</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
                         <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up for free</button>
@@ -2038,8 +2159,8 @@ class PomodoroTimer {
                 source: 'cassettes_limit_gate',
                 location: 'create_cassette_limit',
                 gateType: 'cassettes',
-                title: 'Cassette limit reached',
-                message: customMessage || 'Upgrade to Premium to unlock unlimited cassettes and build your perfect focus environments.'
+                title: 'Space limit reached',
+                message: customMessage || 'Upgrade to Premium to unlock unlimited spaces and build your perfect focus environments.'
             });
         }
     }
@@ -2737,7 +2858,12 @@ class PomodoroTimer {
         if (this._authUpdateRunning) return;
         this._authUpdateRunning = true;
 
-        console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
+        const devMode = this.getDevTestingMode();
+        if (devMode) {
+            this.applyDevTestingModeState();
+        }
+
+        console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user, devMode });
         
         // Debug multiple account issues
         this.debugAuthState();
@@ -2751,7 +2877,8 @@ class PomodoroTimer {
         } catch (_) {}
 
         // Force check current auth state from Clerk unless we just logged out
-        if (window.Clerk && window.Clerk.user && !justLoggedOut) {
+        // Dev testing mode always wins in localhost/preview.
+        if (!devMode && window.Clerk && window.Clerk.user && !justLoggedOut) {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
             try {
@@ -2950,7 +3077,7 @@ class PomodoroTimer {
             } catch (_) {}
         } else {
             // Double-check with Clerk before showing login UI
-            if (window.Clerk && window.Clerk.user) {
+            if (!devMode && window.Clerk && window.Clerk.user) {
                 console.log('Clerk user found, updating auth state');
                 this.isAuthenticated = true;
                 this.user = window.Clerk.user;
@@ -16590,6 +16717,13 @@ class PomodoroTimer {
     applyViewMode() {
         const mode = this.selectedViewMode;
         lsSet('viewMode', mode);
+
+        // Keep a short-lived preview/local override for testing without registration
+        if (this.isPreviewOrLocalHost() && !this.isProductionHost()) {
+            this.setDevTestingMode(mode);
+        } else {
+            this.clearDevTestingMode();
+        }
         
         // Close settings modal
         this.hideSettingsModal();
@@ -18951,10 +19085,10 @@ class PomodoroTimer {
             createCassetteBtn.parentNode.replaceChild(newBtn, createCassetteBtn);
             
             // Add single event listener
-            newBtn.addEventListener('click', (e) => {
+            newBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.showCassetteForm();
+                await this.createEmptySpace();
             });
         }
 
@@ -18989,6 +19123,66 @@ class PomodoroTimer {
         }
 
         this.refreshCreationLimitNotices();
+    }
+
+    async createEmptySpace() {
+        // Guest users must login first
+        if (!this.isAuthenticated) {
+            this.trackEvent('Login Required Modal Shown', {
+                feature: 'custom_cassettes',
+                source: 'create_space_button',
+                user_type: 'guest',
+                modal_type: 'login_required'
+            });
+            this.showCassetteLoginModal();
+            return null;
+        }
+
+        // Free users can keep 1 space and edit it, Premium users unlimited
+        if (!this.isPremiumUser()) {
+            const activeCassetteCount = this.getCustomCassettes().length;
+            if (activeCassetteCount >= 1) {
+                this.trackEvent('Pro Feature Modal Shown', {
+                    feature: 'custom_cassettes',
+                    source: 'create_space_button',
+                    user_type: 'free',
+                    modal_type: 'upgrade_prompt',
+                    active_cassettes_count: activeCassetteCount,
+                    reason: 'single_cassette_limit_reached'
+                });
+                this.showCassetteProModal('Free users can create only 1 custom space. To unlock unlimited spaces and personalize your focus environment, upgrade to Premium.');
+                return null;
+            }
+        }
+
+        const existingCount = this.getCustomCassettes().length;
+        const nextNumber = existingCount + 1;
+        const newSpace = {
+            id: `cassette_${Date.now()}`,
+            title: `My Space ${nextNumber}`,
+            description: '',
+            imageUrl: '',
+            spotifyUrl: '',
+            isPublic: false,
+            views: 0,
+            viewedBy: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        try {
+            const savedCassette = await this.saveCustomCassette(newSpace);
+            if (!savedCassette) return null;
+
+            this.loadCustomCassettes();
+            this.selectCustomCassette(savedCassette.id);
+            this.refreshCreationLimitNotices();
+            return savedCassette;
+        } catch (error) {
+            console.error('Error creating empty space:', error);
+            alert('Could not create space. Please try again.');
+            return null;
+        }
     }
     
     initializeCassetteSearch() {
@@ -20536,7 +20730,7 @@ class PomodoroTimer {
         if (!this.isAuthenticated) {
             this.trackEvent('Login Required Modal Shown', {
                 feature: 'custom_cassettes',
-                source: 'create_cassette_button',
+                source: 'create_space_button',
                 user_type: 'guest',
                 modal_type: 'login_required'
             });
@@ -20552,14 +20746,14 @@ class PomodoroTimer {
             if (activeCassetteCount >= 1) {
                 this.trackEvent('Pro Feature Modal Shown', {
                     feature: 'custom_cassettes',
-                    source: 'create_cassette_button',
+                    source: 'create_space_button',
                     user_type: 'free',
                     modal_type: 'upgrade_prompt',
                     active_cassettes_count: activeCassetteCount,
                     reason: 'single_cassette_limit_reached'
                 });
                 
-                this.showCassetteProModal('Free users can create only 1 custom cassette. To unlock unlimited cassettes and personalize your focus environment, upgrade to Premium.');
+                this.showCassetteProModal('Free users can create only 1 custom space. To unlock unlimited spaces and personalize your focus environment, upgrade to Premium.');
                 return;
             }
             // Free user has no active cassette yet - continue to form
