@@ -9695,6 +9695,131 @@ input:checked + .toggle-slider:before {
     z-index: 10;
 }
 
+/* Space Add button (right-center, only for owned custom spaces) */
+.timer-section .container {
+    position: relative;
+}
+
+.space-add-btn {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    backdrop-filter: blur(12px);
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.space-add-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.space-add-btn svg {
+    flex-shrink: 0;
+}
+
+/* Space Add popover */
+.space-add-popover {
+    position: fixed;
+    z-index: 1000;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 280px;
+    max-width: 340px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.space-add-popover h4 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.space-add-group {
+    margin-bottom: 18px;
+}
+
+.space-add-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.space-add-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+}
+
+.space-add-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.space-add-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.space-add-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.space-add-option.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.space-add-option input[type="radio"] {
+    margin: 0;
+    accent-color: #ffffff;
+}
+
+.space-add-url-input {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+
+.space-add-url-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.space-add-url-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
 /* Theme Overlay Control (Contrast) */
 .theme-overlay-control {
     margin-top: 20px;

@@ -18907,6 +18907,11 @@ class PomodoroTimer {
         // Initialize My Vibes section for Pro users
         this.initializeMyCassettes();
         
+        // Space Add button (customize background & music from timer)
+        this.initializeSpaceAddButton();
+        
+        this.updateSpaceAddButtonVisibility();
+        
         console.log('🎨 Theme panel initialized - no music reset');
     }
 
@@ -19163,6 +19168,7 @@ class PomodoroTimer {
             description: '',
             imageUrl: '',
             spotifyUrl: '',
+            useLofi: false,
             isPublic: false,
             views: 0,
             viewedBy: [],
@@ -20471,16 +20477,36 @@ class PomodoroTimer {
             timerSection.style.setProperty('background', '#0a0a0a', 'important');
         }
         
-        // Create Spotify widget if URL provided and different from current
-        if (cassette.spotifyUrl && this.currentSpotifyUrl !== cassette.spotifyUrl) {
-            this.createCustomSpotifyWidget(cassette.spotifyUrl);
-        } else if (!cassette.spotifyUrl && this.currentSpotifyUrl) {
-            // If no Spotify URL but one exists, remove it
-            const widgetToRemove = document.getElementById('customSpotifyWidget');
-            if (widgetToRemove) {
-                widgetToRemove.remove();
+        // Music: useLofi (preset), spotifyUrl, or none
+        if (cassette.useLofi) {
+            this.lofiEnabled = true;
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'true');
             }
+            const widgetToRemove = document.getElementById('customSpotifyWidget');
+            if (widgetToRemove) widgetToRemove.remove();
             this.currentSpotifyUrl = null;
+            if (this.isRunning) {
+                this.playLofiPlaylist().catch(err => console.log('Lofi start error:', err));
+            }
+        } else if (cassette.spotifyUrl) {
+            this.stopLofiPlaylist();
+            this.lofiEnabled = false;
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'false');
+            }
+            if (this.currentSpotifyUrl !== cassette.spotifyUrl) {
+                this.createCustomSpotifyWidget(cassette.spotifyUrl);
+            }
+        } else {
+            const widgetToRemove = document.getElementById('customSpotifyWidget');
+            if (widgetToRemove) widgetToRemove.remove();
+            this.currentSpotifyUrl = null;
+            this.stopLofiPlaylist();
+            this.lofiEnabled = false;
+            if (this.isAuthenticated) {
+                localStorage.setItem('lofiEnabled', 'false');
+            }
         }
         
         
@@ -20492,6 +20518,7 @@ class PomodoroTimer {
         // Update visual active state
         this.updateThemeActiveState(themeName);
         
+        this.updateSpaceAddButtonVisibility();
         console.log('🎨 Custom vibe applied:', cassette.title);
     }
 
@@ -21102,6 +21129,7 @@ class PomodoroTimer {
             description: description || '',
             imageUrl: imageUrl || '',
             spotifyUrl: spotifyUrl || '',
+            useLofi: spotifyUrl ? false : (previousCassette?.useLofi === true),
             isPublic: isPublic,
             // Preserve views from server if available (server is source of truth for views)
             // When changing from private to public, preserve historical data from Clerk
@@ -21576,6 +21604,8 @@ class PomodoroTimer {
         // Update visual active state
         this.updateThemeActiveState(themeName);
         
+        this.updateSpaceAddButtonVisibility();
+        
         // Track theme change
         if (window.mixpanelTracker) {
             window.mixpanelTracker.trackCustomEvent('Theme Changed', { theme_name: themeName });
@@ -21637,6 +21667,154 @@ class PomodoroTimer {
         });
         
         console.log(`🎨 Theme active state updated to: ${themeName}`);
+    }
+
+    updateSpaceAddButtonVisibility() {
+        const btn = document.getElementById('spaceAddBtn');
+        if (!btn) return;
+        const isCustom = this.currentTheme && this.currentTheme.startsWith('custom_');
+        const cassetteId = isCustom ? this.currentTheme.replace('custom_', '') : null;
+        const ownedCassette = cassetteId ? this.getCustomCassettes().find(c => c.id === cassetteId) : null;
+        btn.style.display = ownedCassette ? 'flex' : 'none';
+    }
+
+    initializeSpaceAddButton() {
+        const btn = document.getElementById('spaceAddBtn');
+        if (!btn) return;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!this.currentTheme || !this.currentTheme.startsWith('custom_')) return;
+            const cassetteId = this.currentTheme.replace('custom_', '');
+            const cassette = this.getCustomCassettes().find(c => c.id === cassetteId);
+            if (!cassette) return;
+            this.showSpaceAddPopover(btn, cassette);
+        });
+    }
+
+    showSpaceAddPopover(anchorBtn, cassette) {
+        const existing = document.getElementById('spaceAddPopover');
+        if (existing) existing.remove();
+
+        const musicType = cassette.useLofi ? 'lofi' : (cassette.spotifyUrl ? 'spotify' : 'none');
+        const rect = anchorBtn.getBoundingClientRect();
+        const popoverWidth = 320;
+        const left = Math.max(16, rect.right - popoverWidth);
+        const top = rect.top - 8;
+
+        const popover = document.createElement('div');
+        popover.id = 'spaceAddPopover';
+        popover.className = 'space-add-popover';
+        popover.style.cssText = `left: ${left}px; top: ${top}px; transform: translateY(-100%);`;
+
+        const bgNone = !cassette.imageUrl;
+        const bgUrl = cassette.imageUrl || '';
+
+        popover.innerHTML = `
+            <h4>Customize this space</h4>
+            <div class="space-add-group">
+                <label>Background</label>
+                <div class="space-add-options">
+                    <label class="space-add-option ${bgNone ? 'active' : ''}" data-bg="none">
+                        <input type="radio" name="spaceBg" value="none" ${bgNone ? 'checked' : ''}>
+                        None (black)
+                    </label>
+                    <label class="space-add-option ${!bgNone ? 'active' : ''}" data-bg="url">
+                        <input type="radio" name="spaceBg" value="url" ${!bgNone ? 'checked' : ''}>
+                        Image URL
+                    </label>
+                </div>
+                <input type="url" class="space-add-url-input" id="spaceAddImageUrl" placeholder="https://..." value="${bgUrl}" style="${bgNone ? 'display:none' : ''}">
+            </div>
+            <div class="space-add-group">
+                <label>Music</label>
+                <div class="space-add-options">
+                    <label class="space-add-option ${musicType === 'none' ? 'active' : ''}" data-music="none">
+                        <input type="radio" name="spaceMusic" value="none" ${musicType === 'none' ? 'checked' : ''}>
+                        None
+                    </label>
+                    <label class="space-add-option ${musicType === 'lofi' ? 'active' : ''}" data-music="lofi">
+                        <input type="radio" name="spaceMusic" value="lofi" ${musicType === 'lofi' ? 'checked' : ''}>
+                        Lofi preset
+                    </label>
+                    <label class="space-add-option ${musicType === 'spotify' ? 'active' : ''}" data-music="spotify">
+                        <input type="radio" name="spaceMusic" value="spotify" ${musicType === 'spotify' ? 'checked' : ''}>
+                        Spotify playlist
+                    </label>
+                </div>
+                <input type="url" class="space-add-url-input" id="spaceAddSpotifyUrl" placeholder="https://open.spotify.com/playlist/..." value="${cassette.spotifyUrl || ''}" style="${musicType !== 'spotify' ? 'display:none' : ''}">
+            </div>
+            <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="spaceAddCancel">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="spaceAddSave">Save</button>
+            </div>
+        `;
+
+        document.body.appendChild(popover);
+
+        const imageUrlInput = popover.querySelector('#spaceAddImageUrl');
+        const spotifyUrlInput = popover.querySelector('#spaceAddSpotifyUrl');
+        const bgOptions = popover.querySelectorAll('[data-bg]');
+        const musicOptions = popover.querySelectorAll('[data-music]');
+
+        bgOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                bgOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                const isUrl = opt.dataset.bg === 'url';
+                imageUrlInput.style.display = isUrl ? 'block' : 'none';
+                if (!isUrl) imageUrlInput.value = '';
+            });
+        });
+
+        musicOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                musicOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                const isSpotify = opt.dataset.music === 'spotify';
+                spotifyUrlInput.style.display = isSpotify ? 'block' : 'none';
+                if (!isSpotify) spotifyUrlInput.value = '';
+            });
+        });
+
+        const close = () => {
+            try { popover.remove(); } catch (_) {}
+            document.removeEventListener('click', outsideClick);
+        };
+
+        const outsideClick = (e) => {
+            if (!popover.contains(e.target) && !anchorBtn.contains(e.target)) {
+                close();
+            }
+        };
+
+        setTimeout(() => document.addEventListener('click', outsideClick), 0);
+
+        popover.querySelector('#spaceAddCancel').addEventListener('click', close);
+
+        popover.querySelector('#spaceAddSave').addEventListener('click', async () => {
+            const bgVal = popover.querySelector('input[name="spaceBg"]:checked')?.value || 'none';
+            const musicVal = popover.querySelector('input[name="spaceMusic"]:checked')?.value || 'none';
+            const newImageUrl = bgVal === 'url' ? (imageUrlInput.value || '').trim() : '';
+            const newSpotifyUrl = musicVal === 'spotify' ? (spotifyUrlInput.value || '').trim() : '';
+            const newUseLofi = musicVal === 'lofi';
+
+            const updated = {
+                ...cassette,
+                imageUrl: newImageUrl,
+                spotifyUrl: newSpotifyUrl,
+                useLofi: newUseLofi,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await this.saveCustomCassette(updated);
+                this.applyCustomCassette(updated);
+                close();
+            } catch (err) {
+                console.error('Error saving space customization:', err);
+                alert('Could not save. Please try again.');
+            }
+        });
     }
 
     applyImmersiveTheme(themeName) {
