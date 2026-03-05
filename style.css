@@ -9811,6 +9811,92 @@ input:checked + .toggle-slider:before {
     border-color: rgba(255, 255, 255, 0.35);
 }
 
+/* Space Add Right Sidebar */
+.space-add-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    max-width: 90vw;
+    height: 100vh;
+    background: #1a1a1a;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1001;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+.space-add-sidebar.open {
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.space-add-sidebar-close {
+    position: absolute;
+    top: 50%;
+    left: -40px;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 80px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.space-add-sidebar.open .space-add-sidebar-close {
+    display: flex;
+}
+
+.space-add-sidebar-close:hover {
+    background: #252525;
+    color: #fff;
+}
+
+.space-add-sidebar-content {
+    padding: 24px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.space-add-sidebar-content h3 {
+    margin: 0 0 24px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.space-add-sidebar-actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.space-add-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.space-add-sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 /* Theme Overlay Control (Contrast) */
 .theme-overlay-control {
     margin-top: 20px;

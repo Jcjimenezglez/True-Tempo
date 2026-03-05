@@ -1655,6 +1655,55 @@
     <!-- Report Panel Overlay -->
     <div class="task-panel-overlay" id="reportPanelOverlay"></div>
 
+    <!-- Space Add Right Sidebar (customize background & music) -->
+    <div class="space-add-sidebar" id="spaceAddSidebar">
+        <button class="space-add-sidebar-close" id="spaceAddSidebarClose" aria-label="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 18 6-6-6-6"/>
+            </svg>
+        </button>
+        <div class="space-add-sidebar-content">
+            <h3>Customize this space</h3>
+            <div class="space-add-group">
+                <label>Background</label>
+                <div class="space-add-options">
+                    <label class="space-add-option" data-bg="none">
+                        <input type="radio" name="spaceSidebarBg" value="none">
+                        None (black)
+                    </label>
+                    <label class="space-add-option" data-bg="url">
+                        <input type="radio" name="spaceSidebarBg" value="url">
+                        Image URL
+                    </label>
+                </div>
+                <input type="url" class="space-add-url-input" id="spaceAddSidebarImageUrl" placeholder="https://...">
+            </div>
+            <div class="space-add-group">
+                <label>Music</label>
+                <div class="space-add-options">
+                    <label class="space-add-option" data-music="none">
+                        <input type="radio" name="spaceSidebarMusic" value="none">
+                        None
+                    </label>
+                    <label class="space-add-option" data-music="lofi">
+                        <input type="radio" name="spaceSidebarMusic" value="lofi">
+                        Lofi preset
+                    </label>
+                    <label class="space-add-option" data-music="spotify">
+                        <input type="radio" name="spaceSidebarMusic" value="spotify">
+                        Spotify playlist
+                    </label>
+                </div>
+                <input type="url" class="space-add-url-input" id="spaceAddSidebarSpotifyUrl" placeholder="https://open.spotify.com/playlist/...">
+            </div>
+            <div class="space-add-sidebar-actions">
+                <button class="logout-modal-btn logout-modal-btn-secondary" id="spaceAddSidebarCancel">Cancel</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="spaceAddSidebarSave">Save</button>
+            </div>
+        </div>
+    </div>
+    <div class="space-add-sidebar-overlay" id="spaceAddSidebarOverlay"></div>
+
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 

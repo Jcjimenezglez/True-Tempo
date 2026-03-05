@@ -21582,13 +21582,9 @@ class PomodoroTimer {
         if (!btn) return;
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            const existing = document.getElementById('spaceAddPopover');
-            if (existing) {
-                existing.remove();
-                if (this._spaceAddOutsideClick) {
-                    document.removeEventListener('click', this._spaceAddOutsideClick);
-                    this._spaceAddOutsideClick = null;
-                }
+            const sidebar = document.getElementById('spaceAddSidebar');
+            if (sidebar && sidebar.classList.contains('open')) {
+                this.closeSpaceAddSidebar();
                 return;
             }
             let cassette = null;
@@ -21601,138 +21597,137 @@ class PomodoroTimer {
                 cassette = await this.createEmptySpace();
             }
             if (!cassette) return;
-            this.showSpaceAddPopover(btn, cassette);
+            this.showSpaceAddSidebar(cassette);
         });
     }
 
-    showSpaceAddPopover(anchorBtn, cassette) {
-        const existing = document.getElementById('spaceAddPopover');
-        if (existing) existing.remove();
+    closeSpaceAddSidebar() {
+        const sidebar = document.getElementById('spaceAddSidebar');
+        const overlay = document.getElementById('spaceAddSidebarOverlay');
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    showSpaceAddSidebar(cassette) {
+        const sidebar = document.getElementById('spaceAddSidebar');
+        const overlay = document.getElementById('spaceAddSidebarOverlay');
+        if (!sidebar) return;
 
         const musicType = cassette.useLofi ? 'lofi' : (cassette.spotifyUrl ? 'spotify' : 'none');
-        const rect = anchorBtn.getBoundingClientRect();
-        const popoverWidth = 320;
-        const left = Math.max(16, rect.right - popoverWidth);
-        const top = rect.bottom + 8;
-
-        const popover = document.createElement('div');
-        popover.id = 'spaceAddPopover';
-        popover.className = 'space-add-popover';
-        popover.style.cssText = `left: ${left}px; top: ${top}px;`;
-
         const bgNone = !cassette.imageUrl;
-        const bgUrl = cassette.imageUrl || '';
 
-        popover.innerHTML = `
-            <h4>Customize this space</h4>
-            <div class="space-add-group">
-                <label>Background</label>
-                <div class="space-add-options">
-                    <label class="space-add-option ${bgNone ? 'active' : ''}" data-bg="none">
-                        <input type="radio" name="spaceBg" value="none" ${bgNone ? 'checked' : ''}>
-                        None (black)
-                    </label>
-                    <label class="space-add-option ${!bgNone ? 'active' : ''}" data-bg="url">
-                        <input type="radio" name="spaceBg" value="url" ${!bgNone ? 'checked' : ''}>
-                        Image URL
-                    </label>
-                </div>
-                <input type="url" class="space-add-url-input" id="spaceAddImageUrl" placeholder="https://..." value="${bgUrl}" style="${bgNone ? 'display:none' : ''}">
-            </div>
-            <div class="space-add-group">
-                <label>Music</label>
-                <div class="space-add-options">
-                    <label class="space-add-option ${musicType === 'none' ? 'active' : ''}" data-music="none">
-                        <input type="radio" name="spaceMusic" value="none" ${musicType === 'none' ? 'checked' : ''}>
-                        None
-                    </label>
-                    <label class="space-add-option ${musicType === 'lofi' ? 'active' : ''}" data-music="lofi">
-                        <input type="radio" name="spaceMusic" value="lofi" ${musicType === 'lofi' ? 'checked' : ''}>
-                        Lofi preset
-                    </label>
-                    <label class="space-add-option ${musicType === 'spotify' ? 'active' : ''}" data-music="spotify">
-                        <input type="radio" name="spaceMusic" value="spotify" ${musicType === 'spotify' ? 'checked' : ''}>
-                        Spotify playlist
-                    </label>
-                </div>
-                <input type="url" class="space-add-url-input" id="spaceAddSpotifyUrl" placeholder="https://open.spotify.com/playlist/..." value="${cassette.spotifyUrl || ''}" style="${musicType !== 'spotify' ? 'display:none' : ''}">
-            </div>
-            <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="spaceAddCancel">Cancel</button>
-                <button class="logout-modal-btn logout-modal-btn-primary" id="spaceAddSave">Save</button>
-            </div>
-        `;
+        const bgNoneOpt = sidebar.querySelector('[data-bg="none"]');
+        const bgUrlOpt = sidebar.querySelector('[data-bg="url"]');
+        const musicNoneOpt = sidebar.querySelector('[data-music="none"]');
+        const musicLofiOpt = sidebar.querySelector('[data-music="lofi"]');
+        const musicSpotifyOpt = sidebar.querySelector('[data-music="spotify"]');
+        const imageUrlInput = document.getElementById('spaceAddSidebarImageUrl');
+        const spotifyUrlInput = document.getElementById('spaceAddSidebarSpotifyUrl');
 
-        document.body.appendChild(popover);
+        if (bgNoneOpt) bgNoneOpt.classList.toggle('active', bgNone);
+        if (bgUrlOpt) bgUrlOpt.classList.toggle('active', !bgNone);
+        if (musicNoneOpt) musicNoneOpt.classList.toggle('active', musicType === 'none');
+        if (musicLofiOpt) musicLofiOpt.classList.toggle('active', musicType === 'lofi');
+        if (musicSpotifyOpt) musicSpotifyOpt.classList.toggle('active', musicType === 'spotify');
 
-        const imageUrlInput = popover.querySelector('#spaceAddImageUrl');
-        const spotifyUrlInput = popover.querySelector('#spaceAddSpotifyUrl');
-        const bgOptions = popover.querySelectorAll('[data-bg]');
-        const musicOptions = popover.querySelectorAll('[data-music]');
+        const noneRadio = sidebar.querySelector('input[name="spaceSidebarBg"][value="none"]');
+        const urlRadio = sidebar.querySelector('input[name="spaceSidebarBg"][value="url"]');
+        const musicNoneRadio = sidebar.querySelector('input[name="spaceSidebarMusic"][value="none"]');
+        const musicLofiRadio = sidebar.querySelector('input[name="spaceSidebarMusic"][value="lofi"]');
+        const musicSpotifyRadio = sidebar.querySelector('input[name="spaceSidebarMusic"][value="spotify"]');
+        if (noneRadio) noneRadio.checked = bgNone;
+        if (urlRadio) urlRadio.checked = !bgNone;
+        if (musicNoneRadio) musicNoneRadio.checked = musicType === 'none';
+        if (musicLofiRadio) musicLofiRadio.checked = musicType === 'lofi';
+        if (musicSpotifyRadio) musicSpotifyRadio.checked = musicType === 'spotify';
 
-        bgOptions.forEach(opt => {
-            opt.addEventListener('click', () => {
-                bgOptions.forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                const isUrl = opt.dataset.bg === 'url';
-                imageUrlInput.style.display = isUrl ? 'block' : 'none';
-                if (!isUrl) imageUrlInput.value = '';
+        if (imageUrlInput) {
+            imageUrlInput.value = cassette.imageUrl || '';
+            imageUrlInput.style.display = bgNone ? 'none' : 'block';
+        }
+        if (spotifyUrlInput) {
+            spotifyUrlInput.value = cassette.spotifyUrl || '';
+            spotifyUrlInput.style.display = musicType === 'spotify' ? 'block' : 'none';
+        }
+
+        this._spaceAddCassette = cassette;
+
+        sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('active');
+
+        const close = () => this.closeSpaceAddSidebar();
+
+        const setupListeners = () => {
+            sidebar.querySelectorAll('[data-bg]').forEach(opt => {
+                opt.replaceWith(opt.cloneNode(true));
             });
-        });
-
-        musicOptions.forEach(opt => {
-            opt.addEventListener('click', () => {
-                musicOptions.forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                const isSpotify = opt.dataset.music === 'spotify';
-                spotifyUrlInput.style.display = isSpotify ? 'block' : 'none';
-                if (!isSpotify) spotifyUrlInput.value = '';
+            sidebar.querySelectorAll('[data-music]').forEach(opt => {
+                opt.replaceWith(opt.cloneNode(true));
             });
-        });
 
-        const outsideClick = (e) => {
-            if (!popover.contains(e.target) && !anchorBtn.contains(e.target)) {
-                close();
-            }
+            const newBgOpts = sidebar.querySelectorAll('[data-bg]');
+            const newMusicOpts = sidebar.querySelectorAll('[data-music]');
+            const newImageInput = document.getElementById('spaceAddSidebarImageUrl');
+            const newSpotifyInput = document.getElementById('spaceAddSidebarSpotifyUrl');
+
+            newBgOpts.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    newBgOpts.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    const isUrl = opt.dataset.bg === 'url';
+                    if (newImageInput) {
+                        newImageInput.style.display = isUrl ? 'block' : 'none';
+                        if (!isUrl) newImageInput.value = '';
+                    }
+                });
+            });
+
+            newMusicOpts.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    newMusicOpts.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    const isSpotify = opt.dataset.music === 'spotify';
+                    if (newSpotifyInput) {
+                        newSpotifyInput.style.display = isSpotify ? 'block' : 'none';
+                        if (!isSpotify) newSpotifyInput.value = '';
+                    }
+                });
+            });
+
+            document.getElementById('spaceAddSidebarClose')?.addEventListener('click', close);
+            overlay?.addEventListener('click', close);
+            document.getElementById('spaceAddSidebarCancel')?.addEventListener('click', close);
+            document.getElementById('spaceAddSidebarSave')?.addEventListener('click', async () => {
+                const c = this._spaceAddCassette;
+                if (!c) return;
+                const bgVal = sidebar.querySelector('input[name="spaceSidebarBg"]:checked')?.value || 'none';
+                const musicVal = sidebar.querySelector('input[name="spaceSidebarMusic"]:checked')?.value || 'none';
+                const newImageUrl = bgVal === 'url' ? (newImageInput?.value || '').trim() : '';
+                const newSpotifyUrl = musicVal === 'spotify' ? (newSpotifyInput?.value || '').trim() : '';
+                const newUseLofi = musicVal === 'lofi';
+
+                const updated = {
+                    ...c,
+                    imageUrl: newImageUrl,
+                    spotifyUrl: newSpotifyUrl,
+                    useLofi: newUseLofi,
+                    updatedAt: new Date().toISOString()
+                };
+
+                try {
+                    await this.saveCustomCassette(updated);
+                    this.applyCustomCassette(updated);
+                    close();
+                } catch (err) {
+                    console.error('Error saving space customization:', err);
+                    alert('Could not save. Please try again.');
+                }
+            });
         };
 
-        const close = () => {
-            try { popover.remove(); } catch (_) {}
-            if (this._spaceAddOutsideClick) {
-                document.removeEventListener('click', this._spaceAddOutsideClick);
-                this._spaceAddOutsideClick = null;
-            }
-        };
-
-        this._spaceAddOutsideClick = outsideClick;
-        setTimeout(() => document.addEventListener('click', outsideClick), 0);
-
-        popover.querySelector('#spaceAddCancel').addEventListener('click', close);
-
-        popover.querySelector('#spaceAddSave').addEventListener('click', async () => {
-            const bgVal = popover.querySelector('input[name="spaceBg"]:checked')?.value || 'none';
-            const musicVal = popover.querySelector('input[name="spaceMusic"]:checked')?.value || 'none';
-            const newImageUrl = bgVal === 'url' ? (imageUrlInput.value || '').trim() : '';
-            const newSpotifyUrl = musicVal === 'spotify' ? (spotifyUrlInput.value || '').trim() : '';
-            const newUseLofi = musicVal === 'lofi';
-
-            const updated = {
-                ...cassette,
-                imageUrl: newImageUrl,
-                spotifyUrl: newSpotifyUrl,
-                useLofi: newUseLofi,
-                updatedAt: new Date().toISOString()
-            };
-
-            try {
-                await this.saveCustomCassette(updated);
-                this.applyCustomCassette(updated);
-                close();
-            } catch (err) {
-                console.error('Error saving space customization:', err);
-                alert('Could not save. Please try again.');
-            }
-        });
+        if (this._spaceAddSidebarListenersDone) return;
+        this._spaceAddSidebarListenersDone = true;
+        setupListeners();
     }
 
     applyImmersiveTheme(themeName) {
