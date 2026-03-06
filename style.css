@@ -5184,6 +5184,20 @@ audio {
     white-space: nowrap;
 }
 
+.task-notes {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 13px;
+    margin-top: 4px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
 .task-project {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.8rem;
@@ -6012,6 +6026,22 @@ input:checked + .toggle-slider:before {
     color: rgba(255, 255, 255, 0.85);
 }
 
+.task-notes {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.task-notes {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-top: 4px;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .task-item.completed .progress-text {
     color: rgba(184, 184, 184, 0.7);
 }
@@ -6123,12 +6153,19 @@ input:checked + .toggle-slider:before {
     font-weight: 500;
 }
 
-.task-sessions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.task-notes {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 13px;
+    margin-top: 4px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
-
 .sessions-label {
     color: rgba(255, 255, 255, 0.7);
     font-size: 14px;
@@ -6281,6 +6318,40 @@ input:checked + .toggle-slider:before {
 .add-task-form input[type="text"]:focus {
     outline: none;
     border-color: #b8b8b8;
+}
+
+.add-task-form .form-optional {
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+.add-task-form textarea {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.add-task-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.add-task-form textarea:focus {
+    outline: none;
+    border-color: #b8b8b8;
+}
+
+.add-task-form .form-char-count {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 4px;
 }
 
 .add-task-form .pomodoros-control {

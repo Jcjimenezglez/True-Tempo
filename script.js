@@ -9829,6 +9829,11 @@ class PomodoroTimer {
                         <button class="pomodoros-btn" id="increasePomodoros">+</button>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Notes <span class="form-optional">(optional)</span></label>
+                    <textarea id="taskNotes" placeholder="Add a note for this task..." maxlength="350" rows="2"></textarea>
+                    <span class="form-char-count" id="taskNotesCount">0/350</span>
+                </div>
                 <div class="form-actions">
                     <button id="deleteTask" title="Delete task" style="display:none; margin-right: auto; background: none; border: none; padding: 8px; color: rgba(255,255,255,0.6);">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -9972,6 +9977,7 @@ class PomodoroTimer {
                             ${task.content || '(untitled)'}
                             ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
                         </div>
+                        ${(task.notes || '').trim() ? `<div class="task-notes">${(task.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</div>` : ''}
                     </div>
                     <div class="task-progress">
                         <span class="progress-text" style="${shouldDisableForGuest ? 'opacity: 0.5;' : ''}">${completedSessions}/${totalSessions}</span>
@@ -10073,6 +10079,8 @@ class PomodoroTimer {
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
                 const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const notesInput = addTaskForm.querySelector('#taskNotes');
+                const notesCountEl = addTaskForm.querySelector('#taskNotesCount');
                 const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
                 const saveBtn = addTaskForm.querySelector('#saveTask');
                 if (taskInput) taskInput.value = '';
@@ -10200,8 +10208,19 @@ class PomodoroTimer {
         const deleteBtn = modal.querySelector('#deleteTask');
         const taskInput = modal.querySelector('#taskDescription');
         const pomodorosInput = modal.querySelector('#pomodorosCount');
+        const notesInput = modal.querySelector('#taskNotes');
+        const notesCountEl = modal.querySelector('#taskNotesCount');
         const decreaseBtn = modal.querySelector('#decreasePomodoros');
         const increaseBtn = modal.querySelector('#increasePomodoros');
+
+        // Notes char count
+        if (notesInput && notesCountEl) {
+            const updateNotesCount = () => {
+                notesCountEl.textContent = (notesInput.value || '').length + '/350';
+            };
+            notesInput.addEventListener('input', updateNotesCount);
+            notesInput.addEventListener('change', updateNotesCount);
+        }
 
         // Cancel button - hide form and show add button; exit edit mode if any
         if (cancelBtn) {
@@ -10218,6 +10237,7 @@ class PomodoroTimer {
                 // Clear form
                 if (taskInput) taskInput.value = '';
                 if (pomodorosInput) pomodorosInput.value = '1';
+                if (notesInput) notesInput.value = '';
                 // Exit edit mode
                 this.editingTaskId = null;
                 // Restore list and add-section
@@ -10314,37 +10334,40 @@ class PomodoroTimer {
             saveBtn.addEventListener('click', () => {
                 const description = taskInput ? taskInput.value.trim() : '';
                 const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
+                const notes = notesInput ? (notesInput.value || '').trim().slice(0, 350) : '';
                 
-                if (description) {
-                    if (this.editingTaskId) {
-                        // Update existing task
-                        const tasks = this.getLocalTasks();
-                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
-                        if (idx !== -1) {
-                            tasks[idx].content = description;
-                            this.setLocalTasks(tasks);
-                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
-                        }
-                        this.editingTaskId = null;
-                        // Restore list and add-section
-                        const listEl = modal.querySelector('#todoistTasksList');
-                        const addSection = modal.querySelector('#addTaskSectionModal');
-                        if (listEl) listEl.style.display = '';
-                        if (addSection) addSection.style.display = '';
-                    } else {
-                        // Create new task
-                        this.addLocalTask(description, pomodoros);
+                if (this.editingTaskId) {
+                    // Update existing task - always save sessions, update content only if non-empty
+                    const tasks = this.getLocalTasks();
+                    const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                    if (idx !== -1) {
+                        if (description) tasks[idx].content = description;
+                        tasks[idx].notes = notes || undefined;
+                        this.setLocalTasks(tasks);
+                        this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
                     }
                     // Clear form
                     taskInput.value = '';
                     pomodorosInput.value = '1';
+                    if (notesInput) notesInput.value = '';
                     // Refresh task list
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
                     // Update header to reflect changes immediately
                     this.updateCurrentTaskFromQueue();
                     this.updateSessionInfo();
-                    // Enable button now that there is at least one task, and hide form
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                } else if (description) {
+                    // Create new task
+                    this.addLocalTask(description, pomodoros, notes);
+                    taskInput.value = '';
+                    pomodorosInput.value = '1';
+                    if (notesInput) notesInput.value = '';
+                    this.loadAllTasks();
+                    if (typeof renderTasks === 'function') renderTasks();
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
                 }
@@ -10512,29 +10535,45 @@ class PomodoroTimer {
                 console.log('💾 Save button clicked');
                 const finalTaskInput = panel.querySelector('#taskDescription');
                 const finalPomodorosInput = panel.querySelector('#pomodorosCount');
+                const finalNotesInput = panel.querySelector('#taskNotes');
                 const description = finalTaskInput ? finalTaskInput.value.trim() : '';
                 const pomodoros = finalPomodorosInput ? parseInt(finalPomodorosInput.value) : 1;
+                const notes = finalNotesInput ? (finalNotesInput.value || '').trim().slice(0, 350) : '';
                 
                 console.log('💾 Task description:', description, 'Pomodoros:', pomodoros);
                 
-                if (description) {
-                    if (this.editingTaskId) {
-                        console.log('💾 Editing task:', this.editingTaskId);
-                        const tasks = this.getLocalTasks();
-                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
-                        if (idx !== -1) {
-                            tasks[idx].content = description;
-                            this.setLocalTasks(tasks);
-                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
-                        }
-                        this.editingTaskId = null;
-                    } else {
-                        console.log('💾 Adding new task');
-                        // Create new task
-                        this.addLocalTask(description, pomodoros);
+                if (this.editingTaskId) {
+                    // Update existing task - always save sessions, update content only if non-empty
+                    console.log('💾 Editing task:', this.editingTaskId);
+                    const tasks = this.getLocalTasks();
+                    const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                    if (idx !== -1) {
+                        if (description) tasks[idx].content = description;
+                        tasks[idx].notes = notes || undefined;
+                        this.setLocalTasks(tasks);
+                        this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
                     }
+                    this.editingTaskId = null;
                     if (finalTaskInput) finalTaskInput.value = '';
                     if (finalPomodorosInput) finalPomodorosInput.value = '1';
+                    if (finalNotesInput) finalNotesInput.value = '';
+                    this.loadAllTasks();
+                    if (typeof renderTasks === 'function') {
+                        console.log('💾 Calling renderTasks');
+                        renderTasks();
+                    }
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                    console.log('💾 Task saved successfully');
+                } else if (description) {
+                    // Create new task
+                    console.log('💾 Adding new task');
+                    this.addLocalTask(description, pomodoros, notes);
+                    if (finalTaskInput) finalTaskInput.value = '';
+                    if (finalPomodorosInput) finalPomodorosInput.value = '1';
+                    if (finalNotesInput) finalNotesInput.value = '';
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') {
                         console.log('💾 Calling renderTasks');
@@ -11863,9 +11902,13 @@ class PomodoroTimer {
                 if (addSection) addSection.style.display = 'none';
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
+                const notesInput = addTaskForm.querySelector('#taskNotes');
+                const notesCountEl = addTaskForm.querySelector('#taskNotesCount');
                 const deleteBtn = addTaskForm.querySelector('#deleteTask');
                 if (taskInput) taskInput.value = task ? (task.content || '') : '';
                 if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
+                if (notesInput) notesInput.value = task?.notes || '';
+                if (notesCountEl) notesCountEl.textContent = (task?.notes || '').length + '/350';
                 if (deleteBtn) deleteBtn.style.display = '';
                 if (taskInput) taskInput.focus();
                 
@@ -12223,6 +12266,11 @@ class PomodoroTimer {
                         <button class="pomodoros-btn" id="editIncreasePomodoros">+</button>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Notes <span class="form-optional">(optional)</span></label>
+                    <textarea id="editTaskNotes" maxlength="350" rows="2">${(task.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    <span class="form-char-count" id="editTaskNotesCount">${(task.notes || '').length}/350</span>
+                </div>
                 <div class="form-actions">
                     <button class="btn-secondary" id="cancelEditTask">Cancel</button>
                     <button class="btn-primary" id="saveEditTask">Save</button>
@@ -12233,6 +12281,7 @@ class PomodoroTimer {
         // Setup form controls
         const taskInput = taskItem.querySelector('#editTaskDescription');
         const pomodorosInput = taskItem.querySelector('#editPomodorosCount');
+        const notesInput = taskItem.querySelector('#editTaskNotes');
         const decreaseBtn = taskItem.querySelector('#editDecreasePomodoros');
         const increaseBtn = taskItem.querySelector('#editIncreasePomodoros');
         const saveBtn = taskItem.querySelector('#saveEditTask');
@@ -12339,20 +12388,21 @@ class PomodoroTimer {
             saveBtn.addEventListener('click', () => {
                 const description = taskInput ? taskInput.value.trim() : '';
                 const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
+                const notes = notesInput ? (notesInput.value || '').trim().slice(0, 350) : '';
                 
-                if (description) {
-                    // Update task content
-                    const tasks = this.getLocalTasks();
-                    const taskIndex = tasks.findIndex(t => t.id === taskId);
-                    if (taskIndex !== -1) {
-                        tasks[taskIndex].content = description;
-                        this.setLocalTasks(tasks);
-                    }
-                    
-                    // Update task config
-                    this.setTaskConfig(taskId, { sessions: pomodoros });
-                    
-                    // Re-render the task list
+                const tasks = this.getLocalTasks();
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    if (description) tasks[taskIndex].content = description;
+                    tasks[taskIndex].notes = notes || undefined;
+                    this.setLocalTasks(tasks);
+                }
+                
+                // Always update sessions (even when only changing sessions, not text)
+                this.setTaskConfig(taskId, { sessions: pomodoros });
+                
+                // Always re-render when Save is clicked (sessions and/or content may have changed)
+                {
                     const renderTasks = () => {
                         const listEl = modal.querySelector('#todoistTasksList');
                         if (!listEl) return;
@@ -12392,6 +12442,7 @@ class PomodoroTimer {
                                     <div class="task-title">
                                         ${task.content || '(untitled)'}
                                     </div>
+                                    ${(task.notes || '').trim() ? `<div class="task-notes">${(task.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</div>` : ''}
                                 </div>
                                 <div class="task-progress">
                                     <span class="progress-text">${completedSessions}/${totalSessions}</span>
@@ -12982,12 +13033,14 @@ class PomodoroTimer {
         });
     }
 
-    addLocalTask(description, pomodoros = 1) {
+    addLocalTask(description, pomodoros = 1, notes = '') {
         const tasks = this.getLocalTasks();
+        const trimmedNotes = (notes || '').trim().slice(0, 350);
         const newTask = {
             id: 'local_' + Date.now(),
             content: description,
             pomodoros: pomodoros,
+            notes: trimmedNotes || undefined,
             created: new Date().toISOString(),
             completed: false,
             source: 'local'
@@ -17976,6 +18029,7 @@ class PomodoroTimer {
                                 ${task.content || '(untitled)'}
                                 ${shouldDisableForGuest ? '<span style="font-size: 12px; margin-left: 8px;">(Sign up required)</span>' : ''}
                             </div>
+                            ${(task.notes || '').trim() ? `<div class="task-notes">${(task.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</div>` : ''}
                             ${completedDateHtml}
                         </div>
                         <div class="task-progress">
@@ -18062,10 +18116,14 @@ class PomodoroTimer {
                     const taskInput = addTaskForm.querySelector('#taskDescription');
                     const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
                     const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const notesInput = addTaskForm.querySelector('#taskNotes');
+                const notesCountEl = addTaskForm.querySelector('#taskNotesCount');
                     const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
                     
                     if (taskInput) taskInput.value = task.content || '';
                     if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
+                    if (notesInput) notesInput.value = task.notes || '';
+                    if (notesCountEl) notesCountEl.textContent = (task.notes || '').length + '/350';
                     if (deleteBtn) deleteBtn.style.display = '';
                     if (cancelBtn) cancelBtn.style.display = '';
                     if (taskInput) taskInput.focus();
@@ -18127,6 +18185,8 @@ class PomodoroTimer {
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
                 const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const notesInput = addTaskForm.querySelector('#taskNotes');
+                const notesCountEl = addTaskForm.querySelector('#taskNotesCount');
                 const cancelBtn = addTaskForm.querySelector('#cancelAddTask');
                 const saveBtn = addTaskForm.querySelector('#saveTask');
                 if (taskInput) taskInput.value = '';
@@ -18141,8 +18201,10 @@ class PomodoroTimer {
         
         // Initial UI state: keep form hidden until user explicitly clicks Add Task
         if (addTaskBtn && addTaskForm) {
+            const currentAddTaskBtn = panel.querySelector('#showAddTaskForm');
             addTaskForm.style.display = 'none';
-            addTaskBtn.disabled = false;
+            if (currentAddTaskBtn) currentAddTaskBtn.disabled = false;
+            this.editingTaskId = null;
         }
         
         // Setup tabs FIRST - remove all old listeners
