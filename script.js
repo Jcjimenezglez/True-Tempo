@@ -10314,17 +10314,9 @@ class PomodoroTimer {
                             freshPomodorosInput.value = '1';
                         }
                         
-                        // Show form and disable add button
-                        addTaskForm.style.display = 'block';
-                        addTaskBtn.disabled = true;
-                        
-                        // Focus on input after a brief delay to ensure it's cleared
-                        setTimeout(() => {
-                            if (freshTaskInput) {
-                                freshTaskInput.value = '';
-                                freshTaskInput.focus();
-                            }
-                        }, 50);
+                        // Keep form closed; user clicks Create Task to open it
+                        addTaskForm.style.display = 'none';
+                        addTaskBtn.disabled = false;
                     }
                 }
             });
@@ -10525,17 +10517,9 @@ class PomodoroTimer {
                             freshPomodorosInput.value = '1';
                         }
                         
-                        // Show form and disable add button
-                        addTaskForm.style.display = 'block';
-                        addTaskBtn.disabled = true;
-                        
-                        // Focus on input after a brief delay to ensure it's cleared
-                        setTimeout(() => {
-                            if (freshTaskInput) {
-                                freshTaskInput.value = '';
-                                freshTaskInput.focus();
-                            }
-                        }, 50);
+                        // Keep form hidden; user clicks Create Task to open it
+                        addTaskForm.style.display = 'none';
+                        addTaskBtn.disabled = false;
                     }
                 }
             });
