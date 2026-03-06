@@ -10389,36 +10389,40 @@ class PomodoroTimer {
                 const description = taskInput ? taskInput.value.trim() : '';
                 const pomodoros = pomodorosInput ? parseInt(pomodorosInput.value) : 1;
                 
-                if (description) {
-                    if (this.editingTaskId) {
-                        // Update existing task
-                        const tasks = this.getLocalTasks();
-                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
-                        if (idx !== -1) {
-                            tasks[idx].content = description;
-                            this.setLocalTasks(tasks);
-                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
-                        }
-                        this.editingTaskId = null;
-                        // Restore list and add-section
-                        const listEl = modal.querySelector('#todoistTasksList');
-                        const addSection = modal.querySelector('#addTaskSectionModal');
-                        if (listEl) listEl.style.display = '';
-                        if (addSection) addSection.style.display = '';
-                    } else {
-                        // Create new task
-                        this.addLocalTask(description, pomodoros);
+                if (this.editingTaskId) {
+                    // Update existing task - always save sessions, update content only if non-empty
+                    const tasks = this.getLocalTasks();
+                    const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                    if (idx !== -1) {
+                        if (description) tasks[idx].content = description;
+                        this.setLocalTasks(tasks);
+                        this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
                     }
+                    this.editingTaskId = null;
+                    // Restore list and add-section
+                    const listEl = modal.querySelector('#todoistTasksList');
+                    const addSection = modal.querySelector('#addTaskSectionModal');
+                    if (listEl) listEl.style.display = '';
+                    if (addSection) addSection.style.display = '';
                     // Clear form
                     taskInput.value = '';
                     pomodorosInput.value = '1';
                     // Refresh task list
                     this.loadAllTasks();
                     if (typeof renderTasks === 'function') renderTasks();
-                    // Update header to reflect changes immediately
                     this.updateCurrentTaskFromQueue();
                     this.updateSessionInfo();
-                    // Enable button now that there is at least one task, and hide form
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                } else if (description) {
+                    // Create new task
+                    this.addLocalTask(description, pomodoros);
+                    taskInput.value = '';
+                    pomodorosInput.value = '1';
+                    this.loadAllTasks();
+                    if (typeof renderTasks === 'function') renderTasks();
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
                     addTaskForm.style.display = 'none';
                     addTaskBtn.disabled = false;
                 }
@@ -10451,10 +10455,10 @@ class PomodoroTimer {
                     saveBtn.click();
                 }
             });
-            // Enable/disable save based on input text
+            // Enable/disable save based on input text (when editing, always keep Save enabled)
             taskInput.addEventListener('input', () => {
                 if (saveBtn) {
-                    saveBtn.disabled = !taskInput.value.trim();
+                    saveBtn.disabled = this.editingTaskId ? false : !taskInput.value.trim();
                 }
             });
         }
@@ -10591,22 +10595,33 @@ class PomodoroTimer {
                 
                 console.log('💾 Task description:', description, 'Pomodoros:', pomodoros);
                 
-                if (description) {
-                    if (this.editingTaskId) {
-                        console.log('💾 Editing task:', this.editingTaskId);
-                        const tasks = this.getLocalTasks();
-                        const idx = tasks.findIndex(t => t.id === this.editingTaskId);
-                        if (idx !== -1) {
-                            tasks[idx].content = description;
-                            this.setLocalTasks(tasks);
-                            this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
-                        }
-                        this.editingTaskId = null;
-                    } else {
-                        console.log('💾 Adding new task');
-                        // Create new task
-                        this.addLocalTask(description, pomodoros);
+                if (this.editingTaskId) {
+                    // Update existing task - always save sessions, update content only if non-empty
+                    console.log('💾 Editing task:', this.editingTaskId);
+                    const tasks = this.getLocalTasks();
+                    const idx = tasks.findIndex(t => t.id === this.editingTaskId);
+                    if (idx !== -1) {
+                        if (description) tasks[idx].content = description;
+                        this.setLocalTasks(tasks);
+                        this.setTaskConfig(this.editingTaskId, { sessions: pomodoros });
                     }
+                    this.editingTaskId = null;
+                    if (finalTaskInput) finalTaskInput.value = '';
+                    if (finalPomodorosInput) finalPomodorosInput.value = '1';
+                    this.loadAllTasks();
+                    if (typeof renderTasks === 'function') {
+                        console.log('💾 Calling renderTasks');
+                        renderTasks();
+                    }
+                    this.updateCurrentTaskFromQueue();
+                    this.updateSessionInfo();
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.disabled = false;
+                    console.log('💾 Task saved successfully');
+                } else if (description) {
+                    // Create new task
+                    console.log('💾 Adding new task');
+                    this.addLocalTask(description, pomodoros);
                     if (finalTaskInput) finalTaskInput.value = '';
                     if (finalPomodorosInput) finalPomodorosInput.value = '1';
                     this.loadAllTasks();
@@ -10625,24 +10640,47 @@ class PomodoroTimer {
             });
         }
 
-        if (decreaseBtn && pomodorosInput) {
+        const enableSaveWhenEditing = () => {
+            const btn = panel.querySelector('#saveTask');
+            if (btn && this.editingTaskId) btn.disabled = false;
+        };
+        // When editing, enable Save when user changes sessions (input, +/-)
+        if (pomodorosInput) {
+            pomodorosInput.addEventListener('input', enableSaveWhenEditing);
+            pomodorosInput.addEventListener('change', enableSaveWhenEditing);
+        }
+        // Clone pomodoros input first (before +/- setup) so +/- reference the visible input
+        let currentPomodorosInput = pomodorosInput;
+        if (pomodorosInput) {
+            const newPomodorosInput = pomodorosInput.cloneNode(true);
+            pomodorosInput.replaceWith(newPomodorosInput);
+            currentPomodorosInput = newPomodorosInput;
+            currentPomodorosInput.addEventListener('input', enableSaveWhenEditing);
+            currentPomodorosInput.addEventListener('change', enableSaveWhenEditing);
+        }
+
+        if (decreaseBtn && currentPomodorosInput) {
             const newDecreaseBtn = decreaseBtn.cloneNode(true);
             decreaseBtn.replaceWith(newDecreaseBtn);
             newDecreaseBtn.addEventListener('click', () => {
-                const current = parseInt(pomodorosInput.value);
-                if (current > 1) {
-                    pomodorosInput.value = current - 1;
+                const input = panel.querySelector('#pomodorosCount');
+                const current = parseInt(input?.value || 1);
+                if (current > 1 && input) {
+                    input.value = current - 1;
+                    enableSaveWhenEditing();
                 }
             });
         }
 
-        if (increaseBtn && pomodorosInput) {
+        if (increaseBtn && currentPomodorosInput) {
             const newIncreaseBtn = increaseBtn.cloneNode(true);
             increaseBtn.replaceWith(newIncreaseBtn);
             newIncreaseBtn.addEventListener('click', () => {
-                const current = parseInt(pomodorosInput.value);
-                if (current < 10) {
-                    pomodorosInput.value = current + 1;
+                const input = panel.querySelector('#pomodorosCount');
+                const current = parseInt(input?.value || 1);
+                if (current < 10 && input) {
+                    input.value = current + 1;
+                    enableSaveWhenEditing();
                 }
             });
         }
@@ -10654,6 +10692,7 @@ class PomodoroTimer {
             // Get fresh references after all replacements
             const finalTaskInput = panel.querySelector('#taskDescription');
             const finalSaveBtn = panel.querySelector('#saveTask');
+            const finalPomodorosInput = panel.querySelector('#pomodorosCount');
             
             if (finalTaskInput && finalSaveBtn) {
                 finalTaskInput.addEventListener('keypress', (e) => {
@@ -10663,11 +10702,17 @@ class PomodoroTimer {
                 });
                 
                 finalTaskInput.addEventListener('input', () => {
-                    finalSaveBtn.disabled = !finalTaskInput.value.trim();
+                    // When editing, always keep Save enabled (user may only change sessions)
+                    finalSaveBtn.disabled = this.editingTaskId ? false : !finalTaskInput.value.trim();
                 });
                 
-                // Set initial state
-                finalSaveBtn.disabled = !finalTaskInput.value.trim();
+                // When sessions input changes (typing or +/-), enable Save if editing
+                if (finalPomodorosInput) {
+                    finalPomodorosInput.addEventListener('input', () => enableSaveWhenEditing());
+                    finalPomodorosInput.addEventListener('change', () => enableSaveWhenEditing());
+                }
+                
+                // Don't set initial disabled - edit mode enables Save; add mode sets it when form is shown
             }
         }
     }
@@ -11938,9 +11983,11 @@ class PomodoroTimer {
                 const taskInput = addTaskForm.querySelector('#taskDescription');
                 const pomodorosInput = addTaskForm.querySelector('#pomodorosCount');
                 const deleteBtn = addTaskForm.querySelector('#deleteTask');
+                const saveBtn = addTaskForm.querySelector('#saveTask');
                 if (taskInput) taskInput.value = task ? (task.content || '') : '';
                 if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
                 if (deleteBtn) deleteBtn.style.display = '';
+                if (saveBtn) saveBtn.disabled = false; // Enable save when prefilling for edit (sessions can be changed without typing)
                 if (taskInput) taskInput.focus();
                 
                 // Scroll form into view
@@ -12422,11 +12469,13 @@ class PomodoroTimer {
                         tasks[taskIndex].content = description;
                         this.setLocalTasks(tasks);
                     }
-                    
-                    // Update task config
-                    this.setTaskConfig(taskId, { sessions: pomodoros });
-                    
-                    // Re-render the task list
+                }
+                
+                // Always update sessions (even when only changing sessions, not text)
+                this.setTaskConfig(taskId, { sessions: pomodoros });
+                
+                // Always re-render when Save is clicked (sessions and/or content may have changed)
+                {
                     const renderTasks = () => {
                         const listEl = modal.querySelector('#todoistTasksList');
                         if (!listEl) return;
@@ -18149,8 +18198,23 @@ class PomodoroTimer {
                     if (pomodorosInput) pomodorosInput.value = String(config.sessions || 1);
                     if (deleteBtn) deleteBtn.style.display = '';
                     if (cancelBtn) cancelBtn.style.display = '';
+                    const saveBtn = addTaskForm.querySelector('#saveTask');
+                    if (saveBtn) {
+                        saveBtn.disabled = false; // Always enable Save when editing (user may only change sessions)
+                        saveBtn.removeAttribute('disabled'); // Force-remove disabled attribute
+                        // Keep Save enabled for 2s in case another handler disables it (e.g. input listener race)
+                        const keepEnabled = setInterval(() => {
+                            if (this.editingTaskId && saveBtn) {
+                                saveBtn.disabled = false;
+                                saveBtn.removeAttribute('disabled');
+                            } else {
+                                clearInterval(keepEnabled);
+                            }
+                        }, 100);
+                        setTimeout(() => clearInterval(keepEnabled), 2000);
+                    }
                     if (taskInput) taskInput.focus();
-                    
+
                     // Scroll form into view
                     try { 
                         addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
