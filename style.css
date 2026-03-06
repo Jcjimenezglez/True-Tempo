@@ -998,14 +998,19 @@ a.resource-item:hover,
     pointer-events: auto;
 }
 
-/* Main content pushes when panel opens */
+/* Main content pushes when right panel opens - smooth transition */
 .main-content {
     margin-left: var(--sidebar-collapsed-width);
-    transition: none;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
 }
 
-.main-content.task-panel-open {
+.main-content.task-panel-open,
+.main-content.settings-panel-open,
+.main-content.immersive-theme-panel-open,
+.main-content.report-panel-open,
+.main-content.leaderboard-panel-open,
+.main-content.resources-panel-open {
     margin-left: calc(var(--sidebar-collapsed-width) + 400px) !important;
 }
 
