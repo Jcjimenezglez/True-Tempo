@@ -7716,6 +7716,63 @@ class PomodoroTimer {
         }
     }
 
+    async trackTrialStartedConversion(sessionId, paymentType = 'monthly', userEmail = '', source = 'stripe_checkout') {
+        if (!sessionId || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
+            return;
+        }
+
+        if (!this._trackedCheckoutConversionSessions) {
+            this._trackedCheckoutConversionSessions = new Set();
+        }
+        if (this._trackedCheckoutConversionSessions.has(sessionId)) {
+            return;
+        }
+
+        this._trackedCheckoutConversionSessions.add(sessionId);
+
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackCustomEvent('Premium Success', {
+                plan_type: paymentType,
+                value: 3.99,
+                source: source,
+                session_id: sessionId,
+                timestamp: new Date().toISOString()
+            });
+            console.log('📊 Premium Success tracked to Mixpanel:', paymentType, source);
+        }
+
+        try {
+            if (typeof window.gtag === 'function') {
+                const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
+                const conversionValue = 3.99;
+
+                if (userEmail && typeof window.hashEmail === 'function') {
+                    try {
+                        const hashedEmail = await window.hashEmail(userEmail);
+                        if (hashedEmail) {
+                            window.gtag('set', 'user_data', {
+                                'sha256_email_address': hashedEmail
+                            });
+                            console.log('✅ Enhanced Conversions: User data set for', paymentType);
+                        }
+                    } catch (hashError) {
+                        console.log('⚠️ Enhanced Conversions: Email hashing failed');
+                    }
+                }
+
+                window.gtag('event', 'conversion', {
+                    'send_to': conversionLabel,
+                    'value': conversionValue,
+                    'currency': 'USD',
+                    'transaction_id': sessionId
+                });
+                console.log(`📊 Google Ads Subscribe (2) conversion tracked for ${paymentType}: $${conversionValue}`);
+            }
+        } catch (gtagError) {
+            console.error('⚠️ Google Ads conversion tracking failed:', gtagError);
+        }
+    }
+
     async handleStripeCheckoutReturn(retryCount = 0) {
         try {
             const url = new URL(window.location.href);
@@ -7792,57 +7849,23 @@ class PomodoroTimer {
                 const errorData = await response.json().catch(() => ({}));
                 console.error('❌ Failed to confirm checkout session:', errorData);
                 this.confirmedCheckoutSessionId = null;
+                if (retryCount < 10) {
+                    setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 1000);
+                    return;
+                }
+
+                // Last-resort fallback: keep attribution signal when backend confirmation fails
+                // after multiple retries, using Stripe's success return session id.
+                await this.trackTrialStartedConversion(sessionId, 'monthly', userEmail, 'stripe_checkout_fallback');
+                this.removeUrlParams(['session_id']);
                 return;
             }
 
             const confirmData = await response.json().catch(() => ({}));
             console.log('✅ Checkout session confirmed with backend:', confirmData);
-            
-            // Track Premium Success to Mixpanel
             const paymentType = confirmData.paymentType || 'monthly';
-            if (window.mixpanelTracker) {
-                window.mixpanelTracker.trackCustomEvent('Premium Success', {
-                    plan_type: paymentType,
-                    value: 3.99,
-                    source: 'stripe_checkout',
-                    timestamp: new Date().toISOString()
-                });
-                console.log('📊 Premium Success tracked to Mixpanel:', paymentType);
-            }
-            
-            // Track Google Ads conversion when trial starts (Subscribe (2))
-            // This is the conversion used for optimization in Google Ads.
-            try {
-                if (typeof window.gtag === 'function') {
-                    const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
-                    const conversionValue = 3.99;
-                    
-                    // Set Enhanced Conversions user data BEFORE the conversion event
-                    if (userEmail && typeof window.hashEmail === 'function') {
-                        try {
-                            const hashedEmail = await window.hashEmail(userEmail);
-                            if (hashedEmail) {
-                                window.gtag('set', 'user_data', {
-                                    'sha256_email_address': hashedEmail
-                                });
-                                console.log('✅ Enhanced Conversions: User data set for', paymentType);
-                            }
-                        } catch (hashError) {
-                            console.log('⚠️ Enhanced Conversions: Email hashing failed');
-                        }
-                    }
-                    
-                    window.gtag('event', 'conversion', {
-                        'send_to': conversionLabel,
-                        'value': conversionValue,
-                        'currency': 'USD',
-                        'transaction_id': sessionId
-                    });
-                    console.log(`📊 Google Ads Subscribe (2) conversion tracked for ${paymentType}: $${conversionValue}`);
-                }
-            } catch (gtagError) {
-                console.error('⚠️ Google Ads conversion tracking failed:', gtagError);
-            }
+
+            await this.trackTrialStartedConversion(sessionId, paymentType, userEmail, 'stripe_checkout');
             
             await this.refreshPremiumFromServer();
             this.removeUrlParams(['session_id']);

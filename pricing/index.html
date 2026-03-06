@@ -3381,12 +3381,11 @@
         }
 
         function shouldTrackPricingConversion({ userPlanType, source, planType, ctaMode }) {
-            return (
-                userPlanType === 'free' &&
-                source === 'comparison_table_cta' &&
-                ctaMode === 'checkout' &&
-                planType === 'monthly'
-            );
+            const isFreeUser = userPlanType === 'free';
+            const isCheckoutCta = ctaMode === 'checkout';
+            const isMonthlyPlan = planType === 'monthly';
+            // Track all free-user checkout CTA clicks across pricing page sources.
+            return isFreeUser && isCheckoutCta && isMonthlyPlan;
         }
 
         // Function to handle CTA button click
