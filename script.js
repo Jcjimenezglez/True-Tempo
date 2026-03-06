@@ -10213,13 +10213,14 @@ class PomodoroTimer {
         const decreaseBtn = modal.querySelector('#decreasePomodoros');
         const increaseBtn = modal.querySelector('#increasePomodoros');
 
-        // Notes char count
+        // Notes char count (real-time)
         if (notesInput && notesCountEl) {
             const updateNotesCount = () => {
                 notesCountEl.textContent = (notesInput.value || '').length + '/350';
             };
             notesInput.addEventListener('input', updateNotesCount);
             notesInput.addEventListener('change', updateNotesCount);
+            updateNotesCount(); // initial state
         }
 
         // Cancel button - hide form and show add button; exit edit mode if any
@@ -10417,8 +10418,20 @@ class PomodoroTimer {
         const deleteBtn = panel.querySelector('#deleteTask');
         const taskInput = panel.querySelector('#taskDescription');
         const pomodorosInput = panel.querySelector('#pomodorosCount');
+        const notesInput = panel.querySelector('#taskNotes');
+        const notesCountEl = panel.querySelector('#taskNotesCount');
         const decreaseBtn = panel.querySelector('#decreasePomodoros');
         const increaseBtn = panel.querySelector('#increasePomodoros');
+
+        // Notes char count (real-time)
+        if (notesInput && notesCountEl) {
+            const updateNotesCount = () => {
+                notesCountEl.textContent = (notesInput.value || '').length + '/350';
+            };
+            notesInput.addEventListener('input', updateNotesCount);
+            notesInput.addEventListener('change', updateNotesCount);
+            updateNotesCount(); // initial
+        }
 
         // Remove old event listeners by cloning
         if (cancelBtn) {
@@ -12282,10 +12295,20 @@ class PomodoroTimer {
         const taskInput = taskItem.querySelector('#editTaskDescription');
         const pomodorosInput = taskItem.querySelector('#editPomodorosCount');
         const notesInput = taskItem.querySelector('#editTaskNotes');
+        const notesCountEl = taskItem.querySelector('#editTaskNotesCount');
         const decreaseBtn = taskItem.querySelector('#editDecreasePomodoros');
         const increaseBtn = taskItem.querySelector('#editIncreasePomodoros');
         const saveBtn = taskItem.querySelector('#saveEditTask');
         const cancelBtn = taskItem.querySelector('#cancelEditTask');
+
+        // Notes char count (real-time)
+        if (notesInput && notesCountEl) {
+            const updateNotesCount = () => {
+                notesCountEl.textContent = (notesInput.value || '').length + '/350';
+            };
+            notesInput.addEventListener('input', updateNotesCount);
+            notesInput.addEventListener('change', updateNotesCount);
+        }
 
         // Pomodoros controls
         if (decreaseBtn && pomodorosInput) {
