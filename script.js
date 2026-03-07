@@ -4849,7 +4849,7 @@ class PomodoroTimer {
             : 'https://accounts.superfocus.live/sign-in';
         const redirectUrl = mode === 'sign-up'
             ? 'https://www.superfocus.live/?signup=success'
-            : 'https://www.superfocus.live/';
+            : 'https://www.superfocus.live/?signup=success';
         return `${base}?redirect_url=${encodeURIComponent(redirectUrl)}`;
     }
 
@@ -7069,7 +7069,7 @@ class PomodoroTimer {
 
         modalOverlay.querySelector('#ambientLoginBtn').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(window.location.href);
+            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
         });
 
         modalOverlay.querySelector('#ambientCancelBtn').addEventListener('click', () => {
@@ -22317,7 +22317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         user_type: 'guest'
                     });
                     
-                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F';
+                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
                 });
             }
             
