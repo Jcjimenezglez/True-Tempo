@@ -1001,7 +1001,7 @@ a.resource-item:hover,
 /* Main content pushes when right panel opens - smooth transition */
 .main-content {
     margin-left: var(--sidebar-collapsed-width);
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
 }
 
@@ -11786,6 +11786,11 @@ input:checked + .toggle-slider:before {
     .bottom-sheet-overlay,
     .bottom-sheet {
         display: none !important;
+    }
+    
+    /* Space Add sidebar (right) pushes timer content - same behavior as left panels */
+    .main-content.space-add-sidebar-open {
+        margin-right: 320px !important;
     }
 }
 

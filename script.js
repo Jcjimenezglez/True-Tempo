@@ -21739,8 +21739,10 @@ class PomodoroTimer {
     closeSpaceAddSidebar() {
         const sidebar = document.getElementById('spaceAddSidebar');
         const overlay = document.getElementById('spaceAddSidebarOverlay');
+        const mainContent = this.mainContent || document.getElementById('mainContent');
         if (sidebar) sidebar.classList.remove('open');
         if (overlay) overlay.classList.remove('active');
+        if (mainContent) mainContent.classList.remove('space-add-sidebar-open');
     }
 
     showSpaceAddSidebar(cassette) {
@@ -21789,6 +21791,8 @@ class PomodoroTimer {
 
         sidebar.classList.add('open');
         if (overlay) overlay.classList.add('active');
+        const mainContent = this.mainContent || document.getElementById('mainContent');
+        if (mainContent && window.innerWidth >= 1200) mainContent.classList.add('space-add-sidebar-open');
 
         const close = () => this.closeSpaceAddSidebar();
 
@@ -25069,8 +25073,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove main-content classes
         const mainContent = document.querySelector('.main-content');
         if (mainContent) {
-            mainContent.classList.remove('task-panel-open', 'settings-panel-open', 'immersive-theme-panel-open');
+            mainContent.classList.remove('task-panel-open', 'settings-panel-open', 'immersive-theme-panel-open', 'space-add-sidebar-open');
         }
+        
+        // Close space-add sidebar
+        const spaceAddSidebar = document.getElementById('spaceAddSidebar');
+        const spaceAddOverlay = document.getElementById('spaceAddSidebarOverlay');
+        if (spaceAddSidebar) spaceAddSidebar.classList.remove('open');
+        if (spaceAddOverlay) spaceAddOverlay.classList.remove('active');
         
         // Reset body overflow
         document.body.style.overflow = '';
