@@ -772,6 +772,10 @@ class PomodoroTimer {
             
             const justLoggedOutRecently = this.hasManualLogoutLock();
 
+            if (justLoggedOutRecently && await this.completePendingLogoutIfNeeded()) {
+                return;
+            }
+
             // Check if Clerk is already initialized globally
             if (window.__clerkInitialized) {
                 console.log('✅ Clerk already initialized globally, using existing session');
@@ -1091,6 +1095,27 @@ class PomodoroTimer {
             localStorage.removeItem('just_logged_out_at');
         } catch (_) {}
     }
+
+    async completePendingLogoutIfNeeded() {
+        if (!this.hasManualLogoutLock()) {
+            return false;
+        }
+
+        if (!window.Clerk?.user && !window.Clerk?.session) {
+            return false;
+        }
+
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        console.log('🚪 Completing pending Clerk logout before auth hydration...');
+
+        try {
+            await window.Clerk.signOut({ redirectUrl: cleanUrl });
+            return true;
+        } catch (error) {
+            console.warn('Failed to complete pending Clerk logout:', error);
+            return false;
+        }
+    }
     
     checkAuthState() {
         try {
@@ -1184,11 +1209,11 @@ class PomodoroTimer {
             console.log('- localStorage hasAccount:', localStorage.getItem('hasAccount'));
             console.log('- sessionStorage just_logged_out:', sessionStorage.getItem('just_logged_out'));
 
-            if (window.Clerk?.user && !this.isAuthenticated) {
+            if (!this.hasManualLogoutLock() && window.Clerk?.user && !this.isAuthenticated) {
                 console.warn('⚠️ Potential auth mismatch: Clerk has user but app shows not authenticated');
             }
 
-            if (this.isAuthenticated && !window.Clerk?.user) {
+            if (!this.hasManualLogoutLock() && this.isAuthenticated && !window.Clerk?.user) {
                 console.warn('⚠️ Potential auth mismatch: app shows authenticated but Clerk has no user');
             }
             
@@ -4817,36 +4842,56 @@ class PomodoroTimer {
             document.body.style.opacity = '1';
         }
     }
+
+    getClerkHostedAuthUrl(mode = 'sign-in') {
+        const base = mode === 'sign-up'
+            ? 'https://accounts.superfocus.live/sign-up'
+            : 'https://accounts.superfocus.live/sign-in';
+        const redirectUrl = mode === 'sign-up'
+            ? 'https://www.superfocus.live/?signup=success'
+            : 'https://www.superfocus.live/';
+        return `${base}?redirect_url=${encodeURIComponent(redirectUrl)}`;
+    }
+
+    async redirectToHostedAuth(mode = 'sign-in') {
+        const authUrl = this.getClerkHostedAuthUrl(mode);
+
+        try {
+            await this.waitForClerk();
+        } catch (_) {}
+
+        const hasRememberedSession = !!window.Clerk?.user || !!window.Clerk?.session;
+
+        // User explicitly wants to authenticate, so clear the manual logout lock.
+        this.clearManualLogoutLock();
+
+        // If Clerk still holds a remembered session, fully sign out first so the
+        // hosted auth page shows account choice instead of auto-returning.
+        if (hasRememberedSession && window.Clerk?.signOut) {
+            try {
+                await window.Clerk.signOut({ redirectUrl: authUrl });
+                return;
+            } catch (error) {
+                console.warn(`Failed to clear remembered Clerk session before ${mode}:`, error);
+            }
+        }
+
+        window.location.assign(authUrl);
+    }
     
     async handleLogin() {
         try {
-            // Explicit login intent: allow auth hydration again
-            this.clearManualLogoutLock();
+            console.log('Redirecting to Clerk hosted Sign In...');
 
-            // Force check auth state before deciding what to do
-            await this.waitForClerk();
-            this.checkAuthState();
-            
-            // Double-check with Clerk directly
-            const clerkUser = window.Clerk?.user;
-            
-            if (this.isAuthenticated && clerkUser) {
-                console.log('User is authenticated, showing logout confirmation...');
-                this.showLogoutModal();
-            } else {
-                console.log('User not authenticated, redirecting to Clerk hosted Sign In...');
-                
-                // 🎯 Track Login Attempt event to Mixpanel
-                if (window.mixpanelTracker) {
-                    window.mixpanelTracker.trackCustomEvent('Login Attempt', {
-                        method: 'clerk_redirect'
-                    });
-                    console.log('📊 Login attempt event tracked to Mixpanel');
-                }
-                
-                // Fixed redirect to homepage as requested
-                window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent('https://www.superfocus.live/');
+            // 🎯 Track Login Attempt event to Mixpanel
+            if (window.mixpanelTracker) {
+                window.mixpanelTracker.trackCustomEvent('Login Attempt', {
+                    method: 'clerk_redirect'
+                });
+                console.log('📊 Login attempt event tracked to Mixpanel');
             }
+
+            await this.redirectToHostedAuth('sign-in');
         } catch (error) {
             console.error('Login/logout failed:', error);
         }
@@ -4854,20 +4899,6 @@ class PomodoroTimer {
 
     async handleSignup() {
         try {
-            // Explicit signup intent: allow auth hydration again
-            this.clearManualLogoutLock();
-
-            // Check if user is already authenticated before redirecting to signup
-            await this.waitForClerk();
-            this.checkAuthState();
-            
-            if (this.isAuthenticated && this.user) {
-                console.log('User is already authenticated, not redirecting to signup');
-                // Update UI to reflect authenticated state
-                this.updateAuthState();
-                return;
-            }
-            
             console.log('Redirecting to Clerk hosted Sign Up...');
             
             // 🎯 Track Signup Attempt event to Mixpanel
@@ -4877,11 +4908,8 @@ class PomodoroTimer {
                 });
                 console.log('📊 Signup attempt event tracked to Mixpanel');
             }
-            
-            // Redirect to signup with success URL that includes signup=success parameter
-            const successUrl = 'https://www.superfocus.live/?signup=success';
-            const signupUrl = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(successUrl);
-            window.location.assign(signupUrl);
+
+            await this.redirectToHostedAuth('sign-up');
         } catch (error) {
             console.error('Sign up failed:', error);
         }
