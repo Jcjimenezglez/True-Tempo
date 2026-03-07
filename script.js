@@ -143,8 +143,8 @@ class PomodoroTimer {
         }
 
         // Daily focus caps by user type (in seconds) and cooldown
-        this.GUEST_DAILY_FOCUS_LIMIT_SECONDS = 30 * 60; // 30 minutes
-        this.FREE_DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
+        this.GUEST_DAILY_FOCUS_LIMIT_SECONDS = 60 * 60; // 1 hour
+        this.FREE_DAILY_FOCUS_LIMIT_SECONDS = 2 * 60 * 60; // 2 hours
         this.FOCUS_LIMIT_COOLDOWN_MS = 23 * 60 * 60 * 1000; // 23 hours
         
         // Load cooldown timestamp (if any) and prune if expired

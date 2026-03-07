@@ -51,7 +51,7 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
                 <p><strong>Free plan</strong></p>
                 <ul>
                   <li>1 timer</li>
-                  <li>1 hour of focus time per day</li>
+                  <li>2 hours of focus time per day</li>
                   <li>1 task and 1 cassette</li>
                 </ul>
 
@@ -90,7 +90,7 @@ Thanks for signing up. Superfocus helps you protect your focus blocks and get mo
 
 Free plan:
 - 1 timer
-- 1 hour of focus time per day
+- 2 hours of focus time per day
 - 1 task and 1 cassette
 
 Premium Lifetime ($4.99 one-time):
