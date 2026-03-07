@@ -4780,25 +4780,31 @@ class PomodoroTimer {
                 console.error('⚠️ Error cleaning user data:', err);
             }
             
-            // Sign out from Clerk (all sessions) without adding extra query params FIRST
-            try {
-                await window.Clerk.signOut({ signOutAll: true });
-            } catch (_) { /* ignore */ }
-
-            // Now optimistic UI update to guest mode
+            // Now optimistic UI update to guest mode before Clerk redirect
             this.isAuthenticated = false;
             this.user = null;
             // Local tasks only - no integration cleanup needed
-            
+
             // Don't reset theme and music - keep them visible but disabled for logged out users
             // Only clear saved timer state (guests don't get session restore)
             sessionStorage.removeItem('timerState');
-            
+
             this.updateAuthState();
 
-            // Clean Clerk params and hard reload the page without query string
+            // Let Clerk complete the logout and redirect itself.
+            // Avoid manual location.replace(), which can race with Clerk's
+            // cookie/session teardown and cause the user to appear logged in again.
             this.stripClerkParamsFromUrl();
             const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+
+            if (window.Clerk?.signOut) {
+                await window.Clerk.signOut({
+                    sessionId: window.Clerk.session?.id,
+                    redirectUrl: cleanUrl
+                });
+                return;
+            }
+
             window.location.replace(cleanUrl);
         } catch (err) {
             console.error('Logout failed:', err);
