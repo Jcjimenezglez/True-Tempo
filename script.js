@@ -773,8 +773,9 @@ class PomodoroTimer {
             let justLoggedOutRecently = false;
             try {
                 const justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
-                const loggedOutAt = Number(sessionStorage.getItem('just_logged_out_at') || '0');
-                justLoggedOutRecently = justLoggedOut && (loggedOutAt === 0 || (Date.now() - loggedOutAt) < (2 * 60 * 1000));
+                // IMPORTANT: after explicit logout, never auto-rehydrate auth
+                // until user explicitly clicks Login/Signup (which clears this flag).
+                justLoggedOutRecently = justLoggedOut;
             } catch (_) {}
 
             // Check if Clerk is already initialized globally
@@ -833,8 +834,18 @@ class PomodoroTimer {
             try {
                 window.Clerk.addListener('user', (user) => {
                     console.log('Auth state changed:', user);
-                    this.isAuthenticated = !!user;
-                    this.user = user;
+                    const justLoggedOut = (() => {
+                        try { return sessionStorage.getItem('just_logged_out') === 'true'; } catch (_) { return false; }
+                    })();
+                    if (justLoggedOut) {
+                        // Ignore Clerk user hydration after logout unless user
+                        // explicitly starts a new login/signup flow.
+                        this.isAuthenticated = false;
+                        this.user = null;
+                    } else {
+                        this.isAuthenticated = !!user;
+                        this.user = user;
+                    }
                     this.scheduleAuthUpdate();
                 });
             } catch (_) {}
@@ -1072,12 +1083,12 @@ class PomodoroTimer {
                 let justLoggedOutRecently = false;
                 try {
                     const justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
-                    const loggedOutAt = Number(sessionStorage.getItem('just_logged_out_at') || '0');
-                    justLoggedOutRecently = justLoggedOut && (loggedOutAt === 0 || (Date.now() - loggedOutAt) < (2 * 60 * 1000));
+                    justLoggedOutRecently = justLoggedOut;
                 } catch (_) {}
                 
-                // During logout cooldown, never auto-rehydrate unless a real Clerk user exists.
-                if (justLoggedOutRecently && !currentUser) {
+                // After logout, never auto-rehydrate unless user explicitly
+                // starts login/signup (those handlers clear just_logged_out).
+                if (justLoggedOutRecently) {
                     if (this.isAuthenticated) {
                         this.isAuthenticated = false;
                         this.user = null;
@@ -2745,9 +2756,7 @@ class PomodoroTimer {
         // If we just logged out, do NOT rehydrate from Clerk even if window.Clerk.user still exists momentáneamente
         let justLoggedOut = false;
         try {
-            const raw = sessionStorage.getItem('just_logged_out') === 'true';
-            const at = Number(sessionStorage.getItem('just_logged_out_at') || '0');
-            justLoggedOut = raw && (at === 0 || (Date.now() - at) < (2 * 60 * 1000));
+            justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
         } catch (_) {}
 
         // Force check current auth state from Clerk unless we just logged out
@@ -22203,7 +22212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`✅ Modal: ${minutes} min, ${sessions} sessions, task: "${taskName}"`);
     };
     console.log('💡 testShareModal(min, sessions, "task") to preview Share on X');
-    
+
     // Initialize Mixpanel tracking
     if (window.mixpanelTracker) {
         window.mixpanelTracker.init();
