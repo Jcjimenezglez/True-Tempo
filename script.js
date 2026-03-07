@@ -770,13 +770,7 @@ class PomodoroTimer {
                 attempts++;
             }
             
-            let justLoggedOutRecently = false;
-            try {
-                const justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
-                // IMPORTANT: after explicit logout, never auto-rehydrate auth
-                // until user explicitly clicks Login/Signup (which clears this flag).
-                justLoggedOutRecently = justLoggedOut;
-            } catch (_) {}
+            const justLoggedOutRecently = this.hasManualLogoutLock();
 
             // Check if Clerk is already initialized globally
             if (window.__clerkInitialized) {
@@ -834,9 +828,7 @@ class PomodoroTimer {
             try {
                 window.Clerk.addListener('user', (user) => {
                     console.log('Auth state changed:', user);
-                    const justLoggedOut = (() => {
-                        try { return sessionStorage.getItem('just_logged_out') === 'true'; } catch (_) { return false; }
-                    })();
+                    const justLoggedOut = this.hasManualLogoutLock();
                     if (justLoggedOut) {
                         // Ignore Clerk user hydration after logout unless user
                         // explicitly starts a new login/signup flow.
@@ -1075,16 +1067,31 @@ class PomodoroTimer {
             console.warn('Failed to remove URL params:', error);
         }
     }
+
+    hasManualLogoutLock() {
+        try {
+            const ss = sessionStorage.getItem('just_logged_out') === 'true';
+            const ls = localStorage.getItem('just_logged_out') === 'true';
+            return ss || ls;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    clearManualLogoutLock() {
+        try {
+            sessionStorage.removeItem('just_logged_out');
+            sessionStorage.removeItem('just_logged_out_at');
+            localStorage.removeItem('just_logged_out');
+            localStorage.removeItem('just_logged_out_at');
+        } catch (_) {}
+    }
     
     checkAuthState() {
         try {
             if (window.Clerk) {
                 const currentUser = window.Clerk.user;
-                let justLoggedOutRecently = false;
-                try {
-                    const justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
-                    justLoggedOutRecently = justLoggedOut;
-                } catch (_) {}
+                const justLoggedOutRecently = this.hasManualLogoutLock();
                 
                 // After logout, never auto-rehydrate unless user explicitly
                 // starts login/signup (those handlers clear just_logged_out).
@@ -1102,10 +1109,7 @@ class PomodoroTimer {
                     const wasAuthenticated = this.isAuthenticated;
                     this.isAuthenticated = true;
                     this.user = currentUser;
-                    try {
-                        sessionStorage.removeItem('just_logged_out');
-                        sessionStorage.removeItem('just_logged_out_at');
-                    } catch (_) {}
+                    this.clearManualLogoutLock();
                     
                     // Always update UI if state changed or if we just signed up
                     if (!wasAuthenticated || !this.user) {
@@ -1261,8 +1265,8 @@ class PomodoroTimer {
             localStorage.removeItem('selectedImmersiveTheme');
             lsRemove('lastSelectedTheme');
             
-            // Clear sessionStorage
-            sessionStorage.removeItem('just_logged_out');
+            // Clear explicit logout lock
+            this.clearManualLogoutLock();
             
             // Clear Clerk state if possible
             if (window.Clerk && window.Clerk.signOut) {
@@ -2754,19 +2758,13 @@ class PomodoroTimer {
         this.debugAuthState();
         
         // If we just logged out, do NOT rehydrate from Clerk even if window.Clerk.user still exists momentáneamente
-        let justLoggedOut = false;
-        try {
-            justLoggedOut = sessionStorage.getItem('just_logged_out') === 'true';
-        } catch (_) {}
+        const justLoggedOut = this.hasManualLogoutLock();
 
         // Force check current auth state from Clerk unless we just logged out
         if (window.Clerk && window.Clerk.user && !justLoggedOut) {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
-            try {
-                sessionStorage.removeItem('just_logged_out');
-                sessionStorage.removeItem('just_logged_out_at');
-            } catch (_) {}
+            this.clearManualLogoutLock();
         }
         
         // Update Pro status
@@ -4705,6 +4703,8 @@ class PomodoroTimer {
             try {
                 sessionStorage.setItem('just_logged_out', 'true');
                 sessionStorage.setItem('just_logged_out_at', String(Date.now()));
+                localStorage.setItem('just_logged_out', 'true');
+                localStorage.setItem('just_logged_out_at', String(Date.now()));
             } catch (_) {}
             // Reset per-session sync flags so next login re-syncs
             this._serverSyncDone = false;
@@ -4815,10 +4815,7 @@ class PomodoroTimer {
     async handleLogin() {
         try {
             // Explicit login intent: allow auth hydration again
-            try {
-                sessionStorage.removeItem('just_logged_out');
-                sessionStorage.removeItem('just_logged_out_at');
-            } catch (_) {}
+            this.clearManualLogoutLock();
 
             // Force check auth state before deciding what to do
             await this.waitForClerk();
@@ -4852,10 +4849,7 @@ class PomodoroTimer {
     async handleSignup() {
         try {
             // Explicit signup intent: allow auth hydration again
-            try {
-                sessionStorage.removeItem('just_logged_out');
-                sessionStorage.removeItem('just_logged_out_at');
-            } catch (_) {}
+            this.clearManualLogoutLock();
 
             // Check if user is already authenticated before redirecting to signup
             await this.waitForClerk();
@@ -6037,7 +6031,8 @@ class PomodoroTimer {
         });
         
         // Logout modal actions
-        if (this.confirmLogoutBtn) {
+        if (this.confirmLogoutBtn && !this.confirmLogoutBtn.hasAttribute('data-bound')) {
+            this.confirmLogoutBtn.setAttribute('data-bound', 'true');
             this.confirmLogoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 this.hideLogoutModal();
@@ -6046,7 +6041,8 @@ class PomodoroTimer {
         } else {
             // Fallback: try to find the button again and bind the event
             const confirmBtn = document.getElementById('confirmLogoutBtn');
-            if (confirmBtn) {
+            if (confirmBtn && !confirmBtn.hasAttribute('data-bound')) {
+                confirmBtn.setAttribute('data-bound', 'true');
                 confirmBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
                     this.hideLogoutModal();
@@ -6055,7 +6051,8 @@ class PomodoroTimer {
             }
         }
         
-        if (this.cancelLogoutBtn) {
+        if (this.cancelLogoutBtn && !this.cancelLogoutBtn.hasAttribute('data-bound')) {
+            this.cancelLogoutBtn.setAttribute('data-bound', 'true');
             this.cancelLogoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideLogoutModal();
