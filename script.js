@@ -21809,34 +21809,7 @@ class PomodoroTimer {
             const newImageInput = document.getElementById('spaceAddSidebarImageUrl');
             const newSpotifyInput = document.getElementById('spaceAddSidebarSpotifyUrl');
 
-            newBgOpts.forEach(opt => {
-                opt.addEventListener('click', () => {
-                    newBgOpts.forEach(o => o.classList.remove('active'));
-                    opt.classList.add('active');
-                    const isUrl = opt.dataset.bg === 'url';
-                    if (newImageInput) {
-                        newImageInput.style.display = isUrl ? 'block' : 'none';
-                        if (!isUrl) newImageInput.value = '';
-                    }
-                });
-            });
-
-            newMusicOpts.forEach(opt => {
-                opt.addEventListener('click', () => {
-                    newMusicOpts.forEach(o => o.classList.remove('active'));
-                    opt.classList.add('active');
-                    const isSpotify = opt.dataset.music === 'spotify';
-                    if (newSpotifyInput) {
-                        newSpotifyInput.style.display = isSpotify ? 'block' : 'none';
-                        if (!isSpotify) newSpotifyInput.value = '';
-                    }
-                });
-            });
-
-            document.getElementById('spaceAddSidebarClose')?.addEventListener('click', close);
-            overlay?.addEventListener('click', close);
-            document.getElementById('spaceAddSidebarCancel')?.addEventListener('click', close);
-            document.getElementById('spaceAddSidebarSave')?.addEventListener('click', async () => {
+            const saveSpaceAddChanges = async () => {
                 const c = this._spaceAddCassette;
                 if (!c) return;
                 const bgVal = sidebar.querySelector('input[name="spaceSidebarBg"]:checked')?.value || 'none';
@@ -21856,12 +21829,48 @@ class PomodoroTimer {
                 try {
                     await this.saveCustomCassette(updated);
                     this.applyCustomCassette(updated);
-                    close();
                 } catch (err) {
                     console.error('Error saving space customization:', err);
                     alert('Could not save. Please try again.');
                 }
+            };
+
+            newBgOpts.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    newBgOpts.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    const isUrl = opt.dataset.bg === 'url';
+                    if (newImageInput) {
+                        newImageInput.style.display = isUrl ? 'block' : 'none';
+                        if (!isUrl) newImageInput.value = '';
+                    }
+                    saveSpaceAddChanges();
+                });
             });
+
+            newMusicOpts.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    newMusicOpts.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    const isSpotify = opt.dataset.music === 'spotify';
+                    if (newSpotifyInput) {
+                        newSpotifyInput.style.display = isSpotify ? 'block' : 'none';
+                        if (!isSpotify) newSpotifyInput.value = '';
+                    }
+                    saveSpaceAddChanges();
+                });
+            });
+
+            if (newImageInput) {
+                newImageInput.addEventListener('blur', saveSpaceAddChanges);
+            }
+            if (newSpotifyInput) {
+                newSpotifyInput.addEventListener('blur', saveSpaceAddChanges);
+            }
+
+            document.getElementById('spaceAddSidebarClose')?.addEventListener('click', close);
+            document.getElementById('spaceAddSidebarHeaderClose')?.addEventListener('click', close);
+            overlay?.addEventListener('click', close);
         };
 
         if (this._spaceAddSidebarListenersDone) return;

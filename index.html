@@ -1660,7 +1660,7 @@
     <!-- Report Panel Overlay -->
     <div class="task-panel-overlay" id="reportPanelOverlay"></div>
 
-    <!-- Space Add Right Sidebar (customize background & music) -->
+    <!-- Space Add Right Sidebar (Edit space - customize background & music) -->
     <div class="space-add-sidebar" id="spaceAddSidebar">
         <button class="space-add-sidebar-close" id="spaceAddSidebarClose" aria-label="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1668,42 +1668,45 @@
             </svg>
         </button>
         <div class="space-add-sidebar-content">
-            <h3>Customize this space</h3>
+            <div class="space-add-sidebar-header">
+                <h3 class="space-add-sidebar-title">Edit space</h3>
+                <button class="space-add-sidebar-header-close" id="spaceAddSidebarHeaderClose" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
             <div class="space-add-group">
-                <label>Background</label>
-                <div class="space-add-options">
-                    <label class="space-add-option" data-bg="none">
+                <label class="space-add-group-label">Background</label>
+                <div class="space-add-options space-add-options-grid">
+                    <label class="space-add-option space-add-option-square" data-bg="none">
                         <input type="radio" name="spaceSidebarBg" value="none">
-                        None (black)
+                        <span class="space-add-option-label">None</span>
                     </label>
-                    <label class="space-add-option" data-bg="url">
+                    <label class="space-add-option space-add-option-square" data-bg="url">
                         <input type="radio" name="spaceSidebarBg" value="url">
-                        Image URL
+                        <span class="space-add-option-label">Image URL</span>
                     </label>
                 </div>
                 <input type="url" class="space-add-url-input" id="spaceAddSidebarImageUrl" placeholder="https://...">
             </div>
             <div class="space-add-group">
-                <label>Music</label>
-                <div class="space-add-options">
-                    <label class="space-add-option" data-music="none">
+                <label class="space-add-group-label">Music</label>
+                <div class="space-add-options space-add-options-grid">
+                    <label class="space-add-option space-add-option-square" data-music="none">
                         <input type="radio" name="spaceSidebarMusic" value="none">
-                        None
+                        <span class="space-add-option-label">None</span>
                     </label>
-                    <label class="space-add-option" data-music="lofi">
+                    <label class="space-add-option space-add-option-square" data-music="lofi">
                         <input type="radio" name="spaceSidebarMusic" value="lofi">
-                        Lofi preset
+                        <span class="space-add-option-label">Lofi</span>
                     </label>
-                    <label class="space-add-option" data-music="spotify">
+                    <label class="space-add-option space-add-option-square" data-music="spotify">
                         <input type="radio" name="spaceSidebarMusic" value="spotify">
-                        Spotify playlist
+                        <span class="space-add-option-label">Spotify</span>
                     </label>
                 </div>
                 <input type="url" class="space-add-url-input" id="spaceAddSidebarSpotifyUrl" placeholder="https://open.spotify.com/playlist/...">
-            </div>
-            <div class="space-add-sidebar-actions">
-                <button class="logout-modal-btn logout-modal-btn-secondary" id="spaceAddSidebarCancel">Cancel</button>
-                <button class="logout-modal-btn logout-modal-btn-primary" id="spaceAddSidebarSave">Save</button>
             </div>
         </div>
     </div>
@@ -1769,11 +1772,12 @@
             <button class="subscribe-btn" id="subscribeBtn" title="Upgrade Now">
                 Upgrade Now
             </button>
-            <button class="space-add-btn" id="spaceAddBtn" title="Add background & music to this space" style="display: none;">
+            <button class="space-add-btn" id="spaceAddBtn" title="Edit background & music for this space" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
-                <span>Add</span>
+                <span>Edit space</span>
             </button>
         </div>
     </div>
