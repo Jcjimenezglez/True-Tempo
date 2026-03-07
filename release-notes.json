@@ -1,6 +1,28 @@
 {
-  "latestVersion": "1.4",
+  "latestVersion": "1.5",
   "releases": [
+    {
+      "version": "Version 1.5",
+      "date": "March 7, 2026",
+      "sections": {
+        "new": [
+          "Todoist integration for Tasks: Sync your tasks with Todoist and keep everything in one place",
+          "Notes on Tasks: Add notes to your tasks for extra context and reminders"
+        ],
+        "improved": [
+          "Analytics redesign: Easier to understand with a clearer focus on Level, Streaks, and activity by Week, Month, and Year",
+          "Heatmap: Re-added the activity heatmap for a quick visual overview of your focus patterns"
+        ],
+        "fixed": [
+          "Fixed bugs when creating a Task",
+          "Fixed bugs when editing a Task",
+          "Fixed bugs in user-created timers"
+        ],
+        "coming": [
+          "Cassettes UX improvements: Easier to create and use (coming soon)"
+        ]
+      }
+    },
     {
       "version": "Version 1.4",
       "date": "January 31, 2026",
