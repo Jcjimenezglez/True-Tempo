@@ -902,6 +902,11 @@ class PomodoroTimer {
                 console.log('🔄 Page visible again, checking session...');
                 
                 try {
+                    if (this.hasManualLogoutLock()) {
+                        console.log('🚫 Skipping auth rehydration on visibility change after manual logout');
+                        return;
+                    }
+
                     // Give Clerk a moment to hydrate
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
@@ -1109,7 +1114,6 @@ class PomodoroTimer {
                     const wasAuthenticated = this.isAuthenticated;
                     this.isAuthenticated = true;
                     this.user = currentUser;
-                    this.clearManualLogoutLock();
                     
                     // Always update UI if state changed or if we just signed up
                     if (!wasAuthenticated || !this.user) {
@@ -1179,21 +1183,13 @@ class PomodoroTimer {
             console.log('- Clerk.session:', window.Clerk?.session);
             console.log('- localStorage hasAccount:', localStorage.getItem('hasAccount'));
             console.log('- sessionStorage just_logged_out:', sessionStorage.getItem('just_logged_out'));
-            
-            // Check for multiple account issues
+
             if (window.Clerk?.user && !this.isAuthenticated) {
-                console.warn('⚠️ Potential multiple account issue: Clerk has user but app shows not authenticated');
-                console.log('Attempting to sync auth state...');
-                this.isAuthenticated = true;
-                this.user = window.Clerk.user;
+                console.warn('⚠️ Potential auth mismatch: Clerk has user but app shows not authenticated');
             }
-            
-            // Check for session conflicts
+
             if (this.isAuthenticated && !window.Clerk?.user) {
-                console.warn('⚠️ Session conflict: App shows authenticated but Clerk has no user');
-                console.log('Clearing auth state...');
-                this.isAuthenticated = false;
-                this.user = null;
+                console.warn('⚠️ Potential auth mismatch: app shows authenticated but Clerk has no user');
             }
             
             // Check for button/panel functionality issues
@@ -2753,18 +2749,23 @@ class PomodoroTimer {
         this._authUpdateRunning = true;
 
         console.log('Updating auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
-        
-        // Debug multiple account issues
-        this.debugAuthState();
-        
+
         // If we just logged out, do NOT rehydrate from Clerk even if window.Clerk.user still exists momentáneamente
         const justLoggedOut = this.hasManualLogoutLock();
+
+        if (justLoggedOut) {
+            this.isAuthenticated = false;
+            this.user = null;
+            this.isPro = false;
+        }
+
+        // Debug multiple account issues
+        this.debugAuthState();
 
         // Force check current auth state from Clerk unless we just logged out
         if (window.Clerk && window.Clerk.user && !justLoggedOut) {
             this.isAuthenticated = true;
             this.user = window.Clerk.user;
-            this.clearManualLogoutLock();
         }
         
         // Update Pro status
@@ -2957,7 +2958,7 @@ class PomodoroTimer {
             } catch (_) {}
         } else {
             // Double-check with Clerk before showing login UI
-            if (window.Clerk && window.Clerk.user) {
+            if (window.Clerk && window.Clerk.user && !this.hasManualLogoutLock()) {
                 console.log('Clerk user found, updating auth state');
                 this.isAuthenticated = true;
                 this.user = window.Clerk.user;
@@ -6579,6 +6580,10 @@ class PomodoroTimer {
 
     // Sound system methods
     isPremiumUser() {
+        if (this.hasManualLogoutLock()) {
+            return false;
+        }
+
         // 1) Prefer real Pro from Clerk metadata regardless of any previous forced mode
         try {
             if (window.Clerk && window.Clerk.user) {
