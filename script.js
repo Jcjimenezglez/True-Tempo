@@ -4800,7 +4800,6 @@ class PomodoroTimer {
 
             if (window.Clerk?.signOut) {
                 await window.Clerk.signOut({
-                    sessionId: window.Clerk.session?.id,
                     redirectUrl: cleanUrl
                 });
                 return;
