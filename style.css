@@ -9896,6 +9896,7 @@ input:checked + .toggle-slider:before {
 }
 
 .space-add-sidebar-close {
+    display: none; /* Hidden when sidebar closed - only visible when open */
     position: absolute;
     top: 50%;
     left: -40px;
@@ -9906,7 +9907,6 @@ input:checked + .toggle-slider:before {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-right: none;
     border-radius: 12px 0 0 12px;
-    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
