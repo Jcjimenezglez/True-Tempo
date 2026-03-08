@@ -1471,21 +1471,109 @@ a.btn-secondary,
     line-height: 1.4;
 }
 
-.how-uses-steps {
-    margin: 0;
-    padding-left: 1.25rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-    line-height: 1.7;
+.how-uses-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
-.how-uses-steps li {
-    margin-bottom: 0.35rem;
+.how-uses-panel {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 120px;
+}
+
+.how-uses-panel-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.how-uses-panel-tasks {
+    padding-bottom: 0.5rem;
+}
+
+.how-uses-task-item {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0.4rem 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.how-uses-task-item.faded {
+    opacity: 0.6;
+}
+
+.how-uses-check {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.how-uses-panel-timer {
+    padding: 0.65rem;
+    text-align: center;
+}
+
+.how-uses-timer-label {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+}
+
+.how-uses-timer-time {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+}
+
+.how-uses-timer-task {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0.25rem 0 0.4rem 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.how-uses-start-btn {
+    font-size: 0.7rem;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 1000px;
+    padding: 0.3rem 0.6rem;
+    display: inline-block;
+}
+
+.how-uses-arrow {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
     .how-uses-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .how-uses-flow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .how-uses-arrow {
+        align-self: center;
+        transform: rotate(90deg);
     }
 }
 
