@@ -22309,7 +22309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userCountEl) {
             fetch('/api/public/stats').then(r => r.json()).then(data => {
                 if (data && data.success && data.roundedTotalUsers) {
-                    userCountEl.textContent = `${data.roundedTotalUsers.toLocaleString()}+`;
+                    userCountEl.textContent = data.roundedTotalUsers.toLocaleString();
                 }
             }).catch(() => {});
         }
