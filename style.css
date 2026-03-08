@@ -1376,6 +1376,42 @@ a.btn-secondary,
     }
 }
 
+/* Stop / Start Section - pain → solution pivot */
+.stop-start-section {
+    text-align: center;
+    margin: 4rem 0;
+    padding: 2.5rem 1.5rem;
+}
+
+.stop-start-pain {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+}
+
+.stop-start-stop {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 1.5rem 0;
+    letter-spacing: 0.1em;
+}
+
+.stop-start-solution {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+}
+
+.stop-start-tagline {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
 .content-hero-image {
     display: flex;
     justify-content: center;
