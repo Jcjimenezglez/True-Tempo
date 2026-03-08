@@ -22303,7 +22303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Landing hero: fetch dynamic user count and bind CTA
+    // Landing hero: fetch dynamic user count, scroll tracking, CTA
     (function initLandingHero() {
         const userCountEl = document.getElementById('landingUserCount');
         if (userCountEl) {
@@ -22313,13 +22313,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).catch(() => {});
         }
-        const ctaBtn = document.getElementById('landingStartFocusingBtn');
-        if (ctaBtn) {
-            ctaBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const timerSection = document.querySelector('.timer-section');
-                if (timerSection) timerSection.scrollIntoView({ behavior: 'smooth' });
+        const signupBtn = document.getElementById('landingSignupBtn');
+        if (signupBtn) {
+            signupBtn.addEventListener('click', () => {
+                if (window.mixpanelTracker) {
+                    window.mixpanelTracker.trackCustomEvent('Landing Signup Clicked', { source: 'landing_hero_cta' });
+                }
             });
+        }
+        // Landing page scroll tracking (once per session)
+        const contentSection = document.querySelector('.content-section');
+        if (contentSection && !sessionStorage.getItem('landingScrolledTracked')) {
+            const observer = new IntersectionObserver((entries) => {
+                for (const e of entries) {
+                    if (e.isIntersecting) {
+                        sessionStorage.setItem('landingScrolledTracked', '1');
+                        if (window.mixpanelTracker) {
+                            window.mixpanelTracker.trackCustomEvent('Landing Page Scrolled', { section: 'content' });
+                        }
+                        observer.disconnect();
+                        break;
+                    }
+                }
+            }, { threshold: 0.2 });
+            observer.observe(contentSection);
         }
     })();
     

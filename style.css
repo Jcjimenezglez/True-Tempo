@@ -1168,6 +1168,17 @@ body.is-scrolling .streak-fire {
     color: #ffffff;
 }
 
+.content-hero-title {
+    font-size: 3.25rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .content-hero-title {
+        font-size: 4rem;
+    }
+}
+
 /* Desktop break - hide on mobile, show on desktop */
 .desktop-break {
     display: none;
