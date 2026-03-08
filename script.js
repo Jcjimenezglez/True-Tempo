@@ -376,7 +376,10 @@ class PomodoroTimer {
         this.guestTaskLimitSignupBtn = document.getElementById('guestTaskLimitSignupBtn');
         this.guestTaskLimitCancelBtn = document.getElementById('guestTaskLimitCancelBtn');
         
-        
+        // Guest post-session modal (Hormozi: Give First, Then Ask)
+        this.guestPostSessionModalOverlay = document.getElementById('guestPostSessionModalOverlay');
+        this.guestPostSessionSignupBtn = document.getElementById('guestPostSessionSignupBtn');
+        this.guestPostSessionLaterBtn = document.getElementById('guestPostSessionLaterBtn');
         
         // Auth state
         this.isAuthenticated = false;
@@ -3101,6 +3104,9 @@ class PomodoroTimer {
         const celebrationModal = document.querySelector('.celebration-modal-overlay');
         if (celebrationModal) celebrationModal.style.display = 'none';
         
+        // Close guest post-session modal
+        if (this.guestPostSessionModalOverlay) this.guestPostSessionModalOverlay.style.display = 'none';
+        
         // Close technique dropdown
         if (this.techniqueDropdown) {
             this.techniqueDropdown.classList.remove('open');
@@ -4329,6 +4335,23 @@ class PomodoroTimer {
         if (!this.dailyLimitModalOverlay) return;
         this.dailyLimitModalOverlay.style.display = 'none';
         this.stopDailyLimitCountdown();
+    }
+    
+    // Guest post-session modal (Hormozi: Give First, Then Ask — show after first completed focus block)
+    showGuestPostSessionModal() {
+        if (!this.guestPostSessionModalOverlay) return;
+        this.guestPostSessionModalOverlay.style.display = 'flex';
+        if (window.mixpanelTracker) {
+            window.mixpanelTracker.trackCustomEvent('Guest Post-Session Modal Opened', {
+                source: 'first_focus_session_complete',
+                focus_seconds_today: this.focusSecondsToday || 0
+            });
+        }
+    }
+    
+    closeGuestPostSessionModal() {
+        if (!this.guestPostSessionModalOverlay) return;
+        this.guestPostSessionModalOverlay.style.display = 'none';
     }
     
     // Redirect to pricing page (replaces former pricing plans modal)
@@ -5853,6 +5876,40 @@ class PomodoroTimer {
             this.closeDailyLimitModalX.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.hideDailyLimitModal();
+            });
+        }
+
+        // Guest post-session modal (Hormozi: Give First, Then Ask)
+        if (this.guestPostSessionSignupBtn && !this.guestPostSessionSignupBtn.hasAttribute('data-bound')) {
+            this.guestPostSessionSignupBtn.setAttribute('data-bound', 'true');
+            this.guestPostSessionSignupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (window.mixpanelTracker) {
+                    window.mixpanelTracker.trackCustomEvent('Guest Post-Session Signup Clicked', { source: 'post_session_modal' });
+                }
+                this.closeGuestPostSessionModal();
+                this.handleSignup();
+            });
+        }
+        if (this.guestPostSessionLaterBtn && !this.guestPostSessionLaterBtn.hasAttribute('data-bound')) {
+            this.guestPostSessionLaterBtn.setAttribute('data-bound', 'true');
+            this.guestPostSessionLaterBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.closeGuestPostSessionModal();
+            });
+        }
+        const closeGuestPostSessionModalX = document.getElementById('closeGuestPostSessionModalX');
+        if (closeGuestPostSessionModalX && !closeGuestPostSessionModalX.hasAttribute('data-bound')) {
+            closeGuestPostSessionModalX.setAttribute('data-bound', 'true');
+            closeGuestPostSessionModalX.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.closeGuestPostSessionModal();
+            });
+        }
+        if (this.guestPostSessionModalOverlay && !this.guestPostSessionModalOverlay.hasAttribute('data-bound')) {
+            this.guestPostSessionModalOverlay.setAttribute('data-bound', 'true');
+            this.guestPostSessionModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.guestPostSessionModalOverlay) this.closeGuestPostSessionModal();
             });
         }
 
@@ -8395,6 +8452,19 @@ class PomodoroTimer {
             // Update day streak only if no cheating occurred during focus session
             if (!this.cheatedDuringFocusInCycle) {
                 this.updateStreak();
+            }
+            
+            // Hormozi Step 1: Guest post-session modal — show once per day after first completed focus block
+            if (!this.isAuthenticated && this.guestPostSessionModalOverlay) {
+                const today = new Date().toISOString().slice(0, 10);
+                const storageKey = 'guestPostSessionModalShown';
+                try {
+                    const lastShown = localStorage.getItem(storageKey);
+                    if (lastShown !== today) {
+                        localStorage.setItem(storageKey, today);
+                        setTimeout(() => this.showGuestPostSessionModal(), 1200);
+                    }
+                } catch (_) {}
             }
         }
 
