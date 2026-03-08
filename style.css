@@ -1157,14 +1157,13 @@ body.is-scrolling .streak-fire {
 .content-container {
     max-width: 800px;
     margin: 0 auto;
-    line-height: 1.6;
 }
 
 .content-section h1 {
-    font-size: 2.5rem;
+    font-size: 7rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    text-align: center;
+    text-align: left;
     color: #ffffff;
 }
 
@@ -1187,6 +1186,7 @@ body.is-scrolling .streak-fire {
 
 .content-hero-subtitle {
     font-size: 1.25rem;
+    line-height: 1.6;
     text-align: left;
     margin-bottom: 1.5rem;
     color: rgba(255, 255, 255, 0.85);
@@ -1196,6 +1196,13 @@ body.is-scrolling .streak-fire {
 .content-hero-cta-wrap {
     text-align: left;
     margin-bottom: 2.5rem;
+}
+
+.content-hero-cta-note {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.75rem;
+    margin-bottom: 0;
 }
 
 /* Global button border-radius - pill style (1000px) for all CTA/action buttons */
