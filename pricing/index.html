@@ -217,6 +217,9 @@
                         } else if (resources.session === null) {
                             console.log('ℹ️ Clerk session ended');
                         }
+                        if (typeof window.updatePricingButtonStates === 'function') {
+                            window.updatePricingButtonStates().catch(() => {});
+                        }
                     });
                     
                     // Refresh session when user returns to the page
@@ -3325,13 +3328,13 @@
 
             try {
                 const forcedMode = localStorage.getItem('viewMode');
-                if (forcedMode === 'pro') return 'premium';
-                if (forcedMode === 'free') return 'free';
-                if (forcedMode === 'guest') return 'guest';
-
-                const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
-                const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
-                if (hasPremiumStorage || hasPaidSubscription) return 'premium';
+                const hostname = window.location.hostname;
+                const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+                if (isLocalDev) {
+                    if (forcedMode === 'pro') return 'premium';
+                    if (forcedMode === 'free') return 'free';
+                    if (forcedMode === 'guest') return 'guest';
+                }
             } catch (_) {
                 return 'guest';
             }
@@ -3492,9 +3495,9 @@
                         button.textContent = originalText;
                     });
                 } else {
-                    // Guest user - redirect to signup only (no auto-checkout after signup)
-                    console.log('Redirecting guest to signup...');
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2Fpricing';
+                    // Guest user - default to sign-in so returning users can continue
+                    console.log('Redirecting guest to sign-in...');
+                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent('https://www.superfocus.live/pricing');
                 }
             };
         }
@@ -3671,6 +3674,8 @@
                 el.textContent = 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
             });
         }
+
+        window.updatePricingButtonStates = updateButtonStates;
 
         async function createCheckoutSession(planType = 'monthly', options = {}) {
             try {

@@ -1119,48 +1119,26 @@ class PomodoroTimer {
     
     checkAuthState() {
         try {
-            if (window.Clerk) {
-                const currentUser = window.Clerk.user;
-                const justLoggedOutRecently = this.hasManualLogoutLock();
-                
-                // After logout, never auto-rehydrate unless user explicitly
-                // starts login/signup (those handlers clear just_logged_out).
-                if (justLoggedOutRecently) {
-                    if (this.isAuthenticated) {
-                        this.isAuthenticated = false;
-                        this.user = null;
-                        this.scheduleAuthUpdate();
-                    }
-                    return;
-                }
+            if (!window.Clerk) return;
 
-                // Only treat as authenticated when Clerk.user exists.
-                if (currentUser) {
-                    const wasAuthenticated = this.isAuthenticated;
-                    this.isAuthenticated = true;
-                    this.user = currentUser;
-                    
-                    // Always update UI if state changed or if we just signed up
-                    if (!wasAuthenticated || !this.user) {
-                        console.log('Auth state verified - user authenticated:', { user: currentUser });
-                        this.scheduleAuthUpdate();
-                    }
-                } else {
-                    // Only update to unauthenticated if we're sure there's no user
-                    // This prevents showing login modal when user is actually authenticated
-                    if (this.isAuthenticated) {
-                        // Double-check: wait a bit and check again before marking as unauthenticated
-                        // This handles cases where Clerk hasn't hydrated yet after redirect
-                        setTimeout(() => {
-                            if (window.Clerk && !window.Clerk.user) {
-                                this.isAuthenticated = false;
-                                this.user = null;
-                                this.scheduleAuthUpdate();
-                                console.log('No authenticated user found after double-check');
-                            }
-                        }, 500);
-                    }
+            if (this.hasManualLogoutLock()) {
+                if (this.isAuthenticated || this.user) {
+                    this.isAuthenticated = false;
+                    this.user = null;
+                    this.scheduleAuthUpdate();
                 }
+                return;
+            }
+
+            const currentUser = window.Clerk.user || null;
+            const nextIsAuthenticated = !!currentUser;
+            const stateChanged = (this.isAuthenticated !== nextIsAuthenticated) || (this.user !== currentUser);
+
+            this.isAuthenticated = nextIsAuthenticated;
+            this.user = currentUser;
+
+            if (stateChanged) {
+                this.scheduleAuthUpdate();
             }
         } catch (error) {
             console.log('Auth state check failed:', error);
@@ -1170,6 +1148,9 @@ class PomodoroTimer {
     async waitForUserHydration(timeoutMs) {
         const start = Date.now();
         while (Date.now() - start < timeoutMs) {
+            if (this.hasManualLogoutLock()) {
+                return;
+            }
             if (window.Clerk && window.Clerk.user) {
                 this.user = window.Clerk.user;
                 this.isAuthenticated = true;
@@ -1906,7 +1887,9 @@ class PomodoroTimer {
                         source: 'create_timer_modal'
                     });
                     closeModal();
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                    this.redirectToHostedAuth('sign-in', {
+                        redirectUrl: window.location.href
+                    });
                 });
             }
         } else {
@@ -2065,7 +2048,9 @@ class PomodoroTimer {
                         source: 'create_cassette_modal'
                     });
                     closeModal();
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                    this.redirectToHostedAuth('sign-in', {
+                        redirectUrl: window.location.href
+                    });
                 });
             }
         } else {
@@ -2787,12 +2772,6 @@ class PomodoroTimer {
         // Debug multiple account issues
         this.debugAuthState();
 
-        // Force check current auth state from Clerk unless we just logged out
-        if (window.Clerk && window.Clerk.user && !justLoggedOut) {
-            this.isAuthenticated = true;
-            this.user = window.Clerk.user;
-        }
-        
         // Update Pro status
         const wasPro = this.isPro;
         this.isPro = this.isPremiumUser();
@@ -2982,16 +2961,6 @@ class PomodoroTimer {
                 }
             } catch (_) {}
         } else {
-            // Double-check with Clerk before showing login UI
-            if (window.Clerk && window.Clerk.user && !this.hasManualLogoutLock()) {
-                console.log('Clerk user found, updating auth state');
-                this.isAuthenticated = true;
-                this.user = window.Clerk.user;
-                this._authUpdateRunning = false;
-                this.scheduleAuthUpdate();
-                return;
-            }
-            
             // Reset Pro status for unauthenticated users
             this.isPro = false;
             this._savedTechniqueReappliedAfterAuth = false;
@@ -4185,7 +4154,9 @@ class PomodoroTimer {
                 conversion_funnel: 'technique_interest'
             });
             closeModal();
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+            this.redirectToHostedAuth('sign-in', {
+                redirectUrl: window.location.href
+            });
         });
         
         learnMoreBtn.addEventListener('click', () => {
@@ -4843,18 +4814,19 @@ class PomodoroTimer {
         }
     }
 
-    getClerkHostedAuthUrl(mode = 'sign-in') {
+    getClerkHostedAuthUrl(mode = 'sign-in', redirectUrl = '') {
         const base = mode === 'sign-up'
             ? 'https://accounts.superfocus.live/sign-up'
             : 'https://accounts.superfocus.live/sign-in';
-        const redirectUrl = mode === 'sign-up'
+        const fallbackRedirectUrl = mode === 'sign-up'
             ? 'https://www.superfocus.live/?signup=success'
-            : 'https://www.superfocus.live/?signup=success';
-        return `${base}?redirect_url=${encodeURIComponent(redirectUrl)}`;
+            : 'https://www.superfocus.live/';
+        const finalRedirectUrl = redirectUrl || fallbackRedirectUrl;
+        return `${base}?redirect_url=${encodeURIComponent(finalRedirectUrl)}`;
     }
 
-    async redirectToHostedAuth(mode = 'sign-in') {
-        const authUrl = this.getClerkHostedAuthUrl(mode);
+    async redirectToHostedAuth(mode = 'sign-in', options = {}) {
+        const authUrl = this.getClerkHostedAuthUrl(mode, options.redirectUrl || '');
 
         try {
             await this.waitForClerk();
@@ -6409,13 +6381,15 @@ class PomodoroTimer {
                 emailElement.textContent = userEmail;
             }
             
+            const isPremium = this.isPremiumUser();
+
             if (planElement) {
-                planElement.textContent = this.isPremium ? 'Pro' : 'Free';
+                planElement.textContent = isPremium ? 'Pro' : 'Free';
             }
             
             // Show/hide buttons based on premium status
             if (upgradeBtn && manageSubBtn) {
-                if (this.isPremium) {
+                if (isPremium) {
                     upgradeBtn.style.display = 'none';
                     manageSubBtn.style.display = 'block';
                 } else {
@@ -6611,7 +6585,19 @@ class PomodoroTimer {
             return false;
         }
 
-        // 1) Prefer real Pro from Clerk metadata regardless of any previous forced mode
+        const forcedMode = lsGet('viewMode');
+        const hostname = window.location.hostname;
+        const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+        if (isLocalDev) {
+            if (forcedMode === 'pro') return true;
+            if (forcedMode === 'free' || forcedMode === 'guest') return false;
+        }
+
+        if (!this.isAuthenticated || !this.user) {
+            return false;
+        }
+
+        // Authenticated users: premium is sourced from Clerk metadata only.
         try {
             if (window.Clerk && window.Clerk.user) {
                 const meta = window.Clerk.user.publicMetadata || {};
@@ -6623,34 +6609,7 @@ class PomodoroTimer {
                 if (meta.isPremium === true) return true;
             }
         } catch (_) {}
-
-        // 2) Then check if a forced view mode exists (legacy/dev only)
-        const forcedMode = lsGet('viewMode');
-        if (forcedMode === 'pro') {
-            console.log('Pro status from forced viewMode');
-            return true;
-        }
-        if (forcedMode === 'free' || forcedMode === 'guest') return false;
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasPremiumParam = urlParams.get('premium') === '1';
-        const hasPremiumStorage = localStorage.getItem('isPremium') === 'true';
-        const hasPaidSubscription = localStorage.getItem('hasPaidSubscription') === 'true';
-        if (hasPremiumParam) {
-            // Clear any forced mode to avoid overriding real Pro
-            try { lsRemove('viewMode'); } catch (_) {}
-            localStorage.setItem('isPremium', 'true');
-            localStorage.setItem('hasPaidSubscription', 'true');
-            return true;
-        }
-        
-        const result = hasPremiumStorage || hasPaidSubscription;
-        console.log('Pro status from localStorage:', {
-            isPremium: hasPremiumStorage,
-            hasPaidSubscription: hasPaidSubscription,
-            result: result
-        });
-        return result;
+        return false;
     }
 
     // Simple ambient sounds system
@@ -7069,7 +7028,9 @@ class PomodoroTimer {
 
         modalOverlay.querySelector('#ambientLoginBtn').addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-            window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+            this.redirectToHostedAuth('sign-in', {
+                redirectUrl: window.location.href
+            });
         });
 
         modalOverlay.querySelector('#ambientCancelBtn').addEventListener('click', () => {
@@ -7841,7 +7802,7 @@ class PomodoroTimer {
                         }
                         
                         // Check if we have a user now
-                        if (window.Clerk.user) {
+                        if (window.Clerk.user && !this.hasManualLogoutLock()) {
                             console.log('✅ Clerk session restored');
                             this.isAuthenticated = true;
                             this.user = window.Clerk.user;
@@ -9156,7 +9117,9 @@ class PomodoroTimer {
         const signupBtn = modal.querySelector('#lofiSignupBtn');
         signupBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-            window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(window.location.href);
+            this.redirectToHostedAuth('sign-in', {
+                redirectUrl: window.location.href
+            });
         });
         
         const cancelBtn = modal.querySelector('#lofiMaybeLaterBtn');
@@ -16172,9 +16135,8 @@ class PomodoroTimer {
         const premiumStatus = urlParams.get('premium');
         
         if (signupSuccess === 'success') {
-            // Remove the parameter from URL without page reload
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
+            // Remove only signup marker and keep other params intact.
+            this.removeUrlParams(['signup']);
             
             // CRITICAL: Force check auth state after signup redirect
             // Wait for Clerk to hydrate, then update auth state
@@ -16218,12 +16180,17 @@ class PomodoroTimer {
             setTimeout(() => {
                 if (window.Clerk && window.Clerk.user) {
                     const userId = window.Clerk.user.id;
+                    const signupEmailKey = `signup_email_triggered_${userId}`;
+                    if (localStorage.getItem(signupEmailKey) === 'true') {
+                        return;
+                    }
                     fetch('/api/triggers/on-signup', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ userId })
                     }).then(response => {
                         if (response.ok) {
+                            localStorage.setItem(signupEmailKey, 'true');
                             console.log('✅ Signup email sequence triggered');
                         } else {
                             console.error('❌ Failed to trigger signup email sequence');
@@ -16245,10 +16212,9 @@ class PomodoroTimer {
             const planType = urlParams.get('plan') || 'monthly';
             const conversionValue = 3.99;
             const hasSessionId = Boolean(urlParams.get('session_id'));
-            
-            // Remove the parameters from URL without page reload
-            const newUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
+
+            // Keep session_id for backend checkout confirmation flow.
+            this.removeUrlParams(['payment', 'premium', 'plan']);
             
             // Track successful subscription conversion
             this.trackEvent('Subscribe Success', {
@@ -16290,7 +16256,7 @@ class PomodoroTimer {
                 
                 // If user is still not premium after 5 seconds, try to sync manually
                 setTimeout(() => {
-                    if (!this.isPremium) {
+                    if (!this.isPremiumUser()) {
                         console.log('User still not premium after payment, attempting manual sync...');
                         this.attemptPremiumSync();
                     }
@@ -22317,7 +22283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         user_type: 'guest'
                     });
                     
-                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=https%3A%2F%2Fwww.superfocus.live%2F%3Fsignup%3Dsuccess';
+                    timer.handleLogin();
                 });
             }
             
