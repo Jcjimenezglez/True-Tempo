@@ -1179,6 +1179,39 @@ body.is-scrolling .streak-fire {
     }
 }
 
+.content-hero-subtitle {
+    font-size: 1.25rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-hero-cta-wrap {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.content-hero-cta {
+    display: inline-block;
+    text-align: center;
+    padding: 12px 28px;
+    background: #ffffff;
+    color: #000000;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.content-hero-cta:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000000;
+}
+
 .content-hero-image {
     display: flex;
     justify-content: center;

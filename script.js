@@ -22303,6 +22303,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Landing hero: fetch dynamic user count and bind CTA
+    (function initLandingHero() {
+        const userCountEl = document.getElementById('landingUserCount');
+        if (userCountEl) {
+            fetch('/api/public/stats').then(r => r.json()).then(data => {
+                if (data && data.success && data.roundedTotalUsers) {
+                    userCountEl.textContent = `${data.roundedTotalUsers.toLocaleString()}+`;
+                }
+            }).catch(() => {});
+        }
+        const ctaBtn = document.getElementById('landingStartFocusingBtn');
+        if (ctaBtn) {
+            ctaBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const timerSection = document.querySelector('.timer-section');
+                if (timerSection) timerSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+    })();
+    
     // Mobile menu toggle - Handled by bottom sheet system below (line ~22747)
     // This old code is disabled to prevent conflicts with the new bottom sheet navigation
     /*
