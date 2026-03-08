@@ -10118,13 +10118,7 @@ class PomodoroTimer {
                     task_count: this.getLocalTasks().length
                 });
                 // Check task limit BEFORE showing the form
-                // Guest users cannot create tasks at all - must sign up
-                if (!this.isAuthenticated) {
-                    this.showTaskLimitModal();
-                    return;
-                }
-                
-                // Refresh tasks from storage to ensure we have latest data
+                // Guest users: 1 task allowed; show modal when trying to add 2nd
                 const allLocalTasks = this.getLocalTasks();
                 
                 // Only count tasks in To-do (not completed), not tasks in Done
@@ -18242,18 +18236,15 @@ class PomodoroTimer {
                 });
                 
                 // Check task limit BEFORE showing the form
-                // Guest users cannot create tasks at all - must sign up
-                if (!this.isAuthenticated) {
-                    this.showTaskLimitModal();
-                    return;
-                }
-                
-                // Only count tasks in To-do (not completed), not tasks in Done
+                // Guest users: 1 task allowed; show modal when trying to add 2nd
                 const currentTasks = this.getLocalTasks().filter(task => !task.completed);
                 
                 // Define limits based on user type
                 let taskLimit;
-                if (this.isAuthenticated && !this.isPro) {
+                if (!this.isAuthenticated) {
+                    // Guest users: 1 task
+                    taskLimit = 1;
+                } else if (this.isAuthenticated && !this.isPro) {
                     // Free users: 2 tasks
                     taskLimit = 2;
                 } else {
