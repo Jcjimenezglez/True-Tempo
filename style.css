@@ -1459,25 +1459,79 @@ a.btn-secondary,
 .content-section .faq-list {
     margin-top: 1rem;
 }
-.content-section .faq-item {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+/* Content FAQ Accordion - expandable cards */
+.content-section .content-faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
-.content-section .faq-item:last-child {
+
+.content-section .content-faq-accordion .faq-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
     margin-bottom: 0;
     padding-bottom: 0;
     border-bottom: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
 }
-.content-section .faq-question {
-    font-size: 1.1rem;
+
+.content-section .content-faq-accordion .faq-item:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.content-section .content-faq-accordion .faq-question {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
     font-weight: 500;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.95);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+}
+
+.content-section .content-faq-accordion .faq-question:hover {
     color: #ffffff;
 }
-.content-section .faq-answer {
-    font-size: 1rem;
+
+.content-section .content-faq-accordion .faq-question span {
+    flex: 1;
+}
+
+.content-section .content-faq-accordion .faq-icon {
+    flex-shrink: 0;
+    margin-left: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    transition: transform 0.2s ease;
+}
+
+.content-section .content-faq-accordion .faq-item[aria-expanded="true"] .faq-icon {
+    transform: rotate(180deg);
+}
+
+.content-section .content-faq-accordion .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.content-section .content-faq-accordion .faq-item[aria-expanded="true"] .faq-answer {
+    max-height: 400px;
+}
+
+.content-section .content-faq-accordion .faq-answer p {
+    padding: 0 1.25rem 1.25rem 1.25rem;
     margin: 0;
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
 }
@@ -1486,6 +1540,14 @@ a.btn-secondary,
 @media (max-width: 768px) {
     .content-section {
         padding: 40px 16px 80px 16px;
+    }
+
+    .content-section .content-faq-accordion .faq-question {
+        padding: 1rem;
+    }
+
+    .content-section .content-faq-accordion .faq-answer p {
+        padding: 0 1rem 1rem 1rem;
     }
 
     .cta-row .btn-secondary {

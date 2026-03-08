@@ -22318,7 +22318,9 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('/api/public/users-photos').then(r => r.json()).then(data => {
                 if (data && data.success && data.users && data.users.length > 0) {
                     proofAvatarsGrid.innerHTML = '';
-                    const photosToShow = data.users.slice(0, 8);
+                    // Use users 1,2,3,7,8 for avatars row (exclude 4,5,6 used in review cards)
+                    const indices = [0, 1, 2, 6, 7];
+                    const photosToShow = indices.map(i => data.users[i]).filter(Boolean);
                     photosToShow.forEach(user => {
                         if (!user.imageUrl) return;
                         const imgUrl = (user.imageUrl || '').toLowerCase();
@@ -22341,6 +22343,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.mixpanelTracker) {
                     window.mixpanelTracker.trackCustomEvent('Landing Signup Clicked', { source: 'landing_hero_cta' });
                 }
+            });
+        }
+        // Content FAQ accordion (landing page)
+        const contentFaqAccordion = document.querySelector('.content-faq-accordion');
+        if (contentFaqAccordion) {
+            contentFaqAccordion.querySelectorAll('.faq-question').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const item = btn.closest('.faq-item');
+                    const isExpanded = item.getAttribute('aria-expanded') === 'true';
+                    contentFaqAccordion.querySelectorAll('.faq-item').forEach(i => {
+                        if (i !== item) i.setAttribute('aria-expanded', 'false');
+                    });
+                    item.setAttribute('aria-expanded', String(!isExpanded));
+                });
             });
         }
         // Landing page scroll tracking (once per session)
