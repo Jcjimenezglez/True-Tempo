@@ -1169,14 +1169,8 @@ body.is-scrolling .streak-fire {
 }
 
 .content-hero-title {
-    font-size: 3.25rem;
+    font-size: 96px;
     margin-bottom: 1rem;
-}
-
-@media (min-width: 768px) {
-    .content-hero-title {
-        font-size: 4rem;
-    }
 }
 
 /* Desktop break - hide on mobile, show on desktop */
@@ -1205,6 +1199,28 @@ body.is-scrolling .streak-fire {
     margin-bottom: 2.5rem;
 }
 
+/* Global button border-radius - pill style (1000px) for all CTA/action buttons */
+input[type="submit"],
+input[type="button"],
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-focus,
+.logout-modal-btn,
+.logout-modal-btn-primary,
+.logout-modal-btn-secondary,
+.content-hero-cta,
+.custom-timer-btn-primary,
+.custom-timer-btn-secondary,
+.settings-action-btn-primary,
+.settings-action-btn-secondary,
+a.btn-primary,
+a.btn-secondary,
+.apply-view-mode-btn,
+.welcome-cta-btn {
+    border-radius: 1000px !important;
+}
+
 .content-hero-cta {
     display: inline-block;
     text-align: center;
@@ -1213,7 +1229,6 @@ body.is-scrolling .streak-fire {
     color: #000000;
     font-weight: 600;
     font-size: 1rem;
-    border-radius: 8px;
     text-decoration: none;
     transition: background 0.2s ease, color 0.2s ease;
 }
@@ -2890,7 +2905,6 @@ body.is-scrolling .streak-fire {
 
 .logout-modal-btn {
     padding: 0.75rem 1.5rem;
-    border-radius: 8px;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -5015,7 +5029,6 @@ audio {
 
 .btn-primary, .btn-secondary, .btn-success, .btn-focus {
     padding: 8px 16px;
-    border-radius: 6px;
     border: none;
     font-size: 0.9rem;
     font-weight: 500;
