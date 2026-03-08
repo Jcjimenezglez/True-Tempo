@@ -1472,79 +1472,62 @@ a.btn-secondary,
     gap: 1rem;
 }
 
-.how-uses-panel {
+.how-uses-preview {
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     overflow: hidden;
+    padding: 1rem;
 }
 
-.how-uses-panel-header {
+.how-uses-preview .tasks-header {
+    margin-bottom: 0.75rem;
+}
+
+.how-uses-preview .tasks-header h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.25rem 0;
+}
+
+.how-uses-preview .tasks-subtitle {
     font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.how-uses-panel-tasks {
-    padding-bottom: 0.5rem;
-}
-
-.how-uses-task-item {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.85);
-    padding: 0.45rem 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.how-uses-check {
-    font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.6);
+    margin: 0;
 }
 
-.how-uses-panel-timer {
+.how-uses-preview .task-item {
+    pointer-events: none;
+}
+
+.how-uses-techniques {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
     padding: 0.75rem;
-    text-align: center;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
-.how-uses-timer-label {
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
+.how-uses-techniques .technique-preset {
+    pointer-events: none;
+    cursor: default;
 }
 
-.how-uses-timer-time {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: #ffffff;
-    font-variant-numeric: tabular-nums;
+.how-uses-preview.settings-section .section-title {
+    font-size: 0.95rem;
+    margin: 0 0 0.75rem 0;
 }
 
-.how-uses-timer-task {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0.25rem 0 0.5rem 0;
+.how-uses-preview .theme-options {
+    gap: 0.5rem;
 }
 
-.how-uses-start-btn {
-    font-size: 0.7rem;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 1000px;
-    padding: 0.35rem 0.65rem;
-    display: inline-block;
+.how-uses-preview .theme-option {
+    pointer-events: none;
+    cursor: default;
 }
 
-.how-uses-panel-cassettes .how-uses-cassette-item,
-.how-uses-panel-analytics .how-uses-stat {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.85);
-    padding: 0.45rem 0.75rem;
+.how-uses-preview .limit-stats {
+    margin-top: 0;
 }
 
 .how-uses-desc {
@@ -1560,8 +1543,9 @@ a.btn-secondary,
         flex-wrap: wrap;
     }
     
-    .how-uses-panel {
-        min-width: 160px;
+    .how-uses-preview,
+    .how-uses-techniques {
+        min-width: 180px;
         flex: 1;
     }
 }
