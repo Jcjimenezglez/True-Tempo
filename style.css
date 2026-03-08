@@ -1412,7 +1412,7 @@ a.btn-secondary,
     margin: 0;
 }
 
-/* How people use Superfocus - persona steps */
+/* How people use Superfocus - features with user examples */
 .how-uses-section {
     margin: 4rem 0;
 }
@@ -1425,24 +1425,26 @@ a.btn-secondary,
     text-align: center;
 }
 
-.how-uses-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+.how-uses-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
 }
 
-.how-uses-card {
+.how-uses-row {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 1.25rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
 }
 
-.how-uses-header {
+.how-uses-user {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1rem;
 }
 
 .how-uses-avatar {
@@ -1464,18 +1466,10 @@ a.btn-secondary,
     color: rgba(255, 255, 255, 0.6);
 }
 
-.how-uses-summary {
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 1rem;
-    line-height: 1.4;
-}
-
-.how-uses-flow {
+.how-uses-features {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .how-uses-panel {
@@ -1483,15 +1477,13 @@ a.btn-secondary,
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     overflow: hidden;
-    flex: 1;
-    min-width: 120px;
 }
 
 .how-uses-panel-header {
     font-size: 0.75rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
-    padding: 0.5rem 0.65rem;
+    padding: 0.5rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -1500,16 +1492,12 @@ a.btn-secondary,
 }
 
 .how-uses-task-item {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.85);
-    padding: 0.4rem 0.65rem;
+    padding: 0.45rem 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.4rem;
-}
-
-.how-uses-task-item.faded {
-    opacity: 0.6;
 }
 
 .how-uses-check {
@@ -1518,7 +1506,7 @@ a.btn-secondary,
 }
 
 .how-uses-panel-timer {
-    padding: 0.65rem;
+    padding: 0.75rem;
     text-align: center;
 }
 
@@ -1527,7 +1515,7 @@ a.btn-secondary,
     color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.25rem;
 }
 
 .how-uses-timer-time {
@@ -1538,12 +1526,9 @@ a.btn-secondary,
 }
 
 .how-uses-timer-task {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.7);
-    margin: 0.25rem 0 0.4rem 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin: 0.25rem 0 0.5rem 0;
 }
 
 .how-uses-start-btn {
@@ -1551,29 +1536,33 @@ a.btn-secondary,
     color: #ffffff;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 1000px;
-    padding: 0.3rem 0.6rem;
+    padding: 0.35rem 0.65rem;
     display: inline-block;
 }
 
-.how-uses-arrow {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.4);
-    flex-shrink: 0;
+.how-uses-panel-cassettes .how-uses-cassette-item,
+.how-uses-panel-analytics .how-uses-stat {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0.45rem 0.75rem;
 }
 
-@media (max-width: 768px) {
-    .how-uses-grid {
-        grid-template-columns: 1fr;
+.how-uses-desc {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .how-uses-features {
+        flex-direction: row;
+        flex-wrap: wrap;
     }
     
-    .how-uses-flow {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .how-uses-arrow {
-        align-self: center;
-        transform: rotate(90deg);
+    .how-uses-panel {
+        min-width: 160px;
+        flex: 1;
     }
 }
 
