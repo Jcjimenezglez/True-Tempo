@@ -1,6 +1,11 @@
 // api/email/send-email.js
 const { Resend } = require('resend');
 
+// Set to true to pause all Resend emails (e.g. while improving templates).
+// Set to false to re-enable. Env var RESEND_EMAILS_PAUSED overrides this.
+const DEFAULT_EMAILS_PAUSED = true;
+const EMAILS_PAUSED = process.env.RESEND_EMAILS_PAUSED === 'true' || DEFAULT_EMAILS_PAUSED;
+
 // Trim API key to remove potential whitespace/newlines from copy-paste
 const resendApiKey = process.env.RESEND_API_KEY ? process.env.RESEND_API_KEY.trim() : null;
 const resend = new Resend(resendApiKey);
@@ -32,6 +37,10 @@ function normalizeTags(tags) {
 
 async function sendEmail({ to, subject, html, text, tags = [] }) {
   try {
+    if (EMAILS_PAUSED) {
+      console.warn('⚠️ Resend emails are paused (DEFAULT_EMAILS_PAUSED or RESEND_EMAILS_PAUSED). Skipping:', subject, '→', to);
+      return { success: false, error: 'Emails paused', skipped: true };
+    }
     if (!process.env.RESEND_API_KEY) {
       console.warn('⚠️ RESEND_API_KEY not configured, skipping email');
       return { success: false, error: 'Email service not configured' };
