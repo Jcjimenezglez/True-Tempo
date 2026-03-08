@@ -1412,6 +1412,83 @@ a.btn-secondary,
     margin: 0;
 }
 
+/* How people use Superfocus - persona steps */
+.how-uses-section {
+    margin: 4rem 0;
+}
+
+.how-uses-title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+.how-uses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.how-uses-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.how-uses-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.how-uses-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.how-uses-name {
+    font-weight: 600;
+    color: #ffffff;
+    display: block;
+    font-size: 1rem;
+}
+
+.how-uses-role {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.how-uses-summary {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.how-uses-steps {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.how-uses-steps li {
+    margin-bottom: 0.35rem;
+}
+
+@media (max-width: 768px) {
+    .how-uses-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .content-hero-image {
     display: flex;
     justify-content: center;
