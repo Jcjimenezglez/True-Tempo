@@ -22306,13 +22306,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // Landing hero: fetch dynamic user count, scroll tracking, CTA
     (function initLandingHero() {
         const userCountEl = document.getElementById('landingUserCount');
-        const proofUserCountEl = document.getElementById('proofUserCount');
-        if (userCountEl || proofUserCountEl) {
+        if (userCountEl) {
             fetch('/api/public/stats').then(r => r.json()).then(data => {
                 if (data && data.success && data.roundedTotalUsers) {
-                    const formatted = data.roundedTotalUsers.toLocaleString();
-                    if (userCountEl) userCountEl.textContent = formatted;
-                    if (proofUserCountEl) proofUserCountEl.textContent = formatted;
+                    userCountEl.textContent = data.roundedTotalUsers.toLocaleString();
+                }
+            }).catch(() => {});
+        }
+        const proofAvatarsGrid = document.getElementById('proofAvatarsGrid');
+        if (proofAvatarsGrid) {
+            fetch('/api/public/users-photos').then(r => r.json()).then(data => {
+                if (data && data.success && data.users && data.users.length > 0) {
+                    proofAvatarsGrid.innerHTML = '';
+                    const photosToShow = data.users.slice(0, 8);
+                    photosToShow.forEach(user => {
+                        if (!user.imageUrl) return;
+                        const imgUrl = (user.imageUrl || '').toLowerCase();
+                        if (['placeholder','default-avatar','initials'].some(p => imgUrl.includes(p))) return;
+                        if (!imgUrl.includes('http') && !imgUrl.includes('clerk')) return;
+                        const img = document.createElement('img');
+                        img.src = user.imageUrl;
+                        img.alt = user.firstName || 'User';
+                        img.className = 'proof-avatar-img';
+                        img.loading = 'lazy';
+                        img.onerror = () => img.remove();
+                        proofAvatarsGrid.appendChild(img);
+                    });
                 }
             }).catch(() => {});
         }
