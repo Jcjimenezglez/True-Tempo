@@ -1169,7 +1169,7 @@ body.is-scrolling .streak-fire {
 
 .content-hero-title {
     font-size: 96px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     text-align: center;
 }
 
@@ -1190,21 +1190,22 @@ body.is-scrolling .streak-fire {
     text-align: center;
     margin-bottom: 1.5rem;
     color: rgba(255, 255, 255, 0.85);
-    max-width: 540px;
+    max-width: 380px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .content-hero-cta-wrap {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
 }
 
 .content-hero-cta-note {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.6);
-    margin-top: 0.75rem;
+    margin-top: 1.25rem;
     margin-bottom: 0;
+    line-height: 1.4;
 }
 
 /* Global button border-radius - pill style (1000px) for all CTA/action buttons */
@@ -1248,16 +1249,16 @@ a.btn-secondary,
 
 /* Proof Section (Hormozi: Proof Over Promise) */
 .proof-section {
-    margin: 3rem 0 3rem 0;
-    padding: 2rem 0;
+    margin: 4rem 0 4rem 0;
+    padding: 3rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
 }
 
 .proof-stats-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
     margin-bottom: 1.5rem;
     align-items: center;
     justify-content: center;
@@ -1285,7 +1286,7 @@ a.btn-secondary,
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .proof-avatar-img {
@@ -1305,6 +1306,7 @@ a.btn-secondary,
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
+    margin-top: 0.5rem;
 }
 
 .proof-review-card {
@@ -1386,8 +1388,12 @@ a.btn-secondary,
 .content-section h2 {
     font-size: 1.8rem;
     font-weight: 500;
-    margin: 2rem 0 1rem 0;
+    margin: 3rem 0 1rem 0;
     color: #ffffff;
+}
+
+.content-section h2:first-of-type {
+    margin-top: 4rem;
 }
 
 .content-section p {
