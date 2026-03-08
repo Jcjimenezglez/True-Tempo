@@ -22306,10 +22306,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Landing hero: fetch dynamic user count, scroll tracking, CTA
     (function initLandingHero() {
         const userCountEl = document.getElementById('landingUserCount');
-        if (userCountEl) {
+        const proofUserCountEl = document.getElementById('proofUserCount');
+        if (userCountEl || proofUserCountEl) {
             fetch('/api/public/stats').then(r => r.json()).then(data => {
                 if (data && data.success && data.roundedTotalUsers) {
-                    userCountEl.textContent = data.roundedTotalUsers.toLocaleString();
+                    const formatted = data.roundedTotalUsers.toLocaleString();
+                    if (userCountEl) userCountEl.textContent = formatted;
+                    if (proofUserCountEl) proofUserCountEl.textContent = formatted;
                 }
             }).catch(() => {});
         }
