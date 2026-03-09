@@ -3366,6 +3366,17 @@
             return planType === 'premium' || planType === 'lifetime';
         }
 
+        function getEligibleTrialDays() {
+            try {
+                const meta = window.Clerk?.user?.publicMetadata || {};
+                if (meta.referralExtendedTrialEligible === true && !meta.referralExtendedTrialRedeemedAt) {
+                    return Number(meta.referralExtendedTrialDays) || 90;
+                }
+            } catch (_) {}
+
+            return 30;
+        }
+
         async function openCustomerPortal() {
             let userEmail = '';
             try {
@@ -3621,6 +3632,11 @@
             const isPremium = userPlanType === 'premium' || userPlanType === 'lifetime';
             const isLifetime = userPlanType === 'lifetime';
             const isMonthlyPremium = userPlanType === 'premium';
+            const eligibleTrialDays = getEligibleTrialDays();
+            const premiumTrialCta = eligibleTrialDays >= 90 ? 'Try 3 months for $0' : 'Try 1 month for $0';
+            const premiumTrialDescription = eligibleTrialDays >= 90
+                ? 'Free for 3 months, then $3.99 per month after. This referral offer is applied automatically at checkout.'
+                : 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
             
             console.log('Updating button states:', { 
                 isAuthenticated, 
@@ -3682,14 +3698,14 @@
             }
             // Free authenticated users: show direct premium upgrade CTA
             lifetimeCtaButtons.forEach((ctaButton) => {
-                ctaButton.textContent = 'Try 1 month for $0';
+                ctaButton.textContent = premiumTrialCta;
                 ctaButton.disabled = false;
                 ctaButton.classList.remove('disabled');
                 ctaButton.style.display = '';
                 ctaButton.dataset.ctaMode = 'checkout';
             });
             document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
-                el.textContent = 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
+                el.textContent = premiumTrialDescription;
             });
         }
 

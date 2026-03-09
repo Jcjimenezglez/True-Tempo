@@ -3,6 +3,7 @@
 //   STRIPE_SECRET_KEY, STRIPE_PRICE_ID_PREMIUM
 
 const Stripe = require('stripe');
+const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const STRIPE_API_VERSION = '2026-01-28.clover';
 
 function sanitizeEnvValue(value) {
@@ -105,6 +106,26 @@ module.exports = async (req, res) => {
 
   try {
     const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
+    let trialPeriodDays = 30;
+    let referralExtendedTrialApplied = false;
+
+    if (userId && process.env.CLERK_SECRET_KEY) {
+      try {
+        const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+        const user = await clerk.users.getUser(userId);
+        const metadata = user.publicMetadata || {};
+        const extendedTrialEligible =
+          metadata.referralExtendedTrialEligible === true &&
+          !metadata.referralExtendedTrialRedeemedAt;
+
+        if (extendedTrialEligible) {
+          trialPeriodDays = 90;
+          referralExtendedTrialApplied = true;
+        }
+      } catch (error) {
+        console.warn('Unable to load Clerk referral metadata for checkout:', error.message);
+      }
+    }
 
     // Monthly checkout uses subscription mode.
     const mode = 'subscription';
@@ -129,6 +150,9 @@ module.exports = async (req, res) => {
     if (wbraid) {
       metadata.wbraid = wbraid;
     }
+
+    metadata.trial_days = String(trialPeriodDays);
+    metadata.referral_extended_trial_applied = referralExtendedTrialApplied ? 'true' : 'false';
     
     const sessionConfig = {
       mode: mode,
@@ -141,7 +165,7 @@ module.exports = async (req, res) => {
       // Force trial at Checkout session level to avoid ambiguous behavior
       // when customers come from Link/reused identities.
       subscription_data: {
-        trial_period_days: 30,
+        trial_period_days: trialPeriodDays,
       },
       // Pass Clerk user id and payment type in metadata
       metadata: metadata,
@@ -155,7 +179,7 @@ module.exports = async (req, res) => {
     
     // #region agent log
     if (process.env.NODE_ENV !== 'production') {
-      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'D',location:'api/create-checkout-session.js:beforeStripeCreate',message:'Creating Stripe checkout session',data:{planType,mode,hasCustomerEmail:!!sessionConfig.customer_email,hasClerkUserId:!!sessionConfig.metadata?.clerk_user_id},timestamp:Date.now()})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/a94af8c8-4978-4bdd-878c-120b1bb5f3d3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:(req.headers['x-debug-runid']||'pre-fix'),hypothesisId:'D',location:'api/create-checkout-session.js:beforeStripeCreate',message:'Creating Stripe checkout session',data:{planType,mode,trialPeriodDays,referralExtendedTrialApplied,hasCustomerEmail:!!sessionConfig.customer_email,hasClerkUserId:!!sessionConfig.metadata?.clerk_user_id},timestamp:Date.now()})}).catch(()=>{});
     }
     // #endregion
 
@@ -231,7 +255,12 @@ module.exports = async (req, res) => {
     }
 
     console.log(`✅ Checkout session created for ${planType} plan`);
-    res.status(200).json({ url: session.url, sessionId: session.id });
+    res.status(200).json({
+      url: session.url,
+      sessionId: session.id,
+      trialDays: trialPeriodDays,
+      referralExtendedTrialApplied,
+    });
   } catch (err) {
     console.error('Stripe checkout error:', err);
     const message = (err && err.message) || 'Failed to create checkout session';

@@ -2,6 +2,7 @@
 const Stripe = require('stripe');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const { setCustomerMapping, getClerkUserIdByCustomer } = require('./lib/stripe-customer-map');
+const { pruneMetadataToBudget } = require('./lib/clerk-metadata-utils');
 
 // Function to send conversion tracking to Google Ads (server-side)
 // Tracks real conversions when checkout is completed (not just intent)
@@ -494,6 +495,7 @@ async function handleCheckoutCompleted(session, clerk) {
   const gclid = session.metadata?.gclid || null;
   const gbraid = session.metadata?.gbraid || null;
   const wbraid = session.metadata?.wbraid || null;
+  const referralExtendedTrialApplied = session.metadata?.referral_extended_trial_applied === 'true';
 
   console.log('🔔 Checkout completed event received:', {
     customerId,
@@ -567,11 +569,17 @@ async function handleCheckoutCompleted(session, clerk) {
         isPremium: true,
         premiumSince: currentUser.publicMetadata?.premiumSince || new Date().toISOString(),
         paymentType: 'monthly',
+        referralExtendedTrialEligible: referralExtendedTrialApplied
+          ? false
+          : currentUser.publicMetadata?.referralExtendedTrialEligible,
+        referralExtendedTrialRedeemedAt: referralExtendedTrialApplied
+          ? (currentUser.publicMetadata?.referralExtendedTrialRedeemedAt || new Date().toISOString())
+          : currentUser.publicMetadata?.referralExtendedTrialRedeemedAt,
         lastUpdated: new Date().toISOString(),
       };
 
       await clerk.users.updateUser(targetUserId, {
-        publicMetadata: updatedMetadata,
+        publicMetadata: pruneMetadataToBudget(updatedMetadata),
       });
 
       console.log(`✅ Updated Clerk user ${targetUserId} with MONTHLY premium status`);

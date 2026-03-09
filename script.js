@@ -460,6 +460,10 @@ class PomodoroTimer {
         // Signals when Clerk auth has fully hydrated for this session
         this.authReady = false;
         this.confirmedCheckoutSessionId = null;
+        this.referralState = null;
+        this.referralStateUserId = null;
+        this.referralLinkStorageKey = 'superfocus_pending_referral_code';
+        this.referralPreviewStorageKey = 'superfocus_pending_referral_previewed';
         
         // Loading screen management
         this.loadingScreen = document.getElementById('loadingScreen');
@@ -643,9 +647,302 @@ class PomodoroTimer {
             // Best-effort capture only; no user impact on failure.
         }
     }
+
+    initializeReferralUi() {
+        if (!this.settingsAccountSection || document.getElementById('settingsReferralBtn')) {
+            this.settingsReferralBtn = document.getElementById('settingsReferralBtn');
+            this.referralModalOverlay = document.getElementById('referralModalOverlay');
+            return;
+        }
+
+        const referralItem = document.createElement('div');
+        referralItem.className = 'settings-dropdown-item';
+        referralItem.id = 'settingsReferralBtn';
+        referralItem.style.display = 'none';
+        referralItem.innerHTML = `
+            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 7h10v10"></path>
+                <path d="M7 17 17 7"></path>
+                <path d="M17 14V7h-7"></path>
+            </svg>
+            <span>Refer a friend</span>
+        `;
+
+        const referralModalOverlay = document.createElement('div');
+        referralModalOverlay.className = 'logout-modal-overlay';
+        referralModalOverlay.id = 'referralModalOverlay';
+        referralModalOverlay.style.display = 'none';
+        referralModalOverlay.innerHTML = `
+            <div class="logout-modal">
+                <button class="close-logout-modal-x" id="closeReferralModalX" aria-label="Close referral modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+                <div class="upgrade-content">
+                    <h3 class="logout-modal-title" id="referralModalTitle" style="text-align: center;">Refer a friend</h3>
+                    <p class="logout-modal-message" id="referralModalMessage" style="text-align: center; margin-bottom: 18px;"></p>
+                    <div id="referralModalLinkWrap" style="display: none; margin-bottom: 16px;">
+                        <label for="referralLinkInput" style="display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.72); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;">Your single-use link</label>
+                        <input id="referralLinkInput" type="text" readonly style="width: 100%; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.95); padding: 12px 14px; font-size: 13px; box-sizing: border-box;" />
+                    </div>
+                    <div id="referralModalStatus" style="margin-bottom: 16px; color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.5;"></div>
+                    <div class="logout-modal-buttons" style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="copyReferralLinkBtn" style="width: 100%;">Copy referral link</button>
+                        <button class="logout-modal-btn logout-modal-btn-secondary" id="closeReferralModalBtn" style="width: 100%;">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.settingsAccountSection.insertBefore(referralItem, this.settingsPricingBtn || this.settingsAccountSection.firstChild);
+        document.body.appendChild(referralModalOverlay);
+
+        this.settingsReferralBtn = referralItem;
+        this.referralModalOverlay = referralModalOverlay;
+    }
+
+    getPendingReferralCode() {
+        try {
+            return localStorage.getItem(this.referralLinkStorageKey) || '';
+        } catch (_) {
+            return '';
+        }
+    }
+
+    setPendingReferralCode(code) {
+        try {
+            localStorage.setItem(this.referralLinkStorageKey, code);
+            localStorage.setItem(this.referralPreviewStorageKey, code);
+        } catch (_) {}
+    }
+
+    clearPendingReferralCode() {
+        try {
+            localStorage.removeItem(this.referralLinkStorageKey);
+            localStorage.removeItem(this.referralPreviewStorageKey);
+        } catch (_) {}
+    }
+
+    async captureReferralCode() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const referralCode = (params.get('ref') || '').trim();
+            if (!referralCode) return;
+
+            const alreadyPreviewed = localStorage.getItem(this.referralPreviewStorageKey) === referralCode;
+            const response = await fetch(`/api/referral-link?code=${encodeURIComponent(referralCode)}`);
+            const payload = await response.json().catch(() => ({}));
+
+            if (response.ok && payload.status === 'active') {
+                this.setPendingReferralCode(referralCode);
+                if (!alreadyPreviewed) {
+                    this.showResourceShareToast('Referral link saved. Sign up to unlock a 3-month Premium trial.');
+                }
+            } else {
+                this.clearPendingReferralCode();
+                this.showResourceShareToast(payload.message || 'This referral link has expired.', true);
+            }
+        } catch (error) {
+            console.warn('Referral preview failed:', error);
+        }
+    }
+
+    async refreshReferralState(force = false) {
+        const userId = this.user?.id || window.Clerk?.user?.id || '';
+
+        if (!this.isAuthenticated || !userId) {
+            this.referralState = null;
+            this.referralStateUserId = null;
+            this.renderReferralUi();
+            this.updatePremiumTrialOfferUi();
+            return null;
+        }
+
+        if (!force && this.referralState && this.referralStateUserId === userId) {
+            this.renderReferralUi();
+            return this.referralState;
+        }
+
+        try {
+            const response = await fetch('/api/referral-link', {
+                headers: {
+                    'x-clerk-userid': userId,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load referral link');
+            }
+
+            this.referralState = await response.json();
+            this.referralStateUserId = userId;
+        } catch (error) {
+            console.warn('Unable to refresh referral state:', error);
+            this.referralState = null;
+            this.referralStateUserId = userId;
+        }
+
+        this.renderReferralUi();
+        this.updatePremiumTrialOfferUi();
+        return this.referralState;
+    }
+
+    getPremiumTrialDays() {
+        if (this.referralState?.extendedTrialEligible && !this.referralState?.extendedTrialRedeemedAt) {
+            return Number(this.referralState.extendedTrialDays) || 90;
+        }
+
+        const metadata = this.user?.publicMetadata || window.Clerk?.user?.publicMetadata || {};
+        if (metadata.referralExtendedTrialEligible === true && !metadata.referralExtendedTrialRedeemedAt) {
+            return Number(metadata.referralExtendedTrialDays) || 90;
+        }
+
+        return 30;
+    }
+
+    getPremiumTrialCtaText() {
+        const trialDays = this.getPremiumTrialDays();
+        if (trialDays >= 90) {
+            return 'Try 3 months for $0';
+        }
+        return 'Try 1 month for $0';
+    }
+
+    getPremiumTrialDescription() {
+        const trialDays = this.getPremiumTrialDays();
+        if (trialDays >= 90) {
+            return 'Free for 3 months, then $3.99 per month after. This referral offer is applied automatically at checkout.';
+        }
+        return 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
+    }
+
+    updatePremiumTrialOfferUi() {
+        const ctaText = this.getPremiumTrialCtaText();
+        const descriptionText = this.getPremiumTrialDescription();
+        const pricingModalMessage = document.querySelector('#pricingPlansModalOverlay .logout-modal-message');
+
+        if (this.selectedPlanCTA) {
+            this.selectedPlanCTA.textContent = ctaText;
+        }
+
+        if (pricingModalMessage) {
+            pricingModalMessage.textContent = descriptionText.replace('This referral offer is applied automatically at checkout.', '').trim();
+        }
+    }
+
+    renderReferralUi() {
+        if (this.settingsReferralBtn) {
+            const isEnabled = this.isAuthenticated && this.referralState?.enabled !== false;
+            this.settingsReferralBtn.style.display = isEnabled ? 'flex' : 'none';
+        }
+
+        const modalTitle = document.getElementById('referralModalTitle');
+        const modalMessage = document.getElementById('referralModalMessage');
+        const linkWrap = document.getElementById('referralModalLinkWrap');
+        const linkInput = document.getElementById('referralLinkInput');
+        const status = document.getElementById('referralModalStatus');
+        const copyBtn = document.getElementById('copyReferralLinkBtn');
+
+        if (!modalTitle || !modalMessage || !status || !copyBtn) {
+            return;
+        }
+
+        if (!this.isAuthenticated) {
+            modalTitle.textContent = 'Refer a friend';
+            modalMessage.textContent = 'Log in to generate your referral link.';
+            status.textContent = 'When the first friend creates an account with your link, both of you unlock the option to start a 3-month Premium trial.';
+            if (linkWrap) linkWrap.style.display = 'none';
+            copyBtn.style.display = 'none';
+            return;
+        }
+
+        const state = this.referralState || {};
+        const hasState = this.referralState && Object.keys(this.referralState).length > 0;
+        const hasActiveLink = Boolean(state.link);
+        const hasUnlockedTrial = state.extendedTrialEligible && !state.extendedTrialRedeemedAt;
+
+        if (!hasState) {
+            modalTitle.textContent = 'Refer a friend';
+            modalMessage.textContent = 'Your referral link is loading.';
+            status.textContent = 'Please try again in a moment.';
+            if (linkWrap) linkWrap.style.display = 'none';
+            copyBtn.style.display = 'none';
+            return;
+        }
+
+        if (state.enabled === false) {
+            modalTitle.textContent = 'Refer a friend';
+            modalMessage.textContent = 'Referral sharing is not enabled for this account yet.';
+            status.textContent = state.message || 'Referral sharing is currently enabled only for the internal test account.';
+            if (linkWrap) linkWrap.style.display = 'none';
+            copyBtn.style.display = 'none';
+            return;
+        }
+
+        if (hasActiveLink) {
+            modalTitle.textContent = 'Refer a friend';
+            modalMessage.textContent = 'Share your single-use link. When the first friend creates an account with it, both of you unlock a 3-month Premium trial.';
+            status.textContent = 'This link stays active until the first successful signup.';
+            if (linkInput) linkInput.value = state.link;
+            if (linkWrap) linkWrap.style.display = 'block';
+            copyBtn.style.display = 'inline-flex';
+            copyBtn.disabled = false;
+        } else {
+            modalTitle.textContent = hasUnlockedTrial ? 'Referral unlocked' : 'Referral link claimed';
+            modalMessage.textContent = hasUnlockedTrial
+                ? 'Your referral link has been claimed. Your 3-month Premium trial is ready when you want to upgrade.'
+                : 'Your last referral link has already been used and can no longer be shared.';
+            status.textContent = state.linkClaimedAt
+                ? `Claimed on ${new Date(state.linkClaimedAt).toLocaleDateString()}`
+                : 'This single-use referral link has expired.';
+            if (linkWrap) linkWrap.style.display = 'none';
+            copyBtn.style.display = 'none';
+        }
+    }
+
+    async showReferralModal() {
+        if (!this.isAuthenticated) {
+            this.handleLogin();
+            return;
+        }
+
+        const state = await this.refreshReferralState();
+
+        if (state?.enabled === false) {
+            this.showResourceShareToast(state.message || 'Referral sharing is not enabled for this account yet.', true);
+            return;
+        }
+
+        if (this.referralModalOverlay) {
+            this.referralModalOverlay.style.display = 'flex';
+        }
+    }
+
+    hideReferralModal() {
+        if (this.referralModalOverlay) {
+            this.referralModalOverlay.style.display = 'none';
+        }
+    }
+
+    async copyReferralLink() {
+        const link = this.referralState?.link;
+        if (!link) return;
+
+        try {
+            await navigator.clipboard.writeText(link);
+            this.showResourceShareToast('Referral link copied to clipboard');
+        } catch (error) {
+            console.error('Failed to copy referral link:', error);
+            this.showResourceShareToast('Failed to copy referral link', true);
+        }
+    }
     
     init() {
         this.captureAdsClickIds();
+        this.initializeReferralUi();
+        this.captureReferralCode();
         this.layoutSegments();
         this.updateDisplay();
         this.updateProgress();
@@ -2910,6 +3207,9 @@ class PomodoroTimer {
                 this.refreshPremiumFromServer().catch(() => {});
                 this.handleStripeCheckoutReturn();
             }
+
+            this.refreshReferralState().catch(() => {});
+            this.updatePremiumTrialOfferUi();
             
             // Ensure cassette auth gating and saved Tron theme are applied post-hydration
             try { this.updateThemeAuthState(); } catch (_) {}
@@ -3074,6 +3374,10 @@ class PomodoroTimer {
             if (this.settingsReportSection) this.settingsReportSection.style.display = 'none';
             if (this.settingsSettingsSection) this.settingsSettingsSection.style.display = 'block';
             if (this.settingsLogoutBtn) this.settingsLogoutBtn.style.display = 'none';
+            this.referralState = null;
+            this.referralStateUserId = null;
+            this.renderReferralUi();
+            this.updatePremiumTrialOfferUi();
             
             // Reload custom techniques and cassettes to show them disabled
             try { this.loadCustomTechniques(); } catch (_) {}
@@ -4441,10 +4745,7 @@ class PomodoroTimer {
             this.lifetimePlanCard.style.border = 'none';
         }
 
-        // Fixed CTA copy in monthly-trial modal
-        if (this.selectedPlanCTA) {
-            this.selectedPlanCTA.textContent = 'Try 1 month for $0';
-        }
+        this.updatePremiumTrialOfferUi();
     }
     
     async proceedToCheckout() {
@@ -5489,6 +5790,18 @@ class PomodoroTimer {
                 this.handleManageSubscription();
             });
         }
+
+        if (this.settingsReferralBtn) {
+            this.settingsReferralBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                this.trackEvent('Referral Link Opened', {
+                    source: 'settings_dropdown',
+                    user_type: this.isPremiumUser() ? 'pro' : 'free_user',
+                });
+                this.settingsDropdown.style.display = 'none';
+                await this.showReferralModal();
+            });
+        }
         
         // Settings dropdown - Account
         if (this.settingsAccountBtn) {
@@ -5625,6 +5938,30 @@ class PomodoroTimer {
                 e.preventDefault();
                 this.settingsDropdown.style.display = 'none';
                 this.showLogoutModal();
+            });
+        }
+
+        const closeReferralModalX = document.getElementById('closeReferralModalX');
+        const closeReferralModalBtn = document.getElementById('closeReferralModalBtn');
+        const copyReferralLinkBtn = document.getElementById('copyReferralLinkBtn');
+
+        if (closeReferralModalX) {
+            closeReferralModalX.addEventListener('click', () => this.hideReferralModal());
+        }
+
+        if (closeReferralModalBtn) {
+            closeReferralModalBtn.addEventListener('click', () => this.hideReferralModal());
+        }
+
+        if (copyReferralLinkBtn) {
+            copyReferralLinkBtn.addEventListener('click', () => this.copyReferralLink());
+        }
+
+        if (this.referralModalOverlay) {
+            this.referralModalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.referralModalOverlay) {
+                    this.hideReferralModal();
+                }
             });
         }
         
@@ -16301,11 +16638,37 @@ class PomodoroTimer {
                     fetch('/api/triggers/on-signup', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId })
-                    }).then(response => {
+                        body: JSON.stringify({
+                            userId,
+                            referralCode: this.getPendingReferralCode(),
+                        })
+                    }).then(async (response) => {
+                        const payload = await response.json().catch(() => ({}));
                         if (response.ok) {
                             localStorage.setItem(signupEmailKey, 'true');
                             console.log('✅ Signup email sequence triggered');
+
+                            if (payload?.referral?.status === 'claimed') {
+                                this.showResourceShareToast(payload.referral.message || 'Referral unlocked. You can now start a 3-month Premium trial.');
+                                this.clearPendingReferralCode();
+
+                                if (window.Clerk?.user?.reload) {
+                                    Promise.resolve()
+                                        .then(() => window.Clerk.user.reload())
+                                        .then(() => {
+                                            this.user = window.Clerk.user;
+                                            this.refreshReferralState(true).catch(() => {});
+                                            this.updatePremiumTrialOfferUi();
+                                        })
+                                        .catch((err) => console.warn('Referral metadata reload failed:', err));
+                                }
+                            } else if (payload?.referral?.status === 'expired' || payload?.referral?.status === 'invalid') {
+                                this.showResourceShareToast(payload.referral.message || 'This referral link has expired.', true);
+                                this.clearPendingReferralCode();
+                            } else if (payload?.referral?.status === 'self_referral') {
+                                this.showResourceShareToast(payload.referral.message || 'You cannot use your own referral link.', true);
+                                this.clearPendingReferralCode();
+                            }
                         } else {
                             console.error('❌ Failed to trigger signup email sequence');
                         }
