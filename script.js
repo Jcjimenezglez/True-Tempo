@@ -25223,3 +25223,133 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Mobile/Tablet bottom sheet system initialized (listeners ALWAYS active)');
 });
 
+// ========================================
+// ASSET LANDING COPY - Google Ads Quality Score optimization
+// Message match, relevance, transparency, keyword-rich content
+// ========================================
+const ASSET_LANDING_COPY = {
+    '/pomodoro-timer': {
+        heroTitle: 'Free Pomodoro technique timer',
+        heroSubtitle: '25 minutes focus sessions. 5 min break. No signup to try. Works in your browser.',
+        stopPain: 'Too many distractions?<br>Not enough done?<br>Time flying by with nothing to show?',
+        stopSolution: 'Use a Pomodoro timer. 25 min focus blocks. See real progress.',
+        stopTagline: 'Less effort. More results.',
+        metaDescription: 'Free Pomodoro technique timer. 25 minutes focus sessions, 5 min break. No signup. Start your Pomodoro timer now.',
+        pageTitle: 'Pomodoro Timer — Free 25 Min Focus Sessions | Superfocus',
+        howHelpTitle: 'How this Pomodoro timer <em>works</em>',
+        howHelpTagline: '25 min focus → 5 min break → repeat. Get 2 hours of deep work done.',
+        featuresTitle: 'Pomodoro timer features'
+    },
+    '/focus-timer': {
+        heroTitle: 'Advanced focus timer app',
+        heroSubtitle: 'Boost your concentration. 25 min focus sessions, ambient sound, tasks. No signup to try.',
+        stopPain: 'Struggling to concentrate?<br>Can\'t get into flow?<br>Distractions winning?',
+        stopSolution: 'Use a focus timer. Block time. Boost concentration.',
+        stopTagline: 'Less effort. More results.',
+        metaDescription: 'Advanced focus timer app. Boost your concentration with 25 min focus sessions. No signup. Free.',
+        pageTitle: 'Focus Timer — Boost Concentration | Superfocus',
+        howHelpTitle: 'How this focus timer <em>boosts concentration</em>',
+        howHelpTagline: 'Focus timer + ambient sound + tasks. Get into flow.',
+        featuresTitle: 'Focus timer features'
+    },
+    '/work-timer': {
+        heroTitle: 'Time management for work',
+        heroSubtitle: 'Increase productivity. 25 min blocks, tasks, analytics. No signup to try.',
+        stopPain: 'Meetings eating your day?<br>Can\'t get deep work done?<br>Nothing shipped?',
+        stopSolution: 'Time management for work. Block focus time. Increase productivity.',
+        stopTagline: 'Less effort. More results.',
+        metaDescription: 'Time management for work. Increase productivity with focus blocks, tasks, analytics. No signup.',
+        pageTitle: 'Work Timer — Time Management for Work | Superfocus',
+        howHelpTitle: 'How this work timer <em>increases productivity</em>',
+        howHelpTagline: 'Block focus time. Track tasks. See how much you get done.',
+        featuresTitle: 'Work timer features'
+    },
+    '/study-timer': {
+        heroTitle: 'Pomodoro timer for study',
+        heroSubtitle: 'Perfect for students. 25 min focus, 5 min break. No signup to try.',
+        stopPain: 'Hard to stay focused studying?<br>Procrastinating instead of reading?<br>Exams looming?',
+        stopSolution: 'Pomodoro timer for study. Focus blocks. Get it done.',
+        stopTagline: 'Less effort. More results.',
+        metaDescription: 'Pomodoro timer for study. Perfect for students. 25 min focus, 5 min break. No signup. Free.',
+        pageTitle: 'Study Timer — Pomodoro for Students | Superfocus',
+        howHelpTitle: 'How this study timer <em>helps students</em>',
+        howHelpTagline: 'Pomodoro for study. Focus blocks. Track progress.',
+        featuresTitle: 'Study timer features'
+    },
+    '/time-management': {
+        heroTitle: 'Time management techniques that work',
+        heroSubtitle: 'Time blocking software with focus timer, tasks, analytics. No signup to try.',
+        stopPain: 'No time management system?<br>Days slip away?<br>Can\'t prioritize?',
+        stopSolution: 'Time blocking software. Time management techniques. See where time goes.',
+        stopTagline: 'Less effort. More results.',
+        metaDescription: 'Time management techniques and time blocking software. Focus timer, tasks, analytics. No signup.',
+        pageTitle: 'Time Management — Techniques & Time Blocking | Superfocus',
+        howHelpTitle: 'Time management techniques that <em>work</em>',
+        howHelpTagline: 'Time blocking. Focus sessions. See where your time goes.',
+        featuresTitle: 'Time blocking features'
+    },
+    '/productivity-app': {
+        heroTitle: 'Productivity app with Todoist integration',
+        heroSubtitle: 'Custom timers available. Focus timer, tasks, analytics. No signup to try.',
+        stopPain: 'Tasks scattered?<br>No focus?<br>Productivity apps too complex?',
+        stopSolution: 'Productivity app: Todoist integration, custom timers, focus blocks.',
+        stopTagline: 'Less effort. More results.',
+        metaDescription: 'Productivity app with Todoist integration and custom timers. Focus timer, tasks, analytics. No signup.',
+        pageTitle: 'Productivity App — Todoist & Custom Timers | Superfocus',
+        howHelpTitle: 'Productivity app with <em>Todoist + custom timers</em>',
+        howHelpTagline: 'Sync tasks. Custom timers. Focus blocks.',
+        featuresTitle: 'Productivity app features'
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname.replace(/\/$/, '') || '/';
+    const landingParam = new URLSearchParams(window.location.search).get('landing');
+    const pathOrParam = landingParam ? '/' + landingParam.replace(/^\/+/, '') : path;
+    const copy = ASSET_LANDING_COPY[pathOrParam];
+    if (!copy) return;
+
+    const heroTitle = document.querySelector('.content-hero-title');
+    const heroSubtitle = document.querySelector('.content-hero-subtitle');
+    const stopPain = document.querySelector('.stop-start-pain');
+    const stopSolution = document.querySelector('.stop-start-solution');
+    const stopTagline = document.querySelector('.stop-start-tagline');
+    const featuresTitle = document.querySelector('.features-grid-title');
+    const howHelpTitle = document.querySelector('.how-we-help-title');
+    const howHelpTagline = document.querySelector('.how-we-help-tagline');
+
+    if (heroTitle) heroTitle.textContent = copy.heroTitle;
+    if (heroSubtitle) heroSubtitle.textContent = copy.heroSubtitle;
+    if (stopPain) stopPain.innerHTML = copy.stopPain;
+    if (stopSolution) stopSolution.innerHTML = copy.stopSolution;
+    if (stopTagline) stopTagline.innerHTML = copy.stopTagline;
+    if (featuresTitle) featuresTitle.textContent = copy.featuresTitle;
+    if (howHelpTitle) howHelpTitle.innerHTML = copy.howHelpTitle;
+    if (howHelpTagline) howHelpTagline.textContent = copy.howHelpTagline;
+
+    document.title = copy.pageTitle;
+
+    if (copy.metaDescription) {
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', copy.metaDescription);
+        let ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc) ogDesc.setAttribute('content', copy.metaDescription);
+        let twDesc = document.querySelector('meta[name="twitter:description"]');
+        if (twDesc) twDesc.setAttribute('content', copy.metaDescription);
+    }
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', copy.pageTitle);
+    let twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', copy.pageTitle);
+
+    if (path && path !== '/') {
+        const canonPath = path.startsWith('/') ? path : '/' + path;
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.setAttribute('href', 'https://www.superfocus.live' + canonPath);
+        let ogUrl = document.querySelector('meta[property="og:url"]');
+        if (ogUrl) ogUrl.setAttribute('content', 'https://www.superfocus.live' + canonPath);
+        let twUrl = document.querySelector('meta[name="twitter:url"]');
+        if (twUrl) twUrl.setAttribute('content', 'https://www.superfocus.live' + canonPath);
+    }
+});
+

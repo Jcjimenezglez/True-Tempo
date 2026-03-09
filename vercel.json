@@ -39,6 +39,30 @@
   ],
   "rewrites": [
     {
+      "source": "/pomodoro-timer",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/focus-timer",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/work-timer",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/study-timer",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/time-management",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/productivity-app",
+      "destination": "/index.html"
+    },
+    {
       "source": "/callback",
       "destination": "/index.html"
     }
