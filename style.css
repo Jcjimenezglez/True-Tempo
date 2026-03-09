@@ -1575,6 +1575,13 @@ a.btn-secondary,
     text-underline-offset: 3px;
     transition: all 0.2s ease;
     font-weight: 500;
+    display: inline-block;
+    min-height: 24px;
+    min-width: 24px;
+    padding: 4px 6px;
+    margin: -2px -4px;
+    line-height: 1.4;
+    vertical-align: middle;
 }
 
 .inline-text-link:hover {
@@ -1582,15 +1589,6 @@ a.btn-secondary,
     text-decoration-thickness: 2px;
 }
 
-/* Ensure mobile/touch links meet minimum tap target height */
-@media (pointer: coarse) {
-    .inline-text-link {
-        display: inline-block;
-        min-height: 24px;
-        line-height: 24px;
-        padding: 0 1px;
-    }
-}
 
 /* FAQ in content section */
 .content-section .faq-list {
@@ -1651,7 +1649,7 @@ a.btn-secondary,
     transition: transform 0.2s ease;
 }
 
-.content-section .content-faq-accordion .faq-item[aria-expanded="true"] .faq-icon {
+.content-section .content-faq-accordion .faq-item:has(.faq-question[aria-expanded="true"]) .faq-icon {
     transform: rotate(180deg);
 }
 
@@ -1661,7 +1659,7 @@ a.btn-secondary,
     transition: max-height 0.3s ease;
 }
 
-.content-section .content-faq-accordion .faq-item[aria-expanded="true"] .faq-answer {
+.content-section .content-faq-accordion .faq-item:has(.faq-question[aria-expanded="true"]) .faq-answer {
     max-height: 400px;
 }
 

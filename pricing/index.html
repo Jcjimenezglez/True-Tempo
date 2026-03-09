@@ -1830,7 +1830,7 @@
             stroke: rgba(255, 255, 255, 0.7);
         }
         
-        .faq-item[aria-expanded="true"] .faq-icon {
+        .faq-item:has(.faq-question[aria-expanded="true"]) .faq-icon {
             transform: rotate(180deg);
         }
         
@@ -1841,7 +1841,7 @@
             padding: 0 1.5rem;
         }
         
-        .faq-item[aria-expanded="true"] .faq-answer {
+        .faq-item:has(.faq-question[aria-expanded="true"]) .faq-answer {
             max-height: 500px;
             padding: 0 1.5rem 1.5rem 1.5rem;
         }
@@ -2005,7 +2005,7 @@
                 padding: 0 1rem;
             }
             
-            .faq-item[aria-expanded="true"] .faq-answer {
+            .faq-item:has(.faq-question[aria-expanded="true"]) .faq-answer {
                 padding: 0 1rem 1rem 1rem;
             }
         }
@@ -4126,18 +4126,15 @@
             
             faqQuestions.forEach(question => {
                 question.addEventListener('click', function() {
-                    const faqItem = this.closest('.faq-item');
-                    const isExpanded = faqItem.getAttribute('aria-expanded') === 'true';
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
                     
                     // Close all other FAQ items
-                    document.querySelectorAll('.faq-item').forEach(item => {
-                        if (item !== faqItem) {
-                            item.setAttribute('aria-expanded', 'false');
-                        }
+                    document.querySelectorAll('.faq-question').forEach(btn => {
+                        if (btn !== this) btn.setAttribute('aria-expanded', 'false');
                     });
                     
-                    // Toggle current item
-                    faqItem.setAttribute('aria-expanded', !isExpanded);
+                    // Toggle current button (aria-expanded belongs on button, not div)
+                    this.setAttribute('aria-expanded', String(!isExpanded));
                 });
             });
         });

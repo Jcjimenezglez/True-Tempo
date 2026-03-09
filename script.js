@@ -22341,12 +22341,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (contentFaqAccordion) {
             contentFaqAccordion.querySelectorAll('.faq-question').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const item = btn.closest('.faq-item');
-                    const isExpanded = item.getAttribute('aria-expanded') === 'true';
-                    contentFaqAccordion.querySelectorAll('.faq-item').forEach(i => {
-                        if (i !== item) i.setAttribute('aria-expanded', 'false');
+                    const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+                    contentFaqAccordion.querySelectorAll('.faq-question').forEach(b => {
+                        if (b !== btn) b.setAttribute('aria-expanded', 'false');
                     });
-                    item.setAttribute('aria-expanded', String(!isExpanded));
+                    btn.setAttribute('aria-expanded', String(!isExpanded));
                 });
             });
         }
