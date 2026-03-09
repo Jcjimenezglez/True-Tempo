@@ -55,6 +55,76 @@
         
         // Make hashEmail available globally for Enhanced Conversions
         window.hashEmail = hashEmail;
+
+        async function trackGoogleAdsConversion({
+            sendTo,
+            value = 1.0,
+            currency = 'USD',
+            email = '',
+            transactionId = null,
+            timeoutMs = 1500,
+            debugLabel = 'Google Ads conversion'
+        } = {}) {
+            if (typeof window.gtag !== 'function') {
+                console.warn(`⚠️ ${debugLabel} skipped: gtag not available`);
+                return false;
+            }
+
+            try {
+                if (email && typeof window.hashEmail === 'function') {
+                    try {
+                        const hashedEmail = await window.hashEmail(email);
+                        if (hashedEmail) {
+                            window.gtag('set', 'user_data', {
+                                'sha256_email_address': hashedEmail
+                            });
+                            console.log(`✅ Enhanced Conversions: User data set (${debugLabel})`);
+                        }
+                    } catch (error) {
+                        console.log(`⚠️ Enhanced Conversions: Email hashing failed (${debugLabel})`);
+                    }
+                }
+
+                return await new Promise((resolve) => {
+                    let settled = false;
+                    const finish = (wasDelivered) => {
+                        if (settled) {
+                            return;
+                        }
+                        settled = true;
+                        resolve(wasDelivered);
+                    };
+
+                    const timer = window.setTimeout(() => {
+                        console.warn(`⚠️ ${debugLabel} callback timeout after ${timeoutMs}ms`);
+                        finish(false);
+                    }, timeoutMs);
+
+                    const conversionData = {
+                        'send_to': sendTo,
+                        'value': value,
+                        'currency': currency,
+                        'event_timeout': timeoutMs,
+                        'event_callback': () => {
+                            window.clearTimeout(timer);
+                            console.log(`✅ ${debugLabel} callback received`);
+                            finish(true);
+                        }
+                    };
+
+                    if (transactionId) {
+                        conversionData.transaction_id = transactionId;
+                    }
+
+                    window.gtag('event', 'conversion', conversionData);
+                });
+            } catch (error) {
+                console.error(`❌ Error tracking ${debugLabel}:`, error);
+                return false;
+            }
+        }
+
+        window.trackGoogleAdsConversion = trackGoogleAdsConversion;
     </script>
     
     <!-- Mixpanel -->
@@ -3693,7 +3763,7 @@
                     adsClickIds = null;
                 }
                 
-                // Start API call immediately (don't wait for tracking)
+                // Start API call immediately
                 const checkoutPromise = fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: {
@@ -3708,44 +3778,6 @@
                     })
                 });
                 
-                if (shouldTrack) {
-                    // Track asynchronously (don't block)
-                    (async () => {
-                        if (window.mixpanel && window.mixpanel.track) {
-                            window.mixpanel.track('Stripe Checkout Session Created', {
-                                source: trackingSource,
-                                plan_type: planType,
-                                timestamp: new Date().toISOString()
-                            });
-                        }
-                        
-                        // Track Stripe Checkout Session Created to Google Ads
-                        if (typeof window.gtag === 'function') {
-                            // Set Enhanced Conversions user data BEFORE the conversion event
-                            if (userEmail && typeof window.hashEmail === 'function') {
-                                try {
-                                    const hashedEmail = await window.hashEmail(userEmail);
-                                    if (hashedEmail) {
-                                        window.gtag('set', 'user_data', {
-                                            'sha256_email_address': hashedEmail
-                                        });
-                                        console.log('✅ Enhanced Conversions: User data set (Checkout Created)');
-                                    }
-                                } catch (error) {
-                                    console.error('Error hashing email for Enhanced Conversions:', error);
-                                }
-                            }
-                            
-                            window.gtag('event', 'conversion', {
-                                'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
-                                'value': 1.0,
-                                'currency': 'USD'
-                            });
-                            console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
-                        }
-                    })();
-                }
-
                 const response = await checkoutPromise;
 
                 if (!response.ok) {
@@ -3755,11 +3787,29 @@
 
                 const data = await response.json();
                 if (data.url) {
-                    // Wait 500ms to ensure Google Ads beacon is sent before redirect
-                    // This is critical because page unload can cancel pending network requests
-                    console.log('⏳ Waiting for tracking beacons to send...');
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
+                    const checkoutSessionId = data.sessionId || null;
+
+                    if (shouldTrack) {
+                        if (window.mixpanel && window.mixpanel.track) {
+                            window.mixpanel.track('Stripe Checkout Session Created', {
+                                source: trackingSource,
+                                plan_type: planType,
+                                stripe_session_id: checkoutSessionId,
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+
+                        await trackGoogleAdsConversion({
+                            sendTo: 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                            value: 1.0,
+                            currency: 'USD',
+                            email: userEmail,
+                            transactionId: checkoutSessionId,
+                            debugLabel: 'Stripe Checkout Session Created'
+                        });
+                        console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
+                    }
+
                     console.log('✅ Redirecting to Stripe checkout...');
                     window.location.href = data.url;
                 } else {

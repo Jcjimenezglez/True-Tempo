@@ -231,7 +231,7 @@ module.exports = async (req, res) => {
     }
 
     console.log(`✅ Checkout session created for ${planType} plan`);
-    res.status(200).json({ url: session.url });
+    res.status(200).json({ url: session.url, sessionId: session.id });
   } catch (err) {
     console.error('Stripe checkout error:', err);
     const message = (err && err.message) || 'Failed to create checkout session';

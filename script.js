@@ -34,6 +34,76 @@ async function hashEmail(email) {
 // Make hashEmail available globally for Enhanced Conversions
 window.hashEmail = hashEmail;
 
+async function trackGoogleAdsConversion({
+    sendTo,
+    value = 1.0,
+    currency = 'USD',
+    email = '',
+    transactionId = null,
+    timeoutMs = 1500,
+    debugLabel = 'Google Ads conversion'
+} = {}) {
+    if (typeof window.gtag !== 'function') {
+        console.warn(`⚠️ ${debugLabel} skipped: gtag not available`);
+        return false;
+    }
+
+    try {
+        if (email && typeof window.hashEmail === 'function') {
+            try {
+                const hashedEmail = await window.hashEmail(email);
+                if (hashedEmail) {
+                    window.gtag('set', 'user_data', {
+                        'sha256_email_address': hashedEmail
+                    });
+                    console.log(`✅ Enhanced Conversions: User data set (${debugLabel})`);
+                }
+            } catch (error) {
+                console.log(`⚠️ Enhanced Conversions: Email hashing failed (${debugLabel})`);
+            }
+        }
+
+        return await new Promise((resolve) => {
+            let settled = false;
+            const finish = (wasDelivered) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                resolve(wasDelivered);
+            };
+
+            const timer = window.setTimeout(() => {
+                console.warn(`⚠️ ${debugLabel} callback timeout after ${timeoutMs}ms`);
+                finish(false);
+            }, timeoutMs);
+
+            const conversionData = {
+                'send_to': sendTo,
+                'value': value,
+                'currency': currency,
+                'event_timeout': timeoutMs,
+                'event_callback': () => {
+                    window.clearTimeout(timer);
+                    console.log(`✅ ${debugLabel} callback received`);
+                    finish(true);
+                }
+            };
+
+            if (transactionId) {
+                conversionData.transaction_id = transactionId;
+            }
+
+            window.gtag('event', 'conversion', conversionData);
+        });
+    } catch (error) {
+        console.error(`❌ Error tracking ${debugLabel}:`, error);
+        return false;
+    }
+}
+
+window.trackGoogleAdsConversion = trackGoogleAdsConversion;
+
 // Hoisted RegExp constants (avoid re-creation in hot paths)
 const RE_NON_NUMERIC = /[^0-9]/g;
 const RE_IMAGE_EXT = /\.(jpeg|jpg|gif|png|webp|svg|bmp)$/i;
@@ -4484,12 +4554,15 @@ class PomodoroTimer {
             console.log('✅ Checkout session created:', data);
             
             if (data.url) {
+                const checkoutSessionId = data.sessionId || null;
+
                 // Track Stripe Checkout Session Created to Mixpanel
                 if (window.mixpanelTracker) {
                     window.mixpanelTracker.trackCustomEvent('Stripe Checkout Session Created', {
                         source: 'pricing_modal',
                         plan_type: planType,
                         user_email: userEmail,
+                        stripe_session_id: checkoutSessionId,
                         timestamp: new Date().toISOString()
                     });
                     console.log('📊 Stripe Checkout Session Created tracked to Mixpanel:', planType);
@@ -4497,38 +4570,15 @@ class PomodoroTimer {
                 
                 // Track Stripe Checkout Session Created to Google Ads
                 // This is a key funnel step - user has committed to starting checkout
-                try {
-                    if (typeof window.gtag === 'function') {
-                        // Set Enhanced Conversions user data BEFORE the conversion event
-                        if (userEmail && typeof window.hashEmail === 'function') {
-                            try {
-                                const hashedEmail = await window.hashEmail(userEmail);
-                                if (hashedEmail) {
-                                    window.gtag('set', 'user_data', {
-                                        'sha256_email_address': hashedEmail
-                                    });
-                                    console.log('✅ Enhanced Conversions: User data set (Checkout Created)');
-                                }
-                            } catch (error) {
-                                console.log('⚠️ Enhanced Conversions: Email hashing failed');
-                            }
-                        }
-                        
-                        window.gtag('event', 'conversion', {
-                            'send_to': 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
-                            'value': 1.0,
-                            'currency': 'USD'
-                        });
-                        console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
-                    }
-                } catch (error) {
-                    console.error('⚠️ Google Ads checkout tracking failed:', error);
-                }
-                
-                // Wait 500ms to ensure Google Ads beacon is sent before redirect
-                // This is critical because page unload can cancel pending network requests
-                console.log('⏳ Waiting for tracking beacons to send...');
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await trackGoogleAdsConversion({
+                    sendTo: 'AW-17614436696/d75YCJ7Ti8IbENjym89B',
+                    value: 1.0,
+                    currency: 'USD',
+                    email: userEmail,
+                    transactionId: checkoutSessionId,
+                    debugLabel: 'Stripe Checkout Session Created'
+                });
+                console.log('📊 Google Ads Stripe Checkout Session Created tracked:', planType);
                 
                 console.log('✅ Redirecting to Stripe checkout:', data.url);
                 window.location.href = data.url;
@@ -7804,32 +7854,18 @@ class PomodoroTimer {
         }
 
         try {
-            if (typeof window.gtag === 'function') {
-                const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
-                const conversionValue = 3.99;
+            const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
+            const conversionValue = 3.99;
 
-                if (userEmail && typeof window.hashEmail === 'function') {
-                    try {
-                        const hashedEmail = await window.hashEmail(userEmail);
-                        if (hashedEmail) {
-                            window.gtag('set', 'user_data', {
-                                'sha256_email_address': hashedEmail
-                            });
-                            console.log('✅ Enhanced Conversions: User data set for', paymentType);
-                        }
-                    } catch (hashError) {
-                        console.log('⚠️ Enhanced Conversions: Email hashing failed');
-                    }
-                }
-
-                window.gtag('event', 'conversion', {
-                    'send_to': conversionLabel,
-                    'value': conversionValue,
-                    'currency': 'USD',
-                    'transaction_id': sessionId
-                });
-                console.log(`📊 Google Ads Subscribe (2) conversion tracked for ${paymentType}: $${conversionValue}`);
-            }
+            await trackGoogleAdsConversion({
+                sendTo: conversionLabel,
+                value: conversionValue,
+                currency: 'USD',
+                email: userEmail,
+                transactionId: sessionId,
+                debugLabel: `Subscribe (2) ${paymentType}`
+            });
+            console.log(`📊 Google Ads Subscribe (2) conversion tracked for ${paymentType}: $${conversionValue}`);
         } catch (gtagError) {
             console.error('⚠️ Google Ads conversion tracking failed:', gtagError);
         }
@@ -16160,8 +16196,22 @@ class PomodoroTimer {
                 };
                 
                 console.log(`📤 Sending Google Ads conversion event:`, conversionEvent);
-                
-                gtagFn('event', 'conversion', conversionEvent);
+
+                const normalizedEmail =
+                    additionalData.user_email ||
+                    additionalData.email ||
+                    this.user?.primaryEmailAddress?.emailAddress ||
+                    this.user?.emailAddresses?.[0]?.emailAddress ||
+                    '';
+
+                await trackGoogleAdsConversion({
+                    sendTo: conversionId,
+                    value: value,
+                    currency: 'USD',
+                    email: normalizedEmail,
+                    transactionId: transactionId,
+                    debugLabel: `Conversion ${type}`
+                });
                 
                 console.log(`✅ Google Ads conversion tracked: ${type}`, {
                     conversion_id: conversionId,
