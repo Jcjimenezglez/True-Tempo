@@ -1449,6 +1449,76 @@ a.btn-secondary,
     margin-bottom: 0;
 }
 
+/* How we help you - benefits section */
+.how-we-help-section {
+    margin: 4rem 0;
+    padding: 3rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.how-we-help-title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3;
+}
+
+.how-we-help-title em {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.how-we-help-tagline {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0 0 1.25rem 0;
+    line-height: 1.5;
+}
+
+.how-we-help-intro {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.6;
+}
+
+.how-we-help-desc {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0 0 2.5rem 0;
+    line-height: 1.6;
+}
+
+.how-we-help-blocks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.how-we-help-block {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.how-we-help-block-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.how-we-help-block-text {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.5;
+}
+
 @media (max-width: 768px) {
     .proof-stats-row {
         flex-direction: column;
@@ -1474,6 +1544,18 @@ a.btn-secondary,
     .feature-card:nth-child(4),
     .feature-card:nth-child(5) {
         grid-column: 1;
+    }
+
+    .how-we-help-title {
+        font-size: 1.5rem;
+    }
+
+    .how-we-help-tagline {
+        font-size: 1.1rem;
+    }
+
+    .how-we-help-blocks {
+        grid-template-columns: 1fr;
     }
 }
 
