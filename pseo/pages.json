@@ -1,0 +1,374 @@
+{
+  "pages": [
+    {
+      "slug": "pomodoro-technique",
+      "category": "techniques",
+      "title": "Pomodoro Technique - 25-Minute Focus Timer | Superfocus",
+      "description": "Master the Pomodoro technique with Superfocus. 25-min work, 5-min breaks, 15-min long breaks. Built-in presets, ambient sounds, and task tracking.",
+      "h1": "Pomodoro Technique: The 25-Minute Focus Method",
+      "keyword": "pomodoro technique",
+      "preset": "Pomodoro (25/5/15 min)",
+      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/use-cases/study-timer"]
+    },
+    {
+      "slug": "flowtime-timer",
+      "category": "techniques",
+      "title": "Flowtime Timer - Flexible Focus Method | Superfocus",
+      "description": "Flowtime method: longer work blocks (45 min) with flexible breaks. Ideal for deep work and flow state. Try it free in Superfocus.",
+      "h1": "Flowtime Timer: Flexible Focus Beyond Pomodoro",
+      "keyword": "flowtime method",
+      "preset": "Flow (45/8/25 min)",
+      "related": ["/techniques/pomodoro-technique", "/techniques/deep-work-timer", "/use-cases/coding-focus-timer"]
+    },
+    {
+      "slug": "time-blocking-timer",
+      "category": "techniques",
+      "title": "Time Blocking Timer - Plan Your Day in Blocks | Superfocus",
+      "description": "Time blocking timer for structured productivity. Block focus time, breaks, and tasks. Pomodoro, Flow, and custom timers in one app.",
+      "h1": "Time Blocking Timer for Structured Productivity",
+      "keyword": "time blocking",
+      "preset": "Custom timers + task list",
+      "related": ["/techniques/pomodoro-technique", "/productivity-analytics", "/use-cases/remote-work-focus"]
+    },
+    {
+      "slug": "deep-work-timer",
+      "category": "techniques",
+      "title": "Deep Work Timer - 90-Minute Focus Sessions | Superfocus",
+      "description": "Deep work timer with 90-min focus blocks. Minimize distractions, maximize flow. Lofi, rain, and ambient sounds included.",
+      "h1": "Deep Work Timer: 90-Minute Focus Sessions",
+      "keyword": "deep work timer",
+      "preset": "Deep Work (90/20/30 min)",
+      "related": ["/techniques/flowtime-timer", "/techniques/90-minute-deep-work", "/use-cases/coding-focus-timer"]
+    },
+    {
+      "slug": "sprint-timer",
+      "category": "techniques",
+      "title": "Sprint Timer - Short Focus Bursts | Superfocus",
+      "description": "Sprint timer: 15-min focus bursts for quick wins. Perfect for ADHD, quick tasks, or when 25 minutes feels too long.",
+      "h1": "Sprint Timer: Short Focus Bursts That Work",
+      "keyword": "sprint timer focus",
+      "preset": "Sprint (15/3/10 min)",
+      "related": ["/techniques/pomodoro-technique", "/use-cases/adhd-focus-timer", "/sounds/lofi-study-music"]
+    },
+    {
+      "slug": "marathon-timer",
+      "category": "techniques",
+      "title": "Marathon Timer - Long Focus Sessions | Superfocus",
+      "description": "Marathon timer for 60-min focus blocks. Extended deep work with 10-min short breaks. Built for writers and researchers.",
+      "h1": "Marathon Timer: Extended Focus Sessions",
+      "keyword": "marathon focus sessions",
+      "preset": "Marathon (60/10/30 min)",
+      "related": ["/techniques/deep-work-timer", "/techniques/flowtime-timer", "/use-cases/writing-timer"]
+    },
+    {
+      "slug": "52-minute-focus",
+      "category": "techniques",
+      "title": "52-Minute Focus - Ultradian Rhythm Timer | Superfocus",
+      "description": "52-minute focus timer based on ultradian rhythms. Work with your body's natural cycles for sustained productivity.",
+      "h1": "52-Minute Focus: The Ultradian Rhythm Method",
+      "keyword": "52 minute focus",
+      "preset": "Custom 52/17 (create in app)",
+      "related": ["/techniques/90-minute-deep-work", "/techniques/flowtime-timer", "/productivity-analytics"]
+    },
+    {
+      "slug": "90-minute-deep-work",
+      "category": "techniques",
+      "title": "90-Minute Deep Work - Optimal Focus Length | Superfocus",
+      "description": "90-minute deep work sessions match your ultradian rhythm. Superfocus has a built-in Deep Work preset (90/20/30).",
+      "h1": "90-Minute Deep Work: The Science of Focus Length",
+      "keyword": "90 minute deep work",
+      "preset": "Deep Work (90/20/30 min)",
+      "related": ["/techniques/deep-work-timer", "/techniques/52-minute-focus", "/use-cases/coding-focus-timer"]
+    },
+    {
+      "slug": "study-timer",
+      "category": "use-cases",
+      "title": "Study Timer - Pomodoro for Students | Superfocus",
+      "description": "Study timer with Pomodoro, lofi music, and ambient sounds. Track sessions, block distractions, and ace your exams.",
+      "h1": "Best Study Timer for Students",
+      "keyword": "study timer",
+      "preset": "Pomodoro or Sprint",
+      "related": ["/use-cases/exam-prep-timer", "/sounds/lofi-study-music", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "work-timer",
+      "category": "use-cases",
+      "title": "Work Timer - Focus at the Office | Superfocus",
+      "description": "Work timer for professionals. Pomodoro, Flow, Deep Work presets. Todoist integration, analytics, and ambient sounds.",
+      "h1": "Work Timer for Professionals",
+      "keyword": "work timer",
+      "preset": "Pomodoro or Flow",
+      "related": ["/use-cases/remote-work-focus", "/todoist-pomodoro", "/productivity-analytics"]
+    },
+    {
+      "slug": "coding-focus-timer",
+      "category": "use-cases",
+      "title": "Coding Focus Timer - Stay in Flow While Programming | Superfocus",
+      "description": "Coding focus timer for developers. 90-min deep work blocks, lofi sounds, and task tracking. Try Superfocus free.",
+      "h1": "Best Coding Focus Timer for Developers",
+      "keyword": "coding focus timer",
+      "preset": "Deep Work or Flow",
+      "related": ["/techniques/deep-work-timer", "/sounds/lofi-study-music", "/use-cases/remote-work-focus"]
+    },
+    {
+      "slug": "writing-timer",
+      "category": "use-cases",
+      "title": "Writing Timer - Pomodoro for Writers | Superfocus",
+      "description": "Writing timer with Pomodoro and longer blocks. Overcome writer's block with 25 or 90-min sessions. Lofi and rain sounds.",
+      "h1": "Writing Timer: Pomodoro for Writers",
+      "keyword": "writing timer",
+      "preset": "Pomodoro or Marathon",
+      "related": ["/techniques/marathon-timer", "/sounds/rain-sounds-focus", "/use-cases/deep-work-app"]
+    },
+    {
+      "slug": "exam-prep-timer",
+      "category": "use-cases",
+      "title": "Exam Prep Timer - Study for Tests | Superfocus",
+      "description": "Exam prep timer with Pomodoro sessions. Schedule breaks, track study time, and use lofi to stay focused for exams.",
+      "h1": "Exam Prep Timer: Study Smarter for Tests",
+      "keyword": "exam prep focus",
+      "preset": "Pomodoro (25/5/15)",
+      "related": ["/use-cases/study-timer", "/sounds/lofi-study-music", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "adhd-focus-timer",
+      "category": "use-cases",
+      "title": "ADHD Focus Timer - Short Sprints That Work | Superfocus",
+      "description": "ADHD focus timer with 15-min sprints. Shorter blocks, clear structure, and ambient sounds. Built for neurodivergent focus.",
+      "h1": "ADHD Focus Timer: Short Sprints That Work",
+      "keyword": "ADHD focus timer",
+      "preset": "Sprint (15/3/10 min)",
+      "related": ["/techniques/sprint-timer", "/sounds/white-noise-focus", "/use-cases/study-timer"]
+    },
+    {
+      "slug": "student-productivity",
+      "category": "use-cases",
+      "title": "Student Productivity - Focus Timer for Studying | Superfocus",
+      "description": "Student productivity app with Pomodoro, lofi, and task tracking. Free to start. Track study time and stay focused.",
+      "h1": "Student Productivity: Focus Timer for Studying",
+      "keyword": "student productivity",
+      "preset": "Pomodoro",
+      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/sounds/lofi-study-music"]
+    },
+    {
+      "slug": "freelancer-productivity",
+      "category": "use-cases",
+      "title": "Freelancer Productivity - Focus Timer for Remote Work | Superfocus",
+      "description": "Freelancer productivity: Pomodoro, Todoist sync, analytics. Structure your day, track billable focus, and avoid burnout.",
+      "h1": "Freelancer Productivity: Focus Timer for Remote Work",
+      "keyword": "freelancer productivity",
+      "preset": "Flow or Pomodoro",
+      "related": ["/use-cases/remote-work-focus", "/todoist-pomodoro", "/productivity-analytics"]
+    },
+    {
+      "slug": "remote-work-focus",
+      "category": "use-cases",
+      "title": "Remote Work Focus - Stay Productive at Home | Superfocus",
+      "description": "Remote work focus timer. Pomodoro, ambient sounds, and task management. Structure your day when working from home.",
+      "h1": "Remote Work Focus: Stay Productive at Home",
+      "keyword": "remote work focus",
+      "preset": "Pomodoro or Flow",
+      "related": ["/use-cases/work-timer", "/sounds/cafe-ambient-sounds", "/productivity-analytics"]
+    },
+    {
+      "slug": "deep-work-app",
+      "category": "use-cases",
+      "title": "Deep Work App - 90-Minute Focus Sessions | Superfocus",
+      "description": "Deep work app with 90-min blocks, ambient sounds, and analytics. Eliminate distractions and get into flow state.",
+      "h1": "Deep Work App: 90-Minute Focus Sessions",
+      "keyword": "deep work app",
+      "preset": "Deep Work (90/20/30)",
+      "related": ["/techniques/deep-work-timer", "/use-cases/coding-focus-timer", "/productivity-analytics"]
+    },
+    {
+      "slug": "meeting-prep-timer",
+      "category": "use-cases",
+      "title": "Meeting Prep Timer - Focus Before Calls | Superfocus",
+      "description": "Meeting prep timer for quick 15–25 min focus bursts before calls. Sprint or Pomodoro. Stay sharp and prepared.",
+      "h1": "Meeting Prep Timer: Focus Before Calls",
+      "keyword": "timer for meeting prep",
+      "preset": "Sprint or Pomodoro",
+      "related": ["/techniques/sprint-timer", "/use-cases/work-timer", "/sounds/focus-music"]
+    },
+    {
+      "slug": "focus-music",
+      "category": "sounds",
+      "title": "Focus Music - Lofi, Rain, and Ambient Sounds | Superfocus",
+      "description": "Focus music: lofi, rain, cafe, and white noise. Built-in cassettes plus Spotify. Enhance concentration with Superfocus.",
+      "h1": "Focus Music: Lofi, Rain, and Ambient Sounds",
+      "keyword": "focus music",
+      "preset": "Any timer + Cassettes",
+      "related": ["/sounds/lofi-study-music", "/sounds/rain-sounds-focus", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "lofi-study-music",
+      "category": "sounds",
+      "title": "Lofi Study Music - Focus While You Study | Superfocus",
+      "description": "Lofi study music built into Superfocus. Curated cassettes plus your Spotify playlists. Study and focus with beats.",
+      "h1": "Lofi Study Music: Focus While You Study",
+      "keyword": "lofi study music",
+      "preset": "Pomodoro + Lofi cassette",
+      "related": ["/sounds/focus-music", "/use-cases/study-timer", "/sounds/cafe-ambient-sounds"]
+    },
+    {
+      "slug": "rain-sounds-focus",
+      "category": "sounds",
+      "title": "Rain Sounds for Focus - Ambient Study Sounds | Superfocus",
+      "description": "Rain sounds for focus and study. Ambient cassettes in Superfocus. Block distractions and enter flow state.",
+      "h1": "Rain Sounds for Focus: Ambient Study Sounds",
+      "keyword": "rain sounds for focus",
+      "preset": "Any timer + Rain cassette",
+      "related": ["/sounds/focus-music", "/sounds/white-noise-focus", "/use-cases/writing-timer"]
+    },
+    {
+      "slug": "cafe-ambient-sounds",
+      "category": "sounds",
+      "title": "Cafe Ambient Sounds - Coffee Shop Focus | Superfocus",
+      "description": "Cafe ambient sounds for focus. Coffee shop ambience in Superfocus. Work from home with cafe vibes.",
+      "h1": "Cafe Ambient Sounds: Coffee Shop Focus",
+      "keyword": "cafe ambient study",
+      "preset": "Any timer + Cafe cassette",
+      "related": ["/sounds/lofi-study-music", "/sounds/focus-music", "/use-cases/remote-work-focus"]
+    },
+    {
+      "slug": "white-noise-focus",
+      "category": "sounds",
+      "title": "White Noise Focus - Block Distractions | Superfocus",
+      "description": "White noise for focus in Superfocus. Block office noise, improve concentration. Pair with Pomodoro or Sprint.",
+      "h1": "White Noise Focus: Block Distractions",
+      "keyword": "white noise focus",
+      "preset": "Sprint + Ambient cassette",
+      "related": ["/sounds/rain-sounds-focus", "/use-cases/adhd-focus-timer", "/techniques/sprint-timer"]
+    },
+    {
+      "slug": "todoist-pomodoro",
+      "category": "workflows",
+      "title": "Todoist Pomodoro - Sync Tasks with Focus Timer | Superfocus",
+      "description": "Todoist Pomodoro integration in Superfocus. Sync tasks, track pomodoros per task, and mark complete. Free trial included.",
+      "h1": "Todoist Pomodoro: Sync Tasks with Focus Timer",
+      "keyword": "Todoist pomodoro",
+      "preset": "Pomodoro + Todoist sync",
+      "related": ["/task-planning-workflow", "/productivity-analytics", "/use-cases/freelancer-productivity"]
+    },
+    {
+      "slug": "task-planning-workflow",
+      "category": "workflows",
+      "title": "Task Planning with Pomodoro - Workflow | Superfocus",
+      "description": "Task planning with Pomodoro: estimate pomodoros, sync with Todoist, track completion. Structure your work in Superfocus.",
+      "h1": "Task Planning with Pomodoro: Workflow",
+      "keyword": "task planning with pomodoro",
+      "preset": "Tasks + Pomodoro/Flow",
+      "related": ["/todoist-pomodoro", "/productivity-analytics", "/techniques/time-blocking-timer"]
+    },
+    {
+      "slug": "productivity-analytics",
+      "category": "analytics",
+      "title": "Productivity Analytics - Track Focus Time | Superfocus",
+      "description": "Productivity analytics in Superfocus. Track focus time, sessions per day, and trends. See how much you get done.",
+      "h1": "Productivity Analytics: Track Focus Time",
+      "keyword": "productivity analytics",
+      "preset": "Any timer + Premium",
+      "related": ["/focus-time-tracking", "/pomodoro-statistics", "/use-cases/freelancer-productivity"]
+    },
+    {
+      "slug": "focus-time-tracking",
+      "category": "analytics",
+      "title": "Focus Time Tracking - Measure Deep Work | Superfocus",
+      "description": "Focus time tracking in Superfocus. Daily, weekly, monthly insights. See your deep work hours and improve over time.",
+      "h1": "Focus Time Tracking: Measure Deep Work",
+      "keyword": "focus time tracking",
+      "preset": "Any timer + Premium",
+      "related": ["/productivity-analytics", "/pomodoro-statistics", "/techniques/deep-work-timer"]
+    },
+    {
+      "slug": "pomodoro-statistics",
+      "category": "analytics",
+      "title": "Pomodoro Statistics - Session Insights | Superfocus",
+      "description": "Pomodoro statistics and insights. Count completed pomodoros, track streaks, and analyze your focus patterns.",
+      "h1": "Pomodoro Statistics: Session Insights",
+      "keyword": "pomodoro statistics",
+      "preset": "Pomodoro + Premium",
+      "related": ["/productivity-analytics", "/focus-time-tracking", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "superfocus-vs-pomofocus",
+      "category": "compare",
+      "title": "Superfocus vs Pomofocus - Which is Better? 2026",
+      "description": "Superfocus vs Pomofocus comparison. Features, pricing, sounds, analytics. See which Pomodoro timer fits your workflow.",
+      "h1": "Superfocus vs Pomofocus: Which is Better?",
+      "keyword": "Superfocus vs Pomofocus",
+      "competitor": "Pomofocus",
+      "competitorUrl": "https://pomofocus.io",
+      "related": ["/alternatives/pomofocus", "/compare/superfocus-vs-forest", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "superfocus-vs-forest",
+      "category": "compare",
+      "title": "Superfocus vs Forest - Focus App Comparison 2026",
+      "description": "Superfocus vs Forest: compare Pomodoro timer, ambient sounds, analytics. No phone required. Try Superfocus free.",
+      "h1": "Superfocus vs Forest: Focus App Comparison",
+      "keyword": "Superfocus vs Forest",
+      "competitor": "Forest",
+      "competitorUrl": "https://www.forestapp.cc",
+      "related": ["/alternatives/forest-app", "/compare/superfocus-vs-flocus", "/sounds/focus-music"]
+    },
+    {
+      "slug": "superfocus-vs-flocus",
+      "category": "compare",
+      "title": "Superfocus vs Flocus - Productivity Dashboard Comparison 2026",
+      "description": "Superfocus vs Flocus: compare focus timers, themes, sounds. See which productivity dashboard fits you.",
+      "h1": "Superfocus vs Flocus: Productivity Dashboard Comparison",
+      "keyword": "Superfocus vs Flocus",
+      "competitor": "Flocus",
+      "competitorUrl": "https://flocus.com",
+      "related": ["/compare/superfocus-vs-pomofocus", "/compare/superfocus-vs-forest", "/sounds/lofi-study-music"]
+    },
+    {
+      "slug": "superfocus-vs-focusmate",
+      "category": "compare",
+      "title": "Superfocus vs Focusmate - Solo vs Accountability Timer 2026",
+      "description": "Superfocus vs Focusmate: solo focus timer with sounds vs accountability sessions. Compare and choose your style.",
+      "h1": "Superfocus vs Focusmate: Solo vs Accountability",
+      "keyword": "Superfocus vs Focusmate",
+      "competitor": "Focusmate",
+      "competitorUrl": "https://www.focusmate.com",
+      "related": ["/compare/superfocus-vs-pomofocus", "/use-cases/remote-work-focus", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "pomodoro-timer-apps",
+      "category": "compare",
+      "title": "Best Pomodoro Timer Apps - 2026 Comparison",
+      "description": "Best Pomodoro timer apps compared: Superfocus, Pomofocus, Forest, Flocus. Features, pricing, and which to choose.",
+      "h1": "Best Pomodoro Timer Apps: 2026 Comparison",
+      "keyword": "pomodoro timer apps",
+      "related": ["/compare/superfocus-vs-pomofocus", "/alternatives/best-pomodoro-apps", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "pomofocus",
+      "category": "alternatives",
+      "title": "Pomofocus Alternative - Try Superfocus",
+      "description": "Looking for a Pomofocus alternative? Superfocus adds ambient sounds, Todoist sync, analytics, and custom timers. Free to try.",
+      "h1": "Pomofocus Alternative: Try Superfocus",
+      "keyword": "pomofocus alternative",
+      "related": ["/compare/superfocus-vs-pomofocus", "/alternatives/forest-app", "/techniques/pomodoro-technique"]
+    },
+    {
+      "slug": "forest-app",
+      "category": "alternatives",
+      "title": "Forest App Alternative - Focus Without Your Phone",
+      "description": "Forest app alternative: Superfocus runs in browser. Pomodoro, lofi, rain, analytics. No phone needed. Free to start.",
+      "h1": "Forest App Alternative: Focus Without Your Phone",
+      "keyword": "forest app alternative",
+      "related": ["/compare/superfocus-vs-forest", "/alternatives/pomofocus", "/sounds/focus-music"]
+    },
+    {
+      "slug": "best-pomodoro-apps",
+      "category": "alternatives",
+      "title": "Best Pomodoro Apps - 2026 Picks | Superfocus",
+      "description": "Best Pomodoro apps for 2026. Superfocus, Pomofocus, Forest. Compare features and find your ideal focus timer.",
+      "h1": "Best Pomodoro Apps: 2026 Picks",
+      "keyword": "best pomodoro apps",
+      "related": ["/compare/pomodoro-timer-apps", "/alternatives/pomofocus", "/techniques/pomodoro-technique"]
+    }
+  ]
+}

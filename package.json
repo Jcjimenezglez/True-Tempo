@@ -6,6 +6,7 @@
     "node": "22.x"
   },
   "scripts": {
+    "build:pseo": "node scripts/build-pseo.js",
     "dev": "vercel dev",
     "setup-dev": "node scripts/setup-dev.js",
     "deploy-staging": "node scripts/deploy-staging.js",

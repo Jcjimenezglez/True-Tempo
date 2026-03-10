@@ -39,35 +39,41 @@
   ],
   "rewrites": [
     {
-      "source": "/pomodoro-timer",
-      "destination": "/"
-    },
-    {
-      "source": "/focus-timer",
-      "destination": "/"
-    },
-    {
-      "source": "/work-timer",
-      "destination": "/"
-    },
-    {
-      "source": "/study-timer",
-      "destination": "/"
-    },
-    {
-      "source": "/time-management",
-      "destination": "/"
-    },
-    {
-      "source": "/productivity-app",
-      "destination": "/"
-    },
-    {
       "source": "/callback",
       "destination": "/"
     }
   ],
   "redirects": [
+    {
+      "source": "/pomodoro-timer",
+      "destination": "https://www.superfocus.live/techniques/pomodoro-technique",
+      "permanent": true
+    },
+    {
+      "source": "/focus-timer",
+      "destination": "https://www.superfocus.live/",
+      "permanent": true
+    },
+    {
+      "source": "/work-timer",
+      "destination": "https://www.superfocus.live/use-cases/work-timer",
+      "permanent": true
+    },
+    {
+      "source": "/study-timer",
+      "destination": "https://www.superfocus.live/use-cases/study-timer",
+      "permanent": true
+    },
+    {
+      "source": "/time-management",
+      "destination": "https://www.superfocus.live/techniques/time-blocking-timer",
+      "permanent": true
+    },
+    {
+      "source": "/productivity-app",
+      "destination": "https://www.superfocus.live/",
+      "permanent": true
+    },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "superfocus.live" }],
