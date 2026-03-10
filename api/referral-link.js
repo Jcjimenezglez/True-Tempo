@@ -9,7 +9,6 @@ const {
 } = require('./lib/referrals');
 
 const APP_BASE_URL = 'https://www.superfocus.live';
-const REFERRAL_TEST_ALLOWLIST = new Set(['julio93.314@gmail.com']);
 
 function buildReferralPayload(user, activeCode, options = {}) {
   const metadata = user?.publicMetadata || {};
@@ -29,7 +28,7 @@ function buildReferralPayload(user, activeCode, options = {}) {
     extendedTrialDays: Number(metadata.referralExtendedTrialDays) || (hasExtendedTrial ? 90 : 30),
     message: enabled
       ? null
-      : 'Referral sharing is currently enabled only for the internal test account.',
+      : 'Referral sharing is currently available for free users only.',
   };
 }
 
@@ -85,12 +84,10 @@ module.exports = async (req, res) => {
     const clerk = createClerkClient({ secretKey: clerkSecret });
     const user = await clerk.users.getUser(clerkUserId);
     const metadata = user.publicMetadata || {};
-    const userEmail = (
-      user.primaryEmailAddress?.emailAddress ||
-      user.emailAddresses?.[0]?.emailAddress ||
-      ''
-    ).toLowerCase();
-    const referralEnabled = REFERRAL_TEST_ALLOWLIST.has(userEmail);
+    const referralEnabled =
+      metadata.isPremium !== true &&
+      metadata.isLifetime !== true &&
+      metadata.paymentType !== 'lifetime';
 
     if (!referralEnabled) {
       return res.status(200).json(buildReferralPayload(user, null, { enabled: false }));

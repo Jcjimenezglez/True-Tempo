@@ -681,15 +681,46 @@ class PomodoroTimer {
                     </svg>
                 </button>
                 <div class="upgrade-content">
-                    <h3 class="logout-modal-title" id="referralModalTitle" style="text-align: center;">Refer a friend</h3>
-                    <p class="logout-modal-message" id="referralModalMessage" style="text-align: center; margin-bottom: 18px;"></p>
-                    <div id="referralModalLinkWrap" style="display: none; margin-bottom: 16px;">
-                        <label for="referralLinkInput" style="display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.72); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;">Your single-use link</label>
-                        <input id="referralLinkInput" type="text" readonly style="width: 100%; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.95); padding: 12px 14px; font-size: 13px; box-sizing: border-box;" />
+                    <h3 class="logout-modal-title referral-modal-title" id="referralModalTitle">Refer a friend</h3>
+                    <p class="logout-modal-message referral-modal-message" id="referralModalMessage"></p>
+                    <div id="referralModalLinkWrap" class="referral-link-wrap" style="display: none;">
+                        <input id="referralLinkInput" class="referral-link-input" type="text" readonly />
                     </div>
-                    <div id="referralModalStatus" style="margin-bottom: 16px; color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.5;"></div>
+                    <div id="referralModalStatus" class="referral-modal-status"></div>
+                    <div id="referralShareActions" class="referral-share-actions" style="display: none;">
+                        <button class="referral-share-chip" id="shareReferralWhatsappBtn" type="button">
+                            <span class="referral-share-icon" aria-hidden="true"><img class="referral-share-logo" src="https://cdn.simpleicons.org/whatsapp/25D366" alt="" /></span>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button class="referral-share-chip" id="shareReferralTelegramBtn" type="button">
+                            <span class="referral-share-icon" aria-hidden="true"><img class="referral-share-logo" src="https://cdn.simpleicons.org/telegram/26A5E4" alt="" /></span>
+                            <span>Telegram</span>
+                        </button>
+                        <button class="referral-share-chip" id="shareReferralXBtn" type="button">
+                            <span class="referral-share-icon" aria-hidden="true"><img class="referral-share-logo" src="https://cdn.simpleicons.org/x/000000" alt="" /></span>
+                            <span>X</span>
+                        </button>
+                        <button class="referral-share-chip" id="shareReferralGmailBtn" type="button">
+                            <span class="referral-share-icon" aria-hidden="true"><img class="referral-share-logo" src="https://cdn.simpleicons.org/gmail/EA4335" alt="" /></span>
+                            <span>Gmail</span>
+                        </button>
+                        <button class="referral-share-chip" id="shareReferralInstagramBtn" type="button">
+                            <span class="referral-share-icon" aria-hidden="true"><img class="referral-share-logo" src="https://cdn.simpleicons.org/instagram/E4405F" alt="" /></span>
+                            <span>Instagram</span>
+                        </button>
+                        <button class="referral-share-chip" id="shareReferralFacebookBtn" type="button">
+                            <span class="referral-share-icon" aria-hidden="true"><img class="referral-share-logo" src="https://cdn.simpleicons.org/facebook/1877F2" alt="" /></span>
+                            <span>Facebook</span>
+                        </button>
+                    </div>
                     <div class="logout-modal-buttons" style="display: flex; flex-direction: column; gap: 10px;">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="copyReferralLinkBtn" style="width: 100%;">Copy referral link</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="copyReferralLinkBtn" style="width: 100%;" type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link-icon lucide-link">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                            <span>Copy link</span>
+                        </button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="closeReferralModalBtn" style="width: 100%;">Close</button>
                     </div>
                 </div>
@@ -844,16 +875,18 @@ class PomodoroTimer {
         const linkInput = document.getElementById('referralLinkInput');
         const status = document.getElementById('referralModalStatus');
         const copyBtn = document.getElementById('copyReferralLinkBtn');
+        const shareActions = document.getElementById('referralShareActions');
 
-        if (!modalTitle || !modalMessage || !status || !copyBtn) {
+        if (!modalTitle || !modalMessage || !status || !copyBtn || !shareActions) {
             return;
         }
 
         if (!this.isAuthenticated) {
             modalTitle.textContent = 'Refer a friend';
-            modalMessage.textContent = 'Log in to generate your referral link.';
-            status.textContent = 'When the first friend creates an account with your link, both of you unlock the option to start a 3-month Premium trial.';
+            modalMessage.textContent = 'Log in to generate your link.';
+            status.textContent = 'First signup unlocks 3 months for both of you.';
             if (linkWrap) linkWrap.style.display = 'none';
+            shareActions.style.display = 'none';
             copyBtn.style.display = 'none';
             return;
         }
@@ -865,39 +898,43 @@ class PomodoroTimer {
 
         if (!hasState) {
             modalTitle.textContent = 'Refer a friend';
-            modalMessage.textContent = 'Your referral link is loading.';
+            modalMessage.textContent = 'Loading your link...';
             status.textContent = 'Please try again in a moment.';
             if (linkWrap) linkWrap.style.display = 'none';
+            shareActions.style.display = 'none';
             copyBtn.style.display = 'none';
             return;
         }
 
         if (state.enabled === false) {
             modalTitle.textContent = 'Refer a friend';
-            modalMessage.textContent = 'Referral sharing is not enabled for this account yet.';
-            status.textContent = state.message || 'Referral sharing is currently enabled only for the internal test account.';
+            modalMessage.textContent = 'Referral sharing is not enabled for this account.';
+            status.textContent = state.message || 'Referral sharing is currently available for free users only.';
             if (linkWrap) linkWrap.style.display = 'none';
+            shareActions.style.display = 'none';
             copyBtn.style.display = 'none';
             return;
         }
 
         if (hasActiveLink) {
             modalTitle.textContent = 'Refer a friend';
-            modalMessage.textContent = 'Share your single-use link. When the first friend creates an account with it, both of you unlock a 3-month Premium trial.';
-            status.textContent = 'This link stays active until the first successful signup.';
+            modalMessage.textContent = 'First signup unlocks 3 months for both of you.';
+            status.textContent = 'Expires after the first successful signup.';
             if (linkInput) linkInput.value = state.link;
             if (linkWrap) linkWrap.style.display = 'block';
-            copyBtn.style.display = 'inline-flex';
+            shareActions.style.display = 'grid';
             copyBtn.disabled = false;
+            copyBtn.style.display = 'inline-flex';
         } else {
             modalTitle.textContent = hasUnlockedTrial ? 'Referral unlocked' : 'Referral link claimed';
             modalMessage.textContent = hasUnlockedTrial
-                ? 'Your referral link has been claimed. Your 3-month Premium trial is ready when you want to upgrade.'
-                : 'Your last referral link has already been used and can no longer be shared.';
+                ? 'Your 3-month Premium trial is ready.'
+                : 'This link has already been used.';
             status.textContent = state.linkClaimedAt
                 ? `Claimed on ${new Date(state.linkClaimedAt).toLocaleDateString()}`
                 : 'This single-use referral link has expired.';
             if (linkWrap) linkWrap.style.display = 'none';
+            shareActions.style.display = 'none';
             copyBtn.style.display = 'none';
         }
     }
@@ -926,17 +963,81 @@ class PomodoroTimer {
         }
     }
 
-    async copyReferralLink() {
+    getReferralSharePayload() {
         const link = this.referralState?.link;
-        if (!link) return;
+        if (!link) return null;
+
+        const title = 'Try Superfocus free for 3 months';
+        const text = `Use my Superfocus link to unlock a 3-month Premium trial: ${link}`;
+
+        return { link, title, text };
+    }
+
+    async copyReferralLink() {
+        const payload = this.getReferralSharePayload();
+        if (!payload?.link) return;
 
         try {
-            await navigator.clipboard.writeText(link);
+            await navigator.clipboard.writeText(payload.link);
             this.showResourceShareToast('Referral link copied to clipboard');
         } catch (error) {
             console.error('Failed to copy referral link:', error);
             this.showResourceShareToast('Failed to copy referral link', true);
         }
+    }
+
+    async shareReferralNatively() {
+        const payload = this.getReferralSharePayload();
+        if (!payload || typeof navigator.share !== 'function') return;
+
+        try {
+            await navigator.share({
+                title: payload.title,
+                text: payload.text,
+                url: payload.link,
+            });
+        } catch (error) {
+            if (error?.name !== 'AbortError') {
+                console.error('Native share failed:', error);
+                this.showResourceShareToast('Could not open the share menu', true);
+            }
+        }
+    }
+
+    openReferralShareTarget(target) {
+        const payload = this.getReferralSharePayload();
+        if (!payload?.link) return;
+
+        const subject = encodeURIComponent(payload.title);
+        const body = encodeURIComponent(payload.text);
+        const url = encodeURIComponent(payload.link);
+        const text = encodeURIComponent(payload.text);
+
+        const shareUrls = {
+            whatsapp: `https://wa.me/?text=${text}`,
+            telegram: `https://t.me/share/url?url=${url}&text=${encodeURIComponent('Unlock a 3-month Premium trial on Superfocus.')}`,
+            x: `https://twitter.com/intent/tweet?text=${text}`,
+            gmail: `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`,
+            facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+        };
+
+        if (target === 'instagram') {
+            navigator.clipboard.writeText(payload.link)
+                .then(() => this.showResourceShareToast('Link copied. Paste it into Instagram.'))
+                .catch(() => this.showResourceShareToast('Copy the link and paste it into Instagram.', true));
+            window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        if (target === 'gmail') {
+            window.open(shareUrls.gmail, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        const shareUrl = shareUrls[target];
+        if (!shareUrl) return;
+
+        window.open(shareUrl, '_blank', 'width=640,height=720,noopener,noreferrer');
     }
     
     init() {
@@ -5944,6 +6045,12 @@ class PomodoroTimer {
         const closeReferralModalX = document.getElementById('closeReferralModalX');
         const closeReferralModalBtn = document.getElementById('closeReferralModalBtn');
         const copyReferralLinkBtn = document.getElementById('copyReferralLinkBtn');
+        const shareReferralWhatsappBtn = document.getElementById('shareReferralWhatsappBtn');
+        const shareReferralTelegramBtn = document.getElementById('shareReferralTelegramBtn');
+        const shareReferralXBtn = document.getElementById('shareReferralXBtn');
+        const shareReferralGmailBtn = document.getElementById('shareReferralGmailBtn');
+        const shareReferralInstagramBtn = document.getElementById('shareReferralInstagramBtn');
+        const shareReferralFacebookBtn = document.getElementById('shareReferralFacebookBtn');
 
         if (closeReferralModalX) {
             closeReferralModalX.addEventListener('click', () => this.hideReferralModal());
@@ -5955,6 +6062,30 @@ class PomodoroTimer {
 
         if (copyReferralLinkBtn) {
             copyReferralLinkBtn.addEventListener('click', () => this.copyReferralLink());
+        }
+
+        if (shareReferralWhatsappBtn) {
+            shareReferralWhatsappBtn.addEventListener('click', () => this.openReferralShareTarget('whatsapp'));
+        }
+
+        if (shareReferralTelegramBtn) {
+            shareReferralTelegramBtn.addEventListener('click', () => this.openReferralShareTarget('telegram'));
+        }
+
+        if (shareReferralXBtn) {
+            shareReferralXBtn.addEventListener('click', () => this.openReferralShareTarget('x'));
+        }
+
+        if (shareReferralGmailBtn) {
+            shareReferralGmailBtn.addEventListener('click', () => this.openReferralShareTarget('gmail'));
+        }
+
+        if (shareReferralInstagramBtn) {
+            shareReferralInstagramBtn.addEventListener('click', () => this.openReferralShareTarget('instagram'));
+        }
+
+        if (shareReferralFacebookBtn) {
+            shareReferralFacebookBtn.addEventListener('click', () => this.openReferralShareTarget('facebook'));
         }
 
         if (this.referralModalOverlay) {
