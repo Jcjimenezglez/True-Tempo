@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Build script for pSEO Phase 1 pages.
- * Reads pseo/pages.json and pseo/template.html, generates static HTML for each page.
+ * Uses index.html as base (timer + sidebar + full app UI) and replaces only the content-section.
  * Output: techniques/, use-cases/, sounds/, workflows/, analytics/, compare/, alternatives/
  */
 
@@ -11,8 +11,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const PSEO_DIR = path.join(ROOT, 'pseo');
 const PAGES_JSON = path.join(PSEO_DIR, 'pages.json');
-const TEMPLATE_PATH = path.join(PSEO_DIR, 'template.html');
+const INDEX_PATH = path.join(ROOT, 'index.html');
+const CONTENT_SECTION_PATH = path.join(PSEO_DIR, 'content-section.html');
 const BASE_URL = 'https://www.superfocus.live';
+
+const CONTENT_SECTION_REPLACE_RE = /    <!-- Content Section - Educational Content -->\s*<section class="content-section">[\s\S]*?    <\/section>/;
 
 function loadJson(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -341,19 +344,12 @@ function getExternalLinks(page) {
   return `<p style="margin-top: 2rem; font-size: 0.95rem; color: rgba(255,255,255,0.6);">Further reading: ${items}</p>`;
 }
 
-function buildPage(page, template) {
-  const category = page.category;
+function buildContentSection(page, contentSectionTemplate) {
   const slug = page.slug;
-  const canonicalPath = `/${category}/${slug}`;
-
   const howWeHelp = getHowWeHelp(page);
   const whatIs = getWhatIs(page);
 
-  let html = template
-    .replace(/\{\{TITLE\}\}/g, escapeHtml(page.title))
-    .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(page.description))
-    .replace(/\{\{KEYWORD\}\}/g, escapeHtml(page.keyword))
-    .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+  return contentSectionTemplate
     .replace(/\{\{H1\}\}/g, escapeHtml(page.h1))
     .replace(/\{\{HERO_SUBTITLE\}\}/g, escapeHtml(page.description))
     .replace(/\{\{SLUG\}\}/g, slug)
@@ -388,13 +384,18 @@ function main() {
     console.error('Missing pseo/pages.json');
     process.exit(1);
   }
-  if (!fs.existsSync(TEMPLATE_PATH)) {
-    console.error('Missing pseo/template.html');
+  if (!fs.existsSync(INDEX_PATH)) {
+    console.error('Missing index.html');
+    process.exit(1);
+  }
+  if (!fs.existsSync(CONTENT_SECTION_PATH)) {
+    console.error('Missing pseo/content-section.html');
     process.exit(1);
   }
 
   const { pages } = loadJson(PAGES_JSON);
-  const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
+  const indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
+  const contentSectionTemplate = fs.readFileSync(CONTENT_SECTION_PATH, 'utf8');
 
   const outputDirs = new Set();
   const generated = [];
@@ -402,6 +403,7 @@ function main() {
   for (const page of pages) {
     const category = page.category;
     const slug = page.slug;
+    const canonicalPath = `/${category}/${slug}`;
     const outputDir = path.join(ROOT, category);
     const outputPath = path.join(outputDir, `${slug}.html`);
 
@@ -410,7 +412,12 @@ function main() {
       outputDirs.add(category);
     }
 
-    const html = buildPage(page, template);
+    const contentSectionHtml = buildContentSection(page, contentSectionTemplate);
+    let html = indexHtml.replace(CONTENT_SECTION_REPLACE_RE, contentSectionHtml);
+    html = html
+      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
+      .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escapeHtml(page.description)}">`)
+      .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${BASE_URL}${canonicalPath}">`);
     fs.writeFileSync(outputPath, html, 'utf8');
     generated.push(`/${category}/${slug}`);
   }
