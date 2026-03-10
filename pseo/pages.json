@@ -8,7 +8,7 @@
       "h1": "Pomodoro Technique: The 25-Minute Focus Method",
       "keyword": "pomodoro technique",
       "preset": "Pomodoro (25/5/15 min)",
-      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/use-cases/study-timer"]
+      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/use-cases/study-timer", "/techniques/20-minute-focus"]
     },
     {
       "slug": "flowtime-timer",
@@ -88,7 +88,7 @@
       "h1": "Best Study Timer for Students",
       "keyword": "study timer",
       "preset": "Pomodoro or Sprint",
-      "related": ["/use-cases/exam-prep-timer", "/sounds/lofi-study-music", "/techniques/pomodoro-technique"]
+      "related": ["/use-cases/exam-prep-timer", "/sounds/lofi-study-music", "/techniques/pomodoro-technique", "/use-cases/study-timer-for-flashcards"]
     },
     {
       "slug": "work-timer",
@@ -368,7 +368,7 @@
       "description": "Best Pomodoro apps for 2026. Superfocus, Pomofocus, Forest. Compare features and find your ideal focus timer.",
       "h1": "Best Pomodoro Apps: 2026 Picks",
       "keyword": "best pomodoro apps",
-      "related": ["/compare/pomodoro-timer-apps", "/alternatives/pomofocus", "/techniques/pomodoro-technique"]
+      "related": ["/compare/pomodoro-timer-apps", "/alternatives/pomofocus", "/techniques/pomodoro-technique", "/compare/superfocus-vs-brain-fm"]
     }
   ]
 }

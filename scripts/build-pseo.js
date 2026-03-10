@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Build script for pSEO Phase 1 pages.
+ * Build script for pSEO Phase 1 + Phase 2A pages.
  * Uses index.html as base (timer + sidebar + full app UI) and replaces only the content-section.
+ * Loads pages.json (Phase 1) + pseo/databases/*.json (Phase 2A).
  * Output: techniques/, use-cases/, sounds/, workflows/, analytics/, compare/, alternatives/
  */
 
@@ -11,6 +12,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const PSEO_DIR = path.join(ROOT, 'pseo');
 const PAGES_JSON = path.join(PSEO_DIR, 'pages.json');
+const DATABASES_DIR = path.join(PSEO_DIR, 'databases');
 const INDEX_PATH = path.join(ROOT, 'index.html');
 const CONTENT_SECTION_PATH = path.join(PSEO_DIR, 'content-section.html');
 const BASE_URL = 'https://www.superfocus.live';
@@ -22,6 +24,37 @@ function loadJson(filePath) {
   return JSON.parse(content);
 }
 
+/** Load Phase 1 pages + Phase 2 database entries. Phase 1 wins on slug conflicts. */
+function loadAllPages() {
+  const phase1 = loadJson(PAGES_JSON);
+  const slugs = new Set(phase1.pages.map(p => p.slug));
+  const pages = [...phase1.pages];
+
+  if (fs.existsSync(DATABASES_DIR)) {
+    const dbFiles = fs.readdirSync(DATABASES_DIR).filter(f => f.endsWith('.json'));
+    for (const file of dbFiles) {
+      const db = loadJson(path.join(DATABASES_DIR, file));
+      const entries = db.entries || [];
+      for (const entry of entries) {
+        if (slugs.has(entry.slug)) continue;
+        slugs.add(entry.slug);
+        const page = normalizeDatabaseEntry(entry);
+        pages.push(page);
+      }
+    }
+  }
+
+  return pages;
+}
+
+function normalizeDatabaseEntry(entry) {
+  const page = { ...entry };
+  if (page.related && Array.isArray(page.related)) {
+    page.related = page.related.map(url => url.startsWith('/') ? url : `/${page.category}/${url}`);
+  }
+  return page;
+}
+
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -31,6 +64,7 @@ function escapeHtml(s) {
 }
 
 function getStopPain(page) {
+  if (page.painPoints) return page.painPoints;
   const cat = page.category;
   const pains = {
     techniques: 'Too many distractions?<br>Not enough done?<br>Time flying by with nothing to show?',
@@ -185,6 +219,14 @@ function getWhatIs(page) {
     'best-pomodoro-apps': 'Superfocus is among the best Pomodoro apps for 2026. Pomodoro, Flow, Deep Work presets; ambient sounds; Todoist sync; and analytics. Free to start, no credit card.'
   };
   let paragraph = paragraphMap[slug];
+  if (!paragraph && (cat === 'compare' || cat === 'alternatives') && page.compareAngle) {
+    const comp = page.competitor;
+    const compUrl = page.competitorUrl;
+    const angle = comp && compUrl
+      ? page.compareAngle.replace(comp, `<a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="inline-text-link">${comp}</a>`)
+      : page.compareAngle;
+    paragraph = `Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">focus timer app</a> that combines Pomodoro, ambient sounds, and analytics. ${angle} Free to try.`;
+  }
   if (!paragraph) {
     paragraph = `Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">focus timer app</a> that supports ${keyword}. Use ${preset} plus ambient sounds (lofi, rain, cafe), task tracking, and analytics. Free to try.`;
   }
@@ -194,6 +236,7 @@ function getWhatIs(page) {
 function getTopicSection(page) {
   const slug = page.slug;
   const needsPomodoro = ['pomodoro-technique', 'study-timer', 'work-timer', 'exam-prep-timer', 'todoist-pomodoro', 'task-planning-workflow'].includes(slug) ||
+    (typeof slug === 'string' && slug.startsWith('study-timer-for-')) ||
     (page.keyword && page.keyword.toLowerCase().includes('pomodoro'));
   if (!needsPomodoro) return '';
 
@@ -333,10 +376,13 @@ function getRelatedLinks(related) {
 
 function getExternalLinks(page) {
   const links = [];
-  if (page.keyword && page.keyword.toLowerCase().includes('pomodoro')) {
+  if (Array.isArray(page.externalLinks) && page.externalLinks.length > 0) {
+    page.externalLinks.forEach(l => links.push({ url: l.url, text: l.text }));
+  }
+  if (page.keyword && page.keyword.toLowerCase().includes('pomodoro') && !links.some(l => l.url.includes('Pomodoro'))) {
     links.push({ url: 'https://en.wikipedia.org/wiki/Pomodoro_Technique', text: 'Pomodoro Technique (Wikipedia)' });
   }
-  if (page.category === 'compare' && page.competitorUrl) {
+  if (page.category === 'compare' && page.competitorUrl && !links.some(l => l.url === page.competitorUrl)) {
     links.push({ url: page.competitorUrl, text: page.competitor });
   }
   if (links.length === 0) return '';
@@ -398,7 +444,7 @@ function main() {
     process.exit(1);
   }
 
-  const { pages } = loadJson(PAGES_JSON);
+  const pages = loadAllPages();
   const indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
   const contentSectionTemplate = fs.readFileSync(CONTENT_SECTION_PATH, 'utf8');
 

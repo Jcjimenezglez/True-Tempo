@@ -1,0 +1,125 @@
+{
+  "family": "study-types",
+  "entries": [
+    {
+      "slug": "study-timer-for-flashcards",
+      "category": "use-cases",
+      "keyword": "study timer for flashcards",
+      "title": "Study Timer for Flashcards - Spaced Repetition Focus | Superfocus",
+      "description": "Study timer for flashcards and spaced repetition. Short Pomodoro or Sprint blocks. Track sessions, stay focused.",
+      "h1": "Study Timer for Flashcards: Spaced Repetition Focus",
+      "preset": "Sprint (15/3/10) or Pomodoro",
+      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/techniques/sprint-timer"],
+      "painPoints": "Flashcard burnout?<br>Can't sustain long sessions?<br>Need structure for Anki/Quizlet?",
+      "recommendedSounds": "Minimal lofi or white noise"
+    },
+    {
+      "slug": "study-timer-for-essay-writing",
+      "category": "use-cases",
+      "keyword": "study timer for essay writing",
+      "title": "Study Timer for Essay Writing - Pomodoro for Papers | Superfocus",
+      "description": "Study timer for essay writing. Pomodoro or Marathon presets. Overcome writer's block with structured focus blocks.",
+      "h1": "Study Timer for Essay Writing: Pomodoro for Papers",
+      "preset": "Pomodoro or Marathon",
+      "related": ["/use-cases/writing-timer", "/use-cases/study-timer", "/sounds/rain-sounds-focus"],
+      "painPoints": "Procrastinating on essays?<br>Writer's block?<br>Need blocks for drafting and editing?",
+      "recommendedSounds": "Rain or lofi for sustained writing"
+    },
+    {
+      "slug": "study-timer-for-language-learning",
+      "category": "use-cases",
+      "keyword": "study timer for language learning",
+      "title": "Study Timer for Language Learning - Focus Blocks | Superfocus",
+      "description": "Study timer for language learning. Short sprints for drills, longer blocks for immersion. Pomodoro and Sprint in one app.",
+      "h1": "Study Timer for Language Learning: Focus Blocks",
+      "preset": "Sprint for drills, Pomodoro for reading/listening",
+      "related": ["/use-cases/study-timer", "/use-cases/study-timer-for-flashcards", "/sounds/lofi-study-music"],
+      "painPoints": "Scattered language practice?<br>No structure for Duolingo/Anki?<br>Burnout from long sessions?",
+      "recommendedSounds": "Lofi or cafe for immersion blocks"
+    },
+    {
+      "slug": "study-timer-for-reading",
+      "category": "use-cases",
+      "keyword": "study timer for reading",
+      "title": "Study Timer for Reading - Focus for Long Sessions | Superfocus",
+      "description": "Study timer for reading. Pomodoro or Flow for textbooks and articles. Breaks prevent fatigue. Try Superfocus free.",
+      "h1": "Study Timer for Reading: Focus for Long Sessions",
+      "preset": "Pomodoro (25/5/15) or Flow (45/8/25)",
+      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/sounds/rain-sounds-focus"],
+      "painPoints": "Drowsy after 20 min of reading?<br>Can't finish chapters?<br>Need scheduled breaks?",
+      "recommendedSounds": "Rain or ambient for reading focus"
+    },
+    {
+      "slug": "study-timer-for-thesis",
+      "category": "use-cases",
+      "keyword": "study timer for thesis writing",
+      "title": "Study Timer for Thesis Writing - Dissertation Focus | Superfocus",
+      "description": "Study timer for thesis and dissertation writing. Deep Work or Marathon presets. Long blocks for sustained writing.",
+      "h1": "Study Timer for Thesis Writing: Dissertation Focus",
+      "preset": "Deep Work (90/20/30) or Marathon",
+      "related": ["/use-cases/writing-timer", "/use-cases/study-timer-for-essay-writing", "/techniques/deep-work-timer"],
+      "painPoints": "Thesis overwhelm?<br>Can't block long writing sessions?<br>Need structure for chapters?",
+      "recommendedSounds": "Rain, lofi, or cafe for deep writing"
+    },
+    {
+      "slug": "study-timer-for-note-taking",
+      "category": "use-cases",
+      "keyword": "study timer for note taking",
+      "title": "Study Timer for Note Taking - Focus During Lectures | Superfocus",
+      "description": "Study timer for note taking. Sprint or Pomodoro for lecture review and note consolidation. Stay focused, avoid drift.",
+      "h1": "Study Timer for Note Taking: Focus During Lectures",
+      "preset": "Sprint or Pomodoro",
+      "related": ["/use-cases/study-timer", "/use-cases/student-productivity", "/techniques/sprint-timer"],
+      "painPoints": "Notes piling up?<br>Can't focus on review?<br>Need blocks for consolidation?",
+      "recommendedSounds": "Lofi or white noise"
+    },
+    {
+      "slug": "study-timer-for-online-courses",
+      "category": "use-cases",
+      "keyword": "study timer for online courses",
+      "title": "Study Timer for Online Courses - Video Lecture Focus | Superfocus",
+      "description": "Study timer for online courses. Pomodoro blocks for video lectures. Track progress, take breaks, avoid binge-watching.",
+      "h1": "Study Timer for Online Courses: Video Lecture Focus",
+      "preset": "Pomodoro or Flow",
+      "related": ["/use-cases/study-timer", "/use-cases/remote-work-focus", "/sounds/cafe-ambient-sounds"],
+      "painPoints": "Binge-watching courses?<br>No structure for videos?<br>Drifting during lectures?",
+      "recommendedSounds": "Cafe or minimal lofi"
+    },
+    {
+      "slug": "study-timer-for-group-study",
+      "category": "use-cases",
+      "keyword": "study timer for group study",
+      "title": "Study Timer for Group Study - Sync Focus Sessions | Superfocus",
+      "description": "Study timer for group study. Shared Pomodoro blocks. Everyone focuses together, breaks together. Try Superfocus.",
+      "h1": "Study Timer for Group Study: Sync Focus Sessions",
+      "preset": "Pomodoro (25/5/15)",
+      "related": ["/use-cases/study-timer", "/use-cases/student-productivity", "/techniques/pomodoro-technique"],
+      "painPoints": "Group study chaos?<br>No shared structure?<br>Breaks out of sync?",
+      "recommendedSounds": "Lofi or cafe for group vibe"
+    },
+    {
+      "slug": "study-timer-for-math",
+      "category": "use-cases",
+      "keyword": "study timer for math",
+      "title": "Study Timer for Math - Problem-Solving Focus | Superfocus",
+      "description": "Study timer for math: Pomodoro or Sprint for problem sets. Short blocks prevent burnout. Track sessions in Superfocus.",
+      "h1": "Study Timer for Math: Problem-Solving Focus",
+      "preset": "Sprint or Pomodoro",
+      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/sounds/white-noise-focus"],
+      "painPoints": "Math fatigue?<br>Can't power through problem sets?<br>Need breaks between problems?",
+      "recommendedSounds": "White noise or minimal lofi"
+    },
+    {
+      "slug": "study-timer-for-med-school",
+      "category": "use-cases",
+      "keyword": "study timer for med school",
+      "title": "Study Timer for Med School - Long Study Sessions | Superfocus",
+      "description": "Study timer for med school. Pomodoro, Flow, or Deep Work for anatomy, pharmacology, clinical prep. Built for long study days.",
+      "h1": "Study Timer for Med School: Long Study Sessions",
+      "preset": "Pomodoro or Flow",
+      "related": ["/use-cases/exam-prep-timer", "/use-cases/study-timer-for-flashcards", "/techniques/flowtime-timer"],
+      "painPoints": "Med school volume?<br>Marathon study days?<br>Need structure for retention?",
+      "recommendedSounds": "Lofi or rain for sustained focus"
+    }
+  ]
+}

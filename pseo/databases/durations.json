@@ -1,0 +1,77 @@
+{
+  "family": "durations",
+  "entries": [
+    {
+      "slug": "10-minute-focus",
+      "category": "techniques",
+      "keyword": "10 minute focus timer",
+      "title": "10-Minute Focus Timer - Micro Sessions | Superfocus",
+      "description": "10-minute focus timer for micro sessions. Quick sprints when 15 min feels too long. Perfect for ADHD and rapid task switching.",
+      "h1": "10-Minute Focus Timer: Micro Sessions That Work",
+      "preset": "Custom 10/2 (create in app) or Sprint",
+      "related": ["/techniques/sprint-timer", "/use-cases/adhd-focus-timer", "/use-cases/meeting-prep-timer"],
+      "painPoints": "Need ultra-short blocks?<br>15 min still too long?<br>Quick wins between meetings?",
+      "recommendedSounds": "White noise or minimal lofi for short bursts"
+    },
+    {
+      "slug": "20-minute-focus",
+      "category": "techniques",
+      "keyword": "20 minute focus timer",
+      "title": "20-Minute Focus Timer - Short Deep Work | Superfocus",
+      "description": "20-minute focus timer for short deep work. Between Pomodoro and Sprint. Ideal when 25 min feels too long.",
+      "h1": "20-Minute Focus Timer: Short Deep Work Blocks",
+      "preset": "Custom 20/5 (create in app)",
+      "related": ["/techniques/pomodoro-technique", "/techniques/sprint-timer", "/use-cases/study-timer"],
+      "painPoints": "25 min too long?<br>Need something between 15 and 25?<br>Quick focus without full Pomodoro?",
+      "recommendedSounds": "Lofi or rain for sustained 20-min blocks"
+    },
+    {
+      "slug": "30-minute-focus",
+      "category": "techniques",
+      "keyword": "30 minute focus timer",
+      "title": "30-Minute Focus Timer - Balanced Work Blocks | Superfocus",
+      "description": "30-minute focus timer for balanced work blocks. Longer than Pomodoro, shorter than Flow. Custom timer in Superfocus.",
+      "h1": "30-Minute Focus Timer: Balanced Work Blocks",
+      "preset": "Custom 30/5 (create in app)",
+      "related": ["/techniques/pomodoro-technique", "/techniques/flowtime-timer", "/use-cases/remote-work-focus"],
+      "painPoints": "Want more than 25 min?<br>45 min too long?<br>Need a middle ground?",
+      "recommendedSounds": "Cafe or lofi for 30-min focus"
+    },
+    {
+      "slug": "35-minute-focus",
+      "category": "techniques",
+      "keyword": "35 minute focus timer",
+      "title": "35-Minute Focus Timer - Extended Pomodoro | Superfocus",
+      "description": "35-minute focus timer: extended Pomodoro for flow state. Custom block between 25 and 45 min. Try in Superfocus.",
+      "h1": "35-Minute Focus Timer: Extended Pomodoro",
+      "preset": "Custom 35/7 (create in app)",
+      "related": ["/techniques/pomodoro-technique", "/techniques/flowtime-timer", "/use-cases/coding-focus-timer"],
+      "painPoints": "25 min cuts you off?<br>45 min too taxing?<br>Find your sweet spot",
+      "recommendedSounds": "Lofi or rain for extended flow"
+    },
+    {
+      "slug": "40-minute-focus",
+      "category": "techniques",
+      "keyword": "40 minute focus timer",
+      "title": "40-Minute Focus Timer - Pre-Flow Sessions | Superfocus",
+      "description": "40-minute focus timer for pre-flow sessions. Almost Flowtime length. Build focus stamina with Superfocus custom timers.",
+      "h1": "40-Minute Focus Timer: Pre-Flow Sessions",
+      "preset": "Custom 40/8 (create in app)",
+      "related": ["/techniques/flowtime-timer", "/techniques/pomodoro-technique", "/use-cases/writing-timer"],
+      "painPoints": "Building up to 45 min?<br>Need slightly less than Flow?<br>Gradual extension of focus",
+      "recommendedSounds": "Rain or cafe for 40-min blocks"
+    },
+    {
+      "slug": "50-minute-focus",
+      "category": "techniques",
+      "keyword": "50 minute focus timer",
+      "title": "50-Minute Focus Timer - Near Ultradian | Superfocus",
+      "description": "50-minute focus timer: near-ultradian rhythm. Between 45 and 52 min. Custom timer for your natural cycles.",
+      "h1": "50-Minute Focus Timer: Near Ultradian",
+      "preset": "Custom 50/10 (create in app)",
+      "related": ["/techniques/52-minute-focus", "/techniques/flowtime-timer", "/use-cases/coding-focus-timer"],
+      "painPoints": "Between 45 and 52 min?<br>Match your focus cycle?<br>Custom work blocks",
+      "recommendedSounds": "Lofi or ambient for deep 50-min sessions"
+    }
+  ]
+}
