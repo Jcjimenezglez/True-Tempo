@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Build script for pSEO Phase 1 pages.
- * Reads pseo/pages.json and pseo/template.html, generates static HTML for each page.
+ * Uses index.html as base (timer + sidebar + full app UI) and replaces only the content-section.
  * Output: techniques/, use-cases/, sounds/, workflows/, analytics/, compare/, alternatives/
  */
 
@@ -11,9 +11,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const PSEO_DIR = path.join(ROOT, 'pseo');
 const PAGES_JSON = path.join(PSEO_DIR, 'pages.json');
-const TEMPLATE_PATH = path.join(PSEO_DIR, 'template.html');
 const INDEX_PATH = path.join(ROOT, 'index.html');
+const CONTENT_SECTION_PATH = path.join(PSEO_DIR, 'content-section.html');
 const BASE_URL = 'https://www.superfocus.live';
+
+const CONTENT_SECTION_REPLACE_RE = /    <!-- Content Section - Educational Content -->\s*<section class="content-section">[\s\S]*?    <\/section>/;
 
 function loadJson(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -342,113 +344,12 @@ function getExternalLinks(page) {
   return `<p style="margin-top: 2rem; font-size: 0.95rem; color: rgba(255,255,255,0.6);">Further reading: ${items}</p>`;
 }
 
-function replaceOne(source, from, to) {
-  return source.includes(from) ? source.replace(from, to) : source;
-}
-
-function stripSection(source, startMarker, endMarker) {
-  const start = source.indexOf(startMarker);
-  if (start === -1) return source;
-  const end = source.indexOf(endMarker, start);
-  if (end === -1) return source;
-  return source.slice(0, start) + source.slice(end + endMarker.length);
-}
-
-function applySeoMeta(shell, page, canonicalPath) {
-  const title = escapeHtml(page.title);
-  const description = escapeHtml(page.description);
-  const keywords = escapeHtml(`${page.keyword}, pomodoro timer, focus timer, Superfocus`);
-  const canonicalUrl = `${BASE_URL}${canonicalPath}`;
-
-  let html = shell;
-  html = replaceOne(
-    html,
-    '<title>Superfocus - Time Management & Pomodoro Timer for Focus</title>',
-    `<title>${title}</title>`
-  );
-  html = replaceOne(
-    html,
-    '<meta name="title" content="Superfocus - Time Management & Pomodoro Timer for Focus">',
-    `<meta name="title" content="${title}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta name="description" content="Advanced time management techniques with Pomodoro timer. Features time blocking software, focus timer app, and productivity tools for better concentration.">',
-    `<meta name="description" content="${description}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta name="keywords" content="time management techniques, pomodoro technique, time management methods, pomodoro timer, focus timer app, time blocking software, productivity tools">',
-    `<meta name="keywords" content="${keywords}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta property="og:url" content="https://www.superfocus.live/">',
-    `<meta property="og:url" content="${canonicalUrl}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta property="og:title" content="Superfocus - Time Management & Pomodoro Timer">',
-    `<meta property="og:title" content="${title}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta property="og:description" content="Advanced time management techniques with Pomodoro timer. Master time blocking and focus techniques.">',
-    `<meta property="og:description" content="${description}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta name="twitter:url" content="https://www.superfocus.live/">',
-    `<meta name="twitter:url" content="${canonicalUrl}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta name="twitter:title" content="Superfocus - Time Management & Pomodoro Timer">',
-    `<meta name="twitter:title" content="${title}">`
-  );
-  html = replaceOne(
-    html,
-    '<meta name="twitter:description" content="Advanced time management techniques with Pomodoro timer. Master time blocking and focus techniques.">',
-    `<meta name="twitter:description" content="${description}">`
-  );
-  html = replaceOne(
-    html,
-    '<link rel="canonical" href="https://www.superfocus.live/">',
-    `<link rel="canonical" href="${canonicalUrl}">`
-  );
-
-  html = stripSection(html, '    <!-- Structured Data - HowTo -->', '    </script>\n');
-  html = stripSection(html, '    <!-- Structured Data - FAQ -->', '    </script>\n');
-
-  return html;
-}
-
-function buildShell(indexHtml, contentHtml) {
-  const startMarker = '    <!-- Content Section - Educational Content -->';
-  const endMarker = '    <!-- Site Footer -->';
-  const start = indexHtml.indexOf(startMarker);
-  const end = indexHtml.indexOf(endMarker);
-
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error('Could not locate content section boundaries in index.html');
-  }
-
-  return `${indexHtml.slice(0, start)}${contentHtml}\n\n${indexHtml.slice(end)}`;
-}
-
-function buildPage(page, template, indexHtml) {
-  const category = page.category;
+function buildContentSection(page, contentSectionTemplate) {
   const slug = page.slug;
-  const canonicalPath = `/${category}/${slug}`;
-
   const howWeHelp = getHowWeHelp(page);
   const whatIs = getWhatIs(page);
 
-  const contentHtml = template
-    .replace(/\{\{TITLE\}\}/g, escapeHtml(page.title))
-    .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(page.description))
-    .replace(/\{\{KEYWORD\}\}/g, escapeHtml(page.keyword))
-    .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+  return contentSectionTemplate
     .replace(/\{\{H1\}\}/g, escapeHtml(page.h1))
     .replace(/\{\{HERO_SUBTITLE\}\}/g, escapeHtml(page.description))
     .replace(/\{\{SLUG\}\}/g, slug)
@@ -475,8 +376,7 @@ function buildPage(page, template, indexHtml) {
     .replace(/\{\{RELATED_LINKS\}\}/g, getRelatedLinks(page.related))
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
 
-  const htmlWithShell = buildShell(indexHtml, contentHtml);
-  return applySeoMeta(htmlWithShell, page, canonicalPath);
+  return html;
 }
 
 function main() {
@@ -484,18 +384,18 @@ function main() {
     console.error('Missing pseo/pages.json');
     process.exit(1);
   }
-  if (!fs.existsSync(TEMPLATE_PATH)) {
-    console.error('Missing pseo/template.html');
-    process.exit(1);
-  }
   if (!fs.existsSync(INDEX_PATH)) {
     console.error('Missing index.html');
     process.exit(1);
   }
+  if (!fs.existsSync(CONTENT_SECTION_PATH)) {
+    console.error('Missing pseo/content-section.html');
+    process.exit(1);
+  }
 
   const { pages } = loadJson(PAGES_JSON);
-  const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
+  const contentSectionTemplate = fs.readFileSync(CONTENT_SECTION_PATH, 'utf8');
 
   const outputDirs = new Set();
   const generated = [];
@@ -503,6 +403,7 @@ function main() {
   for (const page of pages) {
     const category = page.category;
     const slug = page.slug;
+    const canonicalPath = `/${category}/${slug}`;
     const outputDir = path.join(ROOT, category);
     const outputPath = path.join(outputDir, `${slug}.html`);
 
@@ -511,7 +412,12 @@ function main() {
       outputDirs.add(category);
     }
 
-    const html = buildPage(page, template, indexHtml);
+    const contentSectionHtml = buildContentSection(page, contentSectionTemplate);
+    let html = indexHtml.replace(CONTENT_SECTION_REPLACE_RE, contentSectionHtml);
+    html = html
+      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
+      .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escapeHtml(page.description)}">`)
+      .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${BASE_URL}${canonicalPath}">`);
     fs.writeFileSync(outputPath, html, 'utf8');
     generated.push(`/${category}/${slug}`);
   }
