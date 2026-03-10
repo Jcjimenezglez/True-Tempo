@@ -344,6 +344,13 @@ function getExternalLinks(page) {
   return `<p style="margin-top: 2rem; font-size: 0.95rem; color: rgba(255,255,255,0.6);">Further reading: ${items}</p>`;
 }
 
+function normalizeLocalUrlsToRoot(html) {
+  return html.replace(
+    /(\s(?:href|src)=["'])(?!https?:\/\/|\/\/|\/|#|data:|mailto:|javascript:)([^"']+)(["'])/g,
+    (_, prefix, url, suffix) => `${prefix}/${url}${suffix}`
+  );
+}
+
 function buildContentSection(page, contentSectionTemplate) {
   const slug = page.slug;
   const howWeHelp = getHowWeHelp(page);
@@ -375,8 +382,6 @@ function buildContentSection(page, contentSectionTemplate) {
     .replace(/\{\{FAQ\}\}/g, getFaq(page))
     .replace(/\{\{RELATED_LINKS\}\}/g, getRelatedLinks(page.related))
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
-
-  return html;
 }
 
 function main() {
@@ -416,8 +421,17 @@ function main() {
     let html = indexHtml.replace(CONTENT_SECTION_REPLACE_RE, contentSectionHtml);
     html = html
       .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
+      .replace(/<meta name="title" content="[^"]*">/, `<meta name="title" content="${escapeHtml(page.title)}">`)
       .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escapeHtml(page.description)}">`)
+      .replace(/<meta name="keywords" content="[^"]*">/, `<meta name="keywords" content="${escapeHtml(page.keyword)}, pomodoro timer, focus timer, Superfocus">`)
+      .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${BASE_URL}${canonicalPath}">`)
+      .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escapeHtml(page.title)}">`)
+      .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escapeHtml(page.description)}">`)
+      .replace(/<meta name="twitter:url" content="[^"]*">/, `<meta name="twitter:url" content="${BASE_URL}${canonicalPath}">`)
+      .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${escapeHtml(page.title)}">`)
+      .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${escapeHtml(page.description)}">`)
       .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${BASE_URL}${canonicalPath}">`);
+    html = normalizeLocalUrlsToRoot(html);
     fs.writeFileSync(outputPath, html, 'utf8');
     generated.push(`/${category}/${slug}`);
   }
