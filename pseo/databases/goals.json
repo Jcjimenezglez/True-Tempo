@@ -1,0 +1,101 @@
+{
+  "family": "goals",
+  "entries": [
+    {
+      "slug": "enter-flow-state",
+      "category": "goals",
+      "keyword": "enter flow state",
+      "title": "Enter Flow State - Focus Timer for Deep Work | Superfocus",
+      "description": "Enter flow state with longer focus blocks and ambient sound. Use Flow or Deep Work preset. Try Superfocus free.",
+      "h1": "Enter Flow State: Focus Timer for Deep Work",
+      "preset": "Flow (45/8/25) or Deep Work (90/20/30)",
+      "related": ["/faq/how-to-enter-flow-state", "/techniques/flowtime-timer", "/techniques/deep-work-timer"],
+      "painPoints": "Can't get into flow?<br>Too many interruptions?<br>25 min cuts you off?",
+      "recommendedSounds": "Lofi or rain for sustained focus"
+    },
+    {
+      "slug": "reduce-distractions",
+      "category": "goals",
+      "keyword": "reduce distractions",
+      "title": "Reduce Distractions - Focus Timer with Sounds | Superfocus",
+      "description": "Reduce distractions with a focus timer and ambient sounds. Block noise, structure your work. Try Superfocus free.",
+      "h1": "Reduce Distractions: Focus Timer with Sounds",
+      "preset": "Pomodoro + Cassettes (lofi, rain, cafe)",
+      "related": ["/goals/block-distractions", "/sounds/focus-music", "/techniques/pomodoro-technique"],
+      "painPoints": "Phone, email, noise?<br>Can't stay focused?<br>No system to block distractions?",
+      "recommendedSounds": "Lofi, rain, or white noise"
+    },
+    {
+      "slug": "build-focus-habits",
+      "category": "goals",
+      "keyword": "build focus habits",
+      "title": "Build Focus Habits - Track Sessions & Streaks | Superfocus",
+      "description": "Build focus habits with session tracking and streaks. Pomodoro + analytics. See progress, stay consistent. Try Superfocus.",
+      "h1": "Build Focus Habits: Track Sessions & Streaks",
+      "preset": "Pomodoro + Analytics",
+      "related": ["/productivity-analytics", "/techniques/pomodoro-technique", "/goals/increase-productivity"],
+      "painPoints": "No consistency?<br>Can't see progress?<br>Habits never stick?",
+      "recommendedSounds": "Any cassette for ritual"
+    },
+    {
+      "slug": "avoid-burnout",
+      "category": "goals",
+      "keyword": "avoid burnout",
+      "title": "Avoid Burnout - Focus Timer with Breaks | Superfocus",
+      "description": "Avoid burnout with a focus timer that enforces breaks. Pomodoro, Flow, Deep Work. Rest between sessions. Try Superfocus.",
+      "h1": "Avoid Burnout: Focus Timer with Breaks",
+      "preset": "Pomodoro or Flow (built-in breaks)",
+      "related": ["/techniques/pomodoro-technique", "/faq/pomodoro-break-length", "/goals/build-focus-habits"],
+      "painPoints": "Working until exhaustion?<br>No breaks?<br>Burnout creeping in?",
+      "recommendedSounds": "Rain or lofi for recovery breaks"
+    },
+    {
+      "slug": "increase-productivity",
+      "category": "goals",
+      "keyword": "increase productivity",
+      "title": "Increase Productivity - Focus Timer & Analytics | Superfocus",
+      "description": "Increase productivity with a focus timer and analytics. Block time, track sessions, see patterns. Try Superfocus free.",
+      "h1": "Increase Productivity: Focus Timer & Analytics",
+      "preset": "Pomodoro or Flow + Analytics",
+      "related": ["/productivity-analytics", "/goals/build-focus-habits", "/todoist-pomodoro"],
+      "painPoints": "Busy but not productive?<br>No idea where time goes?<br>Need a system?",
+      "recommendedSounds": "Lofi or cafe for work blocks"
+    },
+    {
+      "slug": "stay-focused-longer",
+      "category": "goals",
+      "keyword": "stay focused longer",
+      "title": "Stay Focused Longer - Extended Focus Blocks | Superfocus",
+      "description": "Stay focused longer with Flow or Deep Work presets. 45 or 90 min blocks. Build stamina. Try Superfocus free.",
+      "h1": "Stay Focused Longer: Extended Focus Blocks",
+      "preset": "Flow (45 min) or Deep Work (90 min)",
+      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/goals/enter-flow-state"],
+      "painPoints": "25 min not enough?<br>Losing focus too soon?<br>Want longer blocks?",
+      "recommendedSounds": "Rain or lofi for extended sessions"
+    },
+    {
+      "slug": "block-distractions",
+      "category": "goals",
+      "keyword": "block distractions",
+      "title": "Block Distractions - Focus Timer & Ambient Sounds | Superfocus",
+      "description": "Block distractions with a focus timer and ambient sounds. Lofi, rain, cafe. Structure + sound. Try Superfocus free.",
+      "h1": "Block Distractions: Focus Timer & Ambient Sounds",
+      "preset": "Any preset + Cassettes",
+      "related": ["/goals/reduce-distractions", "/sounds/white-noise-focus", "/sounds/focus-music"],
+      "painPoints": "Noise, notifications, scroll?<br>Can't block the world?<br>Need to focus now?",
+      "recommendedSounds": "White noise, lofi, or rain"
+    },
+    {
+      "slug": "focus-without-phone",
+      "category": "goals",
+      "keyword": "focus without phone",
+      "title": "Focus Without Phone - Browser-Based Timer | Superfocus",
+      "description": "Focus without phone: Superfocus runs in your browser. No app, no pick-up. Pomodoro, sounds, tasks. Try free.",
+      "h1": "Focus Without Phone: Browser-Based Timer",
+      "preset": "Pomodoro or any preset",
+      "related": ["/compare/superfocus-vs-forest", "/alternatives/forest-app", "/use-cases/remote-work-focus"],
+      "painPoints": "Phone = distraction?<br>Need timer without app?<br>Want browser-based?",
+      "recommendedSounds": "Any cassette"
+    }
+  ]
+}

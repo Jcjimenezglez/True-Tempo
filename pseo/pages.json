@@ -8,7 +8,7 @@
       "h1": "Pomodoro Technique: The 25-Minute Focus Method",
       "keyword": "pomodoro technique",
       "preset": "Pomodoro (25/5/15 min)",
-      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/use-cases/study-timer", "/techniques/20-minute-focus"]
+      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/use-cases/study-timer", "/techniques/20-minute-focus", "/goals/enter-flow-state"]
     },
     {
       "slug": "flowtime-timer",
@@ -18,7 +18,7 @@
       "h1": "Flowtime Timer: Flexible Focus Beyond Pomodoro",
       "keyword": "flowtime method",
       "preset": "Flow (45/8/25 min)",
-      "related": ["/techniques/pomodoro-technique", "/techniques/deep-work-timer", "/use-cases/coding-focus-timer"]
+      "related": ["/techniques/pomodoro-technique", "/techniques/deep-work-timer", "/use-cases/coding-focus-timer", "/goals/enter-flow-state"]
     },
     {
       "slug": "time-blocking-timer",
@@ -38,7 +38,7 @@
       "h1": "Deep Work Timer: 90-Minute Focus Sessions",
       "keyword": "deep work timer",
       "preset": "Deep Work (90/20/30 min)",
-      "related": ["/techniques/flowtime-timer", "/techniques/90-minute-deep-work", "/use-cases/coding-focus-timer"]
+      "related": ["/techniques/flowtime-timer", "/techniques/90-minute-deep-work", "/use-cases/coding-focus-timer", "/goals/enter-flow-state"]
     },
     {
       "slug": "sprint-timer",
@@ -88,7 +88,7 @@
       "h1": "Best Study Timer for Students",
       "keyword": "study timer",
       "preset": "Pomodoro or Sprint",
-      "related": ["/use-cases/exam-prep-timer", "/sounds/lofi-study-music", "/techniques/pomodoro-technique", "/use-cases/study-timer-for-flashcards"]
+      "related": ["/use-cases/exam-prep-timer", "/sounds/lofi-study-music", "/techniques/pomodoro-technique", "/use-cases/study-timer-for-flashcards", "/professions/focus-timer-for-teachers"]
     },
     {
       "slug": "work-timer",
@@ -138,7 +138,7 @@
       "h1": "ADHD Focus Timer: Short Sprints That Work",
       "keyword": "ADHD focus timer",
       "preset": "Sprint (15/3/10 min)",
-      "related": ["/techniques/sprint-timer", "/sounds/white-noise-focus", "/use-cases/study-timer"]
+      "related": ["/techniques/sprint-timer", "/sounds/white-noise-focus", "/use-cases/study-timer", "/faq/pomodoro-for-adhd"]
     },
     {
       "slug": "student-productivity",
@@ -268,7 +268,7 @@
       "h1": "Productivity Analytics: Track Focus Time",
       "keyword": "productivity analytics",
       "preset": "Any timer + Premium",
-      "related": ["/focus-time-tracking", "/pomodoro-statistics", "/use-cases/freelancer-productivity"]
+      "related": ["/focus-time-tracking", "/pomodoro-statistics", "/use-cases/freelancer-productivity", "/goals/build-focus-habits"]
     },
     {
       "slug": "focus-time-tracking",

@@ -1,0 +1,89 @@
+{
+  "family": "activities",
+  "entries": [
+    {
+      "slug": "focus-timer-for-email",
+      "category": "activities",
+      "keyword": "focus timer for email",
+      "title": "Focus Timer for Email - Inbox Zero & Triage | Superfocus",
+      "description": "Focus timer for email. Sprint or Pomodoro for inbox triage and batch processing. Block time, reduce reactivity.",
+      "h1": "Focus Timer for Email: Inbox Zero & Triage",
+      "preset": "Sprint (15/3/10) or Pomodoro",
+      "related": ["/use-cases/meeting-prep-timer", "/activities/focus-timer-for-admin-tasks", "/techniques/sprint-timer"],
+      "painPoints": "Inbox never empty?<br>Reacting to every ping?<br>No batch for email?",
+      "recommendedSounds": "Minimal lofi or white noise"
+    },
+    {
+      "slug": "focus-timer-for-research",
+      "category": "activities",
+      "keyword": "focus timer for research",
+      "title": "Focus Timer for Research - Deep Dives & Synthesis | Superfocus",
+      "description": "Focus timer for research. Pomodoro or Flow for reading, note-taking, synthesis. Structure your research sessions.",
+      "h1": "Focus Timer for Research: Deep Dives & Synthesis",
+      "preset": "Pomodoro or Flow",
+      "related": ["/use-cases/study-timer-for-reading", "/professions/focus-timer-for-researchers", "/techniques/flowtime-timer"],
+      "painPoints": "Research rabbit holes?<br>No structure for deep dives?<br>Can't synthesize notes?",
+      "recommendedSounds": "Rain or ambient for reading"
+    },
+    {
+      "slug": "focus-timer-for-content-creation",
+      "category": "activities",
+      "keyword": "focus timer for content creation",
+      "title": "Focus Timer for Content Creation - Writing & Editing | Superfocus",
+      "description": "Focus timer for content creation. Pomodoro or Marathon for drafting, editing, publishing. Block creative time.",
+      "h1": "Focus Timer for Content Creation: Writing & Editing",
+      "preset": "Pomodoro or Marathon",
+      "related": ["/use-cases/writing-timer", "/activities/focus-timer-for-brainstorming", "/sounds/rain-sounds-focus"],
+      "painPoints": "Content deadlines missed?<br>No blocks for drafting?<br>Editing scattered?",
+      "recommendedSounds": "Rain or lofi for writing"
+    },
+    {
+      "slug": "focus-timer-for-brainstorming",
+      "category": "activities",
+      "keyword": "focus timer for brainstorming",
+      "title": "Focus Timer for Brainstorming - Idea Generation | Superfocus",
+      "description": "Focus timer for brainstorming. Short Sprints for idea bursts. Time-box ideation, avoid endless loops.",
+      "h1": "Focus Timer for Brainstorming: Idea Generation",
+      "preset": "Sprint (15/3/10)",
+      "related": ["/activities/focus-timer-for-planning", "/techniques/sprint-timer", "/use-cases/meeting-prep-timer"],
+      "painPoints": "Brainstorming goes nowhere?<br>No time limit on ideation?<br>Ideas scattered?",
+      "recommendedSounds": "Cafe or ambient for creative flow"
+    },
+    {
+      "slug": "focus-timer-for-admin-tasks",
+      "category": "activities",
+      "keyword": "focus timer for admin tasks",
+      "title": "Focus Timer for Admin Tasks - Batching & Focus | Superfocus",
+      "description": "Focus timer for admin tasks. Sprint or Pomodoro for data entry, filing, updates. Batch admin, free time for deep work.",
+      "h1": "Focus Timer for Admin Tasks: Batching & Focus",
+      "preset": "Sprint or Pomodoro",
+      "related": ["/activities/focus-timer-for-email", "/techniques/time-blocking-timer", "/todoist-pomodoro"],
+      "painPoints": "Admin tasks scattered?<br>No time to batch?<br>Always interrupted?",
+      "recommendedSounds": "White noise or minimal lofi"
+    },
+    {
+      "slug": "focus-timer-for-reviews",
+      "category": "activities",
+      "keyword": "focus timer for reviews",
+      "title": "Focus Timer for Reviews - Code, Docs & Feedback | Superfocus",
+      "description": "Focus timer for reviews. Pomodoro for code review, doc review, feedback. Block focus for thorough review.",
+      "h1": "Focus Timer for Reviews: Code, Docs & Feedback",
+      "preset": "Pomodoro (25/5/15)",
+      "related": ["/use-cases/coding-focus-timer", "/activities/focus-timer-for-email", "/techniques/pomodoro-technique"],
+      "painPoints": "Reviews piling up?<br>No focus for thorough review?<br>Scattered feedback?",
+      "recommendedSounds": "Lofi or white noise"
+    },
+    {
+      "slug": "focus-timer-for-planning",
+      "category": "activities",
+      "keyword": "focus timer for planning",
+      "title": "Focus Timer for Planning - Weekly & Daily Setup | Superfocus",
+      "description": "Focus timer for planning. Sprint or Pomodoro for weekly review, daily planning, goal setting. Block planning time.",
+      "h1": "Focus Timer for Planning: Weekly & Daily Setup",
+      "preset": "Sprint or Pomodoro",
+      "related": ["/techniques/time-blocking-timer", "/todoist-pomodoro", "/activities/focus-timer-for-admin-tasks"],
+      "painPoints": "No time for planning?<br>Days start chaotic?<br>Goals never reviewed?",
+      "recommendedSounds": "Minimal ambient or silence"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
  * Build script for pSEO Phase 1 + Phase 2A pages.
  * Uses index.html as base (timer + sidebar + full app UI) and replaces only the content-section.
  * Loads pages.json (Phase 1) + pseo/databases/*.json (Phase 2A).
- * Output: techniques/, use-cases/, sounds/, workflows/, analytics/, compare/, alternatives/
+ * Output: techniques/, use-cases/, sounds/, workflows/, analytics/, compare/, alternatives/, professions/, activities/, faq/, goals/
  */
 
 const fs = require('fs');
@@ -73,7 +73,11 @@ function getStopPain(page) {
     workflows: 'Tasks piling up?<br>No system to focus?<br>Losing track of what matters?',
     analytics: 'No idea how much you focus?<br>Can\'t see progress?<br>Want to build better habits?',
     compare: 'Comparing focus apps?<br>Need features that actually work?<br>Want one app that does it all?',
-    alternatives: 'Looking for a better focus app?<br>Need timers + sounds + tasks?<br>Want to try something new?'
+    alternatives: 'Looking for a better focus app?<br>Need timers + sounds + tasks?<br>Want to try something new?',
+    professions: 'Chaotic workdays?<br>No time for deep work?<br>Can\'t focus in your role?',
+    activities: 'Scattered tasks?<br>No structure for your work?<br>Time flying without progress?',
+    faq: 'Have questions about focus timers?<br>Want clear answers?<br>Need to know how it works?',
+    goals: 'Want to focus better?<br>Struggling with distractions?<br>Need a system that works?'
   };
   return pains[cat] || pains.techniques;
 }
@@ -87,7 +91,11 @@ function getStopSolution(page) {
     workflows: 'Combine timer with tasks.<br>Track pomodoros per project.<br>Stay on top of your work.',
     analytics: 'Track focus time. Spot patterns.<br>Build lasting habits.<br>See how much you accomplish.',
     compare: 'Superfocus combines timer, sounds, tasks, and analytics.<br>One app. No compromises.<br>Try it free.',
-    alternatives: 'Superfocus: timer, cassettes, tasks, analytics.<br>Free to start. No credit card.<br>Focus better today.'
+    alternatives: 'Superfocus: timer, cassettes, tasks, analytics.<br>Free to start. No credit card.<br>Focus better today.',
+    professions: 'Block time for your role.<br>Use a timer that fits your work.<br>See results every day.',
+    activities: 'Block time for the task.<br>Use Pomodoro or Flow presets.<br>Get it done in focus blocks.',
+    faq: 'Get clear answers.<br>Try Superfocus free.<br>See how it works.',
+    goals: 'Focus a little. Get more done.<br>Block distractions. Build habits.<br>Try Superfocus free.'
   };
   return sols[cat] || sols.techniques;
 }
@@ -158,6 +166,42 @@ function getHowWeHelp(page) {
         { title: 'Block distractions', text: 'Ambient sounds built in. No separate app needed.' },
         { title: 'See progress', text: 'Tasks, analytics, leaderboard. All included. Free to start.' }
       ]
+    },
+    professions: {
+      title: `How Superfocus helps <em>${keyword.replace(/ focus timer for /i, '').replace(/s$/, 's')}</em>`,
+      tagline: 'Block time for deep work. Use a timer that fits your role.',
+      blocks: [
+        { title: 'Stay in flow', text: 'Pomodoro, Flow, or Deep Work. Pick your block length. Focus without deciding.' },
+        { title: 'Block distractions', text: 'Ambient sounds and focus music. Block noise. Enter flow faster.' },
+        { title: 'See progress', text: 'Track sessions and streaks. Stay motivated. Build habits that stick.' }
+      ]
+    },
+    activities: {
+      title: `How Superfocus helps you <em>${keyword.replace(/ focus timer for /i, '').replace(/ timer$/i, '')}</em>`,
+      tagline: 'Structure your tasks. Block time. Get it done.',
+      blocks: [
+        { title: 'Stay in flow', text: 'Pomodoro or Flow presets. Short sprints or long blocks. Match the activity.' },
+        { title: 'Block distractions', text: 'Lofi, rain, cafe. Ambient cassettes. Focus without scroll or ping.' },
+        { title: 'See progress', text: 'Track sessions per task. Spot patterns. Improve over time.' }
+      ]
+    },
+    faq: {
+      title: 'How Superfocus helps you <em>focus</em>',
+      tagline: 'Clear answers. One app. Free to try.',
+      blocks: [
+        { title: 'Stay in flow', text: 'Pomodoro, Flow, Sprint, Deep Work. Pick what fits.' },
+        { title: 'Block distractions', text: 'Lofi, rain, cafe. Ambient cassettes. Spotify integration.' },
+        { title: 'See progress', text: 'Task tracking. Analytics. Leaderboard. All included.' }
+      ]
+    },
+    goals: {
+      title: `How Superfocus helps you <em>${keyword.replace(/ timer$/i, '').replace(/-/g, ' ')}</em>`,
+      tagline: 'Reach your focus goals. One block at a time.',
+      blocks: [
+        { title: 'Stay in flow', text: 'Timers that match your goal. Pomodoro, Flow, or Deep Work.' },
+        { title: 'Block distractions', text: 'Ambient sounds. Block noise. Enter flow state faster.' },
+        { title: 'See progress', text: 'Track sessions. Build habits. Achieve your focus goals.' }
+      ]
     }
   };
   return defaults[cat] || defaults.techniques;
@@ -165,6 +209,10 @@ function getHowWeHelp(page) {
 
 function getPresetSection(page) {
   const preset = page.preset || 'Pomodoro (25/5/15 min)';
+  if (page.category === 'faq') {
+    return `<h2>Recommended Superfocus Preset</h2>
+                <p>Superfocus has built-in presets: <strong>${escapeHtml(preset)}</strong>. Pomodoro, Flow, Sprint, Deep Work, and Marathon—plus ambient cassettes (lofi, rain, cafe) to block noise and help you enter flow state. <a href="https://www.superfocus.live/" class="inline-text-link">Try it free</a>.</p>`;
+  }
   return `<h2>Recommended Superfocus Preset</h2>
                 <p>For ${page.keyword}, we recommend <strong>${escapeHtml(preset)}</strong>. Superfocus has built-in presets for Pomodoro, Flow, Sprint, Deep Work, and Marathon—plus ambient cassettes (lofi, rain, cafe) to block noise and help you enter flow state.</p>`;
 }
@@ -187,7 +235,8 @@ function getWhatIs(page) {
   };
   let heading = headingMap[slug];
   if (!heading) {
-    if (cat === 'compare' || cat === 'alternatives') heading = 'Superfocus';
+    if (cat === 'faq') heading = 'the answer'; // Template uses "What is X?"; FAQ answer goes in paragraph
+    else if (cat === 'compare' || cat === 'alternatives') heading = 'Superfocus';
     else if (keyword.match(/^(a|an|the)\s/i)) heading = keyword;
     else heading = `a ${keyword}`;
   }
@@ -219,6 +268,9 @@ function getWhatIs(page) {
     'best-pomodoro-apps': 'Superfocus is among the best Pomodoro apps for 2026. Pomodoro, Flow, Deep Work presets; ambient sounds; Todoist sync; and analytics. Free to start, no credit card.'
   };
   let paragraph = paragraphMap[slug];
+  if (!paragraph && cat === 'faq' && (page.answer || page.description)) {
+    paragraph = page.answer || page.description;
+  }
   if (!paragraph && (cat === 'compare' || cat === 'alternatives') && page.compareAngle) {
     const comp = page.competitor;
     const compUrl = page.competitorUrl;
@@ -235,6 +287,7 @@ function getWhatIs(page) {
 
 function getTopicSection(page) {
   const slug = page.slug;
+  if (page.category === 'faq') return '';
   const needsPomodoro = ['pomodoro-technique', 'study-timer', 'work-timer', 'exam-prep-timer', 'todoist-pomodoro', 'task-planning-workflow'].includes(slug) ||
     (typeof slug === 'string' && slug.startsWith('study-timer-for-')) ||
     (page.keyword && page.keyword.toLowerCase().includes('pomodoro'));
@@ -267,6 +320,10 @@ function getHowToHeading(page) {
   if (cat === 'sounds') return `How to use focus music with Superfocus?`;
   if (cat === 'workflows') return 'How to set up the workflow?';
   if (cat === 'analytics') return 'How to track focus time?';
+  if (cat === 'professions') return `How to use a focus timer for ${page.keyword.replace(/focus timer for /i, '')}?`;
+  if (cat === 'activities') return `How to use a focus timer for ${page.keyword.replace(/focus timer for /i, '').replace(/ timer$/i, '')}?`;
+  if (cat === 'goals') return `How to ${page.keyword.replace(/ timer$/i, '').replace(/-/g, ' ')} with Superfocus?`;
+  if (cat === 'faq') return 'How to get started with Superfocus?';
   return 'How to get started?';
 }
 
@@ -299,6 +356,13 @@ function getHowToSteps(page) {
       '<li>Upgrade to Premium to see daily, weekly, monthly analytics</li>'
     ].join('\n                    ');
   }
+  if (cat === 'faq') {
+    return [
+      '<li>Go to superfocus.live (no signup required to try)</li>',
+      '<li>Pick a preset (Pomodoro, Flow, Sprint, etc.)</li>',
+      '<li>Start the timer and focus</li>'
+    ].join('\n                    ');
+  }
   return base.join('\n                    ');
 }
 
@@ -320,17 +384,25 @@ function getFeatures(page) {
 function getFaq(page) {
   const category = page.category;
   const keyword = page.keyword;
-  const baseFaq = [
-    { q: `What is the best ${keyword}?`, a: `Superfocus offers ${page.preset || 'Pomodoro'} plus ambient sounds, task tracking, and analytics. Free to try.` },
-    { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 1 hour. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
-    { q: 'Does Superfocus have ambient sounds?', a: 'Yes. Superfocus includes lofi, rain, cafe, and other focus cassettes. You can also add your own Spotify playlists.' },
-    { q: 'What problem does Superfocus solve?', a: 'Superfocus helps you stay focused, avoid burnout, and track progress. It combines a Pomodoro timer with ambient sounds, task management, and productivity insights—so you can get into flow, maintain energy, and see how much you accomplish.' }
-  ];
-  if (category === 'compare' && page.competitor) {
+  let baseFaq;
+  if (Array.isArray(page.faq) && page.faq.length > 0) {
+    baseFaq = page.faq.map(f => ({ q: f.q, a: f.a }));
+  } else {
+    baseFaq = [
+      { q: `What is the best ${keyword}?`, a: `Superfocus offers ${page.preset || 'Pomodoro'} plus ambient sounds, task tracking, and analytics. Free to try.` },
+      { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 1 hour. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
+      { q: 'Does Superfocus have ambient sounds?', a: 'Yes. Superfocus includes lofi, rain, cafe, and other focus cassettes. You can also add your own Spotify playlists.' },
+      { q: 'What problem does Superfocus solve?', a: 'Superfocus helps you stay focused, avoid burnout, and track progress. It combines a Pomodoro timer with ambient sounds, task management, and productivity insights—so you can get into flow, maintain energy, and see how much you accomplish.' }
+    ];
+  }
+  if (category === 'compare' && page.competitor && !Array.isArray(page.faq)) {
     baseFaq.unshift({
       q: `Which is better: Superfocus or ${page.competitor}?`,
       a: `Superfocus adds ambient sounds, Todoist sync, analytics, and multiple timer presets (Pomodoro, Flow, Deep Work). ${page.competitor} has its own strengths. Try Superfocus free to compare.`
     });
+  }
+  if (category === 'faq' && !Array.isArray(page.faq) && page.h1 && page.answer) {
+    baseFaq.unshift({ q: page.h1, a: page.answer });
   }
   return baseFaq.map((f, i) => {
     const n = i + 1;
