@@ -56,6 +56,18 @@
         // Make hashEmail available globally for Enhanced Conversions
         window.hashEmail = hashEmail;
 
+        async function waitForGoogleTag(maxAttempts = 15, delayMs = 200) {
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                if (typeof window.gtag === 'function') {
+                    return window.gtag;
+                }
+
+                await new Promise((resolve) => window.setTimeout(resolve, delayMs));
+            }
+
+            return null;
+        }
+
         async function trackGoogleAdsConversion({
             sendTo,
             value = 1.0,
@@ -65,7 +77,8 @@
             timeoutMs = 1500,
             debugLabel = 'Google Ads conversion'
         } = {}) {
-            if (typeof window.gtag !== 'function') {
+            const gtagFn = await waitForGoogleTag();
+            if (typeof gtagFn !== 'function') {
                 console.warn(`⚠️ ${debugLabel} skipped: gtag not available`);
                 return false;
             }
@@ -75,7 +88,7 @@
                     try {
                         const hashedEmail = await window.hashEmail(email);
                         if (hashedEmail) {
-                            window.gtag('set', 'user_data', {
+                            gtagFn('set', 'user_data', {
                                 'sha256_email_address': hashedEmail
                             });
                             console.log(`✅ Enhanced Conversions: User data set (${debugLabel})`);
@@ -116,7 +129,7 @@
                         conversionData.transaction_id = transactionId;
                     }
 
-                    window.gtag('event', 'conversion', conversionData);
+                    gtagFn('event', 'conversion', conversionData);
                 });
             } catch (error) {
                 console.error(`❌ Error tracking ${debugLabel}:`, error);

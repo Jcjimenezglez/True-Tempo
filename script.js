@@ -34,6 +34,18 @@ async function hashEmail(email) {
 // Make hashEmail available globally for Enhanced Conversions
 window.hashEmail = hashEmail;
 
+async function waitForGoogleTag(maxAttempts = 15, delayMs = 200) {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        if (typeof window.gtag === 'function') {
+            return window.gtag;
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, delayMs));
+    }
+
+    return null;
+}
+
 async function trackGoogleAdsConversion({
     sendTo,
     value = 1.0,
@@ -43,7 +55,8 @@ async function trackGoogleAdsConversion({
     timeoutMs = 1500,
     debugLabel = 'Google Ads conversion'
 } = {}) {
-    if (typeof window.gtag !== 'function') {
+    const gtagFn = await waitForGoogleTag();
+    if (typeof gtagFn !== 'function') {
         console.warn(`⚠️ ${debugLabel} skipped: gtag not available`);
         return false;
     }
@@ -53,7 +66,7 @@ async function trackGoogleAdsConversion({
             try {
                 const hashedEmail = await window.hashEmail(email);
                 if (hashedEmail) {
-                    window.gtag('set', 'user_data', {
+                    gtagFn('set', 'user_data', {
                         'sha256_email_address': hashedEmail
                     });
                     console.log(`✅ Enhanced Conversions: User data set (${debugLabel})`);
@@ -94,7 +107,7 @@ async function trackGoogleAdsConversion({
                 conversionData.transaction_id = transactionId;
             }
 
-            window.gtag('event', 'conversion', conversionData);
+            gtagFn('event', 'conversion', conversionData);
         });
     } catch (error) {
         console.error(`❌ Error tracking ${debugLabel}:`, error);
@@ -1042,6 +1055,7 @@ class PomodoroTimer {
     
     init() {
         this.captureAdsClickIds();
+        this.handleStripeCheckoutReturn();
         this.initializeReferralUi();
         this.captureReferralCode();
         this.layoutSegments();
@@ -8298,17 +8312,15 @@ class PomodoroTimer {
 
     async trackTrialStartedConversion(sessionId, paymentType = 'monthly', userEmail = '', source = 'stripe_checkout') {
         if (!sessionId || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
-            return;
+            return false;
         }
 
         if (!this._trackedCheckoutConversionSessions) {
             this._trackedCheckoutConversionSessions = new Set();
         }
         if (this._trackedCheckoutConversionSessions.has(sessionId)) {
-            return;
+            return true;
         }
-
-        this._trackedCheckoutConversionSessions.add(sessionId);
 
         if (window.mixpanelTracker) {
             window.mixpanelTracker.trackCustomEvent('Premium Success', {
@@ -8325,7 +8337,7 @@ class PomodoroTimer {
             const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
             const conversionValue = 3.99;
 
-            await trackGoogleAdsConversion({
+            const tracked = await trackGoogleAdsConversion({
                 sendTo: conversionLabel,
                 value: conversionValue,
                 currency: 'USD',
@@ -8333,9 +8345,17 @@ class PomodoroTimer {
                 transactionId: sessionId,
                 debugLabel: `Subscribe (2) ${paymentType}`
             });
+            if (!tracked) {
+                console.warn(`⚠️ Google Ads Subscribe (2) not confirmed for ${sessionId}; keeping it retryable`);
+                return false;
+            }
+
+            this._trackedCheckoutConversionSessions.add(sessionId);
             console.log(`📊 Google Ads Subscribe (2) conversion tracked for ${paymentType}: $${conversionValue}`);
+            return true;
         } catch (gtagError) {
             console.error('⚠️ Google Ads conversion tracking failed:', gtagError);
+            return false;
         }
     }
 
@@ -8344,6 +8364,19 @@ class PomodoroTimer {
             const url = new URL(window.location.href);
             const sessionId = url.searchParams.get('session_id');
             if (!sessionId) return;
+
+            const planTypeFromUrl = url.searchParams.get('plan') || 'monthly';
+            const optimisticEmail =
+                window.Clerk?.user?.primaryEmailAddress?.emailAddress ||
+                window.Clerk?.user?.emailAddresses?.[0]?.emailAddress ||
+                '';
+
+            await this.trackTrialStartedConversion(
+                sessionId,
+                planTypeFromUrl,
+                optimisticEmail,
+                'stripe_checkout_return'
+            );
 
             // Force check Clerk session if not authenticated
             if (!this.isAuthenticated || !this.user) {
@@ -8422,8 +8455,10 @@ class PomodoroTimer {
 
                 // Last-resort fallback: keep attribution signal when backend confirmation fails
                 // after multiple retries, using Stripe's success return session id.
-                await this.trackTrialStartedConversion(sessionId, 'monthly', userEmail, 'stripe_checkout_fallback');
-                this.removeUrlParams(['session_id']);
+                const fallbackTracked = await this.trackTrialStartedConversion(sessionId, 'monthly', userEmail, 'stripe_checkout_fallback');
+                if (fallbackTracked) {
+                    this.removeUrlParams(['session_id']);
+                }
                 return;
             }
 
@@ -8431,10 +8466,15 @@ class PomodoroTimer {
             console.log('✅ Checkout session confirmed with backend:', confirmData);
             const paymentType = confirmData.paymentType || 'monthly';
 
-            await this.trackTrialStartedConversion(sessionId, paymentType, userEmail, 'stripe_checkout');
+            const tracked = await this.trackTrialStartedConversion(sessionId, paymentType, userEmail, 'stripe_checkout');
             
             await this.refreshPremiumFromServer();
-            this.removeUrlParams(['session_id']);
+            if (tracked) {
+                this.removeUrlParams(['session_id']);
+            } else if (retryCount < 10) {
+                this.confirmedCheckoutSessionId = null;
+                setTimeout(() => this.handleStripeCheckoutReturn(retryCount + 1), 1000);
+            }
         } catch (error) {
             console.error('Error handling checkout confirmation:', error);
             if (retryCount < 10) {
