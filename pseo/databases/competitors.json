@@ -5,179 +5,319 @@
       "slug": "superfocus-vs-brain-fm",
       "category": "compare",
       "keyword": "Superfocus vs Brain.fm",
-      "title": "Superfocus vs Brain.fm - Focus Timer vs Focus Music 2026",
-      "description": "Superfocus vs Brain.fm: timer + sounds vs AI focus music. Compare features, pricing, and which fits your workflow.",
-      "h1": "Superfocus vs Brain.fm: Focus Timer vs Focus Music",
+      "title": "Brain.fm + Timer = Two Apps. Superfocus = One | Superfocus",
+      "description": "Timer + lofi/rain/cafe in one app. Compare vs Brain.fm. Try Superfocus free.",
+      "h1": "Brain.fm plays focus music. Then you still need a timer somewhere else.",
       "competitor": "Brain.fm",
       "competitorUrl": "https://www.brain.fm",
       "compareAngle": "Brain.fm focuses on AI-generated focus music. Superfocus combines a Pomodoro timer with lofi, rain, cafe cassettes, and Todoist sync.",
       "preset": "Pomodoro or Deep Work + Cassettes",
-      "related": ["/compare/superfocus-vs-pomofocus", "/alternatives/brain-fm-alternative", "/sounds/focus-music"],
-      "externalLinks": [{"url": "https://www.brain.fm", "text": "Brain.fm"}]
+      "related": [
+        "/compare/superfocus-vs-pomofocus",
+        "/alternatives/brain-fm-alternative",
+        "/sounds/focus-music"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://www.brain.fm",
+          "text": "Brain.fm"
+        }
+      ],
+      "heroSubtitle": "Two subscriptions, two apps, two tabs—focus shouldn't require a tech stack.",
+      "painPoints": "Music app. Timer app.<br>Double cost. Double friction.<br>Focus fragmented.",
+      "painSolution": "Sounds + timer together.<br>One app. One tab.<br>Start faster."
     },
     {
       "slug": "superfocus-vs-be-focused",
       "category": "compare",
       "keyword": "Superfocus vs Be Focused",
-      "title": "Superfocus vs Be Focused - Pomodoro Timer Comparison 2026",
-      "description": "Superfocus vs Be Focused: compare Pomodoro timers. Ambient sounds, task sync, analytics. Try Superfocus free.",
-      "h1": "Superfocus vs Be Focused: Pomodoro Timer Comparison",
+      "title": "Be Focused Is iOS Only. Superfocus Is Browser | Superfocus",
+      "description": "Full Pomodoro in browser + sounds + analytics. No App Store needed. Compare free.",
+      "h1": "Be Focused lives on your phone. Your work lives on your laptop.",
       "competitor": "Be Focused",
       "competitorUrl": "https://xwavesoft.com/be-focused",
       "compareAngle": "Be Focused is a Pomodoro timer for iOS. Superfocus runs in the browser with lofi, rain, Todoist sync, and productivity analytics.",
       "preset": "Pomodoro (25/5/15 min)",
-      "related": ["/alternatives/be-focused-alternative", "/compare/superfocus-vs-pomofocus", "/techniques/pomodoro-technique"],
-      "externalLinks": [{"url": "https://xwavesoft.com/be-focused", "text": "Be Focused"}]
+      "related": [
+        "/alternatives/be-focused-alternative",
+        "/compare/superfocus-vs-pomofocus",
+        "/techniques/pomodoro-technique"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://xwavesoft.com/be-focused",
+          "text": "Be Focused"
+        }
+      ],
+      "heroSubtitle": "iOS-only timers don't help when the document you need to write is on desktop.",
+      "painPoints": "Phone timer. Desktop work.<br>Platform mismatch.<br>Focus in wrong place.",
+      "painSolution": "Browser timer.<br>Where work happens.<br>No install needed."
     },
     {
       "slug": "superfocus-vs-marinara",
       "category": "compare",
       "keyword": "Superfocus vs Marinara Timer",
-      "title": "Superfocus vs Marinara Timer - Chrome Extension vs Web App 2026",
-      "description": "Superfocus vs Marinara Timer: full web app with sounds and analytics vs Chrome-only timer. Compare and choose.",
-      "h1": "Superfocus vs Marinara Timer: Chrome Extension vs Web App",
+      "title": "Outgrew Marinara Extension? Full Focus App | Superfocus",
+      "description": "Beyond Chrome extension: sounds, Todoist, analytics. Compare Marinara vs Superfocus. Free.",
+      "h1": "Marinara lives in Chrome. Your focus needs more than an extension.",
       "competitor": "Marinara Timer",
       "competitorUrl": "https://chromewebstore.google.com/detail/marinara-pomodoro-assistant/ggnjbdfgigejghbclmfgcbfkfgbjmhnf",
       "compareAngle": "Marinara is a Chrome extension. Superfocus is a full web app with ambient cassettes, Todoist sync, tasks, and analytics.",
       "preset": "Pomodoro (25/5/15 min)",
-      "related": ["/alternatives/marinara-alternative", "/compare/superfocus-vs-pomofocus", "/use-cases/work-timer"],
-      "externalLinks": [{"url": "https://chromewebstore.google.com/detail/marinara-pomodoro-assistant/ggnjbdfgigejghbclmfgcbfkfgbjmhnf", "text": "Marinara Timer"}]
+      "related": [
+        "/alternatives/marinara-alternative",
+        "/compare/superfocus-vs-pomofocus",
+        "/use-cases/work-timer"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://chromewebstore.google.com/detail/marinara-pomodoro-assistant/ggnjbdfgigejghbclmfgcbfkfgbjmhnf",
+          "text": "Marinara Timer"
+        }
+      ],
+      "heroSubtitle": "A browser extension timer is fine until you need sounds, tasks, and analytics too.",
+      "painPoints": "Extension only. No sounds.<br>No tasks. No stats.<br>Outgrown it.",
+      "painSolution": "Full web app.<br>Timer + everything else.<br>Same browser. More power."
     },
     {
       "slug": "superfocus-vs-focus-keeper",
       "category": "compare",
       "keyword": "Superfocus vs Focus Keeper",
-      "title": "Superfocus vs Focus Keeper - Pomodoro App Comparison 2026",
-      "description": "Superfocus vs Focus Keeper: compare Pomodoro apps. Web vs mobile. Sounds, tasks, and analytics.",
-      "h1": "Superfocus vs Focus Keeper: Pomodoro App Comparison",
+      "title": "Focus Keeper on Phone, Work on Laptop? | Superfocus",
+      "description": "Browser Pomodoro with sounds and analytics. Desktop-first focus. Compare free.",
+      "h1": "Focus Keeper tracks pomodoros on mobile. Your report is due on desktop.",
       "competitor": "Focus Keeper",
       "competitorUrl": "https://www.focuskeeper.co",
       "compareAngle": "Focus Keeper is a mobile Pomodoro app. Superfocus runs in the browser with lofi, rain, cafe, Todoist sync, and focus analytics.",
       "preset": "Pomodoro or Flow",
-      "related": ["/alternatives/focus-keeper-alternative", "/compare/superfocus-vs-forest", "/techniques/pomodoro-technique"],
-      "externalLinks": [{"url": "https://www.focuskeeper.co", "text": "Focus Keeper"}]
+      "related": [
+        "/alternatives/focus-keeper-alternative",
+        "/compare/superfocus-vs-forest",
+        "/techniques/pomodoro-technique"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://www.focuskeeper.co",
+          "text": "Focus Keeper"
+        }
+      ],
+      "heroSubtitle": "Mobile-first focus tools miss where knowledge work actually happens.",
+      "painPoints": "Phone app. Desktop work.<br>Stats on wrong device.<br>Disconnect.",
+      "painSolution": "Focus where you type.<br>Browser-based. Full features.<br>One place for everything."
     },
     {
       "slug": "superfocus-vs-ticktick",
       "category": "compare",
       "keyword": "Superfocus vs TickTick Pomodoro",
-      "title": "Superfocus vs TickTick Pomodoro - Timer + Tasks Comparison 2026",
-      "description": "Superfocus vs TickTick: compare Pomodoro features. Superfocus syncs with Todoist; TickTick has built-in timer. See which fits.",
-      "h1": "Superfocus vs TickTick Pomodoro: Timer + Tasks",
+      "title": "TickTick Timer Not Enough? Superfocus + Todoist | Superfocus",
+      "description": "Focus-first timer with Todoist sync. Sounds, analytics, deep work presets. Compare free.",
+      "h1": "TickTick has a timer buried in a task app. You need focus first.",
       "competitor": "TickTick",
       "competitorUrl": "https://ticktick.com",
       "compareAngle": "TickTick has a built-in Pomodoro timer. Superfocus specializes in focus with ambient sounds, Todoist sync, and productivity analytics.",
       "preset": "Pomodoro + Todoist sync",
-      "related": ["/alternatives/ticktick-pomodoro-alternative", "/todoist-pomodoro", "/use-cases/work-timer"],
-      "externalLinks": [{"url": "https://ticktick.com", "text": "TickTick"}]
+      "related": [
+        "/alternatives/ticktick-pomodoro-alternative",
+        "/todoist-pomodoro",
+        "/use-cases/work-timer"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://ticktick.com",
+          "text": "TickTick"
+        }
+      ],
+      "heroSubtitle": "Task managers with bolt-on timers treat focus as an afterthought.",
+      "painPoints": "Tasks everywhere. Focus nowhere.<br>Timer is secondary.<br>Features buried.",
+      "painSolution": "Focus-first design.<br>Tasks sync from Todoist.<br>Timer is the point."
     },
     {
       "slug": "superfocus-vs-clockify",
       "category": "compare",
       "keyword": "Superfocus vs Clockify Pomodoro",
-      "title": "Superfocus vs Clockify - Focus Timer vs Time Tracker 2026",
-      "description": "Superfocus vs Clockify: focus timer with sounds vs time tracking. Different tools, different goals. Compare here.",
-      "h1": "Superfocus vs Clockify: Focus Timer vs Time Tracker",
+      "title": "Time Tracking Without Focus? Superfocus vs Clockify",
+      "description": "Focus timer with analytics vs pure time tracker. Different tools, different jobs. Compare free.",
+      "h1": "Clockify tracks time. It doesn't help you focus.",
       "competitor": "Clockify",
       "competitorUrl": "https://clockify.me",
       "compareAngle": "Clockify is a time tracker with optional Pomodoro. Superfocus is built for focus: ambient sounds, deep work presets, and flow state.",
       "preset": "Pomodoro or Flow",
-      "related": ["/productivity-analytics", "/use-cases/freelancer-productivity", "/techniques/time-blocking-timer"],
-      "externalLinks": [{"url": "https://clockify.me", "text": "Clockify"}]
+      "related": [
+        "/productivity-analytics",
+        "/use-cases/freelancer-productivity",
+        "/techniques/time-blocking-timer"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://clockify.me",
+          "text": "Clockify"
+        }
+      ],
+      "heroSubtitle": "Knowing you wasted four hours doesn't prevent wasting the next four. You need structure, not just tracking.",
+      "painPoints": "Track wasted time.<br>Still waste it.<br>Data without change.",
+      "painSolution": "Timer creates focus.<br>Then tracks it.<br>Structure before stats."
     },
     {
       "slug": "superfocus-vs-noisli",
       "category": "compare",
       "keyword": "Superfocus vs Noisli",
-      "title": "Superfocus vs Noisli - Focus Timer vs Ambient Sounds 2026",
-      "description": "Superfocus vs Noisli: full focus timer with sounds vs ambient sound generator. Compare features and choose.",
-      "h1": "Superfocus vs Noisli: Focus Timer vs Ambient Sounds",
+      "title": "Noisli for Sounds. Superfocus for Sounds + Timer | Superfocus",
+      "description": "Rain, lofi, cafe plus Pomodoro timer. One app instead of two. Compare free.",
+      "h1": "Noisli makes rain sounds. You still forget to start the timer.",
       "competitor": "Noisli",
       "competitorUrl": "https://www.noisli.com",
       "compareAngle": "Noisli provides ambient sounds. Superfocus adds a Pomodoro timer, lofi cassettes, Todoist sync, and analytics in one app.",
       "preset": "Any timer + Cassettes",
-      "related": ["/sounds/white-noise-focus", "/sounds/focus-music", "/alternatives/noisli-alternative"],
-      "externalLinks": [{"url": "https://www.noisli.com", "text": "Noisli"}]
+      "related": [
+        "/sounds/white-noise-focus",
+        "/sounds/focus-music",
+        "/alternatives/noisli-alternative"
+      ],
+      "externalLinks": [
+        {
+          "url": "https://www.noisli.com",
+          "text": "Noisli"
+        }
+      ],
+      "heroSubtitle": "Ambient sound without time structure is vibes, not productivity.",
+      "painPoints": "Sounds on. No structure.<br>Still drift for hours.<br>Atmosphere without action.",
+      "painSolution": "Sounds + timer together.<br>25 min enforced.<br>Vibes become output."
     },
     {
       "slug": "brain-fm-alternative",
       "category": "alternatives",
       "keyword": "Brain.fm alternative",
-      "title": "Brain.fm Alternative - Superfocus: Timer + Focus Sounds",
-      "description": "Looking for a Brain.fm alternative? Superfocus combines Pomodoro timer with lofi, rain, cafe sounds. Free to try.",
-      "h1": "Brain.fm Alternative: Timer + Focus Sounds",
-      "related": ["/compare/superfocus-vs-brain-fm", "/sounds/focus-music", "/sounds/lofi-study-music"],
-      "preset": "Pomodoro or Deep Work + Cassettes"
+      "title": "Brain.fm Alternative: Music + Timer Together | Superfocus",
+      "description": "Lofi, rain, cafe cassettes plus Pomodoro timer. One app. Free to try.",
+      "h1": "You pay for focus music. You still need a separate timer.",
+      "related": [
+        "/compare/superfocus-vs-brain-fm",
+        "/sounds/focus-music",
+        "/sounds/lofi-study-music"
+      ],
+      "preset": "Pomodoro or Deep Work + Cassettes",
+      "heroSubtitle": "Brain.fm solves half the problem. The other half is starting and stopping on schedule.",
+      "painPoints": "Subscription for music.<br>Another app for timer.<br>Double pay. Double setup.",
+      "painSolution": "Music included. Timer included.<br>One free tier.<br>Start now."
     },
     {
       "slug": "be-focused-alternative",
       "category": "alternatives",
       "keyword": "Be Focused alternative",
-      "title": "Be Focused Alternative - Superfocus Pomodoro in Browser",
-      "description": "Be Focused alternative: Superfocus runs in browser. Pomodoro, ambient sounds, Todoist sync, analytics. No app install needed.",
-      "h1": "Be Focused Alternative: Superfocus in Browser",
-      "related": ["/compare/superfocus-vs-be-focused", "/techniques/pomodoro-technique", "/alternatives/pomofocus"],
-      "preset": "Pomodoro (25/5/15 min)"
+      "title": "Be Focused Alternative for Any Device | Superfocus",
+      "description": "Pomodoro in browser. Windows, Mac, Linux. Sounds + analytics included. Free.",
+      "h1": "You want Be Focused features without the Apple ecosystem lock-in.",
+      "related": [
+        "/compare/superfocus-vs-be-focused",
+        "/techniques/pomodoro-technique",
+        "/alternatives/pomofocus"
+      ],
+      "preset": "Pomodoro (25/5/15 min)",
+      "heroSubtitle": "Platform-specific timers trap your workflow. Browser apps work everywhere.",
+      "painPoints": "iOS only. Or Mac only.<br>Switch devices = lose tool.<br>Platform lock-in.",
+      "painSolution": "Any browser. Any OS.<br>Same timer everywhere.<br>Focus follows you."
     },
     {
       "slug": "marinara-alternative",
       "category": "alternatives",
       "keyword": "Marinara Timer alternative",
-      "title": "Marinara Timer Alternative - Full Focus App | Superfocus",
-      "description": "Marinara alternative: Superfocus is a full web app with lofi, rain, Todoist sync, and analytics. Beyond Chrome extension.",
-      "h1": "Marinara Timer Alternative: Full Focus App",
-      "related": ["/compare/superfocus-vs-marinara", "/alternatives/pomofocus", "/use-cases/work-timer"],
-      "preset": "Pomodoro (25/5/15 min)"
+      "title": "Marinara Alternative: Full Focus Web App | Superfocus",
+      "description": "Beyond extension: lofi, Todoist sync, analytics. Full focus app in browser. Free.",
+      "h1": "You outgrew a Chrome extension. Your focus needs grew too.",
+      "related": [
+        "/compare/superfocus-vs-marinara",
+        "/alternatives/pomofocus",
+        "/use-cases/work-timer"
+      ],
+      "preset": "Pomodoro (25/5/15 min)",
+      "heroSubtitle": "Extensions break, update poorly, and lack the features real focus work demands.",
+      "painPoints": "Extension limits.<br>No sounds. No sync.<br>Ceiling hit.",
+      "painSolution": "Full web app.<br>Same browser. Way more.<br>Room to grow."
     },
     {
       "slug": "focus-keeper-alternative",
       "category": "alternatives",
       "keyword": "Focus Keeper alternative",
-      "title": "Focus Keeper Alternative - Superfocus for Browser",
-      "description": "Focus Keeper alternative: Superfocus runs in browser. Pomodoro, Flow, Deep Work, lofi sounds. Free to start.",
-      "h1": "Focus Keeper Alternative: Superfocus for Browser",
-      "related": ["/compare/superfocus-vs-focus-keeper", "/alternatives/forest-app", "/techniques/pomodoro-technique"],
-      "preset": "Pomodoro or Flow"
+      "title": "Focus Keeper Alternative with Sounds + Analytics | Superfocus",
+      "description": "Browser Pomodoro with lofi, rain, task sync. Beyond tomato counting. Free.",
+      "h1": "Focus Keeper counts tomatoes. You need to ship projects.",
+      "related": [
+        "/compare/superfocus-vs-focus-keeper",
+        "/alternatives/forest-app",
+        "/techniques/pomodoro-technique"
+      ],
+      "preset": "Pomodoro or Flow",
+      "heroSubtitle": "Gamified counters motivate briefly. Structure and sounds sustain focus daily.",
+      "painPoints": "Tomato count rises.<br>Output flat.<br>Gamification without results.",
+      "painSolution": "Timer + sounds + tasks.<br>Track real output.<br>Focus that ships."
     },
     {
       "slug": "ticktick-pomodoro-alternative",
       "category": "alternatives",
       "keyword": "TickTick Pomodoro alternative",
-      "title": "TickTick Pomodoro Alternative - Superfocus + Todoist",
-      "description": "TickTick Pomodoro alternative: Superfocus syncs with Todoist for task-based focus. Ambient sounds and analytics included.",
-      "h1": "TickTick Pomodoro Alternative: Superfocus + Todoist",
-      "related": ["/compare/superfocus-vs-ticktick", "/todoist-pomodoro", "/use-cases/work-timer"],
-      "preset": "Pomodoro + Todoist sync"
+      "title": "TickTick Pomodoro Alternative + Todoist Sync | Superfocus",
+      "description": "Focus-first timer that syncs Todoist. Sounds and analytics built in. Free.",
+      "h1": "TickTick's timer is a feature. Focus is your job.",
+      "related": [
+        "/compare/superfocus-vs-ticktick",
+        "/todoist-pomodoro",
+        "/use-cases/work-timer"
+      ],
+      "preset": "Pomodoro + Todoist sync",
+      "heroSubtitle": "When the timer is buried in settings, you never use it. Focus tools should lead, not follow.",
+      "painPoints": "Timer hidden in task app.<br>Never find it.<br>Never use it.",
+      "painSolution": "Timer is the homepage.<br>Tasks sync in.<br>Focus first."
     },
     {
       "slug": "flocus-alternative",
       "category": "alternatives",
       "keyword": "Flocus alternative",
-      "title": "Flocus Alternative - Superfocus: Timer + Sounds + Tasks",
-      "description": "Flocus alternative: Superfocus offers Pomodoro timer, lofi cassettes, Todoist sync. Similar productivity focus, no signup to try.",
-      "h1": "Flocus Alternative: Timer + Sounds + Tasks",
-      "related": ["/compare/superfocus-vs-flocus", "/alternatives/pomofocus", "/sounds/lofi-study-music"],
-      "preset": "Pomodoro or Flow"
+      "title": "Flocus Alternative: Less Setup, More Sessions | Superfocus",
+      "description": "Pomodoro + sounds + tasks without the dashboard rabbit hole. Free Flocus alternative.",
+      "h1": "You spent an hour customizing your Flocus theme. Zero pomodoros completed.",
+      "related": [
+        "/compare/superfocus-vs-flocus",
+        "/alternatives/pomofocus",
+        "/sounds/lofi-study-music"
+      ],
+      "preset": "Pomodoro or Flow",
+      "heroSubtitle": "Beautiful dashboards become procrastination when setup replaces doing.",
+      "painPoints": "Theme tweaking. Widget arranging.<br>Zero focus sessions.<br>Aesthetic procrastination.",
+      "painSolution": "Open app. Start timer.<br>No setup required.<br>Sessions over aesthetics."
     },
     {
       "slug": "focusmate-alternative",
       "category": "alternatives",
       "keyword": "Focusmate alternative",
-      "title": "Focusmate Alternative - Solo Focus with Superfocus",
-      "description": "Focusmate alternative for solo focus: Superfocus timer with ambient sounds. No partner needed. Free to try.",
-      "h1": "Focusmate Alternative: Solo Focus Timer",
-      "related": ["/compare/superfocus-vs-focusmate", "/use-cases/remote-work-focus", "/techniques/pomodoro-technique"],
-      "preset": "Pomodoro or Deep Work"
+      "title": "Focusmate Alternative for Solo Deep Work | Superfocus",
+      "description": "Solo focus timer with ambient sounds. No scheduling, no video. Just work. Free.",
+      "h1": "You don't need a stranger watching you work. You need to begin.",
+      "related": [
+        "/compare/superfocus-vs-focusmate",
+        "/use-cases/remote-work-focus",
+        "/techniques/pomodoro-technique"
+      ],
+      "preset": "Pomodoro or Deep Work",
+      "heroSubtitle": "Accountability partners help some people. Others just need a timer and fewer obstacles.",
+      "painPoints": "Schedule partner. Small talk.<br>Perform focus for camera.<br>Still avoid hard work.",
+      "painSolution": "Solo timer. Sounds on.<br>Start in 10 seconds.<br>No coordination needed."
     },
     {
       "slug": "noisli-alternative",
       "category": "alternatives",
       "keyword": "Noisli alternative",
-      "title": "Noisli Alternative - Superfocus: Sounds + Pomodoro Timer",
-      "description": "Noisli alternative: Superfocus adds a focus timer to ambient sounds. Lofi, rain, cafe. Structure your focus sessions.",
-      "h1": "Noisli Alternative: Sounds + Pomodoro Timer",
-      "related": ["/compare/superfocus-vs-noisli", "/sounds/focus-music", "/sounds/white-noise-focus"],
-      "preset": "Any timer + Cassettes"
+      "title": "Noisli Alternative: Sounds + Pomodoro Timer | Superfocus",
+      "description": "White noise, rain, lofi plus focus timer. Structure your sessions. Free.",
+      "h1": "Rain sounds play. Two hours pass. Nothing got done.",
+      "related": [
+        "/compare/superfocus-vs-noisli",
+        "/sounds/focus-music",
+        "/sounds/white-noise-focus"
+      ],
+      "preset": "Any timer + Cassettes",
+      "heroSubtitle": "Ambience sets mood. Timers create output. You need both.",
+      "painPoints": "Beautiful sounds. Zero structure.<br>Vibe without output.<br>Two hours gone.",
+      "painSolution": "Sounds + 25-min timer.<br>Mood and structure.<br>Output follows."
     }
   ]
 }

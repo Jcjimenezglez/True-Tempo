@@ -23024,33 +23024,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timerHeaderAuth.style.display = 'none';
         }
     }
-    
-    // Only show loader for Lighthouse or explicit query param
-    const shouldShowLoader = () => {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('loader') === '1' || params.get('lh') === '1') return true;
-            const ua = navigator.userAgent || '';
-            return /Lighthouse|Chrome-Lighthouse/i.test(ua);
-        } catch (_) {
-            return false;
-        }
-    };
-    
-    if (shouldShowLoader()) {
-        timer.showLoadingScreen();
-        const tryHide = () => {
-            if (!timer.isLoading) return;
-            if (!timer.checkIfStillLoading()) {
-                timer.hideLoadingScreen();
-                return;
-            }
-            setTimeout(tryHide, 100);
-        };
-        setTimeout(tryHide, 200);
-        setTimeout(() => timer.hideLoadingScreen(), 4000);
-    }
-    
     // Initialize Premium Welcome Modal
     initPremiumWelcome(timer);
 });

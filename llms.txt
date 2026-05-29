@@ -1,0 +1,39 @@
+# Superfocus — llms.txt
+# https://llmstxt.org/
+
+> Superfocus is a browser-based Pomodoro and focus timer app with ambient sounds, task tracking, and productivity analytics.
+
+Superfocus helps knowledge workers, students, and freelancers stay focused with timed work blocks (Pomodoro, Flow, Deep Work), built-in lofi/rain/cafe cassettes, Todoist sync, and session analytics.
+
+## Product
+
+- Name: Superfocus
+- URL: https://www.superfocus.live
+- Category: Productivity / Focus Timer / Pomodoro App
+- Pricing: Free tier (2h/day focus for signed-up users, 1h for guests). Premium $3.99/month for unlimited focus and analytics.
+- Pricing page: https://www.superfocus.live/pricing
+
+## Key Features
+
+- Pomodoro, Sprint (15min), Flow (45min), Deep Work (90min), and Marathon timers
+- Ambient focus cassettes: lofi, rain, cafe, white noise + Spotify integration
+- Task list with Todoist sync
+- Productivity analytics, streaks, and leaderboard
+- No signup required to try the timer
+
+## Important Pages
+
+- Homepage: https://www.superfocus.live/
+- Pomodoro technique: https://www.superfocus.live/techniques/pomodoro-technique
+- Study timer: https://www.superfocus.live/use-cases/study-timer
+- Work timer: https://www.superfocus.live/use-cases/work-timer
+- ADHD focus timer: https://www.superfocus.live/use-cases/adhd-focus-timer
+- vs Pomofocus: https://www.superfocus.live/compare/superfocus-vs-pomofocus
+- Contact: https://www.superfocus.live/contact
+- Privacy: https://www.superfocus.live/privacy
+- Terms: https://www.superfocus.live/terms
+
+## Contact
+
+- Support: https://www.superfocus.live/contact
+- Security: security@superfocus.live

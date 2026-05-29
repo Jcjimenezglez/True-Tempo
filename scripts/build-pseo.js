@@ -1,30 +1,53 @@
 #!/usr/bin/env node
 /**
- * Build script for pSEO Phase 1 + Phase 2A pages.
- * Uses index.html as base (timer + sidebar + full app UI) and replaces only the content-section.
+ * Build script for pSEO pages.
+ * Uses pseo/template.html (lightweight landing) + pseo/content-section.html.
  * Loads pages.json (Phase 1) + pseo/databases/*.json (Phase 2A).
- * Output: techniques/, use-cases/, sounds/, workflows/, analytics/, compare/, alternatives/, professions/, activities/, faq/, goals/
  */
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..');
 const PSEO_DIR = path.join(ROOT, 'pseo');
 const PAGES_JSON = path.join(PSEO_DIR, 'pages.json');
 const DATABASES_DIR = path.join(PSEO_DIR, 'databases');
-const INDEX_PATH = path.join(ROOT, 'index.html');
+const TEMPLATE_PATH = path.join(PSEO_DIR, 'template.html');
 const CONTENT_SECTION_PATH = path.join(PSEO_DIR, 'content-section.html');
+const MANIFEST_PATH = path.join(ROOT, 'dist', 'asset-manifest.json');
 const BASE_URL = 'https://www.superfocus.live';
 
-const CONTENT_SECTION_REPLACE_RE = /    <!-- Content Section - Educational Content -->\s*<section class="content-section">[\s\S]*?    <\/section>/;
+const CATEGORY_LABELS = {
+  techniques: 'Techniques',
+  'use-cases': 'Use Cases',
+  sounds: 'Sounds',
+  workflows: 'Workflows',
+  analytics: 'Analytics',
+  compare: 'Compare',
+  alternatives: 'Alternatives',
+  professions: 'Professions',
+  activities: 'Activities',
+  faq: 'FAQ',
+  goals: 'Goals'
+};
 
 function loadJson(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  return JSON.parse(content);
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
-/** Load Phase 1 pages + Phase 2 database entries. Phase 1 wins on slug conflicts. */
+function loadAssetManifest() {
+  if (fs.existsSync(MANIFEST_PATH)) {
+    try {
+      return loadJson(MANIFEST_PATH);
+    } catch (_) { /* fall through */ }
+  }
+  return {
+    style: '/style.css',
+    scriptLanding: '/script-landing.js'
+  };
+}
+
 function loadAllPages() {
   const phase1 = loadJson(PAGES_JSON);
   const slugs = new Set(phase1.pages.map(p => p.slug));
@@ -34,16 +57,13 @@ function loadAllPages() {
     const dbFiles = fs.readdirSync(DATABASES_DIR).filter(f => f.endsWith('.json'));
     for (const file of dbFiles) {
       const db = loadJson(path.join(DATABASES_DIR, file));
-      const entries = db.entries || [];
-      for (const entry of entries) {
+      for (const entry of db.entries || []) {
         if (slugs.has(entry.slug)) continue;
         slugs.add(entry.slug);
-        const page = normalizeDatabaseEntry(entry);
-        pages.push(page);
+        pages.push(normalizeDatabaseEntry(entry));
       }
     }
   }
-
   return pages;
 }
 
@@ -63,39 +83,48 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;');
 }
 
+function stripHtml(s) {
+  return String(s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function getHeroSubtitle(page) {
+  return page.heroSubtitle || page.description;
+}
+
 function getStopPain(page) {
   if (page.painPoints) return page.painPoints;
   const cat = page.category;
   const pains = {
-    techniques: 'Too many distractions?<br>Not enough done?<br>Time flying by with nothing to show?',
-    'use-cases': 'Scattered focus?<br>Meetings eating your day?<br>No time for deep work?',
-    sounds: 'Noise killing your concentration?<br>Can\'t get into flow?<br>Need to block the world out?',
-    workflows: 'Tasks piling up?<br>No system to focus?<br>Losing track of what matters?',
-    analytics: 'No idea how much you focus?<br>Can\'t see progress?<br>Want to build better habits?',
-    compare: 'Comparing focus apps?<br>Need features that actually work?<br>Want one app that does it all?',
-    alternatives: 'Looking for a better focus app?<br>Need timers + sounds + tasks?<br>Want to try something new?',
-    professions: 'Chaotic workdays?<br>No time for deep work?<br>Can\'t focus in your role?',
-    activities: 'Scattered tasks?<br>No structure for your work?<br>Time flying without progress?',
-    faq: 'Have questions about focus timers?<br>Want clear answers?<br>Need to know how it works?',
-    goals: 'Want to focus better?<br>Struggling with distractions?<br>Need a system that works?'
+    techniques: 'You sit down to work. Twenty minutes later, nothing done.<br>Your brain wanders. The tab count grows.<br>Another hour gone. Same to-do list.',
+    'use-cases': 'You planned to focus. Slack won.<br>Meetings ate the morning. Email ate the afternoon.<br>Real work? Maybe tomorrow.',
+    sounds: 'Silence is not silent. Every noise pulls you out.<br>You put on music. Now you\'re singing along.<br>Still can\'t think.',
+    workflows: 'Tasks everywhere. Priorities nowhere.<br>You start one thing, jump to another.<br>End of day: busy, not productive.',
+    analytics: 'You worked all day. Or did you?<br>No idea where the hours went.<br>Can\'t fix what you can\'t see.',
+    compare: 'Another app. Another signup. Another letdown.<br>Timer here, music there, tasks somewhere else.<br>When did focus get so complicated?',
+    alternatives: 'You tried the popular app. It\'s fine. Not great.<br>Missing sounds. Missing analytics. Missing the point.<br>Still searching.',
+    professions: 'Your role demands deep work. Your calendar demands meetings.<br>By 5pm you\'ve been "on" all day and shipped nothing.<br>Tomorrow looks the same.',
+    activities: 'You know what to do. You can\'t start.<br>Or you start and drift within minutes.<br>The task is still waiting.',
+    faq: 'You\'ve read the advice. Tried the hacks.<br>Still can\'t focus for 25 straight minutes.<br>Maybe the problem isn\'t you.',
+    goals: 'You want to focus better. You\'ve said that before.<br>Distractions always win. Habits never stick.<br>Same goal. Same failure.'
   };
   return pains[cat] || pains.techniques;
 }
 
 function getStopSolution(page) {
+  if (page.painSolution) return page.painSolution;
   const cat = page.category;
   const sols = {
-    techniques: 'Focus a little. Get more done.<br>Use small blocks of time. See real progress.',
-    'use-cases': 'Block time for deep work.<br>Use a timer that fits your workflow.<br>See results every day.',
-    sounds: 'Block noise with ambient sound.<br>Signal your brain to focus.<br>Enter flow state faster.',
-    workflows: 'Combine timer with tasks.<br>Track pomodoros per project.<br>Stay on top of your work.',
-    analytics: 'Track focus time. Spot patterns.<br>Build lasting habits.<br>See how much you accomplish.',
-    compare: 'Superfocus combines timer, sounds, tasks, and analytics.<br>One app. No compromises.<br>Try it free.',
-    alternatives: 'Superfocus: timer, cassettes, tasks, analytics.<br>Free to start. No credit card.<br>Focus better today.',
-    professions: 'Block time for your role.<br>Use a timer that fits your work.<br>See results every day.',
-    activities: 'Block time for the task.<br>Use Pomodoro or Flow presets.<br>Get it done in focus blocks.',
-    faq: 'Get clear answers.<br>Try Superfocus free.<br>See how it works.',
-    goals: 'Focus a little. Get more done.<br>Block distractions. Build habits.<br>Try Superfocus free.'
+    techniques: 'One timer. One block. One task.<br>25 minutes of actual work. Then a break.<br>Momentum replaces guilt.',
+    'use-cases': 'Block the time before someone else does.<br>Timer running. Phone away. Task in front of you.<br>Deep work happens in the gaps you protect.',
+    sounds: 'One click. Lofi, rain, or cafe.<br>Your brain gets the signal: focus now.<br>Noise fades. Work starts.',
+    workflows: 'Timer plus tasks in one place.<br>Pick what matters. Work in blocks.<br>See what you actually finished.',
+    analytics: 'Every session logged. Patterns visible.<br>Know your best hours. Build on them.<br>Progress you can measure.',
+    compare: 'Superfocus: timer, sounds, tasks, analytics.<br>One tab. One workflow. No juggling.<br>Try it free. Compare for real.',
+    alternatives: 'Same simple timer you liked. Plus what was missing.<br>Sounds, tasks, streaks—all included.<br>Free to start. No credit card.',
+    professions: 'Protect 25 minutes before the inbox wins.<br>A timer built for how you actually work.<br>Ship something today.',
+    activities: 'Name the task. Start the timer.<br>One block. Full attention.<br>Done beats perfect.',
+    faq: 'Clear answers. A timer that works.<br>No signup to try. No bloat.<br>See if 25 minutes changes your day.',
+    goals: 'Small blocks. Visible progress.<br>Distractions blocked. Habits forming.<br>One session at a time.'
   };
   return sols[cat] || sols.techniques;
 }
@@ -207,6 +236,125 @@ function getHowWeHelp(page) {
   return defaults[cat] || defaults.techniques;
 }
 
+function getFaqData(page) {
+  const category = page.category;
+  const keyword = page.keyword;
+  if (Array.isArray(page.faq) && page.faq.length > 0) {
+    return page.faq.map(f => ({ q: f.q, a: f.a }));
+  }
+  const baseFaq = [
+    { q: `What is the best ${keyword}?`, a: `Superfocus offers ${page.preset || 'Pomodoro'} plus ambient sounds, task tracking, and analytics. Free to try.` },
+    { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 1 hour. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
+    { q: 'Does Superfocus have ambient sounds?', a: 'Yes. Superfocus includes lofi, rain, cafe, and other focus cassettes. You can also add your own Spotify playlists.' },
+    { q: 'What problem does Superfocus solve?', a: 'Superfocus helps you stay focused, avoid burnout, and track progress. It combines a Pomodoro timer with ambient sounds, task management, and productivity insights—so you can get into flow, maintain energy, and see how much you accomplish.' }
+  ];
+  if (category === 'compare' && page.competitor) {
+    baseFaq.unshift({
+      q: `Which is better: Superfocus or ${page.competitor}?`,
+      a: `Superfocus adds ambient sounds, Todoist sync, analytics, and multiple timer presets (Pomodoro, Flow, Deep Work). ${page.competitor} has its own strengths. Try Superfocus free to compare.`
+    });
+  }
+  if (category === 'faq' && page.h1 && page.answer) {
+    baseFaq.unshift({ q: page.h1, a: page.answer });
+  }
+  return baseFaq;
+}
+
+function getHowToStepTexts(page) {
+  const cat = page.category;
+  if (cat === 'sounds') {
+    return ['Choose a timer preset (Pomodoro, Flow, etc.)', 'Select a cassette (lofi, rain, cafe) or add Spotify', 'Press start and focus'];
+  }
+  if (cat === 'workflows') {
+    return ['Connect Todoist in Superfocus', 'Add tasks and assign pomodoros', 'Start the timer and work through your list'];
+  }
+  if (cat === 'analytics') {
+    return ['Sign up for Superfocus (free)', 'Use the timer and complete sessions', 'Upgrade to Premium to see daily, weekly, monthly analytics'];
+  }
+  if (cat === 'faq') {
+    return ['Go to superfocus.live (no signup required to try)', 'Pick a preset (Pomodoro, Flow, Sprint, etc.)', 'Start the timer and focus'];
+  }
+  return ['Pick your task', 'Start the timer and focus for 25 minutes', 'Take a 5-minute break', 'Repeat 4 times, then take a longer break'];
+}
+
+function buildJsonLd(page, canonicalPath) {
+  const schemas = [];
+  const pageUrl = BASE_URL + canonicalPath;
+  const categoryLabel = CATEGORY_LABELS[page.category] || page.category;
+
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: page.title,
+    description: page.description,
+    url: pageUrl,
+    isPartOf: { '@type': 'WebSite', name: 'Superfocus', url: BASE_URL }
+  });
+
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: categoryLabel, item: `${BASE_URL}/${page.category}` },
+      { '@type': 'ListItem', position: 3, name: stripHtml(page.h1), item: pageUrl }
+    ]
+  });
+
+  if (page.category === 'faq') {
+    const faqItems = getFaqData(page);
+    if (faqItems.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map(f => ({
+          '@type': 'Question',
+          name: stripHtml(f.q),
+          acceptedAnswer: { '@type': 'Answer', text: stripHtml(f.a) }
+        }))
+      });
+    }
+  }
+
+  if (page.category === 'compare' || page.category === 'alternatives') {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Superfocus',
+      url: BASE_URL,
+      applicationCategory: 'ProductivityApplication',
+      operatingSystem: 'Web Browser',
+      featureList: [
+        'Pomodoro timer presets',
+        'Ambient focus cassettes (lofi, rain, cafe)',
+        'Task tracking and Todoist sync',
+        'Productivity analytics and leaderboard'
+      ],
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+    });
+  }
+
+  if (page.category === 'techniques' || page.category === 'use-cases') {
+    const steps = getHowToStepTexts(page);
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: getHowToHeading(page),
+      description: page.description,
+      step: steps.map((text, i) => ({
+        '@type': 'HowToStep',
+        position: i + 1,
+        name: text,
+        text
+      }))
+    });
+  }
+
+  return schemas
+    .map(s => `    <script type="application/ld+json">\n${JSON.stringify(s, null, 4)}\n    </script>`)
+    .join('\n');
+}
+
 function getPresetSection(page) {
   const preset = page.preset || 'Pomodoro (25/5/15 min)';
   if (page.category === 'faq') {
@@ -235,7 +383,7 @@ function getWhatIs(page) {
   };
   let heading = headingMap[slug];
   if (!heading) {
-    if (cat === 'faq') heading = 'the answer'; // Template uses "What is X?"; FAQ answer goes in paragraph
+    if (cat === 'faq') heading = 'the answer';
     else if (cat === 'compare' || cat === 'alternatives') heading = 'Superfocus';
     else if (keyword.match(/^(a|an|the)\s/i)) heading = keyword;
     else heading = `a ${keyword}`;
@@ -317,7 +465,7 @@ function getHowToHeading(page) {
   if (cat === 'techniques' && page.slug && page.slug.includes('pomodoro')) return 'How to use the Pomodoro Timer?';
   if (cat === 'techniques') return `How to use the ${page.keyword}?`;
   if (cat === 'use-cases') return `How to use a ${page.keyword}?`;
-  if (cat === 'sounds') return `How to use focus music with Superfocus?`;
+  if (cat === 'sounds') return 'How to use focus music with Superfocus?';
   if (cat === 'workflows') return 'How to set up the workflow?';
   if (cat === 'analytics') return 'How to track focus time?';
   if (cat === 'professions') return `How to use a focus timer for ${page.keyword.replace(/focus timer for /i, '')}?`;
@@ -328,42 +476,7 @@ function getHowToHeading(page) {
 }
 
 function getHowToSteps(page) {
-  const cat = page.category;
-  const base = [
-    '<li>Pick your task</li>',
-    '<li>Start the timer and focus for 25 minutes</li>',
-    '<li>Take a 5-minute break</li>',
-    '<li>Repeat 4 times, then take a longer break</li>'
-  ];
-  if (cat === 'sounds') {
-    return [
-      '<li>Choose a timer preset (Pomodoro, Flow, etc.)</li>',
-      '<li>Select a cassette (lofi, rain, cafe) or add Spotify</li>',
-      '<li>Press start and focus</li>'
-    ].join('\n                    ');
-  }
-  if (cat === 'workflows') {
-    return [
-      '<li>Connect Todoist in Superfocus</li>',
-      '<li>Add tasks and assign pomodoros</li>',
-      '<li>Start the timer and work through your list</li>'
-    ].join('\n                    ');
-  }
-  if (cat === 'analytics') {
-    return [
-      '<li>Sign up for Superfocus (free)</li>',
-      '<li>Use the timer and complete sessions</li>',
-      '<li>Upgrade to Premium to see daily, weekly, monthly analytics</li>'
-    ].join('\n                    ');
-  }
-  if (cat === 'faq') {
-    return [
-      '<li>Go to superfocus.live (no signup required to try)</li>',
-      '<li>Pick a preset (Pomodoro, Flow, Sprint, etc.)</li>',
-      '<li>Start the timer and focus</li>'
-    ].join('\n                    ');
-  }
-  return base.join('\n                    ');
+  return getHowToStepTexts(page).map(s => `<li>${s}</li>`).join('\n                    ');
 }
 
 function getFeatures(page) {
@@ -382,29 +495,7 @@ function getFeatures(page) {
 }
 
 function getFaq(page) {
-  const category = page.category;
-  const keyword = page.keyword;
-  let baseFaq;
-  if (Array.isArray(page.faq) && page.faq.length > 0) {
-    baseFaq = page.faq.map(f => ({ q: f.q, a: f.a }));
-  } else {
-    baseFaq = [
-      { q: `What is the best ${keyword}?`, a: `Superfocus offers ${page.preset || 'Pomodoro'} plus ambient sounds, task tracking, and analytics. Free to try.` },
-      { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 1 hour. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
-      { q: 'Does Superfocus have ambient sounds?', a: 'Yes. Superfocus includes lofi, rain, cafe, and other focus cassettes. You can also add your own Spotify playlists.' },
-      { q: 'What problem does Superfocus solve?', a: 'Superfocus helps you stay focused, avoid burnout, and track progress. It combines a Pomodoro timer with ambient sounds, task management, and productivity insights—so you can get into flow, maintain energy, and see how much you accomplish.' }
-    ];
-  }
-  if (category === 'compare' && page.competitor && !Array.isArray(page.faq)) {
-    baseFaq.unshift({
-      q: `Which is better: Superfocus or ${page.competitor}?`,
-      a: `Superfocus adds ambient sounds, Todoist sync, analytics, and multiple timer presets (Pomodoro, Flow, Deep Work). ${page.competitor} has its own strengths. Try Superfocus free to compare.`
-    });
-  }
-  if (category === 'faq' && !Array.isArray(page.faq) && page.h1 && page.answer) {
-    baseFaq.unshift({ q: page.h1, a: page.answer });
-  }
-  return baseFaq.map((f, i) => {
+  return getFaqData(page).map((f, i) => {
     const n = i + 1;
     return `                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="content-faq-answer-${n}" id="content-faq-question-${n}">
@@ -462,22 +553,14 @@ function getExternalLinks(page) {
   return `<p style="margin-top: 2rem; font-size: 0.95rem; color: rgba(255,255,255,0.6);">Further reading: ${items}</p>`;
 }
 
-function normalizeLocalUrlsToRoot(html) {
-  return html.replace(
-    /(\s(?:href|src)=["'])(?!https?:\/\/|\/\/|\/|#|data:|mailto:|javascript:)([^"']+)(["'])/g,
-    (_, prefix, url, suffix) => `${prefix}/${url}${suffix}`
-  );
-}
-
 function buildContentSection(page, contentSectionTemplate) {
-  const slug = page.slug;
   const howWeHelp = getHowWeHelp(page);
   const whatIs = getWhatIs(page);
 
   return contentSectionTemplate
     .replace(/\{\{H1\}\}/g, escapeHtml(page.h1))
-    .replace(/\{\{HERO_SUBTITLE\}\}/g, escapeHtml(page.description))
-    .replace(/\{\{SLUG\}\}/g, slug)
+    .replace(/\{\{HERO_SUBTITLE\}\}/g, escapeHtml(getHeroSubtitle(page)))
+    .replace(/\{\{SLUG\}\}/g, page.slug)
     .replace(/\{\{STOP_PAIN\}\}/g, getStopPain(page))
     .replace(/\{\{STOP_SOLUTION\}\}/g, getStopSolution(page))
     .replace(/\{\{HOW_WE_HELP_TITLE\}\}/g, howWeHelp.title)
@@ -502,13 +585,29 @@ function buildContentSection(page, contentSectionTemplate) {
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
 }
 
+function buildPageHtml(page, template, contentSectionTemplate, manifest) {
+  const canonicalPath = `/${page.category}/${page.slug}`;
+  const contentSection = buildContentSection(page, contentSectionTemplate);
+  const jsonLd = buildJsonLd(page, canonicalPath);
+
+  return template
+    .replace(/\{\{TITLE\}\}/g, escapeHtml(page.title))
+    .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(page.description))
+    .replace(/\{\{KEYWORD\}\}/g, escapeHtml(page.keyword))
+    .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+    .replace(/\{\{CONTENT_SECTION\}\}/g, contentSection)
+    .replace(/\{\{JSON_LD\}\}/g, jsonLd)
+    .replace(/\{\{STYLE_HREF\}\}/g, manifest.style)
+    .replace(/\{\{SCRIPT_LANDING_HREF\}\}/g, manifest.scriptLanding);
+}
+
 function main() {
   if (!fs.existsSync(PAGES_JSON)) {
     console.error('Missing pseo/pages.json');
     process.exit(1);
   }
-  if (!fs.existsSync(INDEX_PATH)) {
-    console.error('Missing index.html');
+  if (!fs.existsSync(TEMPLATE_PATH)) {
+    console.error('Missing pseo/template.html');
     process.exit(1);
   }
   if (!fs.existsSync(CONTENT_SECTION_PATH)) {
@@ -517,64 +616,36 @@ function main() {
   }
 
   const pages = loadAllPages();
-  const indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
+  const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const contentSectionTemplate = fs.readFileSync(CONTENT_SECTION_PATH, 'utf8');
-
-  const outputDirs = new Set();
+  const manifest = loadAssetManifest();
   const generated = [];
 
   for (const page of pages) {
-    const category = page.category;
-    const slug = page.slug;
-    const canonicalPath = `/${category}/${slug}`;
-    const outputDir = path.join(ROOT, category);
-    const outputPath = path.join(outputDir, `${slug}.html`);
-
+    const outputDir = path.join(ROOT, page.category);
+    const outputPath = path.join(outputDir, `${page.slug}.html`);
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
-      outputDirs.add(category);
     }
-
-    const contentSectionHtml = buildContentSection(page, contentSectionTemplate);
-    let html = indexHtml.replace(CONTENT_SECTION_REPLACE_RE, contentSectionHtml);
-    html = html
-      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
-      .replace(/<meta name="title" content="[^"]*">/, `<meta name="title" content="${escapeHtml(page.title)}">`)
-      .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escapeHtml(page.description)}">`)
-      .replace(/<meta name="keywords" content="[^"]*">/, `<meta name="keywords" content="${escapeHtml(page.keyword)}, pomodoro timer, focus timer, Superfocus">`)
-      .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${BASE_URL}${canonicalPath}">`)
-      .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escapeHtml(page.title)}">`)
-      .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escapeHtml(page.description)}">`)
-      .replace(/<meta name="twitter:url" content="[^"]*">/, `<meta name="twitter:url" content="${BASE_URL}${canonicalPath}">`)
-      .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${escapeHtml(page.title)}">`)
-      .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${escapeHtml(page.description)}">`)
-      .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${BASE_URL}${canonicalPath}">`);
-    html = normalizeLocalUrlsToRoot(html);
+    const html = buildPageHtml(page, template, contentSectionTemplate, manifest);
     fs.writeFileSync(outputPath, html, 'utf8');
-    generated.push(`/${category}/${slug}`);
+    generated.push(`/${page.category}/${page.slug}`);
   }
 
   console.log(`Generated ${generated.length} pSEO pages.`);
-  console.log('Slugs:', generated.join('\n'));
 
-  // Update sitemap.xml with new pSEO URLs
-  const sitemapPath = path.join(ROOT, 'sitemap.xml');
   const today = new Date().toISOString().slice(0, 10);
   const coreUrls = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
     { loc: '/pricing', priority: '0.9', changefreq: 'monthly' },
+    { loc: '/contact', priority: '0.6', changefreq: 'monthly' },
     { loc: '/privacy', priority: '0.5', changefreq: 'yearly' },
     { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
     { loc: '/release-notes', priority: '0.7', changefreq: 'weekly' }
   ];
-  const pseoUrls = generated.map(loc => ({
-    loc: BASE_URL + loc,
-    priority: '0.8',
-    changefreq: 'monthly'
-  }));
   const allUrls = [
     ...coreUrls.map(u => ({ ...u, loc: BASE_URL + u.loc })),
-    ...pseoUrls
+    ...generated.map(loc => ({ loc: BASE_URL + loc, priority: '0.8', changefreq: 'monthly' }))
   ];
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -586,9 +657,8 @@ ${allUrls.map(u => `    <url>
     </url>`).join('\n')}
 </urlset>
 `;
-  fs.writeFileSync(sitemapPath, sitemap, 'utf8');
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap, 'utf8');
   console.log('Updated sitemap.xml');
-
   return generated;
 }
 

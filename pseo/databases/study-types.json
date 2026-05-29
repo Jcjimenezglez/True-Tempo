@@ -5,121 +5,181 @@
       "slug": "study-timer-for-flashcards",
       "category": "use-cases",
       "keyword": "study timer for flashcards",
-      "title": "Study Timer for Flashcards - Spaced Repetition Focus | Superfocus",
-      "description": "Study timer for flashcards and spaced repetition. Short Pomodoro or Sprint blocks. Track sessions, stay focused.",
-      "h1": "Study Timer for Flashcards: Spaced Repetition Focus",
+      "title": "Flashcard Backlog Growing? Study Sprint Timer | Superfocus",
+      "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer.",
+      "h1": "500 flashcards due. You've done twelve.",
       "preset": "Sprint (15/3/10) or Pomodoro",
-      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/techniques/sprint-timer"],
-      "painPoints": "Flashcard burnout?<br>Can't sustain long sessions?<br>Need structure for Anki/Quizlet?",
-      "recommendedSounds": "Minimal lofi or white noise"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/exam-prep-timer",
+        "/techniques/sprint-timer"
+      ],
+      "painPoints": "Cards pile up. Avoid Anki.<br>Guilt spiral.<br>Exam closer.",
+      "recommendedSounds": "Minimal lofi or white noise",
+      "heroSubtitle": "Anki guilt grows with every notification. Without time blocks, review becomes avoidance.",
+      "painSolution": "15 min review. Every day.<br>Timer ends = stop guilt-free.<br>Backlog shrinks."
     },
     {
       "slug": "study-timer-for-essay-writing",
       "category": "use-cases",
       "keyword": "study timer for essay writing",
-      "title": "Study Timer for Essay Writing - Pomodoro for Papers | Superfocus",
-      "description": "Study timer for essay writing. Pomodoro or Marathon presets. Overcome writer's block with structured focus blocks.",
-      "h1": "Study Timer for Essay Writing: Pomodoro for Papers",
+      "title": "Essay Due Soon? Pomodoro Writing Timer | Superfocus",
+      "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Free for students.",
+      "h1": "Essay due in 48 hours. Introduction: unfinished.",
       "preset": "Pomodoro or Marathon",
-      "related": ["/use-cases/writing-timer", "/use-cases/study-timer", "/sounds/rain-sounds-focus"],
-      "painPoints": "Procrastinating on essays?<br>Writer's block?<br>Need blocks for drafting and editing?",
-      "recommendedSounds": "Rain or lofi for sustained writing"
+      "related": [
+        "/use-cases/writing-timer",
+        "/use-cases/study-timer",
+        "/sounds/rain-sounds-focus"
+      ],
+      "painPoints": "Edit before write.<br>First paragraph forever.<br>Deadline panic.",
+      "recommendedSounds": "Rain or lofi for sustained writing",
+      "heroSubtitle": "You've rewritten the first sentence nine times. Perfectionism is procrastination in academic clothes.",
+      "painSolution": "25 min: draft only.<br>Ugly words count.<br>Edit in the next block."
     },
     {
       "slug": "study-timer-for-language-learning",
       "category": "use-cases",
       "keyword": "study timer for language learning",
-      "title": "Study Timer for Language Learning - Focus Blocks | Superfocus",
-      "description": "Study timer for language learning. Short sprints for drills, longer blocks for immersion. Pomodoro and Sprint in one app.",
-      "h1": "Study Timer for Language Learning: Focus Blocks",
+      "title": "Language Apps Not Working? Focus Blocks | Superfocus",
+      "description": "Sprint for drills, Pomodoro for reading/listening. Structure real practice. Free.",
+      "h1": "Duolingo streak: 400 days. You still can't hold a conversation.",
       "preset": "Sprint for drills, Pomodoro for reading/listening",
-      "related": ["/use-cases/study-timer", "/use-cases/study-timer-for-flashcards", "/sounds/lofi-study-music"],
-      "painPoints": "Scattered language practice?<br>No structure for Duolingo/Anki?<br>Burnout from long sessions?",
-      "recommendedSounds": "Lofi or cafe for immersion blocks"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/study-timer-for-flashcards",
+        "/sounds/lofi-study-music"
+      ],
+      "painPoints": "Tap exercises. No immersion.<br>Streak without skill.<br>Fluency far away.",
+      "recommendedSounds": "Lofi or cafe for immersion blocks",
+      "heroSubtitle": "Streaks measure taps, not fluency. Real practice needs focused immersion blocks you never schedule.",
+      "painSolution": "25 min speaking practice.<br>Timer on. Phone in drawer.<br>Real blocks, real progress."
     },
     {
       "slug": "study-timer-for-reading",
       "category": "use-cases",
       "keyword": "study timer for reading",
-      "title": "Study Timer for Reading - Focus for Long Sessions | Superfocus",
-      "description": "Study timer for reading. Pomodoro or Flow for textbooks and articles. Breaks prevent fatigue. Try Superfocus free.",
-      "h1": "Study Timer for Reading: Focus for Long Sessions",
+      "title": "Can't Finish Reading Assignments? Study Timer | Superfocus",
+      "description": "Pomodoro reading blocks with scheduled breaks. Finish chapters without burnout. Free.",
+      "h1": "Chapter 1 started three weeks ago.",
       "preset": "Pomodoro (25/5/15) or Flow (45/8/25)",
-      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/sounds/rain-sounds-focus"],
-      "painPoints": "Drowsy after 20 min of reading?<br>Can't finish chapters?<br>Need scheduled breaks?",
-      "recommendedSounds": "Rain or ambient for reading focus"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/exam-prep-timer",
+        "/sounds/rain-sounds-focus"
+      ],
+      "painPoints": "Read same page twice.<br>Eyes heavy. Mind gone.<br>Chapter never ends.",
+      "recommendedSounds": "Rain or ambient for reading focus",
+      "heroSubtitle": "You read the same page twice and retain nothing. Without breaks, fatigue wins by page three.",
+      "painSolution": "25 min read. 5 min walk.<br>Fresh eyes. Next section.<br>Chapters finish."
     },
     {
       "slug": "study-timer-for-thesis",
       "category": "use-cases",
       "keyword": "study timer for thesis writing",
-      "title": "Study Timer for Thesis Writing - Dissertation Focus | Superfocus",
-      "description": "Study timer for thesis and dissertation writing. Deep Work or Marathon presets. Long blocks for sustained writing.",
-      "h1": "Study Timer for Thesis Writing: Dissertation Focus",
+      "title": "Thesis Stuck? Deep Work Writing Timer | Superfocus",
+      "description": "90-min Deep Work or 60-min Marathon for dissertation writing. Structure long sessions. Free.",
+      "h1": "Your thesis has been \"almost done\" for eight months.",
       "preset": "Deep Work (90/20/30) or Marathon",
-      "related": ["/use-cases/writing-timer", "/use-cases/study-timer-for-essay-writing", "/techniques/deep-work-timer"],
-      "painPoints": "Thesis overwhelm?<br>Can't block long writing sessions?<br>Need structure for chapters?",
-      "recommendedSounds": "Rain, lofi, or cafe for deep writing"
+      "related": [
+        "/use-cases/writing-timer",
+        "/use-cases/study-timer-for-essay-writing",
+        "/techniques/deep-work-timer"
+      ],
+      "painPoints": "Chapter half-written. Months.<br>No protected writing time.<br>Committee waiting.",
+      "recommendedSounds": "Rain, lofi, or cafe for deep writing",
+      "heroSubtitle": "Dissertation writing needs marathon blocks you never protect. Life fills every gap.",
+      "painSolution": "90 min every morning.<br>Same time. Same desk.<br>Thesis moves daily."
     },
     {
       "slug": "study-timer-for-note-taking",
       "category": "use-cases",
       "keyword": "study timer for note taking",
-      "title": "Study Timer for Note Taking - Focus During Lectures | Superfocus",
-      "description": "Study timer for note taking. Sprint or Pomodoro for lecture review and note consolidation. Stay focused, avoid drift.",
-      "h1": "Study Timer for Note Taking: Focus During Lectures",
+      "title": "Notes Piling Up? Review Focus Timer | Superfocus",
+      "description": "Sprint blocks for note review and consolidation. Turn notes into knowledge. Free.",
+      "h1": "Your notes are a graveyard of half-finished lectures.",
       "preset": "Sprint or Pomodoro",
-      "related": ["/use-cases/study-timer", "/use-cases/student-productivity", "/techniques/sprint-timer"],
-      "painPoints": "Notes piling up?<br>Can't focus on review?<br>Need blocks for consolidation?",
-      "recommendedSounds": "Lofi or white noise"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/student-productivity",
+        "/techniques/sprint-timer"
+      ],
+      "painPoints": "Notes collect dust.<br>Never review.<br>Exams surprise you.",
+      "recommendedSounds": "Lofi or white noise",
+      "heroSubtitle": "Review sessions never happen because consolidation takes focused time you don't allocate.",
+      "painSolution": "15 min daily review.<br>One lecture at a time.<br>Notes become memory."
     },
     {
       "slug": "study-timer-for-online-courses",
       "category": "use-cases",
       "keyword": "study timer for online courses",
-      "title": "Study Timer for Online Courses - Video Lecture Focus | Superfocus",
-      "description": "Study timer for online courses. Pomodoro blocks for video lectures. Track progress, take breaks, avoid binge-watching.",
-      "h1": "Study Timer for Online Courses: Video Lecture Focus",
+      "title": "Course Barely Started? Video Lecture Timer | Superfocus",
+      "description": "Pomodoro blocks for video lectures. Breaks prevent binge-drifting. Track progress. Free.",
+      "h1": "You bought the course in January. Module 2 of 47.",
       "preset": "Pomodoro or Flow",
-      "related": ["/use-cases/study-timer", "/use-cases/remote-work-focus", "/sounds/cafe-ambient-sounds"],
-      "painPoints": "Binge-watching courses?<br>No structure for videos?<br>Drifting during lectures?",
-      "recommendedSounds": "Cafe or minimal lofi"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/remote-work-focus",
+        "/sounds/cafe-ambient-sounds"
+      ],
+      "painPoints": "Video plays. Brain elsewhere.<br>Module 2 for months.<br>Money wasted.",
+      "recommendedSounds": "Cafe or minimal lofi",
+      "heroSubtitle": "Video lectures play while you scroll. \"Watching\" isn't learning without focused attention.",
+      "painSolution": "One module per pomodoro.<br>Notes required. Phone away.<br>Course actually finishes."
     },
     {
       "slug": "study-timer-for-group-study",
       "category": "use-cases",
       "keyword": "study timer for group study",
-      "title": "Study Timer for Group Study - Sync Focus Sessions | Superfocus",
-      "description": "Study timer for group study. Shared Pomodoro blocks. Everyone focuses together, breaks together. Try Superfocus.",
-      "h1": "Study Timer for Group Study: Sync Focus Sessions",
+      "title": "Group Study Always Off-Track? Sync Timer | Superfocus",
+      "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer.",
+      "h1": "Group study turned into group chat in twelve minutes.",
       "preset": "Pomodoro (25/5/15)",
-      "related": ["/use-cases/study-timer", "/use-cases/student-productivity", "/techniques/pomodoro-technique"],
-      "painPoints": "Group study chaos?<br>No shared structure?<br>Breaks out of sync?",
-      "recommendedSounds": "Lofi or cafe for group vibe"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/student-productivity",
+        "/techniques/pomodoro-technique"
+      ],
+      "painPoints": "Open books. Close focus.<br>Chat takes over.<br>Exam still coming.",
+      "recommendedSounds": "Lofi or cafe for group vibe",
+      "heroSubtitle": "Without shared structure, study sessions become social hours with textbooks as props.",
+      "painSolution": "Shared 25-min timer.<br>Phones away. Break together.<br>Group actually studies."
     },
     {
       "slug": "study-timer-for-math",
       "category": "use-cases",
       "keyword": "study timer for math",
-      "title": "Study Timer for Math - Problem-Solving Focus | Superfocus",
-      "description": "Study timer for math: Pomodoro or Sprint for problem sets. Short blocks prevent burnout. Track sessions in Superfocus.",
-      "h1": "Study Timer for Math: Problem-Solving Focus",
+      "title": "Stuck on Problem Sets? Math Study Timer | Superfocus",
+      "description": "Sprint blocks for problem sets. Break between problems. White noise for concentration. Free.",
+      "h1": "Problem 3 broke you. You've been staring at it for forty minutes.",
       "preset": "Sprint or Pomodoro",
-      "related": ["/use-cases/study-timer", "/use-cases/exam-prep-timer", "/sounds/white-noise-focus"],
-      "painPoints": "Math fatigue?<br>Can't power through problem sets?<br>Need breaks between problems?",
-      "recommendedSounds": "White noise or minimal lofi"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/exam-prep-timer",
+        "/sounds/white-noise-focus"
+      ],
+      "painPoints": "Stuck on one problem.<br>Frustration builds.<br>Set abandoned.",
+      "recommendedSounds": "White noise or minimal lofi",
+      "heroSubtitle": "Math fatigue is real. Without breaks, frustration replaces problem-solving.",
+      "painSolution": "15 min per problem max.<br>Move on. Return fresh.<br>Sets get finished."
     },
     {
       "slug": "study-timer-for-med-school",
       "category": "use-cases",
       "keyword": "study timer for med school",
-      "title": "Study Timer for Med School - Long Study Sessions | Superfocus",
-      "description": "Study timer for med school. Pomodoro, Flow, or Deep Work for anatomy, pharmacology, clinical prep. Built for long study days.",
-      "h1": "Study Timer for Med School: Long Study Sessions",
+      "title": "Med School Overwhelm? Long Study Session Timer | Superfocus",
+      "description": "Pomodoro, Flow, Deep Work for anatomy, pharm, clinical prep. Built for marathon study days. Free.",
+      "h1": "The stack of material is taller than you. Where do you even start?",
       "preset": "Pomodoro or Flow",
-      "related": ["/use-cases/exam-prep-timer", "/use-cases/study-timer-for-flashcards", "/techniques/flowtime-timer"],
-      "painPoints": "Med school volume?<br>Marathon study days?<br>Need structure for retention?",
-      "recommendedSounds": "Lofi or rain for sustained focus"
+      "related": [
+        "/use-cases/exam-prep-timer",
+        "/use-cases/study-timer-for-flashcards",
+        "/techniques/flowtime-timer"
+      ],
+      "painPoints": "Volume impossible.<br>No structure.<br>Retention fails.",
+      "recommendedSounds": "Lofi or rain for sustained focus",
+      "heroSubtitle": "Med school volume breaks unstructured study. Without blocks, you drown in content and retain nothing.",
+      "painSolution": "One topic. 45 minutes.<br>Break. Next topic.<br>Mountain becomes steps."
     }
   ]
 }
