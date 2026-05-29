@@ -2,631 +2,637 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://www.superfocus.live/</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/pricing</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
+        <loc>https://www.superfocus.live/contact</loc>
+        <lastmod>2026-05-29</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
         <loc>https://www.superfocus.live/privacy</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/terms</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/release-notes</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/pomodoro-technique</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/flowtime-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/time-blocking-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/deep-work-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/sprint-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/marathon-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/52-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/90-minute-deep-work</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/work-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/coding-focus-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/writing-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/exam-prep-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/adhd-focus-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/student-productivity</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/freelancer-productivity</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/remote-work-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/deep-work-app</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/meeting-prep-timer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/sounds/focus-music</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/sounds/lofi-study-music</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/sounds/rain-sounds-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/sounds/cafe-ambient-sounds</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/sounds/white-noise-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/workflows/todoist-pomodoro</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/workflows/task-planning-workflow</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/analytics/productivity-analytics</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/analytics/focus-time-tracking</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/analytics/pomodoro-statistics</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-pomofocus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-forest</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-flocus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-focusmate</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/pomodoro-timer-apps</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/pomofocus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/forest-app</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/best-pomodoro-apps</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-email</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-research</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-content-creation</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-brainstorming</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-admin-tasks</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-reviews</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/activities/focus-timer-for-planning</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-brain-fm</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-be-focused</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-marinara</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-focus-keeper</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-ticktick</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-clockify</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/compare/superfocus-vs-noisli</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/brain-fm-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/be-focused-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/marinara-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/focus-keeper-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/ticktick-pomodoro-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/flocus-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/focusmate-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/alternatives/noisli-alternative</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/10-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/20-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/30-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/35-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/40-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/techniques/50-minute-focus</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/how-long-pomodoro-session</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/is-superfocus-free</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/best-pomodoro-length</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/pomodoro-vs-flowtime</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/how-many-pomodoros-per-day</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/pomodoro-break-length</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/focus-timer-with-sounds</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/pomodoro-for-adhd</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/how-to-enter-flow-state</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/faq/pomodoro-timer-online</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/enter-flow-state</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/reduce-distractions</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/build-focus-habits</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/avoid-burnout</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/increase-productivity</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/stay-focused-longer</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/block-distractions</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/goals/focus-without-phone</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-lawyers</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-designers</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-researchers</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-teachers</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-consultants</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-project-managers</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/professions/focus-timer-for-marketers</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-flashcards</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-essay-writing</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-language-learning</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-reading</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-thesis</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-note-taking</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-online-courses</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-group-study</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-math</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://www.superfocus.live/use-cases/study-timer-for-med-school</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-05-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>

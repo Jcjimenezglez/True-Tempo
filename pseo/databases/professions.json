@@ -5,85 +5,127 @@
       "slug": "focus-timer-for-lawyers",
       "category": "professions",
       "keyword": "focus timer for lawyers",
-      "title": "Focus Timer for Lawyers - Billable Hours & Deep Work | Superfocus",
-      "description": "Focus timer for lawyers. Pomodoro or Deep Work for research, briefs, discovery. Block time, track sessions, meet deadlines.",
-      "h1": "Focus Timer for Lawyers: Billable Hours & Deep Work",
+      "title": "Billable Hours Slipping? Focus Timer for Lawyers | Superfocus",
+      "description": "Block time for research and briefs. Pomodoro or Deep Work. Track focus sessions. Free.",
+      "h1": "Six billable hours logged. Two were actual legal work.",
       "preset": "Pomodoro or Deep Work",
-      "related": ["/use-cases/writing-timer", "/techniques/time-blocking-timer", "/professions/focus-timer-for-consultants"],
-      "painPoints": "Billable hours slipping?<br>No time for deep research?<br>Scattered across matters?",
-      "recommendedSounds": "Rain or minimal lofi for document review"
+      "related": [
+        "/use-cases/writing-timer",
+        "/techniques/time-blocking-timer",
+        "/professions/focus-timer-for-consultants"
+      ],
+      "painPoints": "Reactive all day.<br>Deep work at midnight.<br>Billable time wasted.",
+      "recommendedSounds": "Rain or minimal lofi for document review",
+      "heroSubtitle": "Email, admin, and context-switching eat the research and drafting that clients actually pay for.",
+      "painSolution": "Block 90 min for research.<br>Timer on. Email closed.<br>Bill real hours."
     },
     {
       "slug": "focus-timer-for-designers",
       "category": "professions",
       "keyword": "focus timer for designers",
-      "title": "Focus Timer for Designers - Creative Deep Work | Superfocus",
-      "description": "Focus timer for designers. Flow or Deep Work for creative sessions. Block distractions, enter flow, ship designs.",
-      "h1": "Focus Timer for Designers: Creative Deep Work",
+      "title": "Context Switching Killing Your Designs? | Superfocus",
+      "description": "45-min Flow blocks for creative deep work. Lofi + cafe sounds. Ship designs faster. Free.",
+      "h1": "You opened Figma to design. You're still replying to Slack.",
       "preset": "Flow (45/8/25) or Deep Work",
-      "related": ["/use-cases/coding-focus-timer", "/techniques/flowtime-timer", "/sounds/lofi-study-music"],
-      "painPoints": "Context switching killing creativity?<br>Can't get into flow?<br>No blocks for deep design work?",
-      "recommendedSounds": "Lofi or cafe for creative focus"
+      "related": [
+        "/use-cases/coding-focus-timer",
+        "/techniques/flowtime-timer",
+        "/sounds/lofi-study-music"
+      ],
+      "painPoints": "Figma open. Slack louder.<br>Never enter creative flow.<br>Revisions multiply.",
+      "recommendedSounds": "Lofi or cafe for creative focus",
+      "heroSubtitle": "Creative work needs uninterrupted blocks. Your calendar doesn't have any.",
+      "painSolution": "45-minute design block.<br>Notifications off. Lofi on.<br>One concept. Done."
     },
     {
       "slug": "focus-timer-for-researchers",
       "category": "professions",
       "keyword": "focus timer for researchers",
-      "title": "Focus Timer for Researchers - Literature & Analysis | Superfocus",
-      "description": "Focus timer for researchers. Pomodoro or Flow for literature review, analysis, writing. Track sessions and stay productive.",
-      "h1": "Focus Timer for Researchers: Literature & Analysis",
+      "title": "Literature Piling Up? Research Focus Timer | Superfocus",
+      "description": "Pomodoro or Flow for reading and writing. Structure research sessions. Try Superfocus free.",
+      "h1": "Your literature review list grows. Papers read: zero.",
       "preset": "Pomodoro or Flow",
-      "related": ["/use-cases/writing-timer", "/activities/focus-timer-for-research", "/techniques/deep-work-timer"],
-      "painPoints": "Literature piling up?<br>No structure for reading/writing?<br>Analysis burnout?",
-      "recommendedSounds": "Rain or ambient for long reading"
+      "related": [
+        "/use-cases/writing-timer",
+        "/activities/focus-timer-for-research",
+        "/techniques/deep-work-timer"
+      ],
+      "painPoints": "Papers bookmarked. None read.<br>No blocks for synthesis.<br>Review never finishes.",
+      "recommendedSounds": "Rain or ambient for long reading",
+      "heroSubtitle": "Research requires sustained attention you never allocate. Reading gets squeezed into scraps between meetings.",
+      "painSolution": "25 min per paper. Take notes.<br>Repeat daily.<br>Review progresses."
     },
     {
       "slug": "focus-timer-for-teachers",
       "category": "professions",
       "keyword": "focus timer for teachers",
-      "title": "Focus Timer for Teachers - Grading & Planning | Superfocus",
-      "description": "Focus timer for teachers. Pomodoro or Sprint for grading, lesson planning, admin. Block time between classes.",
-      "h1": "Focus Timer for Teachers: Grading & Planning",
+      "title": "Grading Never Ends? Focus Timer for Teachers | Superfocus",
+      "description": "Sprint or Pomodoro for grading and planning. Block time between classes. Free for educators.",
+      "h1": "Grading follows you home every night.",
       "preset": "Pomodoro or Sprint",
-      "related": ["/use-cases/study-timer", "/use-cases/student-productivity", "/professions/focus-timer-for-researchers"],
-      "painPoints": "Grading never ends?<br>No time for lesson prep?<br>Scattered between classes?",
-      "recommendedSounds": "Lofi or white noise"
+      "related": [
+        "/use-cases/study-timer",
+        "/use-cases/student-productivity",
+        "/professions/focus-timer-for-researchers"
+      ],
+      "painPoints": "Grade at midnight.<br>Prep in five-min gaps.<br>Always behind.",
+      "recommendedSounds": "Lofi or white noise",
+      "heroSubtitle": "Between classes, meetings, and emails, lesson prep and grading happen in exhausted fragments.",
+      "painSolution": "Block 25 min for grading.<br>Batch papers. Timer off.<br>Home at a reasonable hour."
     },
     {
       "slug": "focus-timer-for-consultants",
       "category": "professions",
       "keyword": "focus timer for consultants",
-      "title": "Focus Timer for Consultants - Deliverables & Client Work | Superfocus",
-      "description": "Focus timer for consultants. Pomodoro or Flow for deck building, analysis, client deliverables. Track billable focus.",
-      "h1": "Focus Timer for Consultants: Deliverables & Client Work",
+      "title": "Deck Due Tomorrow? Consultant Focus Timer | Superfocus",
+      "description": "Block time for analysis and deliverables. Pomodoro + Todoist sync. Track billable focus. Free.",
+      "h1": "The deck is due tomorrow. You haven't opened PowerPoint.",
       "preset": "Pomodoro or Flow",
-      "related": ["/use-cases/meeting-prep-timer", "/professions/focus-timer-for-lawyers", "/productivity-analytics"],
-      "painPoints": "Deck deadlines looming?<br>No blocks for deep analysis?<br>Client work scattered?",
-      "recommendedSounds": "Cafe or lofi for focus"
+      "related": [
+        "/use-cases/meeting-prep-timer",
+        "/professions/focus-timer-for-lawyers",
+        "/productivity-analytics"
+      ],
+      "painPoints": "Calls all day. Deck at midnight.<br>Quality suffers. Sleep too.<br>Unsustainable cycle.",
+      "recommendedSounds": "Cafe or lofi for focus",
+      "heroSubtitle": "Client calls fill the calendar. Deep analysis and slide building happen in panic mode the night before.",
+      "painSolution": "Morning block for deck work.<br>90 minutes protected.<br>Deliver without panic."
     },
     {
       "slug": "focus-timer-for-project-managers",
       "category": "professions",
       "keyword": "focus timer for project managers",
-      "title": "Focus Timer for Project Managers - Planning & Reviews | Superfocus",
-      "description": "Focus timer for project managers. Sprint or Pomodoro for planning, status updates, reviews. Structure your day.",
-      "h1": "Focus Timer for Project Managers: Planning & Reviews",
+      "title": "No Time to Plan? PM Focus Timer | Superfocus",
+      "description": "Sprint blocks for planning and reviews. Structure your day before it structures you. Free.",
+      "h1": "You manage everyone's time except your own.",
       "preset": "Sprint or Pomodoro",
-      "related": ["/activities/focus-timer-for-planning", "/todoist-pomodoro", "/use-cases/remote-work-focus"],
-      "painPoints": "Meetings eating your day?<br>No time for planning?<br>Scattered across projects?",
-      "recommendedSounds": "Minimal lofi or white noise"
+      "related": [
+        "/activities/focus-timer-for-planning",
+        "/todoist-pomodoro",
+        "/use-cases/remote-work-focus"
+      ],
+      "painPoints": "Everyone's priority. Yours last.<br>Planning skipped again.<br>Projects drift.",
+      "recommendedSounds": "Minimal lofi or white noise",
+      "heroSubtitle": "Status updates, standups, and fire drills consume the day. Planning happens never—or at 6pm.",
+      "painSolution": "First pomodoro: your planning.<br>Before inbox. Before standup.<br>Lead instead of react."
     },
     {
       "slug": "focus-timer-for-marketers",
       "category": "professions",
       "keyword": "focus timer for marketers",
-      "title": "Focus Timer for Marketers - Content & Campaigns | Superfocus",
-      "description": "Focus timer for marketers. Pomodoro or Flow for content creation, analytics review, campaign planning. Block creative time.",
-      "h1": "Focus Timer for Marketers: Content & Campaigns",
+      "title": "Content Always Overdue? Marketer Focus Timer | Superfocus",
+      "description": "Pomodoro or Flow for content creation and campaign planning. Cafe sounds included. Free.",
+      "h1": "Content calendar says \"publish.\" Draft says empty.",
       "preset": "Pomodoro or Flow",
-      "related": ["/activities/focus-timer-for-content-creation", "/use-cases/remote-work-focus", "/sounds/cafe-ambient-sounds"],
-      "painPoints": "Content always overdue?<br>No blocks for creative work?<br>Scattered across channels?",
-      "recommendedSounds": "Cafe or lofi for content focus"
+      "related": [
+        "/activities/focus-timer-for-content-creation",
+        "/use-cases/remote-work-focus",
+        "/sounds/cafe-ambient-sounds"
+      ],
+      "painPoints": "Calendar full. Content empty.<br>Creative work gets scraps.<br>Deadlines win.",
+      "recommendedSounds": "Cafe or lofi for content focus",
+      "heroSubtitle": "Campaigns need creative blocks. Your day gives you notifications instead.",
+      "painSolution": "Block creative time first.<br>25 min draft. No editing.<br>Publish on schedule."
     }
   ]
 }

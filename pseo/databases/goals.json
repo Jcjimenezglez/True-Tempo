@@ -5,97 +5,145 @@
       "slug": "enter-flow-state",
       "category": "goals",
       "keyword": "enter flow state",
-      "title": "Enter Flow State - Focus Timer for Deep Work | Superfocus",
-      "description": "Enter flow state with longer focus blocks and ambient sound. Use Flow or Deep Work preset. Try Superfocus free.",
-      "h1": "Enter Flow State: Focus Timer for Deep Work",
+      "title": "Can't Get Into Flow? Longer Focus Blocks | Superfocus",
+      "description": "Flow needs 45-90 min blocks and fewer interruptions. Flow + Deep Work presets with ambient sound. Try free.",
+      "h1": "You know what flow feels like. You haven't felt it in weeks.",
       "preset": "Flow (45/8/25) or Deep Work (90/20/30)",
-      "related": ["/faq/how-to-enter-flow-state", "/techniques/flowtime-timer", "/techniques/deep-work-timer"],
-      "painPoints": "Can't get into flow?<br>Too many interruptions?<br>25 min cuts you off?",
-      "recommendedSounds": "Lofi or rain for sustained focus"
+      "related": [
+        "/faq/how-to-enter-flow-state",
+        "/techniques/flowtime-timer",
+        "/techniques/deep-work-timer"
+      ],
+      "painPoints": "Almost there. Slack ping. Gone.<br>25 min ends at minute 22.<br>Flow state: a memory.",
+      "recommendedSounds": "Lofi or rain for sustained focus",
+      "heroSubtitle": "Every interruption resets the clock. By the time you settle in, something else demands attention.",
+      "painSolution": "45 or 90 minutes. Sounds on.<br>One task. Timer protects it.<br>Flow becomes reachable."
     },
     {
       "slug": "reduce-distractions",
       "category": "goals",
       "keyword": "reduce distractions",
-      "title": "Reduce Distractions - Focus Timer with Sounds | Superfocus",
-      "description": "Reduce distractions with a focus timer and ambient sounds. Block noise, structure your work. Try Superfocus free.",
-      "h1": "Reduce Distractions: Focus Timer with Sounds",
+      "title": "Can't Stop Getting Distracted? Focus Timer + Sounds | Superfocus",
+      "description": "Structure beats willpower. Timer + lofi/rain blocks noise and the scroll loop. Free to try.",
+      "h1": "You closed Twitter. You opened it again without noticing.",
       "preset": "Pomodoro + Cassettes (lofi, rain, cafe)",
-      "related": ["/goals/block-distractions", "/sounds/focus-music", "/techniques/pomodoro-technique"],
-      "painPoints": "Phone, email, noise?<br>Can't stay focused?<br>No system to block distractions?",
-      "recommendedSounds": "Lofi, rain, or white noise"
+      "related": [
+        "/goals/block-distractions",
+        "/sounds/focus-music",
+        "/techniques/pomodoro-technique"
+      ],
+      "painPoints": "Close the tab. Reopen unconsciously.<br>Phone face-down. Still buzzing.<br>Focus lasts seconds.",
+      "recommendedSounds": "Lofi, rain, or white noise",
+      "heroSubtitle": "Willpower lasts about four minutes. Then your thumb finds the app you swore you wouldn't open.",
+      "painSolution": "Timer running = work mode.<br>Sounds mask the world.<br>25 minutes. Protected."
     },
     {
       "slug": "build-focus-habits",
       "category": "goals",
       "keyword": "build focus habits",
-      "title": "Build Focus Habits - Track Sessions & Streaks | Superfocus",
-      "description": "Build focus habits with session tracking and streaks. Pomodoro + analytics. See progress, stay consistent. Try Superfocus.",
-      "h1": "Build Focus Habits: Track Sessions & Streaks",
+      "title": "Focus Habits Never Stick? Track Sessions & Streaks | Superfocus",
+      "description": "Streaks and session history make progress visible. Pomodoro + analytics. Build habits from data. Free.",
+      "h1": "You were \"going to focus every day.\" That was three Mondays ago.",
       "preset": "Pomodoro + Analytics",
-      "related": ["/productivity-analytics", "/techniques/pomodoro-technique", "/goals/increase-productivity"],
-      "painPoints": "No consistency?<br>Can't see progress?<br>Habits never stick?",
-      "recommendedSounds": "Any cassette for ritual"
+      "related": [
+        "/productivity-analytics",
+        "/techniques/pomodoro-technique",
+        "/goals/increase-productivity"
+      ],
+      "painPoints": "Fresh start every week.<br>No record of effort.<br>Same promise. Same fade.",
+      "recommendedSounds": "Any cassette for ritual",
+      "heroSubtitle": "Motivation spikes on Sunday night and dies by Tuesday. Without tracking, you can't see the pattern—or break it.",
+      "painSolution": "One pomodoro today. Logged.<br>Streak starts. Visible progress.<br>Habits need proof."
     },
     {
       "slug": "avoid-burnout",
       "category": "goals",
       "keyword": "avoid burnout",
-      "title": "Avoid Burnout - Focus Timer with Breaks | Superfocus",
-      "description": "Avoid burnout with a focus timer that enforces breaks. Pomodoro, Flow, Deep Work. Rest between sessions. Try Superfocus.",
-      "h1": "Avoid Burnout: Focus Timer with Breaks",
+      "title": "Working Until You Crash? Timer With Built-In Breaks | Superfocus",
+      "description": "Pomodoro forces recovery before you need it. 25 on, 5 off. Sustainable focus. Try Superfocus free.",
+      "h1": "You worked until midnight again. Tomorrow you'll be useless.",
       "preset": "Pomodoro or Flow (built-in breaks)",
-      "related": ["/techniques/pomodoro-technique", "/faq/pomodoro-break-length", "/goals/build-focus-habits"],
-      "painPoints": "Working until exhaustion?<br>No breaks?<br>Burnout creeping in?",
-      "recommendedSounds": "Rain or lofi for recovery breaks"
+      "related": [
+        "/techniques/pomodoro-technique",
+        "/faq/pomodoro-break-length",
+        "/goals/build-focus-habits"
+      ],
+      "painPoints": "Skip breaks. Push through.<br>Friday: empty and exhausted.<br>Weekend recovery. Repeat.",
+      "recommendedSounds": "Rain or lofi for recovery breaks",
+      "heroSubtitle": "No breaks feels productive until your brain stops cooperating entirely. Burnout doesn't announce itself—it accumulates.",
+      "painSolution": "Breaks are scheduled. Not optional.<br>Sustain pace all week.<br>Marathon, not sprint to collapse."
     },
     {
       "slug": "increase-productivity",
       "category": "goals",
       "keyword": "increase productivity",
-      "title": "Increase Productivity - Focus Timer & Analytics | Superfocus",
-      "description": "Increase productivity with a focus timer and analytics. Block time, track sessions, see patterns. Try Superfocus free.",
-      "h1": "Increase Productivity: Focus Timer & Analytics",
+      "title": "Busy All Week, Nothing Shipped? Productivity Timer | Superfocus",
+      "description": "Block time, track focus sessions, see patterns. Know the difference between busy and productive. Free.",
+      "h1": "Your to-do list grew. Your output didn't.",
       "preset": "Pomodoro or Flow + Analytics",
-      "related": ["/productivity-analytics", "/goals/build-focus-habits", "/todoist-pomodoro"],
-      "painPoints": "Busy but not productive?<br>No idea where time goes?<br>Need a system?",
-      "recommendedSounds": "Lofi or cafe for work blocks"
+      "related": [
+        "/productivity-analytics",
+        "/goals/build-focus-habits",
+        "/todoist-pomodoro"
+      ],
+      "painPoints": "Inbox zero. Project zero.<br>Motion without progress.<br>Productivity theater.",
+      "recommendedSounds": "Lofi or cafe for work blocks",
+      "heroSubtitle": "Busy is not productive. You answer messages, attend calls, and end the day with the hard thing still waiting.",
+      "painSolution": "Measure focus time, not activity.<br>Block deep work first.<br>Ship one thing daily."
     },
     {
       "slug": "stay-focused-longer",
       "category": "goals",
       "keyword": "stay focused longer",
-      "title": "Stay Focused Longer - Extended Focus Blocks | Superfocus",
-      "description": "Stay focused longer with Flow or Deep Work presets. 45 or 90 min blocks. Build stamina. Try Superfocus free.",
-      "h1": "Stay Focused Longer: Extended Focus Blocks",
+      "title": "Losing Focus Too Soon? Extended Blocks | Superfocus",
+      "description": "Build focus stamina with 45-min Flow or 90-min Deep Work. Gradual extension. Try Superfocus free.",
+      "h1": "You lose focus at minute twelve. Every time.",
       "preset": "Flow (45 min) or Deep Work (90 min)",
-      "related": ["/techniques/flowtime-timer", "/techniques/deep-work-timer", "/goals/enter-flow-state"],
-      "painPoints": "25 min not enough?<br>Losing focus too soon?<br>Want longer blocks?",
-      "recommendedSounds": "Rain or lofi for extended sessions"
+      "related": [
+        "/techniques/flowtime-timer",
+        "/techniques/deep-work-timer",
+        "/goals/enter-flow-state"
+      ],
+      "painPoints": "12 minutes in. Mind wanders.<br>25 feels impossible.<br>Never build endurance.",
+      "recommendedSounds": "Rain or lofi for extended sessions",
+      "heroSubtitle": "Short attention isn't a character flaw—it's untrained stamina. You've never built the muscle for longer blocks.",
+      "painSolution": "Start at 25. Extend to 45.<br>Track what works.<br>Longer blocks over time."
     },
     {
       "slug": "block-distractions",
       "category": "goals",
       "keyword": "block distractions",
-      "title": "Block Distractions - Focus Timer & Ambient Sounds | Superfocus",
-      "description": "Block distractions with a focus timer and ambient sounds. Lofi, rain, cafe. Structure + sound. Try Superfocus free.",
-      "h1": "Block Distractions: Focus Timer & Ambient Sounds",
+      "title": "World Won't Leave You Alone? Block Distractions | Superfocus",
+      "description": "White noise, lofi, rain—plus a timer that says work now. Block the world for one block. Free.",
+      "h1": "Noise, notifications, and your own brain team up against you.",
       "preset": "Any preset + Cassettes",
-      "related": ["/goals/reduce-distractions", "/sounds/white-noise-focus", "/sounds/focus-music"],
-      "painPoints": "Noise, notifications, scroll?<br>Can't block the world?<br>Need to focus now?",
-      "recommendedSounds": "White noise, lofi, or rain"
+      "related": [
+        "/goals/reduce-distractions",
+        "/sounds/white-noise-focus",
+        "/sounds/focus-music"
+      ],
+      "painPoints": "Every sense under attack.<br>Can't escape the noise.<br>Focus feels impossible.",
+      "recommendedSounds": "White noise, lofi, or rain",
+      "heroSubtitle": "You can't control the open office, the neighbor, or the group chat. You can control your next 25 minutes.",
+      "painSolution": "Headphones. Cassette on. Timer start.<br>25 minutes of protected space.<br>One block at a time."
     },
     {
       "slug": "focus-without-phone",
       "category": "goals",
       "keyword": "focus without phone",
-      "title": "Focus Without Phone - Browser-Based Timer | Superfocus",
-      "description": "Focus without phone: Superfocus runs in your browser. No app, no pick-up. Pomodoro, sounds, tasks. Try free.",
-      "h1": "Focus Without Phone: Browser-Based Timer",
+      "title": "Phone Is the Problem? Browser Focus Timer | Superfocus",
+      "description": "Superfocus runs in your browser where work happens. No app to open, no notifications to swipe. Try free.",
+      "h1": "The timer app on your phone is the distraction.",
       "preset": "Pomodoro or any preset",
-      "related": ["/compare/superfocus-vs-forest", "/alternatives/forest-app", "/use-cases/remote-work-focus"],
-      "painPoints": "Phone = distraction?<br>Need timer without app?<br>Want browser-based?",
-      "recommendedSounds": "Any cassette"
+      "related": [
+        "/compare/superfocus-vs-forest",
+        "/alternatives/forest-app",
+        "/use-cases/remote-work-focus"
+      ],
+      "painPoints": "Phone for timer. Phone for distraction.<br>Same device. Wrong tool.<br>Can't separate them.",
+      "recommendedSounds": "Any cassette",
+      "heroSubtitle": "Pick up phone to start timer. See notification. Twenty minutes gone. The tool became the trap.",
+      "painSolution": "Timer in browser. Phone away.<br>Work on desktop.<br>Focus where you type."
     }
   ]
 }
