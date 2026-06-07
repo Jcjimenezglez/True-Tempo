@@ -4687,6 +4687,9 @@ class PomodoroTimer {
     }
 
     needsSubscriptionPaywall() {
+        if (this.hasManualLogoutLock()) {
+            return false;
+        }
         return this.isAuthenticated && !this.isPremiumUser();
     }
 
@@ -4731,6 +4734,7 @@ class PomodoroTimer {
                 <p class="logout-modal-message" style="color: rgba(255, 255, 255, 0.82);">${this.escapeHtml(message)}</p>
                 <div class="logout-modal-buttons">
                     <button class="logout-modal-btn logout-modal-btn-primary" id="subscriptionPaywallCheckoutBtn">${this.escapeHtml(ctaText)}</button>
+                    <button class="logout-modal-btn logout-modal-btn-secondary" id="subscriptionPaywallGuestBtn">Continue as guest</button>
                 </div>
             </div>
         `;
@@ -4755,6 +4759,26 @@ class PomodoroTimer {
                 });
                 closePaywall();
                 this.createCheckoutSession('monthly', { source });
+            });
+        }
+
+        const guestBtn = modal.querySelector('#subscriptionPaywallGuestBtn');
+        if (guestBtn) {
+            guestBtn.addEventListener('click', async () => {
+                this.trackEvent('Paywall Guest Exit', {
+                    source,
+                    location,
+                    user_type: 'paywall',
+                    modal_type: 'subscription_required'
+                });
+                closePaywall();
+                try {
+                    sessionStorage.setItem('just_logged_out', 'true');
+                    sessionStorage.setItem('just_logged_out_at', String(Date.now()));
+                    localStorage.setItem('just_logged_out', 'true');
+                    localStorage.setItem('just_logged_out_at', String(Date.now()));
+                } catch (_) {}
+                await this.performLogout();
             });
         }
     }
