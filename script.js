@@ -4298,10 +4298,6 @@ class PomodoroTimer {
         });
     }
 
-    renderLeaderboardPremiumBadge() {
-        return `<span style="display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.35); color: #fbbf24; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; flex-shrink: 0;">Premium</span>`;
-    }
-
     getLeaderboardUsersForDisplay(leaderboard) {
         return leaderboard;
     }
@@ -4323,13 +4319,6 @@ class PomodoroTimer {
                     <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
                     ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
-                </div>
-            `;
-        } else {
-            html += `
-                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">${isGuest ? 'Focus Leaderboard' : 'Leaderboard Scope'}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
                 </div>
             `;
         }
@@ -4360,8 +4349,6 @@ class PomodoroTimer {
             `;
         }
 
-        const premiumBadge = user.isPremium ? this.renderLeaderboardPremiumBadge() : '';
-
         return `
             <div style="
                 padding: 12px 16px;
@@ -4389,7 +4376,7 @@ class PomodoroTimer {
                         align-items: center;
                         min-width: 0;
                     ">
-                        ${this.escapeHtml(user.username)}${premiumBadge}
+                        ${this.escapeHtml(user.username)}
                     </span>
                 </div>
                 <span style="color: #a3a3a3; font-size: 14px; font-weight: 500; margin-left: 12px; flex-shrink: 0;">${userTimeStr}</span>
