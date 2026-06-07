@@ -2137,6 +2137,7 @@ class PomodoroTimer {
     refreshCreationLimitNotices() {
         this.refreshTimerLimitNotice();
         this.refreshCassetteLimitNotice();
+        this.refreshGuestCassetteNotice();
         this.refreshTaskLimitNotices();
     }
 
@@ -2156,6 +2157,30 @@ class PomodoroTimer {
         const isFreeUser = this.isAuthenticated && !this.isPremiumUser();
         const reachedLimit = isFreeUser && this.getCustomCassettes().length >= 1;
         cassetteNotice.style.display = reachedLimit ? 'block' : 'none';
+    }
+
+    refreshGuestCassetteNotice() {
+        const section = document.getElementById('createCassetteSection');
+        if (!section) return;
+
+        let notice = document.getElementById('guestCassetteCreateNotice');
+        if (!this.isAuthenticated) {
+            if (!notice) {
+                notice = document.createElement('p');
+                notice.id = 'guestCassetteCreateNotice';
+                notice.style.cssText = 'font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0 0 12px; line-height: 1.45;';
+                const createBtn = document.getElementById('createCassetteBtn');
+                if (createBtn) {
+                    section.insertBefore(notice, createBtn);
+                } else {
+                    section.prepend(notice);
+                }
+            }
+            notice.textContent = 'Browse and use community cassettes below. Creating your own requires Premium — tap Create cassette to start your free trial.';
+            notice.style.display = 'block';
+        } else if (notice) {
+            notice.style.display = 'none';
+        }
     }
 
     refreshTaskLimitNotices() {
@@ -4242,21 +4267,140 @@ class PomodoroTimer {
             this.leaderboardAutoRefreshId = null;
         }
     }
-    
-    async loadLeaderboardForModal(page = 1) {
-        // Only load if authenticated
-        if (!this.isAuthenticated || !this.user?.id) {
-            const leaderboardContent = document.getElementById('leaderboardModalContent');
-            if (leaderboardContent) {
-                leaderboardContent.innerHTML = `
-                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                        Please log in to view the leaderboard.
-                    </div>
-                `;
-            }
-            return;
+
+    getLeaderboardRequestHeaders() {
+        if (this.isAuthenticated && this.user?.id) {
+            return { 'x-clerk-userid': this.user.id };
+        }
+        return {};
+    }
+
+    renderGuestPanelBanner(message) {
+        return `
+            <div class="guest-panel-banner" style="padding: 14px 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div style="color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Guest mode</div>
+                <div style="color: #a3a3a3; font-size: 12px; line-height: 1.5;">${message}</div>
+                <button type="button" class="guest-panel-banner-cta logout-modal-btn logout-modal-btn-primary" style="margin-top: 12px; width: 100%;">Start free trial</button>
+            </div>
+        `;
+    }
+
+    bindGuestPanelBannerCta(containerElement) {
+        const cta = containerElement?.querySelector('.guest-panel-banner-cta');
+        if (!cta) return;
+        cta.addEventListener('click', () => {
+            this.trackEvent('Sign Up Clicked', {
+                button_type: 'signup',
+                source: 'guest_panel_banner',
+                user_type: 'guest'
+            });
+            this.redirectToHostedAuth('sign-in', { redirectUrl: window.location.href });
+        });
+    }
+
+    renderLeaderboardPremiumBadge() {
+        return `<span style="display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.35); color: #fbbf24; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; flex-shrink: 0;">Premium</span>`;
+    }
+
+    getLeaderboardUsersForDisplay(leaderboard) {
+        if (!this.isAuthenticated) {
+            return leaderboard.filter((user) => user.isPremium === true);
+        }
+        return leaderboard;
+    }
+
+    buildLeaderboardScopeSection(currentUserPosition, userTimeString, scopeLine, nextRankGapLine) {
+        const isGuest = !this.isAuthenticated;
+        let html = '';
+
+        if (isGuest) {
+            html += this.renderGuestPanelBanner(
+                'This leaderboard ranks Premium members by focus time. Start your free trial to save your progress and appear here.'
+            );
         }
 
+        if (currentUserPosition && !isGuest) {
+            html += `
+                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
+                    <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
+                    ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
+                </div>
+            `;
+        } else {
+            html += `
+                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">${isGuest ? 'Premium Leaderboard' : 'Leaderboard Scope'}</div>
+                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    buildLeaderboardUserRowHtml(user, index, startRank) {
+        const isCurrentUser = user.isCurrentUser;
+        const userHours = Math.floor(user.totalFocusHours);
+        const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
+        const userTimeStr = `${userHours}h ${userMinutes}m`;
+        const globalRank = startRank + index;
+        const rankChange = user.rankChange;
+        let rankChangeIcon = '';
+
+        if (typeof rankChange === 'number' && rankChange !== 0) {
+            const isUp = rankChange > 0;
+            const color = isUp ? '#22c55e' : '#ef4444';
+            const iconSvg = isUp
+                ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-icon"><path d="M8 6L12 2L16 6"/><path d="M12 2V22"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-down-icon"><path d="M8 18L12 22L16 18"/><path d="M12 2V22"/></svg>`;
+
+            rankChangeIcon = `
+                <span style="display: inline-flex; align-items: center; margin-left: 6px; color: ${color};">
+                    ${iconSvg}
+                </span>
+            `;
+        }
+
+        const premiumBadge = user.isPremium ? this.renderLeaderboardPremiumBadge() : '';
+
+        return `
+            <div style="
+                padding: 12px 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+                border-radius: 8px;
+                border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
+                position: relative;
+            ">
+                <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; min-width: 60px; flex-shrink: 0;">
+                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
+                        ${rankChangeIcon}
+                    </div>
+                    <span style="
+                        color: ${isCurrentUser ? '#22c55e' : '#fff'};
+                        font-size: 14px;
+                        font-weight: ${isCurrentUser ? '600' : '500'};
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        display: inline-flex;
+                        align-items: center;
+                        min-width: 0;
+                    ">
+                        ${this.escapeHtml(user.username)}${premiumBadge}
+                    </span>
+                </div>
+                <span style="color: #a3a3a3; font-size: 14px; font-weight: 500; margin-left: 12px; flex-shrink: 0;">${userTimeStr}</span>
+            </div>
+        `;
+    }
+    
+    async loadLeaderboardForModal(page = 1) {
         const leaderboardContent = document.getElementById('leaderboardModalContent');
         if (!leaderboardContent) return;
 
@@ -4311,7 +4455,7 @@ class PomodoroTimer {
 
         // Sync local stats to Clerk if they exist (one-time sync for existing users)
         // Only sync on page 1 to avoid unnecessary calls
-        if (page === 1) {
+        if (page === 1 && this.isAuthenticated && this.user?.id) {
             if (stats.totalHours && stats.totalHours > 0) {
                 // Sync stats to ensure they're in Clerk (async, don't wait)
                 this.syncStatsToClerk(stats.totalHours);
@@ -4321,9 +4465,7 @@ class PomodoroTimer {
         try {
             const response = await fetch(`/api/leaderboard?page=${page}&limit=100`, {
                 method: 'GET',
-                headers: {
-                    'x-clerk-userid': this.user.id
-                }
+                headers: this.getLeaderboardRequestHeaders()
             });
 
             if (!response.ok) {
@@ -4425,31 +4567,24 @@ class PomodoroTimer {
             nextRankGapLine = `You need ${gapTime} to pass Rank ${nextRankTargetRank}.`;
         }
 
-        let html = '';
+        const isGuest = !this.isAuthenticated;
+        const displayUsers = this.getLeaderboardUsersForDisplay(leaderboard);
         const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
         const activityWindowDays = pagination?.activityWindowDays || 30;
-        const scopeLine = `${totalUsersText} users active in the last ${activityWindowDays} days`;
+        const premiumCount = leaderboard.filter((user) => user.isPremium === true).length;
+        const scopeLine = isGuest
+            ? `${premiumCount || displayUsers.length} Premium members ranked by focus time (last ${activityWindowDays} days)`
+            : `${totalUsersText} users active in the last ${activityWindowDays} days`;
 
-        if (currentUserPosition) {
-            html += `
-                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
-                    <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
-                    ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
-                </div>
-            `;
-        } else {
-            html += `
-                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Leaderboard Scope</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
-                </div>
-            `;
-        }
+        let html = this.buildLeaderboardScopeSection(
+            currentUserPosition,
+            userTimeString,
+            scopeLine,
+            nextRankGapLine
+        );
 
         // Leaderboard list
-        const topUsers = leaderboard;
+        const topUsers = displayUsers;
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
         const pageSize = pagination?.pageSize || 100;
@@ -4458,66 +4593,12 @@ class PomodoroTimer {
         if (topUsers.length === 0) {
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    No users in the leaderboard yet.
+                    ${isGuest ? 'No Premium members on the leaderboard yet.' : 'No users in the leaderboard yet.'}
                 </div>
             `;
         } else {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
-            html += topUsers.map((user, index) => {
-                const isCurrentUser = user.isCurrentUser;
-                const userHours = Math.floor(user.totalFocusHours);
-                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
-                const userTimeStr = `${userHours}h ${userMinutes}m`;
-                
-                const globalRank = startRank + index;
-
-                const rankChange = user.rankChange;
-                let rankChangeIcon = '';
-                if (typeof rankChange === 'number' && rankChange !== 0) {
-                    const isUp = rankChange > 0;
-                    const color = isUp ? '#22c55e' : '#ef4444';
-                    const iconSvg = isUp
-                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-icon"><path d="M8 6L12 2L16 6"/><path d="M12 2V22"/></svg>`
-                        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-down-icon"><path d="M8 18L12 22L16 18"/><path d="M12 2V22"/></svg>`;
-
-                    rankChangeIcon = `
-                        <span style="display: inline-flex; align-items: center; margin-left: 6px; color: ${color};">
-                            ${iconSvg}
-                        </span>
-                    `;
-                }
-
-                return `
-                    <div style="
-                        padding: 12px 16px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-                        border-radius: 8px;
-                        border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
-                        position: relative;
-                    ">
-                        <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                            <div style="display: flex; align-items: center; min-width: 60px;">
-                                <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
-                                ${rankChangeIcon}
-                            </div>
-                            <span style="
-                                color: ${isCurrentUser ? '#22c55e' : '#fff'}; 
-                                font-size: 14px; 
-                                font-weight: ${isCurrentUser ? '600' : '500'}; 
-                                overflow: hidden; 
-                                text-overflow: ellipsis; 
-                                white-space: nowrap;
-                            ">
-                                ${this.escapeHtml(user.username)}
-                            </span>
-                        </div>
-                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
-                    </div>
-                `;
-            }).join('');
+            html += topUsers.map((user, index) => this.buildLeaderboardUserRowHtml(user, index, startRank)).join('');
             html += '</div>';
         }
 
@@ -4569,6 +4650,7 @@ class PomodoroTimer {
         }
 
         containerElement.innerHTML = html;
+        this.bindGuestPanelBannerCta(containerElement);
 
         // Add event listeners for pagination buttons
         if (pagination && totalPages > 1) {
@@ -15393,19 +15475,6 @@ class PomodoroTimer {
     }
 
     async loadLeaderboardForPanel(page = 1) {
-        // Only load if authenticated
-        if (!this.isAuthenticated || !this.user?.id) {
-            const leaderboardContent = document.getElementById('leaderboardContent');
-            if (leaderboardContent) {
-                leaderboardContent.innerHTML = `
-                    <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                        Please log in to view the leaderboard.
-                    </div>
-                `;
-            }
-            return;
-        }
-
         const leaderboardContent = document.getElementById('leaderboardContent');
         if (!leaderboardContent) return;
 
@@ -15460,7 +15529,7 @@ class PomodoroTimer {
 
         // Sync local stats to Clerk if they exist (one-time sync for existing users)
         // Only sync on page 1 to avoid unnecessary calls
-        if (page === 1) {
+        if (page === 1 && this.isAuthenticated && this.user?.id) {
             if (stats.totalHours && stats.totalHours > 0) {
                 // Sync stats to ensure they're in Clerk (async, don't wait)
                 this.syncStatsToClerk(stats.totalHours);
@@ -15470,9 +15539,7 @@ class PomodoroTimer {
         try {
             const response = await fetch(`/api/leaderboard?page=${page}&limit=100`, {
                 method: 'GET',
-                headers: {
-                    'x-clerk-userid': this.user.id
-                }
+                headers: this.getLeaderboardRequestHeaders()
             });
 
             if (!response.ok) {
@@ -15574,31 +15641,24 @@ class PomodoroTimer {
             nextRankGapLine = `You need ${gapTime} to pass Rank ${nextRankTargetRank}.`;
         }
 
-        let html = '';
+        const isGuest = !this.isAuthenticated;
+        const displayUsers = this.getLeaderboardUsersForDisplay(leaderboard);
         const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
         const activityWindowDays = pagination?.activityWindowDays || 30;
-        const scopeLine = `${totalUsersText} users active in the last ${activityWindowDays} days`;
+        const premiumCount = leaderboard.filter((user) => user.isPremium === true).length;
+        const scopeLine = isGuest
+            ? `${premiumCount || displayUsers.length} Premium members ranked by focus time (last ${activityWindowDays} days)`
+            : `${totalUsersText} users active in the last ${activityWindowDays} days`;
 
-        if (currentUserPosition) {
-            html += `
-                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">Your Rank</div>
-                    <div style="color: #fff; font-size: 24px; font-weight: 700;">#${currentUserPosition}</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${userTimeString} • ${scopeLine}</div>
-                    ${nextRankGapLine ? `<div style="color: #a3a3a3; font-size: 12px; margin-top: 6px;">${nextRankGapLine}</div>` : ''}
-                </div>
-            `;
-        } else {
-            html += `
-                <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">Leaderboard Scope</div>
-                    <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
-                </div>
-            `;
-        }
+        let html = this.buildLeaderboardScopeSection(
+            currentUserPosition,
+            userTimeString,
+            scopeLine,
+            nextRankGapLine
+        );
 
         // Leaderboard list
-        const topUsers = leaderboard;
+        const topUsers = displayUsers;
         const currentPage = pagination?.page || 1;
         const totalPages = pagination?.totalPages || 1;
         const pageSize = pagination?.pageSize || 100;
@@ -15607,66 +15667,12 @@ class PomodoroTimer {
         if (topUsers.length === 0) {
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    No users in the leaderboard yet.
+                    ${isGuest ? 'No Premium members on the leaderboard yet.' : 'No users in the leaderboard yet.'}
                 </div>
             `;
         } else {
             html += '<div style="display: flex; flex-direction: column; gap: 8px;">';
-            html += topUsers.map((user, index) => {
-                const isCurrentUser = user.isCurrentUser;
-                const userHours = Math.floor(user.totalFocusHours);
-                const userMinutes = Math.round((user.totalFocusHours - userHours) * 60);
-                const userTimeStr = `${userHours}h ${userMinutes}m`;
-                
-                const globalRank = startRank + index;
-
-                const rankChange = user.rankChange;
-                let rankChangeIcon = '';
-                if (typeof rankChange === 'number' && rankChange !== 0) {
-                    const isUp = rankChange > 0;
-                    const color = isUp ? '#22c55e' : '#ef4444';
-                    const iconSvg = isUp
-                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-icon"><path d="M8 6L12 2L16 6"/><path d="M12 2V22"/></svg>`
-                        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-down-icon"><path d="M8 18L12 22L16 18"/><path d="M12 2V22"/></svg>`;
-
-                    rankChangeIcon = `
-                        <span style="display: inline-flex; align-items: center; margin-left: 6px; color: ${color};">
-                            ${iconSvg}
-                        </span>
-                    `;
-                }
-
-                return `
-                    <div style="
-                        padding: 12px 16px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        background: ${isCurrentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-                        border-radius: 8px;
-                        border: ${isCurrentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.05)'};
-                        position: relative;
-                    ">
-                        <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                            <div style="display: flex; align-items: center; min-width: 60px;">
-                                <span style="color: #a3a3a3; font-size: 14px; font-weight: 600;">${globalRank}.</span>
-                                ${rankChangeIcon}
-                            </div>
-                            <span style="
-                                color: ${isCurrentUser ? '#22c55e' : '#fff'}; 
-                                font-size: 14px; 
-                                font-weight: ${isCurrentUser ? '600' : '500'}; 
-                                overflow: hidden; 
-                                text-overflow: ellipsis; 
-                                white-space: nowrap;
-                            ">
-                                ${this.escapeHtml(user.username)}
-                            </span>
-                        </div>
-                        <span style="color: #a3a3a3; font-size: 14px; font-weight: 500;">${userTimeStr}</span>
-                    </div>
-                `;
-            }).join('');
+            html += topUsers.map((user, index) => this.buildLeaderboardUserRowHtml(user, index, startRank)).join('');
             html += '</div>';
         }
 
@@ -15718,6 +15724,7 @@ class PomodoroTimer {
         }
 
         containerElement.innerHTML = html;
+        this.bindGuestPanelBannerCta(containerElement);
 
         // Add event listeners for pagination buttons
         if (pagination && totalPages > 1) {
@@ -15769,11 +15776,22 @@ class PomodoroTimer {
 
         // Only load if authenticated
         if (!this.isAuthenticated || !this.user?.id) {
-            reportContent.innerHTML = `
-                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    Please log in to view your analytics.
-                </div>
-            `;
+            const guestStats = {
+                totalHours: 0,
+                completedCycles: 0,
+                daily: {},
+                dailySessions: {},
+                dailyBreaks: {}
+            };
+            this.streakData = {
+                currentStreak: 0,
+                longestStreak: 0,
+                lastActiveDate: null
+            };
+            this.displayAdvancedReport(reportContent, guestStats, {
+                activityLimitToWeek: true,
+                guestPreview: true
+            });
             return;
         }
 
@@ -15986,6 +16004,7 @@ class PomodoroTimer {
     displayAdvancedReport(containerElement, stats, options = {}) {
         try {
             const activityLimitToWeek = options.activityLimitToWeek === true;
+            const guestPreview = options.guestPreview === true;
             // For level calculation, use all-time totals
             const totalHours = stats.totalHours || 0;
         
@@ -15999,9 +16018,15 @@ class PomodoroTimer {
         const longestStreak = this.streakData?.longestStreak || 0;
         const streakTitle = currentStreak > 0 ? `${currentStreak}-day streak` : 'No streak yet';
         const streakSubtitle = currentStreak > 0 ? `Best: ${longestStreak} days` : 'Start today with one session';
+        const guestPreviewBanner = guestPreview
+            ? this.renderGuestPanelBanner(
+                'Stats show as zero in guest mode. With Premium, every session is saved and your progress appears here.'
+            )
+            : '';
         
         const html = `
             <div style="padding: 0;">
+                ${guestPreviewBanner}
                 <!-- Level + Day streak row -->
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                     <!-- Level (left) -->
@@ -16109,6 +16134,7 @@ class PomodoroTimer {
         `;
 
             containerElement.innerHTML = html;
+            this.bindGuestPanelBannerCta(containerElement);
             // Activity range buttons (W/M/Y)
             const rangeButtons = containerElement.querySelectorAll('.activity-range-btn');
             const rangeLabel = containerElement.querySelector('#activityRangeLabel');
@@ -20113,7 +20139,7 @@ class PomodoroTimer {
         publicCassettesSection.style.display = 'block';
         publicCassettesList.innerHTML = `
             <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                Please log in to view public cassettes.
+                No public cassettes available yet.
             </div>
         `;
     }
@@ -20137,15 +20163,9 @@ class PomodoroTimer {
         this.isLoadingPublicCassettes = true;
         
         const isGuest = !this.isAuthenticated;
-
-        if (isGuest) {
-            this.renderGuestPublicCassettesMessage();
-            this.isLoadingPublicCassettes = false;
-            return;
-        }
         
         // Get user's own public vibes from localStorage immediately
-        const userPublicCassettes = this.getCustomCassettes().filter(c => c.isPublic === true);
+        const userPublicCassettes = isGuest ? [] : this.getCustomCassettes().filter(c => c.isPublic === true);
         
         // Add creator info to user's public vibes
         const userPublicCassettesWithCreator = userPublicCassettes.map(c => ({
@@ -20370,13 +20390,13 @@ class PomodoroTimer {
         
         if (!publicCassettesList || !publicCassettesSection) return;
 
-        if (isGuest) {
-            this.renderGuestPublicCassettesMessage();
-            return;
-        }
-        
         if (filteredPublicCassettes.length === 0) {
-            publicCassettesSection.style.display = 'none';
+            publicCassettesSection.style.display = 'block';
+            publicCassettesList.innerHTML = `
+                <div style="padding: 24px; text-align: center; color: #a3a3a3;">
+                    No public cassettes available yet.
+                </div>
+            `;
             return;
         }
         
@@ -20400,23 +20420,19 @@ class PomodoroTimer {
                 ? `background-image: url('${escapedImageUrl}'); background-size: cover; background-position: center;`
                 : 'background: #0a0a0a;';
             
-            // Add restriction for guest users
-            const requiresAuth = isGuest;
-            const signupText = requiresAuth ? '<span class="signup-required-text">(Sign up required)</span>' : '';
-            
             // Format views count
             const views = cassette.views || 0;
             const formattedViews = this.formatViewsCount(views);
             
             return `
-                <div class="theme-option public-cassette ${requiresAuth ? '' : 'authenticated'}" 
+                <div class="theme-option public-cassette authenticated" 
                      data-cassette-id="${cassette.id}" 
-                     data-requires-auth="${requiresAuth}"
+                     data-requires-auth="false"
                      data-is-own="${isOwnCassette}"
                      style="position: relative;">
                     <div class="theme-preview" style="${previewStyle}"></div>
                     <div class="theme-info">
-                        <h4>${cassette.title} ${signupText}</h4>
+                        <h4>${cassette.title}</h4>
                         <p>${cassette.description || 'Public focus environment'}</p>
                         ${cassette.creatorName ? `<p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 4px;">created by ${cassette.creatorName}</p>` : ''}
                     </div>
@@ -20471,7 +20487,6 @@ class PomodoroTimer {
             if (!cassetteOption) return;
             
             const isOwnCassette = this.user?.id && cassette.creatorId === this.user.id;
-            const requiresAuth = isGuest;
             
             // Options button (3 dots) - only for own cassettes
             if (isOwnCassette) {
@@ -20521,62 +20536,50 @@ class PomodoroTimer {
             }
             
             // Handle cassette selection (only if not clicking on options)
-            if (!requiresAuth) {
-                cassetteOption.addEventListener('click', (e) => {
-                    // Don't trigger if clicking options button or dropdown
-                    if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
-                        return;
-                    }
-                    
-                    // Remove active from all preset themes
-                    document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
-                        opt.classList.remove('active');
-                    });
-                    
-                    // Remove active from all custom vibes
-                    document.querySelectorAll('.custom-cassette').forEach(opt => {
-                        opt.classList.remove('active');
-                    });
-                    
-                    // Remove active from all public vibes
-                    document.querySelectorAll('.public-cassette').forEach(opt => {
-                        opt.classList.remove('active');
-                    });
-                    
-                    // Add active to selected cassette
-                    cassetteOption.classList.add('active');
-                    
-                    // Apply the public cassette directly
-                    this.applyCustomCassette(cassette);
-                    
-                    // Save to localStorage
-                    const themeName = `custom_${cassette.id}`;
-                    lsSet('lastSelectedTheme', themeName);
-                    this.currentTheme = themeName;
-                    
-                    // Increment views count when cassette is clicked
-                    this.incrementCassetteViews(cassette.id, cassetteOption);
-                    
-                    // Track event
-                    this.trackEvent('Vibe Selected', {
-                        button_type: 'cassette',
-                        vibe_name: cassette.title,
-                        cassette_type: 'public',
-                        source: 'cassettes_panel'
-                    });
-                });
-            }
-        });
-        
-        // Apply styles for guest users (disabled state)
-        filteredPublicCassettes.forEach(cassette => {
-            const cassetteOption = document.querySelector(`.public-cassette[data-cassette-id="${cassette.id}"]`);
-            if (cassetteOption) {
-                const requiresAuth = cassetteOption.getAttribute('data-requires-auth') === 'true';
-                if (requiresAuth) {
-                    cassetteOption.classList.add('ui-disabled-no-click');
+            cassetteOption.addEventListener('click', (e) => {
+                // Don't trigger if clicking options button or dropdown
+                if (e.target.closest('.cassette-options-btn') || e.target.closest('.cassette-options-dropdown')) {
+                    return;
                 }
-            }
+                
+                // Remove active from all preset themes
+                document.querySelectorAll('.theme-option[data-theme]').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all custom vibes
+                document.querySelectorAll('.custom-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Remove active from all public vibes
+                document.querySelectorAll('.public-cassette').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active to selected cassette
+                cassetteOption.classList.add('active');
+                
+                // Apply the public cassette directly
+                this.applyCustomCassette(cassette);
+                
+                // Save to localStorage
+                const themeName = `custom_${cassette.id}`;
+                lsSet('lastSelectedTheme', themeName);
+                this.currentTheme = themeName;
+                
+                // Increment views count when cassette is clicked
+                this.incrementCassetteViews(cassette.id, cassetteOption);
+                
+                // Track event
+                this.trackEvent('Vibe Selected', {
+                    button_type: 'cassette',
+                    vibe_name: cassette.title,
+                    cassette_type: 'public',
+                    source: 'cassettes_panel',
+                    user_type: this.isAuthenticated ? 'authenticated' : 'guest'
+                });
+            });
         });
         
         // Close dropdown when clicking outside (only add listener once)
