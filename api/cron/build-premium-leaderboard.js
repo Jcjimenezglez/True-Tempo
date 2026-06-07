@@ -7,7 +7,7 @@ const {
   setSnapshot,
   isCacheConfigured,
 } = require('../leaderboard-cache');
-const LEADERBOARD_RANK_BASELINE_VERSION = '2026-02-10-reset';
+const LEADERBOARD_RANK_BASELINE_VERSION = '2026-06-07-paid-and-legacy-total';
 
 module.exports = async (req, res) => {
   const authHeader = req.headers.authorization;

@@ -4303,9 +4303,6 @@ class PomodoroTimer {
     }
 
     getLeaderboardUsersForDisplay(leaderboard) {
-        if (!this.isAuthenticated) {
-            return leaderboard.filter((user) => user.isPremium === true);
-        }
         return leaderboard;
     }
 
@@ -4315,7 +4312,7 @@ class PomodoroTimer {
 
         if (isGuest) {
             html += this.renderGuestPanelBanner(
-                'This leaderboard ranks Premium members by focus time. Start your free trial to save your progress and appear here.'
+                'This leaderboard ranks members by total focus time. Paying Premium members and legacy complimentary users appear here. Start your free trial to save progress and join the board.'
             );
         }
 
@@ -4331,7 +4328,7 @@ class PomodoroTimer {
         } else {
             html += `
                 <div style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">${isGuest ? 'Premium Leaderboard' : 'Leaderboard Scope'}</div>
+                    <div style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 6px;">${isGuest ? 'Focus Leaderboard' : 'Leaderboard Scope'}</div>
                     <div style="color: #a3a3a3; font-size: 12px; margin-top: 4px;">${scopeLine}</div>
                 </div>
             `;
@@ -4487,8 +4484,7 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 30
+                        hasMore: data.hasMore
                     },
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -4519,8 +4515,7 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 30
+                        hasMore: data.hasMore
                     },
                     {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -4570,11 +4565,7 @@ class PomodoroTimer {
         const isGuest = !this.isAuthenticated;
         const displayUsers = this.getLeaderboardUsersForDisplay(leaderboard);
         const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
-        const activityWindowDays = pagination?.activityWindowDays || 30;
-        const premiumCount = leaderboard.filter((user) => user.isPremium === true).length;
-        const scopeLine = isGuest
-            ? `${premiumCount || displayUsers.length} Premium members ranked by focus time (last ${activityWindowDays} days)`
-            : `${totalUsersText} users active in the last ${activityWindowDays} days`;
+        const scopeLine = `${totalUsersText} members ranked by total focus time`;
 
         let html = this.buildLeaderboardScopeSection(
             currentUserPosition,
@@ -4593,7 +4584,7 @@ class PomodoroTimer {
         if (topUsers.length === 0) {
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    ${isGuest ? 'No Premium members on the leaderboard yet.' : 'No users in the leaderboard yet.'}
+                    ${isGuest ? 'No members on the leaderboard yet.' : 'No users in the leaderboard yet.'}
                 </div>
             `;
         } else {
@@ -15561,8 +15552,7 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 30
+                        hasMore: data.hasMore
                     },
                     rankMeta: {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -15593,8 +15583,7 @@ class PomodoroTimer {
                         page: data.page,
                         totalPages: data.totalPages,
                         totalUsers: data.totalUsers,
-                        hasMore: data.hasMore,
-                        activityWindowDays: data.activityWindowDays || 30
+                        hasMore: data.hasMore
                     },
                     {
                         nextRankGapMinutes: data.nextRankGapMinutes,
@@ -15644,11 +15633,7 @@ class PomodoroTimer {
         const isGuest = !this.isAuthenticated;
         const displayUsers = this.getLeaderboardUsersForDisplay(leaderboard);
         const totalUsersText = pagination?.totalUsers ?? leaderboard.length;
-        const activityWindowDays = pagination?.activityWindowDays || 30;
-        const premiumCount = leaderboard.filter((user) => user.isPremium === true).length;
-        const scopeLine = isGuest
-            ? `${premiumCount || displayUsers.length} Premium members ranked by focus time (last ${activityWindowDays} days)`
-            : `${totalUsersText} users active in the last ${activityWindowDays} days`;
+        const scopeLine = `${totalUsersText} members ranked by total focus time`;
 
         let html = this.buildLeaderboardScopeSection(
             currentUserPosition,
@@ -15667,7 +15652,7 @@ class PomodoroTimer {
         if (topUsers.length === 0) {
             html += `
                 <div style="padding: 24px; text-align: center; color: #a3a3a3;">
-                    ${isGuest ? 'No Premium members on the leaderboard yet.' : 'No users in the leaderboard yet.'}
+                    ${isGuest ? 'No members on the leaderboard yet.' : 'No users in the leaderboard yet.'}
                 </div>
             `;
         } else {

@@ -1,13 +1,12 @@
 // API endpoint to get leaderboard snapshot:
-// - Free users active in last N days
-// - Premium users always included
+// - Paying Premium members (Stripe / lifetime)
+// - Legacy complimentary Premium from the no-free-plan migration
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 const { buildPremiumLeaderboardSnapshot } = require('./leaderboard-premium-service');
 const { getSnapshot, setSnapshot } = require('./leaderboard-cache');
 const DEFAULT_PAGE_SIZE = 100;
 const MAX_PAGE_SIZE = 200;
-const DEFAULT_ACTIVE_DAYS = 30;
-const LEADERBOARD_RANK_BASELINE_VERSION = '2026-02-10-reset';
+const LEADERBOARD_RANK_BASELINE_VERSION = '2026-06-07-paid-and-legacy-total';
 
 const toNumber = (value) => {
   if (typeof value === 'number') return value;
@@ -50,7 +49,6 @@ module.exports = async (req, res) => {
 
     const allLeaderboardUsers = snapshot.leaderboard || [];
     const totalUsers = snapshot.totalUsers ?? allLeaderboardUsers.length;
-    const activityWindowDays = snapshot.activityWindowDays || DEFAULT_ACTIVE_DAYS;
     const totalPages = totalUsers > 0 ? Math.ceil(totalUsers / itemsPerPage) : 1;
     const safePage = totalPages > 0 ? Math.max(1, Math.min(page, totalPages)) : 1;
     const startIndex = (safePage - 1) * itemsPerPage;
@@ -129,7 +127,6 @@ module.exports = async (req, res) => {
       totalPages,
       hasMore: safePage < totalPages,
       pageSize: itemsPerPage,
-      activityWindowDays,
       updatedAt: snapshot.updatedAt || null,
     });
   } catch (error) {
