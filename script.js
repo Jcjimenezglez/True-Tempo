@@ -2333,7 +2333,7 @@ class PomodoroTimer {
                     <h3>Build your perfect timer</h3>
                     <p>${guestMessage}</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Sign up for free</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Start free trial</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -2367,7 +2367,7 @@ class PomodoroTimer {
                 signupBtn.addEventListener('click', () => {
                     this.trackEvent('Sign Up Clicked', {
                         modal_type: 'create_timer',
-                        button_text: 'Sign up for free',
+                        button_text: 'Start free trial',
                         user_type: 'guest',
                         source: 'create_timer_modal'
                     });
@@ -2417,7 +2417,7 @@ class PomodoroTimer {
                 <h3>Create your focus cassette</h3>
                 <p>Create a free account to start building your own custom focus environments. Upload your own images, set the perfect atmosphere, and personalize your workspace.</p>
                 <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="cassetteLoginSignupBtn">Sign up for free</button>
+                    <button class="upgrade-btn" id="cassetteLoginSignupBtn">Start free trial</button>
                     <button class="cancel-btn" id="cassetteLoginCancelBtn">Cancel</button>
                 </div>
             </div>
@@ -2494,7 +2494,7 @@ class PomodoroTimer {
                     <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Sign up for free</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Start free trial</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -2528,7 +2528,7 @@ class PomodoroTimer {
                 signupBtn.addEventListener('click', () => {
                     this.trackEvent('Sign Up Clicked', {
                         modal_type: 'create_cassette',
-                        button_text: 'Sign up for free',
+                        button_text: 'Start free trial',
                         user_type: 'guest',
                         source: 'create_cassette_modal'
                     });
@@ -4619,7 +4619,7 @@ class PomodoroTimer {
             <h3 class="logout-modal-title">${techniqueName}</h3>
             <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
             <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Sign up for free</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Start free trial</button>
                 <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Cancel</button>
             </div>
         `;
@@ -4670,7 +4670,7 @@ class PomodoroTimer {
             if (this.guestTaskLimitModalOverlay) {
                 const button = this.guestTaskLimitModalOverlay.querySelector('#guestTaskLimitSignupBtn');
                 if (button) {
-                    button.textContent = 'Sign up for free';
+                    button.textContent = 'Start free trial';
                 }
                 this.guestTaskLimitModalOverlay.style.display = 'flex';
             }
@@ -4838,7 +4838,7 @@ class PomodoroTimer {
             }
         }
         if (this.dailyLimitSubscribeBtn) {
-            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Upgrade Now' : 'Sign up for free';
+            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Upgrade Now' : 'Start free trial';
         }
         
         // Title is now static in HTML: "You've maxed out today's focus!"
@@ -6354,7 +6354,7 @@ class PomodoroTimer {
 
                     // If user is not logged in, show login prompt
                     if (!userId && !userEmail) {
-                        alert('Please log in first to upgrade to Pro. Click "Sign up for free" or "Login" to continue.');
+                        alert('Please log in first to upgrade to Pro. Click "Start free trial" or "Login" to continue.');
                         return;
                     }
 
@@ -9756,7 +9756,7 @@ class PomodoroTimer {
                 </div>
                 </div>
                 <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="lofiSignupBtn">Sign up for free</button>
+                    <button class="upgrade-btn" id="lofiSignupBtn">Start free trial</button>
                     <button class="cancel-btn" id="lofiMaybeLaterBtn">Maybe later</button>
                 </div>
             </div>
@@ -11815,7 +11815,7 @@ class PomodoroTimer {
         let upgradeMessage, buttonText;
         if (isGuest) {
             upgradeMessage = '';
-            buttonText = 'Sign up for free';
+            buttonText = 'Start free trial';
         } else if (isFree) {
             upgradeMessage = '';
             buttonText = 'Upgrade Now';
@@ -11899,7 +11899,7 @@ class PomodoroTimer {
                 integration_type: integrationType
             };
             if (isSignupIntent) {
-                // Sign up for free → Mixpanel only (no Google Ads)
+                // Start free trial → Mixpanel only (no Google Ads)
                 this.trackEvent('Sign Up Clicked', eventProperties);
             } else {
                 // Upgrade Now → Subscribe Clicked → Mixpanel + Google Ads
@@ -22131,7 +22131,7 @@ class PomodoroTimer {
             // Check if user is authenticated for Tron theme
             if (!this.isAuthenticated) {
                 console.log('🎨 Tron theme requires authentication');
-                alert('Tron theme requires an account. Sign up for free to unlock all immersive themes!');
+                alert('Tron theme requires an account. Start free trial to unlock all immersive themes!');
                 // Revert to default theme
                 this.applyTheme('lofi');
                 return;
