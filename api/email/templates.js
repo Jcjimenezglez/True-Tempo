@@ -48,24 +48,17 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
               <p>Thanks for signing up. Superfocus helps you protect your focus blocks and finish meaningful work every day.</p>
 
               <div class="highlight">
-                <p><strong>Free plan</strong></p>
-                <ul>
-                  <li>1 timer</li>
-                  <li>2 hours of focus time per day</li>
-                  <li>1 task and 1 cassette</li>
-                </ul>
-
-                <p><strong>Premium Lifetime ($4.99 one-time)</strong></p>
+                <p><strong>Try Premium free for 7 days</strong></p>
                 <ul>
                   <li>Unlimited timers, tasks, and cassettes</li>
                   <li>Unlimited focus time</li>
                   <li>Advanced analytics and reports</li>
-                  <li>Future premium updates included</li>
+                  <li>Then $3.99/month — cancel anytime before the trial ends</li>
                 </ul>
               </div>
               
               <div class="button-container">
-                <a href="${PRICING_URL}" class="button">Upgrade to Premium Lifetime</a>
+                <a href="${PRICING_URL}" class="button">Start your free trial</a>
               </div>
               
               <p>Ready to focus? <a href="${APP_URL}">Open Superfocus</a></p>
@@ -88,18 +81,13 @@ Hi ${firstName},
 
 Thanks for signing up. Superfocus helps you protect your focus blocks and get more done.
 
-Free plan:
-- 1 timer
-- 2 hours of focus time per day
-- 1 task and 1 cassette
-
-Premium Lifetime ($4.99 one-time):
+Free trial (7 days):
 - Unlimited timers, tasks, and cassettes
 - Unlimited focus time
 - Advanced analytics and reports
-- Future premium updates included
+- Then $3.99/month
 
-Upgrade now: ${PRICING_URL}
+Start your free trial: ${PRICING_URL}
 
 Ready to focus? ${APP_URL}
 
@@ -127,7 +115,7 @@ function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
             </div>
             <div class="content">
               <p>Hi ${firstName},</p>
-              <p>You're now a Premium member. Your 14-day free trial has started.</p>
+              <p>You're now a Premium member. Your 7-day free trial has started.</p>
               
               <p><strong>What's unlocked:</strong></p>
               
@@ -180,7 +168,7 @@ Welcome to Premium
 
 Hi ${firstName},
 
-You're now a Premium member. Your 14-day free trial has started.
+You're now a Premium member. Your 7-day free trial has started.
 
 What's unlocked:
 - Unlimited Custom Timers
@@ -235,7 +223,7 @@ function getSignupFollowUp1({ firstName = 'there' }) {
               </div>
               
               <p><strong>Want unlimited timers and focus time?</strong></p>
-              <p>Try Premium free for 14 days. Create custom timers, design your own vibes, and track your progress.</p>
+              <p>Try Premium free for 7 days. Create custom timers, design your own vibes, and track your progress.</p>
               
               <p><a href="${PRICING_URL}">Start your free trial</a></p>
               
@@ -265,7 +253,7 @@ That's it. Repeat 4 times for a full cycle.
 
 Start your first session: ${APP_URL}
 
-Want unlimited timers and focus time? Try Premium free for 14 days: ${PRICING_URL}
+Want unlimited timers and focus time? Try Premium free for 7 days: ${PRICING_URL}
 
 — The Superfocus Team
     `,
@@ -302,7 +290,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
                 <li><strong>Analytics</strong> — See your productivity patterns</li>
               </ul>
               
-              <p>Try it free for 14 days. If it's not for you, cancel and pay nothing.</p>
+              <p>Try it free for 7 days. If it's not for you, cancel and pay nothing.</p>
               
               <p>After the trial, it's $3.99/month.</p>
               
@@ -336,7 +324,7 @@ If you're running into limits, Premium removes them:
 - Custom vibes — Design your focus environment
 - Analytics — See your productivity patterns
 
-Try it free for 14 days. If it's not for you, cancel and pay nothing.
+Try it free for 7 days. If it's not for you, cancel and pay nothing.
 
 After the trial, it's $3.99/month.
 

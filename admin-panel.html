@@ -215,6 +215,11 @@
             color: #9ca3af;
         }
         
+        .plan-complimentary {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+        }
+
         .plan-pro {
             background: rgba(16, 185, 129, 0.2);
             color: #10b981;
@@ -375,23 +380,30 @@
                 return;
             }
             
-            usersList.innerHTML = users.map(user => `
+            usersList.innerHTML = users.map(user => {
+                const planLabel = user.isPremium
+                    ? (user.paymentType === 'complimentary' || user.legacyFreeGrant ? 'Complimentary' : 'Pro')
+                    : 'No sub';
+                const planClass = user.isPremium
+                    ? (user.paymentType === 'complimentary' || user.legacyFreeGrant ? 'plan-complimentary' : 'plan-pro')
+                    : 'plan-free';
+                return `
                 <div class="user-card">
                     <div class="user-info">
                         <h4>${user.email}</h4>
                         <p>ID: ${user.id} | Created: ${new Date(user.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div class="user-actions">
-                        <span class="plan-badge ${user.isPremium ? 'plan-pro' : 'plan-free'}">
-                            ${user.isPremium ? 'Pro' : 'Free'}
+                        <span class="plan-badge ${planClass}">
+                            ${planLabel}
                         </span>
                         ${user.isPremium ? 
-                            `<button class="btn btn-danger btn-small" onclick="downgradeUser('${user.id}')">Downgrade to Free</button>` :
+                            `<button class="btn btn-danger btn-small" onclick="downgradeUser('${user.id}')">Downgrade</button>` :
                             `<button class="btn btn-success btn-small" onclick="upgradeUser('${user.id}')">Upgrade to Pro</button>`
                         }
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         // Update statistics

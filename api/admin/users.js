@@ -24,7 +24,9 @@ export default async function handler(req, res) {
             id: user.id,
             email: user.email_addresses[0]?.email_address || 'No email',
             createdAt: user.created_at,
-            isPremium: user.public_metadata?.isPremium === true
+            isPremium: user.public_metadata?.isPremium === true,
+            paymentType: user.public_metadata?.paymentType || null,
+            legacyFreeGrant: user.public_metadata?.legacyFreeGrant === true
         }));
 
         // Calculate stats

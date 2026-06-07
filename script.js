@@ -843,7 +843,7 @@ class PomodoroTimer {
             return Number(metadata.referralExtendedTrialDays) || 90;
         }
 
-        return 30;
+        return 7;
     }
 
     getPremiumTrialCtaText() {
@@ -851,7 +851,7 @@ class PomodoroTimer {
         if (trialDays >= 90) {
             return 'Try 3 months for $0';
         }
-        return 'Try 1 month for $0';
+        return 'Try 7 days for $0';
     }
 
     getPremiumTrialDescription() {
@@ -859,7 +859,7 @@ class PomodoroTimer {
         if (trialDays >= 90) {
             return 'Free for 3 months, then $3.99 per month after. This referral offer is applied automatically at checkout.';
         }
-        return 'Free for 1 month, then $3.99 per month after. Offer only available if you haven\'t tried Premium before.';
+        return 'Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.';
     }
 
     updatePremiumTrialOfferUi() {
@@ -3325,6 +3325,10 @@ class PomodoroTimer {
 
             this.refreshReferralState().catch(() => {});
             this.updatePremiumTrialOfferUi();
+
+            if (this.needsSubscriptionPaywall()) {
+                this.ensureSubscriptionAccess({ source: 'auth_state' });
+            }
             
             // Ensure cassette auth gating and saved Tron theme are applied post-hydration
             try { this.updateThemeAuthState(); } catch (_) {}
@@ -4682,40 +4686,51 @@ class PomodoroTimer {
         }
     }
 
-    showFreeUpgradeNowModal({ source = 'upgrade_gate', location = 'unknown', gateType = 'generic', title = 'Upgrade Now', message = 'Unlock everything with an upgrade.' } = {}) {
-        if (!this.isAuthenticated || this.isPremiumUser()) {
+    needsSubscriptionPaywall() {
+        return this.isAuthenticated && !this.isPremiumUser();
+    }
+
+    ensureSubscriptionAccess({ source = 'paywall' } = {}) {
+        if (!this.needsSubscriptionPaywall()) {
+            return true;
+        }
+        this.pauseTimerSilent();
+        this.showSubscriptionRequiredModal({ source });
+        return false;
+    }
+
+    async createCheckoutSession(planType = 'monthly', options = {}) {
+        if (options.source) {
+            this._checkoutSource = options.source;
+        }
+        await this.proceedToCheckout();
+    }
+
+    showSubscriptionRequiredModal({ source = 'paywall', location = 'app', title = 'Start your free trial', message = 'Superfocus Premium includes unlimited focus sessions, timers, tasks, and analytics. Try it free for 7 days.' } = {}) {
+        if (!this.needsSubscriptionPaywall()) {
             return;
         }
+        if (this._subscriptionPaywallVisible) {
+            return;
+        }
+        this._subscriptionPaywallVisible = true;
 
         const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'logout-modal-overlay';
+        modalOverlay.className = 'logout-modal-overlay subscription-paywall-overlay';
         modalOverlay.style.display = 'flex';
 
         const modal = document.createElement('div');
         modal.className = 'logout-modal';
-        const modalIconMap = {
-            timers: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="m6.3 2.3 1.4 1.4"/><path d="m16.3 2.3-1.4 1.4"/></svg>',
-            tasks: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>',
-            cassettes: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M8 8v1"/><path d="M12 8v1"/><path d="M16 8v1"/><rect width="20" height="12" x="2" y="9" rx="2"/><circle cx="8" cy="15" r="2"/><circle cx="16" cy="15" r="2"/></svg>',
-            analytics: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>'
-        };
-        const modalIcon = modalIconMap[gateType] || '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77 5.82 21l1.18-6.86-5-4.87 6.91-1.01L12 2z"/></svg>';
+        const ctaText = this.getPremiumTrialCtaText();
         modal.innerHTML = `
-            <button class="close-logout-modal-x" id="closeFreeUpgradeNowModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-            </button>
             <div class="upgrade-content">
                 <div class="upgrade-icon">
-                    ${modalIcon}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77 5.82 21l1.18-6.86-5-4.87 6.91-1.01L12 2z"/></svg>
                 </div>
                 <h3 class="logout-modal-title">${this.escapeHtml(title)}</h3>
                 <p class="logout-modal-message" style="color: rgba(255, 255, 255, 0.82);">${this.escapeHtml(message)}</p>
                 <div class="logout-modal-buttons">
-                    <button class="logout-modal-btn logout-modal-btn-primary" id="freeUpgradeNowBtn">Upgrade Now</button>
-                    <button class="logout-modal-btn logout-modal-btn-secondary" id="freeUpgradeLaterBtn">Maybe later</button>
+                    <button class="logout-modal-btn logout-modal-btn-primary" id="subscriptionPaywallCheckoutBtn">${this.escapeHtml(ctaText)}</button>
                 </div>
             </div>
         `;
@@ -4723,34 +4738,34 @@ class PomodoroTimer {
         modalOverlay.appendChild(modal);
         document.body.appendChild(modalOverlay);
 
-        const closeModal = () => {
+        const closePaywall = () => {
+            this._subscriptionPaywallVisible = false;
             try { document.body.removeChild(modalOverlay); } catch (_) {}
         };
 
-        const closeBtn = modal.querySelector('#closeFreeUpgradeNowModal');
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) closeModal();
-        });
-
-        const laterBtn = modal.querySelector('#freeUpgradeLaterBtn');
-        if (laterBtn) laterBtn.addEventListener('click', closeModal);
-
-        const upgradeNowBtn = modal.querySelector('#freeUpgradeNowBtn');
-        if (upgradeNowBtn) {
-            upgradeNowBtn.addEventListener('click', () => {
+        const checkoutBtn = modal.querySelector('#subscriptionPaywallCheckoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
                 this.trackEvent('Subscribe Clicked', {
                     button_type: 'subscribe',
                     source,
                     location,
-                    user_type: 'free_user',
-                    modal_type: 'free_upgrade_gate'
+                    user_type: 'paywall',
+                    modal_type: 'subscription_required'
                 });
-                closeModal();
-                this.showPricingPlansModal();
+                closePaywall();
+                this.createCheckoutSession('monthly', { source });
             });
         }
+    }
+
+    showFreeUpgradeNowModal(options = {}) {
+        this.showSubscriptionRequiredModal({
+            source: options.source || 'upgrade_gate',
+            location: options.location || 'unknown',
+            title: options.title || 'Start your free trial',
+            message: options.message || 'Unlock everything with a 7-day Premium trial.'
+        });
     }
     
     showGuestTaskLimitModal() {
@@ -4768,14 +4783,14 @@ class PomodoroTimer {
     // Daily focus limit helpers
     getDailyFocusLimitSeconds() {
         if (this.isPremiumUser()) return Infinity;
-        return this.isAuthenticated ? this.FREE_DAILY_FOCUS_LIMIT_SECONDS : this.GUEST_DAILY_FOCUS_LIMIT_SECONDS;
+        if (this.isAuthenticated) return 0;
+        return this.GUEST_DAILY_FOCUS_LIMIT_SECONDS;
     }
 
     hasReachedDailyFocusLimit() {
-        // Pro users are unlimited; guests and free users are limited
+        if (this.needsSubscriptionPaywall()) return true;
         const isLimitedUser = !this.isPremiumUser();
         if (!isLimitedUser) return false;
-        // If cooldown is active, limit is reached
         return !!this.focusLimitCooldownUntil && Date.now() < this.focusLimitCooldownUntil;
     }
     
@@ -8543,10 +8558,14 @@ class PomodoroTimer {
     }
     
     startTimer() {
-        // Enforce daily focus limit for non‑Pro users
+        // Enforce daily focus limit for guests; authenticated users need Premium
         if (this.hasReachedDailyFocusLimit()) {
             this.pauseTimerSilent();
-            this.showDailyLimitModal();
+            if (this.needsSubscriptionPaywall()) {
+                this.ensureSubscriptionAccess({ source: 'start_timer' });
+            } else {
+                this.showDailyLimitModal();
+            }
             return;
         }
         
@@ -16763,20 +16782,58 @@ class PomodoroTimer {
             // CRITICAL: Force check auth state after signup redirect
             // Wait for Clerk to hydrate, then update auth state
             const checkAuthAfterSignup = async () => {
-                // Wait for Clerk to be ready
                 await this.waitForClerk();
-                
-                // Give Clerk a moment to hydrate the user after redirect
                 await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Force check auth state
                 this.checkAuthState();
-                
-                // Wait a bit more and check again to ensure state is updated
-                setTimeout(() => {
-                    this.checkAuthState();
-                    this.scheduleAuthUpdate();
-                }, 1000);
+
+                if (window.Clerk && window.Clerk.user) {
+                    const userId = window.Clerk.user.id;
+                    const signupEmailKey = `signup_email_triggered_${userId}`;
+                    if (localStorage.getItem(signupEmailKey) !== 'true') {
+                        try {
+                            const response = await fetch('/api/triggers/on-signup', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    userId,
+                                    referralCode: this.getPendingReferralCode(),
+                                })
+                            });
+                            const payload = await response.json().catch(() => ({}));
+                            if (response.ok) {
+                                localStorage.setItem(signupEmailKey, 'true');
+                                console.log('✅ Signup email sequence triggered');
+
+                                if (payload?.referral?.status === 'claimed') {
+                                    this.showResourceShareToast(payload.referral.message || 'Referral unlocked. You can now start a 3-month Premium trial.');
+                                    this.clearPendingReferralCode();
+
+                                    if (window.Clerk?.user?.reload) {
+                                        await window.Clerk.user.reload();
+                                        this.user = window.Clerk.user;
+                                        await this.refreshReferralState(true).catch(() => {});
+                                        this.updatePremiumTrialOfferUi();
+                                    }
+                                } else if (payload?.referral?.status === 'expired' || payload?.referral?.status === 'invalid') {
+                                    this.showResourceShareToast(payload.referral.message || 'This referral link has expired.', true);
+                                    this.clearPendingReferralCode();
+                                } else if (payload?.referral?.status === 'self_referral') {
+                                    this.showResourceShareToast(payload.referral.message || 'You cannot use your own referral link.', true);
+                                    this.clearPendingReferralCode();
+                                }
+                            }
+                        } catch (err) {
+                            console.error('❌ Error triggering signup email:', err);
+                        }
+                    }
+                }
+
+                this.checkAuthState();
+                this.scheduleAuthUpdate();
+
+                if (!this.isPremiumUser()) {
+                    await this.createCheckoutSession('monthly', { source: 'post_signup' });
+                }
             };
             
             checkAuthAfterSignup();
@@ -16797,62 +16854,6 @@ class PomodoroTimer {
                 window.mixpanelTracker.trackUserSignup('clerk');
                 console.log('📊 User signup event tracked to Mixpanel');
             }
-            
-            // Trigger signup email sequence (wait for user to be available)
-            setTimeout(() => {
-                if (window.Clerk && window.Clerk.user) {
-                    const userId = window.Clerk.user.id;
-                    const signupEmailKey = `signup_email_triggered_${userId}`;
-                    if (localStorage.getItem(signupEmailKey) === 'true') {
-                        return;
-                    }
-                    fetch('/api/triggers/on-signup', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId,
-                            referralCode: this.getPendingReferralCode(),
-                        })
-                    }).then(async (response) => {
-                        const payload = await response.json().catch(() => ({}));
-                        if (response.ok) {
-                            localStorage.setItem(signupEmailKey, 'true');
-                            console.log('✅ Signup email sequence triggered');
-
-                            if (payload?.referral?.status === 'claimed') {
-                                this.showResourceShareToast(payload.referral.message || 'Referral unlocked. You can now start a 3-month Premium trial.');
-                                this.clearPendingReferralCode();
-
-                                if (window.Clerk?.user?.reload) {
-                                    Promise.resolve()
-                                        .then(() => window.Clerk.user.reload())
-                                        .then(() => {
-                                            this.user = window.Clerk.user;
-                                            this.refreshReferralState(true).catch(() => {});
-                                            this.updatePremiumTrialOfferUi();
-                                        })
-                                        .catch((err) => console.warn('Referral metadata reload failed:', err));
-                                }
-                            } else if (payload?.referral?.status === 'expired' || payload?.referral?.status === 'invalid') {
-                                this.showResourceShareToast(payload.referral.message || 'This referral link has expired.', true);
-                                this.clearPendingReferralCode();
-                            } else if (payload?.referral?.status === 'self_referral') {
-                                this.showResourceShareToast(payload.referral.message || 'You cannot use your own referral link.', true);
-                                this.clearPendingReferralCode();
-                            }
-                        } else {
-                            console.error('❌ Failed to trigger signup email sequence');
-                        }
-                    }).catch(err => {
-                        console.error('❌ Error triggering signup email:', err);
-                    });
-                }
-            }, 2000);
-            
-            // Show success message for signup - DISABLED
-            // setTimeout(() => {
-            //     this.showSignupSuccessMessage();
-            // }, 1000); // Small delay to let the page fully load
         }
         
         if (paymentSuccess === 'success' || premiumStatus === '1') {

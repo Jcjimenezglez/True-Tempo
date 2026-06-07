@@ -106,7 +106,7 @@ module.exports = async (req, res) => {
 
   try {
     const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
-    let trialPeriodDays = 30;
+    let trialPeriodDays = 7;
     let referralExtendedTrialApplied = false;
 
     if (userId && process.env.CLERK_SECRET_KEY) {
@@ -131,7 +131,7 @@ module.exports = async (req, res) => {
     const mode = 'subscription';
 
     // Create checkout session config
-    // Monthly: $3.99/month with 30-day trial configured in Stripe Price
+    // Monthly: $3.99/month with 7-day trial configured in Stripe Price
     const metadata = {
       clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
       app_name: 'Superfocus',

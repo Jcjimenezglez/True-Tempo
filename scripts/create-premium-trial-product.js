@@ -53,19 +53,19 @@ const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 async function createPremiumTrialProduct() {
   try {
-    console.log('🚀 Creating Superfocus Premium product with 1-month trial...\n');
+    console.log('🚀 Creating Superfocus Premium product with 7-day trial...\n');
 
     // Create product
     const product = await stripe.products.create({
       name: 'Superfocus Premium',
-      description: '1 month free trial. Pay $0 today, then $3.99/month after trial ends. Cancel anytime.',
+      description: '7-day free trial. Pay $0 today, then $3.99/month after trial ends. Cancel anytime.',
     });
 
     console.log('✅ Product created:', product.id);
     console.log('   Product Name:', product.name);
     console.log('');
 
-    // Create Monthly Price with 1-month trial
+    // Create Monthly Price with 7-day trial
     // After trial, charge $3.99/month
     const monthlyPrice = await stripe.prices.create({
       product: product.id,
@@ -73,13 +73,13 @@ async function createPremiumTrialProduct() {
       currency: 'usd',
       recurring: {
         interval: 'month',
-        trial_period_days: 30, // 1 month = 30 days
+        trial_period_days: 7,
       },
     });
 
     console.log('✅ Premium Monthly price created:', monthlyPrice.id);
     console.log('   Price: $3.99/month');
-    console.log('   Trial: 30 days (1 month)');
+    console.log('   Trial: 7 days');
     console.log('   Add to Vercel: STRIPE_PRICE_ID_PREMIUM=' + monthlyPrice.id);
     console.log('');
 
