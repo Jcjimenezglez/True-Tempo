@@ -244,7 +244,7 @@ function getFaqData(page) {
   }
   const baseFaq = [
     { q: `What is the best ${keyword}?`, a: `Superfocus offers ${page.preset || 'Pomodoro'} plus ambient sounds, task tracking, and analytics. Free to try.` },
-    { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 1 hour. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
+    { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 25 minutes. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
     { q: 'Does Superfocus have ambient sounds?', a: 'Yes. Superfocus includes lofi, rain, cafe, and other focus cassettes. You can also add your own Spotify playlists.' },
     { q: 'What problem does Superfocus solve?', a: 'Superfocus helps you stay focused, avoid burnout, and track progress. It combines a Pomodoro timer with ambient sounds, task management, and productivity insights—so you can get into flow, maintain energy, and see how much you accomplish.' }
   ];

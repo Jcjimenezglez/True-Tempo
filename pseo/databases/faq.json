@@ -26,7 +26,7 @@
         },
         {
           "q": "Is Superfocus free?",
-          "a": "Yes. Superfocus is free to use. Free users get 2 hours of focus per day; guests get 1 hour. Upgrade to Premium for unlimited focus."
+          "a": "Yes. Superfocus is free to use. Free users get 2 hours of focus per day; guests get 25 minutes. Upgrade to Premium for unlimited focus."
         }
       ],
       "externalLinks": [
@@ -44,9 +44,9 @@
       "category": "faq",
       "keyword": "is superfocus free",
       "title": "Is Superfocus Free? Yes—No Credit Card to Start",
-      "description": "Free tier: 2 hours focus/day. Guests get 1 hour. No signup required to try. Premium optional.",
+      "description": "Free tier: 2 hours focus/day. Guests get 25 minutes. No signup required to try. Premium optional.",
       "h1": "Another app asking for a credit card before you can even try it.",
-      "answer": "Yes. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Superfocus</a> is free to use. Free users get <strong>2 hours of focus per day</strong>; guests get 1 hour. No credit card required to start. Upgrade to Premium for unlimited focus, all timer techniques (Pomodoro, Flow, Sprint, Deep Work, Marathon), and advanced analytics.",
+      "answer": "Yes. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Superfocus</a> is free to use. Free users get <strong>2 hours of focus per day</strong>; guests get 25 minutes. No credit card required to start. Upgrade to Premium for unlimited focus, all timer techniques (Pomodoro, Flow, Sprint, Deep Work, Marathon), and advanced analytics.",
       "preset": "Any preset on free tier",
       "related": [
         "/faq/pomodoro-timer-online",
@@ -56,11 +56,11 @@
       "faq": [
         {
           "q": "Is Superfocus free?",
-          "a": "Yes. Free users get 2 hours of focus per day; guests get 1 hour. Premium gives unlimited focus and all features."
+          "a": "Yes. Free users get 2 hours of focus per day; guests get 25 minutes. Premium gives unlimited focus and all features."
         },
         {
           "q": "Do I need to sign up to try?",
-          "a": "No. You can try Superfocus as a guest. Sign up for free to save progress and unlock 2 hours per day."
+          "a": "No. You can try Superfocus as a guest with 25 minutes of focus per day (one Pomodoro). Start your free trial to save progress and unlock unlimited focus."
         },
         {
           "q": "What does Premium include?",

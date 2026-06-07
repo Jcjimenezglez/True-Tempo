@@ -381,7 +381,7 @@ const COPY = {
     h1: 'Another app asking for a credit card before you can even try it.',
     heroSubtitle: 'You just want to know if a timer helps. You don\'t want a subscription pitch before the first pomodoro.',
     title: 'Is Superfocus Free? Yes—No Credit Card to Start',
-    description: 'Free tier: 2 hours focus/day. Guests get 1 hour. No signup required to try. Premium optional.',
+    description: 'Free tier: 2 hours focus/day. Guests get 25 minutes. No signup required to try. Premium optional.',
     painPoints: 'Sign up wall. Paywall. Trial trap.<br>Just want to focus.<br>Apps want your wallet first.',
     painSolution: 'Open superfocus.live. Start timer.<br>No card. No signup required.<br>Try before you commit.'
   },
