@@ -53,7 +53,7 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
                   <li>Unlimited timers, tasks, and cassettes</li>
                   <li>Unlimited focus time</li>
                   <li>Advanced analytics and reports</li>
-                  <li>Then $3.99/month — cancel anytime before the trial ends</li>
+                  <li>Then $1.99/month — cancel anytime before the trial ends</li>
                 </ul>
               </div>
               
@@ -85,7 +85,7 @@ Free trial (7 days):
 - Unlimited timers, tasks, and cassettes
 - Unlimited focus time
 - Advanced analytics and reports
-- Then $3.99/month
+- Then $1.99/month
 
 Start your free trial: ${PRICING_URL}
 
@@ -292,7 +292,7 @@ function getSignupFollowUp2({ firstName = 'there' }) {
               
               <p>Try it free for 7 days. If it's not for you, cancel and pay nothing.</p>
               
-              <p>After the trial, it's $3.99/month.</p>
+              <p>After the trial, it's $1.99/month.</p>
               
               <div class="button-container">
                 <a href="${PRICING_URL}" class="button">Start Free Trial</a>
@@ -326,7 +326,7 @@ If you're running into limits, Premium removes them:
 
 Try it free for 7 days. If it's not for you, cancel and pay nothing.
 
-After the trial, it's $3.99/month.
+After the trial, it's $1.99/month.
 
 Start your free trial: ${PRICING_URL}
 

@@ -131,7 +131,7 @@ module.exports = async (req, res) => {
     const mode = 'subscription';
 
     // Create checkout session config
-    // Monthly: $3.99/month with 7-day trial configured in Stripe Price
+    // Monthly: $1.99/month with 7-day trial configured in Stripe Price
     const metadata = {
       clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
       app_name: 'Superfocus',
@@ -218,14 +218,14 @@ module.exports = async (req, res) => {
             name: 'begin_checkout',
             params: {
               transaction_id: session.id,
-              value: 3.99,
+              value: 1.99,
               currency: 'USD',
               plan_type: planType,
               source: 'server_checkout_created',
               items: [{
                 item_id: `premium_${planType}`,
                 item_name: `Premium ${planType.charAt(0).toUpperCase() + planType.slice(1)}`,
-                price: 3.99,
+                price: 1.99,
                 quantity: 1
               }]
             }

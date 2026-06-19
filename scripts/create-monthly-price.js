@@ -58,18 +58,18 @@ async function createMonthlyProductAndPrice() {
     console.log(`✅ Product creado: ${product.id}`);
     console.log(`   Name: ${product.name}\n`);
 
-    // 2. Crear el Price (recurring monthly, $3.99 USD, sin trial)
-    console.log('💰 Creando Price: $3.99 USD/month (sin trial)...');
+    // 2. Crear el Price (recurring monthly, $1.99 USD, sin trial)
+    console.log('💰 Creando Price: $1.99 USD/month (sin trial)...');
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: 399, // $3.99 en centavos
+      unit_amount: 199, // $1.99 en centavos
       currency: 'usd',
       recurring: {
         interval: 'month',
       },
       metadata: {
         type: 'monthly_no_trial',
-        price: '3.99',
+        price: '1.99',
       },
     });
 

@@ -170,13 +170,13 @@
     <!-- Primary Meta Tags -->
     <title>Pomodoro Timer Pricing - Superfocus</title>
     <meta name="title" content="Pomodoro Timer Pricing - Superfocus">
-    <meta name="description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $3.99/month.">
+    <meta name="description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $1.99/month.">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.superfocus.live/pricing">
     <meta property="og:title" content="Pomodoro Timer Pricing - Superfocus">
-    <meta property="og:description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $3.99/month.">
+    <meta property="og:description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $1.99/month.">
     <meta property="og:image" content="https://www.superfocus.live/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -186,7 +186,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://www.superfocus.live/pricing">
     <meta name="twitter:title" content="Pomodoro Timer Pricing - Superfocus">
-    <meta name="twitter:description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $3.99/month.">
+    <meta name="twitter:description" content="Pomodoro timer pricing for Superfocus. Start with a 1-month free trial, then continue at $1.99/month.">
     <meta name="twitter:image" content="https://www.superfocus.live/og-image.png">
     
     <!-- Favicons -->
@@ -222,7 +222,7 @@
             "name": "Premium Monthly",
             "url": "https://www.superfocus.live/pricing",
             "priceCurrency": "USD",
-            "price": "3.99",
+            "price": "1.99",
             "availability": "https://schema.org/InStock"
         }
     }
@@ -2582,7 +2582,7 @@
             </div>
             
             <div class="pricing-offer-explanation">
-                Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.
+                Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.
             </div>
         </div>
 
@@ -2590,7 +2590,7 @@
         <div class="comparison-table-section" id="plansComparisonSection">
             <div class="comparison-table-intro">
                 <h2 class="comparison-table-title">Guest vs Premium</h2>
-                <p class="comparison-table-description">Try without an account, or start a 7-day Premium trial for full access at $3.99/month after.</p>
+                <p class="comparison-table-description">Try without an account, or start a 7-day Premium trial for full access at $1.99/month after.</p>
             </div>
             
             <div class="comparison-plans-wrapper">
@@ -2619,7 +2619,7 @@
                         <p class="plan-description">7-day free trial, then monthly</p>
                         <div class="plan-pricing">
                             <div class="pricing-row">
-                                <span class="price">$3.99</span>
+                                <span class="price">$1.99</span>
                                 <span class="period-text">/month after trial</span>
                             </div>
                         </div>
@@ -2640,7 +2640,7 @@
                     <button class="pricing-btn-lifetime" id="comparisonTableCTA">Try 7 days for $0</button>
                 </div>
                 <div class="pricing-offer-explanation" style="margin: 0.5rem auto 0 auto;">
-                    Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.
+                    Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.
                 </div>
             </div>
         </div>
@@ -3323,7 +3323,7 @@
                 <button class="pricing-btn-lifetime" id="finalCTA">Try 7 days for $0</button>
             </div>
             <div class="pricing-offer-explanation">
-                Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.
+                Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.
             </div>
         </div>
     
@@ -3650,8 +3650,8 @@
             const eligibleTrialDays = getEligibleTrialDays();
             const premiumTrialCta = eligibleTrialDays >= 90 ? 'Try 3 months for $0' : 'Try 7 days for $0';
             const premiumTrialDescription = eligibleTrialDays >= 90
-                ? 'Free for 3 months, then $3.99 per month after. This referral offer is applied automatically at checkout.'
-                : 'Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.';
+                ? 'Free for 3 months, then $1.99 per month after. This referral offer is applied automatically at checkout.'
+                : 'Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.';
             
             console.log('Updating button states:', { 
                 isAuthenticated, 
@@ -3707,7 +3707,7 @@
                     ctaButton.dataset.ctaMode = 'checkout';
                 });
                 document.querySelectorAll('.pricing-offer-explanation').forEach((el) => {
-                    el.textContent = 'Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.';
+                    el.textContent = 'Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.';
                 });
                 return;
             }

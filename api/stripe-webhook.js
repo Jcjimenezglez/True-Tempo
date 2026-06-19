@@ -31,7 +31,7 @@ async function trackConversionServerSide(
     const ga4ApiSecret = process.env.GA4_API_SECRET; // Required for Measurement Protocol
     
     // Google Ads Conversion ID and Labels
-    // Subscribe (2): PHPkCOP1070bENjym89B ($3.99)
+    // Subscribe (2): PHPkCOP1070bENjym89B ($1.99)
     const conversionId = process.env.GOOGLE_ADS_CONVERSION_ID || 'AW-17614436696';
     let conversionLabel;
     if (customConversionLabel) {
@@ -550,7 +550,7 @@ async function handleCheckoutCompleted(session, clerk) {
       await setCustomerMapping(customerId, targetUserId);
     }
 
-    // For monthly subscriptions ($3.99/month)
+    // For monthly subscriptions ($1.99/month)
     if (isSubscription) {
       // Single Clerk fetch for user data (email + metadata + name)
       let currentUser;
@@ -587,7 +587,7 @@ async function handleCheckoutCompleted(session, clerk) {
       // Fire-and-forget: notification, email, tracking (don't block webhook response)
       const userName = currentUser.firstName || currentUser.username || 'Usuario';
       const notificationTitle = 'Nueva Suscripcion Monthly!';
-      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Monthly ($3.99/mes)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\nPago completado`;
+      const notificationMessage = `Usuario: ${userName}\nEmail: ${userEmail || 'N/A'}\nPlan: Monthly ($1.99/mes)\nFecha: ${new Date().toLocaleString('es-ES', { timeZone: 'America/New_York' })}\n\nPago completado`;
 
       await sendNtfyNotification(notificationTitle, notificationMessage).catch(e =>
         console.error('❌ Error sending push notification:', e)
@@ -618,7 +618,7 @@ async function handleCheckoutCompleted(session, clerk) {
       }
 
       trackConversionServerSide(
-        'monthly', 3.99, session.id, gclid, gbraid, wbraid, userEmail, 'PHPkCOP1070bENjym89B'
+        'monthly', 1.99, session.id, gclid, gbraid, wbraid, userEmail, 'PHPkCOP1070bENjym89B'
       ).catch(e => console.error('❌ Error tracking monthly conversion:', e));
     }
 

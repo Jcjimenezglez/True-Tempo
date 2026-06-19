@@ -857,9 +857,9 @@ class PomodoroTimer {
     getPremiumTrialDescription() {
         const trialDays = this.getPremiumTrialDays();
         if (trialDays >= 90) {
-            return 'Free for 3 months, then $3.99 per month after. This referral offer is applied automatically at checkout.';
+            return 'Free for 3 months, then $1.99 per month after. This referral offer is applied automatically at checkout.';
         }
-        return 'Free for 7 days, then $3.99 per month after. Cancel anytime before the trial ends.';
+        return 'Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.';
     }
 
     updatePremiumTrialOfferUi() {
@@ -8424,7 +8424,7 @@ class PomodoroTimer {
         if (window.mixpanelTracker) {
             window.mixpanelTracker.trackCustomEvent('Premium Success', {
                 plan_type: paymentType,
-                value: 3.99,
+                value: 1.99,
                 source: source,
                 session_id: sessionId,
                 timestamp: new Date().toISOString()
@@ -8434,7 +8434,7 @@ class PomodoroTimer {
 
         try {
             const conversionLabel = 'AW-17614436696/PHPkCOP1070bENjym89B';
-            const conversionValue = 3.99;
+            const conversionValue = 1.99;
 
             const tracked = await trackGoogleAdsConversion({
                 sendTo: conversionLabel,
@@ -16718,8 +16718,8 @@ class PomodoroTimer {
                         eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
                         eventData.event_label = 'monthly_subscription';
-                        eventData.value = 3.99;
-                        value = 3.99; // Ensure value is set correctly
+                        eventData.value = 1.99;
+                        value = 1.99; // Ensure value is set correctly
                         break;
                     case 'subscription':
                         // Legacy/fallback - treat as monthly Subscribe (2)
@@ -16728,8 +16728,8 @@ class PomodoroTimer {
                         eventData.transaction_id = transactionId;
                         eventData.event_category = 'ecommerce';
                         eventData.event_label = 'pro_subscription';
-                        eventData.value = 3.99;
-                        value = 3.99;
+                        eventData.value = 1.99;
+                        value = 1.99;
                         break;
                     default:
                         console.error('❌ Unknown conversion type:', type);
@@ -16881,7 +16881,7 @@ class PomodoroTimer {
         if (paymentSuccess === 'success' || premiumStatus === '1') {
             // Get the plan type from URL
             const planType = urlParams.get('plan') || 'monthly';
-            const conversionValue = 3.99;
+            const conversionValue = 1.99;
             const hasSessionId = Boolean(urlParams.get('session_id'));
 
             // Keep session_id for backend checkout confirmation flow.
