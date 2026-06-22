@@ -95,17 +95,17 @@ function getStopPain(page) {
   if (page.painPoints) return page.painPoints;
   const cat = page.category;
   const pains = {
-    techniques: 'You sit down to work. Twenty minutes later, nothing done.<br>Your brain wanders. The tab count grows.<br>Another hour gone. Same to-do list.',
-    'use-cases': 'You planned to focus. Slack won.<br>Meetings ate the morning. Email ate the afternoon.<br>Real work? Maybe tomorrow.',
-    sounds: 'Silence is not silent. Every noise pulls you out.<br>You put on music. Now you\'re singing along.<br>Still can\'t think.',
-    workflows: 'Tasks everywhere. Priorities nowhere.<br>You start one thing, jump to another.<br>End of day: busy, not productive.',
-    analytics: 'You worked all day. Or did you?<br>No idea where the hours went.<br>Can\'t fix what you can\'t see.',
-    compare: 'Another app. Another signup. Another letdown.<br>Timer here, music there, tasks somewhere else.<br>When did focus get so complicated?',
-    alternatives: 'You tried the popular app. It\'s fine. Not great.<br>Missing sounds. Missing analytics. Missing the point.<br>Still searching.',
-    professions: 'Your role demands deep work. Your calendar demands meetings.<br>By 5pm you\'ve been "on" all day and shipped nothing.<br>Tomorrow looks the same.',
-    activities: 'You know what to do. You can\'t start.<br>Or you start and drift within minutes.<br>The task is still waiting.',
-    faq: 'You\'ve read the advice. Tried the hacks.<br>Still can\'t focus for 25 straight minutes.<br>Maybe the problem isn\'t you.',
-    goals: 'You want to focus better. You\'ve said that before.<br>Distractions always win. Habits never stick.<br>Same goal. Same failure.'
+    techniques: 'Sit down to work—but drift within minutes?<br>Timer on, task still untouched?<br>Hours pass with nothing to show?',
+    'use-cases': 'Planned to focus—but Slack won?<br>Meetings ate the morning, email the afternoon?<br>Real work still waiting for tomorrow?',
+    sounds: 'Silence too loud, music too distracting?<br>Searching playlists instead of working?<br>Still can\'t get into focus mode?',
+    workflows: 'Tasks listed but none started?<br>Todo list full, output empty?<br>Planning without doing—again?',
+    analytics: 'Worked all week but can\'t prove it?<br>No idea which hours were productive?<br>Same patterns, no improvement?',
+    compare: 'Timer in one tab, music in another?<br>Tasks somewhere else entirely?<br>Focus scattered across five apps?',
+    alternatives: 'Current app missing key features?<br>Juggling three tools just to focus?<br>Still not sure you\'re improving?',
+    professions: 'Back-to-back calls, zero deep work?<br>Important hours slipping away?<br>End of day, nothing shipped?',
+    activities: 'Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?',
+    faq: 'Read ten articles, still unsure?<br>Tried hacks that don\'t stick?<br>Still can\'t focus for one block?',
+    goals: 'Said you\'d focus better this week?<br>Distractions won by Tuesday?<br>Same goal, same result?'
   };
   return pains[cat] || pains.techniques;
 }
@@ -114,17 +114,17 @@ function getStopSolution(page) {
   if (page.painSolution) return page.painSolution;
   const cat = page.category;
   const sols = {
-    techniques: 'One timer. One block. One task.<br>25 minutes of actual work. Then a break.<br>Momentum replaces guilt.',
-    'use-cases': 'Block the time before someone else does.<br>Timer running. Phone away. Task in front of you.<br>Deep work happens in the gaps you protect.',
-    sounds: 'One click. Lofi, rain, or cafe.<br>Your brain gets the signal: focus now.<br>Noise fades. Work starts.',
-    workflows: 'Timer plus tasks in one place.<br>Pick what matters. Work in blocks.<br>See what you actually finished.',
-    analytics: 'Every session logged. Patterns visible.<br>Know your best hours. Build on them.<br>Progress you can measure.',
-    compare: 'Superfocus: timer, sounds, tasks, analytics.<br>One tab. One workflow. No juggling.<br>Try it free. Compare for real.',
-    alternatives: 'Same simple timer you liked. Plus what was missing.<br>Sounds, tasks, streaks—all included.<br>Free to start. No credit card.',
-    professions: 'Protect 25 minutes before the inbox wins.<br>A timer built for how you actually work.<br>Ship something today.',
-    activities: 'Name the task. Start the timer.<br>One block. Full attention.<br>Done beats perfect.',
-    faq: 'Clear answers. A timer that works.<br>No signup to try. No bloat.<br>See if 25 minutes changes your day.',
-    goals: 'Small blocks. Visible progress.<br>Distractions blocked. Habits forming.<br>One session at a time.'
+    techniques: 'Set one block. One task. Timer running.<br>Track every session, break, and streak.<br>All in one place.',
+    'use-cases': 'Block the time before someone else does.<br>Track every session, task, and streak.<br>All in one place.',
+    sounds: 'One click. Sounds + timer together.<br>Track every session, sound, and streak.<br>All in one place.',
+    workflows: 'Pick a task. Assign a pomodoro.<br>Sync every block, task, and streak.<br>All in one place.',
+    analytics: 'Every session logged automatically.<br>Track focus time, streaks, and trends.<br>All in one place.',
+    compare: 'Timer, sounds, tasks, analytics—together.<br>Track every session and streak.<br>All in one place.',
+    alternatives: 'Same simplicity. More built in.<br>Track every block, task, and streak.<br>All in one place.',
+    professions: 'Block 25 minutes before the inbox wins.<br>Track every session, task, and hour.<br>All in one place.',
+    activities: 'Name the task. Start the timer.<br>Track every block and streak.<br>All in one place.',
+    faq: 'Clear answer. Timer that works.<br>Track every session, task, and streak.<br>All in one place.',
+    goals: 'One block today. Timer on.<br>Track every session, streak, and habit.<br>All in one place.'
   };
   return sols[cat] || sols.techniques;
 }
@@ -135,7 +135,7 @@ function getHowWeHelp(page) {
   const defaults = {
     techniques: {
       title: 'How Superfocus helps you <em>focus</em>',
-      tagline: 'Get 2 hours of deep focus done in one morning.',
+      tagline: 'Track every pomodoro block, task, ambient sound, focus streak, and analytics report in one place.',
       blocks: [
         { title: 'Stay in flow', text: '25-minute blocks match your attention span. Start, work, break, repeat. No decision fatigue.' },
         { title: 'Block distractions', text: 'Queue your work. Block noise with ambient sound. Get into deep work without scroll or ping.' },
@@ -144,7 +144,7 @@ function getHowWeHelp(page) {
     },
     'use-cases': {
       title: `How Superfocus helps you <em>${keyword.replace(/ timer$/i, '')}</em>`,
-      tagline: 'Whether you\'re studying, coding, or working—one timer fits all.',
+      tagline: 'Track every focus block, task, ambient sound, session streak, and progress report in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Pomodoro, Flow, or Deep Work presets. Pick your block length. Focus without deciding.' },
         { title: 'Block distractions', text: 'Ambient sounds and focus music. Block noise. Enter flow faster.' },
@@ -153,7 +153,7 @@ function getHowWeHelp(page) {
     },
     sounds: {
       title: 'How Superfocus helps you <em>focus</em>',
-      tagline: 'Lofi, rain, cafe—sounds that signal your brain to focus.',
+      tagline: 'Play every lofi track, rain loop, cafe ambience, white noise, and focus timer in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Built-in cassettes plus your Spotify playlists. One click to block the world.' },
         { title: 'Block distractions', text: 'Ambient sound masks office noise and chatter. Concentrate without earbuds.' },
@@ -162,7 +162,7 @@ function getHowWeHelp(page) {
     },
     workflows: {
       title: 'How Superfocus helps your <em>workflow</em>',
-      tagline: 'Timer + tasks + analytics. One system.',
+      tagline: 'Sync every Todoist task, pomodoro block, focus streak, ambient sound, and session log in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Sync with Todoist. Assign pomodoros to tasks. Work in blocks.' },
         { title: 'Block distractions', text: 'Queue tasks. Block noise. Focus on one thing at a time.' },
@@ -171,7 +171,7 @@ function getHowWeHelp(page) {
     },
     analytics: {
       title: 'How Superfocus helps you <em>see progress</em>',
-      tagline: 'Know exactly how much you focus.',
+      tagline: 'Track every focus session, pomodoro block, streak, weekly report, and leaderboard rank in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Daily, weekly, monthly focus time. See your patterns at a glance.' },
         { title: 'Block distractions', text: 'Track streaks. Build accountability. Stay consistent.' },
@@ -180,7 +180,7 @@ function getHowWeHelp(page) {
     },
     compare: {
       title: 'How Superfocus helps you <em>focus</em>',
-      tagline: 'Timer, sounds, tasks, analytics—all in one app.',
+      tagline: 'Get every timer, ambient sound, task, analytics report, and leaderboard streak in one place.',
       blocks: [
         { title: 'Stay in flow', text: '25-minute blocks or longer. Pomodoro, Flow, Deep Work. Pick what fits.' },
         { title: 'Block distractions', text: 'Lofi, rain, cafe. Ambient cassettes. Spotify integration.' },
@@ -189,7 +189,7 @@ function getHowWeHelp(page) {
     },
     alternatives: {
       title: 'How Superfocus helps you <em>focus</em>',
-      tagline: 'Try a better way to get things done.',
+      tagline: 'Get every timer, ambient sound, task, analytics report, and leaderboard streak in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Timers that match your style. Short sprints or long deep work.' },
         { title: 'Block distractions', text: 'Ambient sounds built in. No separate app needed.' },
@@ -198,7 +198,7 @@ function getHowWeHelp(page) {
     },
     professions: {
       title: `How Superfocus helps <em>${keyword.replace(/ focus timer for /i, '').replace(/s$/, 's')}</em>`,
-      tagline: 'Block time for deep work. Use a timer that fits your role.',
+      tagline: 'Track every billable block, client task, ambient sound, focus streak, and hours report in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Pomodoro, Flow, or Deep Work. Pick your block length. Focus without deciding.' },
         { title: 'Block distractions', text: 'Ambient sounds and focus music. Block noise. Enter flow faster.' },
@@ -207,7 +207,7 @@ function getHowWeHelp(page) {
     },
     activities: {
       title: `How Superfocus helps you <em>${keyword.replace(/ focus timer for /i, '').replace(/ timer$/i, '')}</em>`,
-      tagline: 'Structure your tasks. Block time. Get it done.',
+      tagline: 'Block every focus session, timer, task, ambient sound, and streak counter in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Pomodoro or Flow presets. Short sprints or long blocks. Match the activity.' },
         { title: 'Block distractions', text: 'Lofi, rain, cafe. Ambient cassettes. Focus without scroll or ping.' },
@@ -216,7 +216,7 @@ function getHowWeHelp(page) {
     },
     faq: {
       title: 'How Superfocus helps you <em>focus</em>',
-      tagline: 'Clear answers. One app. Free to try.',
+      tagline: 'Run every pomodoro block, task, ambient sound, focus streak, and analytics report in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Pomodoro, Flow, Sprint, Deep Work. Pick what fits.' },
         { title: 'Block distractions', text: 'Lofi, rain, cafe. Ambient cassettes. Spotify integration.' },
@@ -225,7 +225,7 @@ function getHowWeHelp(page) {
     },
     goals: {
       title: `How Superfocus helps you <em>${keyword.replace(/ timer$/i, '').replace(/-/g, ' ')}</em>`,
-      tagline: 'Reach your focus goals. One block at a time.',
+      tagline: 'Track every focus block, task, ambient sound, session streak, and habit log in one place.',
       blocks: [
         { title: 'Stay in flow', text: 'Timers that match your goal. Pomodoro, Flow, or Deep Work.' },
         { title: 'Block distractions', text: 'Ambient sounds. Block noise. Enter flow state faster.' },

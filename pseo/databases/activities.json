@@ -5,127 +5,127 @@
       "slug": "focus-timer-for-email",
       "category": "activities",
       "keyword": "focus timer for email",
-      "title": "Inbox Never Empty? Email Focus Timer | Superfocus",
-      "description": "Batch email in 15-min Sprint blocks. Reduce reactivity. Free Pomodoro timer.",
-      "h1": "You've checked email fourteen times. Inbox: still full.",
+      "title": "Am I actually finishing my email in focused blocks? | Superfocus",
+      "description": "Block every email session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my email in focused blocks?",
       "preset": "Sprint (15/3/10) or Pomodoro",
       "related": [
         "/use-cases/meeting-prep-timer",
         "/activities/focus-timer-for-admin-tasks",
         "/techniques/sprint-timer"
       ],
-      "painPoints": "Check email. Lose hour.<br>Never batch. Always react.<br>Inbox owns you.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "Minimal lofi or white noise",
-      "heroSubtitle": "Reactive email mode makes everyone else's priorities yours. Deep work never gets a turn.",
-      "painSolution": "Two 15-min email blocks daily.<br>Timer ends = inbox closed.<br>Take control back."
+      "heroSubtitle": "Block every email session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     },
     {
       "slug": "focus-timer-for-research",
       "category": "activities",
       "keyword": "focus timer for research",
-      "title": "Research Rabbit Holes? Structured Focus Timer | Superfocus",
-      "description": "Time-box research dives. Pomodoro for reading, breaks for synthesis. Try Superfocus free.",
-      "h1": "Three hours of \"research\" produced forty open tabs and zero notes.",
+      "title": "Am I actually finishing my research in focused blocks? | Superfocus",
+      "description": "Block every research session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my research in focused blocks?",
       "preset": "Pomodoro or Flow",
       "related": [
         "/use-cases/study-timer-for-reading",
         "/professions/focus-timer-for-researchers",
         "/techniques/flowtime-timer"
       ],
-      "painPoints": "Open tab. Open tab. Open tab.<br>No synthesis. No output.<br>Research theater.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "Rain or ambient for reading",
-      "heroSubtitle": "Rabbit holes feel productive until you close the laptop with nothing synthesized.",
-      "painSolution": "25 min read. 5 min notes.<br>Repeat. Synthesize.<br>Research becomes insight."
+      "heroSubtitle": "Block every research session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     },
     {
       "slug": "focus-timer-for-content-creation",
       "category": "activities",
       "keyword": "focus timer for content creation",
-      "title": "Content Deadline Looming? Writing Focus Timer | Superfocus",
-      "description": "Pomodoro for drafting, Marathon for long writes. Rain sounds included. Free.",
-      "h1": "Draft due Friday. Word count: zero on Wednesday.",
+      "title": "Am I actually finishing my content creation in focused blocks? | Superfocus",
+      "description": "Block every content creation session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my content creation in focused blocks?",
       "preset": "Pomodoro or Marathon",
       "related": [
         "/use-cases/writing-timer",
         "/activities/focus-timer-for-brainstorming",
         "/sounds/rain-sounds-focus"
       ],
-      "painPoints": "Deadline closer. Still not started.<br>Perfectionism paralysis.<br>Publish date wins.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "Rain or lofi for writing",
-      "heroSubtitle": "Creating content requires starting, and starting requires protected time you never block.",
-      "painSolution": "Bad first draft in 25 min.<br>Timer forces start.<br>Edit later. Ship on time."
+      "heroSubtitle": "Block every content creation session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     },
     {
       "slug": "focus-timer-for-brainstorming",
       "category": "activities",
       "keyword": "focus timer for brainstorming",
-      "title": "Brainstorm Going Nowhere? Time-Box It | Superfocus",
-      "description": "15-min Sprint for idea bursts. Generate, then decide. Free focus timer.",
-      "h1": "The brainstorm has been going for an hour. No decisions made.",
+      "title": "Am I actually finishing my brainstorming in focused blocks? | Superfocus",
+      "description": "Block every brainstorming session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my brainstorming in focused blocks?",
       "preset": "Sprint (15/3/10)",
       "related": [
         "/activities/focus-timer-for-planning",
         "/techniques/sprint-timer",
         "/use-cases/meeting-prep-timer"
       ],
-      "painPoints": "Ideas everywhere. Decision nowhere.<br>Meeting runs long.<br>Nothing captured.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "Cafe or ambient for creative flow",
-      "heroSubtitle": "Unlimited ideation becomes unlimited wandering. Ideas scatter without time boundaries.",
-      "painSolution": "15 min generate. 5 min pick top 3.<br>Time box saves meetings.<br>Ideas become action."
+      "heroSubtitle": "Block every brainstorming session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     },
     {
       "slug": "focus-timer-for-admin-tasks",
       "category": "activities",
       "keyword": "focus timer for admin tasks",
-      "title": "Admin Scattered All Day? Batch With a Timer | Superfocus",
-      "description": "Sprint blocks for filing, data entry, updates. Batch admin, free time for deep work. Free.",
-      "h1": "Admin tasks eat your day in bites too small to notice.",
+      "title": "Am I actually finishing my admin work in focused blocks? | Superfocus",
+      "description": "Block every admin work session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my admin work in focused blocks?",
       "preset": "Sprint or Pomodoro",
       "related": [
         "/activities/focus-timer-for-email",
         "/techniques/time-blocking-timer",
         "/todoist-pomodoro"
       ],
-      "painPoints": "Death by small tasks.<br>Admin expands.<br>Deep work shrinks.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "White noise or minimal lofi",
-      "heroSubtitle": "Five minutes here, ten there—by evening you've done chores all day and avoided real work.",
-      "painSolution": "One 15-min admin block.<br>Batch everything.<br>Rest of day: real work."
+      "heroSubtitle": "Block every admin work session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     },
     {
       "slug": "focus-timer-for-reviews",
       "category": "activities",
       "keyword": "focus timer for reviews",
-      "title": "Reviews Piling Up? Focus Timer for Code & Docs | Superfocus",
-      "description": "25-min Pomodoro per review batch. Full attention, fewer misses. Free.",
-      "h1": "Seventeen PRs waiting. You've reviewed none with full attention.",
+      "title": "Am I actually finishing my review in focused blocks? | Superfocus",
+      "description": "Block every review session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my review in focused blocks?",
       "preset": "Pomodoro (25/5/15)",
       "related": [
         "/use-cases/coding-focus-timer",
         "/activities/focus-timer-for-email",
         "/techniques/pomodoro-technique"
       ],
-      "painPoints": "Skim reviews. Ship bugs.<br>No time for thorough.<br>Queue grows.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "Lofi or white noise",
-      "heroSubtitle": "Shallow skimming isn't review—it's how bugs ship. Thorough review needs focused blocks.",
-      "painSolution": "One PR per pomodoro.<br>Full attention. Complete review.<br>Queue shrinks daily."
+      "heroSubtitle": "Block every review session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     },
     {
       "slug": "focus-timer-for-planning",
       "category": "activities",
       "keyword": "focus timer for planning",
-      "title": "No Time to Plan? Weekly Review Timer | Superfocus",
-      "description": "Sprint or Pomodoro for weekly review and daily planning. Block it before the week blocks you. Free.",
-      "h1": "You planned to plan your week. It's Thursday.",
+      "title": "Am I actually finishing my planning in focused blocks? | Superfocus",
+      "description": "Block every planning session, timer, task, ambient sound, and streak counter in one place. Free to try—no signup required.",
+      "h1": "Am I actually finishing my planning in focused blocks?",
       "preset": "Sprint or Pomodoro",
       "related": [
         "/techniques/time-blocking-timer",
         "/todoist-pomodoro",
         "/activities/focus-timer-for-admin-tasks"
       ],
-      "painPoints": "Week starts chaotic.<br>Goals forgotten.<br>Always reacting.",
+      "painPoints": "Task on the list for days?<br>Start strong, drift within minutes?<br>Busy all day, nothing crossed off?",
       "recommendedSounds": "Minimal ambient or silence",
-      "heroSubtitle": "Without blocked planning time, every day starts reactive. Goals drift. Priorities blur.",
-      "painSolution": "Monday: 25 min planning.<br>Before email. Before meetings.<br>Week runs you less."
+      "heroSubtitle": "Block every planning session, timer, task, ambient sound, and streak counter in one place.",
+      "painSolution": "Name the task. Start the timer.<br>Track every block and streak.<br>All in one place."
     }
   ]
 }
