@@ -5,181 +5,181 @@
       "slug": "study-timer-for-flashcards",
       "category": "use-cases",
       "keyword": "study timer for flashcards",
-      "title": "Am I actually making progress on my flashcards? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my flashcards?",
+      "title": "Flashcard Backlog Growing? Study Sprint Timer | Superfocus",
+      "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer.",
+      "h1": "500 flashcards due. You've done twelve.",
       "preset": "Sprint (15/3/10) or Pomodoro",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/exam-prep-timer",
         "/techniques/sprint-timer"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Cards pile up. Avoid Anki.<br>Guilt spiral.<br>Exam closer.",
       "recommendedSounds": "Minimal lofi or white noise",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Anki guilt grows with every notification. Without time blocks, review becomes avoidance.",
+      "painSolution": "15 min review. Every day.<br>Timer ends = stop guilt-free.<br>Backlog shrinks."
     },
     {
       "slug": "study-timer-for-essay-writing",
       "category": "use-cases",
       "keyword": "study timer for essay writing",
-      "title": "Am I actually making progress on my essay? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my essay?",
+      "title": "Essay Due Soon? Pomodoro Writing Timer | Superfocus",
+      "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Free for students.",
+      "h1": "Essay due in 48 hours. Introduction: unfinished.",
       "preset": "Pomodoro or Marathon",
       "related": [
         "/use-cases/writing-timer",
         "/use-cases/study-timer",
         "/sounds/rain-sounds-focus"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Edit before write.<br>First paragraph forever.<br>Deadline panic.",
       "recommendedSounds": "Rain or lofi for sustained writing",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "You've rewritten the first sentence nine times. Perfectionism is procrastination in academic clothes.",
+      "painSolution": "25 min: draft only.<br>Ugly words count.<br>Edit in the next block."
     },
     {
       "slug": "study-timer-for-language-learning",
       "category": "use-cases",
       "keyword": "study timer for language learning",
-      "title": "Am I actually making progress on my language practice? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my language practice?",
+      "title": "Language Apps Not Working? Focus Blocks | Superfocus",
+      "description": "Sprint for drills, Pomodoro for reading/listening. Structure real practice. Free.",
+      "h1": "Duolingo streak: 400 days. You still can't hold a conversation.",
       "preset": "Sprint for drills, Pomodoro for reading/listening",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/study-timer-for-flashcards",
         "/sounds/lofi-study-music"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Tap exercises. No immersion.<br>Streak without skill.<br>Fluency far away.",
       "recommendedSounds": "Lofi or cafe for immersion blocks",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Streaks measure taps, not fluency. Real practice needs focused immersion blocks you never schedule.",
+      "painSolution": "25 min speaking practice.<br>Timer on. Phone in drawer.<br>Real blocks, real progress."
     },
     {
       "slug": "study-timer-for-reading",
       "category": "use-cases",
       "keyword": "study timer for reading",
-      "title": "Am I actually making progress on my reading? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my reading?",
+      "title": "Can't Finish Reading Assignments? Study Timer | Superfocus",
+      "description": "Pomodoro reading blocks with scheduled breaks. Finish chapters without burnout. Free.",
+      "h1": "Chapter 1 started three weeks ago.",
       "preset": "Pomodoro (25/5/15) or Flow (45/8/25)",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/exam-prep-timer",
         "/sounds/rain-sounds-focus"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Read same page twice.<br>Eyes heavy. Mind gone.<br>Chapter never ends.",
       "recommendedSounds": "Rain or ambient for reading focus",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "You read the same page twice and retain nothing. Without breaks, fatigue wins by page three.",
+      "painSolution": "25 min read. 5 min walk.<br>Fresh eyes. Next section.<br>Chapters finish."
     },
     {
       "slug": "study-timer-for-thesis",
       "category": "use-cases",
       "keyword": "study timer for thesis writing",
-      "title": "Am I actually making progress on my thesis? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my thesis?",
+      "title": "Thesis Stuck? Deep Work Writing Timer | Superfocus",
+      "description": "90-min Deep Work or 60-min Marathon for dissertation writing. Structure long sessions. Free.",
+      "h1": "Your thesis has been \"almost done\" for eight months.",
       "preset": "Deep Work (90/20/30) or Marathon",
       "related": [
         "/use-cases/writing-timer",
         "/use-cases/study-timer-for-essay-writing",
         "/techniques/deep-work-timer"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Chapter half-written. Months.<br>No protected writing time.<br>Committee waiting.",
       "recommendedSounds": "Rain, lofi, or cafe for deep writing",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Dissertation writing needs marathon blocks you never protect. Life fills every gap.",
+      "painSolution": "90 min every morning.<br>Same time. Same desk.<br>Thesis moves daily."
     },
     {
       "slug": "study-timer-for-note-taking",
       "category": "use-cases",
       "keyword": "study timer for note taking",
-      "title": "Am I actually making progress on my notes? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my notes?",
+      "title": "Notes Piling Up? Review Focus Timer | Superfocus",
+      "description": "Sprint blocks for note review and consolidation. Turn notes into knowledge. Free.",
+      "h1": "Your notes are a graveyard of half-finished lectures.",
       "preset": "Sprint or Pomodoro",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/student-productivity",
         "/techniques/sprint-timer"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Notes collect dust.<br>Never review.<br>Exams surprise you.",
       "recommendedSounds": "Lofi or white noise",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Review sessions never happen because consolidation takes focused time you don't allocate.",
+      "painSolution": "15 min daily review.<br>One lecture at a time.<br>Notes become memory."
     },
     {
       "slug": "study-timer-for-online-courses",
       "category": "use-cases",
       "keyword": "study timer for online courses",
-      "title": "Am I actually making progress on my online course? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my online course?",
+      "title": "Course Barely Started? Video Lecture Timer | Superfocus",
+      "description": "Pomodoro blocks for video lectures. Breaks prevent binge-drifting. Track progress. Free.",
+      "h1": "You bought the course in January. Module 2 of 47.",
       "preset": "Pomodoro or Flow",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/remote-work-focus",
         "/sounds/cafe-ambient-sounds"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Video plays. Brain elsewhere.<br>Module 2 for months.<br>Money wasted.",
       "recommendedSounds": "Cafe or minimal lofi",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Video lectures play while you scroll. \"Watching\" isn't learning without focused attention.",
+      "painSolution": "One module per pomodoro.<br>Notes required. Phone away.<br>Course actually finishes."
     },
     {
       "slug": "study-timer-for-group-study",
       "category": "use-cases",
       "keyword": "study timer for group study",
-      "title": "Am I actually staying focused during group study? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually staying focused during group study?",
+      "title": "Group Study Always Off-Track? Sync Timer | Superfocus",
+      "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer.",
+      "h1": "Group study turned into group chat in twelve minutes.",
       "preset": "Pomodoro (25/5/15)",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/student-productivity",
         "/techniques/pomodoro-technique"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Open books. Close focus.<br>Chat takes over.<br>Exam still coming.",
       "recommendedSounds": "Lofi or cafe for group vibe",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Without shared structure, study sessions become social hours with textbooks as props.",
+      "painSolution": "Shared 25-min timer.<br>Phones away. Break together.<br>Group actually studies."
     },
     {
       "slug": "study-timer-for-math",
       "category": "use-cases",
       "keyword": "study timer for math",
-      "title": "Am I actually making progress on my math problems? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my math problems?",
+      "title": "Stuck on Problem Sets? Math Study Timer | Superfocus",
+      "description": "Sprint blocks for problem sets. Break between problems. White noise for concentration. Free.",
+      "h1": "Problem 3 broke you. You've been staring at it for forty minutes.",
       "preset": "Sprint or Pomodoro",
       "related": [
         "/use-cases/study-timer",
         "/use-cases/exam-prep-timer",
         "/sounds/white-noise-focus"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Stuck on one problem.<br>Frustration builds.<br>Set abandoned.",
       "recommendedSounds": "White noise or minimal lofi",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Math fatigue is real. Without breaks, frustration replaces problem-solving.",
+      "painSolution": "15 min per problem max.<br>Move on. Return fresh.<br>Sets get finished."
     },
     {
       "slug": "study-timer-for-med-school",
       "category": "use-cases",
       "keyword": "study timer for med school",
-      "title": "Am I actually making progress on my med school material? | Superfocus",
-      "description": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place. Free to try—no signup required.",
-      "h1": "Am I actually making progress on my med school material?",
+      "title": "Med School Overwhelm? Long Study Session Timer | Superfocus",
+      "description": "Pomodoro, Flow, Deep Work for anatomy, pharm, clinical prep. Built for marathon study days. Free.",
+      "h1": "The stack of material is taller than you. Where do you even start?",
       "preset": "Pomodoro or Flow",
       "related": [
         "/use-cases/exam-prep-timer",
         "/use-cases/study-timer-for-flashcards",
         "/techniques/flowtime-timer"
       ],
-      "painPoints": "Book open but mind elsewhere?<br>Phone checked more than pages read?<br>Deadline closer, progress stuck?",
+      "painPoints": "Volume impossible.<br>No structure.<br>Retention fails.",
       "recommendedSounds": "Lofi or rain for sustained focus",
-      "heroSubtitle": "Track every study block, assignment task, lofi sound, session streak, and progress report in one place.",
-      "painSolution": "One assignment. One focus block.<br>Track every study session and streak.<br>All in one place."
+      "heroSubtitle": "Med school volume breaks unstructured study. Without blocks, you drown in content and retain nothing.",
+      "painSolution": "One topic. 45 minutes.<br>Break. Next topic.<br>Mountain becomes steps."
     }
   ]
 }

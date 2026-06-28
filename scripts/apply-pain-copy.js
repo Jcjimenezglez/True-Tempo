@@ -12,7 +12,7 @@ const COPY = {
   'pomodoro-technique': {
     h1: 'You sit down to work. Forty minutes later, you\'ve checked email six times.',
     heroSubtitle: 'The timer was never the problem. The lack of structure was. You don\'t need more willpower—you need a block with a beginning and an end.',
-    title: 'Can\'t Focus for 25 Minutes? Try the Pomodoro Technique | Superfocus',
+    title: 'Pomodoro Technique Timer — 25/5 Online | Superfocus',
     description: 'You keep starting tasks and never finishing them. A 25-min timer with built-in breaks breaks the drift. Free to try.',
     painPoints: 'Open laptop. Check Slack. Make coffee. Repeat.<br>Hours pass. The important task is still untouched.<br>Tomorrow you\'ll "really focus."',
     painSolution: 'Set 25 minutes. One task. Timer running.<br>Work until it rings. Break. Repeat.<br>Small blocks. Real progress.'
@@ -76,7 +76,7 @@ const COPY = {
   'study-timer': {
     h1: 'You sat down to study. Two hours later, you\'ve read 4 pages.',
     heroSubtitle: 'The textbook is open. Your notes are blank. Instagram got 47 visits. Tomorrow\'s exam didn\'t get any closer.',
-    title: 'Can\'t Focus While Studying? Free Study Timer | Superfocus',
+    title: 'Free Focus Website for Studying — Study Timer Online | Superfocus',
     description: 'You keep "studying" but nothing sticks. A 25-min timer breaks the scroll loop. No signup to try.',
     painPoints: 'Open the book. Check phone. Repeat for 3 hours.<br>Feel guilty. Promise tomorrow will be different.<br>Tomorrow: same loop.',
     painSolution: 'One 25-minute block. Phone away. Timer running.<br>Four pages become forty. Guilt becomes momentum.'
@@ -244,7 +244,7 @@ const COPY = {
   'superfocus-vs-pomofocus': {
     h1: 'Pomofocus works. Until you need music, tasks, or analytics.',
     heroSubtitle: 'Simple timer apps solve one problem. Then you\'re juggling three tabs and wondering why focus still feels hard.',
-    title: 'Outgrew Pomofocus? Compare Superfocus Features | Superfocus',
+    title: 'Superfocus vs Pomofocus — Comparison (2026) | Superfocus',
     description: 'Same simple Pomodoro—plus lofi, Todoist sync, and analytics in one app. See the full comparison. Try free.',
     painPoints: 'Timer in one tab. Spotify in another.<br>Tasks somewhere else.<br>Focus fragmented across apps.',
     painSolution: 'Timer, sounds, tasks, stats.<br>One app. One tab.<br>Focus without juggling.'
@@ -284,7 +284,7 @@ const COPY = {
   'pomofocus': {
     h1: 'You liked Pomofocus. You wished it did more.',
     heroSubtitle: 'Clean timer. That\'s it. No music, no task sync, no way to see if you\'re actually improving.',
-    title: 'Looking for a Pomofocus Alternative? | Superfocus',
+    title: 'Best Pomofocus Alternative — Free Online Timer | Superfocus',
     description: 'Everything Pomofocus does—plus lofi, rain, Todoist sync, and analytics. Same simplicity, more depth. Free.',
     painPoints: 'Simple timer. Too simple.<br>Open Spotify separately.<br>No idea if you\'re improving.',
     painSolution: 'Same clean timer. More built in.<br>Sounds, tasks, stats included.<br>Upgrade without complexity.'
@@ -444,7 +444,7 @@ const COPY = {
   'pomodoro-timer-online': {
     h1: 'You don\'t want another app cluttering your phone.',
     heroSubtitle: 'Download, account, permissions, updates—sometimes you just need a timer in the browser and to start working.',
-    title: 'Pomodoro Timer Online—No Install | Superfocus',
+    title: 'Pomodoro Timer Online — Free, No Download | Superfocus',
     description: 'Runs in browser. Pomodoro, Flow, Sprint, sounds, tasks. No download. Try superfocus.live free.',
     painPoints: 'Another app. Another account.<br>Phone storage full.<br>Just need a timer now.',
     painSolution: 'Open browser. Start timer.<br>Full app. Zero install.<br>Focus in 10 seconds.'
@@ -808,6 +808,30 @@ const COPY = {
     description: 'White noise, rain, lofi plus focus timer. Structure your sessions. Free.',
     painPoints: 'Beautiful sounds. Zero structure.<br>Vibe without output.<br>Two hours gone.',
     painSolution: 'Sounds + 25-min timer.<br>Mood and structure.<br>Output follows.'
+  },
+  'focus-timer': {
+    h1: 'You open a timer app. Then Spotify. Then your task list. Still not working.',
+    heroSubtitle: 'Focus needs structure, not another tab. A single timer with sounds, tasks, and streaks beats juggling five apps.',
+    title: 'Free Focus Timer Online — Pomodoro & Deep Work | Superfocus',
+    description: 'Browser focus timer with Pomodoro, Flow, and Deep Work presets. Lofi, rain, tasks, and analytics in one place. Free to try.',
+    painPoints: 'Timer in one tab. Music in another.<br>Tasks somewhere else.<br>Focus scattered everywhere.',
+    painSolution: 'One focus timer. Sounds built in.<br>Track every block and streak.<br>Start in 10 seconds.'
+  },
+  'focus-website-for-studying': {
+    h1: 'You need a website that helps you study—not another tab to ignore.',
+    heroSubtitle: 'A focus website should give you a timer, block distractions, and help you finish sessions—not just look minimal.',
+    title: 'Focus Website for Studying — Free Online Study Timer | Superfocus',
+    description: 'Free focus website for students: Pomodoro timer, lofi study music, task list, and session streaks. No download required.',
+    painPoints: 'Open laptop to study. End up on social.<br>No structure. No accountability.<br>Hours pass. Notes empty.',
+    painSolution: 'One focus website. Timer + sounds.<br>25-minute blocks. Real progress.<br>Study without the scroll loop.'
+  },
+  'hustly-focus': {
+    h1: 'Hustly got you started. You still need more than a basic timer.',
+    heroSubtitle: 'Study timers should include sounds, tasks, and progress tracking—not just a countdown on repeat.',
+    title: 'Hustly Focus Alternative — Free Study Timer Online | Superfocus',
+    description: 'Looking for a Hustly Focus alternative? Pomodoro timer with lofi, rain, Todoist sync, and focus analytics. Free in your browser.',
+    painPoints: 'Basic timer. No study sounds.<br>No way to track streaks.<br>Still drifting mid-session.',
+    painSolution: 'Timer + lofi + tasks together.<br>Track study blocks and streaks.<br>More than a countdown.'
   }
 };
 

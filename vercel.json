@@ -143,7 +143,7 @@
     },
     {
       "source": "/focus-timer",
-      "destination": "https://www.superfocus.live/",
+      "destination": "https://www.superfocus.live/use-cases/focus-timer",
       "permanent": true
     },
     {
@@ -163,7 +163,7 @@
     },
     {
       "source": "/productivity-app",
-      "destination": "https://www.superfocus.live/",
+      "destination": "https://www.superfocus.live/use-cases/work-timer",
       "permanent": true
     },
     {

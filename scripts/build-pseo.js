@@ -515,6 +515,23 @@ function getCompareTable(page) {
   if (page.category !== 'compare' || !page.competitor) return '';
   const comp = escapeHtml(page.competitor);
   const url = page.competitorUrl || '#';
+
+  if (page.slug === 'superfocus-vs-pomofocus') {
+    return `
+                <h2>Superfocus vs ${comp}</h2>
+                <table style="width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 2rem;">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align:left; padding:10px 0;">Feature</th><th style="text-align:left; padding:10px 0;">Superfocus</th><th style="text-align:left; padding:10px 0;">Pomofocus</th></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Pomodoro timer</td><td>✓</td><td>✓</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Custom timer presets (Flow, Deep Work)</td><td>✓</td><td>Limited</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Ambient sounds / lofi music</td><td>✓ Built-in</td><td>✗</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Todoist integration</td><td>✓</td><td>✗</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Focus analytics & streaks</td><td>✓</td><td>Basic</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Leaderboard</td><td>✓</td><td>✗</td></tr>
+                    <tr><td style="padding:10px 0;">Free tier (no signup to try)</td><td>✓</td><td>✓</td></tr>
+                </table>
+                <p><a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-text-link">Learn more about Pomofocus →</a></p>`;
+  }
+
   return `
                 <h2>Superfocus vs ${comp}</h2>
                 <table style="width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 2rem;">
@@ -585,6 +602,114 @@ function buildContentSection(page, contentSectionTemplate) {
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
 }
 
+const HUB_TEMPLATE_PATH = path.join(PSEO_DIR, 'hub-template.html');
+
+const HUB_CONFIG = {
+  compare: {
+    h1: 'Compare Superfocus with other focus timers',
+    title: 'Compare Focus Timers — Superfocus vs Pomofocus & More',
+    description: 'Side-by-side comparisons of Superfocus with Pomofocus, Forest, Flocus, and other popular focus and Pomodoro timers.',
+    keywords: 'focus timer comparison, Superfocus vs Pomofocus, pomodoro app comparison',
+    intro: [
+      'Choosing a focus timer means balancing simplicity with the features you actually use—ambient sounds, task sync, and analytics.',
+      'Browse our comparisons to see how Superfocus stacks up against Pomofocus, Forest, TickTick, and other tools you may already know.'
+    ]
+  },
+  alternatives: {
+    h1: 'Focus timer alternatives',
+    title: 'Focus Timer Alternatives — Pomofocus, Forest & More | Superfocus',
+    description: 'Looking for a Pomofocus, Hustly Focus, or Forest alternative? Free browser focus timer with sounds, tasks, and analytics.',
+    keywords: 'pomofocus alternative, hustly focus alternative, forest app alternative, focus timer alternative',
+    intro: [
+      'Outgrowing your current focus app usually means you need more than a countdown—sounds, tasks, streaks, and sync in one place.',
+      'Explore Superfocus as an alternative to Pomofocus, Hustly Focus, Forest, Flocus, and other popular study and work timers.'
+    ]
+  },
+  'use-cases': {
+    h1: 'Focus timers for every use case',
+    title: 'Focus Timer Use Cases — Study, Work & Deep Focus | Superfocus',
+    description: 'Free online focus timers for studying, coding, writing, ADHD, and remote work. Pomodoro presets with ambient sounds.',
+    keywords: 'study timer, focus timer online, work timer, focus website for studying',
+    intro: [
+      'Different work needs different focus blocks—a 25-minute sprint for studying, 90 minutes for deep work, 15 minutes when starting feels hard.',
+      'Find the right Superfocus preset and workflow for your situation, from exam prep to coding sessions to freelancer productivity.'
+    ]
+  },
+  techniques: {
+    h1: 'Focus techniques & timer methods',
+    title: 'Pomodoro & Focus Techniques — Timers & Methods | Superfocus',
+    description: 'Pomodoro technique, Flowtime, time blocking, and deep work timers. Free online guides with built-in presets.',
+    keywords: 'pomodoro technique, flowtime timer, deep work timer, time blocking timer',
+    intro: [
+      'The right focus technique depends on your task, attention span, and energy—Pomodoro for structured sprints, Flowtime for longer blocks, Deep Work for hard problems.',
+      'Each guide below explains the method and links to a ready-made timer preset in Superfocus so you can start immediately.'
+    ]
+  }
+};
+
+function buildHubJsonLd(category, canonicalPath, title, description) {
+  return `<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": ${JSON.stringify(title)},
+    "description": ${JSON.stringify(description)},
+    "url": "${BASE_URL}${canonicalPath}"
+}
+</script>`;
+}
+
+function buildHubHtml(category, pages, hubTemplate, manifest) {
+  const config = HUB_CONFIG[category];
+  if (!config) return '';
+
+  const categoryPages = pages
+    .filter(p => p.category === category)
+    .sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+
+  const pageList = categoryPages.map(p => {
+    const path = `/${category}/${p.slug}`;
+    const desc = escapeHtml(stripHtml(p.description || p.heroSubtitle || '').slice(0, 120));
+    return `<li><a href="${path}">${escapeHtml(p.h1 || p.title)}</a><span>${desc}</span></li>`;
+  }).join('\n                ');
+
+  const intro = config.intro.map(p => `<p>${escapeHtml(p)}</p>`).join('\n        ');
+  const canonicalPath = `/${category}/`;
+
+  return hubTemplate
+    .replace(/\{\{TITLE\}\}/g, escapeHtml(config.title))
+    .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(config.description))
+    .replace(/\{\{KEYWORDS\}\}/g, escapeHtml(config.keywords))
+    .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+    .replace(/\{\{H1\}\}/g, escapeHtml(config.h1))
+    .replace(/\{\{INTRO\}\}/g, intro)
+    .replace(/\{\{PAGE_LIST\}\}/g, pageList)
+    .replace(/\{\{CATEGORY\}\}/g, category)
+    .replace(/\{\{JSON_LD\}\}/g, buildHubJsonLd(category, canonicalPath, config.title, config.description))
+    .replace(/\{\{STYLE_HREF\}\}/g, manifest.style);
+}
+
+function buildHubPages(pages, manifest) {
+  if (!fs.existsSync(HUB_TEMPLATE_PATH)) {
+    console.warn('Missing pseo/hub-template.html — skipping hub pages');
+    return [];
+  }
+  const hubTemplate = fs.readFileSync(HUB_TEMPLATE_PATH, 'utf8');
+  const hubUrls = [];
+
+  for (const category of Object.keys(HUB_CONFIG)) {
+    const outputDir = path.join(ROOT, category);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    const html = buildHubHtml(category, pages, hubTemplate, manifest);
+    fs.writeFileSync(path.join(outputDir, 'index.html'), html, 'utf8');
+    hubUrls.push(`/${category}/`);
+    console.log(`Generated hub: /${category}/`);
+  }
+  return hubUrls;
+}
+
 function buildPageHtml(page, template, contentSectionTemplate, manifest) {
   const canonicalPath = `/${page.category}/${page.slug}`;
   const contentSection = buildContentSection(page, contentSectionTemplate);
@@ -634,6 +759,8 @@ function main() {
 
   console.log(`Generated ${generated.length} pSEO pages.`);
 
+  const hubUrls = buildHubPages(pages, manifest);
+
   const today = new Date().toISOString().slice(0, 10);
   const coreUrls = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
@@ -643,8 +770,14 @@ function main() {
     { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
     { loc: '/release-notes', priority: '0.7', changefreq: 'weekly' }
   ];
+  const hubSitemapUrls = hubUrls.map(loc => ({
+    loc: BASE_URL + loc,
+    priority: '0.85',
+    changefreq: 'weekly'
+  }));
   const allUrls = [
     ...coreUrls.map(u => ({ ...u, loc: BASE_URL + u.loc })),
+    ...hubSitemapUrls,
     ...generated.map(loc => ({ loc: BASE_URL + loc, priority: '0.8', changefreq: 'monthly' }))
   ];
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
