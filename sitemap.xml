@@ -37,25 +37,25 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.superfocus.live/compare/</loc>
+        <loc>https://www.superfocus.live/compare</loc>
         <lastmod>2026-06-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
     </url>
     <url>
-        <loc>https://www.superfocus.live/alternatives/</loc>
+        <loc>https://www.superfocus.live/alternatives</loc>
         <lastmod>2026-06-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
     </url>
     <url>
-        <loc>https://www.superfocus.live/use-cases/</loc>
+        <loc>https://www.superfocus.live/use-cases</loc>
         <lastmod>2026-06-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
     </url>
     <url>
-        <loc>https://www.superfocus.live/techniques/</loc>
+        <loc>https://www.superfocus.live/techniques</loc>
         <lastmod>2026-06-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>

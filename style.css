@@ -10003,7 +10003,8 @@ input:checked + .toggle-slider:before {
     justify-content: center;
 }
 
-.desktop-required-content h1 {
+.desktop-required-content h1,
+.desktop-required-content .desktop-required-title {
     color: #ffffff;
     font-size: 2.5rem;
     font-weight: 600;
@@ -10106,7 +10107,8 @@ input:checked + .toggle-slider:before {
         max-width: 100%;
     }
     
-    .desktop-required-content h1 {
+    .desktop-required-content h1,
+    .desktop-required-content .desktop-required-title {
         font-size: 2rem;
     }
     
