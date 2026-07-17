@@ -30,8 +30,10 @@ function writeFallbackManifest() {
 function patchIndexHtml(manifest) {
   if (!fs.existsSync(INDEX_PATH) || !manifest.script || !manifest.style) return;
   let html = fs.readFileSync(INDEX_PATH, 'utf8');
-  html = html.replace(/href="[^"]*style[^"]*\.css"/, `href="${manifest.style}"`);
-  html = html.replace(/href="style\.css"/, `href="${manifest.style}"`);
+  html = html.replace(/href="[^"]*\/?dist\/style\.[^"]*\.css"/g, `href="${manifest.style}"`);
+  html = html.replace(/href="[^"]*style\.[^"]*\.min\.css"/g, `href="${manifest.style}"`);
+  html = html.replace(/href="\/style\.css"/g, `href="${manifest.style}"`);
+  html = html.replace(/href="style\.css"/g, `href="${manifest.style}"`);
   html = html.replace(/<script src="[^"]*script[^"]*\.js[^"]*" defer><\/script>/, `<script src="${manifest.script}" defer></script>`);
   fs.writeFileSync(INDEX_PATH, html, 'utf8');
   console.log('Updated index.html asset references');
