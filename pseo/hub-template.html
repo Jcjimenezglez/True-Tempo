@@ -26,42 +26,25 @@
     <link rel="preload" href="{{STYLE_HREF}}" as="style">
     <link rel="stylesheet" href="{{STYLE_HREF}}">
     {{JSON_LD}}
-    <style>
-        .pseo-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.6);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .pseo-nav a { color: #fff; text-decoration: none; font-weight: 500; }
-        .pseo-nav a:hover { color: #34d399; }
-        .pseo-page .main-content { margin-left: 0 !important; }
-        .hub-content { max-width: 720px; margin: 0 auto; padding: 48px 24px 64px; color: rgba(255,255,255,0.9); }
-        .hub-content h1 { font-size: 2rem; margin-bottom: 1rem; }
-        .hub-content p { line-height: 1.7; color: rgba(255,255,255,0.75); margin-bottom: 1rem; }
-        .hub-list { list-style: none; padding: 0; margin: 2rem 0 0; }
-        .hub-list li { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .hub-list a { color: #34d399; text-decoration: none; font-size: 1.05rem; }
-        .hub-list a:hover { text-decoration: underline; }
-        .hub-list span { display: block; font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-top: 4px; }
-        .hub-cta { display: inline-block; margin-top: 2rem; padding: 12px 24px; background: #34d399; color: #000; text-decoration: none; border-radius: 8px; font-weight: 600; }
-        .hub-cta:hover { background: #6ee7b7; }
-    </style>
 </head>
-<body class="pseo-page">
+<body class="pseo-page hub-page">
     <header>
         <nav class="pseo-nav" aria-label="Main">
             <a href="/">← Superfocus</a>
             <a href="/pricing">Pricing</a>
         </nav>
     </header>
-    <main class="main-content hub-content">
-        <h1>{{H1}}</h1>
-        {{INTRO}}
-        <ul class="hub-list">{{PAGE_LIST}}</ul>
-        <a href="/?ref=pseo-hub-{{CATEGORY}}" class="hub-cta">Try Superfocus free →</a>
+    <main class="main-content">
+        <section class="content-section">
+            <div class="content-container">
+                <h1 class="content-hero-title">{{H1}}</h1>
+                {{INTRO}}
+                <ul class="hub-list">{{PAGE_LIST}}</ul>
+                <div class="hub-cta-wrap content-hero-cta-wrap">
+                    <a href="/?ref=pseo-hub-{{CATEGORY}}" class="content-hero-cta">Try Superfocus free →</a>
+                </div>
+            </div>
+        </section>
         <footer class="main-footer">
             <div class="footer-container">
                 <nav class="footer-nav" aria-label="Footer">

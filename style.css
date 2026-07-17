@@ -1159,6 +1159,103 @@ body.is-scrolling .streak-fire {
     margin: 0 auto;
 }
 
+/* Shared pSEO / hub chrome (no emerald accents) */
+.pseo-page {
+    background: #000000;
+    min-height: 100vh;
+}
+
+.pseo-page .main-content {
+    margin-left: 0 !important;
+}
+
+.pseo-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pseo-nav a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.pseo-nav a:hover {
+    color: #ffffff;
+}
+
+.hub-page .content-section {
+    min-height: auto;
+    padding-bottom: 60px;
+}
+
+.hub-page .content-hero-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.hub-page .content-hero-subtitle,
+.hub-intro {
+    text-align: left;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 1rem;
+    max-width: none;
+}
+
+.hub-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+}
+
+.hub-list li {
+    margin-bottom: 0;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hub-list a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.hub-list a:hover {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: underline;
+}
+
+.hub-list span {
+    display: block;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.35rem;
+    line-height: 1.45;
+}
+
+.hub-cta-wrap {
+    margin-top: 2.5rem;
+    text-align: left;
+}
+
+.pseo-proof-line {
+    margin: 1.5rem 0 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.55);
+    text-align: center;
+}
+
 .content-section h1 {
     font-size: 7rem;
     font-weight: 600;

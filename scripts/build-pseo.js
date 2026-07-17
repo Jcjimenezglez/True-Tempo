@@ -239,42 +239,138 @@ function getHowWeHelp(page) {
 function getFaqData(page) {
   const category = page.category;
   const keyword = page.keyword;
+  const preset = page.preset || 'Pomodoro';
+  const competitor = page.competitor;
   if (Array.isArray(page.faq) && page.faq.length > 0) {
     return page.faq.map(f => ({ q: f.q, a: f.a }));
   }
-  const baseFaq = [
-    { q: `What is the best ${keyword}?`, a: `Superfocus offers ${page.preset || 'Pomodoro'} plus ambient sounds, task tracking, and analytics. Free to try.` },
-    { q: 'Is Superfocus free?', a: 'Yes. <a href="https://www.superfocus.live/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Superfocus</a> is free to use. Free users get 2 hours of focus per day; guests get 25 minutes. Upgrade to Premium for unlimited focus, all timer techniques, and more.' },
-    { q: 'Does Superfocus have ambient sounds?', a: 'Yes. Superfocus includes lofi, rain, cafe, and other focus cassettes. You can also add your own Spotify playlists.' },
-    { q: 'What problem does Superfocus solve?', a: 'Superfocus helps you stay focused, avoid burnout, and track progress. It combines a Pomodoro timer with ambient sounds, task management, and productivity insights—so you can get into flow, maintain energy, and see how much you accomplish.' }
-  ];
-  if (category === 'compare' && page.competitor) {
-    baseFaq.unshift({
-      q: `Which is better: Superfocus or ${page.competitor}?`,
-      a: `Superfocus adds ambient sounds, Todoist sync, analytics, and multiple timer presets (Pomodoro, Flow, Deep Work). ${page.competitor} has its own strengths. Try Superfocus free to compare.`
-    });
-  }
+
+  const faqByCat = {
+    techniques: [
+      { q: `What is the best ${keyword}?`, a: `Superfocus includes a ready-made ${escapeHtml(preset)} preset for ${keyword}, plus ambient sounds and task tracking. Start free in your browser.` },
+      { q: `How long should ${keyword} sessions be?`, a: `It depends on the method. Pomodoro uses 25/5; Flowtime uses longer blocks; Deep Work often uses 90 minutes. Superfocus presets cover each approach so you can test what fits.` },
+      { q: `Can I customize ${keyword} in Superfocus?`, a: `Yes. Use built-in presets or set custom focus and break lengths. Pair any timer with lofi, rain, or cafe sounds.` }
+    ],
+    'use-cases': [
+      { q: `What is the best ${keyword}?`, a: `A ${keyword} that keeps structure and reduces friction. Superfocus pairs ${escapeHtml(preset)} with ambient sounds and tasks so you start in seconds—free in the browser.` },
+      { q: `Is Superfocus good as a ${keyword}?`, a: `Yes. Students and professionals use Superfocus for focused blocks with breaks, sounds, and session tracking without installing an app.` },
+      { q: `Do I need an account for a ${keyword}?`, a: `Guests can try a short focus block. A free account unlocks more daily focus time; Premium removes limits and unlocks full analytics.` }
+    ],
+    sounds: [
+      { q: `Does Superfocus include ${keyword}?`, a: `Yes. Superfocus ships ambient cassettes (lofi, rain, cafe) and Spotify playlist support so sound and timer stay in one tab.` },
+      { q: `Can I use ${keyword} with Pomodoro?`, a: `Yes. Start any preset—Pomodoro, Flow, Deep Work—and layer ambient sound or Spotify on top.` },
+      { q: `Is focus music better than silence?`, a: `Many people focus better with steady ambient sound that masks interruptions. Superfocus lets you switch cassettes without leaving the timer.` }
+    ],
+    compare: [
+      { q: competitor ? `Which is better: Superfocus or ${competitor}?` : `How does Superfocus compare?`, a: competitor ? `Superfocus adds ambient sounds, Todoist sync, analytics, and multiple presets (Pomodoro, Flow, Deep Work). ${competitor} has its own strengths—try Superfocus free to compare side by side.` : `Superfocus combines a Pomodoro timer with sounds, tasks, and analytics in one browser app. Compare features on this page, then start free.` },
+      { q: `Does Superfocus replace ${competitor || 'other timers'}?`, a: `For many people, yes—if you want timer + sounds + tasks together. Keep ${competitor || 'your current tool'} if you only need its unique feature.` },
+      { q: `Is Superfocus free to try?`, a: `Yes. Start in the browser with no credit card. Free users get daily focus time; Premium unlocks unlimited sessions and full reports.` }
+    ],
+    alternatives: [
+      { q: `What is the best ${keyword}?`, a: `Look for the same core timer plus the extras you were missing. Superfocus keeps a simple Pomodoro and adds sounds, tasks, and analytics—free to try.` },
+      { q: competitor ? `Why switch from ${competitor} to Superfocus?` : `Why choose Superfocus?`, a: `One tab for timer, ambient sound, and task tracking—instead of juggling separate apps. Start free and keep what works.` },
+      { q: `Is Superfocus free?`, a: `Yes. Guests and free accounts can start focusing immediately. Premium adds unlimited focus and deeper analytics.` }
+    ],
+    workflows: [
+      { q: `How does Superfocus help with ${keyword}?`, a: `Connect your tasks, assign pomodoros, and run the timer without leaving the page. Todoist sync is available so planning and focus stay linked.` },
+      { q: `Do I need Todoist?`, a: `No. Use Superfocus tasks alone, or sync Todoist if that is already your list.` },
+      { q: `Can I estimate pomodoros per task?`, a: `Yes. Add tasks, set estimates, select one, and start the timer—same flow as classic Pomodoro planning.` }
+    ],
+    analytics: [
+      { q: `What ${keyword} does Superfocus show?`, a: `Session history, focus time, and streaks so you see whether your ${keyword} is improving week over week. Premium unlocks fuller reports.` },
+      { q: `Do free users get analytics?`, a: `Basic progress is available; Premium unlocks richer daily, weekly, and monthly views.` },
+      { q: `Can I export focus history?`, a: `Premium plans include report options so you can review focus history outside the app.` }
+    ],
+    professions: [
+      { q: `Is Superfocus a good ${keyword}?`, a: `Yes. Block deep work between meetings with Pomodoro, Flow, or Deep Work presets—and keep ambient sound in the same tab.` },
+      { q: `Can I track focus for client work?`, a: `Log sessions and tasks as you go. Analytics help you see where focused hours actually went.` },
+      { q: `Does it work on desktop?`, a: `Superfocus runs in the browser on desktop—ideal when phone focus apps are the wrong tool.` }
+    ],
+    activities: [
+      { q: `How do I use Superfocus for ${keyword}?`, a: `Pick a preset that matches the task length, start the timer, and optionally add ambient sound so ${keyword} stays in one block.` },
+      { q: `What preset should I use?`, a: `Short admin bursts fit Sprint; writing or coding often fits Pomodoro or Flow. Try ${escapeHtml(preset)} first.` },
+      { q: `Can I batch similar tasks?`, a: `Yes. List tasks, assign pomodoros, and work through them in focused rounds.` }
+    ],
+    goals: [
+      { q: `How does Superfocus help me ${keyword.replace(/ timer$/i, '').replace(/-/g, ' ')}?`, a: `Structure beats willpower. Use timed blocks, breaks, and session tracking so the goal becomes a daily habit—not a vague intention.` },
+      { q: `What timer should I start with?`, a: `Begin with ${escapeHtml(preset)}. Adjust length after a few days of real data.` },
+      { q: `Is Superfocus free for this goal?`, a: `Yes. Start free in the browser; upgrade only if you need unlimited focus and full analytics.` }
+    ],
+    faq: [
+      { q: page.h1 || `About ${keyword}`, a: page.answer || page.description || `Superfocus is a free browser Pomodoro timer with ambient sounds and tasks.` },
+      { q: `How do I try this in Superfocus?`, a: `Open superfocus.live, pick a preset, and start. No install required.` },
+      { q: `Is Superfocus free?`, a: `Yes. Guests get a short daily trial; free accounts get more focus time; Premium removes limits.` }
+    ]
+  };
+
+  const baseFaq = faqByCat[category] || faqByCat['use-cases'];
   if (category === 'faq' && page.h1 && page.answer) {
-    baseFaq.unshift({ q: page.h1, a: page.answer });
+    return [{ q: page.h1, a: page.answer }, ...baseFaq.slice(1)];
   }
   return baseFaq;
 }
 
 function getHowToStepTexts(page) {
   const cat = page.category;
+  const keyword = page.keyword;
+  const preset = page.preset || 'Pomodoro';
   if (cat === 'sounds') {
-    return ['Choose a timer preset (Pomodoro, Flow, etc.)', 'Select a cassette (lofi, rain, cafe) or add Spotify', 'Press start and focus'];
+    return [
+      `Open Superfocus and pick a timer preset (${preset})`,
+      `Select a cassette for ${keyword} (or add Spotify)`,
+      'Press start and keep sound + timer in one tab'
+    ];
   }
   if (cat === 'workflows') {
-    return ['Connect Todoist in Superfocus', 'Add tasks and assign pomodoros', 'Start the timer and work through your list'];
+    return [
+      'Add today\'s tasks in Superfocus (or sync Todoist)',
+      'Assign estimate pomodoros to each task',
+      `Select a task, start ${preset}, and work the list`
+    ];
   }
   if (cat === 'analytics') {
-    return ['Sign up for Superfocus (free)', 'Use the timer and complete sessions', 'Upgrade to Premium to see daily, weekly, monthly analytics'];
+    return [
+      'Sign up free and complete a few focus sessions',
+      'Keep using the same preset so patterns are comparable',
+      'Open analytics to review focus time, streaks, and trends'
+    ];
+  }
+  if (cat === 'compare' || cat === 'alternatives') {
+    return [
+      'Skim the feature differences on this page',
+      'Open Superfocus in your browser (no download)',
+      `Run one ${preset} session with sounds and tasks enabled`
+    ];
   }
   if (cat === 'faq') {
-    return ['Go to superfocus.live (no signup required to try)', 'Pick a preset (Pomodoro, Flow, Sprint, etc.)', 'Start the timer and focus'];
+    return [
+      'Go to superfocus.live (no signup required to try)',
+      `Pick a preset that matches the answer (${preset})`,
+      'Start the timer and focus on one task'
+    ];
   }
-  return ['Pick your task', 'Start the timer and focus for 25 minutes', 'Take a 5-minute break', 'Repeat 4 times, then take a longer break'];
+  if (cat === 'techniques') {
+    return [
+      `Choose the ${keyword} approach (or the ${preset} preset)`,
+      'Add one task and start the focus block',
+      'Take the recommended break, then repeat',
+      'After a few rounds, review what length actually worked'
+    ];
+  }
+  if (cat === 'use-cases' || cat === 'study-types' || cat === 'professions' || cat === 'activities' || cat === 'goals') {
+    return [
+      `Set up your ${keyword} session with the ${preset} preset`,
+      'Optionally start ambient sound to reduce distractions',
+      'Work until the timer ends, then take the break',
+      'Log the session and queue the next block'
+    ];
+  }
+  return [
+    'Pick your task',
+    `Start ${preset} and focus until the timer ends`,
+    'Take a short break',
+    'Repeat until the work is done'
+  ];
 }
 
 function buildJsonLd(page, canonicalPath) {
@@ -372,25 +468,30 @@ function getWhatIs(page) {
   const preset = page.preset || 'Pomodoro';
 
   const headingMap = {
-    'pomodoro-technique': 'Superfocus',
+    'pomodoro-technique': 'a Pomodoro Technique timer',
     'flowtime-timer': 'the Flowtime method',
     'time-blocking-timer': 'time blocking',
     'deep-work-timer': 'a deep work timer',
     'sprint-timer': 'a sprint timer',
     'marathon-timer': 'a marathon timer',
     '52-minute-focus': 'the 52-minute focus method',
-    '90-minute-deep-work': '90-minute deep work'
+    '90-minute-deep-work': '90-minute deep work',
+    'study-timer': 'a study timer',
+    'focus-timer': 'a focus timer',
+    'pomofocus': 'a Pomofocus alternative',
+    'best-pomodoro-apps': 'the best Pomodoro apps',
+    'superfocus-vs-pomofocus': 'Superfocus vs Pomofocus'
   };
   let heading = headingMap[slug];
   if (!heading) {
-    if (cat === 'faq') heading = 'the answer';
-    else if (cat === 'compare' || cat === 'alternatives') heading = 'Superfocus';
+    if (cat === 'faq') heading = keyword;
+    else if (cat === 'compare' || cat === 'alternatives') heading = keyword || 'Superfocus';
     else if (keyword.match(/^(a|an|the)\s/i)) heading = keyword;
     else heading = `a ${keyword}`;
   }
 
   const paragraphMap = {
-    'pomodoro-technique': 'Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">Pomodoro timer app</a> that helps you focus and get more done. The Pomodoro Technique uses 25-minute work blocks with 5-minute breaks. Superfocus builds on this <a href="https://en.wikipedia.org/wiki/Pomodoro_Technique" target="_blank" rel="noopener noreferrer" class="inline-text-link">time management method</a> developed by Francesco Cirillo—with ambient sounds, tasks, and analytics built in.',
+    'pomodoro-technique': 'A Pomodoro Technique timer runs focused 25-minute work blocks with short breaks so you finish tasks instead of drifting. <a href="https://www.superfocus.live/" class="inline-text-link">Superfocus</a> gives you a free online 25/5 timer plus ambient sounds, tasks, and session tracking—built on the <a href="https://en.wikipedia.org/wiki/Pomodoro_Technique" target="_blank" rel="noopener noreferrer" class="inline-text-link">Pomodoro Technique</a> by Francesco Cirillo.',
     'flowtime-timer': 'The Flowtime method uses longer work blocks (45+ minutes) with flexible breaks. Superfocus offers the Flow preset (45/8/25) for those who prefer fewer interruptions and longer focus sessions. It\'s ideal for <a href="https://en.wikipedia.org/wiki/Deep_work" target="_blank" rel="noopener noreferrer" class="inline-text-link">deep work</a> and flow state.',
     'time-blocking-timer': 'Time blocking is a productivity method where you schedule specific blocks for tasks. Superfocus combines a focus timer with task management—so you can block focus time, assign pomodoros to tasks, and see how much you get done.',
     'deep-work-timer': 'A deep work timer uses 90-minute blocks to match your <a href="https://en.wikipedia.org/wiki/Ultradian_rhythm" target="_blank" rel="noopener noreferrer" class="inline-text-link">ultradian rhythm</a>. Superfocus has a built-in Deep Work preset (90/20/30) for extended focus sessions without interruption.',
@@ -398,7 +499,8 @@ function getWhatIs(page) {
     'marathon-timer': 'A marathon timer uses 60-minute focus blocks for extended deep work. Superfocus Marathon preset (60/10/30) is built for writers, researchers, and anyone who needs longer uninterrupted sessions.',
     '52-minute-focus': 'The 52-minute focus method is based on <a href="https://en.wikipedia.org/wiki/Ultradian_rhythm" target="_blank" rel="noopener noreferrer" class="inline-text-link">ultradian rhythms</a>. Work 52 minutes, break 17. Superfocus lets you create custom timers to match your body\'s natural cycles.',
     '90-minute-deep-work': '90-minute deep work sessions align with your ultradian rhythm—the natural ~90-minute cycle of focus and rest. Superfocus Deep Work preset (90/20/30) lets you capitalize on this without manual timer tweaking.',
-    'study-timer': 'A study timer helps students block time, take breaks, and stay focused. Superfocus combines Pomodoro (or Sprint) with lofi and ambient sounds—so you can study for exams, write papers, or power through readings without burning out.',
+    'study-timer': 'A study timer gives students timed focus blocks, breaks, and fewer excuses to scroll. Superfocus pairs Pomodoro (or Sprint) with lofi and ambient sounds so exam prep, readings, and papers happen in clear rounds—not vague “study time.”',
+    'focus-timer': 'A focus timer is a structured countdown that protects one task from interruptions. Superfocus is a free online focus timer with Pomodoro, Flow, and Deep Work presets—plus ambient sounds and tasks in the same browser tab.',
     'work-timer': 'A work timer keeps professionals on track during busy days. Superfocus combines Pomodoro, Flow, and Deep Work presets with task tracking and ambient sounds—so you can block focus time between meetings and get real work done.',
     'coding-focus-timer': 'A coding focus timer helps developers enter flow state. Superfocus Deep Work (90 min) or Flow (45 min) presets, plus lofi sounds, let you code without context switching or distraction.',
     'writing-timer': 'A writing timer helps writers overcome block and ship. Superfocus Pomodoro or Marathon presets, plus rain and lofi sounds, create a ritual for deep writing sessions.',
@@ -406,14 +508,14 @@ function getWhatIs(page) {
     'lofi-study-music': 'Lofi study music combines chill beats with ambient sound to aid concentration. Superfocus has curated lofi cassettes plus your Spotify playlists—pair with Pomodoro or any timer.',
     'todoist-pomodoro': 'Todoist Pomodoro combines task management with a focus timer. Superfocus syncs with Todoist so you can assign pomodoros to tasks, track completion, and stay organized.',
     'productivity-analytics': 'Productivity analytics show how much you focus each day, week, and month. Superfocus Premium tracks sessions, streaks, and trends—so you can build better habits and see real progress.',
-    'superfocus-vs-pomofocus': 'Superfocus combines a Pomodoro timer with ambient sounds (lofi, rain, cafe), Todoist sync, and productivity analytics. It builds on <a href="https://pomofocus.io/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Pomofocus</a> with extra features—sounds, tasks, and insights—in one app. Free to try.',
+    'superfocus-vs-pomofocus': 'Pomofocus is a clean online Pomodoro. Superfocus keeps that simplicity and adds ambient sounds (lofi, rain, cafe), Todoist sync, and productivity analytics in one free browser app—so you are not juggling three tabs to focus.',
     'superfocus-vs-forest': 'Superfocus is a browser-based focus timer with Pomodoro, ambient sounds, and analytics. Unlike <a href="https://www.forestapp.cc/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Forest</a>, it runs on desktop without your phone. Lofi, rain, cafe cassettes plus task tracking and leaderboard.',
     'superfocus-vs-flocus': 'Superfocus blends a Pomodoro timer with ambient cassettes and task management. Compare with <a href="https://flocus.com/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Flocus</a>—both offer focus timers and productivity tools. Superfocus adds lofi, rain, and Spotify integration.',
     'superfocus-vs-focusmate': 'Superfocus is a solo focus timer with ambient sounds and Pomodoro. <a href="https://www.focusmate.com/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Focusmate</a> pairs you with an accountability partner. Different styles: Superfocus for independent deep work, Focusmate for session accountability.',
-    'pomodoro-timer-apps': 'Superfocus is one of the best Pomodoro timer apps in 2026. It combines 25-minute focus blocks with lofi, rain, cafe sounds, Todoist sync, and analytics. Free to start.',
-    'pomofocus': 'Superfocus is a Pomofocus alternative with ambient sounds, Todoist sync, and analytics. Same simple Pomodoro timer—plus cassettes and productivity insights. Free to try.',
+    'pomodoro-timer-apps': 'Choosing among Pomodoro timer apps usually comes down to simplicity versus extras. Superfocus keeps a clear 25-minute timer and adds lofi/rain sounds, Todoist sync, and analytics—free to start in the browser.',
+    'pomofocus': 'A Pomofocus alternative should keep the simple Pomodoro and fix the missing pieces. Superfocus adds ambient sounds, Todoist sync, and analytics while staying free to try online—no download.',
     'forest-app': 'Superfocus is a Forest app alternative that runs in your browser. No phone needed. Pomodoro timer, lofi and rain cassettes, task tracking, and analytics—all in one place.',
-    'best-pomodoro-apps': 'Superfocus is among the best Pomodoro apps for 2026. Pomodoro, Flow, Deep Work presets; ambient sounds; Todoist sync; and analytics. Free to start, no credit card.'
+    'best-pomodoro-apps': 'The best Pomodoro apps in 2026 balance a reliable timer with features you will actually use. Superfocus includes Pomodoro, Flow, and Deep Work presets; ambient sounds; Todoist sync; and analytics—start free, no credit card.'
   };
   let paragraph = paragraphMap[slug];
   if (!paragraph && cat === 'faq' && (page.answer || page.description)) {
@@ -435,42 +537,126 @@ function getWhatIs(page) {
 
 function getTopicSection(page) {
   const slug = page.slug;
-  if (page.category === 'faq') return '';
-  const needsPomodoro = ['pomodoro-technique', 'study-timer', 'work-timer', 'exam-prep-timer', 'todoist-pomodoro', 'task-planning-workflow'].includes(slug) ||
-    (typeof slug === 'string' && slug.startsWith('study-timer-for-')) ||
-    (page.keyword && page.keyword.toLowerCase().includes('pomodoro'));
-  if (!needsPomodoro) return '';
+  const cat = page.category;
+  if (cat === 'faq' || cat === 'compare' || cat === 'alternatives' || cat === 'sounds') return '';
 
-  return `<h2>What is the Pomodoro Technique?</h2>
-                <p>The Pomodoro Technique is a time management method: focus for 25 minutes, take a 5-minute break, repeat. After 4 sessions, take a 15-minute break. <a href="https://youtu.be/IlU-zDU6aQ0" target="_blank" rel="noopener noreferrer" class="inline-text-link">Learn more →</a></p>
-                <p>This <a href="https://en.wikipedia.org/wiki/Timeboxing" target="_blank" rel="noopener noreferrer" class="inline-text-link">timeboxing</a> method combines 25-minute work intervals with short breaks to sustain focus. Beyond the timer, it includes daily planning, interruption management, and effort estimation.</p>`;
+  if (slug === 'pomodoro-technique') {
+    return `<h2>What is the Pomodoro Technique?</h2>
+                <p>The Pomodoro Technique is a time management method: focus for 25 minutes, take a 5-minute break, repeat. After 4 sessions, take a longer break. <a href="https://youtu.be/IlU-zDU6aQ0" target="_blank" rel="noopener noreferrer" class="inline-text-link">Learn more →</a></p>
+                <p>Each interval is a “pomodoro.” The method also encourages planning tasks, estimating effort, and protecting the focus block from interruptions.</p>`;
+  }
+
+  if (cat === 'use-cases' && (slug === 'study-timer' || (typeof slug === 'string' && slug.startsWith('study-timer-for-')) || slug === 'exam-prep-timer' || slug === 'student-productivity')) {
+    return `<h2>Why students use timed study blocks</h2>
+                <p>Open-ended “study until done” sessions invite phones and half-attention. Short timed rounds create a clear start and stop—so readings, flashcards, and essays move in measurable chunks.</p>
+                <p>Pair the timer with ambient sound when silence feels too loud, then take the break on purpose instead of doomscrolling mid-chapter.</p>`;
+  }
+
+  if (cat === 'use-cases' && (slug === 'work-timer' || slug === 'focus-timer' || slug === 'remote-work-focus' || slug === 'freelancer-productivity')) {
+    return `<h2>Why timed focus beats “I’ll just check Slack”</h2>
+                <p>Knowledge work fails when every notification resets the clock. A focus timer makes the block visible: one task, one countdown, then a break.</p>
+                <p>Use shorter presets between meetings and longer ones when you finally get a quiet hour.</p>`;
+  }
+
+  if (cat === 'techniques' && slug !== 'pomodoro-technique') {
+    return `<h2>How this method differs from classic Pomodoro</h2>
+                <p>Classic Pomodoro uses fixed 25/5 cycles. ${escapeHtml(page.keyword)} adjusts block length or break rules so the timer matches attention span and task type—without abandoning structure entirely.</p>
+                <p>Superfocus keeps multiple presets in one place so you can switch methods when 25 minutes is too short or too long.</p>`;
+  }
+
+  if (cat === 'workflows') {
+    return `<h2>Timer + tasks in one workflow</h2>
+                <p>A list without a timer stays aspirational. A timer without tasks becomes random busywork. Linking estimates to focus blocks turns planning into finished pomodoros.</p>`;
+  }
+
+  if (cat === 'analytics') {
+    return `<h2>What to measure when you track focus</h2>
+                <p>Count completed sessions, not just hours online. Streaks and weekly totals show whether your system is sticking—or whether meetings still own the calendar.</p>`;
+  }
+
+  return '';
 }
 
 function getBenefits(page) {
-  const links = [
-    '<a href="https://en.wikipedia.org/wiki/Deep_work" target="_blank" rel="noopener noreferrer" class="inline-text-link">deep work</a>',
-    '<a href="https://en.wikipedia.org/wiki/Ultradian_rhythm" target="_blank" rel="noopener noreferrer" class="inline-text-link">attention cycles</a>',
-    '<a href="https://www.helpguide.org/mental-health/stress/burnout-prevention-and-recovery" target="_blank" rel="noopener noreferrer" class="inline-text-link">burnout</a>',
-    '<a href="https://grokipedia.com/page/Productivity" target="_blank" rel="noopener noreferrer" class="inline-text-link">productivity</a>'
-  ];
-  return [
-    `<strong>Stay focused</strong> — 25-minute sessions keep you in ${links[0]} mode by aligning with natural ${links[1]}.`,
-    `<strong>Avoid burnout</strong> — Regular breaks keep your energy high and help prevent ${links[2]}.`,
-    `<strong>Track progress</strong> — See exactly how much you accomplish and improve your ${links[3]}.`
-  ].map(li => `<li>${li}</li>`).join('\n                    ');
+  const cat = page.category;
+  const keyword = page.keyword;
+  const preset = page.preset || 'Pomodoro';
+  const competitor = page.competitor;
+
+  const byCat = {
+    techniques: [
+      `<strong>Match the method</strong> — ${escapeHtml(keyword)} with a ready ${escapeHtml(preset)} preset instead of guessing lengths.`,
+      `<strong>Fewer decisions</strong> — start, work, break, repeat so willpower is not the plan.`,
+      `<strong>Room to adapt</strong> — switch presets when classic 25/5 is the wrong fit.`
+    ],
+    'use-cases': [
+      `<strong>Built for ${escapeHtml(keyword)}</strong> — timed rounds that fit study or work, not a kitchen countdown.`,
+      `<strong>Fewer tab switches</strong> — timer, tasks, and ambient sound stay together.`,
+      `<strong>Visible progress</strong> — finished blocks beat vague “I studied all day” claims.`
+    ],
+    sounds: [
+      `<strong>Sound + timer together</strong> — ${escapeHtml(keyword)} without opening a second app.`,
+      `<strong>Mask distractions</strong> — steady ambient audio instead of unpredictable noise.`,
+      `<strong>Keep the ritual</strong> — same cassette signals “focus mode” each session.`
+    ],
+    compare: [
+      `<strong>Clear tradeoffs</strong> — see how Superfocus differs from ${escapeHtml(competitor || 'other timers')}.`,
+      `<strong>More than a countdown</strong> — sounds, tasks, and analytics in one place.`,
+      `<strong>Try before you commit</strong> — free browser access, no download.`
+    ],
+    alternatives: [
+      `<strong>Keep what worked</strong> — simple Pomodoro flow you already understand.`,
+      `<strong>Fill the gaps</strong> — ambient sound, tasks, and reports ${escapeHtml(competitor || 'basic timers')} often miss.`,
+      `<strong>Stay in the browser</strong> — no install friction when you want to switch.`
+    ],
+    workflows: [
+      `<strong>Plan then execute</strong> — estimate pomodoros, then run them.`,
+      `<strong>Sync optional</strong> — use built-in tasks or Todoist.`,
+      `<strong>Less context switching</strong> — list and timer share one screen.`
+    ],
+    analytics: [
+      `<strong>Evidence over vibes</strong> — see real focus time for ${escapeHtml(keyword)}.`,
+      `<strong>Spot patterns</strong> — which hours and presets actually ship work.`,
+      `<strong>Build streaks</strong> — consistency beats occasional hero days.`
+    ],
+    professions: [
+      `<strong>Protect deep work</strong> — block ${escapeHtml(keyword)} time before meetings win.`,
+      `<strong>Fit the calendar</strong> — short sprints or long Deep Work presets.`,
+      `<strong>Track the hours that matter</strong> — sessions show focused output, not just busy.`
+    ],
+    activities: [
+      `<strong>Batch the work</strong> — give ${escapeHtml(keyword)} a dedicated timer round.`,
+      `<strong>Finish the loop</strong> — breaks on purpose so fatigue does not derail you.`,
+      `<strong>Reuse the setup</strong> — same preset next time you face the same task type.`
+    ],
+    goals: [
+      `<strong>Turn goals into blocks</strong> — ${escapeHtml(keyword.replace(/ timer$/i, '').replace(/-/g, ' '))} becomes a daily timer habit.`,
+      `<strong>Start smaller if needed</strong> — Sprint when 25 minutes feels impossible.`,
+      `<strong>Measure the habit</strong> — streaks and session counts keep you honest.`
+    ],
+    faq: [
+      `<strong>Direct answer</strong> — practical guidance for ${escapeHtml(keyword)}.`,
+      `<strong>Try it immediately</strong> — open the timer and test the advice.`,
+      `<strong>Adjust with data</strong> — change presets after a few real sessions.`
+    ]
+  };
+
+  const items = byCat[cat] || byCat['use-cases'];
+  return items.map(li => `<li>${li}</li>`).join('\n                    ');
 }
 
 function getHowToHeading(page) {
   const cat = page.category;
   if (cat === 'techniques' && page.slug && page.slug.includes('pomodoro')) return 'How to use the Pomodoro Timer?';
-  if (cat === 'techniques') return `How to use the ${page.keyword}?`;
+  if (cat === 'techniques') return `How to use ${page.keyword}?`;
   if (cat === 'use-cases') return `How to use a ${page.keyword}?`;
-  if (cat === 'sounds') return 'How to use focus music with Superfocus?';
+  if (cat === 'sounds') return `How to use ${page.keyword} with Superfocus?`;
   if (cat === 'workflows') return 'How to set up the workflow?';
   if (cat === 'analytics') return 'How to track focus time?';
   if (cat === 'professions') return `How to use a focus timer for ${page.keyword.replace(/focus timer for /i, '')}?`;
   if (cat === 'activities') return `How to use a focus timer for ${page.keyword.replace(/focus timer for /i, '').replace(/ timer$/i, '')}?`;
   if (cat === 'goals') return `How to ${page.keyword.replace(/ timer$/i, '').replace(/-/g, ' ')} with Superfocus?`;
+  if (cat === 'compare' || cat === 'alternatives') return 'How to try Superfocus?';
   if (cat === 'faq') return 'How to get started with Superfocus?';
   return 'How to get started?';
 }
@@ -480,18 +666,93 @@ function getHowToSteps(page) {
 }
 
 function getFeatures(page) {
-  const links = [
-    '<a href="https://en.wikipedia.org/wiki/Concentration" target="_blank" rel="noopener noreferrer" class="inline-text-link">concentration</a>',
-    '<a href="https://en.wikipedia.org/wiki/Habit" target="_blank" rel="noopener noreferrer" class="inline-text-link">habits</a>',
-    '<a href="https://en.wikipedia.org/wiki/Motivation" target="_blank" rel="noopener noreferrer" class="inline-text-link">motivated</a>'
-  ];
-  return [
-    '<strong>Timer techniques</strong> — Pomodoro, Sprint, Flow State, Deep Work, and Marathon. Choose short sprints or longer deep work sessions.',
-    '<strong>Tasks</strong> — Add tasks, assign pomodoros, and track progress.',
-    `<strong>Cassettes</strong> — Ambient sounds and visual themes to sustain ${links[0]} and block distractions.`,
-    `<strong>Analytics</strong> — Session history and metrics to build better work ${links[1]}.`,
-    `<strong>Leaderboard</strong> — Compete with others and stay ${links[2]}.`
-  ].map(li => `<li>${li}</li>`).join('\n                    ');
+  const cat = page.category;
+  const keyword = page.keyword;
+  const preset = page.preset || 'Pomodoro';
+  const competitor = page.competitor;
+
+  const byCat = {
+    techniques: [
+      `<strong>${escapeHtml(preset)} preset</strong> — ready timing for ${escapeHtml(keyword)}.`,
+      '<strong>Custom lengths</strong> — change focus and break times when the default is wrong.',
+      '<strong>Ambient cassettes</strong> — lofi, rain, and cafe without leaving the timer.',
+      '<strong>Task estimates</strong> — assign pomodoros and work one item at a time.',
+      '<strong>Session history</strong> — see whether the method is sticking.'
+    ],
+    'use-cases': [
+      `<strong>Presets for ${escapeHtml(keyword)}</strong> — Pomodoro, Sprint, Flow, Deep Work, Marathon.`,
+      '<strong>Study/work sounds</strong> — ambient audio that stays with the countdown.',
+      '<strong>Task list</strong> — queue what you will finish in this block.',
+      '<strong>Browser-first</strong> — no install; start on desktop immediately.',
+      '<strong>Progress tracking</strong> — streaks and completed sessions.'
+    ],
+    sounds: [
+      `<strong>${escapeHtml(keyword)}</strong> — built-in cassettes aimed at concentration.`,
+      '<strong>Timer + audio</strong> — one tab for both.',
+      '<strong>Spotify option</strong> — bring your own playlists.',
+      '<strong>Any preset</strong> — Pomodoro through Deep Work.',
+      '<strong>Quick switch</strong> — change sound without resetting focus.'
+    ],
+    compare: [
+      '<strong>Pomodoro + more</strong> — timer, sounds, tasks, analytics together.',
+      `<strong>Versus ${escapeHtml(competitor || 'alternatives')}</strong> — see the matrix on this page.`,
+      '<strong>Todoist sync</strong> — optional task pipeline.',
+      '<strong>Multiple presets</strong> — not locked to 25/5 only.',
+      '<strong>Free to start</strong> — compare with a real session today.'
+    ],
+    alternatives: [
+      '<strong>Simple Pomodoro core</strong> — familiar 25/5 flow.',
+      '<strong>Extras included</strong> — sounds, tasks, analytics.',
+      `<strong>${escapeHtml(competitor || 'Incumbent')} gap-fill</strong> — keep simplicity, add depth.`,
+      '<strong>Web app</strong> — works where you already work.',
+      '<strong>Leaderboard option</strong> — light accountability if you want it.'
+    ],
+    workflows: [
+      '<strong>Tasks + timer</strong> — estimates and countdown linked.',
+      '<strong>Todoist sync</strong> — pull work you already tracked.',
+      '<strong>Templates mindset</strong> — repeat common task sets.',
+      '<strong>Focus cassettes</strong> — reduce setup friction.',
+      '<strong>Reports</strong> — see completed pomodoros over time.'
+    ],
+    analytics: [
+      `<strong>${escapeHtml(keyword)}</strong> — sessions logged automatically.`,
+      '<strong>Streaks</strong> — keep the habit visible.',
+      '<strong>Trends</strong> — daily/weekly patterns (Premium).',
+      '<strong>Preset breakdown</strong> — which lengths you actually finish.',
+      '<strong>Export-friendly history</strong> — review outside the app on Premium.'
+    ],
+    professions: [
+      `<strong>Desktop focus</strong> — ${escapeHtml(keyword)} without a phone garden.`,
+      '<strong>Meeting-aware presets</strong> — Sprint between calls, Deep Work for hard thinking.',
+      '<strong>Task queue</strong> — protect the next deliverable.',
+      '<strong>Ambient sound</strong> — headphones-friendly focus.',
+      '<strong>Analytics</strong> — prove where focused hours went.'
+    ],
+    activities: [
+      `<strong>Activity-ready presets</strong> — sized for ${escapeHtml(keyword)}.`,
+      '<strong>Single-task mode</strong> — one item until the bell.',
+      '<strong>Break reminders</strong> — stop grinding past useful focus.',
+      '<strong>Sound optional</strong> — on when the environment is noisy.',
+      '<strong>Repeatable setup</strong> — same flow next time.'
+    ],
+    goals: [
+      '<strong>Habit-friendly timer</strong> — small daily wins compound.',
+      '<strong>Flexible presets</strong> — match energy, not ego.',
+      '<strong>Distraction tools</strong> — sound + single task.',
+      '<strong>Streak tracking</strong> — keep the goal honest.',
+      '<strong>Free start</strong> — prove the system before upgrading.'
+    ],
+    faq: [
+      '<strong>Clear presets</strong> — test the advice immediately.',
+      '<strong>No install</strong> — browser timer.',
+      '<strong>Sounds included</strong> — optional focus audio.',
+      '<strong>Tasks</strong> — attach the answer to real work.',
+      '<strong>Free tier</strong> — try before Premium.'
+    ]
+  };
+
+  const items = byCat[cat] || byCat['use-cases'];
+  return items.map(li => `<li>${li}</li>`).join('\n                    ');
 }
 
 function getFaq(page) {
@@ -673,7 +934,7 @@ function buildHubHtml(category, pages, hubTemplate, manifest) {
     return `<li><a href="${path}">${escapeHtml(p.h1 || p.title)}</a><span>${desc}</span></li>`;
   }).join('\n                ');
 
-  const intro = config.intro.map(p => `<p>${escapeHtml(p)}</p>`).join('\n        ');
+  const intro = config.intro.map(p => `<p class="hub-intro">${escapeHtml(p)}</p>`).join('\n                ');
   const canonicalPath = `/${category}/`;
 
   return hubTemplate
