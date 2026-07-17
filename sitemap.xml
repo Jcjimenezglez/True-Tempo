@@ -61,6 +61,36 @@
         <priority>0.85</priority>
     </url>
     <url>
+        <loc>https://www.superfocus.live/blog/</loc>
+        <lastmod>2026-07-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.85</priority>
+    </url>
+    <url>
+        <loc>https://www.superfocus.live/blog/pomofocus-vs-superfocus</loc>
+        <lastmod>2026-07-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+    <url>
+        <loc>https://www.superfocus.live/blog/best-pomodoro-timers-2026</loc>
+        <lastmod>2026-07-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+    <url>
+        <loc>https://www.superfocus.live/blog/pomodoro-technique-guide</loc>
+        <lastmod>2026-07-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+    <url>
+        <loc>https://www.superfocus.live/blog/free-focus-study-timer</loc>
+        <lastmod>2026-07-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+    <url>
         <loc>https://www.superfocus.live/techniques/pomodoro-technique</loc>
         <lastmod>2026-07-17</lastmod>
         <changefreq>monthly</changefreq>

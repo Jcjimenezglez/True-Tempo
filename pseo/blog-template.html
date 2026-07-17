@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}}</title>
+    <meta name="title" content="{{TITLE}}">
+    <meta name="description" content="{{DESCRIPTION}}">
+    <meta name="keywords" content="{{KEYWORDS}}">
+    <link rel="canonical" href="https://www.superfocus.live{{CANONICAL_PATH}}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Superfocus">
+    <meta property="og:url" content="https://www.superfocus.live{{CANONICAL_PATH}}">
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{DESCRIPTION}}">
+    <meta property="og:image" content="https://www.superfocus.live/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@superfocus">
+    <meta name="twitter:title" content="{{TITLE}}">
+    <meta name="twitter:description" content="{{DESCRIPTION}}">
+    <meta name="twitter:image" content="https://www.superfocus.live/og-image.png">
+    <meta name="robots" content="index, follow">
+    <meta name="article:published_time" content="{{DATE}}">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="preload" href="{{STYLE_HREF}}" as="style">
+    <link rel="stylesheet" href="{{STYLE_HREF}}">
+    {{JSON_LD}}
+</head>
+<body class="pseo-page blog-page">
+    <header>
+        <nav class="pseo-nav" aria-label="Main">
+            <a href="/">← Superfocus</a>
+            <a href="/blog">Blog</a>
+            <a href="/pricing">Pricing</a>
+        </nav>
+    </header>
+    <main class="main-content">
+        <section class="content-section">
+            <div class="content-container">
+                <p class="blog-meta">{{DATE_DISPLAY}} · <a href="/blog" class="inline-text-link">Blog</a></p>
+                <h1 class="content-hero-title">{{H1}}</h1>
+                <p class="content-hero-subtitle">{{DESCRIPTION}}</p>
+
+                <div class="content-hero-cta-wrap">
+                    <a href="/?ref=blog-{{SLUG}}" class="content-hero-cta">Start free in Superfocus →</a>
+                </div>
+
+                <article class="pseo-article">
+                    {{ARTICLE_BODY}}
+                </article>
+
+                <div class="content-hero-cta-wrap" style="margin-top: 2.5rem;">
+                    <a href="/?ref=blog-{{SLUG}}-mid" class="content-hero-cta">Try the timer free →</a>
+                </div>
+
+                <div class="content-related-section" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: rgba(255,255,255,0.7); font-weight: 500;">More from the blog</h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">{{RELATED_POSTS}}</ul>
+                </div>
+            </div>
+        </section>
+        <footer class="main-footer">
+            <div class="footer-container">
+                <nav class="footer-nav" aria-label="Footer">
+                    <div class="footer-col">
+                        <h3 class="footer-col-title">Product</h3>
+                        <a href="/" class="footer-link">Home</a>
+                        <a href="/pricing" class="footer-link">Pricing</a>
+                        <a href="/blog" class="footer-link">Blog</a>
+                        <a href="/techniques/pomodoro-technique" class="footer-link">Pomodoro timer</a>
+                        <a href="/use-cases/study-timer" class="footer-link">Study timer</a>
+                    </div>
+                    <div class="footer-col">
+                        <h3 class="footer-col-title">Explore</h3>
+                        <a href="/techniques" class="footer-link">Techniques</a>
+                        <a href="/use-cases" class="footer-link">Use cases</a>
+                        <a href="/compare" class="footer-link">Compare</a>
+                        <a href="/alternatives" class="footer-link">Alternatives</a>
+                    </div>
+                    <div class="footer-col">
+                        <h3 class="footer-col-title">Popular</h3>
+                        <a href="/compare/superfocus-vs-pomofocus" class="footer-link">vs Pomofocus</a>
+                        <a href="/alternatives/pomofocus" class="footer-link">Pomofocus alternative</a>
+                        <a href="/alternatives/best-pomodoro-apps" class="footer-link">Best Pomodoro apps</a>
+                        <a href="/blog/best-pomodoro-timers-2026" class="footer-link">Best timers 2026</a>
+                    </div>
+                    <div class="footer-col">
+                        <h3 class="footer-col-title">Legal</h3>
+                        <a href="/privacy" class="footer-link">Privacy</a>
+                        <a href="/terms" class="footer-link">Terms</a>
+                    </div>
+                </nav>
+                <div class="footer-copyright">
+                    <p>&copy; 2026 Superfocus. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+</body>
+</html>

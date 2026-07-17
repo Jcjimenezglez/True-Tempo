@@ -453,12 +453,22 @@ function buildJsonLd(page, canonicalPath) {
 
 function getPresetSection(page) {
   const preset = page.preset || 'Pomodoro (25/5/15 min)';
-  if (page.category === 'faq') {
-    return `<h2>Recommended Superfocus Preset</h2>
-                <p>Superfocus has built-in presets: <strong>${escapeHtml(preset)}</strong>. Pomodoro, Flow, Sprint, Deep Work, and Marathon—plus ambient cassettes (lofi, rain, cafe) to block noise and help you enter flow state. <a href="https://www.superfocus.live/" class="inline-text-link">Try it free</a>.</p>`;
+  const kw = escapeHtml(page.keyword || page.slug);
+  const cat = page.category;
+  if (cat === 'faq') {
+    return `<h2>Timer preset for this answer</h2>
+            <p>Try <strong>${escapeHtml(preset)}</strong> in Superfocus. You can also switch among Pomodoro, Flow, Sprint, Deep Work, and Marathon, and add lofi, rain, or cafe sound if the room fights your attention. <a href="https://www.superfocus.live/" class="inline-text-link">Open the free timer</a>.</p>`;
   }
-  return `<h2>Recommended Superfocus Preset</h2>
-                <p>For ${page.keyword}, we recommend <strong>${escapeHtml(preset)}</strong>. Superfocus has built-in presets for Pomodoro, Flow, Sprint, Deep Work, and Marathon—plus ambient cassettes (lofi, rain, cafe) to block noise and help you enter flow state.</p>`;
+  if (cat === 'compare' || cat === 'alternatives') {
+    return `<h2>Try the comparison in a real session</h2>
+            <p>Open Superfocus and run <strong>${escapeHtml(preset)}</strong> on a task you would normally do in ${kw}. Judge the tool by finished blocks—not by feature checklists alone.</p>`;
+  }
+  if (cat === 'sounds') {
+    return `<h2>Pair ${kw} with a preset</h2>
+            <p>Start <strong>${escapeHtml(preset)}</strong>, then start the cassette. Keep both in Superfocus so the soundtrack does not become a second destination.</p>`;
+  }
+  return `<h2>Suggested Superfocus preset for ${kw}</h2>
+            <p>Start with <strong>${escapeHtml(preset)}</strong>. Switch to Sprint when resistance is high, or Flow/Deep Work when 25-minute cuts would break immersion. Ambient cassettes are optional support—not the activity.</p>`;
 }
 
 function getWhatIs(page) {
@@ -831,33 +841,133 @@ function getExternalLinks(page) {
   return `<p style="margin-top: 2rem; font-size: 0.95rem; color: rgba(255,255,255,0.6);">Further reading: ${items}</p>`;
 }
 
-function buildContentSection(page, contentSectionTemplate) {
-  const howWeHelp = getHowWeHelp(page);
-  const whatIs = getWhatIs(page);
+function getArticleBody(page) {
+  const articlesDir = path.join(PSEO_DIR, 'articles');
+  const customPath = path.join(articlesDir, `${page.slug}.html`);
+  if (fs.existsSync(customPath)) {
+    return fs.readFileSync(customPath, 'utf8').trim();
+  }
+  return buildGeneratedArticle(page);
+}
 
+function buildGeneratedArticle(page) {
+  const kw = escapeHtml(page.keyword || page.slug.replace(/-/g, ' '));
+  const preset = escapeHtml(page.preset || 'Pomodoro');
+  const cat = page.category;
+  const competitor = page.competitor ? escapeHtml(page.competitor) : '';
+  const whatIs = getWhatIs(page);
+  const topic = getTopicSection(page);
+  const benefits = getBenefits(page);
+  const features = getFeatures(page);
+  const howToHeading = escapeHtml(getHowToHeading(page));
+  const howToSteps = getHowToSteps(page);
+  const compare = getCompareTable(page);
+  const whoFor = getWhoItsFor(page);
+  const mistakes = getCommonMistakes(page);
+  const practice = getPracticeSection(page);
+
+  return [
+    `<h2>What is ${escapeHtml(whatIs.heading)}?</h2>`,
+    `<p>${whatIs.paragraph}</p>`,
+    topic,
+    whoFor,
+    compare,
+    `<h2>Why ${kw} matters for real work</h2>`,
+    practice,
+    `<h2>Benefits of using Superfocus for ${kw}</h2>`,
+    `<ul>${benefits}</ul>`,
+    `<h2>${howToHeading}</h2>`,
+    `<ol>${howToSteps}</ol>`,
+    mistakes,
+    getPresetSection(page),
+    `<h2>Features that support ${kw}</h2>`,
+    `<ul>${features}</ul>`,
+    `<h2>Start ${kw} in your browser</h2>`,
+    `<p>Open <a href="https://www.superfocus.live/?ref=pseo-${escapeHtml(page.slug)}" class="inline-text-link">Superfocus</a>, pick the <strong>${preset}</strong> preset (or customize lengths), optionally start ambient sound, and run one honest block. The goal is not a perfect system on day one—it is finishing the next ${kw} session without juggling five tabs.</p>`
+  ].filter(Boolean).join('\n            ');
+}
+
+function getWhoItsFor(page) {
+  const kw = escapeHtml(page.keyword);
+  const cat = page.category;
+  const map = {
+    techniques: `<h2>Who should use ${kw}?</h2>
+            <p>Use this method when your default work style needs a clearer rhythm—too many open loops, or blocks that drag without a finish line. ${kw} is especially useful if classic “work until done” turns into half-attention and late nights.</p>
+            <p>Skip it only when your task truly needs unbroken multi-hour immersion and you already protect that time. Even then, Superfocus Deep Work or Marathon presets may fit better than forcing a mismatched length.</p>`,
+    'use-cases': `<h2>Who needs a ${kw}?</h2>
+            <p>Anyone who keeps “starting” ${kw.replace(/^a /i, '')} sessions and somehow ends up in inbox, chat, or social. A dedicated ${kw} makes the block explicit: one outcome, one countdown, then a break you actually take.</p>
+            <p>It is also useful when your environment is noisy or your calendar is fragmented—short presets between meetings, longer ones when you finally get a quiet hour.</p>`,
+    sounds: `<h2>When ${kw} helps (and when it does not)</h2>
+            <p>${kw} works best as a consistent backdrop—steady enough to mask interruptions without stealing attention. If lyrics pull you into the song, switch to rain, cafe, or instrumental lofi inside Superfocus.</p>`,
+    compare: `<h2>How to decide with this comparison</h2>
+            <p>Use the table and angles on this page to match tools to jobs: simple countdown vs timer+sounds+tasks. If you only need a tomato timer, a minimal app may be enough. If you keep opening Spotify and a task list beside the timer, Superfocus is built for that stack.</p>`,
+    alternatives: `<h2>When to switch to a ${kw}</h2>
+            <p>Switch when your current tool is fine at counting down but weak at keeping you in one place—no sound, no task sync, no sense of progress. A ${kw} should feel familiar on day one and deeper by week two.</p>`,
+    workflows: `<h2>Who this workflow is for</h2>
+            <p>People who already write tasks down but do not finish them. Linking estimates to timed blocks turns the list into a run queue instead of a museum of intentions.</p>`,
+    analytics: `<h2>Who should track ${kw}</h2>
+            <p>Anyone guessing whether they “focused a lot” this week. Numbers will not motivate everyone—but they expose whether meetings, context switching, or weak presets are the real bottleneck.</p>`,
+    professions: `<h2>Built for ${kw}</h2>
+            <p>Professionals who need protected deep work between calls. Phone-first focus apps often fail on a desktop workday; a browser timer sits next to your docs and IDE.</p>`,
+    activities: `<h2>Use this for ${kw}</h2>
+            <p>Batch similar work into timed rounds so ${kw} stops expanding to fill the whole afternoon. One preset, one batch, then stop.</p>`,
+    goals: `<h2>Using a timer for this goal</h2>
+            <p>Goals fail when they stay abstract. Convert “focus more” into daily blocks you can finish. Start smaller than your ego wants if that is what gets the first session done.</p>`,
+    faq: `<h2>Quick context</h2>
+            <p>This page answers a specific question about focus timers and the Pomodoro method. Use the steps below to try the advice in Superfocus immediately.</p>`
+  };
+  return map[cat] || map['use-cases'];
+}
+
+function getCommonMistakes(page) {
+  const kw = escapeHtml(page.keyword);
+  const cat = page.category;
+  if (cat === 'faq') return '';
+  if (cat === 'compare' || cat === 'alternatives') {
+    return `<h2>Common switching mistakes</h2>
+            <ul>
+                <li><strong>Feature shopping forever</strong> — comparing for hours is still avoidance. Run one session in the contender today.</li>
+                <li><strong>Copying someone else’s stack</strong> — you may need sounds; they may need accountability partners. Match the job.</li>
+                <li><strong>Ignoring the free trial</strong> — browser tools should prove themselves in a single afternoon.</li>
+            </ul>`;
+  }
+  return `<h2>Common mistakes with ${kw}</h2>
+            <ul>
+                <li><strong>Multitasking inside the block</strong> — if the timer is running, one task owns it.</li>
+                <li><strong>Skipping breaks</strong> — breaks are part of the method, not a reward you earn by suffering.</li>
+                <li><strong>Perfect length obsession</strong> — pick ${escapeHtml(page.preset || 'a preset')}, collect a week of data, then adjust.</li>
+                <li><strong>Timer in one tab, distractions in five others</strong> — keep sound and tasks with the countdown when you can.</li>
+            </ul>`;
+}
+
+function getPracticeSection(page) {
+  const kw = escapeHtml(page.keyword);
+  const preset = escapeHtml(page.preset || 'Pomodoro');
+  const cat = page.category;
+  if (cat === 'techniques') {
+    return `<p>${kw} is not a personality test—it is a constraint. The constraint is what creates finishing energy. When people say the method “doesn’t work,” they often mean they kept negotiating with the timer, restarted after every ping, or never protected the break.</p>
+            <p>In Superfocus, treat the ${preset} preset as the default experiment. Run four cycles on one meaningful task. Only then decide whether you need shorter Sprint blocks or longer Flow/Deep Work time.</p>
+            <p>Write the task name before you press start. If you cannot name the outcome in one line, the block will fill with “organizing” busywork.</p>`;
+  }
+  if (cat === 'use-cases') {
+    return `<p>A ${kw} only helps if the session has a finish line. “Be productive” is not a finish line. “Draft section two” or “clear the review queue” is.</p>
+            <p>Use ${preset} when you want a known rhythm. If you burn out mid-block, drop to Sprint for a day—momentum beats heroic lengths you abandon.</p>
+            <p>Ambient sound is optional, but it is useful when your environment is unpredictable. Pair the same cassette with the same preset for a week so your brain learns the cue.</p>`;
+  }
+  if (cat === 'sounds') {
+    return `<p>${kw} should support attention, not become another playlist rabbit hole. Pick one cassette, start the timer, and leave the library alone until the break.</p>
+            <p>If you need familiar music, connect Spotify inside Superfocus so you are not bouncing between apps mid-focus.</p>`;
+  }
+  return `<p>The practical test for ${kw} is simple: can you finish one honest block today without redesigning your entire productivity system? Superfocus is set up for that—${preset}, optional sound, tasks if you need them.</p>
+            <p>Repeat daily before you optimize. Most gains come from showing up for the block, not from finding a mythical perfect length on day one.</p>`;
+}
+
+function buildContentSection(page, contentSectionTemplate) {
   return contentSectionTemplate
     .replace(/\{\{H1\}\}/g, escapeHtml(page.h1))
     .replace(/\{\{HERO_SUBTITLE\}\}/g, escapeHtml(getHeroSubtitle(page)))
     .replace(/\{\{SLUG\}\}/g, page.slug)
-    .replace(/\{\{STOP_PAIN\}\}/g, getStopPain(page))
-    .replace(/\{\{STOP_SOLUTION\}\}/g, getStopSolution(page))
-    .replace(/\{\{HOW_WE_HELP_TITLE\}\}/g, howWeHelp.title)
-    .replace(/\{\{HOW_WE_HELP_TAGLINE\}\}/g, howWeHelp.tagline)
-    .replace(/\{\{HOW_HELP_1_TITLE\}\}/g, howWeHelp.blocks[0].title)
-    .replace(/\{\{HOW_HELP_1_TEXT\}\}/g, howWeHelp.blocks[0].text)
-    .replace(/\{\{HOW_HELP_2_TITLE\}\}/g, howWeHelp.blocks[1].title)
-    .replace(/\{\{HOW_HELP_2_TEXT\}\}/g, howWeHelp.blocks[1].text)
-    .replace(/\{\{HOW_HELP_3_TITLE\}\}/g, howWeHelp.blocks[2].title)
-    .replace(/\{\{HOW_HELP_3_TEXT\}\}/g, howWeHelp.blocks[2].text)
-    .replace(/\{\{PRESET_SECTION\}\}/g, getPresetSection(page))
-    .replace(/\{\{WHAT_IS_HEADING\}\}/g, whatIs.heading)
-    .replace(/\{\{WHAT_IS_PARAGRAPH\}\}/g, whatIs.paragraph)
-    .replace(/\{\{TOPIC_SECTION\}\}/g, getTopicSection(page))
-    .replace(/\{\{COMPARE_TABLE\}\}/g, getCompareTable(page))
-    .replace(/\{\{BENEFITS\}\}/g, getBenefits(page))
-    .replace(/\{\{HOW_TO_HEADING\}\}/g, getHowToHeading(page))
-    .replace(/\{\{HOW_TO_STEPS\}\}/g, getHowToSteps(page))
-    .replace(/\{\{FEATURES\}\}/g, getFeatures(page))
+    .replace(/\{\{ARTICLE_BODY\}\}/g, getArticleBody(page))
     .replace(/\{\{FAQ\}\}/g, getFaq(page))
     .replace(/\{\{RELATED_LINKS\}\}/g, getRelatedLinks(page.related))
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
@@ -971,6 +1081,117 @@ function buildHubPages(pages, manifest) {
   return hubUrls;
 }
 
+const BLOG_DIR = path.join(PSEO_DIR, 'blog');
+const BLOG_POSTS_JSON = path.join(BLOG_DIR, 'posts.json');
+const BLOG_TEMPLATE_PATH = path.join(PSEO_DIR, 'blog-template.html');
+const BLOG_INDEX_TEMPLATE_PATH = path.join(PSEO_DIR, 'blog-index-template.html');
+
+function formatBlogDate(isoDate) {
+  try {
+    return new Date(isoDate + 'T12:00:00Z').toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (_) {
+    return isoDate;
+  }
+}
+
+function buildBlogJsonLd(post, canonicalPath) {
+  return `<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": ${JSON.stringify(post.title)},
+    "description": ${JSON.stringify(post.description)},
+    "datePublished": ${JSON.stringify(post.date)},
+    "author": { "@type": "Organization", "name": "Superfocus" },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Superfocus",
+        "logo": { "@type": "ImageObject", "url": "${BASE_URL}/og-image.png" }
+    },
+    "mainEntityOfPage": "${BASE_URL}${canonicalPath}",
+    "url": "${BASE_URL}${canonicalPath}"
+}
+</script>`;
+}
+
+function buildBlogPages(manifest) {
+  if (!fs.existsSync(BLOG_POSTS_JSON) || !fs.existsSync(BLOG_TEMPLATE_PATH) || !fs.existsSync(BLOG_INDEX_TEMPLATE_PATH)) {
+    console.warn('Missing blog templates or posts.json — skipping blog');
+    return [];
+  }
+
+  const posts = loadJson(BLOG_POSTS_JSON)
+    .slice()
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const postTemplate = fs.readFileSync(BLOG_TEMPLATE_PATH, 'utf8');
+  const indexTemplate = fs.readFileSync(BLOG_INDEX_TEMPLATE_PATH, 'utf8');
+  const blogOutDir = path.join(ROOT, 'blog');
+  if (!fs.existsSync(blogOutDir)) fs.mkdirSync(blogOutDir, { recursive: true });
+
+  const urls = ['/blog/'];
+
+  for (const post of posts) {
+    const bodyPath = path.join(BLOG_DIR, `${post.slug}.html`);
+    if (!fs.existsSync(bodyPath)) {
+      console.warn(`Missing blog body: ${post.slug}.html`);
+      continue;
+    }
+    const body = fs.readFileSync(bodyPath, 'utf8').trim();
+    const canonicalPath = `/blog/${post.slug}`;
+    const related = posts
+      .filter(p => p.slug !== post.slug)
+      .slice(0, 3)
+      .map(p => `<li style="margin-bottom: 8px;"><a href="/blog/${p.slug}" class="inline-text-link">${escapeHtml(p.title)}</a></li>`)
+      .join('\n                    ');
+
+    const html = postTemplate
+      .replace(/\{\{TITLE\}\}/g, escapeHtml(post.title))
+      .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(post.description))
+      .replace(/\{\{KEYWORDS\}\}/g, escapeHtml(`${post.keyword}, pomodoro timer, focus timer, Superfocus blog`))
+      .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+      .replace(/\{\{H1\}\}/g, escapeHtml(post.title))
+      .replace(/\{\{SLUG\}\}/g, post.slug)
+      .replace(/\{\{DATE\}\}/g, post.date)
+      .replace(/\{\{DATE_DISPLAY\}\}/g, escapeHtml(formatBlogDate(post.date)))
+      .replace(/\{\{ARTICLE_BODY\}\}/g, body)
+      .replace(/\{\{RELATED_POSTS\}\}/g, related)
+      .replace(/\{\{JSON_LD\}\}/g, buildBlogJsonLd(post, canonicalPath))
+      .replace(/\{\{STYLE_HREF\}\}/g, manifest.style);
+
+    fs.writeFileSync(path.join(blogOutDir, `${post.slug}.html`), html, 'utf8');
+    urls.push(canonicalPath);
+    console.log(`Generated blog: ${canonicalPath}`);
+  }
+
+  const postList = posts.map(p => {
+    const desc = escapeHtml((p.description || '').slice(0, 140));
+    return `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a><span>${escapeHtml(formatBlogDate(p.date))} — ${desc}</span></li>`;
+  }).join('\n                ');
+
+  const indexJsonLd = `<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Superfocus Blog",
+    "description": "Guides on Pomodoro timers, study and focus timers, and practical productivity habits.",
+    "url": "${BASE_URL}/blog/"
+}
+</script>`;
+
+  const indexHtml = indexTemplate
+    .replace(/\{\{POST_LIST\}\}/g, postList)
+    .replace(/\{\{JSON_LD\}\}/g, indexJsonLd)
+    .replace(/\{\{STYLE_HREF\}\}/g, manifest.style);
+
+  fs.writeFileSync(path.join(blogOutDir, 'index.html'), indexHtml, 'utf8');
+  console.log('Generated blog: /blog/');
+  return urls;
+}
+
 function buildPageHtml(page, template, contentSectionTemplate, manifest) {
   const canonicalPath = `/${page.category}/${page.slug}`;
   const contentSection = buildContentSection(page, contentSectionTemplate);
@@ -1024,6 +1245,7 @@ function main() {
   console.log(`Generated ${generated.length} pSEO pages.`);
 
   const hubUrls = buildHubPages(pages, manifest);
+  const blogUrls = buildBlogPages(manifest);
 
   const today = new Date().toISOString().slice(0, 10);
   const coreUrls = [
@@ -1039,9 +1261,15 @@ function main() {
     priority: '0.85',
     changefreq: 'weekly'
   }));
+  const blogSitemapUrls = blogUrls.map(loc => ({
+    loc: BASE_URL + loc,
+    priority: loc === '/blog/' ? '0.85' : '0.75',
+    changefreq: 'monthly'
+  }));
   const allUrls = [
     ...coreUrls.map(u => ({ ...u, loc: BASE_URL + u.loc })),
     ...hubSitemapUrls,
+    ...blogSitemapUrls,
     ...generated.map(loc => ({ loc: BASE_URL + loc, priority: '0.8', changefreq: 'monthly' }))
   ];
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
