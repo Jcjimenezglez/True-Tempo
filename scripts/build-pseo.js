@@ -714,11 +714,14 @@ function buildPageHtml(page, template, contentSectionTemplate, manifest) {
   const canonicalPath = `/${page.category}/${page.slug}`;
   const contentSection = buildContentSection(page, contentSectionTemplate);
   const jsonLd = buildJsonLd(page, canonicalPath);
+  const keywordsMeta = page.keywords
+    || `${page.keyword}, pomodoro timer, focus timer, Superfocus`;
 
   return template
     .replace(/\{\{TITLE\}\}/g, escapeHtml(page.title))
     .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(page.description))
     .replace(/\{\{KEYWORD\}\}/g, escapeHtml(page.keyword))
+    .replace(/\{\{KEYWORDS\}\}/g, escapeHtml(keywordsMeta))
     .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
     .replace(/\{\{CONTENT_SECTION\}\}/g, contentSection)
     .replace(/\{\{JSON_LD\}\}/g, jsonLd)

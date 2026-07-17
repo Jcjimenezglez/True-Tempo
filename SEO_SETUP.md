@@ -2,10 +2,28 @@
 
 Domain: https://www.superfocus.live
 
+## Keyword strategy
+
+**Primary demand source:** Google Ads Keyword Planner seeded on Pomofocus (market leader), not GSC-only queries.
+
+- Chase head terms Pomofocus already owns: `pomodoro timer`, `pomodoro timer online`, `pomodoro technique timer`, `study timer`, `focus timer`, `best pomodoro app/timer`.
+- GSC validates what we already rank for; Planner sets the target market.
+- Copy pattern (homepage + priority spokes): product/keyword-first titles and H1s, Pomofocus-shaped What is / How to use structure, Superfocus differentiators in Features.
+
+**Priority URLs (request indexing after deploy):**
+- `/` (homepage)
+- `/techniques/pomodoro-technique`
+- `/use-cases/study-timer`
+- `/use-cases/focus-timer`
+- `/alternatives/pomofocus`
+- `/alternatives/best-pomodoro-apps`
+- `/compare/superfocus-vs-pomofocus`
+
 ## Completed SEO Optimizations
 
 ### Meta Tags & HTML Structure
-- SERP-informed titles via `scripts/apply-pain-copy.js` (homepage + ~103 pSEO landing pages)
+- Planner/Pomofocus-aligned titles via homepage + `scripts/apply-pain-copy.js` (~103 pSEO landing pages)
+- Optional per-page `keywords` field in pSEO JSON (falls back to `keyword, pomodoro timer, focus timer, Superfocus`)
 - Open Graph + Twitter Cards (`og:site_name`, `twitter:site`)
 - Canonical URLs on all indexable pages (`www.superfocus.live`)
 - Google Search Console verification placeholder in `index.html`
@@ -14,7 +32,7 @@ Domain: https://www.superfocus.live
 - **103 spoke pages** across techniques, use-cases, compare, alternatives, faq, etc.
 - **4 hub pages** (category indexes): `/techniques/`, `/use-cases/`, `/compare/`, `/alternatives/`
 - Internal linking: `related` fields in JSON + shared footer on pSEO template and homepage
-- High-intent pages: `/compare/superfocus-vs-pomofocus`, `/alternatives/pomofocus`, `/alternatives/hustly-focus`
+- High-intent pages: `/compare/superfocus-vs-pomofocus`, `/alternatives/pomofocus`, `/alternatives/best-pomodoro-apps`, `/alternatives/hustly-focus`
 
 ### Structured Data (JSON-LD)
 - Homepage: Organization, SoftwareApplication, HowTo, FAQPage
@@ -57,11 +75,14 @@ npm run apply-pain-copy # update copy fields in pseo JSON sources from COPY map
 3. Copy verification meta tag into `index.html` (uncomment line ~63)
 4. Submit sitemap: `https://www.superfocus.live/sitemap.xml`
 5. Request indexing for priority URLs:
-   - `/compare/superfocus-vs-pomofocus`
-   - `/alternatives/pomofocus`
-   - `/alternatives/hustly-focus`
+   - `/` (homepage — pomodoro timer online)
+   - `/techniques/pomodoro-technique`
    - `/use-cases/focus-timer`
    - `/use-cases/study-timer`
+   - `/compare/superfocus-vs-pomofocus`
+   - `/alternatives/pomofocus`
+   - `/alternatives/best-pomodoro-apps`
+   - `/alternatives/hustly-focus`
 6. Confirm `superfocus.live` (non-www) impressions decline over 4–6 weeks (301 redirect is configured)
 
 ### Google Analytics
@@ -82,8 +103,8 @@ Review GSC every 2 weeks. Focus on **revenue signal**, not vanity clicks.
 | Position `pomofocus` | ~30 | <15 |
 
 ### GSC checks
-- **Queries:** non-brand terms (`focus website`, `pomofocus`, `focus timer`, `hustly focus`)
-- **Pages:** CTR on `/compare/`, `/alternatives/`, `/use-cases/` paths
+- **Queries:** head terms (`pomodoro timer`, `pomodoro timer online`, `study timer`, `focus timer`, `pomofocus`, `best pomodoro app`)
+- **Pages:** CTR on `/`, `/techniques/pomodoro-technique`, `/compare/`, `/alternatives/`, `/use-cases/`
 - **Countries:** Vietnam (strong CTR) vs US (high impressions, low CTR)
 
 ### GA4 segments
