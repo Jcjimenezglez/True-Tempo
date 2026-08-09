@@ -5,9 +5,9 @@
       "slug": "10-minute-focus",
       "category": "techniques",
       "keyword": "10 minute focus timer",
-      "title": "Can't Start? Try a 10-Minute Focus Timer | Superfocus",
+      "title": "10 Minute Focus Timer — Free Online Timer | Superfocus",
       "description": "Micro sessions for when 15 min feels long. Custom 10-min timer. Just begin. Free.",
-      "h1": "Even fifteen minutes feels like too much right now.",
+      "h1": "10 minute focus timer",
       "preset": "Custom 10/2 (create in app) or Sprint",
       "related": [
         "/techniques/sprint-timer",
@@ -17,15 +17,22 @@
       "painPoints": "Can't start at all.<br>15 min still too much.<br>Paralysis.",
       "recommendedSounds": "White noise or minimal lofi for short bursts",
       "heroSubtitle": "When starting is the hardest part, the block needs to be small enough that starting isn't a decision.",
-      "painSolution": "10 minutes. That's all.<br>Start impossibly small.<br>Momentum follows."
+      "painSolution": "10 minutes. That's all.<br>Start impossibly small.<br>Momentum follows.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>10 minute focus timer with a focus timer</h2>",
+        "<p>Use a dedicated <strong>10 minute focus timer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "20-minute-focus",
       "category": "techniques",
       "keyword": "20 minute focus timer",
-      "title": "25 Min Too Long? 20-Minute Focus Timer | Superfocus",
+      "title": "20 Minute Focus Timer — Free Online Timer | Superfocus",
       "description": "Custom 20-min blocks. Between Sprint and Pomodoro. Find your length. Free.",
-      "h1": "Twenty-five minutes is the hill you can't climb today.",
+      "h1": "20 minute focus timer",
       "preset": "Custom 20/5 (create in app)",
       "related": [
         "/techniques/pomodoro-technique",
@@ -35,15 +42,22 @@
       "painPoints": "25 fails. 15 too short.<br>Need middle ground.<br>Wrong presets.",
       "recommendedSounds": "Lofi or rain for sustained 20-min blocks",
       "heroSubtitle": "Between 15 and 25 lies your sweet spot—but most timers force you to pick extremes.",
-      "painSolution": "20 minutes. Custom preset.<br>Your length. Your rhythm.<br>Focus fits."
+      "painSolution": "20 minutes. Custom preset.<br>Your length. Your rhythm.<br>Focus fits.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>20 minute focus timer with a focus timer</h2>",
+        "<p>Use a dedicated <strong>20 minute focus timer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "30-minute-focus",
       "category": "techniques",
       "keyword": "30 minute focus timer",
-      "title": "Need More Than 25 Min? 30-Minute Timer | Superfocus",
+      "title": "30 Minute Focus Timer — Free Online Timer | Superfocus",
       "description": "Custom 30-min focus blocks. Balanced work sessions. Free in Superfocus.",
-      "h1": "Twenty-five ends too soon. Forty-five feels impossible.",
+      "h1": "30 minute focus timer",
       "preset": "Custom 30/5 (create in app)",
       "related": [
         "/techniques/pomodoro-technique",
@@ -53,15 +67,22 @@
       "painPoints": "25 too short. 45 too long.<br>Goldilocks problem.<br>No preset fits.",
       "recommendedSounds": "Cafe or lofi for 30-min focus",
       "heroSubtitle": "You need something in the middle—a block long enough for real progress, short enough to start.",
-      "painSolution": "30 minutes. Custom timer.<br>Enough depth. Still startable.<br>Your sweet spot."
+      "painSolution": "30 minutes. Custom timer.<br>Enough depth. Still startable.<br>Your sweet spot.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>30 minute focus timer with a focus timer</h2>",
+        "<p>Use a dedicated <strong>30 minute focus timer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "35-minute-focus",
       "category": "techniques",
       "keyword": "35 minute focus timer",
-      "title": "Flow Cut Off at 25? Try 35 Minutes | Superfocus",
+      "title": "35 Minute Focus Timer — Free Online Timer | Superfocus",
       "description": "Extended Pomodoro: 35-min blocks. Ride the flow wave. Custom preset. Free.",
-      "h1": "You enter flow at minute 23. Pomodoro kills it at 25.",
+      "h1": "35 minute focus timer",
       "preset": "Custom 35/7 (create in app)",
       "related": [
         "/techniques/pomodoro-technique",
@@ -71,15 +92,22 @@
       "painPoints": "Flow at 23. Bell at 25.<br>Always interrupted.<br>Never finish thinking.",
       "recommendedSounds": "Lofi or rain for extended flow",
       "heroSubtitle": "Two extra minutes isn't the answer—ten is. Extended blocks for when you're almost there.",
-      "painSolution": "35-minute block.<br>Flow has room.<br>Finish the thought."
+      "painSolution": "35-minute block.<br>Flow has room.<br>Finish the thought.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>35 minute focus timer with a focus timer</h2>",
+        "<p>Use a dedicated <strong>35 minute focus timer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "40-minute-focus",
       "category": "techniques",
       "keyword": "40 minute focus timer",
-      "title": "Building Focus Stamina? 40-Minute Timer | Superfocus",
+      "title": "40 Minute Focus Timer — Free Online Timer | Superfocus",
       "description": "Pre-flow 40-min blocks. Step toward Flowtime. Custom timer in Superfocus. Free.",
-      "h1": "You're building toward longer focus—but 45 still feels out of reach.",
+      "h1": "40 minute focus timer",
       "preset": "Custom 40/8 (create in app)",
       "related": [
         "/techniques/flowtime-timer",
@@ -89,15 +117,22 @@
       "painPoints": "45 min daunting.<br>25 min insufficient.<br>Need stepping stone.",
       "recommendedSounds": "Rain or cafe for 40-min blocks",
       "heroSubtitle": "Gradual extension beats jumping straight to ultradian blocks. Train stamina in steps.",
-      "painSolution": "40 minutes this week.<br>45 next. Build gradually.<br>Stamina grows."
+      "painSolution": "40 minutes this week.<br>45 next. Build gradually.<br>Stamina grows.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>40 minute focus timer with a focus timer</h2>",
+        "<p>Use a dedicated <strong>40 minute focus timer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "50-minute-focus",
       "category": "techniques",
       "keyword": "50 minute focus timer",
-      "title": "Between 45 and 52 Min? Custom Focus Timer | Superfocus",
+      "title": "50 Minute Focus Timer — Free Online Timer | Superfocus",
       "description": "50-min custom blocks near ultradian rhythm. Match your cycle. Free in Superfocus.",
-      "h1": "Your body wants ~52 minutes. Most timers offer 45 or 60.",
+      "h1": "50 minute focus timer",
       "preset": "Custom 50/10 (create in app)",
       "related": [
         "/techniques/52-minute-focus",
@@ -107,7 +142,14 @@
       "painPoints": "45 too short. 60 too long.<br>Body has a rhythm.<br>Apps ignore it.",
       "recommendedSounds": "Lofi or ambient for deep 50-min sessions",
       "heroSubtitle": "Fighting your natural rhythm with arbitrary presets wastes the focus you do manage.",
-      "painSolution": "50 minutes. Your cycle.<br>Custom preset.<br>Work with biology."
+      "painSolution": "50 minutes. Your cycle.<br>Custom preset.<br>Work with biology.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>50 minute focus timer with a focus timer</h2>",
+        "<p>Use a dedicated <strong>50 minute focus timer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     }
   ]
 }

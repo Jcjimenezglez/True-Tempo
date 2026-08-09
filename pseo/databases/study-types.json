@@ -5,9 +5,9 @@
       "slug": "study-timer-for-flashcards",
       "category": "use-cases",
       "keyword": "study timer for flashcards",
-      "title": "Flashcard Backlog Growing? Study Sprint Timer | Superfocus",
+      "title": "Study Timer For Flashcards — Free Online Timer | Superfocus",
       "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer.",
-      "h1": "500 flashcards due. You've done twelve.",
+      "h1": "Study timer for flashcards",
       "preset": "Sprint (15/3/10) or Pomodoro",
       "related": [
         "/use-cases/study-timer",
@@ -17,15 +17,22 @@
       "painPoints": "Cards pile up. Avoid Anki.<br>Guilt spiral.<br>Exam closer.",
       "recommendedSounds": "Minimal lofi or white noise",
       "heroSubtitle": "Anki guilt grows with every notification. Without time blocks, review becomes avoidance.",
-      "painSolution": "15 min review. Every day.<br>Timer ends = stop guilt-free.<br>Backlog shrinks."
+      "painSolution": "15 min review. Every day.<br>Timer ends = stop guilt-free.<br>Backlog shrinks.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for flashcards with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for flashcards</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-essay-writing",
       "category": "use-cases",
       "keyword": "study timer for essay writing",
-      "title": "Essay Due Soon? Pomodoro Writing Timer | Superfocus",
+      "title": "Study Timer For Essay Writing — Free Online Timer | Superfocus",
       "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Free for students.",
-      "h1": "Essay due in 48 hours. Introduction: unfinished.",
+      "h1": "Study timer for essay writing",
       "preset": "Pomodoro or Marathon",
       "related": [
         "/use-cases/writing-timer",
@@ -35,15 +42,22 @@
       "painPoints": "Edit before write.<br>First paragraph forever.<br>Deadline panic.",
       "recommendedSounds": "Rain or lofi for sustained writing",
       "heroSubtitle": "You've rewritten the first sentence nine times. Perfectionism is procrastination in academic clothes.",
-      "painSolution": "25 min: draft only.<br>Ugly words count.<br>Edit in the next block."
+      "painSolution": "25 min: draft only.<br>Ugly words count.<br>Edit in the next block.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for essay writing with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for essay writing</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-language-learning",
       "category": "use-cases",
       "keyword": "study timer for language learning",
-      "title": "Language Apps Not Working? Focus Blocks | Superfocus",
+      "title": "Study Timer For Language Learning — Free Online Timer | Superfocus",
       "description": "Sprint for drills, Pomodoro for reading/listening. Structure real practice. Free.",
-      "h1": "Duolingo streak: 400 days. You still can't hold a conversation.",
+      "h1": "Study timer for language learning",
       "preset": "Sprint for drills, Pomodoro for reading/listening",
       "related": [
         "/use-cases/study-timer",
@@ -53,15 +67,22 @@
       "painPoints": "Tap exercises. No immersion.<br>Streak without skill.<br>Fluency far away.",
       "recommendedSounds": "Lofi or cafe for immersion blocks",
       "heroSubtitle": "Streaks measure taps, not fluency. Real practice needs focused immersion blocks you never schedule.",
-      "painSolution": "25 min speaking practice.<br>Timer on. Phone in drawer.<br>Real blocks, real progress."
+      "painSolution": "25 min speaking practice.<br>Timer on. Phone in drawer.<br>Real blocks, real progress.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for language learning with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for language learning</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-reading",
       "category": "use-cases",
       "keyword": "study timer for reading",
-      "title": "Can't Finish Reading Assignments? Study Timer | Superfocus",
+      "title": "Study Timer For Reading — Free Online Timer | Superfocus",
       "description": "Pomodoro reading blocks with scheduled breaks. Finish chapters without burnout. Free.",
-      "h1": "Chapter 1 started three weeks ago.",
+      "h1": "Study timer for reading",
       "preset": "Pomodoro (25/5/15) or Flow (45/8/25)",
       "related": [
         "/use-cases/study-timer",
@@ -71,15 +92,22 @@
       "painPoints": "Read same page twice.<br>Eyes heavy. Mind gone.<br>Chapter never ends.",
       "recommendedSounds": "Rain or ambient for reading focus",
       "heroSubtitle": "You read the same page twice and retain nothing. Without breaks, fatigue wins by page three.",
-      "painSolution": "25 min read. 5 min walk.<br>Fresh eyes. Next section.<br>Chapters finish."
+      "painSolution": "25 min read. 5 min walk.<br>Fresh eyes. Next section.<br>Chapters finish.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for reading with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for reading</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-thesis",
       "category": "use-cases",
       "keyword": "study timer for thesis writing",
-      "title": "Thesis Stuck? Deep Work Writing Timer | Superfocus",
+      "title": "Study Timer For Thesis Writing — Free Online Timer | Superfocus",
       "description": "90-min Deep Work or 60-min Marathon for dissertation writing. Structure long sessions. Free.",
-      "h1": "Your thesis has been \"almost done\" for eight months.",
+      "h1": "Study timer for thesis writing",
       "preset": "Deep Work (90/20/30) or Marathon",
       "related": [
         "/use-cases/writing-timer",
@@ -89,15 +117,22 @@
       "painPoints": "Chapter half-written. Months.<br>No protected writing time.<br>Committee waiting.",
       "recommendedSounds": "Rain, lofi, or cafe for deep writing",
       "heroSubtitle": "Dissertation writing needs marathon blocks you never protect. Life fills every gap.",
-      "painSolution": "90 min every morning.<br>Same time. Same desk.<br>Thesis moves daily."
+      "painSolution": "90 min every morning.<br>Same time. Same desk.<br>Thesis moves daily.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for thesis writing with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for thesis writing</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-note-taking",
       "category": "use-cases",
       "keyword": "study timer for note taking",
-      "title": "Notes Piling Up? Review Focus Timer | Superfocus",
+      "title": "Study Timer For Note Taking — Free Online Timer | Superfocus",
       "description": "Sprint blocks for note review and consolidation. Turn notes into knowledge. Free.",
-      "h1": "Your notes are a graveyard of half-finished lectures.",
+      "h1": "Study timer for note taking",
       "preset": "Sprint or Pomodoro",
       "related": [
         "/use-cases/study-timer",
@@ -107,15 +142,22 @@
       "painPoints": "Notes collect dust.<br>Never review.<br>Exams surprise you.",
       "recommendedSounds": "Lofi or white noise",
       "heroSubtitle": "Review sessions never happen because consolidation takes focused time you don't allocate.",
-      "painSolution": "15 min daily review.<br>One lecture at a time.<br>Notes become memory."
+      "painSolution": "15 min daily review.<br>One lecture at a time.<br>Notes become memory.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for note taking with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for note taking</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-online-courses",
       "category": "use-cases",
       "keyword": "study timer for online courses",
-      "title": "Course Barely Started? Video Lecture Timer | Superfocus",
+      "title": "Study Timer For Online Courses — Free Online Timer | Superfocus",
       "description": "Pomodoro blocks for video lectures. Breaks prevent binge-drifting. Track progress. Free.",
-      "h1": "You bought the course in January. Module 2 of 47.",
+      "h1": "Study timer for online courses",
       "preset": "Pomodoro or Flow",
       "related": [
         "/use-cases/study-timer",
@@ -125,15 +167,22 @@
       "painPoints": "Video plays. Brain elsewhere.<br>Module 2 for months.<br>Money wasted.",
       "recommendedSounds": "Cafe or minimal lofi",
       "heroSubtitle": "Video lectures play while you scroll. \"Watching\" isn't learning without focused attention.",
-      "painSolution": "One module per pomodoro.<br>Notes required. Phone away.<br>Course actually finishes."
+      "painSolution": "One module per pomodoro.<br>Notes required. Phone away.<br>Course actually finishes.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for online courses with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for online courses</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-group-study",
       "category": "use-cases",
       "keyword": "study timer for group study",
-      "title": "Group Study Always Off-Track? Sync Timer | Superfocus",
+      "title": "Study Timer For Group Study — Free Online Timer | Superfocus",
       "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer.",
-      "h1": "Group study turned into group chat in twelve minutes.",
+      "h1": "Study timer for group study",
       "preset": "Pomodoro (25/5/15)",
       "related": [
         "/use-cases/study-timer",
@@ -143,15 +192,22 @@
       "painPoints": "Open books. Close focus.<br>Chat takes over.<br>Exam still coming.",
       "recommendedSounds": "Lofi or cafe for group vibe",
       "heroSubtitle": "Without shared structure, study sessions become social hours with textbooks as props.",
-      "painSolution": "Shared 25-min timer.<br>Phones away. Break together.<br>Group actually studies."
+      "painSolution": "Shared 25-min timer.<br>Phones away. Break together.<br>Group actually studies.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for group study with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for group study</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-math",
       "category": "use-cases",
       "keyword": "study timer for math",
-      "title": "Stuck on Problem Sets? Math Study Timer | Superfocus",
+      "title": "Study Timer For Math — Free Online Timer | Superfocus",
       "description": "Sprint blocks for problem sets. Break between problems. White noise for concentration. Free.",
-      "h1": "Problem 3 broke you. You've been staring at it for forty minutes.",
+      "h1": "Study timer for math",
       "preset": "Sprint or Pomodoro",
       "related": [
         "/use-cases/study-timer",
@@ -161,15 +217,22 @@
       "painPoints": "Stuck on one problem.<br>Frustration builds.<br>Set abandoned.",
       "recommendedSounds": "White noise or minimal lofi",
       "heroSubtitle": "Math fatigue is real. Without breaks, frustration replaces problem-solving.",
-      "painSolution": "15 min per problem max.<br>Move on. Return fresh.<br>Sets get finished."
+      "painSolution": "15 min per problem max.<br>Move on. Return fresh.<br>Sets get finished.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for math with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for math</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     },
     {
       "slug": "study-timer-for-med-school",
       "category": "use-cases",
       "keyword": "study timer for med school",
-      "title": "Med School Overwhelm? Long Study Session Timer | Superfocus",
+      "title": "Study Timer For Med School — Free Online Timer | Superfocus",
       "description": "Pomodoro, Flow, Deep Work for anatomy, pharm, clinical prep. Built for marathon study days. Free.",
-      "h1": "The stack of material is taller than you. Where do you even start?",
+      "h1": "Study timer for med school",
       "preset": "Pomodoro or Flow",
       "related": [
         "/use-cases/exam-prep-timer",
@@ -179,7 +242,14 @@
       "painPoints": "Volume impossible.<br>No structure.<br>Retention fails.",
       "recommendedSounds": "Lofi or rain for sustained focus",
       "heroSubtitle": "Med school volume breaks unstructured study. Without blocks, you drown in content and retain nothing.",
-      "painSolution": "One topic. 45 minutes.<br>Break. Next topic.<br>Mountain becomes steps."
+      "painSolution": "One topic. 45 minutes.<br>Break. Next topic.<br>Mountain becomes steps.",
+      "tier": "C",
+      "longFormBlocks": [
+        "<h2>Study timer for med school with a focus timer</h2>",
+        "<p>Use a dedicated <strong>study timer for med school</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
+        "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
+        "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
+      ]
     }
   ]
 }

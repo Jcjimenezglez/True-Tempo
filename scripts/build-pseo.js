@@ -13,6 +13,7 @@ const ROOT = path.resolve(__dirname, '..');
 const PSEO_DIR = path.join(ROOT, 'pseo');
 const PAGES_JSON = path.join(PSEO_DIR, 'pages.json');
 const DATABASES_DIR = path.join(PSEO_DIR, 'databases');
+const TIERS_JSON = path.join(PSEO_DIR, 'tiers.json');
 const TEMPLATE_PATH = path.join(PSEO_DIR, 'template.html');
 const CONTENT_SECTION_PATH = path.join(PSEO_DIR, 'content-section.html');
 const MANIFEST_PATH = path.join(ROOT, 'dist', 'asset-manifest.json');
@@ -32,6 +33,55 @@ const CATEGORY_LABELS = {
   goals: 'Goals'
 };
 
+const HUB_PRIORITY_ORDER = {
+  techniques: ['pomodoro-technique', 'deep-work-timer', 'flowtime-timer'],
+  'use-cases': ['study-timer', 'focus-website-for-studying', 'focus-timer'],
+  compare: ['superfocus-vs-pomofocus'],
+  alternatives: ['best-pomodoro-apps', 'pomofocus', 'hustly-focus']
+};
+
+function loadTierRegistry() {
+  if (!fs.existsSync(TIERS_JSON)) return { pages: {} };
+  return loadJson(TIERS_JSON);
+}
+
+function pageKey(page) {
+  return `${page.category}/${page.slug}`;
+}
+
+function resolvePageTier(page, tierRegistry) {
+  if (page.tier) return page.tier;
+  return tierRegistry.pages[pageKey(page)] || 'B';
+}
+
+function getRobotsMeta(page) {
+  return page.tier === 'C' ? 'noindex, follow' : 'index, follow';
+}
+
+function isIndexablePage(page) {
+  return page.tier !== 'C';
+}
+
+function getSitemapPriority(page) {
+  if (page.tier === 'A') return '0.9';
+  if (page.tier === 'B') return '0.8';
+  return '0.8';
+}
+
+function sortHubPages(category, pages) {
+  const priority = HUB_PRIORITY_ORDER[category] || [];
+  return pages.slice().sort((a, b) => {
+    const ai = priority.indexOf(a.slug);
+    const bi = priority.indexOf(b.slug);
+    if (ai !== -1 || bi !== -1) {
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    }
+    return (a.title || '').localeCompare(b.title || '');
+  });
+}
+
 function loadJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
@@ -49,9 +99,13 @@ function loadAssetManifest() {
 }
 
 function loadAllPages() {
+  const tierRegistry = loadTierRegistry();
   const phase1 = loadJson(PAGES_JSON);
   const slugs = new Set(phase1.pages.map(p => p.slug));
-  const pages = [...phase1.pages];
+  const pages = phase1.pages.map(p => ({
+    ...p,
+    tier: resolvePageTier(p, tierRegistry)
+  }));
 
   if (fs.existsSync(DATABASES_DIR)) {
     const dbFiles = fs.readdirSync(DATABASES_DIR).filter(f => f.endsWith('.json'));
@@ -60,7 +114,9 @@ function loadAllPages() {
       for (const entry of db.entries || []) {
         if (slugs.has(entry.slug)) continue;
         slugs.add(entry.slug);
-        pages.push(normalizeDatabaseEntry(entry));
+        const page = normalizeDatabaseEntry(entry);
+        page.tier = resolvePageTier(page, tierRegistry);
+        pages.push(page);
       }
     }
   }
@@ -428,6 +484,32 @@ function buildJsonLd(page, canonicalPath) {
       ],
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
     });
+    const faqItems = getFaqData(page);
+    if (faqItems.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map(f => ({
+          '@type': 'Question',
+          name: stripHtml(f.q),
+          acceptedAnswer: { '@type': 'Answer', text: stripHtml(f.a) }
+        }))
+      });
+    }
+  }
+
+  if (page.slug === 'best-pomodoro-apps') {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Best Pomodoro Apps in 2026',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Superfocus', url: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Pomofocus', url: 'https://pomofocus.io/' },
+        { '@type': 'ListItem', position: 3, name: 'Forest', url: 'https://www.forestapp.cc/' },
+        { '@type': 'ListItem', position: 4, name: 'Flocus', url: 'https://app.flocus.com/' }
+      ]
+    });
   }
 
   if (page.category === 'techniques' || page.category === 'use-cases') {
@@ -783,6 +865,32 @@ function getFaq(page) {
 }
 
 function getCompareTable(page) {
+  if (page.slug === 'best-pomodoro-apps') {
+    return `
+                <h2>Best Pomodoro apps compared (2026)</h2>
+                <table style="width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 2rem;">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align:left; padding:10px 0;">App</th><th style="text-align:left; padding:10px 0;">Timer</th><th style="text-align:left; padding:10px 0;">Sounds</th><th style="text-align:left; padding:10px 0;">Tasks</th><th style="text-align:left; padding:10px 0;">Analytics</th><th style="text-align:left; padding:10px 0;">Free tier</th></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;"><strong>Superfocus</strong></td><td>✓ Multi-preset</td><td>✓ Built-in lofi/rain</td><td>✓ + Todoist</td><td>✓</td><td>✓ Browser</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Pomofocus</td><td>✓ Classic Pomodoro</td><td>✗</td><td>Basic</td><td>Basic</td><td>✓</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Forest</td><td>✓ Mobile-first</td><td>✗</td><td>✗</td><td>✓ Streaks</td><td>Limited</td></tr>
+                    <tr><td style="padding:10px 0;">Flocus</td><td>✓ Aesthetic timer</td><td>✓ Ambient</td><td>Basic</td><td>Limited</td><td>✓</td></tr>
+                </table>
+                <p>See our detailed <a href="/compare/superfocus-vs-pomofocus" class="inline-text-link">Superfocus vs Pomofocus</a> comparison.</p>`;
+  }
+
+  if (page.slug === 'hustly-focus') {
+    return `
+                <h2>Hustly Focus vs Superfocus</h2>
+                <table style="width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 2rem;">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align:left; padding:10px 0;">Feature</th><th style="text-align:left; padding:10px 0;">Superfocus</th><th style="text-align:left; padding:10px 0;">Hustly Focus</th></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Pomodoro timer</td><td>✓</td><td>✓</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Lofi / ambient sounds</td><td>✓ Built-in cassettes</td><td>✓</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Task tracking</td><td>✓ + Todoist sync</td><td>Basic</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Focus analytics</td><td>✓</td><td>Limited</td></tr>
+                    <tr><td style="padding:10px 0;">Works in browser (no install)</td><td>✓</td><td>Varies</td></tr>
+                </table>`;
+  }
+
   if (page.category !== 'compare' || !page.competitor) return '';
   const comp = escapeHtml(page.competitor);
   const url = page.competitorUrl || '#';
@@ -865,10 +973,14 @@ function buildGeneratedArticle(page) {
   const whoFor = getWhoItsFor(page);
   const mistakes = getCommonMistakes(page);
   const practice = getPracticeSection(page);
+  const longForm = Array.isArray(page.longFormBlocks) && page.longFormBlocks.length > 0
+    ? page.longFormBlocks.join('\n            ')
+    : '';
 
   return [
     `<h2>What is ${escapeHtml(whatIs.heading)}?</h2>`,
     `<p>${whatIs.paragraph}</p>`,
+    longForm,
     topic,
     whoFor,
     compare,
@@ -1034,9 +1146,10 @@ function buildHubHtml(category, pages, hubTemplate, manifest) {
   const config = HUB_CONFIG[category];
   if (!config) return '';
 
-  const categoryPages = pages
-    .filter(p => p.category === category)
-    .sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+  const categoryPages = sortHubPages(
+    category,
+    pages.filter(p => p.category === category && isIndexablePage(p))
+  );
 
   const pageList = categoryPages.map(p => {
     const path = `/${category}/${p.slug}`;
@@ -1142,6 +1255,8 @@ function buildBlogPages(manifest) {
     }
     const body = fs.readFileSync(bodyPath, 'utf8').trim();
     const canonicalPath = `/blog/${post.slug}`;
+    const canonicalUrl = post.canonicalTo || (BASE_URL + canonicalPath);
+    const robots = post.canonicalTo ? 'noindex, follow' : 'index, follow';
     const related = posts
       .filter(p => p.slug !== post.slug)
       .slice(0, 3)
@@ -1152,7 +1267,8 @@ function buildBlogPages(manifest) {
       .replace(/\{\{TITLE\}\}/g, escapeHtml(post.title))
       .replace(/\{\{DESCRIPTION\}\}/g, escapeHtml(post.description))
       .replace(/\{\{KEYWORDS\}\}/g, escapeHtml(`${post.keyword}, pomodoro timer, focus timer, Superfocus blog`))
-      .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+      .replace(/\{\{CANONICAL_URL\}\}/g, canonicalUrl)
+      .replace(/\{\{ROBOTS\}\}/g, robots)
       .replace(/\{\{H1\}\}/g, escapeHtml(post.title))
       .replace(/\{\{SLUG\}\}/g, post.slug)
       .replace(/\{\{DATE\}\}/g, post.date)
@@ -1163,8 +1279,10 @@ function buildBlogPages(manifest) {
       .replace(/\{\{STYLE_HREF\}\}/g, manifest.style);
 
     fs.writeFileSync(path.join(blogOutDir, `${post.slug}.html`), html, 'utf8');
-    urls.push(canonicalPath);
-    console.log(`Generated blog: ${canonicalPath}`);
+    if (!post.canonicalTo) {
+      urls.push(canonicalPath);
+    }
+    console.log(`Generated blog: ${canonicalPath}${post.canonicalTo ? ' (canonical → ' + post.canonicalTo + ')' : ''}`);
   }
 
   const postList = posts.map(p => {
@@ -1205,6 +1323,7 @@ function buildPageHtml(page, template, contentSectionTemplate, manifest) {
     .replace(/\{\{KEYWORD\}\}/g, escapeHtml(page.keyword))
     .replace(/\{\{KEYWORDS\}\}/g, escapeHtml(keywordsMeta))
     .replace(/\{\{CANONICAL_PATH\}\}/g, canonicalPath)
+    .replace(/\{\{ROBOTS\}\}/g, getRobotsMeta(page))
     .replace(/\{\{CONTENT_SECTION\}\}/g, contentSection)
     .replace(/\{\{JSON_LD\}\}/g, jsonLd)
     .replace(/\{\{STYLE_HREF\}\}/g, manifest.style)
@@ -1247,14 +1366,20 @@ function main() {
   const hubUrls = buildHubPages(pages, manifest);
   const blogUrls = buildBlogPages(manifest);
 
+  const indexableGenerated = generated.filter(loc => {
+    const page = pages.find(p => `/${p.category}/${p.slug}` === loc);
+    return page && isIndexablePage(page);
+  });
+
   const today = new Date().toISOString().slice(0, 10);
   const coreUrls = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
     { loc: '/pricing', priority: '0.9', changefreq: 'monthly' },
-    { loc: '/contact', priority: '0.6', changefreq: 'monthly' },
+    { loc: '/press', priority: '0.6', changefreq: 'monthly' },
+    { loc: '/contact', priority: '0.5', changefreq: 'monthly' },
     { loc: '/privacy', priority: '0.5', changefreq: 'yearly' },
     { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
-    { loc: '/release-notes', priority: '0.7', changefreq: 'weekly' }
+    { loc: '/release-notes', priority: '0.5', changefreq: 'weekly' }
   ];
   const hubSitemapUrls = hubUrls.map(loc => ({
     loc: BASE_URL + loc,
@@ -1270,8 +1395,17 @@ function main() {
     ...coreUrls.map(u => ({ ...u, loc: BASE_URL + u.loc })),
     ...hubSitemapUrls,
     ...blogSitemapUrls,
-    ...generated.map(loc => ({ loc: BASE_URL + loc, priority: '0.8', changefreq: 'monthly' }))
+    ...indexableGenerated.map(loc => {
+      const page = pages.find(p => `/${p.category}/${p.slug}` === loc);
+      return {
+        loc: BASE_URL + loc,
+        priority: page ? getSitemapPriority(page) : '0.8',
+        changefreq: 'monthly'
+      };
+    })
   ];
+  const tierCCount = pages.filter(p => p.tier === 'C').length;
+  console.log(`Sitemap: ${allUrls.length} URLs (${tierCCount} Tier C pages excluded)`);
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allUrls.map(u => `    <url>

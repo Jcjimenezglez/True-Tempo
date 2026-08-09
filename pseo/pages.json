@@ -3,9 +3,9 @@
     {
       "slug": "pomodoro-technique",
       "category": "techniques",
-      "title": "Pomodoro Technique Timer Online (25/5) | Superfocus",
+      "title": "Pomodoro Technique — Free 25/5 Timer Online | Superfocus",
       "description": "Run the Pomodoro Technique with a free 25/5 timer online. Built-in breaks, ambient sounds, and task tracking—no download. Start your first session now.",
-      "h1": "Pomodoro Technique Timer Online — 25 minutes on, 5 off",
+      "h1": "Pomodoro Technique Timer (25/5)",
       "keyword": "pomodoro technique timer",
       "preset": "Pomodoro (25/5/15 min)",
       "related": [
@@ -16,17 +16,25 @@
         "/faq/pomodoro-timer-online",
         "/goals/enter-flow-state"
       ],
-      "heroSubtitle": "A free 25/5 Pomodoro technique timer in your browser. Built-in breaks, ambient sounds, and task tracking—no download.",
+      "heroSubtitle": "Free Pomodoro technique timer with 25/5/15 cycles, ambient sounds, and task tracking—no download.",
       "painPoints": "Open laptop. Check Slack. Make coffee. Repeat.<br>Hours pass. The important task is still untouched.<br>Tomorrow you'll \"really focus.\"",
       "painSolution": "Set 25 minutes. One task. Timer running.<br>Work until it rings. Break. Repeat.<br>Small blocks. Real progress.",
-      "keywords": "pomodoro technique timer, pomodoro method timer, pomodoro technique app, pomodoro timer"
+      "keywords": "pomodoro technique, pomodoro technique 25/5, pomodoro timer online, pomodoro method",
+      "tier": "A",
+      "longFormBlocks": [
+        "<h2>The Pomodoro Technique: history and rules</h2>",
+        "<p>Francesco Cirillo developed the <strong>Pomodoro Technique</strong> in the late 1980s using a tomato-shaped kitchen timer. The method breaks work into focused intervals (traditionally <strong>25 minutes</strong>) separated by short breaks. After four pomodoros, take a longer 15-minute break.</p>",
+        "<h2>Pomodoro technique 25/5 official rhythm</h2>",
+        "<p>The classic cycle is <strong>25 minutes on, 5 minutes off</strong>, with a <strong>15-minute</strong> break after every four sessions. Superfocus ships this as the default Pomodoro preset—you can also switch to Sprint (15 min), Flow (45 min), or Deep Work (90 min) when 25/5 does not match your task.</p>",
+        "<table style=\"width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin: 1.5rem 0;\"><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.2);\"><th style=\"text-align:left; padding:8px 0;\">Method</th><th style=\"text-align:left; padding:8px 0;\">Work</th><th style=\"text-align:left; padding:8px 0;\">Break</th><th style=\"text-align:left; padding:8px 0;\">Best for</th></tr><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.1);\"><td style=\"padding:8px 0;\">Pomodoro</td><td>25 min</td><td>5 min</td><td>General tasks, studying</td></tr><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.1);\"><td style=\"padding:8px 0;\">Sprint</td><td>15 min</td><td>3 min</td><td>Starting resistance, ADHD</td></tr><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.1);\"><td style=\"padding:8px 0;\">Flow</td><td>45 min</td><td>8 min</td><td>Writing, coding</td></tr><tr><td style=\"padding:8px 0;\">Deep Work</td><td>90 min</td><td>20 min</td><td>Hard problems</td></tr></table>"
+      ]
     },
     {
       "slug": "flowtime-timer",
       "category": "techniques",
-      "title": "Pomodoro Too Short? Flowtime Timer for Deep Work | Superfocus",
+      "title": "Flowtime Timer Online — Flexible Focus Blocks | Superfocus",
       "description": "The bell interrupts your best thinking. Flowtime uses 45-min blocks with flexible breaks. Try free in Superfocus.",
-      "h1": "25 minutes ends right when you're finally getting somewhere.",
+      "h1": "Flowtime Timer Online",
       "keyword": "flowtime method",
       "preset": "Flow (45/8/25 min)",
       "related": [
@@ -37,14 +45,15 @@
       ],
       "heroSubtitle": "You enter flow at minute 20—and the timer kills it. Pomodoro works until it doesn't. You need longer blocks without guilt.",
       "painPoints": "Finally focused. Timer rings. Flow gone.<br>Restart. Lose momentum. Repeat.<br>Short blocks feel like sabotage.",
-      "painSolution": "45-minute blocks. Break when you need it.<br>Stay in flow longer. Fewer interruptions.<br>Work at your rhythm."
+      "painSolution": "45-minute blocks. Break when you need it.<br>Stay in flow longer. Fewer interruptions.<br>Work at your rhythm.",
+      "tier": "B"
     },
     {
       "slug": "time-blocking-timer",
       "category": "techniques",
-      "title": "No Time for Deep Work? Time Blocking Timer | Superfocus",
+      "title": "Time Blocking Timer Online — Schedule Focus Blocks | Superfocus",
       "description": "Your day fills with other people's priorities. Block focus time before it disappears. Free Pomodoro timer with tasks.",
-      "h1": "Your calendar is full. Your actual work isn't scheduled anywhere.",
+      "h1": "Time Blocking Timer Online",
       "keyword": "time blocking",
       "preset": "Custom timers + task list",
       "related": [
@@ -54,14 +63,15 @@
       ],
       "heroSubtitle": "Meetings have slots. Deep work gets \"whenever.\" By Friday you've been busy all week and shipped nothing that matters.",
       "painPoints": "Calendar packed. No blocks for you.<br>Reactive all day. Proactive never.<br>Week ends. Big project untouched.",
-      "painSolution": "Block 25 minutes. Protect it like a meeting.<br>Timer + tasks in one app.<br>Your time, on your terms."
+      "painSolution": "Block 25 minutes. Protect it like a meeting.<br>Timer + tasks in one app.<br>Your time, on your terms.",
+      "tier": "B"
     },
     {
       "slug": "deep-work-timer",
       "category": "techniques",
-      "title": "Can't Do Deep Work? 90-Minute Focus Timer | Superfocus",
+      "title": "Deep Work Timer Online — Free Focus Blocks | Superfocus",
       "description": "Context switching kills your best work. Block 90 minutes, block distractions, enter flow. Lofi and rain included. Try free.",
-      "h1": "You need two hours of focus. You get seven minutes between pings.",
+      "h1": "Deep Work Timer Online",
       "keyword": "deep work timer",
       "preset": "Deep Work (90/20/30 min)",
       "related": [
@@ -70,16 +80,25 @@
         "/use-cases/coding-focus-timer",
         "/goals/enter-flow-state"
       ],
-      "heroSubtitle": "Shallow work fills the day. The hard thinking—the stuff that actually moves the needle—never gets a protected window.",
+      "heroSubtitle": "Free deep work timer with 52- and 90-minute presets, lofi sounds, and analytics. Easy to start—no download.",
       "painPoints": "Start deep work. Slack pings.<br>Switch tasks. Lose the thread.<br>End of day: exhausted, nothing hard done.",
-      "painSolution": "90-minute block. Phone away. Sounds on.<br>One hard problem. Full attention.<br>Deep work, finally."
+      "painSolution": "90-minute block. Phone away. Sounds on.<br>One hard problem. Full attention.<br>Deep work, finally.",
+      "tier": "A",
+      "keywords": "deep work timer, simple deep work timer, easy deep work timer, deep work timer online",
+      "longFormBlocks": [
+        "<h2>Easy deep work timer setup</h2>",
+        "<p>An <strong>easy deep work timer</strong> should take one click—not a 20-minute setup ritual. Open Superfocus, pick Deep Work (90 min) or the 52-minute preset, name your task, and start. Built-in lofi or rain helps mask noise without opening a second app.</p>",
+        "<h2>Simple deep work timer presets</h2>",
+        "<p>Cal Newport popularized <strong>deep work</strong> as uninterrupted focus on cognitively demanding tasks. Superfocus offers <strong>52-minute</strong> and <strong>90-minute</strong> blocks—long enough for real progress, short enough to schedule between meetings.</p>",
+        "<p>Further reading: <a href=\"https://www.calnewport.com/books/deep-work/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"inline-text-link\">Deep Work by Cal Newport</a>.</p>"
+      ]
     },
     {
       "slug": "sprint-timer",
       "category": "techniques",
-      "title": "25 Minutes Too Long? 15-Min Sprint Timer | Superfocus",
+      "title": "Sprint Timer Online — 15-Minute Focus Blocks | Superfocus",
       "description": "When a full Pomodoro feels impossible, start with 15 minutes. Momentum beats perfection. Free ADHD-friendly timer.",
-      "h1": "Twenty-five minutes feels like a prison sentence.",
+      "h1": "Sprint Timer Online",
       "keyword": "sprint timer focus",
       "preset": "Sprint (15/3/10 min)",
       "related": [
@@ -89,14 +108,15 @@
       ],
       "heroSubtitle": "You can't even start because the block feels too long. So you scroll instead. The task waits. So do you.",
       "painPoints": "25 min feels impossible.<br>So you do nothing instead.<br>Paralysis wins again.",
-      "painSolution": "15 minutes. That's it.<br>Start small. Build momentum.<br>Done beats perfect."
+      "painSolution": "15 minutes. That's it.<br>Start small. Build momentum.<br>Done beats perfect.",
+      "tier": "B"
     },
     {
       "slug": "marathon-timer",
       "category": "techniques",
-      "title": "Need Longer Focus Sessions? Marathon Timer | Superfocus",
+      "title": "Marathon Timer Online — Long Focus Sessions | Superfocus",
       "description": "Writers and researchers need 60+ minute blocks with smart breaks. Marathon preset built in. Try Superfocus free.",
-      "h1": "You finally have a free afternoon. You waste the first hour \"warming up.\"",
+      "h1": "Marathon Timer Online",
       "keyword": "marathon focus sessions",
       "preset": "Marathon (60/10/30 min)",
       "related": [
@@ -106,14 +126,15 @@
       ],
       "heroSubtitle": "Long sessions need structure too. Without breaks, you burn out by hour two. With none at all, you never start.",
       "painPoints": "Rare long block. No plan.<br>Wander for an hour. Burn out.<br>Session wasted.",
-      "painSolution": "60 minutes. Built-in breaks.<br>Structure for long work.<br>Ship chapters, not excuses."
+      "painSolution": "60 minutes. Built-in breaks.<br>Structure for long work.<br>Ship chapters, not excuses.",
+      "tier": "B"
     },
     {
       "slug": "52-minute-focus",
       "category": "techniques",
-      "title": "Work Against Your Rhythm? 52-Minute Focus Timer | Superfocus",
+      "title": "52-Minute Focus Timer Online | Superfocus",
       "description": "Ultradian rhythms say ~52 min work, ~17 min rest. Custom timer preset in Superfocus. Free to try.",
-      "h1": "You fight your body's rhythm and wonder why focus feels unnatural.",
+      "h1": "52-Minute Focus Timer",
       "keyword": "52 minute focus",
       "preset": "Custom 52/17 (create in app)",
       "related": [
@@ -123,14 +144,15 @@
       ],
       "heroSubtitle": "Generic timers ignore how attention actually works. Your brain has cycles—work with them, not against them.",
       "painPoints": "Arbitrary timer lengths.<br>Fighting fatigue.<br>Never in sync with your body.",
-      "painSolution": "52 minutes on. 17 off.<br>Match your natural cycle.<br>Sustained focus, less force."
+      "painSolution": "52 minutes on. 17 off.<br>Match your natural cycle.<br>Sustained focus, less force.",
+      "tier": "B"
     },
     {
       "slug": "90-minute-deep-work",
       "category": "techniques",
-      "title": "Need 90 Minutes of Uninterrupted Focus? | Superfocus",
+      "title": "90-Minute Deep Work Timer Online | Superfocus",
       "description": "One ultradian cycle. One hard problem. 90-min Deep Work preset with ambient sounds. Try free.",
-      "h1": "Your best ideas need ninety minutes. Your schedule gives you twelve.",
+      "h1": "90-Minute Deep Work Timer",
       "keyword": "90 minute deep work",
       "preset": "Deep Work (90/20/30 min)",
       "related": [
@@ -140,14 +162,15 @@
       ],
       "heroSubtitle": "Between meetings, notifications, and \"quick checks,\" the deep thinking your work demands never gets room to breathe.",
       "painPoints": "Big thinking needs time.<br>Life gives fragments.<br>Great work stays unfinished.",
-      "painSolution": "Block 90 minutes. Protect it.<br>Deep Work preset ready.<br>Finish what matters."
+      "painSolution": "Block 90 minutes. Protect it.<br>Deep Work preset ready.<br>Finish what matters.",
+      "tier": "B"
     },
     {
       "slug": "study-timer",
       "category": "use-cases",
       "title": "Study Timer Online — Free Pomodoro for Students | Superfocus",
       "description": "Free study timer online with Pomodoro blocks, ambient sounds, and task tracking. Built for students who need structure—not another tab to ignore.",
-      "h1": "Study Timer Online — free Pomodoro blocks for students",
+      "h1": "Study Timer Online",
       "keyword": "study timer",
       "preset": "Pomodoro or Sprint",
       "related": [
@@ -157,17 +180,25 @@
         "/techniques/pomodoro-technique",
         "/alternatives/hustly-focus"
       ],
-      "heroSubtitle": "A free study timer in your browser. 25-minute Pomodoro sessions with ambient sounds so you study instead of scrolling.",
+      "heroSubtitle": "Free study timer with Pomodoro presets for exams, reading, and flashcards. Ambient sounds and streak tracking included.",
       "painPoints": "Open the book. Check phone. Repeat for 3 hours.<br>Feel guilty. Promise tomorrow will be different.<br>Tomorrow: same loop.",
       "painSolution": "One 25-minute block. Phone away. Timer running.<br>Four pages become forty. Guilt becomes momentum.",
-      "keywords": "study timer, study timer online, pomodoro study, study with me"
+      "keywords": "study timer, study timer online, pomodoro study timer, student focus timer",
+      "tier": "A",
+      "longFormBlocks": [
+        "<h2>Study timer for exams</h2>",
+        "<p>During exam season, a <strong>study timer</strong> turns vague “study all day” goals into finishable blocks. Run 25-minute Pomodoros on one topic—practice problems, essay outlines, or review notes—then take a real 5-minute break before the next subject.</p>",
+        "<h2>Reading and flashcard sessions</h2>",
+        "<p>For dense reading, try 45-minute Flow blocks. For flashcards, Sprint (15 min) keeps recall practice sharp without burnout. Track completed blocks in Superfocus analytics so you can see which subjects actually got time this week.</p>",
+        "<p>Pair your study timer with our <a href=\"/use-cases/focus-website-for-studying\" class=\"inline-text-link\">focus website for studying</a> guide if you need a browser-based setup with sounds and tasks in one tab.</p>"
+      ]
     },
     {
       "slug": "focus-timer",
       "category": "use-cases",
-      "title": "Focus Timer Online — Free Pomodoro Timer | Superfocus",
+      "title": "Focus Timer Online — Free Pomodoro & Deep Work | Superfocus",
       "description": "Online focus timer with Pomodoro, Flow, and Deep Work presets. Lofi, rain, tasks, and analytics in one place. Free to try—no download.",
-      "h1": "Focus Timer Online — Pomodoro, sounds, and tasks in one tab",
+      "h1": "Focus Timer Online",
       "keyword": "focus timer",
       "preset": "Pomodoro, Flow, or Deep Work",
       "related": [
@@ -177,17 +208,18 @@
         "/use-cases/focus-website-for-studying",
         "/compare/superfocus-vs-pomofocus"
       ],
-      "heroSubtitle": "A free focus timer in your browser. Pomodoro presets plus ambient sounds, tasks, and analytics—no juggling apps.",
+      "heroSubtitle": "Free focus timer for work and deep focus—Pomodoro, Flow, and Deep Work presets with tasks and analytics.",
       "painPoints": "Timer in one tab. Music in another.<br>Tasks somewhere else.<br>Focus scattered everywhere.",
       "painSolution": "One focus timer. Sounds built in.<br>Track every block and streak.<br>Start in 10 seconds.",
-      "keywords": "focus timer, focus timer online, pomodoro timer, online focus timer"
+      "keywords": "focus timer, focus timer online, online focus timer, pomodoro focus timer",
+      "tier": "A"
     },
     {
       "slug": "focus-website-for-studying",
       "category": "use-cases",
-      "title": "Focus Website for Studying — Free Online Study Timer | Superfocus",
+      "title": "Focus Website for Studying — Free Online Timer | Superfocus",
       "description": "Free focus website for students: Pomodoro timer, lofi study music, task list, and session streaks. No download required.",
-      "h1": "You need a website that helps you study—not another tab to ignore.",
+      "h1": "Focus Website for Studying",
       "keyword": "focus website for studying",
       "preset": "Pomodoro or Sprint",
       "related": [
@@ -197,16 +229,18 @@
         "/techniques/pomodoro-technique",
         "/alternatives/hustly-focus"
       ],
-      "heroSubtitle": "A focus website should give you a timer, block distractions, and help you finish sessions—not just look minimal.",
+      "heroSubtitle": "A focus website for studying with Pomodoro timer, lofi sounds, and task list—free in your browser, no download.",
       "painPoints": "Open laptop to study. End up on social.<br>No structure. No accountability.<br>Hours pass. Notes empty.",
-      "painSolution": "One focus website. Timer + sounds.<br>25-minute blocks. Real progress.<br>Study without the scroll loop."
+      "painSolution": "One focus website. Timer + sounds.<br>25-minute blocks. Real progress.<br>Study without the scroll loop.",
+      "tier": "A",
+      "keywords": "focus website for studying, study focus website, online study timer"
     },
     {
       "slug": "work-timer",
       "category": "use-cases",
-      "title": "Busy All Day, Nothing Done? Work Focus Timer | Superfocus",
+      "title": "Work Timer Online — Free Pomodoro for Professionals | Superfocus",
       "description": "Your calendar owns you. Block focus time between meetings with Pomodoro + tasks. Free for professionals.",
-      "h1": "Eight hours at the office. Forty-five minutes of actual work.",
+      "h1": "Work Timer Online",
       "keyword": "work timer",
       "preset": "Pomodoro or Flow",
       "related": [
@@ -216,14 +250,15 @@
       ],
       "heroSubtitle": "Meetings, Slack, email—the day fills with motion that isn't progress. The report due Friday is still a blank doc.",
       "painPoints": "Inbox zero. Project zero.<br>Meetings all day. Deep work never.<br>Busy badge. Empty output.",
-      "painSolution": "Block 25 minutes before the next meeting.<br>One task. Timer on. Ship something.<br>Repeat until Friday isn't panic."
+      "painSolution": "Block 25 minutes before the next meeting.<br>One task. Timer on. Ship something.<br>Repeat until Friday isn't panic.",
+      "tier": "B"
     },
     {
       "slug": "coding-focus-timer",
       "category": "use-cases",
-      "title": "Can't Stay in Flow While Coding? Focus Timer | Superfocus",
+      "title": "Coding Focus Timer — Pomodoro for Developers | Superfocus",
       "description": "Developers lose flow to pings and tab-hopping. 90-min Deep Work blocks + lofi. Free coding focus timer.",
-      "h1": "You opened the IDE an hour ago. You're still on Stack Overflow.",
+      "h1": "Coding Focus Timer",
       "keyword": "coding focus timer",
       "preset": "Deep Work or Flow",
       "related": [
@@ -233,14 +268,15 @@
       ],
       "heroSubtitle": "Context switching between tabs, docs, and Slack fragments your thinking. The feature that should take an afternoon takes three days.",
       "painPoints": "Load IDE. Check Slack. Read docs.<br>Context gone. Start over.<br>Feature still not shipped.",
-      "painSolution": "90-minute block. Lofi on. Slack closed.<br>One feature. Full stack focus.<br>Ship before standup."
+      "painSolution": "90-minute block. Lofi on. Slack closed.<br>One feature. Full stack focus.<br>Ship before standup.",
+      "tier": "B"
     },
     {
       "slug": "writing-timer",
       "category": "use-cases",
-      "title": "Staring at a Blank Page? Writing Focus Timer | Superfocus",
+      "title": "Writing Timer Online — Focus Blocks for Authors | Superfocus",
       "description": "Writer's block is a starting problem. 25-min Pomodoro or 60-min Marathon + rain sounds. Just begin. Try free.",
-      "h1": "The blank page has been staring at you for an hour.",
+      "h1": "Writing Timer Online",
       "keyword": "writing timer",
       "preset": "Pomodoro or Marathon",
       "related": [
@@ -250,14 +286,15 @@
       ],
       "heroSubtitle": "You know what you want to say. You can't make your fingers type it. Every distraction feels more urgent than the draft.",
       "painPoints": "Cursor blinks. You blink.<br>Rewrite the first sentence ten times.<br>Word count: still zero.",
-      "painSolution": "25 minutes. Don't edit. Just write.<br>Rain sounds. Timer running.<br>Bad words today beat no words tomorrow."
+      "painSolution": "25 minutes. Don't edit. Just write.<br>Rain sounds. Timer running.<br>Bad words today beat no words tomorrow.",
+      "tier": "B"
     },
     {
       "slug": "exam-prep-timer",
       "category": "use-cases",
-      "title": "Exam Tomorrow and Not Ready? Study Timer | Superfocus",
+      "title": "Exam Prep Timer — Study Blocks for Tests | Superfocus",
       "description": "Panic cramming doesn't work. Structured 25-min blocks with breaks do. Lofi included. Start now—free.",
-      "h1": "The exam is in five days. You've studied for none of them.",
+      "h1": "Exam Prep Timer",
       "keyword": "exam prep focus",
       "preset": "Pomodoro (25/5/15)",
       "related": [
@@ -267,14 +304,15 @@
       ],
       "heroSubtitle": "You keep \"planning to study\" instead of studying. Anxiety grows. The material doesn't shrink.",
       "painPoints": "Check syllabus. Feel overwhelmed.<br>Watch one lecture. Scroll for an hour.<br>Exam closer. You farther.",
-      "painSolution": "One topic. 25 minutes. Then a break.<br>Track sessions. See progress.<br>Five days of blocks beat one panic night."
+      "painSolution": "One topic. 25 minutes. Then a break.<br>Track sessions. See progress.<br>Five days of blocks beat one panic night.",
+      "tier": "B"
     },
     {
       "slug": "adhd-focus-timer",
       "category": "use-cases",
-      "title": "Standard Timers Don't Work for ADHD? Try 15-Min Sprints | Superfocus",
+      "title": "ADHD Focus Timer — Short Pomodoro Blocks | Superfocus",
       "description": "25 minutes feels impossible some days. Start with 15-min sprints, white noise, clear structure. Built for neurodivergent focus.",
-      "h1": "You hyperfocused on the wrong thing for three hours.",
+      "h1": "ADHD Focus Timer",
       "keyword": "ADHD focus timer",
       "preset": "Sprint (15/3/10 min)",
       "related": [
@@ -285,14 +323,15 @@
       ],
       "heroSubtitle": "Or you couldn't start at all. Standard productivity advice wasn't built for how your brain actually works.",
       "painPoints": "Can't start. Or can't stop.<br>All-or-nothing every day.<br>Tools built for neurotypical brains.",
-      "painSolution": "15-minute sprints. Clear start and stop.<br>White noise. Visual timer.<br>Work with your brain, not against it."
+      "painSolution": "15-minute sprints. Clear start and stop.<br>White noise. Visual timer.<br>Work with your brain, not against it.",
+      "tier": "B"
     },
     {
       "slug": "student-productivity",
       "category": "use-cases",
-      "title": "Overwhelmed by Assignments? Student Focus Timer | Superfocus",
+      "title": "Student Productivity Timer — Free Study Focus | Superfocus",
       "description": "Paralysis isn't laziness—it's overload. One 25-min block on one assignment. Free Pomodoro for students.",
-      "h1": "You have four assignments due. You've opened zero of them.",
+      "h1": "Student Productivity Timer",
       "keyword": "student productivity",
       "preset": "Pomodoro",
       "related": [
@@ -302,14 +341,15 @@
       ],
       "heroSubtitle": "The semester feels like a wall. Every task feels equally urgent and equally impossible to start.",
       "painPoints": "Four deadlines. Pick none.<br>Stress scroll instead of start.<br>GPA doesn't wait.",
-      "painSolution": "Pick one assignment. 25 minutes.<br>Finish a slice. Pick the next.<br>Wall becomes steps."
+      "painSolution": "Pick one assignment. 25 minutes.<br>Finish a slice. Pick the next.<br>Wall becomes steps.",
+      "tier": "B"
     },
     {
       "slug": "freelancer-productivity",
       "category": "use-cases",
-      "title": "Freelancing Without Structure? Focus Timer | Superfocus",
+      "title": "Freelancer Productivity Timer Online | Superfocus",
       "description": "Track billable focus, sync Todoist, see where hours go. Pomodoro for freelancers. Free to start.",
-      "h1": "You're your own boss. Nobody stops you from procrastinating until midnight.",
+      "h1": "Freelancer Productivity Timer",
       "keyword": "freelancer productivity",
       "preset": "Flow or Pomodoro",
       "related": [
@@ -319,14 +359,15 @@
       ],
       "heroSubtitle": "No structure, no commute, no boss looking over your shoulder. Freedom becomes a trap when billable hours slip away.",
       "painPoints": "Work from bed. Scroll till noon.<br>Client deadline looms. Panic start.<br>Underpaid for overwork.",
-      "painSolution": "Block billable hours first thing.<br>Timer tracks what clients pay for.<br>Freedom with structure."
+      "painSolution": "Block billable hours first thing.<br>Timer tracks what clients pay for.<br>Freedom with structure.",
+      "tier": "B"
     },
     {
       "slug": "remote-work-focus",
       "category": "use-cases",
-      "title": "Working From Home But Not Working? Focus Timer | Superfocus",
+      "title": "Remote Work Focus Timer — Stay on Task at Home | Superfocus",
       "description": "WFH blurs everything together. Block focus time, add cafe sounds, pretend you're somewhere else. Free timer.",
-      "h1": "Your commute is zero minutes. So is your focus.",
+      "h1": "Remote Work Focus Timer",
       "keyword": "remote work focus",
       "preset": "Pomodoro or Flow",
       "related": [
@@ -336,14 +377,15 @@
       ],
       "heroSubtitle": "Home has laundry, fridge, kids, and a couch that knows your name. The office at least had boundaries.",
       "painPoints": "Kitchen trip. Couch trip. \"Break\" all day.<br>8 hours home. 1 hour work.<br>Always on. Never focused.",
-      "painSolution": "Cafe sounds. 25-minute blocks.<br>Fake commute to your desk.<br>Home office, real work."
+      "painSolution": "Cafe sounds. 25-minute blocks.<br>Fake commute to your desk.<br>Home office, real work.",
+      "tier": "B"
     },
     {
       "slug": "deep-work-app",
       "category": "use-cases",
-      "title": "Noise Canceling Wasn't Enough? Deep Work App | Superfocus",
+      "title": "Deep Work App Online — Free Focus Timer | Superfocus",
       "description": "90-min blocks, ambient sounds, zero pings. A deep work app that enforces focus time. Try Superfocus free.",
-      "h1": "You bought noise-canceling headphones. You still didn't do the hard thing.",
+      "h1": "Deep Work App Online",
       "keyword": "deep work app",
       "preset": "Deep Work (90/20/30)",
       "related": [
@@ -353,14 +395,15 @@
       ],
       "heroSubtitle": "Blocking noise isn't the same as blocking distraction. Your brain needs structure, not just silence.",
       "painPoints": "Silent room. Loud brain.<br>Still checking phone. Still avoiding hard work.<br>Tools without structure fail.",
-      "painSolution": "90 minutes. Timer locked in.<br>Sounds signal: work now.<br>Hard thing gets done."
+      "painSolution": "90 minutes. Timer locked in.<br>Sounds signal: work now.<br>Hard thing gets done.",
+      "tier": "B"
     },
     {
       "slug": "meeting-prep-timer",
       "category": "use-cases",
-      "title": "Unprepared for Every Meeting? 15-Min Prep Timer | Superfocus",
+      "title": "Meeting Prep Timer — Focus Before Calls | Superfocus",
       "description": "Block 15 minutes before each call. Sprint timer for quick prep. Walk in ready. Free to try.",
-      "h1": "The call starts in ten minutes. You haven't looked at the deck.",
+      "h1": "Meeting Prep Timer",
       "keyword": "timer for meeting prep",
       "preset": "Sprint or Pomodoro",
       "related": [
@@ -370,14 +413,15 @@
       ],
       "heroSubtitle": "Back-to-back meetings leave no gap to think. You show up unprepared and improvise your way through.",
       "painPoints": "Join call. Realize you're lost.<br>Smile and wing it. Again.<br>Reputation erodes quietly.",
-      "painSolution": "15 minutes before every call.<br>Review deck. Write one note.<br>Show up sharp."
+      "painSolution": "15 minutes before every call.<br>Review deck. Write one note.<br>Show up sharp.",
+      "tier": "B"
     },
     {
       "slug": "focus-music",
       "category": "sounds",
-      "title": "Can't Find Music That Helps You Focus? | Superfocus",
+      "title": "Focus Music Timer — Lofi + Pomodoro Online | Superfocus",
       "description": "Lofi, rain, cafe—built-in cassettes plus Spotify. Pair with any timer. Free focus music while you work.",
-      "h1": "Silence is loud. Your playlist is louder.",
+      "h1": "Focus Music with Timer",
       "keyword": "focus music",
       "preset": "Any timer + Cassettes",
       "related": [
@@ -387,14 +431,19 @@
       ],
       "heroSubtitle": "Lyrics pull you out. Silence lets every noise in. You need something that signals \"focus\" without demanding attention.",
       "painPoints": "Pop songs = singing along.<br>Silence = hearing everything.<br>Still not concentrating.",
-      "painSolution": "One click. Lofi or rain.<br>Brain gets the signal.<br>Work starts."
+      "painSolution": "One click. Lofi or rain.<br>Brain gets the signal.<br>Work starts.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<h2>Using focus music</h2>",
+        "<p>Combine <strong>focus music</strong> with a Pomodoro or Flow preset so audio and timer stay synchronized. Start the cassette once per session—changing tracks mid-block breaks focus.</p>"
+      ]
     },
     {
       "slug": "lofi-study-music",
       "category": "sounds",
-      "title": "Study Playlist Becomes a Distraction? Lofi Timer | Superfocus",
+      "title": "Lofi Study Music Timer Online | Superfocus",
       "description": "Curated lofi cassettes built into the timer. No searching, no skipping. Study and focus together. Free.",
-      "h1": "You pressed play on a study playlist. You're still on TikTok.",
+      "h1": "Lofi Study Music Timer",
       "keyword": "lofi study music",
       "preset": "Pomodoro + Lofi cassette",
       "related": [
@@ -404,14 +453,19 @@
       ],
       "heroSubtitle": "Finding the right mix takes longer than studying. You need beats that stay in the background, not the foreground.",
       "painPoints": "Search Spotify for 20 min.<br>Skip tracks. Pick new playlist.<br>Never actually study.",
-      "painSolution": "Lofi cassette. One click.<br>Timer + beats together.<br>Study starts now."
+      "painSolution": "Lofi cassette. One click.<br>Timer + beats together.<br>Study starts now.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<h2>Using lofi study music</h2>",
+        "<p><strong>Lofi study music</strong> masks chatter without lyrical distraction. Pair with 25- or 45-minute blocks depending on whether you are reviewing or writing.</p>"
+      ]
     },
     {
       "slug": "rain-sounds-focus",
       "category": "sounds",
-      "title": "Can't Focus With All This Noise? Rain Sounds Timer | Superfocus",
+      "title": "Rain Sounds Focus Timer Online | Superfocus",
       "description": "Rain sounds mask distractions and signal focus time. Built into Superfocus with any timer preset. Try free.",
-      "h1": "Every noise in the house finds you when you try to focus.",
+      "h1": "Rain Sounds Focus Timer",
       "keyword": "rain sounds for focus",
       "preset": "Any timer + Rain cassette",
       "related": [
@@ -421,14 +475,19 @@
       ],
       "heroSubtitle": "Thin walls, loud neighbors, family in the next room. You can't control the world—you can mask it.",
       "painPoints": "Dog barks. Door slams. Focus gone.<br>Headphones help. Not enough.<br>Can't control the noise.",
-      "painSolution": "Rain cassette. Steady mask.<br>World fades. Work stays.<br>Focus in any environment."
+      "painSolution": "Rain cassette. Steady mask.<br>World fades. Work stays.<br>Focus in any environment.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<h2>Using rain sounds for focus</h2>",
+        "<p><strong>Rain sounds</strong> work well for reading and coding—steady noise without melody. Use with Deep Work when you need a long uninterrupted block.</p>"
+      ]
     },
     {
       "slug": "cafe-ambient-sounds",
       "category": "sounds",
-      "title": "Miss the Coffee Shop Vibe? Cafe Ambient Timer | Superfocus",
+      "title": "Cafe Ambient Sounds Timer Online | Superfocus",
       "description": "Coffee shop ambience without leaving home. Cafe cassette + Pomodoro timer. WFH with focus. Free.",
-      "h1": "You work better at coffee shops. You can't go to one every day.",
+      "h1": "Cafe Ambient Sounds Timer",
       "keyword": "cafe ambient study",
       "preset": "Any timer + Cafe cassette",
       "related": [
@@ -438,14 +497,19 @@
       ],
       "heroSubtitle": "There's something about the hum of strangers that makes your brain click in. Home is too quiet—or too distracting.",
       "painPoints": "Home too quiet. Or too loud.<br>Coffee shop costs $6/day.<br>Can't find the vibe.",
-      "painSolution": "Cafe sounds. Your desk.<br>Same energy. No commute.<br>Focus anywhere."
+      "painSolution": "Cafe sounds. Your desk.<br>Same energy. No commute.<br>Focus anywhere.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<h2>Using cafe ambient study</h2>",
+        "<p><strong>Cafe ambient sounds</strong> simulate a coffee-shop hum—useful when silence feels too loud. Keep volume low; the timer should stay primary.</p>"
+      ]
     },
     {
       "slug": "white-noise-focus",
       "category": "sounds",
-      "title": "Every Sound Breaks Your Focus? White Noise Timer | Superfocus",
+      "title": "White Noise Focus Timer Online | Superfocus",
       "description": "White noise blocks unpredictable sounds. Pair with 15-min Sprint for ADHD. Free in Superfocus.",
-      "h1": "Your brain treats every sound like an emergency.",
+      "h1": "White Noise Focus Timer",
       "keyword": "white noise focus",
       "preset": "Sprint + Ambient cassette",
       "related": [
@@ -455,14 +519,19 @@
       ],
       "heroSubtitle": "Open offices, ADHD, sensitive hearing—random noise hijacks attention. You need a steady floor, not more silence to fill.",
       "painPoints": "Every ping pulls you out.<br>Silence makes small sounds huge.<br>Can't filter the world.",
-      "painSolution": "White noise floor. Steady.<br>Brain stops scanning.<br>Attention stays put."
+      "painSolution": "White noise floor. Steady.<br>Brain stops scanning.<br>Attention stays put.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<h2>Using white noise focus</h2>",
+        "<p><strong>White noise</strong> blocks irregular interruptions (traffic, office chatter). Superfocus white noise cassette runs alongside any timer preset.</p>"
+      ]
     },
     {
       "slug": "todoist-pomodoro",
       "category": "workflows",
-      "title": "Long Todo List, Zero Progress? Todoist + Pomodoro | Superfocus",
+      "title": "Todoist Pomodoro Timer — Sync Tasks & Focus | Superfocus",
       "description": "Sync Todoist, assign pomodoros per task, track completion. Timer + tasks finally together. Free to try.",
-      "h1": "Your task list has 47 items. You've worked on none of them.",
+      "h1": "Todoist Pomodoro Workflow",
       "keyword": "Todoist pomodoro",
       "preset": "Pomodoro + Todoist sync",
       "related": [
@@ -472,14 +541,15 @@
       ],
       "heroSubtitle": "Todoist holds the tasks. Nothing holds you to actually doing them. Lists without time blocks are just anxiety documents.",
       "painPoints": "Add tasks. Feel productive.<br>Never block time.<br>List grows. Nothing done.",
-      "painSolution": "Pick task. Assign pomodoro.<br>Timer runs. Task closes.<br>List shrinks for real."
+      "painSolution": "Pick task. Assign pomodoro.<br>Timer runs. Task closes.<br>List shrinks for real.",
+      "tier": "B"
     },
     {
       "slug": "task-planning-workflow",
       "category": "workflows",
-      "title": "Plans Never Survive the Day? Pomodoro Task Planning | Superfocus",
+      "title": "Task Planning Workflow — Pomodoro + Tasks | Superfocus",
       "description": "Estimate in pomodoros, track actuals, improve over time. Task planning that learns from reality. Free.",
-      "h1": "You plan your day perfectly. By noon, the plan is fiction.",
+      "h1": "Task Planning Workflow",
       "keyword": "task planning with pomodoro",
       "preset": "Tasks + Pomodoro/Flow",
       "related": [
@@ -489,14 +559,15 @@
       ],
       "heroSubtitle": "Estimating time is hard when you never measure it. You keep overcommitting because you don't know how long things actually take.",
       "painPoints": "Plan 8 tasks. Finish 2.<br>Bad estimates. Every day.<br>Planning feels pointless.",
-      "painSolution": "Estimate in pomodoros.<br>Track what you actually finish.<br>Plans get honest."
+      "painSolution": "Estimate in pomodoros.<br>Track what you actually finish.<br>Plans get honest.",
+      "tier": "B"
     },
     {
       "slug": "productivity-analytics",
       "category": "analytics",
-      "title": "Busy But Can't Show Progress? Focus Analytics | Superfocus",
+      "title": "Productivity Analytics — Focus Time Tracking | Superfocus",
       "description": "See daily, weekly, monthly focus time. Spot patterns. Build habits from data, not guilt. Try free.",
-      "h1": "You worked all week. Can you prove it?",
+      "h1": "Productivity Analytics",
       "keyword": "productivity analytics",
       "preset": "Any timer + Premium",
       "related": [
@@ -507,14 +578,15 @@
       ],
       "heroSubtitle": "Busy feels productive until you look back and see the same project untouched. Without data, you're guessing.",
       "painPoints": "Feel productive. No proof.<br>Same bad patterns.<br>Can't improve what you don't measure.",
-      "painSolution": "Every session logged.<br>See your real patterns.<br>Improve with evidence."
+      "painSolution": "Every session logged.<br>See your real patterns.<br>Improve with evidence.",
+      "tier": "B"
     },
     {
       "slug": "focus-time-tracking",
       "category": "analytics",
-      "title": "No Idea Where Your Time Went? Focus Tracker | Superfocus",
+      "title": "Focus Time Tracking — Pomodoro Analytics | Superfocus",
       "description": "Track deep work hours daily, weekly, monthly. See the truth about your focus. Free timer with analytics.",
-      "h1": "Where did the day go? You genuinely don't know.",
+      "h1": "Focus Time Tracking",
       "keyword": "focus time tracking",
       "preset": "Any timer + Premium",
       "related": [
@@ -524,14 +596,15 @@
       ],
       "heroSubtitle": "Time disappears into small distractions that don't feel like distractions. By evening, the hours are gone and the work isn't done.",
       "painPoints": "Day disappears. No memory of it.<br>Busy feeling. Empty output.<br>Time theft you can't see.",
-      "painSolution": "Timer tracks every block.<br>See where hours actually go.<br>Take time back."
+      "painSolution": "Timer tracks every block.<br>See where hours actually go.<br>Take time back.",
+      "tier": "B"
     },
     {
       "slug": "pomodoro-statistics",
       "category": "analytics",
-      "title": "Pomodoros Without Progress? Session Statistics | Superfocus",
+      "title": "Pomodoro Statistics — Session History & Streaks | Superfocus",
       "description": "Count completed pomodoros, track streaks, analyze patterns. Pomodoro stats that motivate. Try Superfocus free.",
-      "h1": "You've done \"some\" pomodoros this week. That's not a metric.",
+      "h1": "Pomodoro Statistics",
       "keyword": "pomodoro statistics",
       "preset": "Pomodoro + Premium",
       "related": [
@@ -541,14 +614,15 @@
       ],
       "heroSubtitle": "Vague effort doesn't build habits. You need streaks, counts, and trends—or motivation fades by Wednesday.",
       "painPoints": "Start strong Monday. Fade by Thursday.<br>No streak. No accountability.<br>Habits don't stick.",
-      "painSolution": "Streak counter. Session history.<br>See consistency build.<br>Momentum from numbers."
+      "painSolution": "Streak counter. Session history.<br>See consistency build.<br>Momentum from numbers.",
+      "tier": "B"
     },
     {
       "slug": "superfocus-vs-pomofocus",
       "category": "compare",
-      "title": "Superfocus vs Pomofocus: Best Free Pomodoro Timer Comparison",
+      "title": "Superfocus vs Pomofocus (2026) — Which Timer Is Better?",
       "description": "Side-by-side: Pomofocus vs Superfocus. Same simple Pomodoro—plus sounds, tasks, and analytics. Compare features, then start focusing free.",
-      "h1": "Superfocus vs Pomofocus: same timer, plus sounds and analytics",
+      "h1": "Superfocus vs Pomofocus",
       "keyword": "Superfocus vs Pomofocus",
       "competitor": "Pomofocus",
       "competitorUrl": "https://pomofocus.io",
@@ -559,17 +633,37 @@
         "/techniques/pomodoro-technique",
         "/faq/pomodoro-timer-online"
       ],
-      "heroSubtitle": "Pomofocus is a simple Pomodoro. Superfocus adds lofi, rain, Todoist sync, and analytics in one free browser app.",
+      "heroSubtitle": "Honest 2026 comparison: Pomofocus for minimal Pomodoro vs Superfocus for timer + sounds + tasks + analytics.",
       "painPoints": "Timer in one tab. Spotify in another.<br>Tasks somewhere else.<br>Focus fragmented across apps.",
       "painSolution": "Timer, sounds, tasks, stats.<br>One app. One tab.<br>Focus without juggling.",
-      "keywords": "Superfocus vs Pomofocus, best pomodoro timer, best free pomodoro timer, pomodoro timer comparison"
+      "keywords": "Superfocus vs Pomofocus, best pomodoro timer, best free pomodoro timer, pomodoro timer comparison",
+      "tier": "A",
+      "longFormBlocks": [
+        "<h2>When Pomofocus is enough</h2>",
+        "<p>If you only need a clean <strong>25-minute countdown</strong> with a task list and nothing else, <a href=\"https://pomofocus.io/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"inline-text-link\">Pomofocus</a> is an excellent choice. It is fast, free, and stays out of your way.</p>",
+        "<p>Choose Superfocus when you keep opening Spotify for lofi, a separate tab for tasks, or want streak analytics—timer, ambient cassettes, Todoist sync, and leaderboard in one browser tab.</p>"
+      ],
+      "faq": [
+        {
+          "q": "Is Superfocus better than Pomofocus?",
+          "a": "Superfocus adds built-in ambient sounds, deeper analytics, Todoist sync, and multiple timer presets. Pomofocus wins on minimalism if you only need a basic Pomodoro countdown."
+        },
+        {
+          "q": "Can I use both for free?",
+          "a": "Yes. Both offer free browser tiers. Try each for one afternoon on real work before deciding."
+        },
+        {
+          "q": "Which has better sounds?",
+          "a": "Superfocus includes lofi, rain, cafe, and white noise cassettes without leaving the timer. Pomofocus does not include ambient audio."
+        }
+      ]
     },
     {
       "slug": "superfocus-vs-forest",
       "category": "compare",
-      "title": "Forest on Phone, Chaos on Desktop? | Superfocus",
+      "title": "Superfocus vs Forest (2026) — Timer Compared | Superfocus",
       "description": "Browser-based focus timer. No phone needed. Pomodoro + lofi + analytics on desktop. Compare vs Forest.",
-      "h1": "You planted trees on your phone. Your laptop still has 40 tabs.",
+      "h1": "Superfocus vs Forest",
       "keyword": "Superfocus vs Forest",
       "competitor": "Forest",
       "competitorUrl": "https://www.forestapp.cc",
@@ -580,14 +674,15 @@
       ],
       "heroSubtitle": "Forest gamifies phone focus. But your real work happens on desktop—and the phone isn't the only distraction.",
       "painPoints": "Phone locked. Laptop wide open.<br>Real work needs desktop.<br>Forest doesn't follow you there.",
-      "painSolution": "Focus timer in your browser.<br>Where work actually happens.<br>No app switching."
+      "painSolution": "Focus timer in your browser.<br>Where work actually happens.<br>No app switching.",
+      "tier": "B"
     },
     {
       "slug": "superfocus-vs-flocus",
       "category": "compare",
-      "title": "Flocus Looks Great. Does It Help You Ship? | Superfocus",
+      "title": "Superfocus vs Flocus (2026) — Study Timer Compared | Superfocus",
       "description": "Compare Flocus vs Superfocus: timers, sounds, task sync, analytics. Less decorating, more doing. Try free.",
-      "h1": "Pretty dashboard. Still not finishing your tasks.",
+      "h1": "Superfocus vs Flocus",
       "keyword": "Superfocus vs Flocus",
       "competitor": "Flocus",
       "competitorUrl": "https://flocus.com",
@@ -598,14 +693,15 @@
       ],
       "heroSubtitle": "Aesthetic productivity tools feel good to set up. Setup becomes the procrastination.",
       "painPoints": "Customize theme for an hour.<br>Work for zero.<br>Productivity cosplay.",
-      "painSolution": "Timer first. Features that ship.<br>Less setup. More sessions.<br>Results over aesthetics."
+      "painSolution": "Timer first. Features that ship.<br>Less setup. More sessions.<br>Results over aesthetics.",
+      "tier": "B"
     },
     {
       "slug": "superfocus-vs-focusmate",
       "category": "compare",
-      "title": "Solo Focus Works Better? Superfocus vs Focusmate",
+      "title": "Superfocus vs Focusmate (2026) — Accountability Compared | Superfocus",
       "description": "Independent deep work with ambient sounds vs video accountability. Compare styles. Try Superfocus free.",
-      "h1": "You don't need a stranger on video. You need to start.",
+      "h1": "Superfocus vs Focusmate",
       "keyword": "Superfocus vs Focusmate",
       "competitor": "Focusmate",
       "competitorUrl": "https://www.focusmate.com",
@@ -616,14 +712,15 @@
       ],
       "heroSubtitle": "Accountability sessions help some people. Others just need a timer, sounds, and fewer excuses.",
       "painPoints": "Schedule partner. Small talk.<br>Perform focus for someone.<br>Still avoid the hard task alone.",
-      "painSolution": "Solo timer. Sounds on. Start now.<br>No scheduling. No performance.<br>Just work."
+      "painSolution": "Solo timer. Sounds on. Start now.<br>No scheduling. No performance.<br>Just work.",
+      "tier": "B"
     },
     {
       "slug": "pomodoro-timer-apps",
       "category": "compare",
-      "title": "Tried Every Pomodoro App? 2026 Comparison | Superfocus",
+      "title": "Pomodoro Timer Apps Compared (2026) | Superfocus",
       "description": "Compare Superfocus, Pomofocus, Forest, Flocus. Features, pricing, sounds. Find one that actually fits. Free tier.",
-      "h1": "You've tried five Pomodoro apps. You still can't focus.",
+      "h1": "Pomodoro Timer Apps Compared",
       "keyword": "pomodoro timer apps",
       "related": [
         "/compare/superfocus-vs-pomofocus",
@@ -632,14 +729,15 @@
       ],
       "heroSubtitle": "The app wasn't the problem. But the wrong app adds friction—signup walls, missing features, another subscription.",
       "painPoints": "Download. Sign up. Hit paywall.<br>Missing sounds. Missing tasks.<br>App hopping instead of working.",
-      "painSolution": "Compare honestly. Pick one.<br>Timer + sounds + tasks included.<br>Start free today."
+      "painSolution": "Compare honestly. Pick one.<br>Timer + sounds + tasks included.<br>Start free today.",
+      "tier": "B"
     },
     {
       "slug": "pomofocus",
       "category": "alternatives",
-      "title": "Pomofocus Alternative — Best Free Pomodoro Timer Online | Superfocus",
+      "title": "Pomofocus Alternative — Free Pomodoro Timer with Sounds | Superfocus",
       "description": "Looking for a Pomofocus alternative? Superfocus keeps the simple Pomodoro and adds ambient sounds, tasks, and analytics. Start free in your browser.",
-      "h1": "Pomofocus alternative with sounds, tasks, and analytics",
+      "h1": "Pomofocus Alternative",
       "keyword": "pomofocus alternative",
       "related": [
         "/compare/superfocus-vs-pomofocus",
@@ -648,17 +746,18 @@
         "/use-cases/focus-timer",
         "/techniques/pomodoro-technique"
       ],
-      "heroSubtitle": "Same clean Pomodoro timer—plus lofi, rain, Todoist sync, and focus reports. Free online, no download.",
+      "heroSubtitle": "Free Pomofocus alternative with built-in lofi sounds, task tracking, and analytics—same simplicity, more features.",
       "painPoints": "Simple timer. Too simple.<br>Open Spotify separately.<br>No idea if you're improving.",
       "painSolution": "Same clean timer. More built in.<br>Sounds, tasks, stats included.<br>Upgrade without complexity.",
-      "keywords": "pomofocus alternative, best pomodoro timer, best pomodoro app, pomodoro timer online"
+      "keywords": "pomofocus alternative, pomofocus alternative free, pomodoro timer with sounds",
+      "tier": "A"
     },
     {
       "slug": "forest-app",
       "category": "alternatives",
-      "title": "Forest App Alternative for Desktop Work | Superfocus",
+      "title": "Forest App Alternative — Free Browser Focus Timer | Superfocus",
       "description": "Browser Pomodoro timer—no phone required. Lofi, rain, tasks, analytics. Free Forest alternative.",
-      "h1": "Your forest is thriving. Your project is not.",
+      "h1": "Forest App Alternative",
       "keyword": "forest app alternative",
       "related": [
         "/compare/superfocus-vs-forest",
@@ -667,14 +766,15 @@
       ],
       "heroSubtitle": "Gamification motivates until it doesn't. You need focus tools for real work, not virtual trees.",
       "painPoints": "Trees grow. Work doesn't.<br>Phone-only focus.<br>Desktop still a mess.",
-      "painSolution": "Focus where you work.<br>Browser timer. Real features.<br>Ship projects, not saplings."
+      "painSolution": "Focus where you work.<br>Browser timer. Real features.<br>Ship projects, not saplings.",
+      "tier": "B"
     },
     {
       "slug": "best-pomodoro-apps",
       "category": "alternatives",
-      "title": "Best Pomodoro Apps 2026 — Free Online Timer | Superfocus",
+      "title": "Best Pomodoro Apps 2026 — Compared (Free & Online) | Superfocus",
       "description": "Best Pomodoro apps in 2026: Superfocus, Pomofocus, Forest compared. Features and pricing—then start a free online timer.",
-      "h1": "Best Pomodoro apps 2026 — pick one and start the timer",
+      "h1": "Best Pomodoro Apps in 2026",
       "keyword": "best pomodoro apps",
       "related": [
         "/compare/pomodoro-timer-apps",
@@ -682,10 +782,16 @@
         "/techniques/pomodoro-technique",
         "/compare/superfocus-vs-brain-fm"
       ],
-      "heroSubtitle": "Honest comparison of Superfocus, Pomofocus, and Forest. Features, pricing, then close this tab and focus.",
+      "heroSubtitle": "Compared: Superfocus, Pomofocus, Forest, and Flocus—free tiers, sounds, tasks, and who each app fits.",
       "painPoints": "Read reviews for hours.<br>Compare features. Install three apps.<br>Still haven't started a pomodoro.",
       "painSolution": "Pick Superfocus. Start timer.<br>25 minutes. Right now.<br>Comparison ends. Work begins.",
-      "keywords": "best pomodoro app, best pomodoro timer, best pomodoro apps"
+      "keywords": "best pomodoro app, best pomodoro apps 2026, best pomodoro timer",
+      "tier": "A",
+      "longFormBlocks": [
+        "<h2>How we picked the best Pomodoro apps</h2>",
+        "<p>We judged each app on <strong>timer flexibility</strong> (Pomodoro vs deep work), <strong>ambient sound</strong>, <strong>task integration</strong>, <strong>analytics</strong>, and <strong>free tier</strong> generosity—not marketing feature lists.</p>",
+        "<p><strong>Superfocus</strong> fits browser-first workers who want timer + lofi + tasks. <strong>Pomofocus</strong> fits minimalists. <strong>Forest</strong> fits phone users who need gamification. <strong>Flocus</strong> fits aesthetic-focused study sessions.</p>"
+      ]
     }
   ]
 }

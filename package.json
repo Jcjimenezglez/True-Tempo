@@ -8,8 +8,9 @@
   "scripts": {
     "build:assets": "node scripts/build-assets.js",
     "build:pseo": "node scripts/build-pseo.js",
-    "build": "npm run apply-pain-copy && npm run build:assets && npm run build:pseo",
+    "build": "npm run apply-pain-copy && npm run apply-seo-plan && npm run build:assets && npm run build:pseo",
     "apply-pain-copy": "node scripts/apply-pain-copy.js",
+    "apply-seo-plan": "node scripts/apply-seo-plan.js",
     "dev": "vercel dev",
     "setup-dev": "node scripts/setup-dev.js",
     "deploy-staging": "node scripts/deploy-staging.js",

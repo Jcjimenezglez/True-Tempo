@@ -5,9 +5,9 @@
       "slug": "how-long-pomodoro-session",
       "category": "faq",
       "keyword": "how long pomodoro session",
-      "title": "How Long Should a Pomodoro Be? Find Your Length | Superfocus",
+      "title": "How Long Should a Pomodoro Be? — Timer Length Guide | Superfocus",
       "description": "25 min for most, 15 for ADHD, 45 for deep work. All presets built in. Try each free and find yours.",
-      "h1": "You've tried 25 minutes. It feels wrong—but you don't know why.",
+      "h1": "How Long Should a Pomodoro Be?",
       "answer": "The classic Pomodoro session is <strong>25 minutes</strong> of focused work, followed by a 5-minute break. After 4 sessions, take a 15-minute longer break. This comes from the <a href=\"https://en.wikipedia.org/wiki/Pomodoro_Technique\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"inline-text-link\">Pomodoro Technique</a> developed by Francesco Cirillo. Superfocus supports 25 min (Pomodoro), 15 min (Sprint), 45 min (Flow), and 90 min (Deep Work)—so you can match your attention span. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it free</a>.",
       "preset": "Pomodoro (25 min) or Sprint (15 min) or Flow (45 min)",
       "related": [
@@ -37,15 +37,20 @@
       ],
       "heroSubtitle": "Generic advice says 25. Your brain says something else. The wrong length makes every session feel like failure.",
       "painPoints": "Force 25. Quit at 10.<br>Think you're broken.<br>Wrong length, not wrong you.",
-      "painSolution": "Try Sprint, Pomodoro, Flow.<br>Find your number.<br>Structure that fits."
+      "painSolution": "Try Sprint, Pomodoro, Flow.<br>Find your number.<br>Structure that fits.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>The standard Pomodoro is <strong>25 minutes</strong>, but the best length depends on your task and attention span. Students often use 25 min; developers in flow may prefer 45–90 min.</p>",
+        "<p>Superfocus lets you switch presets without changing apps—try Sprint (15), Pomodoro (25), Flow (45), or Deep Work (90) and track which length produces the most finished blocks.</p>"
+      ]
     },
     {
       "slug": "is-superfocus-free",
       "category": "faq",
       "keyword": "is superfocus free",
-      "title": "Is Superfocus Free? Yes—No Credit Card to Start",
+      "title": "Is Superfocus Free? — Pricing & Free Tier Explained | Superfocus",
       "description": "Free tier: 2 hours focus/day. Guests get 25 minutes. No signup required to try. Premium optional.",
-      "h1": "Another app asking for a credit card before you can even try it.",
+      "h1": "Is Superfocus Free?",
       "answer": "Yes. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Superfocus</a> is free to use. Free users get <strong>2 hours of focus per day</strong>; guests get 25 minutes. No credit card required to start. Upgrade to Premium for unlimited focus, all timer techniques (Pomodoro, Flow, Sprint, Deep Work, Marathon), and advanced analytics.",
       "preset": "Any preset on free tier",
       "related": [
@@ -69,15 +74,19 @@
       ],
       "heroSubtitle": "You just want to know if a timer helps. You don't want a subscription pitch before the first pomodoro.",
       "painPoints": "Sign up wall. Paywall. Trial trap.<br>Just want to focus.<br>Apps want your wallet first.",
-      "painSolution": "Open superfocus.live. Start timer.<br>No card. No signup required.<br>Try before you commit."
+      "painSolution": "Open superfocus.live. Start timer.<br>No card. No signup required.<br>Try before you commit.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>Yes. Superfocus is <strong>free to start</strong> in your browser. Free accounts get 2 hours of focus per day; guests can run one 25-minute session without signing up. Premium unlocks unlimited focus and all timer techniques.</p>"
+      ]
     },
     {
       "slug": "best-pomodoro-length",
       "category": "faq",
       "keyword": "best pomodoro length",
-      "title": "Best Pomodoro Length? Try 15, 25, or 45 Min Free | Superfocus",
+      "title": "Best Pomodoro Length — 15, 25, or 45 Minutes? | Superfocus",
       "description": "No universal answer—try Sprint (15), Pomodoro (25), Flow (45). All presets in one app. Free.",
-      "h1": "15 or 25 or 45? You've read ten articles and still don't know.",
+      "h1": "Best Pomodoro Length",
       "answer": "The <strong>best Pomodoro length depends on you</strong>. <strong>25 minutes</strong> works for most people—it aligns with attention cycles and avoids burnout. Use <strong>15 minutes</strong> (Sprint) for ADHD, quick tasks, or when 25 min feels too long. Use <strong>45 minutes</strong> (Flow) or <strong>90 minutes</strong> (Deep Work) for extended focus. Superfocus has all presets built in. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try them free</a>.",
       "preset": "Pomodoro (25), Sprint (15), or Flow (45)",
       "related": [
@@ -101,15 +110,19 @@
       ],
       "heroSubtitle": "Analysis paralysis strikes again. While you research the perfect length, the task waits untouched.",
       "painPoints": "Research the method. Never use it.<br>Perfect length myth.<br>Task still undone.",
-      "painSolution": "Pick one. Start now.<br>Adjust after data.<br>Done beats optimal."
+      "painSolution": "Pick one. Start now.<br>Adjust after data.<br>Done beats optimal.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>There is no universal best length—<strong>25 minutes</strong> is the classic default, <strong>15 minutes</strong> helps when starting is hard, and <strong>45–90 minutes</strong> suits deep creative work. Test one week per preset and compare finished blocks in analytics.</p>"
+      ]
     },
     {
       "slug": "pomodoro-vs-flowtime",
       "category": "faq",
       "keyword": "pomodoro vs flowtime",
-      "title": "Pomodoro vs Flowtime: Which Fits Your Work? | Superfocus",
+      "title": "Pomodoro vs Flowtime — Which Timer Method Fits You? | Superfocus",
       "description": "Fixed 25 min vs flexible 45+. Both presets in Superfocus. Try each on real work. Free.",
-      "h1": "Pomodoro interrupts you. Flowtime might not. You need both answers.",
+      "h1": "Pomodoro vs Flowtime",
       "answer": "<strong>Pomodoro</strong> uses fixed 25-minute work blocks with 5-minute breaks. <strong>Flowtime</strong> uses longer, flexible blocks (45+ min) with breaks when you need them. Pomodoro gives structure; Flowtime supports flow state. Superfocus has both: Pomodoro (25/5/15) and Flow (45/8/25). Try each and see what fits. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try Superfocus free</a>.",
       "preset": "Pomodoro or Flow",
       "related": [
@@ -139,15 +152,20 @@
       ],
       "heroSubtitle": "Different tasks need different blocks. One-size-fits-all timers fit no one.",
       "painPoints": "Wrong method for the task.<br>Pomodoro for deep work fails.<br>Flowtime for email fails.",
-      "painSolution": "Match block to task.<br>Both presets ready.<br>Right tool, right moment."
+      "painSolution": "Match block to task.<br>Both presets ready.<br>Right tool, right moment.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p><strong>Pomodoro</strong> uses fixed 25-minute blocks with scheduled breaks—great for structured tasks and studying. <strong>Flowtime</strong> uses longer work periods (often 45+ minutes) with flexible breaks—better when interruptions kill deep work.</p>",
+        "<p>Superfocus includes both presets. Try Pomodoro for a week, then Flow, and compare finished blocks in analytics.</p>"
+      ]
     },
     {
       "slug": "how-many-pomodoros-per-day",
       "category": "faq",
       "keyword": "how many pomodoros per day",
-      "title": "How Many Pomodoros Per Day? Track and Find Out | Superfocus",
+      "title": "How Many Pomodoros Per Day? — Realistic Targets | Superfocus",
       "description": "8-12 is common but yours depends on you. Session tracking shows your sweet spot. Free timer.",
-      "h1": "You did two pomodoros and feel guilty. Or twelve and feel burned out.",
+      "h1": "How Many Pomodoros Per Day?",
       "answer": "There's no magic number. <strong>8–12 Pomodoros</strong> (25 min each) is common for a full workday—that's 4–6 hours of focus. With 15-min Sprints, you might do 16–20. With 45-min Flow blocks, 4–6. It depends on your energy and tasks. Superfocus tracks your sessions so you can find your sweet spot. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it free</a>.",
       "preset": "Pomodoro (25/5/15)",
       "related": [
@@ -171,15 +189,19 @@
       ],
       "heroSubtitle": "Without tracking, you're guessing—too little or too much, never quite right.",
       "painPoints": "No idea what's enough.<br>Guilt or burnout.<br>Flying blind.",
-      "painSolution": "Track sessions. See patterns.<br>Find your number.<br>Data replaces guilt."
+      "painSolution": "Track sessions. See patterns.<br>Find your number.<br>Data replaces guilt.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>Most knowledge workers sustain <strong>8–12 Pomodoros</strong> (4–6 hours of focused work) on a good day. Start with <strong>4 Pomodoros</strong> and increase only when you consistently finish blocks without skipping breaks.</p>"
+      ]
     },
     {
       "slug": "pomodoro-break-length",
       "category": "faq",
       "keyword": "pomodoro break length",
-      "title": "Skipping Breaks? Here's Why 5 Minutes Matter | Superfocus",
+      "title": "Pomodoro Break Length — How Long to Rest | Superfocus",
       "description": "5 min short breaks, 15 min long breaks—built into Superfocus Pomodoro. Sustainable focus. Free.",
-      "h1": "You skip breaks and wonder why focus dies by afternoon.",
+      "h1": "Pomodoro Break Length",
       "answer": "In the classic Pomodoro: <strong>5 minutes</strong> after each 25-min session, <strong>15–30 minutes</strong> after 4 sessions. Short breaks let you recover without losing context; long breaks prevent burnout. Superfocus uses 5/15 by default and supports custom break lengths. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it free</a>.",
       "preset": "Pomodoro (5 min short, 15 min long)",
       "related": [
@@ -203,15 +225,19 @@
       ],
       "heroSubtitle": "Pushing through feels tough. It's also why your third hour produces nothing.",
       "painPoints": "Skip break. Power through.<br>Brain fog by 2pm.<br>Breaks feel lazy. They're not.",
-      "painSolution": "Breaks scheduled automatically.<br>Recover before crash.<br>More total focus, not less."
+      "painSolution": "Breaks scheduled automatically.<br>Recover before crash.<br>More total focus, not less.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>Standard breaks are <strong>5 minutes</strong> after each Pomodoro and <strong>15 minutes</strong> after four cycles. Step away from the screen—walk, stretch, hydrate. Skipping breaks usually reduces total output by hour three.</p>"
+      ]
     },
     {
       "slug": "focus-timer-with-sounds",
       "category": "faq",
       "keyword": "focus timer with sounds",
-      "title": "Timer + Focus Sounds in One App | Superfocus",
+      "title": "Focus Timer with Sounds — Lofi & Ambient Online | Superfocus",
       "description": "Lofi, rain, cafe built in. Any timer preset. One tab. Try Superfocus free.",
-      "h1": "You need a timer and focus music. That's two apps, two tabs, twice the friction.",
+      "h1": "Focus Timer with Sounds",
       "answer": "Yes. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Superfocus</a> is a focus timer with <strong>built-in ambient sounds</strong>: lofi, rain, cafe, white noise. Use any timer preset (Pomodoro, Flow, etc.) with cassettes to block noise and signal your brain to focus. You can also add Spotify playlists. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it free</a>.",
       "preset": "Any preset + Cassettes",
       "related": [
@@ -235,15 +261,19 @@
       ],
       "heroSubtitle": "Switching between timer and Spotify breaks the very focus you're trying to build.",
       "painPoints": "Timer app. Music app.<br>Switch tabs. Lose focus.<br>Setup takes longer than work.",
-      "painSolution": "One click. Timer + sounds.<br>Stay in one tab.<br>Focus starts faster."
+      "painSolution": "One click. Timer + sounds.<br>Stay in one tab.<br>Focus starts faster.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>A <strong>focus timer with sounds</strong> keeps countdown and audio in one tab—no switching to Spotify mid-session. Superfocus cassettes include lofi, rain, cafe, and white noise.</p>"
+      ]
     },
     {
       "slug": "pomodoro-for-adhd",
       "category": "faq",
       "keyword": "pomodoro for adhd",
-      "title": "Pomodoro for ADHD: Start With 15-Min Sprints | Superfocus",
+      "title": "Pomodoro for ADHD — Shorter Focus Blocks | Superfocus",
       "description": "Sprint preset (15/3/10), white noise, clear structure. Built for neurodivergent focus. Free to try.",
-      "h1": "Standard productivity advice wasn't written for your brain.",
+      "h1": "Pomodoro for ADHD",
       "answer": "Yes, with adjustments. The classic 25 min can be too long for ADHD. Use <strong>15-minute Sprints</strong> (or shorter) instead. Superfocus has a Sprint preset (15/3/10)—shorter blocks, more frequent breaks, clear structure. Lofi and white noise help block distractions. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it free</a>.",
       "preset": "Sprint (15/3/10 min)",
       "related": [
@@ -267,15 +297,20 @@
       ],
       "heroSubtitle": "25 minutes feels like a prison sentence. Guilt follows every failed attempt. The method isn't wrong—you need a different length.",
       "painPoints": "25 min = guaranteed fail.<br>Feel broken. Blame yourself.<br>Tools not made for you.",
-      "painSolution": "15-minute sprints. White noise.<br>Clear start and stop.<br>Work with your brain."
+      "painSolution": "15-minute sprints. White noise.<br>Clear start and stop.<br>Work with your brain.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>Many people with ADHD find <strong>15-minute Sprint blocks</strong> easier than 25-minute Pomodoros. The goal is momentum, not perfect adherence—finish one short block, take a real break, repeat.</p>",
+        "<p>Pair shorter timers with ambient sound to reduce environmental distractions. Superfocus Sprint preset is built for this pattern.</p>"
+      ]
     },
     {
       "slug": "how-to-enter-flow-state",
       "category": "faq",
       "keyword": "how to enter flow state",
-      "title": "How to Enter Flow State: Longer Blocks + Sounds | Superfocus",
+      "title": "How to Enter Flow State — Focus Timer Guide | Superfocus",
       "description": "45-min Flow or 90-min Deep Work + lofi/rain. Structure + sound = flow conditions. Try free.",
-      "h1": "Flow state sounds mythical because you've never protected enough time to find it.",
+      "h1": "How to Enter Flow State",
       "answer": "Flow state needs <strong>longer blocks</strong> and <strong>fewer interruptions</strong>. Use Superfocus Flow (45 min) or Deep Work (90 min) instead of Pomodoro. Add lofi or rain to block noise. Clear distractions, pick one task, start the timer. The structure + sound helps your brain shift into flow. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it free</a>.",
       "preset": "Flow (45/8/25) or Deep Work (90/20/30)",
       "related": [
@@ -305,7 +340,12 @@
       ],
       "heroSubtitle": "You get five uninterrupted minutes if you're lucky. Flow needs forty-five.",
       "painPoints": "Never long enough uninterrupted.<br>Flow always interrupted.<br>Myth or memory.",
-      "painSolution": "Block 45+ minutes. Sounds on.<br>One task. Protect it.<br>Flow has room to arrive."
+      "painSolution": "Block 45+ minutes. Sounds on.<br>One task. Protect it.<br>Flow has room to arrive.",
+      "tier": "B",
+      "longFormBlocks": [
+        "<p>Flow needs a clear goal, immediate feedback, and uninterrupted time—usually <strong>45–90 minutes</strong>. Remove notifications, pick one task, start a Flow or Deep Work preset, and use ambient sound to block distractions.</p>",
+        "<p>See also: <a href=\"/techniques/flowtime-timer\" class=\"inline-text-link\">Flowtime timer</a> and <a href=\"/techniques/deep-work-timer\" class=\"inline-text-link\">deep work timer</a>.</p>"
+      ]
     },
     {
       "slug": "pomodoro-timer-online",
@@ -313,7 +353,7 @@
       "keyword": "pomodoro timer online",
       "title": "Pomodoro Timer Online — Free, No Download | Superfocus",
       "description": "Runs in browser. Pomodoro, Flow, Sprint, sounds, tasks. No download. Try superfocus.live free.",
-      "h1": "You don't want another app cluttering your phone.",
+      "h1": "Pomodoro Timer Online",
       "answer": "Yes. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Superfocus</a> is a <strong>Pomodoro timer that runs online</strong> in your browser. No app to install—just go to superfocus.live. It includes Pomodoro, Flow, Sprint, Deep Work presets, plus lofi/rain/cafe sounds, Todoist sync, and analytics. Free to try, no credit card. <a href=\"https://www.superfocus.live/\" class=\"inline-text-link\">Try it now</a>.",
       "preset": "Pomodoro (25/5/15)",
       "related": [
@@ -335,9 +375,11 @@
           "a": "Yes. Free to use. 2 hours focus per day on free tier. No credit card."
         }
       ],
-      "heroSubtitle": "Download, account, permissions, updates—sometimes you just need a timer in the browser and to start working.",
+      "heroSubtitle": "Free Pomodoro timer online—25/5 cycles, ambient sounds, no download. Start a live session in your browser now.",
       "painPoints": "Another app. Another account.<br>Phone storage full.<br>Just need a timer now.",
-      "painSolution": "Open browser. Start timer.<br>Full app. Zero install.<br>Focus in 10 seconds."
+      "painSolution": "Open browser. Start timer.<br>Full app. Zero install.<br>Focus in 10 seconds.",
+      "tier": "A",
+      "keywords": "pomodoro timer online, live pomodoro, free pomodoro timer online"
     }
   ]
 }
