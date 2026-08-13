@@ -1330,7 +1330,7 @@ function buildPageHtml(page, template, contentSectionTemplate, manifest) {
     .replace(/\{\{SCRIPT_LANDING_HREF\}\}/g, manifest.scriptLanding);
 }
 
-function main() {
+async function main() {
   if (!fs.existsSync(PAGES_JSON)) {
     console.error('Missing pseo/pages.json');
     process.exit(1);
@@ -1418,7 +1418,21 @@ ${allUrls.map(u => `    <url>
 `;
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap, 'utf8');
   console.log('Updated sitemap.xml');
+
+  if (process.env.SKIP_INDEXNOW !== '1') {
+    try {
+      const { submitIndexNow } = require('../api/lib/indexnow');
+      const result = await submitIndexNow(allUrls.map((u) => u.loc));
+      console.log(`IndexNow: submitted ${result.submitted} URLs`, result.batches);
+    } catch (error) {
+      console.warn('IndexNow submission skipped:', error.message);
+    }
+  }
+
   return generated;
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

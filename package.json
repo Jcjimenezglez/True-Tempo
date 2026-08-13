@@ -16,6 +16,7 @@
     "deploy-staging": "node scripts/deploy-staging.js",
     "logs": "vercel logs --follow",
     "update-logo": "node scripts/update-logo-from-png.js",
+    "indexnow": "node scripts/submit-indexnow.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
