@@ -242,6 +242,7 @@
         type="text/javascript"
     ></script>
     
+    <script src="/js/clerk-logout-lock.js"></script>
     <!-- Clerk Session Management - Enhanced for Persistent Sessions -->
     <script>
         (function() {
@@ -289,6 +290,9 @@
                     
                     // Check if user is logged in
                     const user = window.Clerk.user;
+                    if (window.ClerkLogoutLock) {
+                        window.ClerkLogoutLock.isLocked(window.Clerk);
+                    }
                     if (user) {
                         console.log('✅ Clerk session restored successfully for user:', user.id);
                     } else {
@@ -3588,9 +3592,9 @@
                     });
                 } else {
                     // Guest: create account first, then return here to open Stripe Checkout
-                    console.log('Redirecting guest to sign-up...');
+                    console.log('Redirecting guest to sign-in...');
                     const redirectUrl = 'https://www.superfocus.live/pricing?checkout=1';
-                    window.location.href = 'https://accounts.superfocus.live/sign-up?redirect_url=' + encodeURIComponent(redirectUrl);
+                    window.location.href = 'https://accounts.superfocus.live/sign-in?redirect_url=' + encodeURIComponent(redirectUrl);
                 }
             };
         }
@@ -4103,17 +4107,23 @@
         document.addEventListener('DOMContentLoaded', async function() {
             // Wait for Clerk to be ready first
             await waitForClerkReady();
+
+            if (window.ClerkLogoutLock) {
+                window.ClerkLogoutLock.isLocked(window.Clerk);
+            }
             
-            // After signup, open Stripe Checkout automatically
+            // After signup/sign-in, open Stripe Checkout automatically for unpaid users
             const checkoutParams = new URLSearchParams(window.location.search);
-            if (checkoutParams.get('checkout') === '1' && window.Clerk?.user && !isUserPremium()) {
+            if (checkoutParams.get('checkout') === '1') {
                 checkoutParams.delete('checkout');
                 const remaining = checkoutParams.toString();
                 const nextUrl = `${window.location.pathname}${remaining ? `?${remaining}` : ''}${window.location.hash}`;
                 window.history.replaceState({}, document.title, nextUrl);
-                createCheckoutSession('monthly', { shouldTrack: true, source: 'pricing_post_signup' }).catch((error) => {
-                    console.error('Auto checkout after signup failed:', error);
-                });
+                if (window.Clerk?.user && !isUserPremium()) {
+                    createCheckoutSession('monthly', { shouldTrack: true, source: 'pricing_post_signup' }).catch((error) => {
+                        console.error('Auto checkout after signup failed:', error);
+                    });
+                }
             }
 
             // Check if user returned from canceled checkout (after Clerk is ready)

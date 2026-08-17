@@ -1264,14 +1264,12 @@ class PomodoroTimer {
             // Check if Clerk is already initialized globally
             if (window.__clerkInitialized) {
                 console.log('✅ Clerk already initialized globally, using existing session');
-                // Just use the existing session
-                this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
+                this.isAuthenticated = !this.hasManualLogoutLock() && !!window.Clerk.user;
                 this.user = this.isAuthenticated ? window.Clerk.user : null;
                 console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
             } else if (window.Clerk.loaded) {
                 console.log('✅ Clerk already loaded with session, skipping re-initialization');
-                // Just use the existing session
-                this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
+                this.isAuthenticated = !this.hasManualLogoutLock() && !!window.Clerk.user;
                 this.user = this.isAuthenticated ? window.Clerk.user : null;
                 console.log('Using existing auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
                 window.__clerkInitialized = true;
@@ -1297,8 +1295,7 @@ class PomodoroTimer {
                 window.__clerkInitialized = true;
                 window.__clerkInitializing = false;
                 
-                // Hydrate initial auth state
-                this.isAuthenticated = !justLoggedOutRecently && !!window.Clerk.user;
+                this.isAuthenticated = !this.hasManualLogoutLock() && !!window.Clerk.user;
                 this.user = this.isAuthenticated ? window.Clerk.user : null;
                 console.log('Initial auth state:', { isAuthenticated: this.isAuthenticated, user: this.user });
             }
@@ -1309,13 +1306,14 @@ class PomodoroTimer {
             this.stripClerkParamsFromUrl();
 
             // Poll briefly to ensure user is hydrated after redirect
-            if (!justLoggedOutRecently) {
+            if (!this.hasManualLogoutLock()) {
                 await this.waitForUserHydration(3000);
             }
             
             // Single Clerk listener (avoids 3 duplicate updateAuthState calls)
             try {
-                window.Clerk.addListener('user', (user) => {
+                window.Clerk.addListener((resources) => {
+                    const user = resources?.user || null;
                     console.log('Auth state changed:', user);
                     const justLoggedOut = this.hasManualLogoutLock();
                     if (justLoggedOut) {
@@ -1563,6 +1561,9 @@ class PomodoroTimer {
     }
 
     hasManualLogoutLock() {
+        if (window.ClerkLogoutLock) {
+            return window.ClerkLogoutLock.isLocked(window.Clerk);
+        }
         try {
             const ss = sessionStorage.getItem('just_logged_out') === 'true';
             const ls = localStorage.getItem('just_logged_out') === 'true';
@@ -1573,11 +1574,17 @@ class PomodoroTimer {
     }
 
     clearManualLogoutLock() {
+        if (window.ClerkLogoutLock) {
+            window.ClerkLogoutLock.clear();
+            return;
+        }
         try {
             sessionStorage.removeItem('just_logged_out');
             sessionStorage.removeItem('just_logged_out_at');
+            sessionStorage.removeItem('just_logged_out_session_id');
             localStorage.removeItem('just_logged_out');
             localStorage.removeItem('just_logged_out_at');
+            localStorage.removeItem('just_logged_out_session_id');
         } catch (_) {}
     }
 
@@ -4827,10 +4834,14 @@ class PomodoroTimer {
                 });
                 closePaywall();
                 try {
-                    sessionStorage.setItem('just_logged_out', 'true');
-                    sessionStorage.setItem('just_logged_out_at', String(Date.now()));
-                    localStorage.setItem('just_logged_out', 'true');
-                    localStorage.setItem('just_logged_out_at', String(Date.now()));
+                    if (window.ClerkLogoutLock) {
+                        window.ClerkLogoutLock.set(window.Clerk?.session?.id || '');
+                    } else {
+                        sessionStorage.setItem('just_logged_out', 'true');
+                        sessionStorage.setItem('just_logged_out_at', String(Date.now()));
+                        localStorage.setItem('just_logged_out', 'true');
+                        localStorage.setItem('just_logged_out_at', String(Date.now()));
+                    }
                 } catch (_) {}
                 await this.performLogout();
             });
@@ -5280,10 +5291,14 @@ class PomodoroTimer {
             
             // Mark that user just logged out to prevent re-hydration and welcome modal
             try {
-                sessionStorage.setItem('just_logged_out', 'true');
-                sessionStorage.setItem('just_logged_out_at', String(Date.now()));
-                localStorage.setItem('just_logged_out', 'true');
-                localStorage.setItem('just_logged_out_at', String(Date.now()));
+                if (window.ClerkLogoutLock) {
+                    window.ClerkLogoutLock.set(window.Clerk?.session?.id || '');
+                } else {
+                    sessionStorage.setItem('just_logged_out', 'true');
+                    sessionStorage.setItem('just_logged_out_at', String(Date.now()));
+                    localStorage.setItem('just_logged_out', 'true');
+                    localStorage.setItem('just_logged_out_at', String(Date.now()));
+                }
             } catch (_) {}
             // Reset per-session sync flags so next login re-syncs
             this._serverSyncDone = false;
