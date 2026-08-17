@@ -1,6 +1,5 @@
 import FeatureBlock from "@/components/FeatureBlock";
 import SubscribeButton from "@/components/SubscribeButton";
-import Link from "next/link";
 
 const features = [
   {
@@ -67,12 +66,12 @@ export default function HomePage() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <SubscribeButton />
-          <Link
-            href="/pricing"
+          <a
+            href="/pricing/"
             className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5"
           >
             See pricing
-          </Link>
+          </a>
         </div>
         <p className="mt-4 text-sm text-zinc-500">$1.99 per month. Cancel anytime.</p>
       </section>
