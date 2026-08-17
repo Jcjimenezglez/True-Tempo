@@ -79,31 +79,28 @@ export default function PricingPage() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-16 sm:py-24">
-      <p className="text-center text-sm text-zinc-500">Pricing</p>
-      <h1 className="mt-3 text-center text-4xl font-semibold tracking-tight">Superfocus Premium</h1>
-      <p className="mx-auto mt-4 max-w-xl text-center text-zinc-400">
-        One plan. Pay, then use the timer at /app. Cancel anytime.
-      </p>
-
-      <div className="mt-12 rounded-3xl border border-white/10 p-8 sm:p-10">
-        <p className="text-sm text-zinc-400">Billed monthly</p>
-        <p className="mt-1 text-5xl font-semibold">
+    <main className="mx-auto max-w-3xl px-5 pb-24">
+      <section className="px-5 pt-16 text-center sm:pt-24">
+        <p className="text-sm text-zinc-500">Pricing</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Superfocus Premium</h1>
+        <p className="mx-auto mt-4 max-w-md text-zinc-400">
+          One plan. $1.99/month. Then open the timer at /app.
+        </p>
+        <p className="mt-8 text-5xl font-semibold tracking-tight">
           $1.99<span className="text-lg font-medium text-zinc-500">/mo</span>
         </p>
-        <div className="mt-8">
+        <p className="mt-2 text-sm text-zinc-500">Billed monthly. Cancel anytime.</p>
+        <div className="mt-8 flex justify-center">
           <SubscribeButton
             id="pricing-subscribe"
             label="Subscribe"
-            className="w-full rounded-full bg-white px-6 py-3 text-base font-semibold text-black hover:bg-zinc-200 disabled:opacity-60"
+            className="rounded-full bg-white px-8 py-3 text-base font-semibold text-black hover:bg-zinc-200 disabled:opacity-60"
           />
         </div>
-        <p className="mt-3 text-center text-sm text-zinc-500">
-          Account first, then Stripe Checkout. You can cancel from your billing portal.
-        </p>
-      </div>
+        <p className="mt-4 text-sm text-zinc-500">Account first, then Stripe Checkout.</p>
+      </section>
 
-      <section className="mt-20">
+      <section className="mt-28">
         <h2 className="text-2xl font-semibold tracking-tight">What is included</h2>
         <ul className="mt-8 space-y-6">
           {included.map((item) => (
