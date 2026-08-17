@@ -1,9 +1,9 @@
 export const people = [
-  { name: "Nina", image: "/images/profiles/nina.webp" },
-  { name: "David", image: "/images/profiles/david.webp" },
-  { name: "Sam", image: "/images/profiles/sam.webp" },
-  { name: "Alex", image: "/images/profiles/alex.webp" },
-  { name: "Maya", image: "/images/profiles/maya.webp" },
+  { name: "Nina", image: "/images/profiles/nina.webp?v=2" },
+  { name: "David", image: "/images/profiles/david.webp?v=2" },
+  { name: "Sam", image: "/images/profiles/sam.webp?v=2" },
+  { name: "Alex", image: "/images/profiles/alex.webp?v=2" },
+  { name: "Maya", image: "/images/profiles/maya.webp?v=2" },
 ];
 
 export const quotes = [
@@ -11,19 +11,19 @@ export const quotes = [
     quote: "I need to focus during precise hours. Superfocus helps me stay on track.",
     name: "Nina",
     role: "Life with Chevy",
-    image: "/images/profiles/nina.webp",
+    image: "/images/profiles/nina.webp?v=2",
   },
   {
     quote: "Blocking two pomodoros in the morning changed my day.",
     name: "David",
     role: "Ops",
-    image: "/images/profiles/david.webp",
+    image: "/images/profiles/david.webp?v=2",
   },
   {
     quote: "Tried a bunch of apps. The 25-minute block actually sticks.",
     name: "Sam",
     role: "Law student",
-    image: "/images/profiles/sam.webp",
+    image: "/images/profiles/sam.webp?v=2",
   },
 ];
 
