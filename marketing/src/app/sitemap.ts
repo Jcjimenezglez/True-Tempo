@@ -2,6 +2,8 @@ import { BLOG_POSTS } from "@/lib/blog-posts";
 import { loadAllPages } from "@/lib/catalog";
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-static";
+
 const BASE = "https://www.superfocus.live";
 
 export default function sitemap(): MetadataRoute.Sitemap {
