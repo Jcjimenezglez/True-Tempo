@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const SIGN_IN =
   "https://accounts.superfocus.live/sign-in?redirect_url=" +
@@ -21,12 +21,33 @@ export default function SubscribeButton({
   label = "Subscribe",
   className = "",
   id,
+  autoCheckout = false,
 }: {
   label?: string;
   className?: string;
   id?: string;
+  autoCheckout?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!autoCheckout) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") !== "1") return;
+
+    const start = Date.now();
+    const timer = window.setInterval(() => {
+      if (window.Clerk?.user) {
+        window.clearInterval(timer);
+        document.getElementById(id || "pricing-subscribe")?.click();
+      }
+      if (Date.now() - start > 8000) {
+        window.clearInterval(timer);
+      }
+    }, 200);
+
+    return () => window.clearInterval(timer);
+  }, [autoCheckout, id]);
 
   async function onClick() {
     if (busy) return;

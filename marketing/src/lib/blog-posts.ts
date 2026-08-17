@@ -54,7 +54,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>Body doubling (Focusmate) can help some people. For solo work, the Superfocus clock is a cheap, repeatable prompt: the session started whether motivation showed up or not.</p>
 <h2>After the short block</h2>
 <p>If it finished, you can chain a classic pomodoro. If it didn’t, you still have a completed sprint instead of a shame spiral. Track that in analytics; don’t track “hours I meant to work.”</p>
-<p>Premium is $1.99/month if you want unlimited sessions in /app. Start at View pricing — not a pile of new ADHD apps.</p>
+<p>Premium is $1.99/month if you want unlimited sessions in /app. Subscribe — not a pile of new ADHD apps.</p>
 `,
   },
   {

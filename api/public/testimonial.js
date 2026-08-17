@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     if (!targetUser) {
       // Don't 404 here: the pricing page treats non-2xx as a hard failure and logs a console error.
       // Return a stable fallback testimonial so UI remains clean even if the Clerk user isn't present.
-      const testimonialImageUrl = '/images/lifestyle-blog.jpg';
+      const testimonialImageUrl = '/images/profiles/nina.webp';
       return res.status(200).json({
         success: true,
         fallback: true,
@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
 
     // Return only public information
     // Use specific testimonial image for this user instead of Clerk image
-    const testimonialImageUrl = '/images/lifestyle-blog.jpg';
+    const testimonialImageUrl = '/images/profiles/nina.webp';
     
     res.status(200).json({
       success: true,

@@ -8,7 +8,7 @@ export default function FeatureBlock({
 }: {
   title: string;
   description: string;
-  points: string[];
+  points: readonly string[];
   image: string;
   alt: string;
   reverse?: boolean;

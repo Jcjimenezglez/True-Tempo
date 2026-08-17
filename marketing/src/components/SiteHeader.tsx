@@ -1,10 +1,6 @@
-export default function SiteHeader({
-  ctaHref = "/pricing/",
-  ctaLabel = "View pricing",
-}: {
-  ctaHref?: string;
-  ctaLabel?: string;
-}) {
+import SubscribeButton from "@/components/SubscribeButton";
+
+export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b0b0c]/90 backdrop-blur-md">
       <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto_1fr] items-center px-5 sm:grid-cols-3">
@@ -36,12 +32,10 @@ export default function SiteHeader({
           >
             Log in
           </a>
-          <a
-            href={ctaHref}
-            className="rounded-full bg-white px-4 py-2 font-semibold text-black hover:bg-zinc-200"
-          >
-            {ctaLabel}
-          </a>
+          <SubscribeButton
+            label="Subscribe"
+            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200 disabled:opacity-60"
+          />
         </nav>
       </div>
     </header>
