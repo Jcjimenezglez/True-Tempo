@@ -3,22 +3,59 @@
 import { useEffect } from "react";
 import SubscribeButton from "@/components/SubscribeButton";
 
+const included = [
+  {
+    title: "Pomodoro timer in the browser",
+    detail: "Classic 25/5, Sprint, Flow, Deep Work, or your own lengths. No download.",
+  },
+  {
+    title: "Unlimited sessions",
+    detail: "No daily cap once you subscribe. Start as many blocks as you need.",
+  },
+  {
+    title: "Tasks next to the clock",
+    detail: "Name one outcome per session. Import from Todoist if you already plan there.",
+  },
+  {
+    title: "Sound in the same tab",
+    detail: "Cassettes, lofi, rain, or Spotify — so you do not open a second YouTube tab.",
+  },
+  {
+    title: "Reports and streaks",
+    detail: "See finished blocks, not hours a tab sat open. Optional leaderboard.",
+  },
+];
+
+const steps = [
+  "Create an account (or log in).",
+  "Pay $1.99/month in Stripe Checkout.",
+  "Open the timer at /app and start a session.",
+];
+
 const faqs = [
   {
     q: "How much does Superfocus cost?",
-    a: "Premium is $1.99 per month. Create an account, then pay in Stripe Checkout. Cancel anytime.",
+    a: "One plan: $1.99 per month, billed by Stripe. Taxes may apply depending on your location. There is no annual plan on this page.",
   },
   {
-    q: "What is included?",
-    a: "The timer app at /app: unlimited pomodoro sessions, tasks, cassettes, Todoist, and analytics.",
+    q: "What do I get after I pay?",
+    a: "Full access to the timer app at /app: unlimited sessions, custom timers, tasks, cassettes, Todoist, analytics, and the leaderboard.",
   },
   {
-    q: "I already have an account",
-    a: "Log in, then subscribe if you are not Premium yet. If you already pay, open /app.",
+    q: "Is there a free or guest timer?",
+    a: "No guest clock on the marketing site. You create an account, subscribe, then use /app. Some referral links still unlock a 90-day trial — the checkout page will show that if it applies.",
   },
   {
     q: "Can I cancel?",
-    a: "Yes. Access stays through the end of the billing period.",
+    a: "Yes, anytime. You keep Premium until the end of the period you already paid. We do not prorate unused days.",
+  },
+  {
+    q: "I already have an account",
+    a: "Log in, then subscribe here if you are not Premium yet. If you already pay, go straight to /app.",
+  },
+  {
+    q: "Where does the money go?",
+    a: "Checkout is Stripe. Superfocus never stores your full card number. Auth is Clerk.",
   },
 ];
 
@@ -42,35 +79,18 @@ export default function PricingPage() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-xl px-5 py-16 sm:py-24">
-      <p className="text-center text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">Pricing</p>
+    <main className="mx-auto max-w-3xl px-5 py-16 sm:py-24">
+      <p className="text-center text-sm text-zinc-500">Pricing</p>
       <h1 className="mt-3 text-center text-4xl font-semibold tracking-tight">Superfocus Premium</h1>
-      <p className="mt-3 text-center text-zinc-400">One plan. The timer app is at /app after you subscribe.</p>
+      <p className="mx-auto mt-4 max-w-xl text-center text-zinc-400">
+        One plan. Pay, then use the timer at /app. Cancel anytime.
+      </p>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-[#141416] p-8">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm text-zinc-400">Billed monthly</p>
-            <p className="mt-1 text-5xl font-semibold">
-              $1.99<span className="text-lg font-medium text-zinc-500">/mo</span>
-            </p>
-          </div>
-        </div>
-        <ul className="mt-6 space-y-2 text-sm text-zinc-300">
-          {[
-            "Pomodoro timer in the browser",
-            "Unlimited focus sessions",
-            "Unlimited tasks",
-            "Cassettes and soundtracks",
-            "Todoist integration",
-            "Analytics",
-          ].map((item) => (
-            <li key={item} className="flex gap-2">
-              <span>✓</span>
-              {item}
-            </li>
-          ))}
-        </ul>
+      <div className="mt-12 rounded-3xl border border-white/10 p-8 sm:p-10">
+        <p className="text-sm text-zinc-400">Billed monthly</p>
+        <p className="mt-1 text-5xl font-semibold">
+          $1.99<span className="text-lg font-medium text-zinc-500">/mo</span>
+        </p>
         <div className="mt-8">
           <SubscribeButton
             id="pricing-subscribe"
@@ -79,18 +99,54 @@ export default function PricingPage() {
           />
         </div>
         <p className="mt-3 text-center text-sm text-zinc-500">
-          Create an account, then pay in Stripe Checkout. Cancel anytime.
+          Account first, then Stripe Checkout. You can cancel from your billing portal.
         </p>
       </div>
 
-      <div className="mt-12 space-y-4">
-        {faqs.map((item) => (
-          <details key={item.q} className="rounded-2xl border border-white/10 bg-[#141416] px-5 py-4">
-            <summary className="cursor-pointer list-none font-medium">{item.q}</summary>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">{item.a}</p>
-          </details>
-        ))}
-      </div>
+      <section className="mt-20">
+        <h2 className="text-2xl font-semibold tracking-tight">What is included</h2>
+        <ul className="mt-8 space-y-6">
+          {included.map((item) => (
+            <li key={item.title}>
+              <p className="font-medium">{item.title}</p>
+              <p className="mt-1 text-sm leading-relaxed text-zinc-400">{item.detail}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-20">
+        <h2 className="text-2xl font-semibold tracking-tight">How it works</h2>
+        <ol className="mt-8 list-decimal space-y-3 pl-5 text-zinc-300">
+          {steps.map((step) => (
+            <li key={step} className="pl-1 leading-relaxed">
+              {step}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="mt-20">
+        <h2 className="text-2xl font-semibold tracking-tight">Good to know</h2>
+        <ul className="mt-8 space-y-3 text-sm leading-relaxed text-zinc-400">
+          <li>Works in the browser on desktop. The product is /app after checkout.</li>
+          <li>Spotify playback needs your own Spotify account where the app asks for it.</li>
+          <li>Todoist import is optional. You can keep tasks only in Superfocus.</li>
+          <li>Cancel anytime; access lasts through the paid month.</li>
+        </ul>
+      </section>
+
+      <section className="mt-20">
+        <h2 className="text-2xl font-semibold tracking-tight">Questions</h2>
+        <div className="mt-8 space-y-6">
+          {faqs.map((item) => (
+            <div key={item.q}>
+              <h3 className="font-medium">{item.q}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">{item.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }
