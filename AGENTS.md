@@ -10,7 +10,7 @@ Superfocus is a Pomodoro/focus timer web app. The frontend is vanilla HTML/CSS/J
 
 - **With Vercel credentials**: `npm run dev` (runs `vercel dev`, serves both frontend and API routes on port 3000). Requires `vercel login` first.
 - **Without Vercel credentials**: Use `npx serve -l 3000` to serve the static frontend. API routes (`/api/*`) will not be available.
-- `/` is the marketing landing page. The timer app lives at `/app`.
+- `/` and `/pricing` are generated from the Next.js app in `marketing/` (`npm run build:marketing`). The timer stays at `/app`.
 - The frontend has no build step for HTML/CSS/JS; hashed `/dist` assets are used by `/app`.
 
 ### Environment variables

@@ -635,26 +635,7 @@ function updateAdLandingHtml() {
 }
 
 function updateIndexHtml() {
-  const filePath = path.join(ROOT, 'index.html');
-  let html = fs.readFileSync(filePath, 'utf8');
-  html = html.replace(
-    /<p class="stop-start-pain">[\s\S]*?<\/p>/,
-    `<p class="stop-start-pain">${HOMEPAGE_STOP.painPoints}</p>`
-  );
-  html = html.replace(
-    /<p class="stop-start-solution">[\s\S]*?<\/p>/,
-    `<p class="stop-start-solution">${HOMEPAGE_STOP.painSolution}</p>`
-  );
-  html = html.replace(
-    /<h2 class="features-grid-title">[\s\S]*?<\/h2>/,
-    `<h2 class="features-grid-title">${FEATURES_TITLE}</h2>`
-  );
-  html = html.replace(
-    /<p class="how-we-help-tagline">[^<]*<\/p>/,
-    `<p class="how-we-help-tagline">${SUB.core}</p>`
-  );
-  fs.writeFileSync(filePath, html);
-  console.log('Updated index.html sections');
+  console.log('Skipped index.html hero copy (marketing Next.js owns /)');
 }
 
 function updatePseoTemplate() {
