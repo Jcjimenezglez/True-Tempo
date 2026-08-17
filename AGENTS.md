@@ -9,7 +9,7 @@ Superfocus is a Pomodoro/focus timer web app. The frontend is vanilla HTML/CSS/J
 ### Running the application
 
 - **With Vercel credentials**: `npm run dev` (runs `vercel dev`, serves both frontend and API routes on port 3000). Requires `vercel login` first.
-- **Without Vercel credentials**: Use `npx serve -l 3000` to serve the static frontend. API routes (`/api/*`) will not be available, but all client-side timer functionality works.
+- **Without Vercel credentials**: Use `npx --yes serve -l 3000` to serve the static frontend. API routes (`/api/*`) will not be available, but all client-side timer functionality works. Use the `--yes` flag: without it, `npx serve` prompts `Ok to proceed? (y)` on first run and hangs waiting for input. The built assets in `dist/` are committed to the repo, so the frontend renders standalone with no build step.
 - The frontend has no build step; changes to `index.html`, `style.css`, and `script.js` are immediately reflected on reload.
 
 ### Environment variables
@@ -18,7 +18,7 @@ Copy `.env.local.backup` to `.env.local` and fill in real values for Stripe/Cler
 
 ### Testing
 
-- `npm test` runs the Jest test suite (97 tests across 4 files in `__tests__/`).
+- `npm test` runs the Jest test suite (108 tests across 6 files in `__tests__/`).
 - No ESLint or TypeScript linting is configured.
 
 ### Deploy (avoid duplicate deploys)
