@@ -21,14 +21,10 @@ export default function PricingPage() {
         <p className="mx-auto mt-4 max-w-md text-base text-zinc-400">
           One plan. $1.99/month. Then open the timer at /app.
         </p>
-        <p className="mt-8 text-5xl font-semibold tracking-tight">
-          $1.99<span className="text-lg font-medium text-zinc-500">/mo</span>
-        </p>
-        <p className="mt-2 text-sm text-zinc-500">Billed monthly. Cancel anytime.</p>
         <div className="mt-8">
           <SubscribeButton id="pricing-subscribe" autoCheckout />
         </div>
-        <p className="mt-4 text-sm text-zinc-500">Account first, then Stripe Checkout.</p>
+        <p className="mt-4 text-sm text-zinc-500">Billed monthly. Cancel anytime.</p>
       </section>
 
       <AvatarStack />
