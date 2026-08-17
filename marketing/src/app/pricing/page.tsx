@@ -7,15 +7,7 @@ import { productFeatures } from "@/lib/social-proof";
 export default function PricingPage() {
   return (
     <main>
-      <section className="mx-auto max-w-5xl px-5 pt-10 sm:pt-14">
-        <img
-          src="/images/Superfocus.png"
-          alt="Superfocus timer at 25:00 on a desert focus scene, sidebar closed"
-          className="h-auto w-full rounded-xl"
-        />
-      </section>
-
-      <section className="mx-auto max-w-2xl px-5 pb-8 pt-16 text-center sm:pt-20">
+      <section className="mx-auto max-w-2xl px-5 pb-8 pt-16 text-center sm:pt-24">
         <p className="text-sm text-zinc-500">Pricing</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Superfocus Premium</h1>
         <p className="mx-auto mt-4 max-w-md text-base text-zinc-400">

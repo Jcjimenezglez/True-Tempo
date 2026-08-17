@@ -31,6 +31,14 @@ export default function SubscribeButton({
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    function onShow() {
+      setBusy(false);
+    }
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
+  useEffect(() => {
     if (!autoCheckout) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") !== "1") return;
@@ -51,7 +59,6 @@ export default function SubscribeButton({
 
   async function onClick() {
     if (busy) return;
-    setBusy(true);
     try {
       if (window.Clerk && !window.Clerk.loaded) {
         await window.Clerk.load();
@@ -66,6 +73,8 @@ export default function SubscribeButton({
         window.location.href = SIGN_IN;
         return;
       }
+
+      setBusy(true);
 
       const userEmail = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || "";
       const userId = user.id || "";
