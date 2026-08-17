@@ -23,3 +23,63 @@ body {
 body {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+.prose-article h2 {
+  margin-top: 2rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.prose-article h3 {
+  margin-top: 1.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.prose-article p,
+.prose-article li {
+  margin-top: 0.75rem;
+  line-height: 1.7;
+  color: #a1a1aa;
+}
+
+.prose-article strong {
+  color: #f4f4f5;
+  font-weight: 600;
+}
+
+.prose-article a {
+  color: #e4e4e7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-article ul,
+.prose-article ol {
+  margin-top: 0.75rem;
+  padding-left: 1.2rem;
+}
+
+.prose-article ol {
+  list-style: decimal;
+}
+
+.prose-article ul {
+  list-style: disc;
+}
+
+.prose-article table {
+  width: 100%;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  border-collapse: collapse;
+}
+
+.prose-article th,
+.prose-article td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 0.35rem;
+  text-align: left;
+  color: #d4d4d8;
+}

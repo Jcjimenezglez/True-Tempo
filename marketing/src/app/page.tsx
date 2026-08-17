@@ -1,5 +1,5 @@
 import FeatureBlock from "@/components/FeatureBlock";
-import SubscribeButton from "@/components/SubscribeButton";
+import ViewPricingLink from "@/components/ViewPricingLink";
 
 const features = [
   {
@@ -55,7 +55,7 @@ export default function HomePage() {
     <main>
       <section className="mx-auto max-w-3xl px-5 pb-16 pt-16 text-center sm:pt-24">
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
-          Pomodoro timer · study timer · focus timer
+          Pomodoro timer (90k+ US/mo) · pomodoro technique · study timer · focus timer
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
           You&apos;re paying for three apps. Still can&apos;t focus.
@@ -65,15 +65,25 @@ export default function HomePage() {
           tasks, and analytics in one workflow — so you finish work instead of managing apps.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <SubscribeButton />
+          <ViewPricingLink />
           <a
-            href="/pricing/"
+            href="/techniques/pomodoro-technique/"
             className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5"
           >
-            See pricing
+            Pomodoro technique
           </a>
         </div>
         <p className="mt-4 text-sm text-zinc-500">$1.99 per month. Cancel anytime.</p>
+        <figure className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-2xl border border-white/10 bg-[#141416] text-left">
+          <img
+            src="/images/Timer.png"
+            alt="Superfocus pomodoro timer showing a focus session in the browser"
+            className="h-auto w-full"
+          />
+          <figcaption className="px-4 py-3 text-sm text-zinc-500">
+            The Superfocus timer — pomodoro clock, one task, optional cassette audio in a single tab.
+          </figcaption>
+        </figure>
       </section>
 
       <section className="mx-auto max-w-6xl px-5 pb-16">
@@ -126,9 +136,9 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-3xl px-5 pb-20 text-center">
         <h2 className="text-3xl font-semibold">Start the pomodoro timer</h2>
-        <p className="mt-3 text-zinc-400">Subscribe, then open the app at /app. One plan. $1.99/month.</p>
+        <p className="mt-3 text-zinc-400">View pricing, subscribe, then open the app at /app. One plan. $1.99/month.</p>
         <div className="mt-6">
-          <SubscribeButton />
+          <ViewPricingLink />
         </div>
       </section>
     </main>

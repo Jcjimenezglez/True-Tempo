@@ -1,6 +1,6 @@
 export default function SiteHeader({
   ctaHref = "/pricing/",
-  ctaLabel = "Subscribe for $1.99/month",
+  ctaLabel = "View pricing",
 }: {
   ctaHref?: string;
   ctaLabel?: string;
@@ -15,6 +15,12 @@ export default function SiteHeader({
         <nav className="flex items-center gap-5 text-sm text-zinc-300">
           <a href="/" className="hidden sm:inline hover:text-white">
             Home
+          </a>
+          <a href="/blog/" className="hidden sm:inline hover:text-white">
+            Blog
+          </a>
+          <a href="/techniques/" className="hidden md:inline hover:text-white">
+            Techniques
           </a>
           <a href="/pricing/" className="hover:text-white">
             Pricing

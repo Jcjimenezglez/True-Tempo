@@ -72,7 +72,11 @@ export default function PricingPage() {
           ))}
         </ul>
         <div className="mt-8">
-          <SubscribeButton id="pricing-subscribe" className="w-full rounded-full bg-white px-6 py-3 text-base font-semibold text-black hover:bg-zinc-200 disabled:opacity-60" />
+          <SubscribeButton
+            id="pricing-subscribe"
+            label="Subscribe"
+            className="w-full rounded-full bg-white px-6 py-3 text-base font-semibold text-black hover:bg-zinc-200 disabled:opacity-60"
+          />
         </div>
         <p className="mt-3 text-center text-sm text-zinc-500">
           Create an account, then pay in Stripe Checkout. Cancel anytime.

@@ -21,21 +21,43 @@ if (!fs.existsSync(OUT)) {
   throw new Error("marketing/out missing. Run npm --prefix marketing run build first.");
 }
 
-fs.copyFileSync(path.join(OUT, "index.html"), path.join(ROOT, "index.html"));
+const SKIP = new Set(["app", "404"]);
 
-const pricingOut = path.join(OUT, "pricing", "index.html");
-if (fs.existsSync(pricingOut)) {
-  fs.mkdirSync(path.join(ROOT, "pricing"), { recursive: true });
-  fs.copyFileSync(pricingOut, path.join(ROOT, "pricing", "index.html"));
+function removeConflictingHtml(root) {
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (SKIP.has(entry.name) || entry.name === "node_modules" || entry.name === "marketing" || entry.name === "api" || entry.name === "app") {
+      continue;
+    }
+    const dir = path.join(root, entry.name);
+    const siblingHtml = path.join(root, `${entry.name}.html`);
+    if (fs.existsSync(path.join(dir, "index.html")) && fs.existsSync(siblingHtml)) {
+      fs.unlinkSync(siblingHtml);
+    }
+    for (const child of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!child.isDirectory()) continue;
+      const html = path.join(dir, `${child.name}.html`);
+      if (fs.existsSync(path.join(dir, child.name, "index.html")) && fs.existsSync(html)) {
+        fs.unlinkSync(html);
+      }
+    }
+  }
 }
 
-const nextFrom = path.join(OUT, "_next");
-const nextTo = path.join(ROOT, "_next");
-if (fs.existsSync(nextTo)) {
-  fs.rmSync(nextTo, { recursive: true, force: true });
-}
-if (fs.existsSync(nextFrom)) {
-  copyDir(nextFrom, nextTo);
+for (const entry of fs.readdirSync(OUT, { withFileTypes: true })) {
+  if (SKIP.has(entry.name)) continue;
+  const from = path.join(OUT, entry.name);
+  const to = path.join(ROOT, entry.name);
+  if (entry.isDirectory()) {
+    if (fs.existsSync(to)) {
+      fs.rmSync(to, { recursive: true, force: true });
+    }
+    copyDir(from, to);
+  } else if (entry.name === "index.html") {
+    fs.copyFileSync(from, to);
+  }
 }
 
-console.log("Published marketing export to site root (/, /pricing, /_next)");
+removeConflictingHtml(ROOT);
+
+console.log("Published marketing export from marketing/out to site root");

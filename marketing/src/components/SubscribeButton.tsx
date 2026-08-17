@@ -18,7 +18,7 @@ function planType() {
 }
 
 export default function SubscribeButton({
-  label = "Subscribe for $1.99/month",
+  label = "Subscribe",
   className = "",
   id,
 }: {
