@@ -21,6 +21,10 @@ Copy `.env.local.backup` to `.env.local` and fill in real values for Stripe/Cler
 - `npm test` runs the Jest test suite (97 tests across 4 files in `__tests__/`).
 - No ESLint or TypeScript linting is configured.
 
+### Pull requests
+
+- After the work is done and the PR is opened, **merge it into `main` without waiting** for a separate “merge this” message. Fast-forward `main` and `git push origin main` (do not also run `vercel --prod`).
+
 ### Deploy (avoid duplicate deploys)
 
 - **Do not run both** `git push` **and** `vercel --prod`. Vercel auto-deploys on push when the repo is connected.
