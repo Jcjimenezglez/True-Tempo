@@ -8,7 +8,7 @@
   "scripts": {
     "build:assets": "node scripts/build-assets.js",
     "build:pseo": "node scripts/build-pseo.js",
-    "build:marketing": "npm --prefix marketing run build && node scripts/publish-marketing.js",
+    "build:marketing": "npm --prefix marketing ci && npm --prefix marketing run build && node scripts/publish-marketing.js",
     "build": "npm run apply-pain-copy && npm run apply-seo-plan && npm run build:assets && npm run build:pseo && npm run build:marketing",
     "apply-pain-copy": "node scripts/apply-pain-copy.js",
     "apply-seo-plan": "node scripts/apply-seo-plan.js",

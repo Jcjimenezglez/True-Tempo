@@ -30,6 +30,8 @@ Copy `.env.local.backup` to `.env.local` and fill in real values for Stripe/Cler
 
 - **Do not run both** `git push` **and** `vercel --prod`. Vercel auto-deploys on push when the repo is connected.
 - Use: `git add ... && git commit -m "..." && git push` (no `vercel --prod`).
+- **After every `git push` to `main` (and after feature-branch pushes that trigger Vercel), check the Vercel deployment.** Use the Vercel MCP `list_deployments` + `get_deployment_build_logs` (errorsOnly) for project `true-tempo`. Wait until state is `READY`. If state is `ERROR`, read the logs, fix, push again, and re-check. Do not treat a successful git push as a successful deploy.
+- Marketing lives in `marketing/` with its own `package.json`. Root `npm install` does not install `next`. `build:marketing` must run `npm --prefix marketing ci` before `next build`.
 
 ### Key caveats
 
