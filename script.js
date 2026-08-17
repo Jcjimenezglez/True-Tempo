@@ -1338,6 +1338,7 @@ class PomodoroTimer {
 
             // Mark auth system as ready and re-run UI gates that depend on it
             this.authReady = true;
+            this.enforceAppAuthentication();
             // Ensure techniques reflect correct state (guest vs free vs pro)
             try { this.updateDropdownItemsState(); } catch (_) {}
             // Removed extra welcome modal trigger to avoid duplicate rendering
@@ -1558,6 +1559,35 @@ class PomodoroTimer {
         } catch (error) {
             console.warn('Failed to remove URL params:', error);
         }
+    }
+
+    hideAppAuthGate() {
+        const gate = document.getElementById('appAuthGate');
+        if (gate) {
+            gate.style.display = 'none';
+        }
+    }
+
+    enforceAppAuthentication() {
+        const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
+        if (path !== '/app') {
+            this.hideAppAuthGate();
+            return;
+        }
+
+        if (this.isAuthenticated) {
+            this.hideAppAuthGate();
+            return;
+        }
+
+        const host = window.location.hostname;
+        const isProduction = host === 'www.superfocus.live' || host === 'superfocus.live';
+        if (!isProduction) {
+            this.hideAppAuthGate();
+            return;
+        }
+
+        window.location.replace('/pricing');
     }
 
     hasManualLogoutLock() {
@@ -3303,6 +3333,7 @@ class PomodoroTimer {
         }
         
         if (this.isAuthenticated && this.user) {
+            this.hideAppAuthGate();
             try { localStorage.setItem('hasAccount', 'true'); } catch (_) {}
             
             // Track user authentication (first time or returning)
@@ -3558,6 +3589,7 @@ class PomodoroTimer {
             const mainFooter = document.querySelector('.main-footer');
             if (contentSection) contentSection.style.display = 'block';
             if (mainFooter) mainFooter.style.display = 'block';
+            this.enforceAppAuthentication();
             
             // Reset badge to zero time for guests
             if (this.achievementCounter) {

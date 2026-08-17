@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Minify frontend assets and write dist/asset-manifest.json with hashed filenames.
- * Also updates index.html to reference hashed dist assets when present.
+ * Also updates app/index.html to reference hashed dist assets when present.
  */
 const fs = require('fs');
 const path = require('path');
@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
-const INDEX_PATH = path.join(ROOT, 'index.html');
+const INDEX_PATH = path.join(ROOT, 'app/index.html');
 
 function hashContent(buf) {
   return crypto.createHash('sha256').update(buf).digest('hex').slice(0, 8);
@@ -36,7 +36,7 @@ function patchIndexHtml(manifest) {
   html = html.replace(/href="style\.css"/g, `href="${manifest.style}"`);
   html = html.replace(/<script src="[^"]*script[^"]*\.js[^"]*" defer><\/script>/, `<script src="${manifest.script}" defer></script>`);
   fs.writeFileSync(INDEX_PATH, html, 'utf8');
-  console.log('Updated index.html asset references');
+  console.log('Updated app/index.html asset references');
 }
 
 async function build() {

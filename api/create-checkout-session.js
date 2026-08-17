@@ -68,8 +68,8 @@ module.exports = async (req, res) => {
 
   // Use hardcoded URLs to avoid environment variable issues
   // Include plan type in success URL for accurate conversion tracking
-  const finalSuccessUrl = `https://www.superfocus.live?premium=1&payment=success&plan=${planType}&session_id={CHECKOUT_SESSION_ID}`;
-  const finalCancelUrl = 'https://www.superfocus.live';
+  const finalSuccessUrl = `https://www.superfocus.live/app?premium=1&payment=success&plan=${planType}&session_id={CHECKOUT_SESSION_ID}`;
+  const finalCancelUrl = 'https://www.superfocus.live/pricing';
 
   // Basic validation with clear error responses
   if (!secretKey || !/^sk_(live|test)_/.test(secretKey)) {

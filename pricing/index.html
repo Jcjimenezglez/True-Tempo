@@ -2592,6 +2592,7 @@
                 <span>Superfocus</span>
             </a>
             <button class="pricing-page-header-cta" id="headerCTA">Subscribe for $1.99/month</button>
+            <a href="/app" class="pricing-page-header-cta" id="openAppHeaderLink" style="display:none;text-decoration:none;">Open app</a>
         </div>
         <a href="/" class="close-btn" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2621,30 +2622,11 @@
         <!-- Comparison Table Section -->
         <div class="comparison-table-section" id="plansComparisonSection">
             <div class="comparison-table-intro">
-                <h2 class="comparison-table-title">Guest vs Premium</h2>
-                <p class="comparison-table-description">Try without an account, or subscribe to Premium for $1.99/month for full access.</p>
+                <h2 class="comparison-table-title">Superfocus Premium</h2>
+                <p class="comparison-table-description">One plan. $1.99/month. The timer app is at /app after you subscribe.</p>
             </div>
             
             <div class="comparison-plans-wrapper">
-                <div class="comparison-plan-card starter-plan">
-                    <div class="plan-header">
-                        <h3 class="plan-label">GUEST</h3>
-                        <p class="plan-description">no account required</p>
-                        <div class="plan-pricing">
-                            <div class="free-price">
-                                <span class="price">Free to try</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="plan-features">
-                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Basic timer session</span></div>
-                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">25 min/day focus limit (1 Pomodoro)</span></div>
-                        <div class="feature-item disabled"><span class="feature-icon">✗</span><span class="feature-text">Progress saved to account</span></div>
-                        <div class="feature-item disabled"><span class="feature-icon">✗</span><span class="feature-text">Todoist integration</span></div>
-                        <div class="feature-item disabled"><span class="feature-icon">✗</span><span class="feature-text">Advanced analytics</span></div>
-                    </div>
-                </div>
-                
                 <div class="comparison-plan-card premium-plan">
                     <div class="plan-header">
                         <h3 class="plan-label">PREMIUM</h3>
@@ -2657,12 +2639,12 @@
                         </div>
                     </div>
                     <div class="plan-features">
-                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited timers</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Pomodoro timer in the browser</span></div>
                         <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited focus sessions</span></div>
-                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited tasks & projects</span></div>
-                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited cassettes & soundtracks</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Unlimited tasks</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Cassettes &amp; soundtracks</span></div>
                         <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Todoist integration</span></div>
-                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Advanced analytics</span></div>
+                        <div class="feature-item"><span class="feature-icon">✓</span><span class="feature-text">Analytics</span></div>
                     </div>
                 </div>
             </div>
@@ -3150,7 +3132,7 @@
         <div class="faq-section">
             <div class="faq-intro">
                 <h2 class="faq-title">Questions before you upgrade</h2>
-                <p class="faq-subtitle">Everything you need to choose between Free and Premium.</p>
+                <p class="faq-subtitle">Simple answers before you subscribe.</p>
             </div>
             
             <div class="faq-list">
@@ -3180,13 +3162,13 @@
                 
                 <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3" id="faq-question-3">
-                        <span>Is there a free Pomodoro timer plan?</span>
+                        <span>Do I need an account?</span>
                         <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M6 9l6 6 6-6"/>
                         </svg>
                     </button>
                     <div class="faq-answer" id="faq-answer-3" role="region" aria-labelledby="faq-question-3">
-                        <p>Yes. You can try Superfocus as a guest without an account. To save progress and unlock unlimited sessions, subscribe to Premium for $1.99/month.</p>
+                        <p>The timer app is Superfocus Premium for $1.99/month. Create an account, then pay in Stripe Checkout. Cancel anytime.</p>
                     </div>
                 </div>
                 
@@ -3264,13 +3246,13 @@
                 
                 <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-9" id="faq-question-9">
-                        <span>Is there a free version of Superfocus?</span>
+                        <span>How much does Superfocus cost?</span>
                         <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M6 9l6 6 6-6"/>
                         </svg>
                     </button>
                     <div class="faq-answer" id="faq-answer-9" role="region" aria-labelledby="faq-question-9">
-                        <p>Yes! You can try Superfocus as a guest with basic timer features. Premium unlocks unlimited custom timers, Todoist integration, advanced productivity statistics, custom themes, and detailed time tracking insights for $1.99/month.</p>
+                        <p>Superfocus is $1.99/month. There is no guest timer on the homepage. Subscribe, then open the app at /app.</p>
                     </div>
                 </div>
                 
@@ -3696,6 +3678,10 @@
             const headerCTAButton = document.getElementById('headerCTA');
             
             const isAuthenticated = window.Clerk && window.Clerk.user;
+            const openAppLink = document.getElementById('openAppHeaderLink');
+            if (openAppLink) {
+                openAppLink.style.display = isAuthenticated ? 'inline-flex' : 'none';
+            }
             const userPlanType = isAuthenticated ? getUserPlanType() : 'guest';
             const isPremium = userPlanType === 'premium' || userPlanType === 'lifetime';
             const isLifetime = userPlanType === 'lifetime';

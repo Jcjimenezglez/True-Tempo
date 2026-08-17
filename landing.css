@@ -1,0 +1,259 @@
+.lp-body {
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.lp-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(17, 17, 17, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lp-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.lp-logo img {
+  width: 28px;
+  height: 28px;
+}
+
+.lp-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lp-nav a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.lp-nav .lp-btn-primary {
+  color: #111;
+}
+
+.lp-btn-primary,
+.lp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.85rem 1.4rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.lp-btn-primary {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+}
+
+.lp-btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.lp-hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 4.5rem 1.5rem 2rem;
+  text-align: center;
+}
+
+.lp-kicker {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.75rem;
+}
+
+.lp-hero h1,
+.content-hero-title {
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+}
+
+.lp-hero p,
+.content-hero-subtitle {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 auto 1.5rem;
+  max-width: 640px;
+}
+
+.lp-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.lp-note {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.lp-shots {
+  max-width: 1080px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.lp-shot {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.lp-shot img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.lp-shot figcaption {
+  padding: 0.85rem 1rem 1rem;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.lp-section {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3.5rem;
+}
+
+.lp-section h2 {
+  font-size: 1.7rem;
+  margin: 0 0 0.8rem;
+}
+
+.lp-section p,
+.lp-section li {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.6;
+}
+
+.lp-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.lp-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.lp-footer a {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0.6rem;
+  text-decoration: none;
+}
+
+.proof-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.proof-review-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.1rem;
+}
+
+.proof-review-text {
+  margin: 0 0 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.proof-review-name {
+  font-weight: 700;
+  display: block;
+}
+
+.proof-review-role {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: 0;
+  color: #fff;
+  text-align: left;
+  padding: 1rem 0;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.faq-answer {
+  display: none;
+  padding: 0 0 1rem;
+}
+
+.faq-question[aria-expanded="true"] + .faq-answer {
+  display: block;
+}
+
+.stop-start-section {
+  text-align: center;
+  margin: 2rem 0 3rem;
+}
+
+.stop-start-pain,
+.stop-start-solution,
+.how-we-help-tagline {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+@media (max-width: 800px) {
+  .lp-shots,
+  .proof-reviews-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-nav .lp-btn-primary {
+    display: none;
+  }
+}

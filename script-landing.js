@@ -40,10 +40,10 @@
   // Prefetch app on CTA hover
   document.querySelectorAll('.content-hero-cta').forEach(function (link) {
     link.addEventListener('mouseenter', function () {
-      if (!document.querySelector('link[rel="prefetch"][href="/"]')) {
+      if (!document.querySelector('link[rel="prefetch"][href="/pricing"]')) {
         var prefetch = document.createElement('link');
         prefetch.rel = 'prefetch';
-        prefetch.href = '/';
+        prefetch.href = '/pricing';
         document.head.appendChild(prefetch);
       }
     }, { once: true });
