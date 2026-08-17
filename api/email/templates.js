@@ -48,17 +48,17 @@ function getWelcomeEmailTemplate({ firstName = 'there' }) {
               <p>Thanks for signing up. Superfocus helps you protect your focus blocks and finish meaningful work every day.</p>
 
               <div class="highlight">
-                <p><strong>Try Premium free for 7 days</strong></p>
+                <p><strong>Premium is $1.99/month</strong></p>
                 <ul>
                   <li>Unlimited timers, tasks, and cassettes</li>
                   <li>Unlimited focus time</li>
                   <li>Advanced analytics and reports</li>
-                  <li>Then $1.99/month — cancel anytime before the trial ends</li>
+                  <li>Cancel anytime</li>
                 </ul>
               </div>
               
               <div class="button-container">
-                <a href="${PRICING_URL}" class="button">Start your free trial</a>
+                <a href="${PRICING_URL}" class="button">View pricing</a>
               </div>
               
               <p>Ready to focus? <a href="${APP_URL}">Open Superfocus</a></p>
@@ -81,13 +81,13 @@ Hi ${firstName},
 
 Thanks for signing up. Superfocus helps you protect your focus blocks and get more done.
 
-Free trial (7 days):
+Premium is $1.99/month:
 - Unlimited timers, tasks, and cassettes
 - Unlimited focus time
 - Advanced analytics and reports
-- Then $1.99/month
+- Cancel anytime
 
-Start your free trial: ${PRICING_URL}
+View pricing: ${PRICING_URL}
 
 Ready to focus? ${APP_URL}
 
@@ -115,7 +115,7 @@ function getSubscriptionWelcomeEmail({ firstName = 'there' }) {
             </div>
             <div class="content">
               <p>Hi ${firstName},</p>
-              <p>You're now a Premium member. Your 7-day free trial has started.</p>
+              <p>You're now a Premium member. Thanks for subscribing.</p>
               
               <p><strong>What's unlocked:</strong></p>
               
@@ -168,7 +168,7 @@ Welcome to Premium
 
 Hi ${firstName},
 
-You're now a Premium member. Your 7-day free trial has started.
+You're now a Premium member. Thanks for subscribing.
 
 What's unlocked:
 - Unlimited Custom Timers
@@ -223,9 +223,9 @@ function getSignupFollowUp1({ firstName = 'there' }) {
               </div>
               
               <p><strong>Want unlimited timers and focus time?</strong></p>
-              <p>Try Premium free for 7 days. Create custom timers, design your own vibes, and track your progress.</p>
+              <p>Premium is $1.99/month. Create custom timers, design your own vibes, and track your progress.</p>
               
-              <p><a href="${PRICING_URL}">Start your free trial</a></p>
+              <p><a href="${PRICING_URL}">View pricing</a></p>
               
               <p>— The Superfocus Team</p>
             </div>
@@ -253,7 +253,7 @@ That's it. Repeat 4 times for a full cycle.
 
 Start your first session: ${APP_URL}
 
-Want unlimited timers and focus time? Try Premium free for 7 days: ${PRICING_URL}
+Want unlimited timers and focus time? View pricing: ${PRICING_URL}
 
 — The Superfocus Team
     `,
@@ -290,12 +290,12 @@ function getSignupFollowUp2({ firstName = 'there' }) {
                 <li><strong>Analytics</strong> — See your productivity patterns</li>
               </ul>
               
-              <p>Try it free for 7 days. If it's not for you, cancel and pay nothing.</p>
+              <p>Premium is $1.99/month. If it's not for you, cancel anytime.</p>
               
-              <p>After the trial, it's $1.99/month.</p>
+              <p>View pricing and subscribe when you are ready.</p>
               
               <div class="button-container">
-                <a href="${PRICING_URL}" class="button">Start Free Trial</a>
+                <a href="${PRICING_URL}" class="button">View pricing</a>
               </div>
               
               <p>Questions? Reply to this email.</p>
@@ -324,11 +324,9 @@ If you're running into limits, Premium removes them:
 - Custom vibes — Design your focus environment
 - Analytics — See your productivity patterns
 
-Try it free for 7 days. If it's not for you, cancel and pay nothing.
+Premium is $1.99/month. If it's not for you, cancel anytime.
 
-After the trial, it's $1.99/month.
-
-Start your free trial: ${PRICING_URL}
+View pricing: ${PRICING_URL}
 
 Questions? Reply to this email.
 

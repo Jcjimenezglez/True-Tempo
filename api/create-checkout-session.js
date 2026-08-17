@@ -106,7 +106,7 @@ module.exports = async (req, res) => {
 
   try {
     const stripe = new Stripe(secretKey, { apiVersion: STRIPE_API_VERSION });
-    let trialPeriodDays = 7;
+    let trialPeriodDays = 0;
     let referralExtendedTrialApplied = false;
 
     if (userId && process.env.CLERK_SECRET_KEY) {
@@ -131,7 +131,7 @@ module.exports = async (req, res) => {
     const mode = 'subscription';
 
     // Create checkout session config
-    // Monthly: $1.99/month with 7-day trial configured in Stripe Price
+    // Monthly: $1.99/month charged at checkout (no default trial)
     const metadata = {
       clerk_user_id: (req.headers['x-clerk-userid'] || userId || '').toString(),
       app_name: 'Superfocus',
@@ -162,11 +162,6 @@ module.exports = async (req, res) => {
           quantity: 1,
         },
       ],
-      // Force trial at Checkout session level to avoid ambiguous behavior
-      // when customers come from Link/reused identities.
-      subscription_data: {
-        trial_period_days: trialPeriodDays,
-      },
       // Pass Clerk user id and payment type in metadata
       metadata: metadata,
       // Do not prefill customer_email so Checkout does not bias users into Link OTP flow.
@@ -176,6 +171,12 @@ module.exports = async (req, res) => {
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
     };
+
+    if (trialPeriodDays > 0) {
+      sessionConfig.subscription_data = {
+        trial_period_days: trialPeriodDays,
+      };
+    }
     
     // #region agent log
     if (process.env.NODE_ENV !== 'production') {

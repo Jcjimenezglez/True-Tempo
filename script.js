@@ -843,7 +843,7 @@ class PomodoroTimer {
             return Number(metadata.referralExtendedTrialDays) || 90;
         }
 
-        return 7;
+        return 0;
     }
 
     getPremiumTrialCtaText() {
@@ -851,7 +851,7 @@ class PomodoroTimer {
         if (trialDays >= 90) {
             return 'Try 3 months for $0';
         }
-        return 'Try 7 days for $0';
+        return 'Subscribe for $1.99/month';
     }
 
     getPremiumTrialDescription() {
@@ -859,7 +859,7 @@ class PomodoroTimer {
         if (trialDays >= 90) {
             return 'Free for 3 months, then $1.99 per month after. This referral offer is applied automatically at checkout.';
         }
-        return 'Free for 7 days, then $1.99 per month after. Cancel anytime before the trial ends.';
+        return '$1.99 per month. Cancel anytime.';
     }
 
     updatePremiumTrialOfferUi() {
@@ -2176,7 +2176,7 @@ class PomodoroTimer {
                     section.prepend(notice);
                 }
             }
-            notice.textContent = 'Browse and use community cassettes below. Creating your own requires Premium — tap Create cassette to start your free trial.';
+            notice.textContent = 'Browse and use community cassettes below. Creating your own requires Premium — tap Create cassette to view pricing.';
             notice.style.display = 'block';
         } else if (notice) {
             notice.style.display = 'none';
@@ -2358,7 +2358,7 @@ class PomodoroTimer {
                     <h3>Build your perfect timer</h3>
                     <p>${guestMessage}</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">Start free trial</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="customSignupBtn">View Pricing</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="customLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -2392,14 +2392,12 @@ class PomodoroTimer {
                 signupBtn.addEventListener('click', () => {
                     this.trackEvent('Sign Up Clicked', {
                         modal_type: 'create_timer',
-                        button_text: 'Start free trial',
+                        button_text: 'View Pricing',
                         user_type: 'guest',
                         source: 'create_timer_modal'
                     });
                     closeModal();
-                    this.redirectToHostedAuth('sign-in', {
-                        redirectUrl: window.location.href
-                    });
+                    this.showPricingPlansModal();
                 });
             }
         } else {
@@ -2442,7 +2440,7 @@ class PomodoroTimer {
                 <h3>Create your focus cassette</h3>
                 <p>Create a free account to start building your own custom focus environments. Upload your own images, set the perfect atmosphere, and personalize your workspace.</p>
                 <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="cassetteLoginSignupBtn">Start free trial</button>
+                    <button class="upgrade-btn" id="cassetteLoginSignupBtn">View Pricing</button>
                     <button class="cancel-btn" id="cassetteLoginCancelBtn">Cancel</button>
                 </div>
             </div>
@@ -2519,7 +2517,7 @@ class PomodoroTimer {
                     <h3>Create your focus cassette</h3>
                     <p>Not everyone focuses the same way. Some need rain, others need silence, and you might need that specific playlist. Build your own sound environment—the one that actually helps you get into flow.</p>
                     <div class="logout-modal-buttons">
-                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">Start free trial</button>
+                        <button class="logout-modal-btn logout-modal-btn-primary" id="cassetteSignupBtn">View Pricing</button>
                         <button class="logout-modal-btn logout-modal-btn-secondary" id="cassetteLearnMoreBtn">Cancel</button>
                     </div>
                 </div>
@@ -2553,14 +2551,12 @@ class PomodoroTimer {
                 signupBtn.addEventListener('click', () => {
                     this.trackEvent('Sign Up Clicked', {
                         modal_type: 'create_cassette',
-                        button_text: 'Start free trial',
+                        button_text: 'View Pricing',
                         user_type: 'guest',
                         source: 'create_cassette_modal'
                     });
                     closeModal();
-                    this.redirectToHostedAuth('sign-in', {
-                        redirectUrl: window.location.href
-                    });
+                    this.showPricingPlansModal();
                 });
             }
         } else {
@@ -4280,7 +4276,7 @@ class PomodoroTimer {
             <div class="guest-panel-banner" style="padding: 14px 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08);">
                 <div style="color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Guest mode</div>
                 <div style="color: #a3a3a3; font-size: 12px; line-height: 1.5;">${message}</div>
-                <button type="button" class="guest-panel-banner-cta logout-modal-btn logout-modal-btn-primary" style="margin-top: 12px; width: 100%;">Start free trial</button>
+                <button type="button" class="guest-panel-banner-cta logout-modal-btn logout-modal-btn-primary" style="margin-top: 12px; width: 100%;">View Pricing</button>
             </div>
         `;
     }
@@ -4294,7 +4290,7 @@ class PomodoroTimer {
                 source: 'guest_panel_banner',
                 user_type: 'guest'
             });
-            this.redirectToHostedAuth('sign-in', { redirectUrl: window.location.href });
+            this.showPricingPlansModal();
         });
     }
 
@@ -4308,7 +4304,7 @@ class PomodoroTimer {
 
         if (isGuest) {
             html += this.renderGuestPanelBanner(
-                'This leaderboard ranks members by total focus time. Paying Premium members and legacy complimentary users appear here. Start your free trial to save progress and join the board.'
+                'This leaderboard ranks members by total focus time. Paying Premium members and legacy complimentary users appear here. View pricing to save progress and join the board.'
             );
         }
 
@@ -4679,7 +4675,7 @@ class PomodoroTimer {
             <h3 class="logout-modal-title">${techniqueName}</h3>
             <p class="logout-modal-message">Sign up to unlock advanced focus techniques and boost your productivity!</p>
             <div class="logout-modal-buttons">
-                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">Start free trial</button>
+                <button class="logout-modal-btn logout-modal-btn-primary" id="techniqueSignupBtn">View Pricing</button>
                 <button class="logout-modal-btn logout-modal-btn-secondary" id="techniqueLearnMoreBtn">Cancel</button>
             </div>
         `;
@@ -4712,10 +4708,8 @@ class PomodoroTimer {
                 user_type: this.isAuthenticated ? 'free_user' : 'guest',
                 conversion_funnel: 'technique_interest'
             });
-            closeModal();
-            this.redirectToHostedAuth('sign-in', {
-                redirectUrl: window.location.href
-            });
+                    closeModal();
+                    this.showPricingPlansModal();
         });
         
         learnMoreBtn.addEventListener('click', () => {
@@ -4730,7 +4724,7 @@ class PomodoroTimer {
             if (this.guestTaskLimitModalOverlay) {
                 const button = this.guestTaskLimitModalOverlay.querySelector('#guestTaskLimitSignupBtn');
                 if (button) {
-                    button.textContent = 'Start free trial';
+                    button.textContent = 'View Pricing';
                 }
                 this.guestTaskLimitModalOverlay.style.display = 'flex';
             }
@@ -4769,7 +4763,7 @@ class PomodoroTimer {
         await this.proceedToCheckout();
     }
 
-    showSubscriptionRequiredModal({ source = 'paywall', location = 'app', title = 'Start your free trial', message = 'Superfocus Premium includes unlimited focus sessions, timers, tasks, and analytics. Try it free for 7 days.' } = {}) {
+    showSubscriptionRequiredModal({ source = 'paywall', location = 'app', title = 'Subscribe to Premium', message = 'Superfocus Premium includes unlimited focus sessions, timers, tasks, and analytics for $1.99/month.' } = {}) {
         if (!this.needsSubscriptionPaywall()) {
             return;
         }
@@ -4847,8 +4841,8 @@ class PomodoroTimer {
         this.showSubscriptionRequiredModal({
             source: options.source || 'upgrade_gate',
             location: options.location || 'unknown',
-            title: options.title || 'Start your free trial',
-            message: options.message || 'Unlock everything with a 7-day Premium trial.'
+            title: options.title || 'Subscribe to Premium',
+            message: options.message || 'Unlock everything with Premium for $1.99/month.'
         });
     }
     
@@ -4898,7 +4892,7 @@ class PomodoroTimer {
             }
         }
         if (this.dailyLimitSubscribeBtn) {
-            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Upgrade Now' : 'Start free trial';
+            this.dailyLimitSubscribeBtn.textContent = this.isAuthenticated ? 'Upgrade Now' : 'View Pricing';
         }
         
         // Title is now static in HTML: "You've maxed out today's focus!"
@@ -5459,17 +5453,16 @@ class PomodoroTimer {
 
     async handleSignup() {
         try {
-            console.log('Redirecting to Clerk hosted Sign Up...');
-            
-            // 🎯 Track Signup Attempt event to Mixpanel
+            console.log('Opening pricing so the user can choose to subscribe...');
+
             if (window.mixpanelTracker) {
                 window.mixpanelTracker.trackCustomEvent('Signup Attempt', {
-                    method: 'clerk_redirect'
+                    method: 'view_pricing'
                 });
                 console.log('📊 Signup attempt event tracked to Mixpanel');
             }
 
-            await this.redirectToHostedAuth('sign-up');
+            this.showPricingPlansModal();
         } catch (error) {
             console.error('Sign up failed:', error);
         }
@@ -6414,7 +6407,7 @@ class PomodoroTimer {
 
                     // If user is not logged in, show login prompt
                     if (!userId && !userEmail) {
-                        alert('Please log in first to upgrade to Pro. Click "Start free trial" or "Login" to continue.');
+                        alert('Please log in first to upgrade to Pro. Click "View Pricing" or "Login" to continue.');
                         return;
                     }
 
@@ -9816,7 +9809,7 @@ class PomodoroTimer {
                 </div>
                 </div>
                 <div class="upgrade-required-buttons">
-                    <button class="upgrade-btn" id="lofiSignupBtn">Start free trial</button>
+                    <button class="upgrade-btn" id="lofiSignupBtn">View Pricing</button>
                     <button class="cancel-btn" id="lofiMaybeLaterBtn">Maybe later</button>
                 </div>
             </div>
@@ -9834,9 +9827,7 @@ class PomodoroTimer {
         const signupBtn = modal.querySelector('#lofiSignupBtn');
         signupBtn.addEventListener('click', () => {
             document.body.removeChild(modalOverlay);
-            this.redirectToHostedAuth('sign-in', {
-                redirectUrl: window.location.href
-            });
+            this.showPricingPlansModal();
         });
         
         const cancelBtn = modal.querySelector('#lofiMaybeLaterBtn');
@@ -11875,7 +11866,7 @@ class PomodoroTimer {
         let upgradeMessage, buttonText;
         if (isGuest) {
             upgradeMessage = '';
-            buttonText = 'Start free trial';
+            buttonText = 'View Pricing';
         } else if (isFree) {
             upgradeMessage = '';
             buttonText = 'Upgrade Now';
@@ -11959,7 +11950,7 @@ class PomodoroTimer {
                 integration_type: integrationType
             };
             if (isSignupIntent) {
-                // Start free trial → Mixpanel only (no Google Ads)
+                // View Pricing → Mixpanel only (no Google Ads)
                 this.trackEvent('Sign Up Clicked', eventProperties);
             } else {
                 // Upgrade Now → Subscribe Clicked → Mixpanel + Google Ads
@@ -22106,7 +22097,7 @@ class PomodoroTimer {
             // Check if user is authenticated for Tron theme
             if (!this.isAuthenticated) {
                 console.log('🎨 Tron theme requires authentication');
-                alert('Tron theme requires an account. Start free trial to unlock all immersive themes!');
+                alert('Tron theme requires an account. View Pricing to unlock all immersive themes!');
                 // Revert to default theme
                 this.applyTheme('lofi');
                 return;
