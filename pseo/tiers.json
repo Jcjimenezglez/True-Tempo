@@ -5,7 +5,7 @@
   "pages": {
     "techniques/pomodoro-technique": "A",
     "techniques/flowtime-timer": "B",
-    "techniques/time-blocking-timer": "B",
+    "techniques/time-blocking-timer": "A",
     "techniques/deep-work-timer": "A",
     "techniques/sprint-timer": "B",
     "techniques/marathon-timer": "B",
@@ -14,9 +14,9 @@
     "use-cases/study-timer": "A",
     "use-cases/focus-timer": "A",
     "use-cases/focus-website-for-studying": "A",
-    "use-cases/work-timer": "B",
+    "use-cases/work-timer": "A",
     "use-cases/coding-focus-timer": "B",
-    "use-cases/writing-timer": "B",
+    "use-cases/writing-timer": "A",
     "use-cases/exam-prep-timer": "B",
     "use-cases/adhd-focus-timer": "B",
     "use-cases/student-productivity": "B",
@@ -24,11 +24,11 @@
     "use-cases/remote-work-focus": "B",
     "use-cases/deep-work-app": "B",
     "use-cases/meeting-prep-timer": "B",
-    "sounds/focus-music": "B",
-    "sounds/lofi-study-music": "B",
+    "sounds/focus-music": "A",
+    "sounds/lofi-study-music": "A",
     "sounds/rain-sounds-focus": "B",
     "sounds/cafe-ambient-sounds": "B",
-    "sounds/white-noise-focus": "B",
+    "sounds/white-noise-focus": "A",
     "workflows/todoist-pomodoro": "B",
     "workflows/task-planning-workflow": "B",
     "analytics/productivity-analytics": "B",
@@ -38,7 +38,7 @@
     "compare/superfocus-vs-forest": "B",
     "compare/superfocus-vs-flocus": "B",
     "compare/superfocus-vs-focusmate": "B",
-    "compare/pomodoro-timer-apps": "B",
+    "compare/pomodoro-timer-apps": "A",
     "alternatives/pomofocus": "A",
     "alternatives/forest-app": "B",
     "alternatives/best-pomodoro-apps": "A",
@@ -105,6 +105,7 @@
     "use-cases/study-timer-for-online-courses": "C",
     "use-cases/study-timer-for-group-study": "C",
     "use-cases/study-timer-for-math": "C",
-    "use-cases/study-timer-for-med-school": "C"
+    "use-cases/study-timer-for-med-school": "C",
+    "faq/how-to-focus": "A"
   }
 }

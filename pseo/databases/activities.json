@@ -5,8 +5,8 @@
       "slug": "focus-timer-for-email",
       "category": "activities",
       "keyword": "focus timer for email",
-      "title": "Focus Timer For Email — Free Online Timer | Superfocus",
-      "description": "Batch email in 15-min Sprint blocks. Reduce reactivity. Free Pomodoro timer.",
+      "title": "Focus Timer for Email — Pomodoro Timer | Superfocus",
+      "description": "Batch email in 15-min Sprint blocks. Reduce reactivity. Pomodoro timer. Superfocus Premium is $1.99/month.",
       "h1": "Focus timer for email",
       "preset": "Sprint (15/3/10) or Pomodoro",
       "related": [
@@ -24,14 +24,22 @@
         "<p>Use a dedicated <strong>focus timer for email</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for email, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for email",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer-for-research",
       "category": "activities",
       "keyword": "focus timer for research",
-      "title": "Focus Timer For Research — Free Online Timer | Superfocus",
-      "description": "Time-box research dives. Pomodoro for reading, breaks for synthesis. Try Superfocus free.",
+      "title": "Focus Timer for Research — Pomodoro Timer | Superfocus",
+      "description": "Time-box research dives. Pomodoro for reading, breaks for synthesis. Subscribe.",
       "h1": "Focus timer for research",
       "preset": "Pomodoro or Flow",
       "related": [
@@ -49,14 +57,22 @@
         "<p>Use a dedicated <strong>focus timer for research</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for research, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for research",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer-for-content-creation",
       "category": "activities",
       "keyword": "focus timer for content creation",
-      "title": "Focus Timer For Content Creation — Free Online Timer | Superfocus",
-      "description": "Pomodoro for drafting, Marathon for long writes. Rain sounds included. Free.",
+      "title": "Focus Timer for Content Creation — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro for drafting, Marathon for long writes. Rain sounds included. Superfocus Premium is $1.99/month.",
       "h1": "Focus timer for content creation",
       "preset": "Pomodoro or Marathon",
       "related": [
@@ -74,14 +90,22 @@
         "<p>Use a dedicated <strong>focus timer for content creation</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for content creation, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for content creation",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer-for-brainstorming",
       "category": "activities",
       "keyword": "focus timer for brainstorming",
-      "title": "Focus Timer For Brainstorming — Free Online Timer | Superfocus",
-      "description": "15-min Sprint for idea bursts. Generate, then decide. Free focus timer.",
+      "title": "Focus Timer for Brainstorming — Pomodoro Timer | Superfocus",
+      "description": "15-min Sprint for idea bursts. Generate, then decide. Free focus timer. Superfocus Premium is $1.99/month.",
       "h1": "Focus timer for brainstorming",
       "preset": "Sprint (15/3/10)",
       "related": [
@@ -99,14 +123,22 @@
         "<p>Use a dedicated <strong>focus timer for brainstorming</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for brainstorming, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for brainstorming",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer-for-admin-tasks",
       "category": "activities",
       "keyword": "focus timer for admin tasks",
-      "title": "Focus Timer For Admin Tasks — Free Online Timer | Superfocus",
-      "description": "Sprint blocks for filing, data entry, updates. Batch admin, free time for deep work. Free.",
+      "title": "Focus Timer for Admin Tasks — Pomodoro Timer | Superfocus",
+      "description": "Sprint blocks for filing, data entry, updates. Batch admin, free time for deep work. Superfocus Premium is $1.99/month.",
       "h1": "Focus timer for admin tasks",
       "preset": "Sprint or Pomodoro",
       "related": [
@@ -124,14 +156,22 @@
         "<p>Use a dedicated <strong>focus timer for admin tasks</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for admin tasks, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for admin tasks",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer-for-reviews",
       "category": "activities",
       "keyword": "focus timer for reviews",
-      "title": "Focus Timer For Reviews — Free Online Timer | Superfocus",
-      "description": "25-min Pomodoro per review batch. Full attention, fewer misses. Free.",
+      "title": "Focus Timer for Reviews — Pomodoro Timer | Superfocus",
+      "description": "25-min Pomodoro per review batch. Full attention, fewer misses. Superfocus Premium is $1.99/month.",
       "h1": "Focus timer for reviews",
       "preset": "Pomodoro (25/5/15)",
       "related": [
@@ -149,14 +189,22 @@
         "<p>Use a dedicated <strong>focus timer for reviews</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for reviews, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for reviews",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer-for-planning",
       "category": "activities",
       "keyword": "focus timer for planning",
-      "title": "Focus Timer For Planning — Free Online Timer | Superfocus",
-      "description": "Sprint or Pomodoro for weekly review and daily planning. Block it before the week blocks you. Free.",
+      "title": "Focus Timer for Planning — Pomodoro Timer | Superfocus",
+      "description": "Sprint or Pomodoro for weekly review and daily planning. Block it before the week blocks you. Superfocus Premium is $1.99/month.",
       "h1": "Focus timer for planning",
       "preset": "Sprint or Pomodoro",
       "related": [
@@ -174,7 +222,15 @@
         "<p>Use a dedicated <strong>focus timer for planning</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus timer for planning, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus timer for planning",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     }
   ]
 }

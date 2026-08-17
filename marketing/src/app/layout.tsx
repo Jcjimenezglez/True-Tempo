@@ -18,9 +18,13 @@ export const metadata: Metadata = {
   keywords: [
     "pomodoro timer",
     "pomodoro technique",
+    "pomodoro method",
     "pomodoro timer online",
+    "tomato timer",
     "study timer",
     "focus timer",
+    "focus music",
+    "how to focus",
   ],
   openGraph: {
     title: "Pomodoro Timer Online — Superfocus",

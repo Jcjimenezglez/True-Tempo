@@ -3,6 +3,15 @@ import FeatureBlock from "@/components/FeatureBlock";
 import QuoteGrid from "@/components/QuoteGrid";
 import SubscribeButton from "@/components/SubscribeButton";
 import { productFeatures } from "@/lib/social-proof";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pricing — Pomodoro Timer $1.99/month | Superfocus",
+  description:
+    "Superfocus Premium is $1.99/month: pomodoro timer, tasks, and focus music in one tab. Cancel anytime.",
+  keywords: ["pomodoro timer", "pomodoro app", "focus timer"],
+  alternates: { canonical: "https://www.superfocus.live/pricing" },
+};
 
 export default function PricingPage() {
   return (

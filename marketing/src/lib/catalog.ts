@@ -16,6 +16,7 @@ export type PseoPage = {
   painPoints?: string;
   painSolution?: string;
   keywords?: string;
+  extraKeywords?: string[];
   tier?: string;
   longFormBlocks?: string[];
   answer?: string;

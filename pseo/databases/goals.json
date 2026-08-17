@@ -4,10 +4,10 @@
     {
       "slug": "enter-flow-state",
       "category": "goals",
-      "keyword": "enter flow state",
-      "title": "Enter Flow State — Free Online Timer | Superfocus",
-      "description": "Flow needs 45-90 min blocks and fewer interruptions. Flow + Deep Work presets with ambient sound. Try free.",
-      "h1": "Enter flow state",
+      "keyword": "how to enter flow state",
+      "title": "Enter Flow State — 45–90 Minute Timer | Superfocus",
+      "description": "Flow needs a protected block. Use Flow or Deep Work presets with optional focus music. Superfocus Premium is $1.99/month.",
+      "h1": "How to Enter Flow State",
       "preset": "Flow (45/8/25) or Deep Work (90/20/30)",
       "related": [
         "/faq/how-to-enter-flow-state",
@@ -24,14 +24,21 @@
         "<p>Use a dedicated <strong>enter flow state</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "how to enter flow state, flowtime, deep work timer",
+      "extraKeywords": [
+        "how to enter flow state",
+        "flowtime"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "reduce-distractions",
       "category": "goals",
       "keyword": "reduce distractions",
-      "title": "Reduce Distractions — Free Online Timer | Superfocus",
-      "description": "Structure beats willpower. Timer + lofi/rain blocks noise and the scroll loop. Free to try.",
+      "title": "Reduce Distractions — Pomodoro Timer | Superfocus",
+      "description": "Structure beats willpower. Timer + lofi/rain blocks noise and the scroll loop. Superfocus Premium is $1.99/month.",
       "h1": "Reduce distractions",
       "preset": "Pomodoro + Cassettes (lofi, rain, cafe)",
       "related": [
@@ -49,14 +56,22 @@
         "<p>Use a dedicated <strong>reduce distractions</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "reduce distractions, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "reduce distractions",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "build-focus-habits",
       "category": "goals",
       "keyword": "build focus habits",
-      "title": "Build Focus Habits — Free Online Timer | Superfocus",
-      "description": "Streaks and session history make progress visible. Pomodoro + analytics. Build habits from data. Free.",
+      "title": "Build Focus Habits — Pomodoro Timer | Superfocus",
+      "description": "Streaks and session history make progress visible. Pomodoro + analytics. Build habits from data. Superfocus Premium is $1.99/month.",
       "h1": "Build focus habits",
       "preset": "Pomodoro + Analytics",
       "related": [
@@ -74,14 +89,22 @@
         "<p>Use a dedicated <strong>build focus habits</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "build focus habits, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "build focus habits",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "avoid-burnout",
       "category": "goals",
       "keyword": "avoid burnout",
-      "title": "Avoid Burnout — Free Online Timer | Superfocus",
-      "description": "Pomodoro forces recovery before you need it. 25 on, 5 off. Sustainable focus. Try Superfocus free.",
+      "title": "Avoid Burnout — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro forces recovery before you need it. 25 on, 5 off. Sustainable focus. Subscribe.",
       "h1": "Avoid burnout",
       "preset": "Pomodoro or Flow (built-in breaks)",
       "related": [
@@ -99,14 +122,22 @@
         "<p>Use a dedicated <strong>avoid burnout</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "avoid burnout, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "avoid burnout",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "increase-productivity",
       "category": "goals",
       "keyword": "increase productivity",
-      "title": "Increase Productivity — Free Online Timer | Superfocus",
-      "description": "Block time, track focus sessions, see patterns. Know the difference between busy and productive. Free.",
+      "title": "Increase Productivity — Pomodoro Timer | Superfocus",
+      "description": "Block time, track focus sessions, see patterns. Know the difference between busy and productive. Superfocus Premium is $1.99/month.",
       "h1": "Increase productivity",
       "preset": "Pomodoro or Flow + Analytics",
       "related": [
@@ -124,14 +155,22 @@
         "<p>Use a dedicated <strong>increase productivity</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "increase productivity, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "increase productivity",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "stay-focused-longer",
       "category": "goals",
       "keyword": "stay focused longer",
-      "title": "Stay Focused Longer — Free Online Timer | Superfocus",
-      "description": "Build focus stamina with 45-min Flow or 90-min Deep Work. Gradual extension. Try Superfocus free.",
+      "title": "Stay Focused Longer — Pomodoro Timer | Superfocus",
+      "description": "Build focus stamina with 45-min Flow or 90-min Deep Work. Gradual extension. Subscribe.",
       "h1": "Stay focused longer",
       "preset": "Flow (45 min) or Deep Work (90 min)",
       "related": [
@@ -149,14 +188,22 @@
         "<p>Use a dedicated <strong>stay focused longer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "stay focused longer, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "stay focused longer",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "block-distractions",
       "category": "goals",
       "keyword": "block distractions",
-      "title": "Block Distractions — Free Online Timer | Superfocus",
-      "description": "White noise, lofi, rain—plus a timer that says work now. Block the world for one block. Free.",
+      "title": "Block Distractions — Pomodoro Timer | Superfocus",
+      "description": "White noise, lofi, rain—plus a timer that says work now. Block the world for one block. Superfocus Premium is $1.99/month.",
       "h1": "Block distractions",
       "preset": "Any preset + Cassettes",
       "related": [
@@ -174,14 +221,22 @@
         "<p>Use a dedicated <strong>block distractions</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "block distractions, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "block distractions",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-without-phone",
       "category": "goals",
       "keyword": "focus without phone",
-      "title": "Focus Without Phone — Free Online Timer | Superfocus",
-      "description": "Superfocus runs in your browser where work happens. No app to open, no notifications to swipe. Try free.",
+      "title": "Focus Without Phone — Pomodoro Timer | Superfocus",
+      "description": "Superfocus runs in your browser where work happens. No app to open, no notifications to swipe. Subscribe at $1.99/month.",
       "h1": "Focus without phone",
       "preset": "Pomodoro or any preset",
       "related": [
@@ -199,7 +254,15 @@
         "<p>Use a dedicated <strong>focus without phone</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "focus without phone, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus without phone",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     }
   ]
 }

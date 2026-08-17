@@ -5,8 +5,8 @@
       "slug": "superfocus-vs-brain-fm",
       "category": "compare",
       "keyword": "Superfocus vs Brain.fm",
-      "title": "Superfocus vs Brain.fm (2026) — Timer + Music Compared",
-      "description": "Timer + lofi/rain/cafe in one app. Compare vs Brain.fm. Try Superfocus free.",
+      "title": "Superfocus vs Brain.fm — Pomodoro Timer | Superfocus",
+      "description": "Timer + lofi/rain/cafe in one app. Compare vs Brain.fm. Subscribe.",
       "h1": "Superfocus vs Brain.fm",
       "competitor": "Brain.fm",
       "competitorUrl": "https://www.brain.fm",
@@ -26,14 +26,22 @@
       "heroSubtitle": "Two subscriptions, two apps, two tabs—focus shouldn't require a tech stack.",
       "painPoints": "Music app. Timer app.<br>Double cost. Double friction.<br>Focus fragmented.",
       "painSolution": "Sounds + timer together.<br>One app. One tab.<br>Start faster.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs brain.fm, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs brain.fm",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-be-focused",
       "category": "compare",
       "keyword": "Superfocus vs Be Focused",
-      "title": "Superfocus vs Be Focused (2026) — Pomodoro Compared",
-      "description": "Full Pomodoro in browser + sounds + analytics. No App Store needed. Compare free.",
+      "title": "Superfocus vs Be Focused — Pomodoro Timer | Superfocus",
+      "description": "Full Pomodoro in browser + sounds + analytics. No App Store needed. Compare free. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs Be Focused",
       "competitor": "Be Focused",
       "competitorUrl": "https://xwavesoft.com/be-focused",
@@ -53,14 +61,22 @@
       "heroSubtitle": "iOS-only timers don't help when the document you need to write is on desktop.",
       "painPoints": "Phone timer. Desktop work.<br>Platform mismatch.<br>Focus in wrong place.",
       "painSolution": "Browser timer.<br>Where work happens.<br>No install needed.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs be focused, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs be focused",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-marinara",
       "category": "compare",
       "keyword": "Superfocus vs Marinara Timer",
-      "title": "Superfocus vs Marinara Timer (2026) | Superfocus",
-      "description": "Beyond Chrome extension: sounds, Todoist, analytics. Compare Marinara vs Superfocus. Free.",
+      "title": "Superfocus vs Marinara Timer — Pomodoro Timer | Superfocus",
+      "description": "Beyond Chrome extension: sounds, Todoist, analytics. Compare Marinara vs Superfocus. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs Marinara Timer",
       "competitor": "Marinara Timer",
       "competitorUrl": "https://chromewebstore.google.com/detail/marinara-pomodoro-assistant/ggnjbdfgigejghbclmfgcbfkfgbjmhnf",
@@ -80,14 +96,22 @@
       "heroSubtitle": "A browser extension timer is fine until you need sounds, tasks, and analytics too.",
       "painPoints": "Extension only. No sounds.<br>No tasks. No stats.<br>Outgrown it.",
       "painSolution": "Full web app.<br>Timer + everything else.<br>Same browser. More power.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs marinara timer, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs marinara timer",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-focus-keeper",
       "category": "compare",
       "keyword": "Superfocus vs Focus Keeper",
-      "title": "Superfocus vs Focus Keeper (2026) | Superfocus",
-      "description": "Browser Pomodoro with sounds and analytics. Desktop-first focus. Compare free.",
+      "title": "Superfocus vs Focus Keeper — Pomodoro Timer | Superfocus",
+      "description": "Browser Pomodoro with sounds and analytics. Desktop-first focus. Compare free. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs Focus Keeper",
       "competitor": "Focus Keeper",
       "competitorUrl": "https://www.focuskeeper.co",
@@ -107,14 +131,22 @@
       "heroSubtitle": "Mobile-first focus tools miss where knowledge work actually happens.",
       "painPoints": "Phone app. Desktop work.<br>Stats on wrong device.<br>Disconnect.",
       "painSolution": "Focus where you type.<br>Browser-based. Full features.<br>One place for everything.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs focus keeper, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs focus keeper",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-ticktick",
       "category": "compare",
       "keyword": "Superfocus vs TickTick Pomodoro",
-      "title": "Superfocus vs TickTick Pomodoro (2026) | Superfocus",
-      "description": "Focus-first timer with Todoist sync. Sounds, analytics, deep work presets. Compare free.",
+      "title": "Superfocus vs TickTick Pomodoro — Pomodoro Timer | Superfocus",
+      "description": "Focus-first timer with Todoist sync. Sounds, analytics, deep work presets. Compare free. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs TickTick",
       "competitor": "TickTick",
       "competitorUrl": "https://ticktick.com",
@@ -134,14 +166,22 @@
       "heroSubtitle": "Task managers with bolt-on timers treat focus as an afterthought.",
       "painPoints": "Tasks everywhere. Focus nowhere.<br>Timer is secondary.<br>Features buried.",
       "painSolution": "Focus-first design.<br>Tasks sync from Todoist.<br>Timer is the point.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs ticktick pomodoro, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs ticktick pomodoro",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-clockify",
       "category": "compare",
       "keyword": "Superfocus vs Clockify Pomodoro",
-      "title": "Superfocus vs Clockify (2026) — Focus vs Time Tracking",
-      "description": "Focus timer with analytics vs pure time tracker. Different tools, different jobs. Compare free.",
+      "title": "Superfocus vs Clockify Pomodoro — Pomodoro Timer | Superfocus",
+      "description": "Focus timer with analytics vs pure time tracker. Different tools, different jobs. Compare free. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs Clockify",
       "competitor": "Clockify",
       "competitorUrl": "https://clockify.me",
@@ -161,14 +201,22 @@
       "heroSubtitle": "Knowing you wasted four hours doesn't prevent wasting the next four. You need structure, not just tracking.",
       "painPoints": "Track wasted time.<br>Still waste it.<br>Data without change.",
       "painSolution": "Timer creates focus.<br>Then tracks it.<br>Structure before stats.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs clockify pomodoro, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs clockify pomodoro",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-noisli",
       "category": "compare",
       "keyword": "Superfocus vs Noisli",
-      "title": "Superfocus vs Noisli (2026) — Sounds + Timer Compared",
-      "description": "Rain, lofi, cafe plus Pomodoro timer. One app instead of two. Compare free.",
+      "title": "Superfocus vs Noisli — Pomodoro Timer | Superfocus",
+      "description": "Rain, lofi, cafe plus Pomodoro timer. One app instead of two. Compare free. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs Noisli",
       "competitor": "Noisli",
       "competitorUrl": "https://www.noisli.com",
@@ -188,14 +236,22 @@
       "heroSubtitle": "Ambient sound without time structure is vibes, not productivity.",
       "painPoints": "Sounds on. No structure.<br>Still drift for hours.<br>Atmosphere without action.",
       "painSolution": "Sounds + timer together.<br>25 min enforced.<br>Vibes become output.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs noisli, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs noisli",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "brain-fm-alternative",
       "category": "alternatives",
       "keyword": "Brain.fm alternative",
-      "title": "Brain.fm Alternative — Timer + Focus Music | Superfocus",
-      "description": "Lofi, rain, cafe cassettes plus Pomodoro timer. One app. Free to try.",
+      "title": "Brain.fm Alternative — Pomodoro Timer | Superfocus",
+      "description": "Lofi, rain, cafe cassettes plus Pomodoro timer. One app. Superfocus Premium is $1.99/month.",
       "h1": "Brain.fm Alternative",
       "related": [
         "/compare/superfocus-vs-brain-fm",
@@ -206,14 +262,22 @@
       "heroSubtitle": "Brain.fm solves half the problem. The other half is starting and stopping on schedule.",
       "painPoints": "Subscription for music.<br>Another app for timer.<br>Double pay. Double setup.",
       "painSolution": "Music included. Timer included.<br>One free tier.<br>Start now.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "brain.fm alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "brain.fm alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "be-focused-alternative",
       "category": "alternatives",
       "keyword": "Be Focused alternative",
-      "title": "Be Focused Alternative — Free Pomodoro Timer | Superfocus",
-      "description": "Pomodoro in browser. Windows, Mac, Linux. Sounds + analytics included. Free.",
+      "title": "Be Focused Alternative — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro in browser. Windows, Mac, Linux. Sounds + analytics included. Superfocus Premium is $1.99/month.",
       "h1": "Be Focused Alternative",
       "related": [
         "/compare/superfocus-vs-be-focused",
@@ -224,14 +288,22 @@
       "heroSubtitle": "Platform-specific timers trap your workflow. Browser apps work everywhere.",
       "painPoints": "iOS only. Or Mac only.<br>Switch devices = lose tool.<br>Platform lock-in.",
       "painSolution": "Any browser. Any OS.<br>Same timer everywhere.<br>Focus follows you.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "be focused alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "be focused alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "marinara-alternative",
       "category": "alternatives",
       "keyword": "Marinara Timer alternative",
-      "title": "Marinara Timer Alternative — Free Online Pomodoro | Superfocus",
-      "description": "Beyond extension: lofi, Todoist sync, analytics. Full focus app in browser. Free.",
+      "title": "Marinara Timer Alternative — Pomodoro Timer | Superfocus",
+      "description": "Beyond extension: lofi, Todoist sync, analytics. Full focus app in browser. Superfocus Premium is $1.99/month.",
       "h1": "Marinara Timer Alternative",
       "related": [
         "/compare/superfocus-vs-marinara",
@@ -242,14 +314,22 @@
       "heroSubtitle": "Extensions break, update poorly, and lack the features real focus work demands.",
       "painPoints": "Extension limits.<br>No sounds. No sync.<br>Ceiling hit.",
       "painSolution": "Full web app.<br>Same browser. Way more.<br>Room to grow.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "marinara timer alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "marinara timer alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-keeper-alternative",
       "category": "alternatives",
       "keyword": "Focus Keeper alternative",
-      "title": "Focus Keeper Alternative — Browser Pomodoro | Superfocus",
-      "description": "Browser Pomodoro with lofi, rain, task sync. Beyond tomato counting. Free.",
+      "title": "Focus Keeper Alternative — Pomodoro Timer | Superfocus",
+      "description": "Browser Pomodoro with lofi, rain, task sync. Beyond tomato counting. Superfocus Premium is $1.99/month.",
       "h1": "Focus Keeper Alternative",
       "related": [
         "/compare/superfocus-vs-focus-keeper",
@@ -260,14 +340,22 @@
       "heroSubtitle": "Gamified counters motivate briefly. Structure and sounds sustain focus daily.",
       "painPoints": "Tomato count rises.<br>Output flat.<br>Gamification without results.",
       "painSolution": "Timer + sounds + tasks.<br>Track real output.<br>Focus that ships.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "focus keeper alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus keeper alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "ticktick-pomodoro-alternative",
       "category": "alternatives",
       "keyword": "TickTick Pomodoro alternative",
-      "title": "TickTick Pomodoro Alternative — Free Timer | Superfocus",
-      "description": "Focus-first timer that syncs Todoist. Sounds and analytics built in. Free.",
+      "title": "TickTick Pomodoro Alternative — Pomodoro Timer | Superfocus",
+      "description": "Focus-first timer that syncs Todoist. Sounds and analytics built in. Superfocus Premium is $1.99/month.",
       "h1": "TickTick Pomodoro Alternative",
       "related": [
         "/compare/superfocus-vs-ticktick",
@@ -278,14 +366,22 @@
       "heroSubtitle": "When the timer is buried in settings, you never use it. Focus tools should lead, not follow.",
       "painPoints": "Timer hidden in task app.<br>Never find it.<br>Never use it.",
       "painSolution": "Timer is the homepage.<br>Tasks sync in.<br>Focus first.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "ticktick pomodoro alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "ticktick pomodoro alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "flocus-alternative",
       "category": "alternatives",
       "keyword": "Flocus alternative",
-      "title": "Flocus Alternative — Free Study Focus Timer | Superfocus",
-      "description": "Pomodoro + sounds + tasks without the dashboard rabbit hole. Free Flocus alternative.",
+      "title": "Flocus Alternative — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro + sounds + tasks without the dashboard rabbit hole. Free Flocus alternative. Superfocus Premium is $1.99/month.",
       "h1": "Flocus Alternative",
       "related": [
         "/compare/superfocus-vs-flocus",
@@ -296,14 +392,22 @@
       "heroSubtitle": "Beautiful dashboards become procrastination when setup replaces doing.",
       "painPoints": "Theme tweaking. Widget arranging.<br>Zero focus sessions.<br>Aesthetic procrastination.",
       "painSolution": "Open app. Start timer.<br>No setup required.<br>Sessions over aesthetics.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "flocus alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "flocus alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focusmate-alternative",
       "category": "alternatives",
       "keyword": "Focusmate alternative",
-      "title": "Focusmate Alternative — Solo Focus Timer | Superfocus",
-      "description": "Solo focus timer with ambient sounds. No scheduling, no video. Just work. Free.",
+      "title": "Focusmate Alternative — Pomodoro Timer | Superfocus",
+      "description": "Solo focus timer with ambient sounds. No scheduling, no video. Just work. Superfocus Premium is $1.99/month.",
       "h1": "Focusmate Alternative",
       "related": [
         "/compare/superfocus-vs-focusmate",
@@ -314,14 +418,22 @@
       "heroSubtitle": "Accountability partners help some people. Others just need a timer and fewer obstacles.",
       "painPoints": "Schedule partner. Small talk.<br>Perform focus for camera.<br>Still avoid hard work.",
       "painSolution": "Solo timer. Sounds on.<br>Start in 10 seconds.<br>No coordination needed.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "focusmate alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focusmate alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "noisli-alternative",
       "category": "alternatives",
       "keyword": "Noisli alternative",
-      "title": "Noisli Alternative — Ambient Sounds + Timer | Superfocus",
-      "description": "White noise, rain, lofi plus focus timer. Structure your sessions. Free.",
+      "title": "Noisli Alternative — Pomodoro Timer | Superfocus",
+      "description": "White noise, rain, lofi plus focus timer. Structure your sessions. Superfocus Premium is $1.99/month.",
       "h1": "Noisli Alternative",
       "related": [
         "/compare/superfocus-vs-noisli",
@@ -332,14 +444,22 @@
       "heroSubtitle": "Ambience sets mood. Timers create output. You need both.",
       "painPoints": "Beautiful sounds. Zero structure.<br>Vibe without output.<br>Two hours gone.",
       "painSolution": "Sounds + 25-min timer.<br>Mood and structure.<br>Output follows.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "noisli alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "noisli alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "hustly-focus",
       "category": "alternatives",
       "keyword": "hustly focus alternative",
-      "title": "Hustly Focus Alternative — Free Pomodoro + Lofi Timer | Superfocus",
-      "description": "Looking for a Hustly Focus alternative? Pomodoro timer with lofi, rain, Todoist sync, and focus analytics. Free in your browser.",
+      "title": "Hustly Focus Alternative — Pomodoro Timer | Superfocus",
+      "description": "Looking for a Hustly Focus alternative? Pomodoro timer with lofi, rain, Todoist sync, and focus analytics. Free in your browser. Superfocus Premium is $1.9…",
       "h1": "Hustly Focus Alternative",
       "competitor": "Hustly Focus",
       "competitorUrl": "https://hustly.app",
@@ -355,7 +475,14 @@
       "painPoints": "Basic timer. No study sounds.<br>No way to track streaks.<br>Still drifting mid-session.",
       "painSolution": "Timer + lofi + tasks together.<br>Track study blocks and streaks.<br>More than a countdown.",
       "tier": "A",
-      "keywords": "hustly focus, hustly focus timer, hustly focus app, hustly focus alternative"
+      "keywords": "hustly focus alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "hustly focus alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     }
   ]
 }

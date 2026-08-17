@@ -23,7 +23,7 @@ export async function generateMetadata({
   return {
     title: page.title,
     description: page.description,
-    keywords: page.keywords || page.keyword,
+    keywords: page.extraKeywords || page.keywords || page.keyword,
     robots: page.tier === "C" ? { index: false, follow: true } : { index: true, follow: true },
     alternates: { canonical: url },
     openGraph: {

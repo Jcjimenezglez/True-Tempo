@@ -3,10 +3,10 @@
     {
       "slug": "pomodoro-technique",
       "category": "techniques",
-      "title": "Pomodoro Technique — Free 25/5 Timer Online | Superfocus",
-      "description": "Run the Pomodoro Technique with a free 25/5 timer online. Built-in breaks, ambient sounds, and task tracking—no download. Start your first session now.",
-      "h1": "Pomodoro Technique Timer (25/5)",
-      "keyword": "pomodoro technique timer",
+      "title": "Pomodoro Technique & Method — 25/5 Timer | Superfocus",
+      "description": "Run the pomodoro technique (25 on, 5 off) — also called the pomodoro method. Superfocus Premium is $1.99/month.",
+      "h1": "Pomodoro Technique Timer",
+      "keyword": "pomodoro technique",
       "preset": "Pomodoro (25/5/15 min)",
       "related": [
         "/techniques/flowtime-timer",
@@ -16,10 +16,10 @@
         "/faq/pomodoro-timer-online",
         "/goals/enter-flow-state"
       ],
-      "heroSubtitle": "Free Pomodoro technique timer with 25/5/15 cycles, ambient sounds, and task tracking—no download.",
+      "heroSubtitle": "Pomodoro technique timer with 25/5/15 cycles, ambient sounds, and task tracking—no download.",
       "painPoints": "Open laptop. Check Slack. Make coffee. Repeat.<br>Hours pass. The important task is still untouched.<br>Tomorrow you'll \"really focus.\"",
       "painSolution": "Set 25 minutes. One task. Timer running.<br>Work until it rings. Break. Repeat.<br>Small blocks. Real progress.",
-      "keywords": "pomodoro technique, pomodoro technique 25/5, pomodoro timer online, pomodoro method",
+      "keywords": "pomodoro technique, pomodoro method, pomodoro technique timer, pomodoro timer",
       "tier": "A",
       "longFormBlocks": [
         "<h2>The Pomodoro Technique: history and rules</h2>",
@@ -27,13 +27,20 @@
         "<h2>Pomodoro technique 25/5 official rhythm</h2>",
         "<p>The classic cycle is <strong>25 minutes on, 5 minutes off</strong>, with a <strong>15-minute</strong> break after every four sessions. Superfocus ships this as the default Pomodoro preset—you can also switch to Sprint (15 min), Flow (45 min), or Deep Work (90 min) when 25/5 does not match your task.</p>",
         "<table style=\"width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin: 1.5rem 0;\"><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.2);\"><th style=\"text-align:left; padding:8px 0;\">Method</th><th style=\"text-align:left; padding:8px 0;\">Work</th><th style=\"text-align:left; padding:8px 0;\">Break</th><th style=\"text-align:left; padding:8px 0;\">Best for</th></tr><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.1);\"><td style=\"padding:8px 0;\">Pomodoro</td><td>25 min</td><td>5 min</td><td>General tasks, studying</td></tr><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.1);\"><td style=\"padding:8px 0;\">Sprint</td><td>15 min</td><td>3 min</td><td>Starting resistance, ADHD</td></tr><tr style=\"border-bottom: 1px solid rgba(255,255,255,0.1);\"><td style=\"padding:8px 0;\">Flow</td><td>45 min</td><td>8 min</td><td>Writing, coding</td></tr><tr><td style=\"padding:8px 0;\">Deep Work</td><td>90 min</td><td>20 min</td><td>Hard problems</td></tr></table>"
-      ]
+      ],
+      "extraKeywords": [
+        "pomodoro technique",
+        "pomodoro method",
+        "pomodoro technique timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "flowtime-timer",
       "category": "techniques",
-      "title": "Flowtime Timer Online — Flexible Focus Blocks | Superfocus",
-      "description": "The bell interrupts your best thinking. Flowtime uses 45-min blocks with flexible breaks. Try free in Superfocus.",
+      "title": "Flowtime Method — Pomodoro Timer | Superfocus",
+      "description": "The bell interrupts your best thinking. Flowtime uses 45-min blocks with flexible breaks. Subscribe at $1.99/month.",
       "h1": "Flowtime Timer Online",
       "keyword": "flowtime method",
       "preset": "Flow (45/8/25 min)",
@@ -46,14 +53,22 @@
       "heroSubtitle": "You enter flow at minute 20—and the timer kills it. Pomodoro works until it doesn't. You need longer blocks without guilt.",
       "painPoints": "Finally focused. Timer rings. Flow gone.<br>Restart. Lose momentum. Repeat.<br>Short blocks feel like sabotage.",
       "painSolution": "45-minute blocks. Break when you need it.<br>Stay in flow longer. Fewer interruptions.<br>Work at your rhythm.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "flowtime method, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "flowtime method",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "time-blocking-timer",
       "category": "techniques",
-      "title": "Time Blocking Timer Online — Schedule Focus Blocks | Superfocus",
-      "description": "Your day fills with other people's priorities. Block focus time before it disappears. Free Pomodoro timer with tasks.",
-      "h1": "Time Blocking Timer Online",
+      "title": "Time Blocking Timer — Protect Focus Hours | Superfocus",
+      "description": "Time blocking timer: treat focus like a meeting. Pomodoro or custom lengths. Superfocus Premium is $1.99/month.",
+      "h1": "Time Blocking Timer",
       "keyword": "time blocking",
       "preset": "Custom timers + task list",
       "related": [
@@ -64,13 +79,21 @@
       "heroSubtitle": "Meetings have slots. Deep work gets \"whenever.\" By Friday you've been busy all week and shipped nothing that matters.",
       "painPoints": "Calendar packed. No blocks for you.<br>Reactive all day. Proactive never.<br>Week ends. Big project untouched.",
       "painSolution": "Block 25 minutes. Protect it like a meeting.<br>Timer + tasks in one app.<br>Your time, on your terms.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "time blocking, work timer, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "time blocking",
+        "work timer",
+        "pomodoro timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "deep-work-timer",
       "category": "techniques",
-      "title": "Deep Work Timer Online — Free Focus Blocks | Superfocus",
-      "description": "Context switching kills your best work. Block 90 minutes, block distractions, enter flow. Lofi and rain included. Try free.",
+      "title": "Deep Work Timer — Pomodoro Timer | Superfocus",
+      "description": "Context switching kills your best work. Block 90 minutes, block distractions, enter flow. Lofi and rain included. Subscribe at $1.99/month.",
       "h1": "Deep Work Timer Online",
       "keyword": "deep work timer",
       "preset": "Deep Work (90/20/30 min)",
@@ -84,20 +107,27 @@
       "painPoints": "Start deep work. Slack pings.<br>Switch tasks. Lose the thread.<br>End of day: exhausted, nothing hard done.",
       "painSolution": "90-minute block. Phone away. Sounds on.<br>One hard problem. Full attention.<br>Deep work, finally.",
       "tier": "A",
-      "keywords": "deep work timer, simple deep work timer, easy deep work timer, deep work timer online",
+      "keywords": "deep work timer, pomodoro timer, focus timer",
       "longFormBlocks": [
         "<h2>Easy deep work timer setup</h2>",
         "<p>An <strong>easy deep work timer</strong> should take one click—not a 20-minute setup ritual. Open Superfocus, pick Deep Work (90 min) or the 52-minute preset, name your task, and start. Built-in lofi or rain helps mask noise without opening a second app.</p>",
         "<h2>Simple deep work timer presets</h2>",
         "<p>Cal Newport popularized <strong>deep work</strong> as uninterrupted focus on cognitively demanding tasks. Superfocus offers <strong>52-minute</strong> and <strong>90-minute</strong> blocks—long enough for real progress, short enough to schedule between meetings.</p>",
         "<p>Further reading: <a href=\"https://www.calnewport.com/books/deep-work/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"inline-text-link\">Deep Work by Cal Newport</a>.</p>"
-      ]
+      ],
+      "extraKeywords": [
+        "deep work timer",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "sprint-timer",
       "category": "techniques",
-      "title": "Sprint Timer Online — 15-Minute Focus Blocks | Superfocus",
-      "description": "When a full Pomodoro feels impossible, start with 15 minutes. Momentum beats perfection. Free ADHD-friendly timer.",
+      "title": "Sprint Timer Focus — Pomodoro Timer | Superfocus",
+      "description": "When a full Pomodoro feels impossible, start with 15 minutes. Momentum beats perfection. Free ADHD-friendly timer. Superfocus Premium is $1.99/month.",
       "h1": "Sprint Timer Online",
       "keyword": "sprint timer focus",
       "preset": "Sprint (15/3/10 min)",
@@ -109,13 +139,21 @@
       "heroSubtitle": "You can't even start because the block feels too long. So you scroll instead. The task waits. So do you.",
       "painPoints": "25 min feels impossible.<br>So you do nothing instead.<br>Paralysis wins again.",
       "painSolution": "15 minutes. That's it.<br>Start small. Build momentum.<br>Done beats perfect.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "sprint timer focus, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "sprint timer focus",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "marathon-timer",
       "category": "techniques",
-      "title": "Marathon Timer Online — Long Focus Sessions | Superfocus",
-      "description": "Writers and researchers need 60+ minute blocks with smart breaks. Marathon preset built in. Try Superfocus free.",
+      "title": "Marathon Focus Sessions — Pomodoro Timer | Superfocus",
+      "description": "Writers and researchers need 60+ minute blocks with smart breaks. Marathon preset built in. Subscribe.",
       "h1": "Marathon Timer Online",
       "keyword": "marathon focus sessions",
       "preset": "Marathon (60/10/30 min)",
@@ -127,13 +165,21 @@
       "heroSubtitle": "Long sessions need structure too. Without breaks, you burn out by hour two. With none at all, you never start.",
       "painPoints": "Rare long block. No plan.<br>Wander for an hour. Burn out.<br>Session wasted.",
       "painSolution": "60 minutes. Built-in breaks.<br>Structure for long work.<br>Ship chapters, not excuses.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "marathon focus sessions, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "marathon focus sessions",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "52-minute-focus",
       "category": "techniques",
-      "title": "52-Minute Focus Timer Online | Superfocus",
-      "description": "Ultradian rhythms say ~52 min work, ~17 min rest. Custom timer preset in Superfocus. Free to try.",
+      "title": "52 Minute Focus — Pomodoro Timer | Superfocus",
+      "description": "Ultradian rhythms say ~52 min work, ~17 min rest. Custom timer preset in Superfocus. Superfocus Premium is $1.99/month.",
       "h1": "52-Minute Focus Timer",
       "keyword": "52 minute focus",
       "preset": "Custom 52/17 (create in app)",
@@ -145,13 +191,21 @@
       "heroSubtitle": "Generic timers ignore how attention actually works. Your brain has cycles—work with them, not against them.",
       "painPoints": "Arbitrary timer lengths.<br>Fighting fatigue.<br>Never in sync with your body.",
       "painSolution": "52 minutes on. 17 off.<br>Match your natural cycle.<br>Sustained focus, less force.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "52 minute focus, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "52 minute focus",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "90-minute-deep-work",
       "category": "techniques",
-      "title": "90-Minute Deep Work Timer Online | Superfocus",
-      "description": "One ultradian cycle. One hard problem. 90-min Deep Work preset with ambient sounds. Try free.",
+      "title": "90 Minute Deep Work — Pomodoro Timer | Superfocus",
+      "description": "One ultradian cycle. One hard problem. 90-min Deep Work preset with ambient sounds. Subscribe at $1.99/month.",
       "h1": "90-Minute Deep Work Timer",
       "keyword": "90 minute deep work",
       "preset": "Deep Work (90/20/30 min)",
@@ -163,13 +217,21 @@
       "heroSubtitle": "Between meetings, notifications, and \"quick checks,\" the deep thinking your work demands never gets room to breathe.",
       "painPoints": "Big thinking needs time.<br>Life gives fragments.<br>Great work stays unfinished.",
       "painSolution": "Block 90 minutes. Protect it.<br>Deep Work preset ready.<br>Finish what matters.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "90 minute deep work, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "90 minute deep work",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer",
       "category": "use-cases",
-      "title": "Study Timer Online — Free Pomodoro for Students | Superfocus",
-      "description": "Free study timer online with Pomodoro blocks, ambient sounds, and task tracking. Built for students who need structure—not another tab to ignore.",
+      "title": "Study Timer Online — Pomodoro for Students | Superfocus",
+      "description": "Study timer with pomodoro blocks and optional lofi study music in one tab. Superfocus Premium is $1.99/month.",
       "h1": "Study Timer Online",
       "keyword": "study timer",
       "preset": "Pomodoro or Sprint",
@@ -183,7 +245,7 @@
       "heroSubtitle": "Free study timer with Pomodoro presets for exams, reading, and flashcards. Ambient sounds and streak tracking included.",
       "painPoints": "Open the book. Check phone. Repeat for 3 hours.<br>Feel guilty. Promise tomorrow will be different.<br>Tomorrow: same loop.",
       "painSolution": "One 25-minute block. Phone away. Timer running.<br>Four pages become forty. Guilt becomes momentum.",
-      "keywords": "study timer, study timer online, pomodoro study timer, student focus timer",
+      "keywords": "study timer, study timer online, pomodoro study timer, exam timer",
       "tier": "A",
       "longFormBlocks": [
         "<h2>Study timer for exams</h2>",
@@ -191,13 +253,21 @@
         "<h2>Reading and flashcard sessions</h2>",
         "<p>For dense reading, try 45-minute Flow blocks. For flashcards, Sprint (15 min) keeps recall practice sharp without burnout. Track completed blocks in Superfocus analytics so you can see which subjects actually got time this week.</p>",
         "<p>Pair your study timer with our <a href=\"/use-cases/focus-website-for-studying\" class=\"inline-text-link\">focus website for studying</a> guide if you need a browser-based setup with sounds and tasks in one tab.</p>"
-      ]
+      ],
+      "extraKeywords": [
+        "study timer",
+        "pomodoro study timer",
+        "exam timer",
+        "lofi study music"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-timer",
       "category": "use-cases",
-      "title": "Focus Timer Online — Free Pomodoro & Deep Work | Superfocus",
-      "description": "Online focus timer with Pomodoro, Flow, and Deep Work presets. Lofi, rain, tasks, and analytics in one place. Free to try—no download.",
+      "title": "Focus Timer Online — Pomodoro for Deep Work | Superfocus",
+      "description": "Focus timer for desk work: pomodoro or longer blocks, plus optional focus music. Superfocus Premium is $1.99/month.",
       "h1": "Focus Timer Online",
       "keyword": "focus timer",
       "preset": "Pomodoro, Flow, or Deep Work",
@@ -211,14 +281,21 @@
       "heroSubtitle": "Free focus timer for work and deep focus—Pomodoro, Flow, and Deep Work presets with tasks and analytics.",
       "painPoints": "Timer in one tab. Music in another.<br>Tasks somewhere else.<br>Focus scattered everywhere.",
       "painSolution": "One focus timer. Sounds built in.<br>Track every block and streak.<br>Start in 10 seconds.",
-      "keywords": "focus timer, focus timer online, online focus timer, pomodoro focus timer",
-      "tier": "A"
+      "keywords": "focus timer, focus timer online, pomodoro timer, work timer",
+      "tier": "A",
+      "extraKeywords": [
+        "focus timer",
+        "focus timer online",
+        "work timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-website-for-studying",
       "category": "use-cases",
-      "title": "Focus Website for Studying — Free Online Timer | Superfocus",
-      "description": "Free focus website for students: Pomodoro timer, lofi study music, task list, and session streaks. No download required.",
+      "title": "Focus Website for Studying — Pomodoro Timer | Superfocus",
+      "description": "Free focus website for students: Pomodoro timer, lofi study music, task list, and session streaks. No download required. Superfocus Premium is $1.99/month.",
       "h1": "Focus Website for Studying",
       "keyword": "focus website for studying",
       "preset": "Pomodoro or Sprint",
@@ -233,13 +310,20 @@
       "painPoints": "Open laptop to study. End up on social.<br>No structure. No accountability.<br>Hours pass. Notes empty.",
       "painSolution": "One focus website. Timer + sounds.<br>25-minute blocks. Real progress.<br>Study without the scroll loop.",
       "tier": "A",
-      "keywords": "focus website for studying, study focus website, online study timer"
+      "keywords": "focus website for studying, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus website for studying",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "work-timer",
       "category": "use-cases",
-      "title": "Work Timer Online — Free Pomodoro for Professionals | Superfocus",
-      "description": "Your calendar owns you. Block focus time between meetings with Pomodoro + tasks. Free for professionals.",
+      "title": "Work Timer — Pomodoro for Desk Jobs | Superfocus",
+      "description": "Work timer so Slack does not eat the afternoon. Classic pomodoro or custom lengths. Superfocus Premium is $1.99/month.",
       "h1": "Work Timer Online",
       "keyword": "work timer",
       "preset": "Pomodoro or Flow",
@@ -251,15 +335,23 @@
       "heroSubtitle": "Meetings, Slack, email—the day fills with motion that isn't progress. The report due Friday is still a blank doc.",
       "painPoints": "Inbox zero. Project zero.<br>Meetings all day. Deep work never.<br>Busy badge. Empty output.",
       "painSolution": "Block 25 minutes before the next meeting.<br>One task. Timer on. Ship something.<br>Repeat until Friday isn't panic.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "work timer, focus timer, pomodoro timer, time blocking",
+      "extraKeywords": [
+        "work timer",
+        "focus timer",
+        "time blocking"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "coding-focus-timer",
       "category": "use-cases",
-      "title": "Coding Focus Timer — Pomodoro for Developers | Superfocus",
-      "description": "Developers lose flow to pings and tab-hopping. 90-min Deep Work blocks + lofi. Free coding focus timer.",
-      "h1": "Coding Focus Timer",
-      "keyword": "coding focus timer",
+      "title": "Coding Timer — Pomodoro for Developers | Superfocus",
+      "description": "Coding timer with pomodoro sprints so you ship instead of context-switch. Superfocus Premium is $1.99/month.",
+      "h1": "Coding Timer for Developers",
+      "keyword": "coding timer",
       "preset": "Deep Work or Flow",
       "related": [
         "/techniques/deep-work-timer",
@@ -269,14 +361,22 @@
       "heroSubtitle": "Context switching between tabs, docs, and Slack fragments your thinking. The feature that should take an afternoon takes three days.",
       "painPoints": "Load IDE. Check Slack. Read docs.<br>Context gone. Start over.<br>Feature still not shipped.",
       "painSolution": "90-minute block. Lofi on. Slack closed.<br>One feature. Full stack focus.<br>Ship before standup.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "coding timer, pomodoro timer, focus timer, deep work timer",
+      "extraKeywords": [
+        "coding timer",
+        "pomodoro timer",
+        "deep work timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "writing-timer",
       "category": "use-cases",
-      "title": "Writing Timer Online — Focus Blocks for Authors | Superfocus",
-      "description": "Writer's block is a starting problem. 25-min Pomodoro or 60-min Marathon + rain sounds. Just begin. Try free.",
-      "h1": "Writing Timer Online",
+      "title": "Writing Timer — Pomodoro for Drafts | Superfocus",
+      "description": "Writing timer with pomodoro or longer blocks so drafts actually start. Superfocus Premium is $1.99/month.",
+      "h1": "Writing Timer",
       "keyword": "writing timer",
       "preset": "Pomodoro or Marathon",
       "related": [
@@ -287,15 +387,22 @@
       "heroSubtitle": "You know what you want to say. You can't make your fingers type it. Every distraction feels more urgent than the draft.",
       "painPoints": "Cursor blinks. You blink.<br>Rewrite the first sentence ten times.<br>Word count: still zero.",
       "painSolution": "25 minutes. Don't edit. Just write.<br>Rain sounds. Timer running.<br>Bad words today beat no words tomorrow.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "writing timer, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "writing timer",
+        "pomodoro timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "exam-prep-timer",
       "category": "use-cases",
-      "title": "Exam Prep Timer — Study Blocks for Tests | Superfocus",
-      "description": "Panic cramming doesn't work. Structured 25-min blocks with breaks do. Lofi included. Start now—free.",
+      "title": "Exam Timer & Study Timer for Test Prep | Superfocus",
+      "description": "Exam timer using pomodoro study blocks so prep has a start and a stop. Superfocus Premium is $1.99/month.",
       "h1": "Exam Prep Timer",
-      "keyword": "exam prep focus",
+      "keyword": "exam timer",
       "preset": "Pomodoro (25/5/15)",
       "related": [
         "/use-cases/study-timer",
@@ -305,15 +412,22 @@
       "heroSubtitle": "You keep \"planning to study\" instead of studying. Anxiety grows. The material doesn't shrink.",
       "painPoints": "Check syllabus. Feel overwhelmed.<br>Watch one lecture. Scroll for an hour.<br>Exam closer. You farther.",
       "painSolution": "One topic. 25 minutes. Then a break.<br>Track sessions. See progress.<br>Five days of blocks beat one panic night.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "exam timer, study timer, pomodoro study timer",
+      "extraKeywords": [
+        "exam timer",
+        "study timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "adhd-focus-timer",
       "category": "use-cases",
-      "title": "ADHD Focus Timer — Short Pomodoro Blocks | Superfocus",
-      "description": "25 minutes feels impossible some days. Start with 15-min sprints, white noise, clear structure. Built for neurodivergent focus.",
+      "title": "ADHD Focus Timer — Sprint & Pomodoro | Superfocus",
+      "description": "ADHD focus timer with short sprints when 25 minutes feels like a wall. Superfocus Premium is $1.99/month.",
       "h1": "ADHD Focus Timer",
-      "keyword": "ADHD focus timer",
+      "keyword": "adhd focus timer",
       "preset": "Sprint (15/3/10 min)",
       "related": [
         "/techniques/sprint-timer",
@@ -324,13 +438,21 @@
       "heroSubtitle": "Or you couldn't start at all. Standard productivity advice wasn't built for how your brain actually works.",
       "painPoints": "Can't start. Or can't stop.<br>All-or-nothing every day.<br>Tools built for neurotypical brains.",
       "painSolution": "15-minute sprints. Clear start and stop.<br>White noise. Visual timer.<br>Work with your brain, not against it.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "adhd focus timer, how to focus with adhd, pomodoro for adhd",
+      "extraKeywords": [
+        "adhd focus timer",
+        "how to focus with adhd",
+        "pomodoro for adhd"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "student-productivity",
       "category": "use-cases",
-      "title": "Student Productivity Timer — Free Study Focus | Superfocus",
-      "description": "Paralysis isn't laziness—it's overload. One 25-min block on one assignment. Free Pomodoro for students.",
+      "title": "Student Productivity — Pomodoro Timer | Superfocus",
+      "description": "Paralysis isn't laziness—it's overload. One 25-min block on one assignment. Pomodoro for students. Superfocus Premium is $1.99/month.",
       "h1": "Student Productivity Timer",
       "keyword": "student productivity",
       "preset": "Pomodoro",
@@ -342,13 +464,21 @@
       "heroSubtitle": "The semester feels like a wall. Every task feels equally urgent and equally impossible to start.",
       "painPoints": "Four deadlines. Pick none.<br>Stress scroll instead of start.<br>GPA doesn't wait.",
       "painSolution": "Pick one assignment. 25 minutes.<br>Finish a slice. Pick the next.<br>Wall becomes steps.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "student productivity, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "student productivity",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "freelancer-productivity",
       "category": "use-cases",
-      "title": "Freelancer Productivity Timer Online | Superfocus",
-      "description": "Track billable focus, sync Todoist, see where hours go. Pomodoro for freelancers. Free to start.",
+      "title": "Freelancer Productivity — Pomodoro Timer | Superfocus",
+      "description": "Track billable focus, sync Todoist, see where hours go. Pomodoro for freelancers. Superfocus Premium is $1.99/month. Superfocus Premium is $1.99/month.",
       "h1": "Freelancer Productivity Timer",
       "keyword": "freelancer productivity",
       "preset": "Flow or Pomodoro",
@@ -360,13 +490,21 @@
       "heroSubtitle": "No structure, no commute, no boss looking over your shoulder. Freedom becomes a trap when billable hours slip away.",
       "painPoints": "Work from bed. Scroll till noon.<br>Client deadline looms. Panic start.<br>Underpaid for overwork.",
       "painSolution": "Block billable hours first thing.<br>Timer tracks what clients pay for.<br>Freedom with structure.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "freelancer productivity, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "freelancer productivity",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "remote-work-focus",
       "category": "use-cases",
-      "title": "Remote Work Focus Timer — Stay on Task at Home | Superfocus",
-      "description": "WFH blurs everything together. Block focus time, add cafe sounds, pretend you're somewhere else. Free timer.",
+      "title": "Remote Work Focus — Pomodoro Timer | Superfocus",
+      "description": "WFH blurs everything together. Block focus time, add cafe sounds, pretend you're somewhere else. Superfocus Premium is $1.99/month.",
       "h1": "Remote Work Focus Timer",
       "keyword": "remote work focus",
       "preset": "Pomodoro or Flow",
@@ -378,13 +516,21 @@
       "heroSubtitle": "Home has laundry, fridge, kids, and a couch that knows your name. The office at least had boundaries.",
       "painPoints": "Kitchen trip. Couch trip. \"Break\" all day.<br>8 hours home. 1 hour work.<br>Always on. Never focused.",
       "painSolution": "Cafe sounds. 25-minute blocks.<br>Fake commute to your desk.<br>Home office, real work.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "remote work focus, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "remote work focus",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "deep-work-app",
       "category": "use-cases",
-      "title": "Deep Work App Online — Free Focus Timer | Superfocus",
-      "description": "90-min blocks, ambient sounds, zero pings. A deep work app that enforces focus time. Try Superfocus free.",
+      "title": "Deep Work App — Pomodoro Timer | Superfocus",
+      "description": "90-min blocks, ambient sounds, zero pings. A deep work app that enforces focus time. Subscribe.",
       "h1": "Deep Work App Online",
       "keyword": "deep work app",
       "preset": "Deep Work (90/20/30)",
@@ -396,13 +542,21 @@
       "heroSubtitle": "Blocking noise isn't the same as blocking distraction. Your brain needs structure, not just silence.",
       "painPoints": "Silent room. Loud brain.<br>Still checking phone. Still avoiding hard work.<br>Tools without structure fail.",
       "painSolution": "90 minutes. Timer locked in.<br>Sounds signal: work now.<br>Hard thing gets done.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "deep work app, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "deep work app",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "meeting-prep-timer",
       "category": "use-cases",
-      "title": "Meeting Prep Timer — Focus Before Calls | Superfocus",
-      "description": "Block 15 minutes before each call. Sprint timer for quick prep. Walk in ready. Free to try.",
+      "title": "Timer for Meeting Prep — Pomodoro Timer | Superfocus",
+      "description": "Block 15 minutes before each call. Sprint timer for quick prep. Walk in ready. Superfocus Premium is $1.99/month.",
       "h1": "Meeting Prep Timer",
       "keyword": "timer for meeting prep",
       "preset": "Sprint or Pomodoro",
@@ -414,14 +568,22 @@
       "heroSubtitle": "Back-to-back meetings leave no gap to think. You show up unprepared and improvise your way through.",
       "painPoints": "Join call. Realize you're lost.<br>Smile and wing it. Again.<br>Reputation erodes quietly.",
       "painSolution": "15 minutes before every call.<br>Review deck. Write one note.<br>Show up sharp.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "timer for meeting prep, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "timer for meeting prep",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-music",
       "category": "sounds",
-      "title": "Focus Music Timer — Lofi + Pomodoro Online | Superfocus",
-      "description": "Lofi, rain, cafe—built-in cassettes plus Spotify. Pair with any timer. Free focus music while you work.",
-      "h1": "Focus Music with Timer",
+      "title": "Focus Music — Lofi, Rain & Timer in One Tab | Superfocus",
+      "description": "Focus music inside the pomodoro timer so YouTube does not steal the session. Superfocus Premium is $1.99/month.",
+      "h1": "Focus Music with a Pomodoro Timer",
       "keyword": "focus music",
       "preset": "Any timer + Cassettes",
       "related": [
@@ -436,14 +598,22 @@
       "longFormBlocks": [
         "<h2>Using focus music</h2>",
         "<p>Combine <strong>focus music</strong> with a Pomodoro or Flow preset so audio and timer stay synchronized. Start the cassette once per session—changing tracks mid-block breaks focus.</p>"
-      ]
+      ],
+      "keywords": "focus music, lofi study music, white noise, pomodoro timer",
+      "extraKeywords": [
+        "focus music",
+        "lofi study music",
+        "white noise"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "lofi-study-music",
       "category": "sounds",
-      "title": "Lofi Study Music Timer Online | Superfocus",
-      "description": "Curated lofi cassettes built into the timer. No searching, no skipping. Study and focus together. Free.",
-      "h1": "Lofi Study Music Timer",
+      "title": "Lofi Study Music + Pomodoro Study Timer | Superfocus",
+      "description": "Lofi study music inside a study timer — no livestream sidebar. Superfocus Premium is $1.99/month.",
+      "h1": "Lofi Study Music with a Study Timer",
       "keyword": "lofi study music",
       "preset": "Pomodoro + Lofi cassette",
       "related": [
@@ -458,14 +628,22 @@
       "longFormBlocks": [
         "<h2>Using lofi study music</h2>",
         "<p><strong>Lofi study music</strong> masks chatter without lyrical distraction. Pair with 25- or 45-minute blocks depending on whether you are reviewing or writing.</p>"
-      ]
+      ],
+      "keywords": "lofi study music, study timer, focus music, pomodoro timer",
+      "extraKeywords": [
+        "lofi study music",
+        "study timer",
+        "focus music"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "rain-sounds-focus",
       "category": "sounds",
-      "title": "Rain Sounds Focus Timer Online | Superfocus",
-      "description": "Rain sounds mask distractions and signal focus time. Built into Superfocus with any timer preset. Try free.",
-      "h1": "Rain Sounds Focus Timer",
+      "title": "Rain Sounds for Focus + Pomodoro Timer | Superfocus",
+      "description": "Rain sounds for focus inside the timer — not a YouTube mix hunt. Superfocus Premium is $1.99/month.",
+      "h1": "Rain Sounds for Focus",
       "keyword": "rain sounds for focus",
       "preset": "Any timer + Rain cassette",
       "related": [
@@ -480,13 +658,20 @@
       "longFormBlocks": [
         "<h2>Using rain sounds for focus</h2>",
         "<p><strong>Rain sounds</strong> work well for reading and coding—steady noise without melody. Use with Deep Work when you need a long uninterrupted block.</p>"
-      ]
+      ],
+      "keywords": "rain sounds for focus, focus music, study timer",
+      "extraKeywords": [
+        "rain sounds for focus",
+        "focus music"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "cafe-ambient-sounds",
       "category": "sounds",
-      "title": "Cafe Ambient Sounds Timer Online | Superfocus",
-      "description": "Coffee shop ambience without leaving home. Cafe cassette + Pomodoro timer. WFH with focus. Free.",
+      "title": "Cafe Ambient Study — Pomodoro Timer | Superfocus",
+      "description": "Coffee shop ambience without leaving home. Cafe cassette + Pomodoro timer. WFH with focus. Superfocus Premium is $1.99/month.",
       "h1": "Cafe Ambient Sounds Timer",
       "keyword": "cafe ambient study",
       "preset": "Any timer + Cafe cassette",
@@ -502,15 +687,23 @@
       "longFormBlocks": [
         "<h2>Using cafe ambient study</h2>",
         "<p><strong>Cafe ambient sounds</strong> simulate a coffee-shop hum—useful when silence feels too loud. Keep volume low; the timer should stay primary.</p>"
-      ]
+      ],
+      "keywords": "cafe ambient study, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "cafe ambient study",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "white-noise-focus",
       "category": "sounds",
-      "title": "White Noise Focus Timer Online | Superfocus",
-      "description": "White noise blocks unpredictable sounds. Pair with 15-min Sprint for ADHD. Free in Superfocus.",
-      "h1": "White Noise Focus Timer",
-      "keyword": "white noise focus",
+      "title": "White Noise for Focus + Pomodoro Timer | Superfocus",
+      "description": "White noise with a running pomodoro / focus timer so sound stays in the same tab. Superfocus Premium is $1.99/month.",
+      "h1": "White Noise for Focus",
+      "keyword": "white noise",
       "preset": "Sprint + Ambient cassette",
       "related": [
         "/sounds/rain-sounds-focus",
@@ -524,13 +717,21 @@
       "longFormBlocks": [
         "<h2>Using white noise focus</h2>",
         "<p><strong>White noise</strong> blocks irregular interruptions (traffic, office chatter). Superfocus white noise cassette runs alongside any timer preset.</p>"
-      ]
+      ],
+      "keywords": "white noise, focus music, focus timer, pomodoro timer",
+      "extraKeywords": [
+        "white noise",
+        "focus music",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "todoist-pomodoro",
       "category": "workflows",
-      "title": "Todoist Pomodoro Timer — Sync Tasks & Focus | Superfocus",
-      "description": "Sync Todoist, assign pomodoros per task, track completion. Timer + tasks finally together. Free to try.",
+      "title": "Todoist Pomodoro — Pomodoro Timer | Superfocus",
+      "description": "Sync Todoist, assign pomodoros per task, track completion. Timer + tasks finally together. Superfocus Premium is $1.99/month.",
       "h1": "Todoist Pomodoro Workflow",
       "keyword": "Todoist pomodoro",
       "preset": "Pomodoro + Todoist sync",
@@ -542,13 +743,21 @@
       "heroSubtitle": "Todoist holds the tasks. Nothing holds you to actually doing them. Lists without time blocks are just anxiety documents.",
       "painPoints": "Add tasks. Feel productive.<br>Never block time.<br>List grows. Nothing done.",
       "painSolution": "Pick task. Assign pomodoro.<br>Timer runs. Task closes.<br>List shrinks for real.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "todoist pomodoro, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "todoist pomodoro",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "task-planning-workflow",
       "category": "workflows",
-      "title": "Task Planning Workflow — Pomodoro + Tasks | Superfocus",
-      "description": "Estimate in pomodoros, track actuals, improve over time. Task planning that learns from reality. Free.",
+      "title": "Task Planning with Pomodoro — Pomodoro Timer | Superfocus",
+      "description": "Estimate in pomodoros, track actuals, improve over time. Task planning that learns from reality. Superfocus Premium is $1.99/month.",
       "h1": "Task Planning Workflow",
       "keyword": "task planning with pomodoro",
       "preset": "Tasks + Pomodoro/Flow",
@@ -560,13 +769,21 @@
       "heroSubtitle": "Estimating time is hard when you never measure it. You keep overcommitting because you don't know how long things actually take.",
       "painPoints": "Plan 8 tasks. Finish 2.<br>Bad estimates. Every day.<br>Planning feels pointless.",
       "painSolution": "Estimate in pomodoros.<br>Track what you actually finish.<br>Plans get honest.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "task planning with pomodoro, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "task planning with pomodoro",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "productivity-analytics",
       "category": "analytics",
-      "title": "Productivity Analytics — Focus Time Tracking | Superfocus",
-      "description": "See daily, weekly, monthly focus time. Spot patterns. Build habits from data, not guilt. Try free.",
+      "title": "Productivity Analytics — Pomodoro Timer | Superfocus",
+      "description": "See daily, weekly, monthly focus time. Spot patterns. Build habits from data, not guilt. Subscribe at $1.99/month.",
       "h1": "Productivity Analytics",
       "keyword": "productivity analytics",
       "preset": "Any timer + Premium",
@@ -579,13 +796,21 @@
       "heroSubtitle": "Busy feels productive until you look back and see the same project untouched. Without data, you're guessing.",
       "painPoints": "Feel productive. No proof.<br>Same bad patterns.<br>Can't improve what you don't measure.",
       "painSolution": "Every session logged.<br>See your real patterns.<br>Improve with evidence.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "productivity analytics, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "productivity analytics",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "focus-time-tracking",
       "category": "analytics",
-      "title": "Focus Time Tracking — Pomodoro Analytics | Superfocus",
-      "description": "Track deep work hours daily, weekly, monthly. See the truth about your focus. Free timer with analytics.",
+      "title": "Focus Time Tracking — Pomodoro Timer | Superfocus",
+      "description": "Track deep work hours daily, weekly, monthly. See the truth about your focus. Free timer with analytics. Superfocus Premium is $1.99/month.",
       "h1": "Focus Time Tracking",
       "keyword": "focus time tracking",
       "preset": "Any timer + Premium",
@@ -597,13 +822,21 @@
       "heroSubtitle": "Time disappears into small distractions that don't feel like distractions. By evening, the hours are gone and the work isn't done.",
       "painPoints": "Day disappears. No memory of it.<br>Busy feeling. Empty output.<br>Time theft you can't see.",
       "painSolution": "Timer tracks every block.<br>See where hours actually go.<br>Take time back.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "focus time tracking, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "focus time tracking",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "pomodoro-statistics",
       "category": "analytics",
-      "title": "Pomodoro Statistics — Session History & Streaks | Superfocus",
-      "description": "Count completed pomodoros, track streaks, analyze patterns. Pomodoro stats that motivate. Try Superfocus free.",
+      "title": "Pomodoro Statistics — Pomodoro Timer | Superfocus",
+      "description": "Count completed pomodoros, track streaks, analyze patterns. Pomodoro stats that motivate. Subscribe.",
       "h1": "Pomodoro Statistics",
       "keyword": "pomodoro statistics",
       "preset": "Pomodoro + Premium",
@@ -615,15 +848,23 @@
       "heroSubtitle": "Vague effort doesn't build habits. You need streaks, counts, and trends—or motivation fades by Wednesday.",
       "painPoints": "Start strong Monday. Fade by Thursday.<br>No streak. No accountability.<br>Habits don't stick.",
       "painSolution": "Streak counter. Session history.<br>See consistency build.<br>Momentum from numbers.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "pomodoro statistics, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "pomodoro statistics",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-pomofocus",
       "category": "compare",
-      "title": "Superfocus vs Pomofocus (2026) — Which Timer Is Better?",
-      "description": "Side-by-side: Pomofocus vs Superfocus. Same simple Pomodoro—plus sounds, tasks, and analytics. Compare features, then start focusing free.",
+      "title": "Pomofocus vs Superfocus — Pomodoro Timer Comparison | Superfocus",
+      "description": "Side-by-side: Pomofocus vs Superfocus. Same simple Pomodoro—plus sounds, tasks, and analytics. Compare features, then start focusing free. Superfocus Premi…",
       "h1": "Superfocus vs Pomofocus",
-      "keyword": "Superfocus vs Pomofocus",
+      "keyword": "pomofocus",
       "competitor": "Pomofocus",
       "competitorUrl": "https://pomofocus.io",
       "related": [
@@ -636,7 +877,7 @@
       "heroSubtitle": "Honest 2026 comparison: Pomofocus for minimal Pomodoro vs Superfocus for timer + sounds + tasks + analytics.",
       "painPoints": "Timer in one tab. Spotify in another.<br>Tasks somewhere else.<br>Focus fragmented across apps.",
       "painSolution": "Timer, sounds, tasks, stats.<br>One app. One tab.<br>Focus without juggling.",
-      "keywords": "Superfocus vs Pomofocus, best pomodoro timer, best free pomodoro timer, pomodoro timer comparison",
+      "keywords": "pomofocus, pomodoro timer online, pomodoro app",
       "tier": "A",
       "longFormBlocks": [
         "<h2>When Pomofocus is enough</h2>",
@@ -656,13 +897,20 @@
           "q": "Which has better sounds?",
           "a": "Superfocus includes lofi, rain, cafe, and white noise cassettes without leaving the timer. Pomofocus does not include ambient audio."
         }
-      ]
+      ],
+      "extraKeywords": [
+        "pomofocus",
+        "pomodoro timer online",
+        "pomodoro app"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-forest",
       "category": "compare",
-      "title": "Superfocus vs Forest (2026) — Timer Compared | Superfocus",
-      "description": "Browser-based focus timer. No phone needed. Pomodoro + lofi + analytics on desktop. Compare vs Forest.",
+      "title": "Superfocus vs Forest — Pomodoro Timer | Superfocus",
+      "description": "Browser-based focus timer. No phone needed. Pomodoro + lofi + analytics on desktop. Compare vs Forest. Superfocus Premium is $1.99/month.",
       "h1": "Superfocus vs Forest",
       "keyword": "Superfocus vs Forest",
       "competitor": "Forest",
@@ -675,13 +923,21 @@
       "heroSubtitle": "Forest gamifies phone focus. But your real work happens on desktop—and the phone isn't the only distraction.",
       "painPoints": "Phone locked. Laptop wide open.<br>Real work needs desktop.<br>Forest doesn't follow you there.",
       "painSolution": "Focus timer in your browser.<br>Where work actually happens.<br>No app switching.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs forest, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs forest",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-flocus",
       "category": "compare",
-      "title": "Superfocus vs Flocus (2026) — Study Timer Compared | Superfocus",
-      "description": "Compare Flocus vs Superfocus: timers, sounds, task sync, analytics. Less decorating, more doing. Try free.",
+      "title": "Superfocus vs Flocus — Pomodoro Timer | Superfocus",
+      "description": "Compare Flocus vs Superfocus: timers, sounds, task sync, analytics. Less decorating, more doing. Subscribe at $1.99/month.",
       "h1": "Superfocus vs Flocus",
       "keyword": "Superfocus vs Flocus",
       "competitor": "Flocus",
@@ -694,13 +950,21 @@
       "heroSubtitle": "Aesthetic productivity tools feel good to set up. Setup becomes the procrastination.",
       "painPoints": "Customize theme for an hour.<br>Work for zero.<br>Productivity cosplay.",
       "painSolution": "Timer first. Features that ship.<br>Less setup. More sessions.<br>Results over aesthetics.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs flocus, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs flocus",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "superfocus-vs-focusmate",
       "category": "compare",
-      "title": "Superfocus vs Focusmate (2026) — Accountability Compared | Superfocus",
-      "description": "Independent deep work with ambient sounds vs video accountability. Compare styles. Try Superfocus free.",
+      "title": "Superfocus vs Focusmate — Pomodoro Timer | Superfocus",
+      "description": "Independent deep work with ambient sounds vs video accountability. Compare styles. Subscribe.",
       "h1": "Superfocus vs Focusmate",
       "keyword": "Superfocus vs Focusmate",
       "competitor": "Focusmate",
@@ -713,13 +977,21 @@
       "heroSubtitle": "Accountability sessions help some people. Others just need a timer, sounds, and fewer excuses.",
       "painPoints": "Schedule partner. Small talk.<br>Perform focus for someone.<br>Still avoid the hard task alone.",
       "painSolution": "Solo timer. Sounds on. Start now.<br>No scheduling. No performance.<br>Just work.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "superfocus vs focusmate, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "superfocus vs focusmate",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "pomodoro-timer-apps",
       "category": "compare",
-      "title": "Pomodoro Timer Apps Compared (2026) | Superfocus",
-      "description": "Compare Superfocus, Pomofocus, Forest, Flocus. Features, pricing, sounds. Find one that actually fits. Free tier.",
+      "title": "Pomodoro Timer Apps Compared | Superfocus",
+      "description": "Pomodoro timer apps vs a browser timer with tasks and focus music. Superfocus Premium is $1.99/month.",
       "h1": "Pomodoro Timer Apps Compared",
       "keyword": "pomodoro timer apps",
       "related": [
@@ -730,15 +1002,23 @@
       "heroSubtitle": "The app wasn't the problem. But the wrong app adds friction—signup walls, missing features, another subscription.",
       "painPoints": "Download. Sign up. Hit paywall.<br>Missing sounds. Missing tasks.<br>App hopping instead of working.",
       "painSolution": "Compare honestly. Pick one.<br>Timer + sounds + tasks included.<br>Start free today.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "pomodoro timer apps, pomodoro app, best pomodoro timer",
+      "extraKeywords": [
+        "pomodoro timer apps",
+        "pomodoro app",
+        "best pomodoro timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "pomofocus",
       "category": "alternatives",
-      "title": "Pomofocus Alternative — Free Pomodoro Timer with Sounds | Superfocus",
-      "description": "Looking for a Pomofocus alternative? Superfocus keeps the simple Pomodoro and adds ambient sounds, tasks, and analytics. Start free in your browser.",
+      "title": "Pomofocus Alternative — Timer, Tasks, Sound | Superfocus",
+      "description": "Pomofocus alternative: still a pomodoro timer online, plus tasks and cassettes. Superfocus Premium is $1.99/month.",
       "h1": "Pomofocus Alternative",
-      "keyword": "pomofocus alternative",
+      "keyword": "pomofocus",
       "related": [
         "/compare/superfocus-vs-pomofocus",
         "/alternatives/hustly-focus",
@@ -749,14 +1029,21 @@
       "heroSubtitle": "Free Pomofocus alternative with built-in lofi sounds, task tracking, and analytics—same simplicity, more features.",
       "painPoints": "Simple timer. Too simple.<br>Open Spotify separately.<br>No idea if you're improving.",
       "painSolution": "Same clean timer. More built in.<br>Sounds, tasks, stats included.<br>Upgrade without complexity.",
-      "keywords": "pomofocus alternative, pomofocus alternative free, pomodoro timer with sounds",
-      "tier": "A"
+      "keywords": "pomofocus, pomofocus alternative, pomodoro timer online, pomodoro app",
+      "tier": "A",
+      "extraKeywords": [
+        "pomofocus",
+        "pomodoro timer online",
+        "pomodoro app"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "forest-app",
       "category": "alternatives",
-      "title": "Forest App Alternative — Free Browser Focus Timer | Superfocus",
-      "description": "Browser Pomodoro timer—no phone required. Lofi, rain, tasks, analytics. Free Forest alternative.",
+      "title": "Forest App Alternative — Pomodoro Timer | Superfocus",
+      "description": "Browser Pomodoro timer—no phone required. Lofi, rain, tasks, analytics. Free Forest alternative. Superfocus Premium is $1.99/month.",
       "h1": "Forest App Alternative",
       "keyword": "forest app alternative",
       "related": [
@@ -767,14 +1054,22 @@
       "heroSubtitle": "Gamification motivates until it doesn't. You need focus tools for real work, not virtual trees.",
       "painPoints": "Trees grow. Work doesn't.<br>Phone-only focus.<br>Desktop still a mess.",
       "painSolution": "Focus where you work.<br>Browser timer. Real features.<br>Ship projects, not saplings.",
-      "tier": "B"
+      "tier": "B",
+      "keywords": "forest app alternative, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "forest app alternative",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "best-pomodoro-apps",
       "category": "alternatives",
-      "title": "Best Pomodoro Apps 2026 — Compared (Free & Online) | Superfocus",
-      "description": "Best Pomodoro apps in 2026: Superfocus, Pomofocus, Forest compared. Features and pricing—then start a free online timer.",
-      "h1": "Best Pomodoro Apps in 2026",
+      "title": "Best Pomodoro Apps & Timers | Superfocus",
+      "description": "Shortlist of pomodoro timer apps: minimal clocks vs timer + tasks + sound. Superfocus Premium is $1.99/month.",
+      "h1": "Best Pomodoro Apps",
       "keyword": "best pomodoro apps",
       "related": [
         "/compare/pomodoro-timer-apps",
@@ -785,13 +1080,20 @@
       "heroSubtitle": "Compared: Superfocus, Pomofocus, Forest, and Flocus—free tiers, sounds, tasks, and who each app fits.",
       "painPoints": "Read reviews for hours.<br>Compare features. Install three apps.<br>Still haven't started a pomodoro.",
       "painSolution": "Pick Superfocus. Start timer.<br>25 minutes. Right now.<br>Comparison ends. Work begins.",
-      "keywords": "best pomodoro app, best pomodoro apps 2026, best pomodoro timer",
+      "keywords": "best pomodoro apps, pomodoro timer apps, best pomodoro timer, pomodoro app",
       "tier": "A",
       "longFormBlocks": [
         "<h2>How we picked the best Pomodoro apps</h2>",
         "<p>We judged each app on <strong>timer flexibility</strong> (Pomodoro vs deep work), <strong>ambient sound</strong>, <strong>task integration</strong>, <strong>analytics</strong>, and <strong>free tier</strong> generosity—not marketing feature lists.</p>",
         "<p><strong>Superfocus</strong> fits browser-first workers who want timer + lofi + tasks. <strong>Pomofocus</strong> fits minimalists. <strong>Forest</strong> fits phone users who need gamification. <strong>Flocus</strong> fits aesthetic-focused study sessions.</p>"
-      ]
+      ],
+      "extraKeywords": [
+        "best pomodoro apps",
+        "pomodoro timer apps",
+        "best pomodoro timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     }
   ]
 }

@@ -31,9 +31,35 @@ export default function ArticleShell({
         },
         {
           q: "How much does Superfocus cost?",
-          a: "Premium is $1.99/month after you create an account. Open pricing, subscribe, then use the timer at /app.",
+          a: "Premium is $1.99/month after you create an account. Subscribe, then use the timer at /app.",
         },
       ];
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a.replace(/<[^>]+>/g, "") },
+    })),
+  };
+  const RELATED_HREF: Record<string, string> = {
+    "todoist-pomodoro": "/workflows/todoist-pomodoro/",
+    "productivity-analytics": "/analytics/productivity-analytics/",
+    "pomofocus-alternative": "/alternatives/pomofocus/",
+    "forest-app-alternative": "/alternatives/forest-app/",
+    "focusmate-alternative": "/alternatives/focusmate-alternative/",
+    "best-pomodoro-apps-2026": "/alternatives/best-pomodoro-apps/",
+  };
+  function relatedHref(raw: string) {
+    if (RELATED_HREF[raw]) return RELATED_HREF[raw];
+    if (raw.startsWith("/")) return raw.endsWith("/") ? raw : `${raw}/`;
+    if (raw.includes("/")) return `/${raw}/`.replace(/\/+/g, "/");
+    return `/${raw}/`;
+  }
+  function relatedLabel(raw: string) {
+    return raw.replace(/\/$/, "").split("/").filter(Boolean).slice(-1)[0]?.replace(/-/g, " ") || raw;
+  }
 
   return (
     <main className="mx-auto max-w-3xl px-5 pb-20 pt-12">
@@ -55,7 +81,11 @@ export default function ArticleShell({
       </div>
 
       <figure className="mt-10 overflow-hidden rounded-2xl border border-white/10 bg-[#141416]">
-        <img src="/images/Timer.png" alt="Superfocus pomodoro timer in the browser" className="h-auto w-full" />
+        <img
+          src="/images/Timer.png"
+          alt={`${keyword} — Superfocus pomodoro timer in the browser`}
+          className="h-auto w-full"
+        />
         <figcaption className="px-4 py-3 text-sm text-zinc-500">
           The Superfocus timer — one task, one clock, optional cassette audio.
         </figcaption>
@@ -117,14 +147,16 @@ export default function ArticleShell({
           <ul className="mt-4 space-y-2 text-sm">
             {related.map((href) => (
               <li key={href}>
-                <a href={href.endsWith("/") ? href : `${href}/`} className="text-zinc-300 hover:text-white">
-                  {href.replace(/\/$/, "").split("/").filter(Boolean).slice(-1)[0]?.replace(/-/g, " ")}
+                <a href={relatedHref(href)} className="text-zinc-300 hover:text-white">
+                  {relatedLabel(href)}
                 </a>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       <section className="mt-14 rounded-3xl border border-white/10 bg-[#141416] px-6 py-10 text-center">
         <h2 className="text-2xl font-semibold">Run this in Superfocus</h2>

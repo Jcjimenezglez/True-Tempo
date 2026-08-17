@@ -35,7 +35,7 @@ export function extraHtmlFor(page: PseoPage) {
   const whyTool = `
 <h2>Why use Superfocus instead of a kitchen timer</h2>
 <p>A kitchen timer or a silent chrome pomodoro extension only answers “when does this end?” Superfocus also holds the task, ambient sound, and a record of what you actually finished. That is the gap between a tomato timer novelty and a study timer or focus timer you will reopen tomorrow.</p>
-<p>Related searches we designed for: pomodoro timer online, pomodoro technique timer, study timer, and focus timer — not a new productivity religion. One browser tab. $1.99/month after you view pricing.</p>`;
+<p>Related searches we designed for: pomodoro timer online, pomodoro technique timer, study timer, and focus timer — not a new productivity religion. One browser tab. $1.99/month after you Subscribe.</p>`;
 
   let specialized = "";
   if (cat === "techniques") {

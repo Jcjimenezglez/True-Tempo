@@ -5,8 +5,8 @@
       "slug": "study-timer-for-flashcards",
       "category": "use-cases",
       "keyword": "study timer for flashcards",
-      "title": "Study Timer For Flashcards — Free Online Timer | Superfocus",
-      "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer.",
+      "title": "Study Timer for Flashcards — Pomodoro Timer | Superfocus",
+      "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for flashcards",
       "preset": "Sprint (15/3/10) or Pomodoro",
       "related": [
@@ -24,14 +24,22 @@
         "<p>Use a dedicated <strong>study timer for flashcards</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for flashcards, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for flashcards",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-essay-writing",
       "category": "use-cases",
       "keyword": "study timer for essay writing",
-      "title": "Study Timer For Essay Writing — Free Online Timer | Superfocus",
-      "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Free for students.",
+      "title": "Study Timer for Essay Writing — Pomodoro Timer | Superfocus",
+      "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Free for students. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for essay writing",
       "preset": "Pomodoro or Marathon",
       "related": [
@@ -49,14 +57,22 @@
         "<p>Use a dedicated <strong>study timer for essay writing</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for essay writing, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for essay writing",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-language-learning",
       "category": "use-cases",
       "keyword": "study timer for language learning",
-      "title": "Study Timer For Language Learning — Free Online Timer | Superfocus",
-      "description": "Sprint for drills, Pomodoro for reading/listening. Structure real practice. Free.",
+      "title": "Study Timer for Language Learning | Superfocus",
+      "description": "Sprint for drills, Pomodoro for reading/listening. Structure real practice. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for language learning",
       "preset": "Sprint for drills, Pomodoro for reading/listening",
       "related": [
@@ -74,14 +90,22 @@
         "<p>Use a dedicated <strong>study timer for language learning</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for language learning, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for language learning",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-reading",
       "category": "use-cases",
       "keyword": "study timer for reading",
-      "title": "Study Timer For Reading — Free Online Timer | Superfocus",
-      "description": "Pomodoro reading blocks with scheduled breaks. Finish chapters without burnout. Free.",
+      "title": "Study Timer for Reading — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro reading blocks with scheduled breaks. Finish chapters without burnout. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for reading",
       "preset": "Pomodoro (25/5/15) or Flow (45/8/25)",
       "related": [
@@ -99,14 +123,22 @@
         "<p>Use a dedicated <strong>study timer for reading</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for reading, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for reading",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-thesis",
       "category": "use-cases",
       "keyword": "study timer for thesis writing",
-      "title": "Study Timer For Thesis Writing — Free Online Timer | Superfocus",
-      "description": "90-min Deep Work or 60-min Marathon for dissertation writing. Structure long sessions. Free.",
+      "title": "Study Timer for Thesis Writing — Pomodoro Timer | Superfocus",
+      "description": "90-min Deep Work or 60-min Marathon for dissertation writing. Structure long sessions. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for thesis writing",
       "preset": "Deep Work (90/20/30) or Marathon",
       "related": [
@@ -124,14 +156,22 @@
         "<p>Use a dedicated <strong>study timer for thesis writing</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for thesis writing, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for thesis writing",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-note-taking",
       "category": "use-cases",
       "keyword": "study timer for note taking",
-      "title": "Study Timer For Note Taking — Free Online Timer | Superfocus",
-      "description": "Sprint blocks for note review and consolidation. Turn notes into knowledge. Free.",
+      "title": "Study Timer for Note Taking — Pomodoro Timer | Superfocus",
+      "description": "Sprint blocks for note review and consolidation. Turn notes into knowledge. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for note taking",
       "preset": "Sprint or Pomodoro",
       "related": [
@@ -149,14 +189,22 @@
         "<p>Use a dedicated <strong>study timer for note taking</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for note taking, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for note taking",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-online-courses",
       "category": "use-cases",
       "keyword": "study timer for online courses",
-      "title": "Study Timer For Online Courses — Free Online Timer | Superfocus",
-      "description": "Pomodoro blocks for video lectures. Breaks prevent binge-drifting. Track progress. Free.",
+      "title": "Study Timer for Online Courses — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro blocks for video lectures. Breaks prevent binge-drifting. Track progress. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for online courses",
       "preset": "Pomodoro or Flow",
       "related": [
@@ -174,14 +222,22 @@
         "<p>Use a dedicated <strong>study timer for online courses</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for online courses, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for online courses",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-group-study",
       "category": "use-cases",
       "keyword": "study timer for group study",
-      "title": "Study Timer For Group Study — Free Online Timer | Superfocus",
-      "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer.",
+      "title": "Study Timer for Group Study — Pomodoro Timer | Superfocus",
+      "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for group study",
       "preset": "Pomodoro (25/5/15)",
       "related": [
@@ -199,14 +255,22 @@
         "<p>Use a dedicated <strong>study timer for group study</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for group study, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for group study",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-math",
       "category": "use-cases",
       "keyword": "study timer for math",
-      "title": "Study Timer For Math — Free Online Timer | Superfocus",
-      "description": "Sprint blocks for problem sets. Break between problems. White noise for concentration. Free.",
+      "title": "Study Timer for Math — Pomodoro Timer | Superfocus",
+      "description": "Sprint blocks for problem sets. Break between problems. White noise for concentration. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for math",
       "preset": "Sprint or Pomodoro",
       "related": [
@@ -224,14 +288,22 @@
         "<p>Use a dedicated <strong>study timer for math</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for math, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for math",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     },
     {
       "slug": "study-timer-for-med-school",
       "category": "use-cases",
       "keyword": "study timer for med school",
-      "title": "Study Timer For Med School — Free Online Timer | Superfocus",
-      "description": "Pomodoro, Flow, Deep Work for anatomy, pharm, clinical prep. Built for marathon study days. Free.",
+      "title": "Study Timer for Med School — Pomodoro Timer | Superfocus",
+      "description": "Pomodoro, Flow, Deep Work for anatomy, pharm, clinical prep. Built for marathon study days. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for med school",
       "preset": "Pomodoro or Flow",
       "related": [
@@ -249,7 +321,15 @@
         "<p>Use a dedicated <strong>study timer for med school</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
         "<p>Track completed sessions in analytics. Three honest blocks per day beats an unstructured eight-hour “busy” day.</p>",
         "<p>Related: <a href=\"/use-cases/study-timer\" class=\"inline-text-link\">study timer</a> · <a href=\"/techniques/pomodoro-technique\" class=\"inline-text-link\">Pomodoro technique</a> · <a href=\"/use-cases/focus-timer\" class=\"inline-text-link\">focus timer</a></p>"
-      ]
+      ],
+      "keywords": "study timer for med school, pomodoro timer, focus timer",
+      "extraKeywords": [
+        "study timer for med school",
+        "pomodoro timer",
+        "focus timer"
+      ],
+      "ctaLabel": "Subscribe",
+      "ctaHref": "/pricing"
     }
   ]
 }

@@ -14,6 +14,9 @@ export default function SiteFooter() {
             <a href="/blog/" className="hover:text-white">
               Blog
             </a>
+            <a href="/faq/pomodoro-timer-online/" className="hover:text-white">
+              Pomodoro timer
+            </a>
             <a href="/techniques/pomodoro-technique/" className="hover:text-white">
               Pomodoro technique
             </a>
@@ -47,6 +50,9 @@ export default function SiteFooter() {
             </a>
             <a href="/compare/superfocus-vs-pomofocus/" className="hover:text-white">
               vs Pomofocus
+            </a>
+            <a href="/faq/how-to-focus/" className="hover:text-white">
+              How to focus
             </a>
             <a href="/blog/why-cant-i-focus/" className="hover:text-white">
               Why can&apos;t I focus

@@ -31,7 +31,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>Cut to 10. Superfocus allows custom durations because start resistance is common, including for ADHD — this is scaffolding, not a diagnosis. After two finishes, try a classic pomodoro (25/5).</p>
 <p>If the problem is anxiety about the whole project, the timer is still useful: you only owe the block, not the thesis.</p>
 <h2>What not to do</h2>
-<p>Do not download a new notes app. Do not watch a 40-minute video titled how to focus. Do not stack Forest plus Pomofocus plus Spotify. One timer, one task, then view pricing if you want the full Superfocus app at /app.</p>
+<p>Do not download a new notes app. Do not watch a 40-minute video titled how to focus. Do not stack Forest plus Pomofocus plus Spotify. One timer, one task, then Subscribe if you want Superfocus at /app.</p>
 `,
   },
   {
@@ -146,14 +146,14 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>Move to Superfocus if</h2>
 <p>Those extra tabs are the problem. If you need a study timer and lofi without YouTube, or a focus timer that knows the task name, Superfocus is the tighter loop. Pricing is $1.99/month.</p>
 <h2>Honest overlap</h2>
-<p>Both are browser pomodoro tools. Neither replaces a human coworking session. Neither is Forest. If you are happy, stay. If you are juggling three apps, view pricing.</p>
+<p>Both are browser pomodoro tools. Neither replaces a human coworking session. Neither is Forest. If you are happy, stay. If you are juggling three apps, Subscribe.</p>
 `,
   },
   {
     slug: "free-focus-study-timer",
-    title: "Free Focus Timer and Study Timer Online (How to Use Them Well)",
+    title: "Focus Timer and Study Timer Online (How to Use Them Well)",
     description:
-      "How to use a free focus timer and study timer online—presets, breaks, ambient sound, and habits that actually stick for work and exams.",
+      "How to use a study timer and focus timer online—presets, breaks, ambient sound, and habits that stick. Superfocus Premium is $1.99/month.",
     date: "2026-07-05",
     keyword: "study timer",
     html: `
@@ -161,7 +161,7 @@ export const BLOG_POSTS: BlogPost[] = [
 <h2>Use it well</h2>
 <p>Name the work. Pick a preset. Keep audio in-app. Honor breaks. Count finished blocks. That is the whole skill.</p>
 <h2>Superfocus</h2>
-<p>The marketing site is free to read. The timer app at /app is Premium ($1.99/month) after you view pricing and subscribe. Guests are not dropped into a half-broken guest clock — that was a product decision so “free timer” pages do not lie about an unlimited anonymous tool.</p>
+<p>The marketing site is free to read. The timer app at /app is Premium ($1.99/month) after you Subscribe. Guests are not dropped into a half-broken guest clock — that was a product decision so “free timer” pages do not lie about an unlimited anonymous tool.</p>
 <p>If you need a truly zero-account tomato, use any open pomodoro timer. If you want the workflow, Superfocus is the study timer with the rest of the desk included.</p>
 `,
   },
