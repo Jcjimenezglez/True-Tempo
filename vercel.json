@@ -171,6 +171,16 @@
       "permanent": true
     },
     {
+      "source": "/alternative",
+      "destination": "https://www.superfocus.live/alternatives",
+      "permanent": true
+    },
+    {
+      "source": "/alternative/:path*",
+      "destination": "https://www.superfocus.live/alternatives",
+      "permanent": true
+    },
+    {
       "source": "/time-management",
       "destination": "https://www.superfocus.live/techniques/time-blocking-timer",
       "permanent": true
