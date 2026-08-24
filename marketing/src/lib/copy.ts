@@ -9,6 +9,12 @@ function esc(value: string) {
 }
 
 export function extraHtmlFor(page: PseoPage) {
+  // This roundup owns its body in pages.json. The shared how-to template
+  // is filler ("how to run a session") and would bury the comparison.
+  if (page.category === "alternatives" && page.slug === "best-pomodoro-apps") {
+    return "";
+  }
+
   const keyword = esc(page.keyword || page.h1);
   const h1 = esc(page.h1);
   const preset = esc(page.preset || "Pomodoro (25/5/15 min)");

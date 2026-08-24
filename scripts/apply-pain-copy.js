@@ -306,14 +306,14 @@ const COPY = {
     painSolution: 'Focus where you work.<br>Browser timer. Real features.<br>Ship projects, not saplings.'
   },
   'best-pomodoro-apps': {
-    h1: 'Best Pomodoro apps 2026 — pick one and start the timer',
-    heroSubtitle: 'Honest comparison of Superfocus, Pomofocus, and Forest. Features, pricing, then close this tab and focus.',
-    title: 'Best Pomodoro Apps 2026 — Free Online Timer | Superfocus',
-    description: 'Best Pomodoro apps in 2026: Superfocus, Pomofocus, Forest compared. Features and pricing—then start a free online timer.',
-    keywords: 'best pomodoro app, best pomodoro timer, best pomodoro apps',
-    keyword: 'best pomodoro apps',
-    painPoints: 'Read reviews for hours.<br>Compare features. Install three apps.<br>Still haven\'t started a pomodoro.',
-    painSolution: 'Pick Superfocus. Start timer.<br>25 minutes. Right now.<br>Comparison ends. Work begins.'
+    h1: 'Best pomodoro app: Superfocus vs Pomofocus vs Forest',
+    heroSubtitle: 'If you work on a laptop, Superfocus is $1.99/month for timer, one task, and optional sound. Pomofocus is a clean 25/5 clock. Forest grows a tree so you leave your phone alone.',
+    title: 'Best Pomodoro App: Superfocus vs Pomofocus vs Forest | Superfocus',
+    description: 'Best pomodoro app for browser work vs a 25/5 clock vs a phone tree. Superfocus Premium is $1.99/month.',
+    keywords: 'best pomodoro app, best pomodoro apps, pomofocus, forest app, pomodoro timer apps',
+    keyword: 'best pomodoro app',
+    painPoints: 'Read ten “best pomodoro apps” lists.<br>Install Pomofocus, Forest, and a lofi tab.<br>Still have not started a single 25-minute block.',
+    painSolution: 'Match the tool to the job, then stop shopping.<br>Browser work → Superfocus at $1.99/month.<br>Naked tomato → Pomofocus. Phone addiction → Forest.'
   },
   'enter-flow-state': {
     h1: 'You know what flow feels like. You haven\'t felt it in weeks.',

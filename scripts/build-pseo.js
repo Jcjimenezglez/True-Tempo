@@ -607,7 +607,7 @@ function getWhatIs(page) {
     'pomodoro-timer-apps': 'Choosing among Pomodoro timer apps usually comes down to simplicity versus extras. Superfocus keeps a clear 25-minute timer and adds lofi/rain sounds, Todoist sync, and analytics—free to start in the browser.',
     'pomofocus': 'A Pomofocus alternative should keep the simple Pomodoro and fix the missing pieces. Superfocus adds ambient sounds, Todoist sync, and analytics while staying free to try online—no download.',
     'forest-app': 'Superfocus is a Forest app alternative that runs in your browser. No phone needed. Pomodoro timer, lofi and rain cassettes, task tracking, and analytics—all in one place.',
-    'best-pomodoro-apps': 'The best Pomodoro apps in 2026 balance a reliable timer with features you will actually use. Superfocus includes Pomodoro, Flow, and Deep Work presets; ambient sounds; Todoist sync; and analytics—start free, no credit card.'
+    'best-pomodoro-apps': 'The best pomodoro app depends on the job: Superfocus ($1.99/month) for browser timer + task + sound, Pomofocus for a naked 25/5 clock, Forest for locking the phone. There is no Superfocus free plan.'
   };
   let paragraph = paragraphMap[slug];
   if (!paragraph && cat === 'faq' && (page.answer || page.description)) {
@@ -869,11 +869,11 @@ function getCompareTable(page) {
     return `
                 <h2>Best Pomodoro apps compared (2026)</h2>
                 <table style="width:100%; border-collapse: collapse; color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 2rem;">
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align:left; padding:10px 0;">App</th><th style="text-align:left; padding:10px 0;">Timer</th><th style="text-align:left; padding:10px 0;">Sounds</th><th style="text-align:left; padding:10px 0;">Tasks</th><th style="text-align:left; padding:10px 0;">Analytics</th><th style="text-align:left; padding:10px 0;">Free tier</th></tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;"><strong>Superfocus</strong></td><td>✓ Multi-preset</td><td>✓ Built-in lofi/rain</td><td>✓ + Todoist</td><td>✓</td><td>✓ Browser</td></tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Pomofocus</td><td>✓ Classic Pomodoro</td><td>✗</td><td>Basic</td><td>Basic</td><td>✓</td></tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Forest</td><td>✓ Mobile-first</td><td>✗</td><td>✗</td><td>✓ Streaks</td><td>Limited</td></tr>
-                    <tr><td style="padding:10px 0;">Flocus</td><td>✓ Aesthetic timer</td><td>✓ Ambient</td><td>Basic</td><td>Limited</td><td>✓</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align:left; padding:10px 0;">App</th><th style="text-align:left; padding:10px 0;">Timer</th><th style="text-align:left; padding:10px 0;">Sounds</th><th style="text-align:left; padding:10px 0;">Tasks</th><th style="text-align:left; padding:10px 0;">Analytics</th><th style="text-align:left; padding:10px 0;">Price</th></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;"><strong>Superfocus</strong></td><td>✓ Multi-preset</td><td>✓ Built-in lofi/rain</td><td>✓ + Todoist</td><td>✓</td><td>$1.99/month, no free plan</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Pomofocus</td><td>✓ Classic Pomodoro</td><td>✗</td><td>Basic</td><td>Basic</td><td>Free web timer</td></tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><td style="padding:10px 0;">Forest</td><td>✓ Mobile-first</td><td>✗</td><td>✗</td><td>✓ Streaks</td><td>Paid mobile app</td></tr>
+                    <tr><td style="padding:10px 0;">Flocus</td><td>✓ Aesthetic timer</td><td>✓ Ambient</td><td>Basic</td><td>Limited</td><td>Their own pricing</td></tr>
                 </table>
                 <p>See our detailed <a href="/compare/superfocus-vs-pomofocus" class="inline-text-link">Superfocus vs Pomofocus</a> comparison.</p>`;
   }

@@ -169,12 +169,57 @@ const SPECIAL = {
     extraKeywords: ["pomofocus", "pomodoro timer online", "pomodoro app"],
   },
   "best-pomodoro-apps": {
-    keyword: "best pomodoro apps",
-    h1: "Best Pomodoro Apps",
-    title: "Best Pomodoro Apps & Timers | Superfocus",
-    description: `Shortlist of pomodoro timer apps: minimal clocks vs timer + tasks + sound. ${PAID}`,
-    keywords: "best pomodoro apps, pomodoro timer apps, best pomodoro timer, pomodoro app",
-    extraKeywords: ["best pomodoro apps", "pomodoro timer apps", "best pomodoro timer"],
+    keyword: "best pomodoro app",
+    h1: "Best pomodoro app: Superfocus vs Pomofocus vs Forest",
+    title: "Best Pomodoro App: Superfocus vs Pomofocus vs Forest | Superfocus",
+    description: `Best pomodoro app for browser work vs a 25/5 clock vs a phone tree. ${PAID}`,
+    keywords: "best pomodoro app, best pomodoro apps, pomofocus, forest app, pomodoro timer apps",
+    extraKeywords: ["best pomodoro app", "best pomodoro apps", "pomofocus", "forest app"],
+    heroSubtitle:
+      "If you work on a laptop, Superfocus is $1.99/month for timer, one task, and optional sound. Pomofocus is a clean 25/5 clock. Forest grows a tree so you leave your phone alone.",
+    painPoints:
+      "Read ten “best pomodoro apps” lists.<br>Install Pomofocus, Forest, and a lofi tab.<br>Still have not started a single 25-minute block.",
+    painSolution:
+      "Match the tool to the job, then stop shopping.<br>Browser work → Superfocus at $1.99/month.<br>Naked tomato → Pomofocus. Phone addiction → Forest.",
+    faq: [
+      {
+        q: "What is the best pomodoro app?",
+        a: "For laptop work, Superfocus ($1.99/month) keeps the clock, one task, and optional lofi or rain in the same browser tab. Pomofocus is better if you only want a 25/5 countdown. Forest is better if the phone is the problem.",
+      },
+      {
+        q: "Superfocus vs Pomofocus — which should I use?",
+        a: "Keep Pomofocus if a tomato timer is the whole product. Choose Superfocus when you also want cassettes, a named task, Todoist, and a log of finished sessions instead of three extra tabs.",
+      },
+      {
+        q: "How much does Superfocus cost?",
+        a: "Premium is $1.99/month. There is no guest timer and no free plan. Subscribe, then use the timer at /app.",
+      },
+    ],
+    longFormBlocks: [
+      "<h2>Direct answer</h2>",
+      "<p>The <strong>best pomodoro app</strong> is the one that matches where you actually fail:</p>",
+      "<ul><li><strong>Laptop / browser work</strong> — Superfocus. One tab holds the countdown, a named task, optional lofi or rain, and a record of finished blocks. Premium is <strong>$1.99/month</strong>. There is no guest timer and no free plan.</li><li><strong>You only want 25 on / 5 off</strong> — Pomofocus. It is a fast, well-known tomato clock. Keep it if you do not want sound, Todoist, or analytics in the same page.</li><li><strong>You cannot stop picking up the phone</strong> — Forest. A tree grows while the phone stays locked. That does not run your desktop writing, coding, or studying.</li></ul>",
+      "<p>This is not a 40-app awards post. It is Superfocus vs Pomofocus vs Forest, plus when Focusmate or Flocus is the honest pick instead.</p>",
+      "<h2>Superfocus vs Pomofocus vs Forest</h2>",
+      `<table>
+<thead><tr><th>If this is the job</th><th>Use</th><th>What you get</th><th>What you pay</th></tr></thead>
+<tbody>
+<tr><td>Timer + task + sound on the computer you work on</td><td>Superfocus</td><td>Pomodoro, Sprint, Flow, and Deep Work presets; cassettes; Todoist; completed-session stats</td><td>$1.99/month. No free tier.</td></tr>
+<tr><td>A tomato clock and nothing else</td><td>Pomofocus</td><td>Classic 25/5 page, light task list</td><td>The web timer is free; paid extras live on their site if you want them</td></tr>
+<tr><td>Leave the phone face-down</td><td>Forest</td><td>Gamified lock; a tree if you wait</td><td>Paid mobile app. Not a desktop focus suite.</td></tr>
+<tr><td>A stranger on camera so you start</td><td>Focusmate</td><td>Scheduled co-working</td><td>Their session pricing. Use Superfocus afterward for solo blocks.</td></tr>
+</tbody>
+</table>`,
+      "<h2>Pomofocus: keep it when the clock is the product</h2>",
+      "<p><a href=\"https://pomofocus.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Pomofocus</a> won because it looks like a kitchen timer in a browser. If you already have Spotify elsewhere and a task list elsewhere, and you like that split, stay. Superfocus is the upgrade when that split is the reason sessions die: you open lofi on YouTube, the sidebar recommends a video, and the pomodoro never starts.</p>",
+      "<p>Choose Superfocus over Pomofocus when you want the same 25/5 default plus longer presets (Flow, Deep Work), sound that is not a second destination, and a log of blocks you actually finished — billed at $1.99/month, not as a “free timer plus three other subscriptions.”</p>",
+      "<h2>Forest: a tree is not the assignment</h2>",
+      "<p>Forest is good at one job: making the phone expensive to unlock. If that is your leak, use it. If your leak is Slack, docs, and a music tab on a laptop, a tree on iOS does not write the essay. Pair Forest on the phone with Superfocus on the computer, or skip Forest and put the phone in another room.</p>",
+      "<h2>Flocus, Focusmate, and other near-misses</h2>",
+      "<p>Flocus mixes a pretty timer with sound. If you are already paying for a dashboard you customize more than you use, Superfocus is the smaller loop: clock, cassette, task. Focusmate is accountability with a human. It is not a pomodoro app. Book a session when you cannot start alone; run Superfocus when you can.</p>",
+      "<h2>Who should not subscribe to Superfocus</h2>",
+      "<p>Do not pay $1.99/month if you want a $0 tomato and will never use sound, tasks, or history. Use Pomofocus. Do not pick Superfocus as a Forest clone — we do not grow trees. Pick Superfocus when you already work in a browser and you are tired of a timer tab, a music tab, and a task tab fighting each other.</p>",
+    ],
   },
   "pomodoro-timer-apps": {
     keyword: "pomodoro timer apps",
