@@ -9,9 +9,12 @@ function esc(value: string) {
 }
 
 export function extraHtmlFor(page: PseoPage) {
-  // This roundup owns its body in pages.json. The shared how-to template
-  // is filler ("how to run a session") and would bury the comparison.
+  // These pages own their body in pages.json. The shared how-to template
+  // is filler ("how to run a session") and would bury the decision.
   if (page.category === "alternatives" && page.slug === "best-pomodoro-apps") {
+    return "";
+  }
+  if (page.category === "techniques" && page.slug === "pomodoro-technique") {
     return "";
   }
 

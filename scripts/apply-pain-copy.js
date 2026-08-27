@@ -10,14 +10,14 @@ const ROOT = path.resolve(__dirname, '..');
 
 const COPY = {
   'pomodoro-technique': {
-    h1: 'Pomodoro Technique Timer Online — 25 minutes on, 5 off',
-    heroSubtitle: 'A free 25/5 Pomodoro technique timer in your browser. Built-in breaks, ambient sounds, and task tracking—no download.',
-    title: 'Pomodoro Technique Timer Online (25/5) | Superfocus',
-    description: 'Run the Pomodoro Technique with a free 25/5 timer online. Built-in breaks, ambient sounds, and task tracking—no download. Start your first session now.',
-    keywords: 'pomodoro technique timer, pomodoro method timer, pomodoro technique app, pomodoro timer',
-    keyword: 'pomodoro technique timer',
-    painPoints: 'Open laptop. Check Slack. Make coffee. Repeat.<br>Hours pass. The important task is still untouched.<br>Tomorrow you\'ll "really focus."',
-    painSolution: 'Set 25 minutes. One task. Timer running.<br>Work until it rings. Break. Repeat.<br>Small blocks. Real progress.'
+    h1: 'Pomodoro technique: browser timer vs kitchen timer vs Pomofocus',
+    heroSubtitle: 'Kitchen timer is $0. Pomofocus is a 25/5 clock. Superfocus is $1.99/month for a browser timer, one named task, and optional cassette sound. There is no free plan.',
+    title: 'Pomodoro Technique: Browser Timer vs Kitchen Timer | Superfocus',
+    description: 'Pomodoro technique: browser timer vs kitchen timer vs Pomofocus. Superfocus Premium is $1.99/month. No free plan.',
+    keywords: 'pomodoro technique, pomodoro method, pomodoro technique timer, kitchen timer, pomofocus',
+    keyword: 'pomodoro technique',
+    painPoints: 'Read the Cirillo history. Set a phone timer. Open Pomofocus.<br>Still have not started a 25-minute block.<br>The technique is not the leak. The setup is.',
+    painSolution: 'Match the tool, then start.<br>Browser work → Superfocus at $1.99/month.<br>Naked countdown → kitchen timer or Pomofocus.'
   },
   'flowtime-timer': {
     h1: '25 minutes ends right when you\'re finally getting somewhere.',
