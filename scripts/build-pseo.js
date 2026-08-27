@@ -583,7 +583,7 @@ function getWhatIs(page) {
   }
 
   const paragraphMap = {
-    'pomodoro-technique': 'A Pomodoro Technique timer runs focused 25-minute work blocks with short breaks so you finish tasks instead of drifting. <a href="https://www.superfocus.live/" class="inline-text-link">Superfocus</a> gives you a free online 25/5 timer plus ambient sounds, tasks, and session tracking—built on the <a href="https://en.wikipedia.org/wiki/Pomodoro_Technique" target="_blank" rel="noopener noreferrer" class="inline-text-link">Pomodoro Technique</a> by Francesco Cirillo.',
+    'pomodoro-technique': 'The Pomodoro Technique is 25 on / 5 off. A kitchen timer or Pomofocus is enough if you only need a countdown. Superfocus ($1.99/month) is the browser timer with one named task, optional cassette sound, Todoist, and completed-session stats. There is no free plan.',
     'flowtime-timer': 'The Flowtime method uses longer work blocks (45+ minutes) with flexible breaks. Superfocus offers the Flow preset (45/8/25) for those who prefer fewer interruptions and longer focus sessions. It\'s ideal for <a href="https://en.wikipedia.org/wiki/Deep_work" target="_blank" rel="noopener noreferrer" class="inline-text-link">deep work</a> and flow state.',
     'time-blocking-timer': 'Time blocking is a productivity method where you schedule specific blocks for tasks. Superfocus combines a focus timer with task management—so you can block focus time, assign pomodoros to tasks, and see how much you get done.',
     'deep-work-timer': 'A deep work timer uses 90-minute blocks to match your <a href="https://en.wikipedia.org/wiki/Ultradian_rhythm" target="_blank" rel="noopener noreferrer" class="inline-text-link">ultradian rhythm</a>. Superfocus has a built-in Deep Work preset (90/20/30) for extended focus sessions without interruption.',
@@ -633,9 +633,8 @@ function getTopicSection(page) {
   if (cat === 'faq' || cat === 'compare' || cat === 'alternatives' || cat === 'sounds') return '';
 
   if (slug === 'pomodoro-technique') {
-    return `<h2>What is the Pomodoro Technique?</h2>
-                <p>The Pomodoro Technique is a time management method: focus for 25 minutes, take a 5-minute break, repeat. After 4 sessions, take a longer break. <a href="https://youtu.be/IlU-zDU6aQ0" target="_blank" rel="noopener noreferrer" class="inline-text-link">Learn more →</a></p>
-                <p>Each interval is a “pomodoro.” The method also encourages planning tasks, estimating effort, and protecting the focus block from interruptions.</p>`;
+    // Body lives in pages.json longFormBlocks. Do not re-add Cirillo history here.
+    return '';
   }
 
   if (cat === 'use-cases' && (slug === 'study-timer' || (typeof slug === 'string' && slug.startsWith('study-timer-for-')) || slug === 'exam-prep-timer' || slug === 'student-productivity')) {
@@ -950,6 +949,11 @@ function getExternalLinks(page) {
 }
 
 function getArticleBody(page) {
+  // This decision page owns its body in pages.json. The Cirillo article
+  // and the shared how-to/stall template would bury kitchen timer vs Pomofocus.
+  if (page.slug === 'pomodoro-technique' && Array.isArray(page.longFormBlocks) && page.longFormBlocks.length > 0) {
+    return page.longFormBlocks.join('\n            ');
+  }
   const articlesDir = path.join(PSEO_DIR, 'articles');
   const customPath = path.join(articlesDir, `${page.slug}.html`);
   if (fs.existsSync(customPath)) {
@@ -1075,7 +1079,7 @@ function getPracticeSection(page) {
 }
 
 function buildContentSection(page, contentSectionTemplate) {
-  return contentSectionTemplate
+  let html = contentSectionTemplate
     .replace(/\{\{H1\}\}/g, escapeHtml(page.h1))
     .replace(/\{\{HERO_SUBTITLE\}\}/g, escapeHtml(getHeroSubtitle(page)))
     .replace(/\{\{SLUG\}\}/g, page.slug)
@@ -1083,6 +1087,16 @@ function buildContentSection(page, contentSectionTemplate) {
     .replace(/\{\{FAQ\}\}/g, getFaq(page))
     .replace(/\{\{RELATED_LINKS\}\}/g, getRelatedLinks(page.related))
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
+  if (page.slug === 'pomodoro-technique') {
+    const cta = page.ctaHref || '/pricing';
+    const label = page.ctaLabel || 'Subscribe';
+    html = html
+      .replace(/href="\/\?ref=pseo-pomodoro-technique"/g, `href="${cta}"`)
+      .replace(/href="\/\?ref=pseo-pomodoro-technique-mid"/g, `href="${cta}"`)
+      .replace(/Start free in Superfocus →/g, label)
+      .replace(/Try the timer free →/g, label);
+  }
+  return html;
 }
 
 const HUB_TEMPLATE_PATH = path.join(PSEO_DIR, 'hub-template.html');
