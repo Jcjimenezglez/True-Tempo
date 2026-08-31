@@ -890,9 +890,9 @@
     {
       "slug": "superfocus-vs-pomofocus",
       "category": "compare",
-      "title": "Pomofocus vs Superfocus — Pomodoro Timer Comparison | Superfocus",
-      "description": "Side-by-side: Pomofocus vs Superfocus. Same simple Pomodoro—plus sounds, tasks, and analytics. Compare features, then start focusing free. Superfocus Premi…",
-      "h1": "Superfocus vs Pomofocus",
+      "title": "Superfocus vs Pomofocus: $1.99 vs a 25/5 Clock | Superfocus",
+      "description": "Keep Pomofocus for a 25/5 clock. Superfocus is $1.99/month: timer, named task, optional sound. No free plan.",
+      "h1": "Superfocus vs Pomofocus: $1.99 vs a 25/5 clock",
       "keyword": "pomofocus",
       "competitor": "Pomofocus",
       "competitorUrl": "https://pomofocus.io",
@@ -903,34 +903,45 @@
         "/techniques/pomodoro-technique",
         "/faq/pomodoro-timer-online"
       ],
-      "heroSubtitle": "Honest 2026 comparison: Pomofocus for minimal Pomodoro vs Superfocus for timer + sounds + tasks + analytics.",
+      "heroSubtitle": "Keep Pomofocus if you only want a 25/5 clock. Superfocus is $1.99/month for a timer, one named task, and optional sound in one tab. There is no free plan.",
       "painPoints": "Timer in one tab. Spotify in another.<br>Tasks somewhere else.<br>Focus fragmented across apps.",
-      "painSolution": "Timer, sounds, tasks, stats.<br>One app. One tab.<br>Focus without juggling.",
-      "keywords": "pomofocus, pomodoro timer online, pomodoro app",
+      "painSolution": "One tab: clock, named task, optional sound.<br>Superfocus is $1.99/month.<br>No free plan. No guest timer.",
+      "keywords": "superfocus vs pomofocus, pomofocus, pomodoro timer, focus timer",
       "tier": "A",
       "longFormBlocks": [
-        "<h2>When Pomofocus is enough</h2>",
-        "<p>If you only need a clean <strong>25-minute countdown</strong> with a task list and nothing else, <a href=\"https://pomofocus.io/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"inline-text-link\">Pomofocus</a> is an excellent choice. It is fast, free, and stays out of your way.</p>",
-        "<p>Choose Superfocus when you keep opening Spotify for lofi, a separate tab for tasks, or want streak analytics—timer, ambient cassettes, Todoist sync, and leaderboard in one browser tab.</p>"
+        "<h2>Direct answer</h2>",
+        "<p>This is a decision page, not a feature dump. <a href=\"https://pomofocus.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Pomofocus</a> is a fast 25/5 tomato in a browser tab. <strong>Superfocus</strong> is a browser pomodoro / focus timer billed at <strong>$1.99/month</strong>: one countdown, one named task, and optional cassette sound in the same tab. There is no Superfocus free plan and no guest timer.</p>",
+        "<ul><li><strong>You only want 25 on / 5 off</strong> — stay on Pomofocus. It is a well-known kitchen-timer page. Keep it if you already run music and tasks somewhere else and that split works.</li><li><strong>You want the clock, a named task, and optional sound together</strong> — Superfocus. Premium is $1.99/month after a 7-day trial. Subscribe, then use the timer at <a href=\"/app\">/app</a>.</li><li><strong>You only need a countdown</strong> — a kitchen timer or the phone clock is $0. Do not pay $1.99/month for that.</li></ul>",
+        "<h2>Superfocus vs Pomofocus</h2>",
+        "<table>\n<thead><tr><th>If this is the job</th><th>Use</th><th>What you get</th><th>What you pay</th></tr></thead>\n<tbody>\n<tr><td>A tomato clock and nothing else</td><td>Pomofocus</td><td>Classic 25/5 page, light task list</td><td>The web timer is free; paid extras live on their site if you want them</td></tr>\n<tr><td>Timer + named task + optional sound on the computer you work on</td><td>Superfocus</td><td>Pomodoro, Sprint, Flow, and Deep Work presets; cassettes; Todoist; completed-session stats</td><td>$1.99/month. No free plan.</td></tr>\n<tr><td>A countdown and nothing else</td><td>Kitchen timer or phone clock</td><td>25 on / 5 off if you remember the breaks</td><td>$0</td></tr>\n</tbody>\n</table>",
+        "<h2>Keep Pomofocus when 25/5 is the whole product</h2>",
+        "<p>Pomofocus won because it looks like a kitchen timer in a browser. If you already have Spotify elsewhere and a task list elsewhere, and you like that split, stay. Switching tools for sport is not focus.</p>",
+        "<p>Choose Superfocus when that split is why sessions die: you open lofi on YouTube, the sidebar recommends a video, and the pomodoro never starts. Superfocus keeps the 25/5 default and adds longer presets, sound that is not a second destination, and a log of blocks you actually finished — billed at $1.99/month, not as a “free timer plus three other subscriptions.”</p>",
+        "<h2>What Superfocus actually is</h2>",
+        "<p>Superfocus is a browser pomodoro / focus timer: a clock, one named task, optional cassette sound (lofi, rain, and similar beds), Todoist if you already live there, and completed-session stats. Presets include Pomodoro 25/5, Sprint, Flow, and Deep Work.</p>",
+        "<p>It is not a guest timer. It is not a free plan with a daily cap. It is not “one free browser app.” Premium is $1.99/month after a 7-day trial.</p>",
+        "<h2>Who should not subscribe</h2>",
+        "<p>Do not pay $1.99/month if you want a $0 tomato and will never use sound, a named task, or history. Use Pomofocus or a kitchen timer. Do not pick Superfocus as a Forest clone — we do not grow trees. Pick Superfocus when you already work in a browser and you are tired of a timer tab, a music tab, and a task tab fighting each other.</p>"
       ],
       "faq": [
         {
-          "q": "Is Superfocus better than Pomofocus?",
-          "a": "Superfocus adds built-in ambient sounds, deeper analytics, Todoist sync, and multiple timer presets. Pomofocus wins on minimalism if you only need a basic Pomodoro countdown."
+          "q": "Superfocus vs Pomofocus — which should I use?",
+          "a": "Keep Pomofocus if a 25/5 tomato in the browser is the whole product. Choose Superfocus when you also want one named task, optional lofi or rain, Todoist, and a log of finished sessions in the same tab."
         },
         {
-          "q": "Can I use both for free?",
-          "a": "Yes. Both offer free browser tiers. Try each for one afternoon on real work before deciding."
+          "q": "How much does Superfocus cost?",
+          "a": "Premium is $1.99/month after a 7-day trial. There is no guest timer and no free plan. Subscribe, then use the timer at /app."
         },
         {
-          "q": "Which has better sounds?",
-          "a": "Superfocus includes lofi, rain, cafe, and white noise cassettes without leaving the timer. Pomofocus does not include ambient audio."
+          "q": "Does Superfocus have a free browser tier?",
+          "a": "No. Superfocus has no free plan and no guest timer. Pomofocus’s web timer is free if you only need a 25/5 clock."
         }
       ],
       "extraKeywords": [
+        "superfocus vs pomofocus",
         "pomofocus",
-        "pomodoro timer online",
-        "pomodoro app"
+        "pomodoro timer",
+        "focus timer"
       ],
       "ctaLabel": "Subscribe",
       "ctaHref": "/pricing"

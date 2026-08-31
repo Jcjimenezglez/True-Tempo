@@ -17,6 +17,9 @@ export function extraHtmlFor(page: PseoPage) {
   if (page.category === "techniques" && page.slug === "pomodoro-technique") {
     return "";
   }
+  if (page.category === "compare" && page.slug === "superfocus-vs-pomofocus") {
+    return "";
+  }
 
   const keyword = esc(page.keyword || page.h1);
   const h1 = esc(page.h1);

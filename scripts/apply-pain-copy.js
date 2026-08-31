@@ -246,14 +246,14 @@ const COPY = {
     painSolution: 'Streak counter. Session history.<br>See consistency build.<br>Momentum from numbers.'
   },
   'superfocus-vs-pomofocus': {
-    h1: 'Superfocus vs Pomofocus: same timer, plus sounds and analytics',
-    heroSubtitle: 'Pomofocus is a simple Pomodoro. Superfocus adds lofi, rain, Todoist sync, and analytics in one free browser app.',
-    title: 'Superfocus vs Pomofocus: Best Free Pomodoro Timer Comparison',
-    description: 'Side-by-side: Pomofocus vs Superfocus. Same simple Pomodoro—plus sounds, tasks, and analytics. Compare features, then start focusing free.',
-    keywords: 'Superfocus vs Pomofocus, best pomodoro timer, best free pomodoro timer, pomodoro timer comparison',
-    keyword: 'Superfocus vs Pomofocus',
+    h1: 'Superfocus vs Pomofocus: $1.99 vs a 25/5 clock',
+    heroSubtitle: 'Keep Pomofocus if you only want a 25/5 clock. Superfocus is $1.99/month for a timer, one named task, and optional sound in one tab. There is no free plan.',
+    title: 'Superfocus vs Pomofocus: $1.99 vs a 25/5 Clock | Superfocus',
+    description: 'Keep Pomofocus for a 25/5 clock. Superfocus is $1.99/month: timer, named task, optional sound. No free plan.',
+    keywords: 'superfocus vs pomofocus, pomofocus, pomodoro timer, focus timer',
+    keyword: 'pomofocus',
     painPoints: 'Timer in one tab. Spotify in another.<br>Tasks somewhere else.<br>Focus fragmented across apps.',
-    painSolution: 'Timer, sounds, tasks, stats.<br>One app. One tab.<br>Focus without juggling.'
+    painSolution: 'One tab: clock, named task, optional sound.<br>Superfocus is $1.99/month.<br>No free plan. No guest timer.'
   },
   'superfocus-vs-forest': {
     h1: 'You planted trees on your phone. Your laptop still has 40 tabs.',
