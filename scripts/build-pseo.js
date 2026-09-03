@@ -600,7 +600,7 @@ function getWhatIs(page) {
     'lofi-study-music': 'Lofi study music combines chill beats with ambient sound to aid concentration. Superfocus has curated lofi cassettes plus your Spotify playlists—pair with Pomodoro or any timer.',
     'todoist-pomodoro': 'Todoist Pomodoro combines task management with a focus timer. Superfocus syncs with Todoist so you can assign pomodoros to tasks, track completion, and stay organized.',
     'productivity-analytics': 'Productivity analytics show how much you focus each day, week, and month. Superfocus Premium tracks sessions, streaks, and trends—so you can build better habits and see real progress.',
-    'superfocus-vs-pomofocus': 'Pomofocus is a clean online Pomodoro. Superfocus keeps that simplicity and adds ambient sounds (lofi, rain, cafe), Todoist sync, and productivity analytics in one free browser app—so you are not juggling three tabs to focus.',
+    'superfocus-vs-pomofocus': 'Keep Pomofocus if you only want a 25/5 clock. Superfocus is $1.99/month for a browser timer, one named task, and optional cassette sound in the same tab. There is no free plan and no guest timer.',
     'superfocus-vs-forest': 'Superfocus is a browser-based focus timer with Pomodoro, ambient sounds, and analytics. Unlike <a href="https://www.forestapp.cc/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Forest</a>, it runs on desktop without your phone. Lofi, rain, cafe cassettes plus task tracking and leaderboard.',
     'superfocus-vs-flocus': 'Superfocus blends a Pomodoro timer with ambient cassettes and task management. Compare with <a href="https://flocus.com/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Flocus</a>—both offer focus timers and productivity tools. Superfocus adds lofi, rain, and Spotify integration.',
     'superfocus-vs-focusmate': 'Superfocus is a solo focus timer with ambient sounds and Pomodoro. <a href="https://www.focusmate.com/" target="_blank" rel="noopener noreferrer" class="inline-text-link">Focusmate</a> pairs you with an accountability partner. Different styles: Superfocus for independent deep work, Focusmate for session accountability.',
@@ -951,7 +951,7 @@ function getExternalLinks(page) {
 function getArticleBody(page) {
   // This decision page owns its body in pages.json. The Cirillo article
   // and the shared how-to/stall template would bury kitchen timer vs Pomofocus.
-  if (page.slug === 'pomodoro-technique' && Array.isArray(page.longFormBlocks) && page.longFormBlocks.length > 0) {
+  if ((page.slug === 'pomodoro-technique' || page.slug === 'superfocus-vs-pomofocus') && Array.isArray(page.longFormBlocks) && page.longFormBlocks.length > 0) {
     return page.longFormBlocks.join('\n            ');
   }
   const articlesDir = path.join(PSEO_DIR, 'articles');
@@ -1087,12 +1087,12 @@ function buildContentSection(page, contentSectionTemplate) {
     .replace(/\{\{FAQ\}\}/g, getFaq(page))
     .replace(/\{\{RELATED_LINKS\}\}/g, getRelatedLinks(page.related))
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
-  if (page.slug === 'pomodoro-technique') {
+  if (page.slug === 'pomodoro-technique' || page.slug === 'superfocus-vs-pomofocus') {
     const cta = page.ctaHref || '/pricing';
     const label = page.ctaLabel || 'Subscribe';
     html = html
-      .replace(/href="\/\?ref=pseo-pomodoro-technique"/g, `href="${cta}"`)
-      .replace(/href="\/\?ref=pseo-pomodoro-technique-mid"/g, `href="${cta}"`)
+      .replace(new RegExp(`href="/\\?ref=pseo-${page.slug}"`, 'g'), `href="${cta}"`)
+      .replace(new RegExp(`href="/\\?ref=pseo-${page.slug}-mid"`, 'g'), `href="${cta}"`)
       .replace(/Start free in Superfocus →/g, label)
       .replace(/Try the timer free →/g, label);
   }
