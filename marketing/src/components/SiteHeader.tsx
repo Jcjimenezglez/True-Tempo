@@ -21,6 +21,9 @@ export default function SiteHeader() {
           <a href="/techniques/" className="hover:text-white">
             Techniques
           </a>
+          <a href="/use-cases/" className="hover:text-white">
+            Use cases
+          </a>
           <a href="/pricing/" className="hover:text-white">
             Pricing
           </a>

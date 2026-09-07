@@ -21,7 +21,7 @@ export default function HomePage() {
           One tab. One task. Done.
         </h1>
         <p className="mx-auto mt-4 max-w-md text-base text-zinc-400">
-          Timer, tasks, and sound together. $1.99/month.
+          Timer, tasks, and sound together. $1.99/month after a 7-day trial.
         </p>
         <div className="mt-8">
           <SubscribeButton />
@@ -38,9 +38,43 @@ export default function HomePage() {
 
       <QuoteGrid />
 
+      <section className="mx-auto max-w-3xl px-5 pb-16 pt-8">
+        <h2 className="text-2xl font-semibold tracking-tight">Guides</h2>
+        <p className="mt-3 text-zinc-400">
+          Real HTML links to every live cluster hub. Premium is $1.99/month after a 7-day trial. No
+          free plan.
+        </p>
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+          {[
+            ["/techniques/", "Techniques"],
+            ["/use-cases/", "Use cases"],
+            ["/compare/", "Compare"],
+            ["/alternatives/", "Alternatives"],
+            ["/faq/", "FAQ"],
+            ["/blog/", "Blog"],
+            ["/sounds/", "Sounds"],
+            ["/workflows/", "Workflows"],
+            ["/analytics/", "Analytics"],
+            ["/goals/", "Goals"],
+            ["/professions/", "Professions"],
+            ["/activities/", "Activities"],
+            ["/pricing/", "Pricing"],
+            ["/faq/how-to-focus/", "How to focus"],
+            ["/use-cases/study-timer/", "Study timer"],
+            ["/techniques/pomodoro-technique/", "Pomodoro technique"],
+          ].map(([href, label]) => (
+            <li key={href}>
+              <a href={href} className="text-zinc-300 hover:text-white">
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="mx-auto max-w-xl px-5 pb-32 pt-8 text-center">
         <h2 className="text-3xl font-semibold tracking-tight">Start a session</h2>
-        <p className="mt-3 text-zinc-400">$1.99/month. Cancel anytime.</p>
+        <p className="mt-3 text-zinc-400">$1.99/month after a 7-day trial. Cancel anytime.</p>
         <div className="mt-8">
           <SubscribeButton />
         </div>

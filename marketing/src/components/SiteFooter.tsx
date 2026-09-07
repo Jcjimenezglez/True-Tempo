@@ -37,6 +37,27 @@ export default function SiteFooter() {
             <a href="/alternatives/" className="hover:text-white">
               Alternatives
             </a>
+            <a href="/faq/" className="hover:text-white">
+              FAQ
+            </a>
+            <a href="/sounds/" className="hover:text-white">
+              Sounds
+            </a>
+            <a href="/workflows/" className="hover:text-white">
+              Workflows
+            </a>
+            <a href="/analytics/" className="hover:text-white">
+              Analytics
+            </a>
+            <a href="/goals/" className="hover:text-white">
+              Goals
+            </a>
+            <a href="/professions/" className="hover:text-white">
+              Professions
+            </a>
+            <a href="/activities/" className="hover:text-white">
+              Activities
+            </a>
           </div>
         </div>
         <div>
@@ -67,6 +88,12 @@ export default function SiteFooter() {
             </a>
             <a href="/terms/" className="hover:text-white">
               Terms
+            </a>
+            <a href="/contact/" className="hover:text-white">
+              Contact
+            </a>
+            <a href="/release-notes/" className="hover:text-white">
+              Release notes
             </a>
           </div>
         </div>

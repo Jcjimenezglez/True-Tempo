@@ -31,7 +31,7 @@ export default function ArticleShell({
         },
         {
           q: "How much does Superfocus cost?",
-          a: "Premium is $1.99/month after you create an account. Subscribe, then use the timer at /app.",
+          a: "Premium is $1.99/month after a 7-day trial. There is no guest timer and no free plan. Subscribe, then use the timer at /app.",
         },
       ];
   const faqLd = {
@@ -161,7 +161,7 @@ export default function ArticleShell({
       <section className="mt-14 rounded-3xl border border-white/10 bg-[#141416] px-6 py-10 text-center">
         <h2 className="text-2xl font-semibold">Run this in Superfocus</h2>
         <p className="mt-2 text-zinc-400">
-          One plan. $1.99/month. Timer lives at /app after you subscribe.
+          One plan. $1.99/month after a 7-day trial. No free plan. Timer lives at /app after you subscribe.
         </p>
         <div className="mt-6">
           <ViewPricingLink />

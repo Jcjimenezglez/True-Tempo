@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing — Pomodoro Timer $1.99/month | Superfocus",
   description:
-    "Superfocus Premium is $1.99/month: pomodoro timer, tasks, and focus music in one tab. Cancel anytime.",
+    "Superfocus Premium is $1.99/month after a 7-day trial: pomodoro timer, tasks, and focus music in one tab. No free plan. Cancel anytime.",
   keywords: ["pomodoro timer", "pomodoro app", "focus timer"],
   alternates: { canonical: "https://www.superfocus.live/pricing" },
 };
@@ -20,7 +20,7 @@ export default function PricingPage() {
         <p className="text-sm text-zinc-500">Pricing</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Superfocus Premium</h1>
         <p className="mx-auto mt-4 max-w-md text-base text-zinc-400">
-          One plan. $1.99/month. Then open the timer at /app.
+          One plan. $1.99/month after a 7-day trial. No free plan. Then open the timer at /app.
         </p>
         <div className="mt-8">
           <SubscribeButton id="pricing-subscribe" autoCheckout />
@@ -40,7 +40,7 @@ export default function PricingPage() {
 
       <section className="mx-auto max-w-xl px-5 pb-32 pt-8 text-center">
         <h2 className="text-3xl font-semibold tracking-tight">Subscribe</h2>
-        <p className="mt-3 text-zinc-400">$1.99/month. Cancel anytime.</p>
+        <p className="mt-3 text-zinc-400">$1.99/month after a 7-day trial. Cancel anytime.</p>
         <div className="mt-8">
           <SubscribeButton />
         </div>

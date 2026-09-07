@@ -50,7 +50,9 @@ export function extraHtmlFor(page: PseoPage) {
   const whyTool = `
 <h2>Why use Superfocus instead of a kitchen timer</h2>
 <p>A kitchen timer or a silent chrome pomodoro extension only answers “when does this end?” Superfocus also holds the task, ambient sound, and a record of what you actually finished. That is the gap between a tomato timer novelty and a study timer or focus timer you will reopen tomorrow.</p>
-<p>Related searches we designed for: pomodoro timer online, pomodoro technique timer, study timer, and focus timer — not a new productivity religion. One browser tab. $1.99/month after you Subscribe.</p>`;
+<p>Related searches we designed for: pomodoro timer online, pomodoro technique timer, study timer, and focus timer — not a new productivity religion. One browser tab. $1.99/month after a 7-day trial. There is no free plan.</p>
+<h2>What Superfocus costs</h2>
+<p>There is no free plan and no guest timer. Premium is <strong>$1.99/month after a 7-day trial</strong>. Subscribe, then run ${keyword} at <a href="/app">/app</a>. If you only need a countdown, keep a kitchen timer or phone clock — do not pay $1.99/month for that.</p>`;
 
   let specialized = "";
   if (cat === "techniques") {

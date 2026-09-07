@@ -91,9 +91,10 @@ export function getPage(category: string, slug: string) {
   return loadAllPages().find((page) => page.category === category && page.slug === slug);
 }
 
-export function pagesInCategory(category: string) {
+export function pagesInCategory(category: string, { indexableOnly = true } = {}) {
   return loadAllPages()
     .filter((page) => page.category === category)
+    .filter((page) => !indexableOnly || page.tier !== "C")
     .sort((a, b) => a.h1.localeCompare(b.h1));
 }
 

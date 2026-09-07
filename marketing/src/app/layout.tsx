@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.superfocus.live"),
   title: "Pomodoro Timer Online — Focus & Study Timer | Superfocus",
   description:
-    "Pomodoro timer, tasks, and lofi cassettes in one browser tab. Superfocus Premium is $1.99/month.",
+    "Pomodoro timer, tasks, and lofi cassettes in one browser tab. Superfocus Premium is $1.99/month after a 7-day trial.",
   keywords: [
     "pomodoro timer",
     "pomodoro technique",

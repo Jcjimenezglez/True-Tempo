@@ -5,6 +5,7 @@ export type BlogPost = {
   date: string;
   keyword: string;
   html: string;
+  canonicalTo?: string;
 };
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -93,6 +94,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "best-pomodoro-timers-2026",
+    canonicalTo: "https://www.superfocus.live/alternatives/best-pomodoro-apps",
     title: "Best Pomodoro Timers of 2026 (Practical Shortlist)",
     description:
       "A no-fluff guide to the best Pomodoro timers in 2026—minimal web apps, timer+sound tools, phone lock apps, and how to pick for your workflow.",
@@ -134,6 +136,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "pomofocus-vs-superfocus",
+    canonicalTo: "https://www.superfocus.live/compare/superfocus-vs-pomofocus",
     title: "Pomofocus vs Superfocus: Which Pomodoro Timer Fits You?",
     description:
       "Pomofocus vs Superfocus compared: minimal online Pomodoro versus timer + ambient sound + tasks. Choose based on your real workflow.",

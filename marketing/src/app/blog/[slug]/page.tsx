@@ -15,11 +15,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) return {};
-  const url = `https://www.superfocus.live/blog/${post.slug}`;
+  const url = post.canonicalTo || `https://www.superfocus.live/blog/${post.slug}`;
   return {
     title: post.title,
     description: post.description,
     keywords: post.keyword,
+    robots: post.canonicalTo ? { index: false, follow: true } : { index: true, follow: true },
     alternates: { canonical: url },
     openGraph: { title: post.title, description: post.description, url, images: ["/og-image.png"] },
   };
