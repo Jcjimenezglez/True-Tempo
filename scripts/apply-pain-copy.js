@@ -575,7 +575,7 @@ const COPY = {
     h1: '500 flashcards due. You\'ve done twelve.',
     heroSubtitle: 'Anki guilt grows with every notification. Without time blocks, review becomes avoidance.',
     title: 'Flashcard Backlog Growing? Study Sprint Timer | Superfocus',
-    description: '15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer.',
+    description: '15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Superfocus Premium is $1.99/month after a 7-day trial.',
     painPoints: 'Cards pile up. Avoid Anki.<br>Guilt spiral.<br>Exam closer.',
     painSolution: '15 min review. Every day.<br>Timer ends = stop guilt-free.<br>Backlog shrinks.'
   },
@@ -583,7 +583,7 @@ const COPY = {
     h1: 'Essay due in 48 hours. Introduction: unfinished.',
     heroSubtitle: 'You\'ve rewritten the first sentence nine times. Perfectionism is procrastination in academic clothes.',
     title: 'Essay Due Soon? Pomodoro Writing Timer | Superfocus',
-    description: '25-min writing blocks. Don\'t edit, just draft. Rain sounds for focus. Free for students.',
+    description: '25-min writing blocks. Don\'t edit, just draft. Rain sounds for focus. Superfocus Premium is $1.99/month after a 7-day trial.',
     painPoints: 'Edit before write.<br>First paragraph forever.<br>Deadline panic.',
     painSolution: '25 min: draft only.<br>Ugly words count.<br>Edit in the next block.'
   },
@@ -631,7 +631,7 @@ const COPY = {
     h1: 'Group study turned into group chat in twelve minutes.',
     heroSubtitle: 'Without shared structure, study sessions become social hours with textbooks as props.',
     title: 'Group Study Always Off-Track? Sync Timer | Superfocus',
-    description: 'Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer.',
+    description: 'Shared Pomodoro blocks. Everyone focuses together, breaks together. Superfocus Premium is $1.99/month after a 7-day trial.',
     painPoints: 'Open books. Close focus.<br>Chat takes over.<br>Exam still coming.',
     painSolution: 'Shared 25-min timer.<br>Phones away. Break together.<br>Group actually studies.'
   },
@@ -881,5 +881,9 @@ function applyToDatabaseDir() {
   }
 }
 
-applyToPagesJson();
-applyToDatabaseDir();
+module.exports = { COPY };
+
+if (require.main === module) {
+  applyToPagesJson();
+  applyToDatabaseDir();
+}
