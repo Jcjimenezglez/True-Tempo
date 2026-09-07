@@ -53,7 +53,7 @@ for (const entry of fs.readdirSync(OUT, { withFileTypes: true })) {
       fs.rmSync(to, { recursive: true, force: true });
     }
     copyDir(from, to);
-  } else if (entry.name === "index.html") {
+  } else if (entry.name === "index.html" || entry.name === "sitemap.xml" || entry.name === "robots.txt") {
     fs.copyFileSync(from, to);
   }
 }

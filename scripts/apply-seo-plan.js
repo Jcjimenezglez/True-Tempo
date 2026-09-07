@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const PAID = "Superfocus Premium is $1.99/month.";
+const PAID = "Superfocus Premium is $1.99/month after a 7-day trial.";
 
 const SPECIAL = {
   "pomodoro-timer-online": {
@@ -476,6 +476,8 @@ function sanitizeString(text) {
   s = s.replace(/Free tier: 2 hours focus\/day\./gi, "");
   s = s.replace(/a free 25\/5/gi, "a 25/5");
   s = s.replace(/A free study timer/gi, "A study timer");
+  s = s.replace(/Free study timer\. /gi, "");
+  s = s.replace(/Free for students\. /gi, "");
   s = s.replace(/Free Pomodoro/gi, "Pomodoro");
   s = s.replace(/free Pomodoro/gi, "pomodoro");
   s = s.replace(/Try Superfocus free/gi, "Subscribe");

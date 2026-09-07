@@ -10,12 +10,12 @@ Every pSEO page has a `tier` field in JSON and in `pseo/tiers.json` (slug → ti
 |------|----------|------------------|---------|
 | **A** | `index, follow` | 0.9 | Money pages — homepage spokes, compare, alternatives |
 | **B** | `index, follow` | 0.8 | Expansion pages — techniques, use-cases, sounds, competitors |
-| **C** | `noindex, follow` | excluded | Thin long-tail until enriched (then promote to B) |
+| **C** | `noindex, follow` | excluded | Reserved for empty/soft-404 shells — do not hub-link these |
 
 **Build behavior (`scripts/build-pseo.js`):**
 - Tier C → `<meta name="robots" content="noindex, follow">`
-- Sitemap includes only tier A + B pSEO pages, hubs, blog (minus canonicalized posts), core URLs
-- Hub pages list only indexable (non-C) pages, with Tier A slugs first per category
+- Sitemap includes every live indexable marketing leaf: tier A + B pSEO pages, all hubs (`/techniques/` through `/activities/`), blog (minus canonicalized posts), core URLs (`/`, `/pricing`, `/press`, `/contact`, `/privacy`, `/terms`, `/release-notes`)
+- Hub pages list only indexable (non-C) pages, with Tier A slugs first per category. Homepage, header, and footer use real `<a href>` links to the cluster.
 
 **Adding a new page:**
 1. Add entry to `pseo/pages.json` or `pseo/databases/*.json` with `"tier": "B"` (default)
@@ -76,7 +76,7 @@ Posts with `canonicalTo` in `pseo/blog/posts.json`:
 
 ## Technical SEO
 
-- `sitemap.xml` — auto-regenerated (~55–100 indexable URLs depending on tier promotions)
+- `sitemap.xml` — auto-regenerated from `scripts/lib/sitemap-urls.js` (~120+ indexable URLs after promoting former long-tail leaves)
 - `robots.txt` — allows crawlers, blocks `/api/`
 - `llms.txt`, `.well-known/security.txt`
 - Redirects in `vercel.json`: `superfocus.live` → `www`, legacy paths → spokes

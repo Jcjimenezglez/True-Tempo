@@ -18,7 +18,7 @@
       "recommendedSounds": "Minimal lofi or white noise",
       "heroSubtitle": "Reactive email mode makes everyone else's priorities yours. Deep work never gets a turn.",
       "painSolution": "Two 15-min email blocks daily.<br>Timer ends = inbox closed.<br>Take control back.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for email with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for email</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -51,7 +51,7 @@
       "recommendedSounds": "Rain or ambient for reading",
       "heroSubtitle": "Rabbit holes feel productive until you close the laptop with nothing synthesized.",
       "painSolution": "25 min read. 5 min notes.<br>Repeat. Synthesize.<br>Research becomes insight.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for research with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for research</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -84,7 +84,7 @@
       "recommendedSounds": "Rain or lofi for writing",
       "heroSubtitle": "Creating content requires starting, and starting requires protected time you never block.",
       "painSolution": "Bad first draft in 25 min.<br>Timer forces start.<br>Edit later. Ship on time.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for content creation with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for content creation</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -117,7 +117,7 @@
       "recommendedSounds": "Cafe or ambient for creative flow",
       "heroSubtitle": "Unlimited ideation becomes unlimited wandering. Ideas scatter without time boundaries.",
       "painSolution": "15 min generate. 5 min pick top 3.<br>Time box saves meetings.<br>Ideas become action.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for brainstorming with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for brainstorming</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -150,7 +150,7 @@
       "recommendedSounds": "White noise or minimal lofi",
       "heroSubtitle": "Five minutes here, ten there—by evening you've done chores all day and avoided real work.",
       "painSolution": "One 15-min admin block.<br>Batch everything.<br>Rest of day: real work.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for admin tasks with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for admin tasks</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -183,7 +183,7 @@
       "recommendedSounds": "Lofi or white noise",
       "heroSubtitle": "Shallow skimming isn't review—it's how bugs ship. Thorough review needs focused blocks.",
       "painSolution": "One PR per pomodoro.<br>Full attention. Complete review.<br>Queue shrinks daily.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for reviews with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for reviews</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -216,7 +216,7 @@
       "recommendedSounds": "Minimal ambient or silence",
       "heroSubtitle": "Without blocked planning time, every day starts reactive. Goals drift. Priorities blur.",
       "painSolution": "Monday: 25 min planning.<br>Before email. Before meetings.<br>Week runs you less.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus timer for planning with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus timer for planning</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",

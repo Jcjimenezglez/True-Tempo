@@ -545,7 +545,7 @@ function getPresetSection(page) {
   const cat = page.category;
   if (cat === 'faq') {
     return `<h2>Timer preset for this answer</h2>
-            <p>Try <strong>${escapeHtml(preset)}</strong> in Superfocus. You can also switch among Pomodoro, Flow, Sprint, Deep Work, and Marathon, and add lofi, rain, or cafe sound if the room fights your attention. <a href="https://www.superfocus.live/" class="inline-text-link">Open the free timer</a>.</p>`;
+            <p>Try <strong>${escapeHtml(preset)}</strong> in Superfocus. You can also switch among Pomodoro, Flow, Sprint, Deep Work, and Marathon, and add lofi, rain, or cafe sound if the room fights your attention. Premium is $1.99/month after a 7-day trial. <a href="/pricing" class="inline-text-link">Subscribe</a>.</p>`;
   }
   if (cat === 'compare' || cat === 'alternatives') {
     return `<h2>Try the comparison in a real session</h2>
@@ -625,10 +625,10 @@ function getWhatIs(page) {
     const angle = comp && compUrl
       ? page.compareAngle.replace(comp, `<a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="inline-text-link">${comp}</a>`)
       : page.compareAngle;
-    paragraph = `Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">focus timer app</a> that combines Pomodoro, ambient sounds, and analytics. ${angle} Free to try.`;
+    paragraph = `Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">focus timer app</a> that combines Pomodoro, ambient sounds, and analytics. ${angle} Premium is $1.99/month after a 7-day trial.`;
   }
   if (!paragraph) {
-    paragraph = `Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">focus timer app</a> that supports ${keyword}. Use ${preset} plus ambient sounds (lofi, rain, cafe), task tracking, and analytics. Free to try.`;
+    paragraph = `Superfocus is a <a href="https://www.superfocus.live/" class="inline-text-link">focus timer app</a> that supports ${keyword}. Use ${preset} plus ambient sounds (lofi, rain, cafe), task tracking, and analytics. Premium is $1.99/month after a 7-day trial.`;
   }
   return { heading, paragraph };
 }
@@ -837,14 +837,14 @@ function getFeatures(page) {
       '<strong>Flexible presets</strong> — match energy, not ego.',
       '<strong>Distraction tools</strong> — sound + single task.',
       '<strong>Streak tracking</strong> — keep the goal honest.',
-      '<strong>Free start</strong> — prove the system before upgrading.'
+      '<strong>$1.99/month after a 7-day trial</strong> — no free plan.'
     ],
     faq: [
       '<strong>Clear presets</strong> — test the advice immediately.',
       '<strong>No install</strong> — browser timer.',
       '<strong>Sounds included</strong> — optional focus audio.',
       '<strong>Tasks</strong> — attach the answer to real work.',
-      '<strong>Free tier</strong> — try before Premium.'
+      '<strong>$1.99/month after a 7-day trial</strong> — no guest timer.'
     ]
   };
 
@@ -1111,7 +1111,7 @@ const HUB_CONFIG = {
   compare: {
     h1: 'Compare Superfocus with other focus timers',
     title: 'Compare Focus Timers — Superfocus vs Pomofocus & More',
-    description: 'Side-by-side comparisons of Superfocus with Pomofocus, Forest, Flocus, and other popular focus and Pomodoro timers.',
+    description: 'Side-by-side comparisons of Superfocus with Pomofocus, Forest, Flocus, and other popular focus and Pomodoro timers. $1.99/month after a 7-day trial.',
     keywords: 'focus timer comparison, Superfocus vs Pomofocus, pomodoro app comparison',
     intro: [
       'Choosing a focus timer means balancing simplicity with the features you actually use—ambient sounds, task sync, and analytics.',
@@ -1121,7 +1121,7 @@ const HUB_CONFIG = {
   alternatives: {
     h1: 'Focus timer alternatives',
     title: 'Focus Timer Alternatives — Pomofocus, Forest & More | Superfocus',
-    description: 'Looking for a Pomofocus, Hustly Focus, or Forest alternative? Free browser focus timer with sounds, tasks, and analytics.',
+    description: 'Looking for a Pomofocus, Hustly Focus, or Forest alternative? Browser focus timer with sounds, tasks, and analytics. $1.99/month after a 7-day trial.',
     keywords: 'pomofocus alternative, hustly focus alternative, forest app alternative, focus timer alternative',
     intro: [
       'Outgrowing your current focus app usually means you need more than a countdown—sounds, tasks, streaks, and sync in one place.',
@@ -1131,7 +1131,7 @@ const HUB_CONFIG = {
   'use-cases': {
     h1: 'Focus timers for every use case',
     title: 'Focus Timer Use Cases — Study, Work & Deep Focus | Superfocus',
-    description: 'Free online focus timers for studying, coding, writing, ADHD, and remote work. Pomodoro presets with ambient sounds.',
+    description: 'Study timer, focus timer, work timer, writing timer, and ADHD-friendly sprints. Superfocus is $1.99/month after a 7-day trial.',
     keywords: 'study timer, focus timer online, work timer, focus website for studying',
     intro: [
       'Different work needs different focus blocks—a 25-minute sprint for studying, 90 minutes for deep work, 15 minutes when starting feels hard.',
@@ -1141,11 +1141,81 @@ const HUB_CONFIG = {
   techniques: {
     h1: 'Focus techniques & timer methods',
     title: 'Pomodoro & Focus Techniques — Timers & Methods | Superfocus',
-    description: 'Pomodoro technique, Flowtime, time blocking, and deep work timers. Free online guides with built-in presets.',
+    description: 'Pomodoro technique, Flowtime, time blocking, and deep work timers. Superfocus Premium is $1.99/month after a 7-day trial.',
     keywords: 'pomodoro technique, flowtime timer, deep work timer, time blocking timer',
     intro: [
       'The right focus technique depends on your task, attention span, and energy—Pomodoro for structured sprints, Flowtime for longer blocks, Deep Work for hard problems.',
       'Each guide below explains the method and links to a ready-made timer preset in Superfocus so you can start immediately.'
+    ]
+  },
+  sounds: {
+    h1: 'Focus music & ambient sound',
+    title: 'Focus Music, Lofi Study Music & White Noise | Superfocus',
+    description: 'Focus music, lofi study music, rain sounds, and white noise inside the pomodoro timer. $1.99/month after a 7-day trial.',
+    keywords: 'focus music, lofi study music, white noise, rain sounds for focus',
+    intro: [
+      'Sound fails when it is a second tab. Superfocus keeps lofi, rain, cafe, and white noise next to the clock.',
+      'Pick the bed that does not pull you into a livestream sidebar, then run one named block.'
+    ]
+  },
+  faq: {
+    h1: 'Pomodoro timer FAQ',
+    title: 'Pomodoro Timer FAQ — How to Focus | Superfocus',
+    description: 'Pomodoro timer online, how to focus, how to enter flow state, and honest Superfocus pricing. $1.99/month after a 7-day trial.',
+    keywords: 'pomodoro timer online, how to focus, how to enter flow state',
+    intro: [
+      'Short answers for session length, breaks, ADHD-friendly sprints, and whether Superfocus is free (it is not).',
+      'Each page is a decision, not a doorway: kitchen timer vs a $1.99/month browser timer after a 7-day trial.'
+    ]
+  },
+  workflows: {
+    h1: 'Timer workflows',
+    title: 'Pomodoro Workflows — Todoist & Task Planning | Superfocus',
+    description: 'Todoist pomodoro and task-planning workflows next to the Superfocus timer. $1.99/month after a 7-day trial.',
+    keywords: 'todoist pomodoro, task planning, pomodoro workflow',
+    intro: [
+      'A list without a clock is a diary. A clock without a next action is a tomato animation.',
+      'These pages show how to keep one task next to the Superfocus timer.'
+    ]
+  },
+  analytics: {
+    h1: 'Focus analytics',
+    title: 'Pomodoro Statistics & Focus Time Tracking | Superfocus',
+    description: 'Track completed pomodoros and focus time — not tab-open hours. $1.99/month after a 7-day trial.',
+    keywords: 'pomodoro statistics, focus time tracking, productivity analytics',
+    intro: [
+      'Count finished blocks, not how long a tab stayed open.',
+      'Use the reports to see whether Tuesday’s study timer actually produced sessions.'
+    ]
+  },
+  goals: {
+    h1: 'Focus goals',
+    title: 'Focus Goals — Flow, Habits & Fewer Distractions | Superfocus',
+    description: 'Enter flow, build focus habits, and block distractions with a named timer. $1.99/month after a 7-day trial.',
+    keywords: 'enter flow state, build focus habits, block distractions',
+    intro: [
+      'Goals fail when they stay slogans. These pages turn a goal into one timed block.',
+      'Pick the outcome, start the preset, then stop when the bell rings.'
+    ]
+  },
+  professions: {
+    h1: 'Focus timers by profession',
+    title: 'Focus Timers for Lawyers, Designers & Teachers | Superfocus',
+    description: 'Profession-specific focus timer setups for research, drafting, and lesson prep. $1.99/month after a 7-day trial.',
+    keywords: 'focus timer for lawyers, focus timer for designers, focus timer for teachers',
+    intro: [
+      'The clock is the same. The next action is not: a brief, a mock, a lesson plan.',
+      'Use the preset that matches the work, then log whether the block produced something billable or shippable.'
+    ]
+  },
+  activities: {
+    h1: 'Focus timers by activity',
+    title: 'Focus Timers for Email, Research & Planning | Superfocus',
+    description: 'Batch email, research, and planning in timed blocks instead of all-day reactivity. $1.99/month after a 7-day trial.',
+    keywords: 'focus timer for email, focus timer for research, focus timer for planning',
+    intro: [
+      'Shallow work expands to fill the day unless you put a clock on it.',
+      'These pages are for batching one activity — inbox, research, reviews — then closing it.'
     ]
   }
 };
@@ -1170,6 +1240,7 @@ function buildHubHtml(category, pages, hubTemplate, manifest) {
     category,
     pages.filter(p => p.category === category && isIndexablePage(p))
   );
+  // Hubs list every indexable live leaf with a real <a href>. Tier C stays out.
 
   const pageList = categoryPages.map(p => {
     const path = `/${category}/${p.slug}`;
@@ -1384,65 +1455,21 @@ async function main() {
   console.log(`Generated ${generated.length} pSEO pages.`);
 
   const hubUrls = buildHubPages(pages, manifest);
-  const blogUrls = buildBlogPages(manifest);
-
-  const indexableGenerated = generated.filter(loc => {
-    const page = pages.find(p => `/${p.category}/${p.slug}` === loc);
-    return page && isIndexablePage(page);
-  });
+  buildBlogPages(manifest);
 
   const today = new Date().toISOString().slice(0, 10);
-  const coreUrls = [
-    { loc: '/', priority: '1.0', changefreq: 'weekly' },
-    { loc: '/pricing', priority: '0.9', changefreq: 'monthly' },
-    { loc: '/press', priority: '0.6', changefreq: 'monthly' },
-    { loc: '/contact', priority: '0.5', changefreq: 'monthly' },
-    { loc: '/privacy', priority: '0.5', changefreq: 'yearly' },
-    { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
-    { loc: '/release-notes', priority: '0.5', changefreq: 'weekly' }
-  ];
-  const hubSitemapUrls = hubUrls.map(loc => ({
-    loc: BASE_URL + loc,
-    priority: '0.85',
-    changefreq: 'weekly'
-  }));
-  const blogSitemapUrls = blogUrls.map(loc => ({
-    loc: BASE_URL + loc,
-    priority: loc === '/blog/' ? '0.85' : '0.75',
-    changefreq: 'monthly'
-  }));
-  const allUrls = [
-    ...coreUrls.map(u => ({ ...u, loc: BASE_URL + u.loc })),
-    ...hubSitemapUrls,
-    ...blogSitemapUrls,
-    ...indexableGenerated.map(loc => {
-      const page = pages.find(p => `/${p.category}/${p.slug}` === loc);
-      return {
-        loc: BASE_URL + loc,
-        priority: page ? getSitemapPriority(page) : '0.8',
-        changefreq: 'monthly'
-      };
-    })
-  ];
+  const { buildSitemapEntries, renderSitemapXml, loadBlogPosts } = require('./lib/sitemap-urls');
+  const blogPosts = loadBlogPosts(ROOT);
+  const sitemapEntries = buildSitemapEntries({ pages, blogPosts, lastmod: today });
   const tierCCount = pages.filter(p => p.tier === 'C').length;
-  console.log(`Sitemap: ${allUrls.length} URLs (${tierCCount} Tier C pages excluded)`);
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls.map(u => `    <url>
-        <loc>${u.loc}</loc>
-        <lastmod>${today}</lastmod>
-        <changefreq>${u.changefreq}</changefreq>
-        <priority>${u.priority}</priority>
-    </url>`).join('\n')}
-</urlset>
-`;
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap, 'utf8');
+  console.log(`Sitemap: ${sitemapEntries.length} URLs (${tierCCount} Tier C pages excluded; ${hubUrls.length} hubs generated)`);
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), renderSitemapXml(sitemapEntries), 'utf8');
   console.log('Updated sitemap.xml');
 
   if (process.env.SKIP_INDEXNOW !== '1') {
     try {
       const { submitIndexNow } = require('../api/lib/indexnow');
-      const result = await submitIndexNow(allUrls.map((u) => u.loc));
+      const result = await submitIndexNow(sitemapEntries.map((u) => u.loc));
       console.log(`IndexNow: submitted ${result.submitted} URLs`, result.batches);
     } catch (error) {
       console.warn('IndexNow submission skipped:', error.message);

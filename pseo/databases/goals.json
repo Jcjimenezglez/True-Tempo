@@ -18,7 +18,7 @@
       "recommendedSounds": "Lofi or rain for sustained focus",
       "heroSubtitle": "Every interruption resets the clock. By the time you settle in, something else demands attention.",
       "painSolution": "45 or 90 minutes. Sounds on.<br>One task. Timer protects it.<br>Flow becomes reachable.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Enter flow state with a focus timer</h2>",
         "<p>Use a dedicated <strong>enter flow state</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -50,7 +50,7 @@
       "recommendedSounds": "Lofi, rain, or white noise",
       "heroSubtitle": "Willpower lasts about four minutes. Then your thumb finds the app you swore you wouldn't open.",
       "painSolution": "Timer running = work mode.<br>Sounds mask the world.<br>25 minutes. Protected.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Reduce distractions with a focus timer</h2>",
         "<p>Use a dedicated <strong>reduce distractions</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -83,7 +83,7 @@
       "recommendedSounds": "Any cassette for ritual",
       "heroSubtitle": "Motivation spikes on Sunday night and dies by Tuesday. Without tracking, you can't see the pattern—or break it.",
       "painSolution": "One pomodoro today. Logged.<br>Streak starts. Visible progress.<br>Habits need proof.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Build focus habits with a focus timer</h2>",
         "<p>Use a dedicated <strong>build focus habits</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -116,7 +116,7 @@
       "recommendedSounds": "Rain or lofi for recovery breaks",
       "heroSubtitle": "No breaks feels productive until your brain stops cooperating entirely. Burnout doesn't announce itself—it accumulates.",
       "painSolution": "Breaks are scheduled. Not optional.<br>Sustain pace all week.<br>Marathon, not sprint to collapse.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Avoid burnout with a focus timer</h2>",
         "<p>Use a dedicated <strong>avoid burnout</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -149,7 +149,7 @@
       "recommendedSounds": "Lofi or cafe for work blocks",
       "heroSubtitle": "Busy is not productive. You answer messages, attend calls, and end the day with the hard thing still waiting.",
       "painSolution": "Measure focus time, not activity.<br>Block deep work first.<br>Ship one thing daily.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Increase productivity with a focus timer</h2>",
         "<p>Use a dedicated <strong>increase productivity</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -182,7 +182,7 @@
       "recommendedSounds": "Rain or lofi for extended sessions",
       "heroSubtitle": "Short attention isn't a character flaw—it's untrained stamina. You've never built the muscle for longer blocks.",
       "painSolution": "Start at 25. Extend to 45.<br>Track what works.<br>Longer blocks over time.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Stay focused longer with a focus timer</h2>",
         "<p>Use a dedicated <strong>stay focused longer</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -215,7 +215,7 @@
       "recommendedSounds": "White noise, lofi, or rain",
       "heroSubtitle": "You can't control the open office, the neighbor, or the group chat. You can control your next 25 minutes.",
       "painSolution": "Headphones. Cassette on. Timer start.<br>25 minutes of protected space.<br>One block at a time.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Block distractions with a focus timer</h2>",
         "<p>Use a dedicated <strong>block distractions</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -248,7 +248,7 @@
       "recommendedSounds": "Any cassette",
       "heroSubtitle": "Pick up phone to start timer. See notification. Twenty minutes gone. The tool became the trap.",
       "painSolution": "Timer in browser. Phone away.<br>Work on desktop.<br>Focus where you type.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Focus without phone with a focus timer</h2>",
         "<p>Use a dedicated <strong>focus without phone</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",

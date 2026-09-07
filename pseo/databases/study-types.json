@@ -6,7 +6,7 @@
       "category": "use-cases",
       "keyword": "study timer for flashcards",
       "title": "Study Timer for Flashcards — Pomodoro Timer | Superfocus",
-      "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Free study timer. Superfocus Premium is $1.99/month.",
+      "description": "15-min Sprint blocks for Anki/Quizlet. Sustainable review sessions. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for flashcards",
       "preset": "Sprint (15/3/10) or Pomodoro",
       "related": [
@@ -18,7 +18,7 @@
       "recommendedSounds": "Minimal lofi or white noise",
       "heroSubtitle": "Anki guilt grows with every notification. Without time blocks, review becomes avoidance.",
       "painSolution": "15 min review. Every day.<br>Timer ends = stop guilt-free.<br>Backlog shrinks.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for flashcards with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for flashcards</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -39,7 +39,7 @@
       "category": "use-cases",
       "keyword": "study timer for essay writing",
       "title": "Study Timer for Essay Writing — Pomodoro Timer | Superfocus",
-      "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Free for students. Superfocus Premium is $1.99/month.",
+      "description": "25-min writing blocks. Don't edit, just draft. Rain sounds for focus. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for essay writing",
       "preset": "Pomodoro or Marathon",
       "related": [
@@ -51,7 +51,7 @@
       "recommendedSounds": "Rain or lofi for sustained writing",
       "heroSubtitle": "You've rewritten the first sentence nine times. Perfectionism is procrastination in academic clothes.",
       "painSolution": "25 min: draft only.<br>Ugly words count.<br>Edit in the next block.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for essay writing with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for essay writing</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -84,7 +84,7 @@
       "recommendedSounds": "Lofi or cafe for immersion blocks",
       "heroSubtitle": "Streaks measure taps, not fluency. Real practice needs focused immersion blocks you never schedule.",
       "painSolution": "25 min speaking practice.<br>Timer on. Phone in drawer.<br>Real blocks, real progress.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for language learning with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for language learning</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -117,7 +117,7 @@
       "recommendedSounds": "Rain or ambient for reading focus",
       "heroSubtitle": "You read the same page twice and retain nothing. Without breaks, fatigue wins by page three.",
       "painSolution": "25 min read. 5 min walk.<br>Fresh eyes. Next section.<br>Chapters finish.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for reading with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for reading</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -150,7 +150,7 @@
       "recommendedSounds": "Rain, lofi, or cafe for deep writing",
       "heroSubtitle": "Dissertation writing needs marathon blocks you never protect. Life fills every gap.",
       "painSolution": "90 min every morning.<br>Same time. Same desk.<br>Thesis moves daily.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for thesis writing with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for thesis writing</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -183,7 +183,7 @@
       "recommendedSounds": "Lofi or white noise",
       "heroSubtitle": "Review sessions never happen because consolidation takes focused time you don't allocate.",
       "painSolution": "15 min daily review.<br>One lecture at a time.<br>Notes become memory.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for note taking with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for note taking</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -216,7 +216,7 @@
       "recommendedSounds": "Cafe or minimal lofi",
       "heroSubtitle": "Video lectures play while you scroll. \"Watching\" isn't learning without focused attention.",
       "painSolution": "One module per pomodoro.<br>Notes required. Phone away.<br>Course actually finishes.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for online courses with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for online courses</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -237,7 +237,7 @@
       "category": "use-cases",
       "keyword": "study timer for group study",
       "title": "Study Timer for Group Study — Pomodoro Timer | Superfocus",
-      "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Free study timer. Superfocus Premium is $1.99/month.",
+      "description": "Shared Pomodoro blocks. Everyone focuses together, breaks together. Superfocus Premium is $1.99/month.",
       "h1": "Study timer for group study",
       "preset": "Pomodoro (25/5/15)",
       "related": [
@@ -249,7 +249,7 @@
       "recommendedSounds": "Lofi or cafe for group vibe",
       "heroSubtitle": "Without shared structure, study sessions become social hours with textbooks as props.",
       "painSolution": "Shared 25-min timer.<br>Phones away. Break together.<br>Group actually studies.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for group study with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for group study</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -282,7 +282,7 @@
       "recommendedSounds": "White noise or minimal lofi",
       "heroSubtitle": "Math fatigue is real. Without breaks, frustration replaces problem-solving.",
       "painSolution": "15 min per problem max.<br>Move on. Return fresh.<br>Sets get finished.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for math with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for math</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
@@ -315,7 +315,7 @@
       "recommendedSounds": "Lofi or rain for sustained focus",
       "heroSubtitle": "Med school volume breaks unstructured study. Without blocks, you drown in content and retain nothing.",
       "painSolution": "One topic. 45 minutes.<br>Break. Next topic.<br>Mountain becomes steps.",
-      "tier": "C",
+      "tier": "B",
       "longFormBlocks": [
         "<h2>Study timer for med school with a focus timer</h2>",
         "<p>Use a dedicated <strong>study timer for med school</strong> session with Superfocus: name one outcome, pick a preset (Pomodoro 25 min or Flow 45 min), optionally start ambient sound, and finish the block before checking messages.</p>",
