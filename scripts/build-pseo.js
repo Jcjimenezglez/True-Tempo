@@ -40,6 +40,12 @@ const HUB_PRIORITY_ORDER = {
   alternatives: ['best-pomodoro-apps', 'pomofocus', 'hustly-focus']
 };
 
+const DECISION_SLUGS = new Set(['pomodoro-technique', 'superfocus-vs-pomofocus', 'study-timer']);
+
+function isDecisionPage(slug) {
+  return DECISION_SLUGS.has(slug);
+}
+
 function loadTierRegistry() {
   if (!fs.existsSync(TIERS_JSON)) return { pages: {} };
   return loadJson(TIERS_JSON);
@@ -453,7 +459,7 @@ function buildJsonLd(page, canonicalPath) {
     ]
   });
 
-  if (page.category === 'faq') {
+  if (page.category === 'faq' || page.slug === 'pomodoro-technique' || page.slug === 'study-timer') {
     const faqItems = getFaqData(page);
     if (faqItems.length > 0) {
       schemas.push({
@@ -512,7 +518,7 @@ function buildJsonLd(page, canonicalPath) {
     });
   }
 
-  if (page.category === 'techniques' || page.category === 'use-cases') {
+  if ((page.category === 'techniques' || page.category === 'use-cases') && !isDecisionPage(page.slug)) {
     const steps = getHowToStepTexts(page);
     schemas.push({
       '@context': 'https://schema.org',
@@ -591,7 +597,7 @@ function getWhatIs(page) {
     'marathon-timer': 'A marathon timer uses 60-minute focus blocks for extended deep work. Superfocus Marathon preset (60/10/30) is built for writers, researchers, and anyone who needs longer uninterrupted sessions.',
     '52-minute-focus': 'The 52-minute focus method is based on <a href="https://en.wikipedia.org/wiki/Ultradian_rhythm" target="_blank" rel="noopener noreferrer" class="inline-text-link">ultradian rhythms</a>. Work 52 minutes, break 17. Superfocus lets you create custom timers to match your body\'s natural cycles.',
     '90-minute-deep-work': '90-minute deep work sessions align with your ultradian rhythm—the natural ~90-minute cycle of focus and rest. Superfocus Deep Work preset (90/20/30) lets you capitalize on this without manual timer tweaking.',
-    'study-timer': 'A study timer gives students timed focus blocks, breaks, and fewer excuses to scroll. Superfocus pairs Pomodoro (or Sprint) with lofi and ambient sounds so exam prep, readings, and papers happen in clear rounds—not vague “study time.”',
+    'study-timer': 'A study timer is a closed countdown for learning work. A kitchen timer or Pomofocus is enough if you only need a countdown. Superfocus ($1.99/month) is the browser timer with one named task, optional cassette sound, Todoist, and completed-session stats. There is no free plan.',
     'focus-timer': 'A focus timer is a structured countdown that protects one task from interruptions. Superfocus is a free online focus timer with Pomodoro, Flow, and Deep Work presets—plus ambient sounds and tasks in the same browser tab.',
     'work-timer': 'A work timer keeps professionals on track during busy days. Superfocus combines Pomodoro, Flow, and Deep Work presets with task tracking and ambient sounds—so you can block focus time between meetings and get real work done.',
     'coding-focus-timer': 'A coding focus timer helps developers enter flow state. Superfocus Deep Work (90 min) or Flow (45 min) presets, plus lofi sounds, let you code without context switching or distraction.',
@@ -632,12 +638,12 @@ function getTopicSection(page) {
   const cat = page.category;
   if (cat === 'faq' || cat === 'compare' || cat === 'alternatives' || cat === 'sounds') return '';
 
-  if (slug === 'pomodoro-technique') {
-    // Body lives in pages.json longFormBlocks. Do not re-add Cirillo history here.
+  if (slug === 'pomodoro-technique' || slug === 'study-timer') {
+    // Body lives in pages.json longFormBlocks. Do not re-add generic how-to here.
     return '';
   }
 
-  if (cat === 'use-cases' && (slug === 'study-timer' || (typeof slug === 'string' && slug.startsWith('study-timer-for-')) || slug === 'exam-prep-timer' || slug === 'student-productivity')) {
+  if (cat === 'use-cases' && ((typeof slug === 'string' && slug.startsWith('study-timer-for-')) || slug === 'exam-prep-timer' || slug === 'student-productivity')) {
     return `<h2>Why students use timed study blocks</h2>
                 <p>Open-ended “study until done” sessions invite phones and half-attention. Short timed rounds create a clear start and stop—so readings, flashcards, and essays move in measurable chunks.</p>
                 <p>Pair the timer with ambient sound when silence feels too loud, then take the break on purpose instead of doomscrolling mid-chapter.</p>`;
@@ -951,7 +957,7 @@ function getExternalLinks(page) {
 function getArticleBody(page) {
   // This decision page owns its body in pages.json. The Cirillo article
   // and the shared how-to/stall template would bury kitchen timer vs Pomofocus.
-  if ((page.slug === 'pomodoro-technique' || page.slug === 'superfocus-vs-pomofocus') && Array.isArray(page.longFormBlocks) && page.longFormBlocks.length > 0) {
+  if (isDecisionPage(page.slug) && Array.isArray(page.longFormBlocks) && page.longFormBlocks.length > 0) {
     return page.longFormBlocks.join('\n            ');
   }
   const articlesDir = path.join(PSEO_DIR, 'articles');
@@ -1087,7 +1093,7 @@ function buildContentSection(page, contentSectionTemplate) {
     .replace(/\{\{FAQ\}\}/g, getFaq(page))
     .replace(/\{\{RELATED_LINKS\}\}/g, getRelatedLinks(page.related))
     .replace(/\{\{EXTERNAL_LINKS\}\}/g, getExternalLinks(page));
-  if (page.slug === 'pomodoro-technique' || page.slug === 'superfocus-vs-pomofocus') {
+  if (isDecisionPage(page.slug)) {
     const cta = page.ctaHref || '/pricing';
     const label = page.ctaLabel || 'Subscribe';
     html = html

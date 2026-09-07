@@ -20,6 +20,9 @@ export function extraHtmlFor(page: PseoPage) {
   if (page.category === "compare" && page.slug === "superfocus-vs-pomofocus") {
     return "";
   }
+  if (page.category === "use-cases" && page.slug === "study-timer") {
+    return "";
+  }
 
   const keyword = esc(page.keyword || page.h1);
   const h1 = esc(page.h1);

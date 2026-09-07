@@ -76,14 +76,14 @@ const COPY = {
     painSolution: 'Block 90 minutes. Protect it.<br>Deep Work preset ready.<br>Finish what matters.'
   },
   'study-timer': {
-    h1: 'Study Timer Online — free Pomodoro blocks for students',
-    heroSubtitle: 'A free study timer in your browser. 25-minute Pomodoro sessions with ambient sounds so you study instead of scrolling.',
-    title: 'Study Timer Online — Free Pomodoro for Students | Superfocus',
-    description: 'Free study timer online with Pomodoro blocks, ambient sounds, and task tracking. Built for students who need structure—not another tab to ignore.',
-    keywords: 'study timer, study timer online, pomodoro study, study with me',
+    h1: 'Study timer: kitchen timer vs Pomofocus vs Superfocus',
+    heroSubtitle: 'Kitchen timer is $0. Pomofocus is a 25/5 clock. Superfocus is $1.99/month for a browser study timer, one named task, and optional cassette sound. There is no free plan.',
+    title: 'Study Timer: Kitchen Timer vs Pomofocus | Superfocus',
+    description: 'Kitchen timer vs Pomofocus vs Superfocus for studying. Superfocus Premium is $1.99/month. No free plan.',
+    keywords: 'study timer, study timer online, pomodoro study timer, kitchen timer, pomofocus',
     keyword: 'study timer',
-    painPoints: 'Open the book. Check phone. Repeat for 3 hours.<br>Feel guilty. Promise tomorrow will be different.<br>Tomorrow: same loop.',
-    painSolution: 'One 25-minute block. Phone away. Timer running.<br>Four pages become forty. Guilt becomes momentum.'
+    painPoints: 'Search study timer. Set a phone clock. Open Pomofocus.<br>Still have not started the chapter.<br>The timer is not the leak. The setup is.',
+    painSolution: 'Match the tool, then start.<br>Laptop studying → Superfocus at $1.99/month.<br>Naked countdown → kitchen timer or Pomofocus.'
   },
   'work-timer': {
     h1: 'Eight hours at the office. Forty-five minutes of actual work.',

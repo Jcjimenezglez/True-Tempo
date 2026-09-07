@@ -77,11 +77,59 @@ const SPECIAL = {
   },
   "study-timer": {
     keyword: "study timer",
-    h1: "Study Timer Online",
-    title: "Study Timer Online — Pomodoro for Students | Superfocus",
-    description: `Study timer with pomodoro blocks and optional lofi study music in one tab. ${PAID}`,
-    keywords: "study timer, study timer online, pomodoro study timer, exam timer",
-    extraKeywords: ["study timer", "pomodoro study timer", "exam timer", "lofi study music"],
+    h1: "Study timer: kitchen timer vs Pomofocus vs Superfocus",
+    title: "Study Timer: Kitchen Timer vs Pomofocus | Superfocus",
+    description: `Kitchen timer vs Pomofocus vs Superfocus for studying. ${PAID} No free plan.`,
+    keywords: "study timer, study timer online, pomodoro study timer, kitchen timer, pomofocus",
+    extraKeywords: ["study timer", "study timer online", "pomodoro study timer", "pomofocus"],
+    heroSubtitle:
+      "Kitchen timer is $0. Pomofocus is a 25/5 clock. Superfocus is $1.99/month for a browser study timer, one named task, and optional cassette sound. There is no free plan.",
+    painPoints:
+      "Search study timer. Set a phone clock. Open Pomofocus.<br>Still have not started the chapter.<br>The timer is not the leak. The setup is.",
+    painSolution:
+      "Match the tool, then start.<br>Laptop studying → Superfocus at $1.99/month.<br>Naked countdown → kitchen timer or Pomofocus.",
+    faq: [
+      {
+        q: "What is a study timer?",
+        a: "A study timer is a countdown that closes a learning block: readings, problem sets, flashcards, or a paper. A kitchen timer only counts. The decision is whether you also need a named task, optional sound, and a record of finished blocks in the same place.",
+      },
+      {
+        q: "Kitchen timer vs Pomofocus vs Superfocus — which should I use?",
+        a: "Use a kitchen timer or phone clock if you only need a countdown. Keep Pomofocus if a 25/5 tomato in the browser is the whole product. Choose Superfocus when you also want one named task, optional lofi or rain, Todoist, and a log of finished sessions in the same tab.",
+      },
+      {
+        q: "How much does Superfocus cost?",
+        a: "Premium is $1.99/month. There is no guest timer and no free plan. Subscribe, then use the timer at /app.",
+      },
+    ],
+    longFormBlocks: [
+      "<h2>Direct answer</h2>",
+      "<p>A <strong>study timer</strong> is a closed loop for learning work: start, focus, break, stop. You can run that loop on a kitchen timer. The decision is which clock matches the job:</p>",
+      "<ul><li><strong>Kitchen timer or phone clock</strong> — $0. Counts down. Does not hold a task, sound, or a record of finished blocks. You remember the breaks yourself.</li><li><strong>You only want 25 on / 5 off in a browser</strong> — Pomofocus. It is a fast, well-known tomato clock. Keep it if you do not want sound, Todoist, or session stats in the same page.</li><li><strong>Laptop / browser studying</strong> — Superfocus. One tab holds the countdown, a named task, optional lofi or rain, and a log of finished blocks. Premium is <strong>$1.99/month</strong>. There is no guest timer and no free plan.</li></ul>",
+      "<p>This is not a how-to pad about “study until you feel done.” It is kitchen timer vs Pomofocus vs Superfocus for exams, reading, and flashcards.</p>",
+      "<h2>Kitchen timer vs Pomofocus vs Superfocus</h2>",
+      `<table>
+<thead><tr><th>If this is the job</th><th>Use</th><th>What you get</th><th>What you pay</th></tr></thead>
+<tbody>
+<tr><td>A countdown and nothing else</td><td>Kitchen timer or phone clock</td><td>25 on / 5 off if you remember the breaks</td><td>$0</td></tr>
+<tr><td>A tomato clock in a browser tab</td><td>Pomofocus</td><td>Classic 25/5 page, light task list</td><td>The web timer is free; paid extras live on their site if you want them</td></tr>
+<tr><td>Timer + named task + optional sound on the computer you study on</td><td>Superfocus</td><td>Pomodoro, Sprint, Flow, and Deep Work presets; cassettes; Todoist; completed-session stats</td><td>$1.99/month. No free plan.</td></tr>
+</tbody>
+</table>`,
+      "<h2>Kitchen timer: keep it when the clock is the product</h2>",
+      "<p>A physical timer (or the clock app on your phone) is enough when you already protect the block: one assignment on paper, phone in another room, breaks you will actually take. Studying does not require software. If that is you, do not pay $1.99/month.</p>",
+      "<p>Kitchen timers fail when the leak is the laptop itself — a second lofi tab, group chat, a task list in another window. A tomato on the desk does not name “problems 4–12” or keep a study-with-me video from becoming the activity.</p>",
+      "<h2>Pomofocus: keep it when 25/5 is the whole product</h2>",
+      "<p><a href=\"https://pomofocus.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Pomofocus</a> won because it looks like a kitchen timer in a browser. If you already have Spotify elsewhere and a task list elsewhere, and that split still lets you start the chapter, stay. Superfocus is the upgrade when that split is why sessions die: you open lofi on YouTube, the sidebar recommends a video, and the study block never starts.</p>",
+      "<p>Choose Superfocus over Pomofocus when you want the same 25/5 default plus longer presets (Sprint, Flow, Deep Work), sound that is not a second destination, and a log of blocks you actually finished — billed at $1.99/month, not as a “free study timer plus three other subscriptions.”</p>",
+      "<h2>What Superfocus actually is</h2>",
+      "<p>Superfocus is a browser pomodoro / focus timer: a clock, one named task, optional cassette sound (lofi, rain, and similar beds), Todoist if you already live there, and completed-session stats. Presets include Pomodoro 25/5, Sprint, Flow, and Deep Work. Subscribe, then use the timer at <a href=\"/app\">/app</a>.</p>",
+      "<p>It is not a guest timer. It is not a free plan with a daily cap. It is not a free study timer online. Premium is $1.99/month.</p>",
+      "<h2>When 25/5 is the wrong length for studying</h2>",
+      "<p>Classic pomodoro is the default because it is short enough to start and long enough to finish a chunk of reading or a problem set. Switch to Sprint when 25 minutes feels like a wall — flashcards, a cold start, or a night when you would otherwise open the phone. Switch to Flow or Deep Work when the bell would kill an essay or a proof. That is still a study timer — work, break, repeat — with a length that matches the assignment.</p>",
+      "<h2>Who should not subscribe to Superfocus</h2>",
+      "<p>Do not pay $1.99/month if you want a $0 tomato and will never use sound, a named task, or history. Use a kitchen timer or Pomofocus. Do not pick Superfocus as a Forest clone — we do not grow trees. Pick Superfocus when you already study in a browser and you are tired of a timer tab, a music tab, and a task tab fighting each other.</p>",
+    ],
   },
   "focus-timer": {
     keyword: "focus timer",
