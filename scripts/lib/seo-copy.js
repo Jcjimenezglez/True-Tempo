@@ -29,6 +29,8 @@ function sanitizeString(text) {
   s = s.replace(/a free 25\/5/gi, "a 25/5");
   s = s.replace(/A free study timer/gi, "A study timer");
   s = s.replace(/Free study timer\.?/gi, "");
+  s = s.replace(/(^|[.!?]\s*)Free focus website for students:?\s*/gi, "$1");
+  s = s.replace(/(^|[.!?]\s*)Free focus website\.?\s*/gi, "$1");
   s = s.replace(/Free for students\.?/gi, "");
   s = s.replace(/Free for professionals\.?/gi, "");
   s = s.replace(/Free for educators\.?/gi, "");
@@ -47,18 +49,19 @@ function sanitizeString(text) {
 
 function looksLikeFreePlanClaim(text) {
   const s = String(text || "");
-  if (/no free plan|not a free plan|there is no guest timer|guides are free to read/i.test(s)) {
+  if (/no free plan|not a free plan|not a free focus website|there is no guest timer|guides are free to read/i.test(s)) {
     const stripped = s
       .replace(/there is no free plan/gi, "")
       .replace(/no free plan/gi, "")
       .replace(/not a free plan/gi, "")
+      .replace(/not a free focus website(?: for students)?/gi, "")
       .replace(/not “one free browser app\.”/gi, "")
       .replace(/guides are free to read/gi, "");
-    return /free study timer|free for students|start free|free to try|free tier|free plan|try superfocus free/i.test(
+    return /free study timer|free focus website|free for students|start free|free to try|free tier|free plan|try superfocus free/i.test(
       stripped
     );
   }
-  return /free study timer|free for students|start free|free to try|free tier(?![:.] 2 hours)|try superfocus free/i.test(
+  return /free study timer|free focus website|free for students|start free|free to try|free tier(?![:.] 2 hours)|try superfocus free/i.test(
     s
   );
 }

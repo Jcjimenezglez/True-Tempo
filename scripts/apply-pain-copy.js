@@ -830,12 +830,14 @@ const COPY = {
     painSolution: 'One focus timer. Sounds built in.<br>Track every block and streak.<br>Start in 10 seconds.'
   },
   'focus-website-for-studying': {
-    h1: 'You need a website that helps you study—not another tab to ignore.',
-    heroSubtitle: 'A focus website should give you a timer, block distractions, and help you finish sessions—not just look minimal.',
-    title: 'Focus Website for Studying — Free Online Study Timer | Superfocus',
-    description: 'Free focus website for students: Pomodoro timer, lofi study music, task list, and session streaks. No download required.',
-    painPoints: 'Open laptop to study. End up on social.<br>No structure. No accountability.<br>Hours pass. Notes empty.',
-    painSolution: 'One focus website. Timer + sounds.<br>25-minute blocks. Real progress.<br>Study without the scroll loop.'
+    h1: 'Focus website for studying: kitchen timer vs YouTube vs Pomofocus',
+    heroSubtitle: 'Kitchen timer is $0. YouTube study-with-me is a video tab. Pomofocus is a 25/5 clock. Superfocus is $1.99/month for a browser focus site: one named task and optional cassette sound. There is no free plan.',
+    title: 'Focus Website for Studying vs Kitchen Timer | Superfocus',
+    description: 'Focus website vs YouTube or Pomofocus. Superfocus Premium is $1.99/month after a 7-day trial. No free plan.',
+    keywords: 'focus website for studying, study timer, pomodoro timer, kitchen timer, pomofocus',
+    keyword: 'focus website for studying',
+    painPoints: 'Search focus website. Open a study-with-me video. Set a phone clock.<br>Still have not started the chapter.<br>The site is not the leak. The extra tabs are.',
+    painSolution: 'Match the tool, then start.<br>Laptop studying → Superfocus at $1.99/month.<br>Countdown only → kitchen timer. 25/5 only → Pomofocus.'
   },
   'hustly-focus': {
     h1: 'Hustly got you started. You still need more than a basic timer.',

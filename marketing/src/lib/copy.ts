@@ -23,6 +23,9 @@ export function extraHtmlFor(page: PseoPage) {
   if (page.category === "use-cases" && page.slug === "study-timer") {
     return "";
   }
+  if (page.category === "use-cases" && page.slug === "focus-website-for-studying") {
+    return "";
+  }
 
   const keyword = esc(page.keyword || page.h1);
   const h1 = esc(page.h1);

@@ -40,7 +40,7 @@ const HUB_PRIORITY_ORDER = {
   alternatives: ['best-pomodoro-apps', 'pomofocus', 'hustly-focus']
 };
 
-const DECISION_SLUGS = new Set(['pomodoro-technique', 'superfocus-vs-pomofocus', 'study-timer']);
+const DECISION_SLUGS = new Set(['pomodoro-technique', 'superfocus-vs-pomofocus', 'study-timer', 'focus-website-for-studying']);
 
 function isDecisionPage(slug) {
   return DECISION_SLUGS.has(slug);
@@ -459,7 +459,7 @@ function buildJsonLd(page, canonicalPath) {
     ]
   });
 
-  if (page.category === 'faq' || page.slug === 'pomodoro-technique' || page.slug === 'study-timer') {
+  if (page.category === 'faq' || isDecisionPage(page.slug)) {
     const faqItems = getFaqData(page);
     if (faqItems.length > 0) {
       schemas.push({
@@ -575,6 +575,7 @@ function getWhatIs(page) {
     '52-minute-focus': 'the 52-minute focus method',
     '90-minute-deep-work': '90-minute deep work',
     'study-timer': 'a study timer',
+    'focus-website-for-studying': 'a focus website for studying',
     'focus-timer': 'a focus timer',
     'pomofocus': 'a Pomofocus alternative',
     'best-pomodoro-apps': 'the best Pomodoro apps',
@@ -598,6 +599,7 @@ function getWhatIs(page) {
     '52-minute-focus': 'The 52-minute focus method is based on <a href="https://en.wikipedia.org/wiki/Ultradian_rhythm" target="_blank" rel="noopener noreferrer" class="inline-text-link">ultradian rhythms</a>. Work 52 minutes, break 17. Superfocus lets you create custom timers to match your body\'s natural cycles.',
     '90-minute-deep-work': '90-minute deep work sessions align with your ultradian rhythm—the natural ~90-minute cycle of focus and rest. Superfocus Deep Work preset (90/20/30) lets you capitalize on this without manual timer tweaking.',
     'study-timer': 'A study timer is a closed countdown for learning work. A kitchen timer or Pomofocus is enough if you only need a countdown. Superfocus ($1.99/month) is the browser timer with one named task, optional cassette sound, Todoist, and completed-session stats. There is no free plan.',
+    'focus-website-for-studying': 'A focus website for studying is a browser page you open to start a learning block. A kitchen timer or Pomofocus is enough if you only need a countdown. YouTube study-with-me is a video tab. Superfocus ($1.99/month after a 7-day trial) is the timer with one named task and optional cassette sound. There is no free plan.',
     'focus-timer': 'A focus timer is a structured countdown that protects one task from interruptions. Superfocus is a free online focus timer with Pomodoro, Flow, and Deep Work presets—plus ambient sounds and tasks in the same browser tab.',
     'work-timer': 'A work timer keeps professionals on track during busy days. Superfocus combines Pomodoro, Flow, and Deep Work presets with task tracking and ambient sounds—so you can block focus time between meetings and get real work done.',
     'coding-focus-timer': 'A coding focus timer helps developers enter flow state. Superfocus Deep Work (90 min) or Flow (45 min) presets, plus lofi sounds, let you code without context switching or distraction.',
@@ -638,7 +640,7 @@ function getTopicSection(page) {
   const cat = page.category;
   if (cat === 'faq' || cat === 'compare' || cat === 'alternatives' || cat === 'sounds') return '';
 
-  if (slug === 'pomodoro-technique' || slug === 'study-timer') {
+  if (isDecisionPage(slug)) {
     // Body lives in pages.json longFormBlocks. Do not re-add generic how-to here.
     return '';
   }

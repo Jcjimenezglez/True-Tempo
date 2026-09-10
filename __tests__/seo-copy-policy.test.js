@@ -37,9 +37,18 @@ describe("pSEO copy policy", () => {
 
   it("cleans apply-pain-copy descriptions that the Vercel build reapplies", () => {
     const leaked = Object.entries(COPY)
-      .filter(([slug]) => slug.startsWith("study-timer-for-") || slug.startsWith("focus-timer-for-"))
+      .filter(([slug]) => slug.startsWith("study-timer-for-") || slug.startsWith("focus-timer-for-") || slug === "focus-website-for-studying")
       .map(([slug, copy]) => [slug, pipelineDescription(copy.description)])
-      .filter(([, description]) => looksLikeFreePlanClaim(description) || /free study timer|free for students|start free/i.test(description));
+      .filter(([, description]) => looksLikeFreePlanClaim(description) || /free study timer|free focus website|free for students|start free/i.test(description));
     expect(leaked).toEqual([]);
+  });
+
+  it("keeps focus-website-for-studying honest in apply-pain-copy", () => {
+    const copy = COPY["focus-website-for-studying"];
+    expect(copy.description).toMatch(/\$1\.99\/month/);
+    expect(copy.description).toMatch(/no free plan/i);
+    expect(copy.description).not.toMatch(/^Free /);
+    expect(copy.h1).not.toMatch(/not another tab to ignore/i);
+    expect(copy.heroSubtitle).not.toMatch(/free in your browser/i);
   });
 });
